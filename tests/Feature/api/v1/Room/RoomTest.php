@@ -363,7 +363,8 @@ class RoomTest extends TestCase
                         'id'   => $room->owner->id,
                         'name' => $room->owner->fullName
                     ],
-                    'type' => [
+                    'last_meeting' => $room->latestMeeting,
+                    'type'         => [
                         'id'            => $room->roomType->id,
                         'short'         => $room->roomType->short,
                         'description'   => $room->roomType->description,
@@ -373,13 +374,14 @@ class RoomTest extends TestCase
                         'updated_at'    => $room->roomType->updated_at->toJSON(),
                     ],
                     'model_name'          => 'Room',
+                    'short_description'   => $room->short_description,
+                    'is_favorite'         => false,
                     'authenticated'       => true,
                     'allow_membership'    => $room->allow_membership,
                     'is_member'           => false,
                     'is_moderator'        => false,
                     'is_co_owner'         => false,
                     'can_start'           => false,
-                    'running'             => false,
                     'record_attendance'   => false,
                     'current_user'        => [
                         'id'        => $this->user->id,
@@ -392,16 +394,16 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Test list of rooms (filter, room type)
+     * Test list of rooms (filter, room type, favorites, own/shared/public/all)
      */
-    public function testRoomListFilter()
+    public function testRoomList()
     {
         setting(['pagination_page_size' => 10]);
         $roomType1 = RoomType::factory()->create();
         $roomType2 = RoomType::factory()->create(['allow_listing'=>false]);
         $roomType3 = RoomType::factory()->create(['allow_listing'=>true]);
 
-        $roomOwn = Room::factory()->create(['name'=>'Own room', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
+        $roomOwn = Room::factory()->create(['name'=>'Own room 1', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
         $roomOwn->owner()->associate($this->user);
         $roomOwn->save();
         $roomShared = Room::factory()->create(['name'=>'Shared room', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
@@ -410,8 +412,22 @@ class RoomTest extends TestCase
         $roomAll1   = Room::factory()->create(['name'=>'Room all 1','room_type_id'=>$roomType2->id,'listed'=>true,'access_code'=>123456789]);
         $roomAll2   = Room::factory()->create(['name'=>'Room all 2', 'room_type_id'=>$roomType2->id, 'listed'=>true, 'access_code'=>null]);
 
+        $server   = Server::factory()->create();
+        $meeting1 = $roomAll2->meetings()->create();
+        $meeting1->server()->associate($server);
+        $meeting1->start        = date('Y-m-d H:i:s');
+        $meeting1->attendee_pw  = bin2hex(random_bytes(5));
+        $meeting1->moderator_pw = bin2hex(random_bytes(5));
+        $meeting1->save();
+        $roomAll2->latestMeeting()->associate($meeting1);
+        $roomAll2->save();
+
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index'))->assertUnauthorized();
+
+        //Test without filter
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?only_favorites=0&sort_by=last_started&page=1')
+            ->assertJsonValidationErrors(['filter_own', 'filter_shared', 'filter_public', 'filter_all']);
 
         //Test with logged in user
         //filter own
@@ -504,10 +520,48 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
+        //Test Favorites
+
+        //Test without only_favorites
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&sort_by=last_started&page=1')
+        ->assertJsonValidationErrors(['only_favorites']);
+
+        //Test Room List with only favorites (user has no favorites)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&only_favorites=1&sort_by=last_started&page=1')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+
+        //Test Room List with only favorites (user has favorites)
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
+            ->assertNoContent();
+
+        $this->user->refresh();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=0&only_favorites=1&sort_by=last_started&page=1')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name]);
+
+        //Test Room List with only favorites (user has several favorites)
+        $this->user->roomFavorites()->attach($roomShared);
+        $this->user->roomFavorites()->attach($roomPublic);
+        $this->user->roomFavorites()->attach($roomAll1);
+
+        $this->user->refresh();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=1&only_favorites=1&sort_by=last_started&page=1')
+            ->assertOk()
+            ->assertJsonCount(4, 'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
+            ->assertJsonFragment(['id'=>$roomShared->id, 'name'=>$roomShared->name])
+            ->assertJsonFragment(['id'=>$roomPublic->id, 'name'=>$roomPublic->name])
+            ->assertJsonFragment(['id'=>$roomAll1->id, 'name'=>$roomAll1->name]);
+
         //filter all (without permission to show all rooms)
         //should lead to bad request because the other filters are set to 0 (false)
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=0&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertBadRequest();
+
         //should show same result as showing all the other filters together
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
@@ -524,7 +578,7 @@ class RoomTest extends TestCase
         $role       = Role::factory()->create();
         $role->permissions()->attach($this->viewAllPermission);
         $this->user->roles()->attach($role);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
             ->assertJsonCount(5, 'data')
             ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
@@ -535,6 +589,14 @@ class RoomTest extends TestCase
             ->assertJsonPath('meta.total_no_filter', 5)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
+
+        foreach ($results->json('data') as $room) {
+            if ($room['id'] == $roomAll2->id) {
+                self::assertNull($room['last_meeting']['end']);
+            } else {
+                self::assertNull($room['last_meeting']);
+            }
+        }
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=0&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
@@ -558,9 +620,7 @@ class RoomTest extends TestCase
 
     public function testFavorites()
     {
-        $roomType1 = RoomType::factory()->create();
-
-        $roomOwn = Room::factory()->create(['name'=>'Own room', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
+        $roomOwn = Room::factory()->create(['name'=>'Own room']);
         $roomOwn->owner()->associate($this->user);
         $roomOwn->save();
 
@@ -585,7 +645,8 @@ class RoomTest extends TestCase
 
         //Check if room was added to the favorites
         $this->assertNotNull($this->user->roomFavorites()->find($roomOwn));
-
+        //Make sure that the room was not added again
+        $this->assertEquals(1, $this->user->roomFavorites()->count());
 
         //Try to delete room from the favorites
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
@@ -607,120 +668,8 @@ class RoomTest extends TestCase
 
         //Check if room is still deleted
         $this->assertNull($this->user->roomFavorites()->find($roomOwn));
-
+        $this->assertEquals(0, $this->user->roomFavorites()->count());
     }
-
-//    /**
-//     * Test list of rooms with filter
-//     */
-//    //ToDo
-//    public function testRoomListWithFilter()
-//    {
-//        $rooms = Room::factory()->count(4)->create();
-//
-//        $server   = Server::factory()->create();
-//        $meeting1 = $rooms[0]->meetings()->create();
-//        $meeting1->server()->associate($server);
-//        $meeting1->start        = date('Y-m-d H:i:s');
-//        $meeting1->attendee_pw  = bin2hex(random_bytes(5));
-//        $meeting1->moderator_pw = bin2hex(random_bytes(5));
-//        $meeting1->save();
-//
-//        $meeting2 = $rooms[2]->meetings()->create();
-//        $meeting2->server()->associate($server);
-//        $meeting2->start        = date('Y-m-d H:i:s');
-//        $meeting2->attendee_pw  = bin2hex(random_bytes(5));
-//        $meeting2->moderator_pW = bin2hex(random_bytes(5));
-//        $meeting2->save();
-//
-//        // Testing guests access
-//        $this->getJson(route('api.v1.rooms.index').'?filter=own')
-//            ->assertUnauthorized();
-//
-//        // Invalid filter
-//        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
-//            ->assertStatus(400);
-//
-//        // Testing ownership and membership
-//        $rooms[0]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-//        $rooms[1]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-//        $rooms[2]->owner()->associate($this->user);
-//        $rooms[2]->save();
-//        $rooms[3]->owner()->associate($this->user);
-//        $rooms[3]->save();
-//
-//        // Testing working filter
-//        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
-//            ->assertOk()
-//            ->assertJsonFragment(['id'=>$rooms[2]->id])
-//            ->assertJsonFragment(['id'=>$rooms[3]->id])
-//            ->assertJsonPath('meta.total', 2)
-//            ->assertJsonPath('meta.total_no_filter', 2)
-//            ->assertJsonCount(9, 'meta')
-//            ->assertJsonStructure([
-//                'data' => [
-//                    0 => [
-//                        'id',
-//                        'name',
-//                        'owner' => [
-//                            'id',
-//                            'name',
-//                        ],
-//                        'running',
-//                        'type' => [
-//                            'id',
-//                            'short',
-//                            'description',
-//                            'color'
-//                        ],
-//                        'model_name',
-//                    ]
-//                ]
-//            ]);
-//
-//        foreach ($results->json('data') as $room) {
-//            if ($room['id'] == $rooms[2]->id) {
-//                self::assertTrue($room['running']);
-//            } else {
-//                self::assertFalse($room['running']);
-//            }
-//        }
-//
-//        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
-//            ->assertOk()
-//            ->assertJsonFragment(['id'=>$rooms[0]->id])
-//            ->assertJsonFragment(['id'=>$rooms[1]->id])
-//            ->assertJsonPath('meta.total', 2)
-//            ->assertJsonPath('meta.total_no_filter', 2)
-//            ->assertJsonStructure([
-//                'data' => [
-//                    0 => [
-//                        'id',
-//                        'name',
-//                        'owner' => [
-//                            'id',
-//                            'name',
-//                        ],
-//                        'running',
-//                        'type' => [
-//                            'id',
-//                            'short',
-//                            'description',
-//                            'color'
-//                        ],
-//                        'model_name',
-//                    ]
-//                ]
-//            ]);
-//
-//        foreach ($results->json('data') as $room) {
-//            if ($room['id'] == $rooms[0]->id) {
-//                self::assertTrue($room['running']);
-//            } else {
-//                self::assertFalse($room['running']);
-//            }
-//        }
-//    }
 
     /**
      * Test search for rooms
@@ -957,6 +906,7 @@ class RoomTest extends TestCase
         $settings['max_participants']                   = $this->faker->numberBetween(1, 50);
         $settings['name']                               = RoomFactory::createValidRoomName();
         $settings['welcome']                            = $this->faker->text;
+        $settings['short_description']                  = $this->faker->text(300);
         $settings['listed']                             = $this->faker->boolean;
         $settings['record_attendance']                  = $this->faker->boolean;
 
@@ -1356,7 +1306,7 @@ class RoomTest extends TestCase
         // Add room, real servers and a fake meeting
         $room = Room::factory()->create();
         $this->seed(ServerSeeder::class);
-        $meeting = Meeting::factory()->create(['room_id'=> $room->id, 'start' => '2000-01-01 12:12:12', 'end' => null, 'server_id' => Server::all()->first()]);
+        $meeting = Meeting::factory()->create(['room_id'=> $room->id, 'start' => date('Y-m-d H:i:s'), 'end' => null, 'server_id' => Server::all()->first()]);
         $room->latestMeeting()->associate($meeting);
         $room->save();
 
@@ -1435,32 +1385,32 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'end'               => null,
                 'record_attendance' => true
-            ]);
+            ])
+            ->assertJsonPath('last_meeting.end', null);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room2]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'end'               => null,
                 'record_attendance' => false
-            ]);
+            ])
+            ->assertJsonPath('last_meeting.end', null);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room3]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'end'               => null,
                 'record_attendance' => false
-            ]);
+            ])
+            ->assertJsonPath('last_meeting.end', null);
 
         // check with attendance globally disabled, after starting meeting
         setting(['attendance.enabled' => false]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'end'               => null,
                 'record_attendance' => false
-            ]);
+            ])
+            ->assertJsonPath('last_meeting.end', null);
 
         setting(['attendance.enabled' => true]);
 
@@ -1473,25 +1423,25 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'end'               => null,
                 'record_attendance' => true
-            ]);
+            ])
+            ->assertJsonPath('last_meeting.end', null);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room2]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'end'               => null,
                 'record_attendance' => false
-            ]);
+            ])
+            ->assertJsonPath('last_meeting.end', null);
 
         // check with attendance globally disabled
         setting(['attendance.enabled' => false]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'end'               => null,
                 'record_attendance' => false
-            ]);
+            ])
+            ->assertJsonPath('last_meeting.end', null);
 
         // Clear
         (new MeetingService($room1->runningMeeting()))->end();
