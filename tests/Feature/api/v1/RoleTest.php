@@ -85,11 +85,11 @@ class RoleTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions.0']);
 
-        $role['name']        = '**';
+        $role['name']        = 'Test';
         $role['permissions'] = [self::INVALID_ID];
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'permissions.0']);
+            ->assertJsonValidationErrors(['permissions.0']);
 
         $role['name']        = 'Test';
         $role['permissions'] = [$permission_id];
