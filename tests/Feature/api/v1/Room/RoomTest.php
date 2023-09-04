@@ -403,7 +403,7 @@ class RoomTest extends TestCase
         $roomType2 = RoomType::factory()->create(['allow_listing'=>false]);
         $roomType3 = RoomType::factory()->create(['allow_listing'=>true]);
 
-        $roomOwn = Room::factory()->create(['name'=>'Own room 1', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
+        $roomOwn = Room::factory()->create(['name'=>'Own room', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
         $roomOwn->owner()->associate($this->user);
         $roomOwn->save();
         $roomShared = Room::factory()->create(['name'=>'Shared room', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
@@ -617,6 +617,76 @@ class RoomTest extends TestCase
             ->assertJsonCount(10, 'meta');
     }
 
+    public function testRoomListSorting()
+    {
+        $server   = Server::factory()->create();
+        $roomType1 = RoomType::factory()->create(['description' => 'roomType1']);
+        $roomType2 = RoomType::factory()->create(['description' => 'roomType2']);
+        $roomType3 = RoomType::factory()->create(['description' => 'roomType3']);
+        $roomRunning1 = Room::factory()->create(['name' => 'Runnning room 1','room_type_id'=>$roomType1->id]);
+        $roomRunning1->owner()->associate($this->user);
+        $meetingRunning1 = Meeting::factory()->create(['room_id' => $roomRunning1->id, 'start' => '2000-01-01 11:11:00', 'end'=> null, 'server_id'=> $server->id]);
+        $roomRunning1->latestMeeting()->associate($meetingRunning1);
+        $roomRunning1->save();
+
+        $roomRunning2 = Room::factory()->create(['name' => 'Runnning room 2','room_type_id'=>$roomType3->id]);
+        $roomRunning2->owner()->associate($this->user);
+        $meetingRunning2 = Meeting::factory()->create(['room_id' => $roomRunning2->id, 'start' => '2000-01-01 12:21:00', 'end'=> null, 'server_id'=> $server->id]);
+        $roomRunning2->latestMeeting()->associate($meetingRunning2);
+        $roomRunning2->save();
+
+        $roomLastStarted = Room::factory()->create(['name' => 'Last started room','room_type_id'=>$roomType1->id]);
+        $roomLastStarted->owner()->associate($this->user);
+        $meetingLastStarted = Meeting::factory()->create(['room_id' => $roomLastStarted->id, 'start' => '2000-01-01 11:51:00', 'end'=> '2000-01-01 12:01:00', 'server_id'=> $server->id]);
+        $roomLastStarted->latestMeeting()->associate($meetingLastStarted);
+        $roomLastStarted->save();
+
+        $roomLastEnded = Room::factory()->create(['name' => 'Last ended room','room_type_id'=>$roomType2->id]);
+        $roomLastEnded->owner()->associate($this->user);
+        $meetingLastEnded = Meeting::factory()->create(['room_id' => $roomLastEnded->id, 'start' => '2000-01-01 11:31:00', 'end'=> '2000-01-01 12:11:00', 'server_id'=> $server->id]);
+        $roomLastEnded->latestMeeting()->associate($meetingLastEnded);
+        $roomLastEnded->save();
+
+        $roomFirstStarted = Room::factory()->create(['name' => 'First started room','room_type_id'=>$roomType2->id]);
+        $roomFirstStarted->owner()->associate($this->user);
+        $meetingFirstStarted = Meeting::factory()->create(['room_id' => $roomFirstStarted->id, 'start' => '2000-01-01 11:11:00', 'end'=> '2000-01-01 11:41:00', 'server_id'=> $server->id]);
+        $roomFirstStarted->latestMeeting()->associate($meetingFirstStarted);
+        $roomFirstStarted->save();
+
+        //last started
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data');
+
+        $this->assertEquals($roomRunning2->id, $results->json('data')[0] ['id']);
+        $this->assertEquals($roomRunning1->id, $results->json('data')[1] ['id']);
+        $this->assertEquals($roomLastStarted->id, $results->json('data')[2] ['id']);
+        $this->assertEquals($roomLastEnded->id, $results->json('data')[3] ['id']);
+        $this->assertEquals($roomFirstStarted->id, $results->json('data')[4] ['id']);
+
+        //alphabetical
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=alpha&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data');
+
+        $this->assertEquals($roomFirstStarted->id, $results->json('data')[0] ['id']);
+        $this->assertEquals($roomLastEnded->id, $results->json('data')[1] ['id']);
+        $this->assertEquals($roomLastStarted->id, $results->json('data')[2] ['id']);
+        $this->assertEquals($roomRunning1->id, $results->json('data')[3] ['id']);
+        $this->assertEquals($roomRunning2->id, $results->json('data')[4] ['id']);
+
+        //by room type
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=room_type&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data');
+
+        $this->assertEquals($roomLastStarted->id, $results->json('data')[0] ['id']);
+        $this->assertEquals($roomRunning1->id, $results->json('data')[1] ['id']);
+        $this->assertEquals($roomFirstStarted->id, $results->json('data')[2] ['id']);
+        $this->assertEquals($roomLastEnded->id, $results->json('data')[3] ['id']);
+        $this->assertEquals($roomRunning2->id, $results->json('data')[4] ['id']);
+
+    }
 
     public function testFavorites()
     {
