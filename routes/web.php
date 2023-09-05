@@ -19,11 +19,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('download/file/{roomFile}/{filename?}', [FileController::class,'show'])->name('download.file')->middleware('signed');
 Route::get('download/attendance/{meeting}', [MeetingController::class,'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 
-if (config('services.shibboleth.enabled')) {
+Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class,'redirect'])->name('auth.shibboleth.redirect');
     Route::get('auth/shibboleth/callback', [ShibbolethController::class,'callback'])->name('auth.shibboleth.callback');
     Route::match(['get', 'post'],'auth/shibboleth/logout', [ShibbolethController::class, 'logout'])->name('auth.shibboleth.logout');
-}
+});
 
 if (config('greenlight.compatibility')) {
     Route::prefix(config('greenlight.base'))->group(function () {
