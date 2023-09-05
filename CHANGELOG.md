@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for postgres database on db:import command ([#545])
 - Shibboleth authentication ([#20], [#497])
+
+### Changed
 - Allow more characters for role names ([#535], [#536])
 
 ## [v2.2.0] - 2023-08-28
