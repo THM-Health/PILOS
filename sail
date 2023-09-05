@@ -127,7 +127,7 @@ export WWWGROUP=${WWWGROUP:-$(id -g)}
 function sail_is_not_running {
     echo "${BOLD}Sail is not running.${NC}" >&2
     echo "" >&2
-    echo "${BOLD}You may Sail using the following commands:${NC} './vendor/bin/sail up' or './vendor/bin/sail up -d'" >&2
+    echo "${BOLD}You may Sail using the following commands:${NC} './sail up' or './sail up -d'" >&2
 
     exit 1
 }
