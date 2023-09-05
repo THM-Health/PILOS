@@ -49,7 +49,7 @@
         "@tiptap/extension-highlight": "^2.1.7",
         "@tiptap/extension-image": "^2.1.8",
         "@tiptap/extension-link": "^2.1.7",
-        "@tiptap/extension-text-align": "^2.1.7",
+        "@tiptap/extension-text-align": "^2.1.8",
         "@tiptap/extension-text-style": "^2.1.7",
         "@tiptap/extension-underline": "^2.1.7",
         "@tiptap/starter-kit": "^2.1.7",
