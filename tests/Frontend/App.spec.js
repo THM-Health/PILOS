@@ -9,6 +9,7 @@ import { useAuthStore } from '../../resources/js/stores/auth';
 import { useLoadingStore } from '../../resources/js/stores/loading';
 import { createLocalVue, mockAxios } from './helper';
 import VueRouter from 'vue-router';
+import { expect } from 'vitest';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -79,7 +80,7 @@ describe('App', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('successfull logout', async () => {
+  it('successfull logout no redirect', async () => {
     const request = mockAxios.request('/api/v1/logout');
 
     const oldUser = PermissionService.currentUser;
@@ -136,6 +137,9 @@ describe('App', () => {
 
     // Reply with successfull logout
     await request.respondWith({
+      data: {
+        redirect: false
+      },
       status: 204
     });
 
@@ -151,6 +155,88 @@ describe('App', () => {
 
     // Cleanup
     view.destroy();
+    PermissionService.setCurrentUser(oldUser);
+  });
+
+  it('successfull logout with redirect', async () => {
+    const request = mockAxios.request('/api/v1/logout');
+
+    const oldUser = PermissionService.currentUser;
+    PermissionService.setCurrentUser(currentUser);
+
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const router = new VueRouter({
+      mode: 'abstract',
+      routes: [{
+        path: '/profile',
+        name: 'profile',
+        component: Profile
+      }]
+    });
+    const spy = vi.spyOn(router, 'push').mockImplementation(() => {});
+
+    const view = mount(App, {
+      localVue,
+      pinia: createTestingPinia({ stubActions: false }),
+      mocks: {
+        $t: (key) => key
+      },
+      router,
+      stubs: {
+        RouterView: true,
+        LocaleSelector: true
+      },
+      data () {
+        return {
+          availableLocales: []
+        };
+      }
+    });
+
+    // Set currently logged in user
+    const authStore = useAuthStore();
+    const loadingStore = useLoadingStore();
+
+    authStore.currentUser = currentUser;
+
+    await view.vm.$nextTick();
+
+    // Find logout menu item and click it
+    const logoutMenu = view.findComponent({ ref: 'logout' });
+    await logoutMenu.find('a').trigger('click');
+
+    // Wait for request to be processed
+    await request.wait();
+
+    // Check if app is in loading state (unmounting of all components)
+    expect(loadingStore.loadingCounter).toBe(1);
+
+    expect(request.config.method).toBe('post');
+    expect(request.config.url).toBe('/api/v1/logout');
+
+    // Reply with successfull logout
+    await request.respondWith({
+      data: {
+        redirect: 'https://example.com'
+      },
+      status: 204
+    });
+
+    // Check if user is redirected
+    expect(window.location).toBe('https://example.com');
+
+    // Check if app is staying in loading state
+    expect(loadingStore.loadingCounter).toBe(1);
+
+    // Check if user state is reset
+    expect(authStore.currentUser).toEqual(null);
+
+    // Cleanup
+    view.destroy();
+    window.location = oldWindow;
     PermissionService.setCurrentUser(oldUser);
   });
 

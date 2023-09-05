@@ -134,7 +134,7 @@ export default {
       }
 
       if (response.data.redirect) {
-        window.location.href = response.data.redirect;
+        window.location = response.data.redirect;
         return;
       }
 

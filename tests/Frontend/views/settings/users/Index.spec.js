@@ -154,7 +154,7 @@ describe('UsersIndex', () => {
     expect(html).toContain('Vader');
     expect(html).toContain('Students');
     expect(html).toContain('darth@vader.com');
-    expect(html).toContain('settings.users.authenticator.external');
+    expect(html).toContain('settings.users.authenticator.ldap');
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
