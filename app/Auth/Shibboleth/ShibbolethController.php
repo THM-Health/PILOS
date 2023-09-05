@@ -16,7 +16,7 @@ class ShibbolethController extends Controller
 
     public function redirect(Request $request)
     {
-        return $this->provider->redirect($request->post('redirect'));
+        return $this->provider->redirect($request->query('redirect'));
     }
 
     public function logout(Request $request)
