@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Allow more characters for role names ([#535], [#536])
 
 ## [v2.2.0] - 2023-08-28
 ### Added
@@ -634,6 +636,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#505]: https://github.com/THM-Health/PILOS/issues/505
 [#506]: https://github.com/THM-Health/PILOS/pull/506
 [#509]: https://github.com/THM-Health/PILOS/pull/509
+[#535]: https://github.com/THM-Health/PILOS/issues/535
+[#536]: https://github.com/THM-Health/PILOS/pull/536
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.2.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
