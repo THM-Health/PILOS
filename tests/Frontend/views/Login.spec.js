@@ -150,7 +150,7 @@ describe('Login', () => {
       data: {
         data: {
           id: 1,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'john.doe@domain.tld',
           external_id: 'user',
           firstname: 'John',
@@ -207,7 +207,7 @@ describe('Login', () => {
       data: {
         data: {
           id: 1,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'john.doe@domain.tld',
           external_id: 'user',
           firstname: 'John',

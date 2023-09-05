@@ -159,7 +159,7 @@ class ExternalUserTest extends TestCase
             "roles": []
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -198,7 +198,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -238,7 +238,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -296,7 +296,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -339,7 +339,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -389,7 +389,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -442,7 +442,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -506,7 +506,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -576,7 +576,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
@@ -623,7 +623,7 @@ class ExternalUserTest extends TestCase
             ]
         }');
 
-        $eloquentUser = $externalUser->createOrFindEloquentModel();
+        $eloquentUser = $externalUser->createOrFindEloquentModel('ldap');
         $externalUser->syncWithEloquentModel($eloquentUser, $mapping->roles);
 
         $eloquentUser->unsetRelation('roles');
