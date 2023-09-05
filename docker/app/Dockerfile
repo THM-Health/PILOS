@@ -18,7 +18,7 @@ RUN apt-get update \
     && mkdir -p /etc/apt/keyrings \
     && apt-get install -y gnupg gosu curl ca-certificates zip unzip pv libzip-dev git supervisor libcap2-bin libpng-dev python2 \
     && apt-get install -y nginx \
-    && apt-get install -y default-mysql-client libpq-dev \
+    && apt-get install -y default-mysql-client postgresql-client libpq-dev \
     && apt-get install -y libldap2-dev \
     && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev  \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
