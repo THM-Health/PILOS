@@ -35,7 +35,6 @@ return [
     'login'                     => 'Anmelden',
     'logout'                    => 'Abmelden',
     'logout_success'            => 'Erfolgreich abgemeldet',
-    'session_expired'           => 'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',
     'new_password'              => 'Neues Passwort',
     'new_password_confirmation' => 'Neues Passwort bestätigen',
     'password'                  => 'Passwort',
@@ -47,6 +46,7 @@ return [
     ],
     'send_email_confirm_mail'   => 'Es wurde eine Bestätigungsmail an {email} gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.',
     'send_password_reset_link'  => 'Passwort-Rücksetz-Link senden',
+    'session_expired'           => 'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',
     'sessions'                  => [
         'active'        => 'Aktive Sitzungen',
         'browser'       => 'Browser',

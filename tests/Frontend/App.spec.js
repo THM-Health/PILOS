@@ -176,7 +176,6 @@ describe('App', () => {
         component: Profile
       }]
     });
-    const spy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(App, {
       localVue,
