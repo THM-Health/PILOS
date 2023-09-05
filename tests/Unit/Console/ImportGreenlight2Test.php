@@ -147,9 +147,19 @@ class ImportGreenlight2Test extends TestCase
         $existingUser->password  = $password;
         $existingUser->save();
 
-        // create external user that exists before import
+        // create ldap user that exists before import
         $existingLdapUser                = new User();
         $existingLdapUser->authenticator = 'ldap';
+        $existingLdapUser->external_id   = 'djohn';
+        $existingLdapUser->firstname     = 'John';
+        $existingLdapUser->lastname      = 'Doe';
+        $existingLdapUser->email         = 'john.doe@domain.tld';
+        $existingLdapUser->password      = $password;
+        $existingLdapUser->save();
+
+        // create shibboleth user that exists before import
+        $existingLdapUser                = new User();
+        $existingLdapUser->authenticator = 'shibboleth';
         $existingLdapUser->external_id   = 'djohn';
         $existingLdapUser->firstname     = 'John';
         $existingLdapUser->lastname      = 'Doe';
@@ -207,7 +217,7 @@ class ImportGreenlight2Test extends TestCase
             ->expectsQuestion('Prefix for room names:', $prefix)
             ->expectsQuestion('Please select the default role for new imported non-ldap users', 'student')
             ->expectsOutput('Importing users')
-            ->expectsOutput('4 created, 2 skipped (already existed)')
+            ->expectsOutput('3 created, 3 skipped (already existed)')
             ->expectsOutput('Importing rooms')
             ->expectsOutput('8 created, 1 skipped (already existed)')
             ->expectsOutput('Room import failed for the following 1 rooms, because no room owner was found:')
@@ -271,13 +281,13 @@ class ImportGreenlight2Test extends TestCase
         $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'local')->first(), Room::find('abc-def-xyz-234')->owner);
         $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'ldap')->where('external_id', 'djohn')->first(), Room::find('abc-def-xyz-345')->owner);
         $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->where('external_id', 'doejohn')->first(), Room::find('abc-def-xyz-456')->owner);
-        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'shibboleth')->where('external_id', 'djohn')->first(), Room::find('abc-def-xyz-567')->owner);
+        $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'shibboleth')->where('external_id', 'djohn')->first(), Room::find('abc-def-xyz-567')->owner);
         $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'shibboleth')->where('external_id', '4696234782348234734')->first(), Room::find('abc-def-xyz-678')->owner);
 
         // Testing users
         $this->assertNotNull(User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first());
         $this->assertNotNull(User::where([['authenticator', 'ldap'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', 'doejohn']])->first());
-        $this->assertNotNull(User::where([['authenticator', 'shibboleth'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', 'djohn']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'shibboleth'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first());
         $this->assertNotNull(User::where([['authenticator', 'shibboleth'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', '4696234782348234734']])->first());
         $this->assertNotNull(User::where([['authenticator', 'local'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', null],['password', $password]])->first());
         $this->assertNotNull(User::where([['authenticator', 'local'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', null],['password', $password]])->first());
@@ -288,7 +298,7 @@ class ImportGreenlight2Test extends TestCase
         // Testing ldap, social users and existing users dont get a default role assigned
         $this->assertCount(0, User::where([['authenticator', 'ldap'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', 'doejohn']])->first()->roles);
         $this->assertCount(0, User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first()->roles);
-        $this->assertCount(0, User::where([['authenticator', 'shibboleth'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', 'djohn']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'shibboleth'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first()->roles);
         $this->assertCount(0, User::where([['authenticator', 'shibboleth'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', '4696234782348234734']])->first()->roles);
         $this->assertCount(0, User::where([['authenticator', 'local'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', null],['password', $password]])->first()->roles);
 
