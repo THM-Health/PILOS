@@ -653,38 +653,45 @@ class RoomTest extends TestCase
         $roomFirstStarted->latestMeeting()->associate($meetingFirstStarted);
         $roomFirstStarted->save();
 
+        $roomNeverStarted = Room::factory()->create(['name' => 'Never started room', 'room_type_id'=>$roomType3->id]);
+        $roomNeverStarted->owner()->associate($this->user);
+        $roomNeverStarted->save();
+
         //last started
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(5, 'data');
+            ->assertJsonCount(6, 'data');
 
         $this->assertEquals($roomRunning2->id, $results->json('data')[0] ['id']);
         $this->assertEquals($roomRunning1->id, $results->json('data')[1] ['id']);
         $this->assertEquals($roomLastStarted->id, $results->json('data')[2] ['id']);
         $this->assertEquals($roomLastEnded->id, $results->json('data')[3] ['id']);
         $this->assertEquals($roomFirstStarted->id, $results->json('data')[4] ['id']);
+        $this->assertEquals($roomNeverStarted->id, $results->json('data')[5] ['id']);
 
         //alphabetical
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=alpha&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(5, 'data');
+            ->assertJsonCount(6, 'data');
 
         $this->assertEquals($roomFirstStarted->id, $results->json('data')[0] ['id']);
         $this->assertEquals($roomLastEnded->id, $results->json('data')[1] ['id']);
         $this->assertEquals($roomLastStarted->id, $results->json('data')[2] ['id']);
-        $this->assertEquals($roomRunning1->id, $results->json('data')[3] ['id']);
-        $this->assertEquals($roomRunning2->id, $results->json('data')[4] ['id']);
+        $this->assertEquals($roomNeverStarted->id, $results->json('data')[3] ['id']);
+        $this->assertEquals($roomRunning1->id, $results->json('data')[4] ['id']);
+        $this->assertEquals($roomRunning2->id, $results->json('data')[5] ['id']);
 
         //by room type
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=room_type&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(5, 'data');
+            ->assertJsonCount(6, 'data');
 
         $this->assertEquals($roomLastStarted->id, $results->json('data')[0] ['id']);
         $this->assertEquals($roomRunning1->id, $results->json('data')[1] ['id']);
         $this->assertEquals($roomFirstStarted->id, $results->json('data')[2] ['id']);
         $this->assertEquals($roomLastEnded->id, $results->json('data')[3] ['id']);
-        $this->assertEquals($roomRunning2->id, $results->json('data')[4] ['id']);
+        $this->assertEquals($roomNeverStarted->id, $results->json('data')[4] ['id']);
+        $this->assertEquals($roomRunning2->id, $results->json('data')[5] ['id']);
 
     }
 
