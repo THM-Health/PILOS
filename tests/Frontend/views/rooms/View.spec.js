@@ -386,6 +386,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
+            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -394,7 +395,6 @@ describe('Room', () => {
             is_co_owner: false,
             is_moderator: false,
             can_start: false,
-            running: true,
             current_user: null
           },
           room_id: 'abc-def-789'
@@ -925,6 +925,7 @@ describe('Room', () => {
             id: 'abc-def-456',
             name: 'Meeting One',
             owner: 'John Doe',
+            last_meeting: null,
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: false,
@@ -934,7 +935,6 @@ describe('Room', () => {
             is_guest: true,
             is_moderator: false,
             can_start: false,
-            running: false,
             current_user: null
           },
           room_id: 'abc-def-456'
@@ -948,7 +948,7 @@ describe('Room', () => {
     expect(view.html()).toContain('rooms.require_access_code');
 
     // click on the login button without input to access code field
-    const loginButton = view.findAllComponents(BButton).at(1);
+    const loginButton = view.findAllComponents(BButton).at(2);
     expect(loginButton.text()).toBe('rooms.login');
 
     const request = mockAxios.request('/api/v1/rooms/abc-def-456');
@@ -1061,6 +1061,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
+            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1069,7 +1070,6 @@ describe('Room', () => {
             is_co_owner: false,
             is_moderator: false,
             can_start: false,
-            running: true,
             record_attendance: false,
             current_user: exampleUser
           },
@@ -1133,6 +1133,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
+            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1141,7 +1142,6 @@ describe('Room', () => {
             is_co_owner: false,
             is_moderator: false,
             can_start: false,
-            running: true,
             record_attendance: true,
             current_user: exampleUser
           },
@@ -1199,6 +1199,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
+            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1207,7 +1208,6 @@ describe('Room', () => {
             is_co_owner: false,
             is_moderator: false,
             can_start: false,
-            running: true,
             record_attendance: true,
             current_user: null
           },
@@ -1304,6 +1304,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
+            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1312,7 +1313,6 @@ describe('Room', () => {
             is_co_owner: false,
             is_moderator: false,
             can_start: false,
-            running: true,
             record_attendance: true,
             current_user: null
           },
@@ -1407,6 +1407,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
+            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1416,7 +1417,6 @@ describe('Room', () => {
             is_co_owner: false,
             is_moderator: false,
             can_start: false,
-            running: true,
             record_attendance: false,
             current_user: null
           },
@@ -1480,15 +1480,17 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
+            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
+            short_description:null,
+            is_favorite:false,
             authenticated: true,
             allow_membership: false,
             is_member: false,
             is_co_owner: false,
             is_moderator: false,
             can_start: false,
-            running: true,
             record_attendance: false,
             current_user: exampleUser
           },
@@ -1589,10 +1591,14 @@ describe('Room', () => {
       }
     });
 
+    //ToDo
     expect(baseError).toBeCalledTimes(2);
+    console.log(baseError.mock.calls[0][0].response);
+    console.log(baseError.mock.calls[2][0].response);
     expect(baseError.mock.calls[1][0].response.status).toEqual(460);
     expect(baseError.mock.calls[1][0].response.data.message).toEqual('Joining failed! The room is currently closed.');
 
+    await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'joinMeeting' }).exists()).toBeFalsy();
 
     view.destroy();
