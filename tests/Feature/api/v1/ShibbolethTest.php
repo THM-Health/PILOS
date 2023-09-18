@@ -3,7 +3,9 @@
 namespace Tests\Feature\api\v1;
 
 use App\Models\Role;
+use App\Models\Session;
 use App\Models\User;
+use Carbon\Carbon;
 use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -160,8 +162,8 @@ class ShibbolethTest extends TestCase
  
         $header = [
             'Accept-Language'      => 'fr',
-            'shib-session-id'      => 'default',
-            'shib-session-expires' => '2021-01-01T00:00',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
             'principalname'        => 'johnd@university.org',
             'givenname'            => 'John',
             'surname'              => 'Doe',
@@ -215,8 +217,8 @@ class ShibbolethTest extends TestCase
  
         $header = [
             'Accept-Language'      => 'fr',
-            'shib-session-id'      => 'default',
-            'shib-session-expires' => '2021-01-01T00:00',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
             'principalname'        => 'johnd@university.org',
             'givenname'            => 'John',
             'surname'              => 'Doe',
@@ -246,6 +248,114 @@ class ShibbolethTest extends TestCase
     }
 
     /**
+     * Test login with the same shibboleth session id (no other application session exists anymore)
+     * 
+     * @return void
+     */
+    public function testLoginWithSameSessionId()
+    {
+        $header = [
+            'Accept-Language'      => 'fr',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname'        => 'johnd@university.org',
+            'givenname'            => 'John',
+            'surname'              => 'Doe',
+            'mail'                 => 'john.doe@domain.tld',
+            'scoped-affiliation'   => 'student@university.org;staff@university.org'
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response->assertRedirect('/external_login');
+        $this->assertAuthenticated();
+
+        $user = Auth::user();
+        
+        Auth::logout();
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response->assertRedirect('/Shibboleth.sso/Logout?return=http://localhost/external_login?error=shibboleth_session_duplicate_exception');
+        $this->assertGuest();
+    }
+
+    /**
+     * Test login trying to create two sessions with the same shibboleth session id
+     * 
+     * @return void
+     */
+    public function testLoginSimultaneousSessionId()
+    {
+        $header = [
+            'Accept-Language'      => 'fr',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname'        => 'johnd@university.org',
+            'givenname'            => 'John',
+            'surname'              => 'Doe',
+            'mail'                 => 'john.doe@domain.tld',
+            'scoped-affiliation'   => 'student@university.org;staff@university.org'
+        ];
+
+        $this->assertCount(0, Session::all());
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+     
+        $this->assertAuthenticated();
+
+        $this->assertCount(1, Session::all());
+
+        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+        
+        $user = Auth::user();
+        
+        $session     = $user->sessions()->first();
+        $sessionData = $session->sessionData()->where('key', 'shibboleth_session_id')->first();
+        $this->assertNotNull($sessionData);
+
+        Auth::logout();
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response->assertRedirect('/Shibboleth.sso/Logout?return=http://localhost/external_login?error=shibboleth_session_duplicate_exception');
+        $this->assertGuest();
+
+        $this->assertCount(0, Session::all());
+    }
+
+    /**
+     * Test changing shibboleth session id after login
+     * 
+     * @return void
+     */
+    public function testChangingShibbSession()
+    {
+        $header = [
+            'Accept-Language'      => 'fr',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname'        => 'johnd@university.org',
+            'givenname'            => 'John',
+            'surname'              => 'Doe',
+            'mail'                 => 'john.doe@domain.tld',
+            'scoped-affiliation'   => 'student@university.org;staff@university.org'
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+
+        // Check with same session id
+        $response = $this->getJson(route('api.v1.currentUser'), $header);
+        $response->assertSuccessful();
+
+        // Check with different session id
+        $header['shib-session-id'] = '_855fe7fbe56c664a6fad794c65243ec7';
+        $response                  = $this->getJson(route('api.v1.currentUser'), $header);
+        $response->assertRedirect('/Shibboleth.sso/Logout?return=http://localhost/logout?message=session_expired');
+        $this->assertGuest();
+    }
+
+    /**
      * Test that the logout route is disabled if disabled in env
      *
      * @return void
@@ -255,5 +365,111 @@ class ShibbolethTest extends TestCase
         Config::set('services.shibboleth.enabled', false);
         $response = $this->get(route('auth.shibboleth.logout'));
         $response->assertNotFound();
+    }
+
+    /**
+     * Test single logout
+     * 
+     * @return void
+     */
+    public function testLogout()
+    {
+        $header = [
+            'Accept-Language'      => 'fr',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname'        => 'johnd@university.org',
+            'givenname'            => 'John',
+            'surname'              => 'Doe',
+            'mail'                 => 'john.doe@domain.tld',
+            'scoped-affiliation'   => 'student@university.org;staff@university.org'
+          ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+
+        $header['referer'] = 'http://localhost';
+
+        $response = $this->postJson(route('api.v1.logout'), [], $header);
+        $this->assertGuest();
+        $response->assertJsonPath('redirect', '/Shibboleth.sso/Logout?return=http://localhost/logout');
+    }
+
+    /**
+     * Test IDP initiated logout via front channel
+     * 
+     * @return void
+     */
+    public function testFrontChannelLogout()
+    {
+        $header = [
+            'Accept-Language'      => 'fr',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname'        => 'johnd@university.org',
+            'givenname'            => 'John',
+            'surname'              => 'Doe',
+            'mail'                 => 'john.doe@domain.tld',
+            'scoped-affiliation'   => 'student@university.org;staff@university.org'
+          ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+
+        // Try to logout with front channel logout
+        $response = $this->get(route('auth.shibboleth.logout', ['action' => 'logout', 'return' => 'http://idp.org']), $header);
+        $response->assertRedirect('http://idp.org');
+        $this->assertGuest();
+    }
+
+    /**
+     * Test IDP initiated logout via back channel
+     * 
+     * @return void
+     */
+    public function testBackChannelLogout()
+    {
+        $header = [
+            'Accept-Language'      => 'fr',
+            'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname'        => 'johnd@university.org',
+            'givenname'            => 'John',
+            'surname'              => 'Doe',
+            'mail'                 => 'john.doe@domain.tld',
+            'scoped-affiliation'   => 'student@university.org;staff@university.org'
+          ];
+
+        // Check no session exists yet
+        $this->assertCount(0, Session::all());
+
+        // Log user in
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+
+        Auth::logout();
+
+        // Check session still exists
+        $this->assertCount(1, Session::all());
+
+        // Send SOAP logout request
+        $serverVariables = [
+          'CONTENT_TYPE'    => 'text/xml',
+          'HTTP_USER_AGENT' => 'shibboleth/3.2.2 OpenSAML/3.2.0 XMLTooling/3.2.0 XML-Security-C/2.0.2 Xerces-C/3.2.2 log4shib/2.0.0 libcurl/7.68.0 OpenSSL/1.1.1f'
+        ];
+        $message  = '<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><LogoutNotification xmlns="urn:mace:shibboleth:2.0:sp:notify" type="global"><SessionID>_855fe7fbe56c664a6fad794c65243ec6</SessionID></LogoutNotification></S:Body></S:Envelope>';
+        $response = $this->call('POST', route('auth.shibboleth.logout'), [], [], [], $serverVariables, $message);
+        
+        // Get SAP logout response
+        $xml = simplexml_load_string($response->getContent());
+
+        // Check if response is successful
+        $this->assertArrayHasKey('OK', (array) $xml->children('SOAP-ENV', true)->Body->LogoutNotificationResponse->children());
+        
+        // Check if session is terminated
+        $this->assertCount(0, Session::all());
     }
 }

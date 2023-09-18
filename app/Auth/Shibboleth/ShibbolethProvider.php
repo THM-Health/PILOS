@@ -29,11 +29,18 @@ class ShibbolethProvider
         return redirect($returnUrl);
     }
 
-    public function backChannelLogout()
+    public function backChannelLogout($requestMessage)
     {
         $server = new SoapServer(url()->current());
         $server->setClass(SoapServerHandler::class);
-        $server->handle();
+        ob_start();
+        $server->handle($requestMessage);
+        $response = ob_get_contents();
+        ob_end_clean();
+
+        return response($response, 200, [
+            'Content-Type' => 'application/xml'
+        ]);
     }
 
     public function wsdlServer()

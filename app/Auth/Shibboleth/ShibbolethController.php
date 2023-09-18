@@ -28,7 +28,7 @@ class ShibbolethController extends Controller
 
         // Back channel logout
         elseif (!empty($request->getContent())) {
-            return $this->provider->backChannelLogout();
+            return $this->provider->backChannelLogout($request->getContent());
         } else {
             // WSDL server config for back channel logout
             return $this->provider->wsdlServer();
