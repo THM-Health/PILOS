@@ -3,7 +3,7 @@ import RoomList from '../../../../resources/js/views/rooms/Index.vue';
 import {
   BBadge,
   BButton, BCard,
-  BCol, BFormInput, BInputGroupAppend,
+  BCol, BDropdown, BDropdownItem, BFormCheckbox, BFormInput, BFormSelect, BFormSelectOption, BInputGroupAppend,
   BListGroupItem,
   BOverlay,
   BPagination,
@@ -21,6 +21,7 @@ import { createTestingPinia } from '@pinia/testing';
 import RoomComponent from "../../../../resources/js/components/Room/RoomComponent.vue";
 import {useAuthStore} from "../../../../resources/js/stores/auth";
 import NewRoomComponent from "../../../../resources/js/components/Room/NewRoomComponent.vue";
+import {expect} from "vitest";
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -119,17 +120,9 @@ describe('Room Index', () => {
     ]
   };
 
-  //ToDo
   it ('check list of rooms and attribute bindings', async () =>{
-    mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
-      status:200,
-      data: exampleRoomResponse
-    });
-
-    mockAxios.request('/api/v1/roomTypes').respondWith({
-      status: 200,
-      data: exampleRoomTypeResponse
-    });
+    const roomRequest = mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started'});
+    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
 
     const view = mount(RoomList, {
       localVue,
@@ -140,11 +133,42 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
+    await roomRequest.wait();
+
+    //check if overlay is active and buttons disabled during loading
+    expect(view.vm.$data.loadingRooms).toBeTruthy();
+    expect(view.vm.$data.roomTypesBusy).toBeTruthy();
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeTruthy();
+    expect(view.getComponent({ref:'search'}).element.disabled).toBeTruthy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeTruthy();
+
+
+    //respond with example data to room and roomType request
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    await roomTypeRequest.respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+    await roomTypeRequest.wait();
+
+    // check if overlay is disabled and buttons active
+    expect(view.vm.$data.loadingRooms).toBeFalsy();
+    expect(view.vm.$data.roomTypesBusy).toBeFalsy();
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
+    expect(view.getComponent({ref:'search'}).element.disabled).toBeFalsy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+
     await mockAxios.wait();
     await view.vm.$nextTick();
 
+    //Check attribute bindings
     expect(view.vm.rooms).toEqual(exampleRoomResponse);
     const rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toEqual(3);
     expect(rooms.at(0).vm.id).toBe('abc-def-123');
     expect(rooms.at(0).vm.name).toBe('Meeting One');
     expect(rooms.at(0).vm.isFavorite).toBe(false);
@@ -166,7 +190,24 @@ describe('Room Index', () => {
     expect(rooms.at(2).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
     expect(rooms.at(2).vm.owner).toEqual({ id: 1, name: 'John Doe' });
 
-    //ToDo why error?
+    //check rooms appear in the list ToDo why does only one room show
+    expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
+    expect(rooms.at(0).get(BBadge).text()).toEqual('Meeting');
+    expect(rooms.at(0).findAll('small').at(0).text()).toBe('John Doe');
+    expect(rooms.at(0).findAll('small').at(1).text()).toBe('rooms.index.room_component.never_started');
+
+    // expect(rooms.at(1).get('h5').text()).toEqual('Meeting Two');
+    // expect(rooms.at(1).get(BBadge).text()).toEqual('Meeting');
+    // expect(rooms.at(1).findAll('small').at(0).text()).toBe('John Doe');
+    // expect(rooms.at(1).findAll('small').at(1).text()).toBe('rooms.index.room_component.running_since 2023-08-21 08:18:28:00');
+    //
+    // expect(rooms.at(2).get('h5').text()).toEqual('Meeting Three');
+    // expect(rooms.at(2).get(BBadge).text()).toEqual('Meeting');
+    // expect(rooms.at(2).findAll('small').at(0).text()).toBe('John Doe');
+    // expect(rooms.at(2).findAll('small').at(1).text()).toBe('rooms.index.room_component.last_ran_till 2023-08-21 08:20:28:00');
+
+
+    // //ToDo why error?
     view.destroy();
   });
 
@@ -209,6 +250,7 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
+    //try to open room
     await view.findComponent(BCard).trigger('click');
 
     expect(routerSpy).toBeCalledTimes(1);
@@ -219,7 +261,6 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  //ToDo
   it('test reload function and room limit event', async () => {
     mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
       status:200,
@@ -368,6 +409,8 @@ describe('Room Index', () => {
     view.destroy();
 
   });
+
+  //ToDo Test with response with a room and check if the shown rooms are changed
   it('test search', async () => {
     mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started'}).respondWith({
       status:200,
@@ -391,6 +434,7 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
+    //Find search field
     let searchField = view.findComponent({ ref: 'search' });
     expect(searchField.exists()).toBeTruthy();
 
@@ -408,6 +452,7 @@ describe('Room Index', () => {
     //Check if request uses the search string
     expect(roomRequest.config.params.search).toBe('test');
 
+    //respond (no rooms found for this search query)
     await roomRequest.respondWith({
       status:200,
       data:{
@@ -430,13 +475,15 @@ describe('Room Index', () => {
 
     //check empty list message for user rooms
     searchField = view.findComponent({ ref: 'search' });
+    //enter another search query
     await searchField.setValue('test2');
 
-    roomRequest = mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started'});
+    roomRequest = mockAxios.request('/api/v1/rooms');
     searchField.trigger('change');
     await roomRequest.wait();
 
     expect(roomRequest.config.params.search).toBe('test2');
+    //respond (no rooms available)
     await roomRequest.respondWith({
       status: 200,
       data: {
@@ -454,20 +501,241 @@ describe('Room Index', () => {
       }
     });
 
+    //check if message shows user that there are no rooms available
     expect(view.find('em').text()).toBe('rooms.no_rooms_available');
 
     view.destroy();
   });
 
-  it ('test filter', async() => {
+  it('test sorting', async() => {
+    mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
+      status:200,
+      data: exampleRoomResponse
+    });
 
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    //find dropdown to change sorting and check if the options show
+    let sortingDropdown = view.findComponent(BDropdown);
+    expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.last_started');
+
+    // //Try to click on Dropdown to show options ToDo?
+    // sortingDropdown.trigger('click');
+
+    let sortingDropdownOptions = sortingDropdown.findAllComponents(BDropdownItem);
+    expect(sortingDropdownOptions.length).toBe(4);
+    expect(sortingDropdownOptions.at(0).text()).toBe('rooms.index.sorting.select_sorting');
+    expect(sortingDropdownOptions.at(0).props().disabled).toBeTruthy();
+    expect(sortingDropdownOptions.at(1).text()).toBe('rooms.index.sorting.last_started');
+    expect(sortingDropdownOptions.at(2).text()).toBe('rooms.index.sorting.alpha');
+    expect(sortingDropdownOptions.at(3).text()).toBe('rooms.index.sorting.room_type');
+
+    //Click on Dropdown Item to change the sorting to alpha
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    sortingDropdownOptions.at(2).get('a').trigger('click');
+
+    await roomRequest.wait();
+    expect(roomRequest.config.params.sort_by).toBe('alpha');
+    expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.alpha');
+
+    //Click on Dropdown Item to change the sorting to room type
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    sortingDropdownOptions.at(3).get('a').trigger('click');
+
+    await roomRequest.wait();
+    expect(roomRequest.config.params.sort_by).toBe('room_type');
+    expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.room_type');
+
+    //ToDo why error?
+    view.destroy();
+  });
+
+  //ToDo rooms.viewAll permission (filter_all checkbox)
+  it ('test filter', async() => {
+    mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
+      status:200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    //Find filter button and check if it is shown correct
+    let filterButton = view.findAllComponents(BButton).at(4);
+    expect(filterButton.text()).toContain('rooms.index.filter');
+    expect(filterButton.html()).toContain('fa-chevron-down');
+    expect(filterButton.attributes().class).toContain('btn-secondary');
+
+    //make sure that the favorites button is not disabled
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+
+    //Make sure that filter options are hidden
+    expect(view.findAllComponents(BFormCheckbox).length).toBe(0);
+    expect(view.findAllComponents(BFormSelect).length).toBe(0);
+
+    //Trigger button and check if it is shown correct
+    await filterButton.trigger('click');
+    expect(filterButton.html()).toContain('fa-chevron-up');
+    expect(filterButton.attributes().class).toContain('btn-primary');
+
+    //make sure that the favorites button is disabled
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
+
+    //Make sure that filter options are shown
+    let checkboxes = view.findAllComponents(BFormCheckbox)
+    expect(checkboxes.length).toBe(3);
+    //Make sure that checkboxes are shown correct
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(0).text()).toBe('rooms.index.show_own');
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).text()).toBe('rooms.index.show_shared');
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+    expect(checkboxes.at(2).text()).toBe('rooms.index.show_public');
+
+    let select = view.findComponent(BFormSelect);
+    expect(select.element.value).toBe('');
+    let selectOptions = select.findAllComponents(BFormSelectOption);
+    expect(selectOptions.length).toBe(6);
+    //Make sure select options are shown correct
+    expect(selectOptions.at(0).element.value).toBe('-1');
+    expect(selectOptions.at(0).text()).toBe('rooms.room_types.select_type');
+    expect(selectOptions.at(0).attributes().disabled).toBeTruthy();
+    expect(selectOptions.at(1).element.value).toBe('');
+    expect(selectOptions.at(1).text()).toBe('rooms.room_types.all');
+    expect(selectOptions.at(2).element.value).toBe('1');
+    expect(selectOptions.at(2).text()).toBe('Vorlesung');
+    expect(selectOptions.at(3).element.value).toBe('2');
+    expect(selectOptions.at(3).text()).toBe('Meeting');
+    expect(selectOptions.at(4).element.value).toBe('3');
+    expect(selectOptions.at(4).text()).toBe('Pr\u00fcfung');
+    expect(selectOptions.at(5).element.value).toBe('4');
+    expect(selectOptions.at(5).text()).toBe('\u00dcbung');
+
+    //Trigger checkbox
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(2).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+
+    //Trigger another checkbox
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(1).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeFalsy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeFalsy();
+
+    //Change select option
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await select.setValue('2');
+    await roomRequest.wait;
+
+    expect(roomRequest.config.params.room_type).toBe(2);
+    expect(select.element.value).toBe('2');
+
+    //Trigger button and check if it is shown correct
+    await filterButton.trigger('click');
+
+    expect(filterButton.text()).toContain('rooms.index.filter');
+    expect(filterButton.html()).toContain('fa-chevron-down');
+    expect(filterButton.attributes().class).toContain('btn-secondary');
+
+    //Make sure that filter options are hidden
+    expect(view.findAllComponents(BFormCheckbox).length).toBe(0);
+    expect(view.findAllComponents(BFormSelect).length).toBe(0);
+
+    //make sure that the favorites button is not disabled
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+
+    //ToDo why error?
+    view.destroy();
   });
 
   it ('test favorites', async ()=>{
+    mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
+      status:200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    //Find favorites button and check if it is shown correct
+    let favoritesButton = view.findAllComponents(BButton).at(3);
+    expect(favoritesButton.html()).toContain('fa-star');
+    expect(favoritesButton.element.disabled).toBeFalsy();
+    //Check if filter button is not disabled
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+
+    //Trigger favorites button
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+    //Check if filter button is disabled
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+
+    //Trigger favorites button again
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeFalsy();
+    //Check if filter button is disabled
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+
+    //ToDo why error?
+    view.destroy();
 
   });
-
-
 
   it ('test room limit', async () =>{
     mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
@@ -501,6 +769,7 @@ describe('Room Index', () => {
     authStore.currentUser.room_limit = 2;
 
     await view.vm.$nextTick();
+    //check if room limit is shown correct
     expect(view.findComponent({ref:'room-limit'}).exists()).toBeTruthy();
     expect(view.findComponent({ref:'room-limit'}).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
 
@@ -537,11 +806,22 @@ describe('Room Index', () => {
 
   });
 
-  it('test load rooms, load room types ', async () =>{
-    const oldUser = PermissionService.currentUser;
+  //ToDo
+  it ('error loading rooms', async() => {
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const roomRequest = mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started'});
-    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+    // respond with server error for room load
+    mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
+      status:500,
+      data: {
+        message:'Test'
+      }
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
 
     const view = mount(RoomList, {
       localVue,
@@ -551,45 +831,49 @@ describe('Room Index', () => {
       pinia: createTestingPinia(),
       attachTo: createContainer()
     });
-     await roomRequest.wait();
 
-     //check if overlay is active and buttons disabled during loading
-    expect(view.vm.$data.loadingRooms).toBeTruthy();
-    expect(view.vm.$data.roomTypesBusy).toBeTruthy();
-    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeTruthy();
-    expect(view.getComponent({ref:'search'}).element.disabled).toBeTruthy();
-    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeTruthy();
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
-    //respond with example data to room and roomType request
-    await roomRequest.respondWith({
-      status: 200,
+    // check if error message is shown
+    expect(spy).toBeCalledTimes(1);
+    view.destroy();
+
+  });
+
+  //ToDo
+  it ('error loading room types', async () =>{
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    // respond with server error for room type load
+    mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
+      status:200,
       data: exampleRoomResponse
     });
 
-    await roomTypeRequest.respondWith({
-      status: 200,
-      data: exampleRoomTypeResponse
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
     });
-    await roomTypeRequest.wait();
 
-    // check if overlay is disabled and buttons active
-    expect(view.vm.$data.loadingRooms).toBeFalsy();
-    expect(view.vm.$data.roomTypesBusy).toBeFalsy();
-    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
-    expect(view.getComponent({ref:'search'}).element.disabled).toBeFalsy();
-    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia(),
+      attachTo: createContainer()
+    });
 
-    //check rooms appear in the list
-    const rooms = view.findAllComponents(RoomComponent);
-    //ToDo Continue
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
-  });
+    // check if error message is shown
+    expect(spy).toBeCalledTimes(1);
 
-  it ('error loading rooms', async() => {
-
-  });
-
-  it ('error loading room types', async () =>{
+    view.destroy();
 
   });
 
