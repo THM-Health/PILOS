@@ -303,10 +303,6 @@ class ImportGreenlight2 extends Command
                 $dbRoom->everyone_can_start = $room->room_settings->anyoneCanStart;
             }
 
-            if (isset($room->room_settings->needAuthentication)) {
-                $dbRoom->allow_guests = !$room->room_settings->needAuthentication;
-            }
-
             if (isset($room->room_settings->joinModerator)) {
                 // in greenlight all shared accesses result in the users being moderators in the meeting
                 $dbRoom->default_role      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
