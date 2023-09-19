@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Allow more characters for role names ([#535], [#536])
-### Removed
-- learning dashboard disabled and custom meeting layout in meeting parameters are no longer forced. Instead, use custom create parameters in the room type settings ([#574])
+### Deprecated
+- The learning dashboard is no longer always disabled and the meeting layout is no longer always "custom". These settings can be overridden with the room type settings. If the two settings are not set in the room type settings, the previous values apply until the next release; afterwards, these settings can only be set via the room type settings. ([#574])
 
 ## [v2.2.0] - 2023-08-28
 ### Added
