@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support for postgres database on db:import command ([#545])
+- Custom create parameters in room type settings ([#574])
 
 ### Fixed
 - Missing locale strings from fallback locale ([#576])
