@@ -67,14 +67,22 @@ class MeetingService
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
 
         // Load custom create parameters of room type
-        foreach (explode("\n", $this->meeting->room->roomType->custom_create_parameters) as $param) {
-            list($key, $value) = explode('=', $param, 2);
-            // Set meeting parameters
-            if (property_exists($meetingParams, lcfirst($key))) {
-                $setParamMethod = 'set' . ucfirst($key);
-                $meetingParams->$setParamMethod($value);
-            } else {
-                Log::warning('Custom create parameter for {customCreateParam} can not be found', ['customCreateParam' => $key]);
+        if (isset($this->meeting->room->roomType->custom_create_parameters)) {
+            foreach (explode("\n", $this->meeting->room->roomType->custom_create_parameters) as $param) {
+                $paramParts = explode('=', $param, 2);
+                if (count($paramParts) !== 2) {
+                    Log::warning('Custom create parameter for {$param} has no value', ['param' => $param]);
+                    continue;
+                }
+
+                list($key, $value) = $paramParts;
+                // Set meeting parameters
+                if (property_exists($meetingParams, lcfirst($key))) {
+                    $setParamMethod = 'set' . ucfirst($key);
+                    $meetingParams->$setParamMethod($value);
+                } else {
+                    Log::warning('Custom create parameter for {customCreateParam} can not be found', ['customCreateParam' => $key]);
+                }
             }
         }
 
