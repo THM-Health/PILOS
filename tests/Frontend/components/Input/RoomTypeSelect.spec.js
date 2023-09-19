@@ -141,7 +141,10 @@ describe('RoomType Select', () => {
     expect(view.vm.$data.roomType).toEqual(2);
 
     await view.vm.$nextTick();
-    expect(view.emitted().input[0]).toEqual([{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }]);
+    expect(view.emitted().input[0]).toEqual([
+      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' },
+      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
+    ]);
 
     view.destroy();
   });
