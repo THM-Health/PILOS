@@ -128,6 +128,23 @@
           </b-form-group>
 
           <b-form-group
+              label-cols-sm='4'
+              :label="$t('settings.room_types.custom_create_parameters')"
+              label-for='custom_create_parameters'
+              :state='fieldState("custom_create_parameters")'
+              :description="$t('settings.room_types.custom_create_parameters_description')"
+          >
+            <b-form-textarea
+                id='custom_create_parameters'
+                rows="3"
+                v-model='model.custom_create_parameters'
+                :state='fieldState("custom_create_parameters")'
+                :placeholder="$t('settings.room_types.custom_create_parameters_placeholder')"
+                :disabled='isBusy || modelLoadingError || viewOnly'></b-form-textarea>
+            <template slot='invalid-feedback'><div v-html="fieldError('custom_create_parameters')"></div></template>
+          </b-form-group>
+
+          <b-form-group
             label-cols-sm='4'
             :label="$t('settings.room_types.restrict')"
             :description="$t('settings.room_types.restrict_description')"
@@ -292,6 +309,7 @@ export default {
         color: env.ROOM_TYPE_COLORS[0],
         server_pool: null,
         allow_listing: false,
+        custom_create_parameters: null,
         restrict: false,
         roles: []
       },

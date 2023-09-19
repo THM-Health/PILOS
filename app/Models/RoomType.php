@@ -16,7 +16,7 @@ class RoomType extends Model
         'restrict'      => 'boolean'
     ];
 
-    protected $fillable = ['short','description','color', 'restrict'];
+    protected $fillable = ['short','description','color','custom_create_parameters','restrict'];
 
     public function rooms()
     {

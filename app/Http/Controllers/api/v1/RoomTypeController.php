@@ -81,11 +81,12 @@ class RoomTypeController extends Controller
      */
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
-        $roomType->description   = $request->description;
-        $roomType->short         = $request->short;
-        $roomType->color         = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
-        $roomType->restrict      = $request->restrict;
+        $roomType->description              = $request->description;
+        $roomType->short                    = $request->short;
+        $roomType->color                    = $request->color;
+        $roomType->allow_listing            = $request->allow_listing;
+        $roomType->custom_create_parameters = $request->custom_create_parameters;
+        $roomType->restrict                 = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {
@@ -103,12 +104,13 @@ class RoomTypeController extends Controller
      */
     public function store(RoomTypeRequest $request)
     {
-        $roomType                = new RoomType();
-        $roomType->description   = $request->description;
-        $roomType->short         = $request->short;
-        $roomType->color         = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
-        $roomType->restrict      = $request->restrict;
+        $roomType                           = new RoomType();
+        $roomType->description              = $request->description;
+        $roomType->short                    = $request->short;
+        $roomType->color                    = $request->color;
+        $roomType->allow_listing            = $request->allow_listing;
+        $roomType->custom_create_parameters = $request->custom_create_parameters;
+        $roomType->restrict                 = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {

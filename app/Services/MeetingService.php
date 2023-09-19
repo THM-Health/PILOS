@@ -65,6 +65,20 @@ class MeetingService
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
+
+        // Load custom create parameters of room type
+        foreach (explode("\n", $this->meeting->room->roomType->custom_create_parameters) as $param) {
+            list($key, $value) = explode('=', $param, 2);
+            // Set meeting parameters
+            if (property_exists($meetingParams, lcfirst($key))) {
+                $setParamMethod = 'set' . ucfirst($key);
+                $meetingParams->$setParamMethod($value);
+            } else {
+                Log::warning('Custom create parameter for {customCreateParam} can not be found', ['customCreateParam' => $key]);
+            }
+        }
+
+        // Room settings take precedence
         $meetingParams->setModeratorPW($this->meeting->moderator_pw)
             ->setAttendeePW($this->meeting->attendee_pw)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
@@ -80,9 +94,15 @@ class MeetingService
             ->setLockSettingsDisableNote($this->meeting->room->lock_settings_disable_note)
             ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
-            ->setMuteOnStart($this->meeting->room->mute_on_start)
-            ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setLearningDashboardEnabled(false);
+            ->setMuteOnStart($this->meeting->room->mute_on_start);
+
+        if (is_null($meetingParams->getMeetingLayout())) {
+            $meetingParams->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT);
+        }
+
+        if (is_null($meetingParams->isLearningDashboardEnabled())) {
+            $meetingParams->setLearningDashboardEnabled(false);
+        }
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
