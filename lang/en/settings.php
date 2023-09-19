@@ -174,7 +174,6 @@ return [
         'custom_color'                          => 'Custom color',
         'custom_create_parameters'              => 'Custom create parameters',
         'custom_create_parameters_description'  => 'Additional create api call parameters given as attribute-value pairs (one per line, without spaces)',
-        'custom_create_parameters_placeholder'  => "meetingLayout=PRESENTATION_FOCUS\nvirtualBackgroundsDisabled=true",
         'delete'                                => [
             'confirm'          => 'Do you really want to delete the room type :name?',
             'item'             => 'Delete room type :id',

@@ -139,7 +139,7 @@
                 rows="3"
                 v-model='model.custom_create_parameters'
                 :state='fieldState("custom_create_parameters")'
-                :placeholder="$t('settings.room_types.custom_create_parameters_placeholder')"
+                :placeholder="'meetingLayout=PRESENTATION_FOCUS\nvirtualBackgroundsDisabled=true'"
                 :disabled='isBusy || modelLoadingError || viewOnly'></b-form-textarea>
             <template slot='invalid-feedback'><div v-html="fieldError('custom_create_parameters')"></div></template>
           </b-form-group>
