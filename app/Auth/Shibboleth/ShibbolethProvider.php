@@ -31,7 +31,11 @@ class ShibbolethProvider
 
     public function backChannelLogout($requestMessage)
     {
-        $server = new SoapServer(url()->current());
+        $wsdlTemplate = file_get_contents(__DIR__.'/LogoutNotification.wsdl');
+        $wsdlConfig   = str_replace('LOCATION_PLACEHOLDER', url()->current(), $wsdlTemplate);
+        $uri          = 'data://text/plain;base64,'.base64_encode($wsdlConfig);
+
+        $server = new SoapServer($uri);
         $server->setClass(SoapServerHandler::class);
         ob_start();
         $server->handle($requestMessage);
@@ -39,18 +43,7 @@ class ShibbolethProvider
         ob_end_clean();
 
         return response($response, 200, [
-            'Content-Type' => 'application/xml'
-        ]);
-    }
-
-    public function wsdlServer()
-    {
-        $wsdlTemplate = file_get_contents(__DIR__.'/LogoutNotification.wsdl');
-
-        $wsdlConfig = str_replace('LOCATION_PLACEHOLDER', url()->current(), $wsdlTemplate);
-
-        return response($wsdlConfig, 200, [
-            'Content-Type' => 'application/xml'
+            'Content-Type' => 'text/xml'
         ]);
     }
     
