@@ -97,10 +97,12 @@ class MeetingService
             ->setMuteOnStart($this->meeting->room->mute_on_start);
 
         if (is_null($meetingParams->getMeetingLayout())) {
+            // Deprecated: Forcing custom layout will be removed
             $meetingParams->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT);
         }
 
         if (is_null($meetingParams->isLearningDashboardEnabled())) {
+            // Deprecated: Forcing learning dashboard disabled will be removed
             $meetingParams->setLearningDashboardEnabled(false);
         }
 
