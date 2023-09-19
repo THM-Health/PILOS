@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for postgres database on db:import command ([#545])
 
 ### Fixed
-- Missing locale strings from fallback locale ([#575])
+- Missing locale strings from fallback locale ([#576])
 
 ### Changed
 - Allow more characters for role names ([#535], [#536])
@@ -645,7 +645,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#535]: https://github.com/THM-Health/PILOS/issues/535
 [#536]: https://github.com/THM-Health/PILOS/pull/536
 [#545]: https://github.com/THM-Health/PILOS/pull/545
-[#575]: https://github.com/THM-Health/PILOS/pull/575
+[#576]: https://github.com/THM-Health/PILOS/pull/576
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.2.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
