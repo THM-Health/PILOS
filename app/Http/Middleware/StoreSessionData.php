@@ -8,6 +8,9 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Store temporary session data in the database
+ */
 class StoreSessionData
 {
     /**
@@ -17,9 +20,11 @@ class StoreSessionData
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Check if any session data is stored in the session
         if (!Auth::guest() && $request->session()->has('session_data')) {
             $dataSets = $request->session()->get('session_data');
 
+            // Store the data in the database
             foreach ($dataSets as $dataSet) {
                 SessionData::updateOrCreate(
                     [
@@ -29,6 +34,8 @@ class StoreSessionData
                     ]
                 );
             }
+
+            // Remove the data from the session
             $request->session()->forget('session_data');
         }
 

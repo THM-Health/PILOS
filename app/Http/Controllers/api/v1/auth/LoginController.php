@@ -64,18 +64,21 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        // Redirect url after logout
         $redirect        = false;
 
+        // Logout from external authentication provider
         if (session()->has('external_auth')) {
             switch(session()->get('external_auth')) {
                 case 'shibboleth':
-                    $url             = app(ShibbolethProvider::class)->logout(url('/logout'));
-                    $redirect        = $url;
+                    $url      = app(ShibbolethProvider::class)->logout(url('/logout'));
+                    $redirect = $url;
 
                     break;
             }
         }
 
+        // Destroy application session
         $this->logoutApplication($request);
 
         return response()->json([
