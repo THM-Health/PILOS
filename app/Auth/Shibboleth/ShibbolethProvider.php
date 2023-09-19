@@ -12,11 +12,17 @@ use SoapServer;
 
 class ShibbolethProvider
 {
+    /**
+     * Logout url for Shibboleth
+     */
     public function logout($redirect)
     {
         return  config('services.shibboleth.logout').'?return='.$redirect;
     }
 
+    /**
+     * Front channel logout; destroy application session and redirect to the return URL
+     */
     public function frontChannelLogout(string $returnUrl)
     {
         //Only destroy application cookie via front channel and destroy the application session via back channel
@@ -29,14 +35,21 @@ class ShibbolethProvider
         return redirect($returnUrl);
     }
 
+    /**
+     * Back channel logout; destroy application session based on the shibboleth session id in the SOAP request
+     */
     public function backChannelLogout($requestMessage)
     {
+        // Create SOAP server config
         $wsdlTemplate = file_get_contents(__DIR__.'/LogoutNotification.wsdl');
         $wsdlConfig   = str_replace('LOCATION_PLACEHOLDER', url()->current(), $wsdlTemplate);
         $uri          = 'data://text/plain;base64,'.base64_encode($wsdlConfig);
 
+        // Create SOAP server
         $server = new SoapServer($uri);
         $server->setClass(SoapServerHandler::class);
+
+        // Handle request and capture response
         ob_start();
         $server->handle($requestMessage);
         $response = ob_get_contents();
@@ -47,6 +60,9 @@ class ShibbolethProvider
         ]);
     }
     
+    /**
+     * Redirect to Shibboleth for authentication with an optional redirect back to a specific URL
+     */
     public function redirect($redirect = null)
     {
         $params = [];
@@ -58,6 +74,8 @@ class ShibbolethProvider
     }
 
     /**
+     * Handle login request
+     * 
      * @throws MissingAttributeException
      * @throws ShibbolethSessionDuplicateException
      */

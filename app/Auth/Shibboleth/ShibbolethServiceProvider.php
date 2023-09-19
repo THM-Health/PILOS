@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 class ShibbolethServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register the Shibboleth provider.
      */
     public function register(): void
     {

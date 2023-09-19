@@ -14,11 +14,17 @@ class ShibbolethController extends Controller
         $this->middleware('guest')->except(['logout']);
     }
 
+    /**
+     * Redirect to the Shibboleth for authentication with an optional redirect back to a specific URL
+     */
     public function redirect(Request $request)
     {
         return $this->provider->redirect($request->query('redirect'));
     }
 
+    /**
+     * Handle the logout request from Shibboleth.
+     */
     public function logout(Request $request)
     {
         // Front channel logout
@@ -32,6 +38,9 @@ class ShibbolethController extends Controller
         }
     }
 
+    /**
+     * Request to login with shibboleth, route is protected by mod-shibb of the reverse proxy
+     */
     public function callback(Request $request)
     {
         try {
@@ -45,8 +54,8 @@ class ShibbolethController extends Controller
 
         Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'shibboleth']);
 
-        $url = '/external_login';
-
+        // Redirect to the external login page in the frontend, optionally with a redirect back to a specific URL
+        $url         = '/external_login';
         $redirectUrl = $request->get('redirect');
 
         return redirect($redirectUrl ? ($url.'?redirect='.urlencode($redirectUrl)) : $url);

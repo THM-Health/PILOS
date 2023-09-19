@@ -6,6 +6,11 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware checking for users that are logged in via shibboleth
+ * if they still have a valid shibboleth session and that it didn't change in the meantime
+ * If the session is invalid or changed, the user is logged out
+ */
 class ShibbolethSessionMiddleware
 {
     public function __construct(protected ShibbolethProvider $provider)
