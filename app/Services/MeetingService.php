@@ -72,6 +72,7 @@ class MeetingService
                 $paramParts = explode('=', $param, 2);
                 if (count($paramParts) !== 2) {
                     Log::warning('Custom create parameter for {$param} has no value', ['param' => $param]);
+
                     continue;
                 }
 
