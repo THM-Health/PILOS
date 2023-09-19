@@ -109,7 +109,7 @@ class LocaleServiceTest extends TestCase
 
         $response = $localeService->buildJsonLocale('en', false, false);
 
-        $this->assertEquals('{"app":{"key_1":"value_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}}}}', $response);
+        $this->assertEquals('{"app":{"key_1":"value_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"value_4_1","key_4_2":{"key_4_2_1":"value_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 
     public function testBuildJsonWithCustom()
@@ -123,7 +123,7 @@ class LocaleServiceTest extends TestCase
 
         $response = $localeService->buildJsonLocale('en', false, true);
 
-        $this->assertEquals('{"app":{"key_1":"new_value_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}}}}', $response);
+        $this->assertEquals('{"app":{"key_1":"new_value_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"value_4_1","key_4_2":{"key_4_2_1":"value_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 
     public function testBuildJsonWithFallback()
@@ -137,7 +137,7 @@ class LocaleServiceTest extends TestCase
 
         $response = $localeService->buildJsonLocale('fr', true, false);
 
-        $this->assertEquals('{"app":{"key_1":"valeur_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}}}}', $response);
+        $this->assertEquals('{"app":{"key_1":"valeur_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"valeur_4_1","key_4_2":{"key_4_2_1":"valeur_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 
     public function testBuildJsonWithFallbackAndCustom()
@@ -151,6 +151,6 @@ class LocaleServiceTest extends TestCase
 
         $response = $localeService->buildJsonLocale('fr', true, true);
 
-        $this->assertEquals('{"app":{"key_1":"nouvelle_valeur_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}}}}', $response);
+        $this->assertEquals('{"app":{"key_1":"nouvelle_valeur_1","key_2":"value_2","key_3":{"key_3_1":"value_3_1","key_3_2":{"key_3_2_1":"value_3_2_1"}},"key_4":{"key_4_1":"valeur_4_1","key_4_2":{"key_4_2_1":"valeur_4_2_1","key_4_2_2":"value_4_2_2"}}}}', $response);
     }
 }

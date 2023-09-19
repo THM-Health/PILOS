@@ -99,7 +99,7 @@ class LocaleService
                 if (!isset($localeContents[$group])) {
                     $localeContents[$group] = [];
                 }
-                $localeContents[$group] = array_merge($localeContents[$group], $localeData);
+                $localeContents[$group] = array_replace_recursive($localeContents[$group], $localeData);
             }
         }
 
