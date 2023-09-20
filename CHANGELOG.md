@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Missing locale strings from fallback locale ([#576])
+- Room type unselected in room settings on changes to the room type settings ([#577], [#586])
 
 ### Changed
 - Allow more characters for role names ([#535], [#536])
@@ -646,6 +647,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#536]: https://github.com/THM-Health/PILOS/pull/536
 [#545]: https://github.com/THM-Health/PILOS/pull/545
 [#576]: https://github.com/THM-Health/PILOS/pull/576
+[#577]: https://github.com/THM-Health/PILOS/issues/577
+[#586]: https://github.com/THM-Health/PILOS/pull/586
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.2.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
