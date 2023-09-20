@@ -449,12 +449,7 @@ describe('Create new rooms', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
-      status: 200,
-      data: {
-        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
-      }
-    });
+    const reloadRoomTypesRequest = mockAxios.request('/api/v1/roomTypes', { filter: 'own' });
 
     const typeInput = view.findComponent(BFormSelect);
     const meetingOption = typeInput.findAll('option').at(2);
@@ -472,6 +467,15 @@ describe('Create new rooms', () => {
     });
     await view.vm.$nextTick();
     expect(typeInput.classes()).toContain('is-invalid');
+
+    await reloadRoomTypesRequest.wait();
+    await reloadRoomTypesRequest.respondWith({
+      status: 200,
+      data: {
+        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+      }
+    });
+    await view.vm.$nextTick();
 
     expect(view.vm.$data.room.room_type).toBeNull();
 
