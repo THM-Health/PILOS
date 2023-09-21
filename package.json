@@ -48,7 +48,7 @@
         "@tiptap/extension-color": "^2.1.10",
         "@tiptap/extension-highlight": "^2.1.8",
         "@tiptap/extension-image": "^2.1.10",
-        "@tiptap/extension-link": "^2.1.10",
+        "@tiptap/extension-link": "^2.1.11",
         "@tiptap/extension-text-align": "^2.1.8",
         "@tiptap/extension-text-style": "^2.1.8",
         "@tiptap/extension-underline": "^2.1.10",
