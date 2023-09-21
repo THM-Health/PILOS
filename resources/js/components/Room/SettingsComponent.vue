@@ -498,37 +498,34 @@ export default {
     },
 
     /**
-     * Preselects room setting based on selected room type
+     * Preselects room settings based on selected room type
      *
-     * @param newRoomType selected room type
-     * @param oldRoomType previous selected room type
+     * @param roomType selected room type
      */
-    changeRoomType (newRoomType, oldRoomType) {
-      // Only change if new type is selected
-      if (!oldRoomType || newRoomType.id === oldRoomType.id) {
+    changeRoomType (roomType) {
+      // Only change if new type is selected and custom parameters are available
+      if (roomType === null || roomType.custom_create_parameters === null) {
         return;
       }
 
-      if (newRoomType.custom_create_parameters !== null) {
-        for (const parameter of newRoomType.custom_create_parameters.split('\n')) {
-          let [key, value] = parameter.split('=', 2);
-          // Convert key to snake case
-          key = key.replace(/[A-Z]/g, (letter, index) => {
-            return index === 0 ? letter.toLowerCase() : '_' + letter.toLowerCase();
-          });
+      for (const parameter of roomType.custom_create_parameters.split('\n')) {
+        let [key, value] = parameter.split('=', 2);
+        // Convert key to snake case
+        key = key.replace(/[A-Z]/g, (letter, index) => {
+          return index === 0 ? letter.toLowerCase() : '_' + letter.toLowerCase();
+        });
 
-          // Set value if setting exists
-          if (key in this.settings) {
-            // Cast value
-            if (value === 'true' || value === 'false') {
-              // Boolean
-              value = value === 'true';
-            } else if (/^\d+$/.test(value)) {
-              // Numeric
-              value = parseInt(value);
-            }
-            this.settings[key] = value;
+        // Set value if setting exists
+        if (key in this.settings) {
+          // Cast value
+          if (value === 'true' || value === 'false') {
+            // Boolean
+            value = value === 'true';
+          } else if (/^\d+$/.test(value)) {
+            // Numeric
+            value = parseInt(value);
           }
+          this.settings[key] = value;
         }
       }
     }
