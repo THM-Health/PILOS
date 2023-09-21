@@ -71,7 +71,7 @@ class MeetingService
             foreach (explode("\n", $this->meeting->room->roomType->custom_create_parameters) as $param) {
                 $paramParts = explode('=', $param, 2);
                 if (count($paramParts) !== 2) {
-                    Log::warning('Custom create parameter for {$param} has no value', ['param' => $param]);
+                    Log::warning('Custom create parameter for {param} has no value', ['param' => $param]);
 
                     continue;
                 }
