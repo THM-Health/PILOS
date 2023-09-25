@@ -95,7 +95,7 @@ jobs:
         b3s add frontend --secret "$BBB_SECRET" $BBB_TENANT
         b3s set frontend -j '{"required_tags":["bbb_github_ci"]}' $BBB_TENANT 
         export TESTING_BBB="'[{\"url\":\"${{ secrets.B3SCALE_HOST }}bbb/${BBB_TENANT}/bigbluebutton/\",\"secret\":\"${BBB_SECRET}\"}]'"
-        sed -i "s/TESTING_BBB=.*/TESTING_BBB=$TESTING_BBB/g" .env
+        sed -i "s|TESTING_BBB=.*|TESTING_BBB=$TESTING_BBB|g"  .env
         echo "BBB_TENANT=$BBB_TENANT" >> "$GITHUB_ENV"
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
@@ -103,9 +103,7 @@ jobs:
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
-      run: |
-        cat .env
-        php artisan test --parallel --coverage-clover=coverage.xml
+      run: php artisan test --parallel --coverage-clover=coverage.xml
     - name: End all BBB meetings
       if: ${{ always() && steps.create-bbb-frontend.outcome == 'success'}}
       run: |
