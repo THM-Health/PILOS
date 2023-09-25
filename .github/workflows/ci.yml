@@ -26,6 +26,9 @@ jobs:
       matrix:
         php-versions: ['8.1']
     steps:
+    - name: Github OIDC
+      run: |
+        curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://BBB-Testing-Backend"
     - name: Setup B3Scale
       run: |
         curl -L https://github.com/b3scale/b3scale/releases/download/1.0.2/b3scalectl_1.0.2_linux_amd64.tar.gz | tar -xz
