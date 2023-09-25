@@ -26,6 +26,10 @@ jobs:
       matrix:
         php-versions: ['8.1']
     steps:
+    - name: Setup B3Scale
+      run: |
+        curl -L https://github.com/b3scale/b3scale/releases/download/1.0.2/b3scalectl_1.0.2_linux_amd64.tar.gz | tar -xz
+        mv b3scalectl /usr/local/bin
     - name: Checkout
       uses: actions/checkout@v3
       with:
@@ -77,14 +81,44 @@ jobs:
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
+    - name: Create BBB Testing Frontend
+      id: create-bbb-frontend
+      env:
+        B3SCALE_API_JWT_SECRET: ${{ secrets.B3SCALE_API_JWT_SECRET }}  
+      run: |
+        shopt -s expand_aliases
+        alias b3s='b3scalectl --api ${{ secrets.B3SCALE_HOST }}'
+        export BBB_SECRET=$(openssl rand -hex 42)
+        export BBB_TENANT=github-ci-$(openssl rand -hex 12)
+        mkdir -p /home/runner/.config/b3scale/
+        echo -n "$B3SCALE_API_JWT_SECRET" > ${{ secrets.B3SCALE_ACCESS_TOKEN_FILE }}
+        b3s add frontend --secret "$BBB_SECRET" $BBB_TENANT
+        b3s set frontend -j '{"required_tags":["bbb_github_ci"]}' $BBB_TENANT 
+        export TESTING_BBB="'[{\"url\":\"${{ secrets.B3SCALE_HOST }}bbb/${BBB_TENANT}/bigbluebutton/\",\"secret\":\"${BBB_SECRET}\"}]'"
+        sed -i "s/TESTING_BBB=.*/TESTING_BBB=$TESTING_BBB/g" .env
+        echo "BBB_TENANT=$BBB_TENANT" >> "$GITHUB_ENV"
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
-        TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: php artisan test --parallel --coverage-clover=coverage.xml
+      run: |
+        cat .env
+        php artisan test --parallel --coverage-clover=coverage.xml
+    - name: End all BBB meetings
+      if: ${{ always() && steps.create-bbb-frontend.outcome == 'success'}}
+      run: |
+        curl -L https://raw.githubusercontent.com/defnull/bbbctl/master/src/bbbctl.py -o /usr/local/bin/bbbctl
+        chmod +x /usr/local/bin/bbbctl
+        export BBBCTL_SERVER=${{ secrets.B3SCALE_HOST }}bbb/${BBB_TENANT}/bigbluebutton/api
+        export BBBCTL_SECRET=$(openssl rand -hex 42)
+        b3scalectl --api ${{ secrets.B3SCALE_HOST }} set  frontend --secret "$BBBCTL_SECRET" $BBB_TENANT
+        bbbctl meeting nuke
+    - name: Remove BBB Testing Frontend
+      if: ${{ always() && steps.create-bbb-frontend.outcome == 'success'}}
+      run: |
+        b3scalectl --api ${{ secrets.B3SCALE_HOST }} delete frontend $BBB_TENANT
     - name: Upload coverage
       uses: codecov/codecov-action@v3
     - name: Upload laravel logs
