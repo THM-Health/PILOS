@@ -32,14 +32,11 @@ jobs:
     steps:
     - name: Github OIDC
       run: |
-        curl --request POST \
-        --url https://bbb-test.pilos-thm.de/cred-server/api/frontend \
-        --header 'Accept: application/json' \
-        --header 'Content-Type: application/x-www-form-urlencoded' \
-        --data github_token=${{ secrets.GITHUB_TOKEN }} \
-        --data run_id=${{ github.run_id }} \ 
-        --data attempt_number=${{ github.run_attempt }} \
-        --data repository=${{ github.repository }}
+        curl -X POST \
+          https://bbb-test.pilos-thm.de/cred-server/api/frontend \
+          -H 'Accept: application/json' \
+          -H 'Content-Type: application/json' \
+          -d "{	\"github_token\": \"${{ secrets.GITHUB_TOKEN }}\", \"run_id\": \"${{ github.run_id }}\", \"attempt_number\": \"${{ github.run_attempt }}\",	\"repository\": \"${{ github.repository }}\"}"
     - name: Setup B3Scale
       run: |
         curl -L https://github.com/b3scale/b3scale/releases/download/1.0.2/b3scalectl_1.0.2_linux_amd64.tar.gz | tar -xz
