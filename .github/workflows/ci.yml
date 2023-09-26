@@ -32,8 +32,13 @@ jobs:
     steps:
     - name: Github OIDC
       run: |
-        GH_OIDC_TOKEN=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://BbbTestServer" | jq '.value')
-        curl -H "Authorization: bearer $GH_OIDC_TOKEN" https://webhook.site/ba3d6ab3-b89b-4e76-a4bb-11931c06d2a8
+        curl --request POST \
+        --url https://bbb-test.pilos-thm.de/cred-server/api/frontend \
+        --header 'Content-Type: application/x-www-form-urlencoded' \
+        --data github_token=${{ secrets.GITHUB_TOKEN }} \
+        --data run_id=${{ github.run_id }} \ 
+        --data attempt_number=${{ github.run_attempt }} \
+        --data repository=${{ github.repository }}
     - name: Setup B3Scale
       run: |
         curl -L https://github.com/b3scale/b3scale/releases/download/1.0.2/b3scalectl_1.0.2_linux_amd64.tar.gz | tar -xz
@@ -106,6 +111,7 @@ jobs:
         sed -i "s|TESTING_BBB=.*|TESTING_BBB=$TESTING_BBB|g"  .env
         echo "BBB_TENANT=$BBB_TENANT" >> "$GITHUB_ENV"
     - name: Execute tests (Unit and Feature tests) via PHPUnit
+      timeout-minutes: 5
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
