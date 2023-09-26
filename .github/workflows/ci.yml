@@ -34,6 +34,7 @@ jobs:
       run: |
         curl --request POST \
         --url https://bbb-test.pilos-thm.de/cred-server/api/frontend \
+        --header 'Accept: application/json' \
         --header 'Content-Type: application/x-www-form-urlencoded' \
         --data github_token=${{ secrets.GITHUB_TOKEN }} \
         --data run_id=${{ github.run_id }} \ 
