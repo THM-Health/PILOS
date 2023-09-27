@@ -80,8 +80,8 @@ return [
             'description' => 'Limite la taille de la pagination pour la pagination des tables de données',
             'title'       => 'Taille de la pagination',
         ],
-        'password_change_allowed'     => 'Donnez aux utilisateurs locaux la possibilité de modifier leur mot de passe',
-        'privacy_policy_url'          => [
+        'password_change_allowed' => 'Donnez aux utilisateurs locaux la possibilité de modifier leur mot de passe',
+        'privacy_policy_url'      => [
             'description' => 'Le lien vers la page de la politique de confidentialité ne sera affiché que si une URL lui est assignée.',
             'title'       => 'URL vers la politique de confidentialité',
         ],

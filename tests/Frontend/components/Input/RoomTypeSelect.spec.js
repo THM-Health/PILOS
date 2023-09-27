@@ -43,8 +43,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await view.vm.$nextTick();
-    expect(view.vm.$data.roomType).toEqual({ id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' });
+    expect(view.vm.$data.roomType).toEqual(1);
 
     view.destroy();
   });
@@ -139,7 +138,7 @@ describe('RoomType Select', () => {
     meetingOption.element.selected = true;
     await typeInput.trigger('change');
 
-    expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
+    expect(view.vm.$data.roomType).toEqual(2);
 
     await view.vm.$nextTick();
     expect(view.emitted().input[0]).toEqual([{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }]);
@@ -215,7 +214,7 @@ describe('RoomType Select', () => {
     expect(meetingOption.text()).toEqual('Meeting');
     meetingOption.element.selected = true;
     await typeInput.trigger('change');
-    expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
+    expect(view.vm.$data.roomType).toEqual(2);
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
@@ -226,7 +225,7 @@ describe('RoomType Select', () => {
 
     await mockAxios.wait();
     await view.vm.$nextTick();
-    expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
+    expect(view.vm.$data.roomType).toEqual(2);
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
