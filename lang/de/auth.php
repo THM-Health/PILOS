@@ -9,11 +9,15 @@ return [
         'title'     => 'Mit einer E-Mail anmelden',
     ],
     'error' => [
-        'missing_attributes' => 'Es fehlen Attribute für die Authentifizierung.',
+        'login_failed'                           => 'Anmeldung fehlgeschlagen',
+        'missing_attributes'                     => 'Es fehlen Attribute für die Authentifizierung.',
+        'shibboleth_session_duplicate_exception' => 'Die Shibboleth-Session ist bereits in Verwendung. Bitte melden Sie sich erneut an.',
+        'reason'                                 => 'Fehlergrund',
     ],
-    'external_id' => 'Externe ID',
-    'failed'      => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
-    'flash'       => [
+    'authenticator'    => 'Authentifikator',
+    'authenticator_id' => 'Authentifikator-ID',
+    'failed'           => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
+    'flash'            => [
         'login'             => 'Erfolgreich angemeldet',
         'logout_all_others' => 'Die Abmeldung von allen anderen Geräten verlief erfolgreich!',
         'logout_error'      => 'Abmelden fehlgeschlagen',
@@ -35,8 +39,14 @@ return [
     'new_password_confirmation' => 'Neues Passwort bestätigen',
     'password'                  => 'Passwort',
     'reset_password'            => 'Passwort zurücksetzen',
+    'shibboleth'                => [
+        'redirect'          => 'Anmelden',
+        'tab_title'         => 'Shibboleth',
+        'title'             => 'Mit Shibboleth anmelden',
+    ],
     'send_email_confirm_mail'   => 'Es wurde eine Bestätigungsmail an {email} gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.',
     'send_password_reset_link'  => 'Passwort-Rücksetz-Link senden',
+    'session_expired'           => 'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',
     'sessions'                  => [
         'active'        => 'Aktive Sitzungen',
         'browser'       => 'Browser',

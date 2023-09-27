@@ -105,6 +105,7 @@ class ApplicationSettings extends JsonResource
             'auth'                  => [
                 'local'                  => config('auth.local.enabled'),
                 'ldap'                   => config('ldap.enabled'),
+                'shibboleth'             => config('services.shibboleth.enabled'),
             ],
             'room_refresh_rate'     => floatval(config('bigbluebutton.room_refresh_rate')),
         ];

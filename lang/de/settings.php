@@ -263,9 +263,10 @@ return [
     'title' => 'Einstellungen',
     'users' => [
         'authenticator' => [
-            'external' => 'Extern',
-            'local'    => 'Lokal',
-            'title'    => 'Anmeldeart',
+            'shibboleth' => 'Shibboleth',
+            'ldap'       => 'LDAP',
+            'local'      => 'Lokal',
+            'title'      => 'Anmeldeart',
         ],
         'base_data' => 'Stammdaten',
         'bbb'       => 'BigBlueButton',

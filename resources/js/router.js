@@ -1,5 +1,6 @@
 import VueRouter from 'vue-router';
 import Login from './views/Login.vue';
+import ExternalLogin from './views/ExternalLogin.vue';
 import Logout from './views/Logout.vue';
 import NotFound from './views/NotFound.vue';
 import RoomsIndex from './views/rooms/Index.vue';
@@ -51,10 +52,25 @@ export const routes = [
     meta: { guestsOnly: true }
   },
   {
+    path: '/external_login',
+    name: 'external_login',
+    component: ExternalLogin,
+    props: route => {
+      return {
+        error: route.query.error
+      };
+    }
+  },
+  {
     path: '/logout',
     name: 'logout',
     component: Logout,
-    meta: { guestsOnly: true }
+    meta: { guestsOnly: true },
+    props: route => {
+      return {
+        message: route.query.message
+      };
+    }
   },
   {
     path: '/reset_password',

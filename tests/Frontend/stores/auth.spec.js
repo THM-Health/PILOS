@@ -19,7 +19,7 @@ describe('Auth Store', () => {
 
     const user = {
       id: 1,
-      authenticator: 'external',
+      authenticator: 'ldap',
       email: 'john.doe@domain.tld',
       external_id: 'user',
       firstname: 'John',
@@ -69,7 +69,7 @@ describe('Auth Store', () => {
     const auth = useAuthStore();
     auth.currentUser = {
       id: 1,
-      authenticator: 'external',
+      authenticator: 'ldap',
       email: 'john.doe@domain.tld',
       external_id: 'user',
       firstname: 'John',

@@ -9,11 +9,15 @@ return [
         'title'     => 'Login with Email',
     ],
     'error' => [
-        'missing_attributes' => 'Attributes for authentication are missing.',
+        'login_failed'                           => 'Login failed',
+        'missing_attributes'                     => 'Attributes for authentication are missing.',
+        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
+        'reason'                                 => 'Error reason',
     ],
-    'external_id' => 'External ID',
-    'failed'      => 'These credentials do not match our records.',
-    'flash'       => [
+    'authenticator'    => 'Authenticator',
+    'authenticator_id' => 'Authenticator-ID',
+    'failed'           => 'These credentials do not match our records.',
+    'flash'            => [
         'login'             => 'Successfully logged in',
         'logout_all_others' => 'The other devices have been successfully logged out!',
         'logout_error'      => 'Logout failed',
@@ -35,8 +39,14 @@ return [
     'new_password_confirmation' => 'New password confirmation',
     'password'                  => 'Password',
     'reset_password'            => 'Reset password',
+    'shibboleth'                => [
+        'redirect'          => 'Log in',
+        'tab_title'         => 'Shibboleth',
+        'title'             => 'Log in with Shibboleth',
+    ],
     'send_email_confirm_mail'   => 'A verification email has been sent to {email}. Please confirm the new email address by clicking on the link in the email.',
     'send_password_reset_link'  => 'Send password reset link',
+    'session_expired'           => 'Your session has expired. Please log in again.',
     'sessions'                  => [
         'active'        => 'Active sessions',
         'browser'       => 'Browser',

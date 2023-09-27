@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 
 import Login from '../../../resources/js/views/Login.vue';
+import ExternalLoginComponent from '../../../resources/js/components/Login/ExternalLoginComponent.vue';
 import LocalLoginComponent from '../../../resources/js/components/Login/LocalLoginComponent.vue';
 import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
 import env from '../../../resources/js/env';
@@ -10,6 +11,7 @@ import VueRouter from 'vue-router';
 import { mockAxios, createLocalVue } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
+import { expect } from 'vitest';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -150,7 +152,7 @@ describe('Login', () => {
       data: {
         data: {
           id: 1,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'john.doe@domain.tld',
           external_id: 'user',
           firstname: 'John',
@@ -207,7 +209,7 @@ describe('Login', () => {
       data: {
         data: {
           id: 1,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'john.doe@domain.tld',
           external_id: 'user',
           firstname: 'John',
@@ -365,6 +367,66 @@ describe('Login', () => {
       status: 500
     });
     expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('hide shibboleth login if disabled', () => {
+    const view = mount(Login, {
+      localVue,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { shibboleth: false } } } }, stubActions: false }),
+      mocks: {
+        $t: (key) => key
+      }
+    });
+
+    const externalLoginComponent = view.findComponent(ExternalLoginComponent);
+    expect(externalLoginComponent.exists()).toBeFalsy();
+    view.destroy();
+  });
+
+  it('shibboleth login', async () => {
+    const router = new VueRouter({ mode: 'abstract' });
+    await router.push('/foo');
+
+    const view = mount(Login, {
+      localVue,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { shibboleth: true } } } }, stubActions: false }),
+      mocks: {
+        $t: (key) => key
+      },
+      router
+    });
+
+    const externalLoginComponent = view.findComponent(ExternalLoginComponent);
+    expect(externalLoginComponent.exists()).toBeTruthy();
+
+    const externalLoginButton = externalLoginComponent.findComponent(BButton);
+    expect(externalLoginButton.exists()).toBeTruthy();
+    expect(externalLoginButton.attributes('href')).toBe('/auth/shibboleth/redirect');
+
+    view.destroy();
+  });
+
+  it('shibboleth login with redirect path', async () => {
+    const router = new VueRouter({ mode: 'abstract' });
+    await router.push('/foo?redirect=%2Fredirect_path');
+
+    const view = mount(Login, {
+      localVue,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { shibboleth: true } } } }, stubActions: false }),
+      mocks: {
+        $t: (key) => key
+      },
+      router
+    });
+
+    const externalLoginComponent = view.findComponent(ExternalLoginComponent);
+    expect(externalLoginComponent.exists()).toBeTruthy();
+
+    const externalLoginButton = externalLoginComponent.findComponent(BButton);
+    expect(externalLoginButton.exists()).toBeTruthy();
+    expect(externalLoginButton.attributes('href')).toBe('/auth/shibboleth/redirect?redirect=%2Fredirect_path');
 
     view.destroy();
   });

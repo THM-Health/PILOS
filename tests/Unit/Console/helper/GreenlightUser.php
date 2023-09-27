@@ -8,6 +8,7 @@ class GreenlightUser
     public $provider;
     public $name;
     public $username;
+    public $social_uid;
     public $email;
     public $password_digest;
 
@@ -17,15 +18,17 @@ class GreenlightUser
      * @param $provider
      * @param $name
      * @param $username
+     * @param $social_uid
      * @param $email
      * @param $password_digest
      */
-    public function __construct($id, $provider, $name, $username, $email, $password_digest)
+    public function __construct($id, $provider, $name, $username, $social_uid, $email, $password_digest)
     {
         $this->id              = $id;
         $this->provider        = $provider;
         $this->name            = $name;
         $this->username        = $username;
+        $this->social_uid      = $social_uid;
         $this->email           = $email;
         $this->password_digest = $password_digest;
     }

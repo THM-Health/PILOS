@@ -1,5 +1,7 @@
 <?php
 
+$shibbolethEnabled = env('SHIBBOLETH_ENABLED', false);
+
 return [
 
     /*
@@ -37,4 +39,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'shibboleth' => [
+        'enabled' => $shibbolethEnabled,
+        'mapping' => $shibbolethEnabled ? json_decode(file_get_contents(app_path('Auth/config/shibboleth_mapping.json'))) : null,
+        'session_id_header' => env('SHIBBOLETH_SESSION_ID_HEADER', 'shib-session-id'),
+        'session_expires_header' => env('SHIBBOLETH_SESSION_EXPIRES_HEADER', 'shib-session-expires'),
+        'logout' => env('SHIBBOLETH_LOGOUT_URL', '/Shibboleth.sso/Logout')
+    ],
 ];

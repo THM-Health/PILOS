@@ -216,6 +216,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         App\Auth\LDAP\LDAPServiceProvider::class,
+        App\Auth\Shibboleth\ShibbolethServiceProvider::class,
 
         // Laravel IDE helper
         \Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
