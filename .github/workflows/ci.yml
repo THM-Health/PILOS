@@ -84,7 +84,7 @@ jobs:
     - name: Create BBB Testing Frontend
       id: create-bbb-frontend
       run: |
-        BBB_CREDENTIALS=$(curl -s -X POST https://bbb-test.pilos-thm.de/cred-server/api/frontend -H 'Accept: application/json' -H 'Content-Type: application/json' -d "{	\"github_token\": \"${{ secrets.GITHUB_TOKEN }}\", \"run_id\": \"${{ github.run_id }}\", \"attempt_number\": \"${{ github.run_attempt }}\",	\"repository\": \"${{ github.repository }}\"}")
+        BBB_CREDENTIALS=$(curl -s -X POST https://bbb-test.pilos-thm.de/cred-server/api/frontend -H 'Accept: application/json' -H 'Content-Type: application/json' -d "{ \"github_token\": \"${{ secrets.GITHUB_TOKEN }}\", \"run_id\": \"${{ github.run_id }}\", \"attempt_number\": \"${{ github.run_attempt }}\", \"repository\": \"${{ github.repository }}\"}")
         TESTING_BBB="'[$BBB_CREDENTIALS]'"
         sed -i "s|TESTING_BBB=.*|TESTING_BBB=$TESTING_BBB|g"  .env
     - name: Execute tests (Unit and Feature tests) via PHPUnit
@@ -98,7 +98,7 @@ jobs:
     - name: Remove BBB Testing Frontend
       if: ${{ always() && steps.create-bbb-frontend.outcome == 'success'}}
       run: |
-        curl -X DELETE https://bbb-test.pilos-thm.de/cred-server/api/frontend -H 'Accept: application/json' -H 'Content-Type: application/json' -d "{	\"github_token\": \"${{ secrets.GITHUB_TOKEN }}\", \"run_id\": \"${{ github.run_id }}\", \"attempt_number\": \"${{ github.run_attempt }}\",	\"repository\": \"${{ github.repository }}\"}")
+        curl -X DELETE https://bbb-test.pilos-thm.de/cred-server/api/frontend -H 'Accept: application/json' -H 'Content-Type: application/json' -d "{ \"github_token\": \"${{ secrets.GITHUB_TOKEN }}\", \"run_id\": \"${{ github.run_id }}\", \"attempt_number\": \"${{ github.run_attempt }}\", \"repository\": \"${{ github.repository }}\"}"
     - name: Upload coverage
       uses: codecov/codecov-action@v3
     - name: Upload laravel logs
