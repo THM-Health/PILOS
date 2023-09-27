@@ -25,7 +25,7 @@ class ShibbolethSessionMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // check if user is logged in via shibboleth
-        if (\Auth::user() && session('external_auth') == 'shibboleth') {
+        if (\Auth::user()?->authenticator == 'shibboleth') {
             // check if user still has a valid shibboleth session and that it didn't change in the meantime
             $headerName = config('services.shibboleth.session_id_header');
             if (!$request->hasHeader($headerName) || session('shibboleth_session_id') != $this->provider->hashShibbolethSessionId($request->header($headerName))) {

@@ -30,9 +30,12 @@ export default {
   },
 
   mounted () {
+    // Successfull login via external provider
     if (!this.error) {
+      // show toast message
       this.toastSuccess(this.$t('auth.flash.login'));
-      // check if user should be redirected back after login
+      // check if user should be redirected back after login,
+      // otherwise redirect to own rooms (dashboard)
       if (this.$route.query.redirect !== undefined) {
         this.$router.push(this.$route.query.redirect);
       } else {

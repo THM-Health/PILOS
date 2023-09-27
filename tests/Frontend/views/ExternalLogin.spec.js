@@ -77,7 +77,7 @@ describe('ExternalLogin', () => {
     view.destroy();
   });
 
-  it('show login message and redirect to other page', async () => {
+  it('show login error on missing attributes', async () => {
     const toastSuccessSpy = vi.fn();
 
     const router = new VueRouter({ mode: 'abstract' });

@@ -116,8 +116,8 @@ You must add attribute mapping for the following attributes.
 | email         | Email                                        |
 
 
-**Notice:** The External identifier (`external_id`) is used to uniquely identify a user.
-If the same external_id is supplied by multiple authenticators, the user is considered to be the same. This can be useful for switching between different authenticators.
+**Notice:** The external identifier (`external_id`) is used to uniquely identify a user within each authenicator.
+User accounts are not shared between authenicators.
 
 ### Array attributes
 

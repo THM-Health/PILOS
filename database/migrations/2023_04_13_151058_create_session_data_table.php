@@ -16,12 +16,10 @@ return new class extends Migration
             $table->string('key');
             $table->text('value');
             $table->string('session_id');
-            $table
-            ->foreign('session_id')
-            ->references('id')
-            ->on('sessions')
-            ->onUpdate('cascade')
-            ->onDelete('cascade');
+            $table->foreign('session_id')
+                  ->references('id')->on('sessions')
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
         });
     }
 

@@ -492,7 +492,7 @@ describe('UsersIndex', () => {
       data: {
         data: [{
           id: 2,
-          authenticator: 'externldapal',
+          authenticator: 'ldap',
           email: 'darth@vader.com',
           external_id: 'dvr',
           firstname: 'Darth',

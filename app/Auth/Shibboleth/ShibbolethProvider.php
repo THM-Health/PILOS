@@ -17,7 +17,7 @@ class ShibbolethProvider
      */
     public function logout($redirect)
     {
-        return  config('services.shibboleth.logout').'?return='.$redirect;
+        return config('services.shibboleth.logout').'?return='.$redirect;
     }
 
     /**
@@ -27,7 +27,7 @@ class ShibbolethProvider
     {
         //Only destroy application cookie via front channel and destroy the application session via back channel
 
-        if (\Auth::user() && session('external_auth') == 'shibboleth') {
+        if (\Auth::user()?->authenticator == 'shibboleth') {
             \Auth::logout();
         }
 
@@ -91,15 +91,15 @@ class ShibbolethProvider
         $saml_user->syncWithEloquentModel($user, config('services.shibboleth.mapping')->roles);
 
         // Get shibboleth session id
-        $hasedShibbolethSessionId = $this->hashShibbolethSessionId($request->header(config('services.shibboleth.session_id_header')));
-        $expiresShibbolethSession = $request->header(config('services.shibboleth.session_expires_header'));
+        $hashedShibbolethSessionId = $this->hashShibbolethSessionId($request->header(config('services.shibboleth.session_id_header')));
+        $expiresShibbolethSession  = $request->header(config('services.shibboleth.session_expires_header'));
         
         // Cache key and expiration time to prevent duplicate login attempts with the same shibboleth session id
-        $cacheKey     = 'shibboleth_session_'.$hasedShibbolethSessionId;
+        $cacheKey     = 'shibboleth_session_'.$hashedShibbolethSessionId;
         $cacheExpires = Carbon::createFromTimestamp($expiresShibbolethSession);
 
         // Check if shibboleth session id is already in use by other sessions
-        $lookupSessions = SessionData::where('key', 'shibboleth_session_id')->where('value', $hasedShibbolethSessionId)->get();
+        $lookupSessions = SessionData::where('key', 'shibboleth_session_id')->where('value', $hashedShibbolethSessionId)->get();
         foreach ($lookupSessions as $lookupSession) {
             // Delete all application sessions with the same shibboleth session id
             $lookupSession->session()->delete();
@@ -119,14 +119,15 @@ class ShibbolethProvider
         Cache::put($cacheKey, true, $cacheExpires);
 
         // Store shibboleth session id in session data table to find application session based in the shibboleth session id
+        // The session is not yet stored in the database (stored after this request),
+        // therefore we cannot create a new SessionData model here but use the StoreSessionData middleware
         session(['session_data' => [
-            ['key'=>'shibboleth_session_id', 'value' => $hasedShibbolethSessionId],
+            ['key'=>'shibboleth_session_id', 'value' => $hashedShibbolethSessionId],
         ]]);
 
-        // Store authentication method and shibboleth session id in session
+        // Store shibboleth session id in session
         // to validate each request in the ValidateShibbolethSession middleware
-        session()->put('external_auth', 'shibboleth');
-        session()->put('shibboleth_session_id', $hasedShibbolethSessionId);
+        session()->put('shibboleth_session_id', $hashedShibbolethSessionId);
 
         return $user;
     }

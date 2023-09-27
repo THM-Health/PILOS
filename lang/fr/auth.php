@@ -9,7 +9,10 @@ return [
         'title'     => 'S\'identifier via son e-mail',
     ],
     'error' => [
-        'missing_attributes' => 'Les informations d\'identification sont manquants.',
+        'login_failed'                           => 'Connexion refusée',
+        'missing_attributes'                     => 'Informations d\'identification manquantes.',
+        'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation. Veuillez vous connecter à nouveau.',
+        'reason'                                 => 'Cause de l\'erreur',
     ],
     'authenticator'    => 'Authentificateur',
     'authenticator_id' => 'Authentificateur-ID',
@@ -36,8 +39,14 @@ return [
     'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
     'password'                  => 'Mot de passe',
     'reset_password'            => 'Réinitialiser le mot de passe',
+    'shibboleth'                => [
+        'redirect'          => 'Connexion',
+        'tab_title'         => 'Shibboleth',
+        'title'             => 'Connexion avec Shibboleth',
+    ],
     'send_email_confirm_mail'   => 'Un e-mail de vérification a été envoyé à {email}. Veuillez confirmer la nouvelle adresse en cliquant sur le lien dans l\'e-mail.',
     'send_password_reset_link'  => 'Envoyer le lien de réinitialisation du mot de passe',
+    'session_expired'           => 'Votre session est expirée. Veuillez vous connecter à nouveau',
     'sessions'                  => [
         'active'        => 'Sessions actives',
         'browser'       => 'Navigateur',
