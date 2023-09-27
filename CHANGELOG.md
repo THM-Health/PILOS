@@ -6,15 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Support for postgres database on db:import command ([#545])
 - Shibboleth authentication ([#20], [#497])
-- Import social users from Greenlight v2 ([#497])
-- Greenlight v2 migration using database transaction to revert changes on errors ([#497])
+- Database Import command: Support for postgres database ([#545])
+- Greenlight v2 migration command: Import social users ([#497])
+- Greenlight v2 migration command: Using database transactions to undo changes in case of errors ([#497])
 
 ### Fixed
 - Missing locale strings from fallback locale ([#576])
-- Error on Greenlight v2 migration, room feature 'Room Authentication' missing ([#497])
-- Error on Greenlight v2 migration, room name too long ([#497])
+- Greenlight v2 migration command: Room feature 'Room Authentication' missing ([#497])
+- Greenlight v2 migration command: Room name too long ([#497])
 
 ### Changed
 - Allow more characters for role names ([#535], [#536])
