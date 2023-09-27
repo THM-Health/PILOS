@@ -139,29 +139,27 @@ class ImportGreenlight2 extends Command
                     $existed++;
                     $userMap[$user->id] = $dbUser->id;
                     $bar->advance();
+                } else {
+                    // create new user
+                    $dbUser                = new User();
+                    $dbUser->authenticator = 'local';
+                    $dbUser->email         = $user->email;
+                    // as greenlight doesn't split the name in first and lastname,
+                    // we have to import it as firstname and ask the users or admins to correct it later if desired
+                    $dbUser->firstname     = $user->name;
+                    $dbUser->lastname      = '';
+                    $dbUser->password      = $user->password_digest;
+                    $dbUser->locale        = config('app.locale');
+                    $dbUser->timezone      = setting('default_timezone');
+                    $dbUser->save();
 
-                    continue;
+                    $dbUser->roles()->attach($defaultRole);
+
+                    // user was successfully created, link greenlight user id to id of new user
+                    $created++;
+                    $userMap[$user->id] = $dbUser->id;
+                    $bar->advance();
                 }
-
-                // create new user
-                $dbUser                = new User();
-                $dbUser->authenticator = 'local';
-                $dbUser->email         = $user->email;
-                // as greenlight doesn't split the name in first and lastname,
-                // we have to import it as firstname and ask the users or admins to correct it later if desired
-                $dbUser->firstname     = $user->name;
-                $dbUser->lastname      = '';
-                $dbUser->password      = $user->password_digest;
-                $dbUser->locale        = config('app.locale');
-                $dbUser->timezone      = setting('default_timezone');
-                $dbUser->save();
-
-                $dbUser->roles()->attach($defaultRole);
-
-                // user was successfully created, link greenlight user id to id of new user
-                $created++;
-                $userMap[$user->id] = $dbUser->id;
-                $bar->advance();
             }
             // import ldap users
             elseif ($user->provider == 'ldap') {
@@ -172,28 +170,26 @@ class ImportGreenlight2 extends Command
                     $existed++;
                     $userMap[$user->id] = $dbUser->id;
                     $bar->advance();
+                } else {
+                    // create new user
+                    $dbUser                = new User();
+                    $dbUser->authenticator = 'ldap';
+                    $dbUser->email         = $user->email;
+                    $dbUser->external_id   = $user->username;
+                    // as greenlight doesn't split the name in first and lastname,
+                    // we have to import it as firstname, should be corrected during next login
+                    $dbUser->firstname     = $user->name;
+                    $dbUser->lastname      = '';
+                    $dbUser->password      = Hash::make(Str::random());
+                    $dbUser->locale        = config('app.locale');
+                    $dbUser->timezone      = setting('default_timezone');
+                    $dbUser->save();
 
-                    continue;
+                    // user was successfully imported, link greenlight user id to id of new user
+                    $created++;
+                    $userMap[$user->id] = $dbUser->id;
+                    $bar->advance();
                 }
-
-                // create new user
-                $dbUser                = new User();
-                $dbUser->authenticator = 'ldap';
-                $dbUser->email         = $user->email;
-                $dbUser->external_id   = $user->username;
-                // as greenlight doesn't split the name in first and lastname,
-                // we have to import it as firstname, should be corrected during next login
-                $dbUser->firstname     = $user->name;
-                $dbUser->lastname      = '';
-                $dbUser->password      = Hash::make(Str::random());
-                $dbUser->locale        = config('app.locale');
-                $dbUser->timezone      = setting('default_timezone');
-                $dbUser->save();
-
-                // user was successfully imported, link greenlight user id to id of new user
-                $created++;
-                $userMap[$user->id] = $dbUser->id;
-                $bar->advance();
             } else {
                 // check if user with this social uid exists
                 $dbUser = User::where('external_id', $user->social_uid)->where('authenticator', $providerAuthenticatorMap[$user->provider])->first();
@@ -202,28 +198,26 @@ class ImportGreenlight2 extends Command
                     $existed++;
                     $userMap[$user->id] = $dbUser->id;
                     $bar->advance();
+                } else {
+                    // create new user
+                    $dbUser                = new User();
+                    $dbUser->authenticator = $providerAuthenticatorMap[$user->provider];
+                    $dbUser->email         = $user->email;
+                    $dbUser->external_id   = $user->social_uid;
+                    // as greenlight doesn't split the name in first and lastname,
+                    // we have to import it as firstname, should be corrected during next login
+                    $dbUser->firstname     = $user->name;
+                    $dbUser->lastname      = '';
+                    $dbUser->password      = Hash::make(Str::random());
+                    $dbUser->locale        = config('app.locale');
+                    $dbUser->timezone      = setting('default_timezone');
+                    $dbUser->save();
 
-                    continue;
+                    // user was successfully imported, link greenlight user id to id of new user
+                    $created++;
+                    $userMap[$user->id] = $dbUser->id;
+                    $bar->advance();
                 }
-
-                // create new user
-                $dbUser                = new User();
-                $dbUser->authenticator = $providerAuthenticatorMap[$user->provider];
-                $dbUser->email         = $user->email;
-                $dbUser->external_id   = $user->social_uid;
-                // as greenlight doesn't split the name in first and lastname,
-                // we have to import it as firstname, should be corrected during next login
-                $dbUser->firstname     = $user->name;
-                $dbUser->lastname      = '';
-                $dbUser->password      = Hash::make(Str::random());
-                $dbUser->locale        = config('app.locale');
-                $dbUser->timezone      = setting('default_timezone');
-                $dbUser->save();
-
-                // user was successfully imported, link greenlight user id to id of new user
-                $created++;
-                $userMap[$user->id] = $dbUser->id;
-                $bar->advance();
             }
         }
 
