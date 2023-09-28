@@ -78,13 +78,22 @@ jobs:
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
     - name: Execute tests (Unit and Feature tests) via PHPUnit
+      if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+      env:
+        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: root
+        DB_PASSWORD: password
+      run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
+    - name: Execute tests (Unit, Feature and Integration tests) via PHPUnit
+      if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
+      run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml  
     - name: Upload coverage
       uses: codecov/codecov-action@v3
     - name: Upload laravel logs
