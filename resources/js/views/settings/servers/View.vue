@@ -60,17 +60,17 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.servers.salt')"
-            label-for='salt'
-            :state='fieldState("salt")'
+            :label="$t('settings.servers.secret')"
+            label-for='secret'
+            :state='fieldState("secret")'
           >
             <b-input-group>
-              <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("salt")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
+              <b-form-input id='secret' :type='hideSecret ? "password": "text"' v-model='model.secret' :state='fieldState("secret")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
               <b-input-group-append>
-                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-tooltip-hide-click v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.show_salt') : $t('settings.servers.hide_salt')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
+                <b-button @click="hideSecret = !hideSecret" :disabled='isBusy || modelLoadingError' v-tooltip-hide-click v-b-tooltip.hover :title="hideSecret ? $t('settings.servers.show_secret') : $t('settings.servers.hide_secret')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSecret"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('salt')"></div></template>
+            <template slot='invalid-feedback'><div v-html="fieldError('secret')"></div></template>
           </b-form-group>
           <b-form-group
             :description="$t('settings.servers.strength_description')"
@@ -263,7 +263,7 @@ export default {
         id: null,
         disabled: false
       },
-      hideSalt: true,
+      hideSecret: true,
       errors: {},
       staleError: {},
       isBusy: false,
@@ -310,18 +310,18 @@ export default {
         method: 'post',
         data: {
           base_url: this.model.base_url,
-          salt: this.model.salt
+          secret: this.model.secret
         }
       };
 
       Base.call('servers/check', config).then(response => {
-        if (response.data.connection_ok && response.data.salt_ok) {
+        if (response.data.connection_ok && response.data.secret_ok) {
           this.online = 1;
           this.offlineReason = null;
         } else {
-          if (response.data.connection_ok && !response.data.salt_ok) {
+          if (response.data.connection_ok && !response.data.secret_ok) {
             this.online = 0;
-            this.offlineReason = 'salt';
+            this.offlineReason = 'secret';
           } else {
             this.online = 0;
             this.offlineReason = 'connection';

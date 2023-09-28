@@ -651,7 +651,7 @@ class RoomTest extends TestCase
 
         $server               = new Server();
         $server->base_url     = $this->faker->url;
-        $server->salt         = $this->faker->sha1;
+        $server->secret       = $this->faker->sha1;
         $server->status       = ServerStatus::ONLINE;
         $server->name         = $this->faker->word;
         $server->save();
@@ -1181,7 +1181,7 @@ class RoomTest extends TestCase
 
         // Check with wrong salt/secret
         foreach (Server::all() as $server) {
-            $server->salt = 'TEST';
+            $server->secret = 'TEST';
             $server->save();
         }
         $room2 = Room::factory()->create(['room_type_id'=>$room->roomType->id]);

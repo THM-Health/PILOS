@@ -83,7 +83,7 @@ return [
         'room_limit'                         => 'Maximale Anzahl an Räumen',
         'room_token_expiration'              => 'Ablaufzeit für personalisierte Raumlinks',
         'room_type'                          => 'Raumart',
-        'salt'                               => 'API Geheimnis',
+        'secret'                             => 'API Geheimnis',
         'second'                             => 'Sekunde',
         'server_pool'                        => 'Serverpool',
         'servers'                            => 'Server',

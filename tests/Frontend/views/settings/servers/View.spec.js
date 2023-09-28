@@ -567,7 +567,7 @@ describe('ServerView', () => {
       status: 200,
       data: {
         connection_ok: false,
-        salt_ok: false
+        secret_ok: false
       }
     });
 
@@ -578,14 +578,14 @@ describe('ServerView', () => {
 
     request = mockAxios.request('/api/v1/servers/check');
 
-    // check for invalid salt
+    // check for invalid secret
     await view.findAllComponents(BButton).at(1).trigger('click');
     await request.wait();
     await request.respondWith({
       status: 200,
       data: {
         connection_ok: true,
-        salt_ok: false
+        secret_ok: false
       }
     });
 
@@ -603,7 +603,7 @@ describe('ServerView', () => {
       status: 200,
       data: {
         connection_ok: true,
-        salt_ok: true
+        secret_ok: true
       }
     });
 

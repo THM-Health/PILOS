@@ -83,7 +83,7 @@ return [
         'room_limit'                         => 'Room limit',
         'room_token_expiration'              => 'Expiration time for personalized room links',
         'room_type'                          => 'Room type',
-        'salt'                               => 'API secret',
+        'secret'                             => 'API secret',
         'second'                             => 'Second',
         'server_pool'                        => 'Server pool',
         'servers'                            => 'Server',
