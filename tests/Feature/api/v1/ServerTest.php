@@ -10,10 +10,11 @@ use App\Models\Role;
 use App\Models\Server;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Database\Seeders\ServerSeeder;
+use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Utils\BigBlueButtonServerFaker;
 
 /**
  * General server api feature tests
@@ -408,10 +409,16 @@ class ServerTest extends TestCase
     public function testCheck()
     {
         // Adding server(s)
-        $this->seed(ServerSeeder::class);
-        $server = Server::all()->first();
+        $invalidSecret = 't64e8rtefererrg43erbgffrgz';
+        $validSecret   = '8d8e8rtefererrg43erbgffrgz';
 
-        $data = ['base_url'=>'https://host.tld/bigbluebutton','salt'=>'t64e8rtefererrg43erbgffrgz'];
+        $validHost   = 'https://bbb-valid.notld/bigbluebutton/';
+        $invalidHost = 'https://bbb-invalid.notld/bigbluebutton/';
+
+        $bbbfaker = new BigBlueButtonServerFaker($validHost, $validSecret);
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/Attendance/GetMeetings-1.xml')));
+
+        $data = ['base_url'=> $invalidHost,'secret'=> $invalidSecret];
 
         // Test guests
         $this->postJson(route('api.v1.servers.check'), $data)
@@ -429,22 +436,22 @@ class ServerTest extends TestCase
 
         // Test with invalid api details
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>false,'salt_ok'=>false]);
+            ->assertJson(['connection_ok'=>false,'secret_ok'=>false]);
 
-        // Test with invalid salt
-        $data = ['base_url'=>$server->base_url,'salt'=>'t64e8rtefererrg43erbgffrgz'];
+        // Test with invalid secret
+        $data = ['base_url'=>$validHost,'secret'=>$invalidSecret];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>true,'salt_ok'=>false]);
+            ->assertJson(['connection_ok'=>true,'secret_ok'=>false]);
 
         // Test with valid api details
-        $data = ['base_url'=>$server->base_url,'salt'=>$server->salt];
+        $data = ['base_url'=>$validHost,'secret'=>$validSecret];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>true,'salt_ok'=>true]);
+            ->assertJson(['connection_ok'=>true,'secret_ok'=>true]);
 
         // Test with invalid data
-        $data = ['base_url'=>'test','salt'=>''];
+        $data = ['base_url'=>'test','secret'=>''];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJsonValidationErrors(['base_url','salt']);
+            ->assertJsonValidationErrors(['base_url','secret']);
     }
 
     /**

@@ -82,6 +82,8 @@
             "@php artisan key:generate --ansi"
         ],
         "test": "php artisan test --parallel",
+        "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
+        "test-integration": "php artisan test --parallel --testsuite=Integration",
         "fix-cs": "php-cs-fixer fix --allow-risky=yes"
 
     }

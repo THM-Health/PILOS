@@ -1,0 +1,5 @@
+<response>
+<returncode>FAILED</returncode>
+<messageKey>notFound</messageKey>
+<message>We could not find a meeting with that meeting ID</message>
+</response>

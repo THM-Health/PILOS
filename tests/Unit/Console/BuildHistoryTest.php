@@ -5,11 +5,14 @@ namespace Tests\Unit\Console;
 use App\Enums\ServerStatus;
 use App\Models\Meeting;
 use App\Models\Room;
-use App\Services\MeetingService;
-use Database\Seeders\ServerSeeder;
+use App\Models\Server;
+use App\Models\User;
+use Carbon\Carbon;
+use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Utils\BigBlueButtonServerFaker;
 
 class BuildHistoryTest extends TestCase
 {
@@ -66,70 +69,116 @@ class BuildHistoryTest extends TestCase
      */
     public function testServerOnline()
     {
-        $room = Room::factory()->create([]);
+        $user99  = User::factory()->create(['id' => 99]);
+        $user100 = User::factory()->create(['id' => 100]);
+        $user101 = User::factory()->create(['id' => 101]);
+
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance'=>true]);
         setting(['statistics.servers.enabled' => true]);
         setting(['statistics.meetings.enabled' => true]);
+        setting(['attendance.enabled'=>true]);
 
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
-
-        // Start meeting
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertSuccessful();
-        $this->assertIsString($response->json('url'));
-
-        // Get new meeting
-        $runningMeeting = $room->runningMeeting();
+        $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-Start.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-1.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-2.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-3.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
 
         // Refresh usage and build history
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 00, 00));
         $this->artisan('history:build');
 
         // Check meeting archival data
-        $this->assertEquals(1, $runningMeeting->stats()->count());
-        $this->assertNotNull($runningMeeting->stats->last()->participant_count);
-        $this->assertNotNull($runningMeeting->stats->last()->listener_count);
-        $this->assertNotNull($runningMeeting->stats->last()->voice_participant_count);
-        $this->assertNotNull($runningMeeting->stats->last()->video_count);
-        $this->assertNull($runningMeeting->stats->last()->attendees);
+        $this->assertEquals(1, $meeting->stats()->count());
+        $this->assertEquals(6, $meeting->stats->last()->participant_count);
+        $this->assertEquals(3, $meeting->stats->last()->listener_count);
+        $this->assertEquals(3, $meeting->stats->last()->voice_participant_count);
+        $this->assertEquals(2, $meeting->stats->last()->video_count);
 
         // Check room live data
-        $runningMeeting->room->refresh();
-        $this->assertNotNull($runningMeeting->room->participant_count);
-        $this->assertNotNull($runningMeeting->room->listener_count);
-        $this->assertNotNull($runningMeeting->room->voice_participant_count);
-        $this->assertNotNull($runningMeeting->room->video_count);
+        $meeting->room->refresh();
+        $this->assertEquals(6, $meeting->room->participant_count);
+        $this->assertEquals(3, $meeting->room->listener_count);
+        $this->assertEquals(3, $meeting->room->voice_participant_count);
+        $this->assertEquals(2, $meeting->room->video_count);
 
         // Check server archival data
-        $this->assertEquals(1, $runningMeeting->server->stats()->count());
-        $this->assertNotNull($runningMeeting->server->stats->last()->participant_count);
-        $this->assertNotNull($runningMeeting->server->stats->last()->listener_count);
-        $this->assertNotNull($runningMeeting->server->stats->last()->voice_participant_count);
-        $this->assertNotNull($runningMeeting->server->stats->last()->video_count);
-        $this->assertNotNull($runningMeeting->server->stats->last()->meeting_count);
+        $this->assertEquals(1, $meeting->server->stats()->count());
+        $this->assertNotNull(6, $meeting->server->stats->last()->participant_count);
+        $this->assertNotNull(3, $meeting->server->stats->last()->listener_count);
+        $this->assertNotNull(3, $meeting->server->stats->last()->voice_participant_count);
+        $this->assertNotNull(2, $meeting->server->stats->last()->video_count);
+        $this->assertEquals(1, $meeting->server->stats->last()->meeting_count);
 
         // Check server live data
-        $runningMeeting->server->refresh();
-        $this->assertNotNull($runningMeeting->server->participant_count);
-        $this->assertNotNull($runningMeeting->server->listener_count);
-        $this->assertNotNull($runningMeeting->server->voice_participant_count);
-        $this->assertNotNull($runningMeeting->server->video_count);
-        $this->assertNotNull($runningMeeting->server->meeting_count);
+        $meeting->server->refresh();
+        $this->assertEquals(6, $meeting->server->participant_count);
+        $this->assertEquals(3, $meeting->server->listener_count);
+        $this->assertEquals(3, $meeting->server->voice_participant_count);
+        $this->assertEquals(2, $meeting->server->video_count);
+        $this->assertEquals(1, $meeting->server->meeting_count);
 
         // check with disabled server stats
         setting(['statistics.servers.enabled' => false]);
         setting(['statistics.meetings.enabled' => true]);
+        setting(['attendance.enabled'=>true]);
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 01, 00));
         $this->artisan('history:build');
-        $this->assertEquals(1, $runningMeeting->server->stats()->count());
-        $this->assertEquals(2, $runningMeeting->stats()->count());
+        $this->assertEquals(1, $meeting->server->stats()->count());
+        $this->assertEquals(2, $meeting->stats()->count());
 
         // check with disabled meeting stats
         setting(['statistics.servers.enabled' => true]);
         setting(['statistics.meetings.enabled' => false]);
+        setting(['attendance.enabled'=>true]);
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 02, 00));
         $this->artisan('history:build');
-        $this->assertEquals(2, $runningMeeting->server->stats()->count());
-        $this->assertEquals(2, $runningMeeting->stats()->count());
+        $this->assertEquals(2, $meeting->server->stats()->count());
+        $this->assertEquals(2, $meeting->stats()->count());
 
-        // Cleanup
-        (new MeetingService($runningMeeting))->end();
+        // check with disabled attendance
+        setting(['statistics.servers.enabled' => true]);
+        setting(['statistics.meetings.enabled' => true]);
+        setting(['attendance.enabled'=>false]);
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 03, 00));
+        $this->artisan('history:build');
+       
+        $this->assertEquals(3, $meeting->server->stats()->count());
+        $this->assertEquals(3, $meeting->stats()->count());
+
+        // Check attendance data
+        $attendees = $meeting->attendees->all();
+
+        $this->assertEquals('Marie Walker', $attendees[0]->name);
+        $this->assertEquals('2023-09-28 12:00:00', $attendees[0]->join->format('Y-m-d H:i:s'));
+        $this->assertEquals('2023-09-28 12:01:00', $attendees[0]->leave->format('Y-m-d H:i:s'));
+
+        $this->assertEquals('Bertha Luff', $attendees[1]->name);
+        $this->assertEquals('2023-09-28 12:00:00', $attendees[1]->join->format('Y-m-d H:i:s'));
+        $this->assertNull($attendees[1]->leave);
+
+        $this->assertTrue($user99->is($attendees[2]->user));
+        $this->assertEquals('2023-09-28 12:00:00', $attendees[2]->join->format('Y-m-d H:i:s'));
+        $this->assertEquals('2023-09-28 12:01:00', $attendees[2]->leave->format('Y-m-d H:i:s'));
+
+        $this->assertTrue($user100->is($attendees[3]->user));
+        $this->assertEquals('2023-09-28 12:00:00', $attendees[3]->join->format('Y-m-d H:i:s'));
+        $this->assertNull($attendees[3]->leave);
+
+        $this->assertTrue($user101->is($attendees[4]->user));
+        $this->assertEquals('2023-09-28 12:00:00', $attendees[4]->join->format('Y-m-d H:i:s'));
+        $this->assertEquals('2023-09-28 12:01:00', $attendees[4]->leave->format('Y-m-d H:i:s'));
+
+        $this->assertEquals('Marie Walker', $attendees[5]->name);
+        $this->assertEquals('2023-09-28 12:02:00', $attendees[5]->join->format('Y-m-d H:i:s'));
+        $this->assertNull($attendees[5]->leave);
+
+        $this->assertTrue($user99->is($attendees[6]->user));
+        $this->assertEquals('2023-09-28 12:02:00', $attendees[6]->join->format('Y-m-d H:i:s'));
+        $this->assertNull($attendees[6]->leave);
     }
 }

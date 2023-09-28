@@ -84,7 +84,7 @@ jobs:
         DB_USERNAME: root
         DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: php artisan test --parallel --coverage-clover=coverage.xml
+      run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Upload coverage
       uses: codecov/codecov-action@v3
     - name: Upload laravel logs
