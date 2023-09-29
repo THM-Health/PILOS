@@ -517,16 +517,16 @@
         },
         {
             "name": "directorytree/ldaprecord",
-            "version": "v3.1.1",
+            "version": "v3.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord.git",
-                "reference": "10aa78c811a7c33837f4b35b9e84b43fad727e86"
+                "reference": "cb671ac72940838fa4d1253f8615226ebe3ba7cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/10aa78c811a7c33837f4b35b9e84b43fad727e86",
-                "reference": "10aa78c811a7c33837f4b35b9e84b43fad727e86",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/cb671ac72940838fa4d1253f8615226ebe3ba7cf",
+                "reference": "cb671ac72940838fa4d1253f8615226ebe3ba7cf",
                 "shasum": ""
             },
             "require": {
@@ -589,20 +589,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-17T13:45:16+00:00"
+            "time": "2023-09-22T14:29:45+00:00"
         },
         {
             "name": "directorytree/ldaprecord-laravel",
-            "version": "v3.0.6",
+            "version": "v3.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord-Laravel.git",
-                "reference": "13bf7ceb39bfc2897b6cfd8eddaa60745fee38d5"
+                "reference": "f7c43faa2f61659d141a0ad5f9520599b6349b00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/13bf7ceb39bfc2897b6cfd8eddaa60745fee38d5",
-                "reference": "13bf7ceb39bfc2897b6cfd8eddaa60745fee38d5",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/f7c43faa2f61659d141a0ad5f9520599b6349b00",
+                "reference": "f7c43faa2f61659d141a0ad5f9520599b6349b00",
                 "shasum": ""
             },
             "require": {
@@ -618,7 +618,7 @@
                 "laravel/sanctum": "*",
                 "mockery/mockery": "^1.0",
                 "orchestra/testbench": "^6.0|^7.0|^8.0",
-                "phpunit/phpunit": "^8.0|^9.0",
+                "phpunit/phpunit": "^8.0|^9.0|^10.0",
                 "spatie/ray": "^1.28"
             },
             "type": "project",
@@ -648,7 +648,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/LdapRecord-Laravel/issues",
-                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.0.6"
+                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.0.7"
             },
             "funding": [
                 {
@@ -656,7 +656,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-24T18:02:38+00:00"
+            "time": "2023-09-28T19:50:10+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -866,16 +866,16 @@
         },
         {
             "name": "doctrine/deprecations",
-            "version": "v1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/deprecations.git",
-                "reference": "612a3ee5ab0d5dd97b7cf3874a6efe24325efac3"
+                "reference": "4f2d4f2836e7ec4e7a8625e75c6aa916004db931"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/deprecations/zipball/612a3ee5ab0d5dd97b7cf3874a6efe24325efac3",
-                "reference": "612a3ee5ab0d5dd97b7cf3874a6efe24325efac3",
+                "url": "https://api.github.com/repos/doctrine/deprecations/zipball/4f2d4f2836e7ec4e7a8625e75c6aa916004db931",
+                "reference": "4f2d4f2836e7ec4e7a8625e75c6aa916004db931",
                 "shasum": ""
             },
             "require": {
@@ -907,9 +907,9 @@
             "homepage": "https://www.doctrine-project.org/",
             "support": {
                 "issues": "https://github.com/doctrine/deprecations/issues",
-                "source": "https://github.com/doctrine/deprecations/tree/v1.1.1"
+                "source": "https://github.com/doctrine/deprecations/tree/1.1.2"
             },
-            "time": "2023-06-03T09:27:29+00:00"
+            "time": "2023-09-27T20:04:15+00:00"
         },
         {
             "name": "doctrine/event-manager",
@@ -2022,16 +2022,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v10.25.1",
+            "version": "v10.25.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "cd0a440f43eaaad247d6f6575d3782c156ec913c"
+                "reference": "6014dd456b414b305fb0b408404efdcec18e64bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/cd0a440f43eaaad247d6f6575d3782c156ec913c",
-                "reference": "cd0a440f43eaaad247d6f6575d3782c156ec913c",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/6014dd456b414b305fb0b408404efdcec18e64bc",
+                "reference": "6014dd456b414b305fb0b408404efdcec18e64bc",
                 "shasum": ""
             },
             "require": {
@@ -2218,7 +2218,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2023-09-27T01:29:32+00:00"
+            "time": "2023-09-28T14:08:59+00:00"
         },
         {
             "name": "laravel/prompts",
