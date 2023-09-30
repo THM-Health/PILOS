@@ -26,6 +26,7 @@
         <b-col md="8" class="text-right">
 
           <b-dropdown
+            :disabled="loadingRooms"
             variant="secondary"
             class=" ml-1 mb-2"
             style="width: 14rem"
@@ -51,11 +52,11 @@
             <b-dropdown-item @click="changeSortingOption('room_type')"> {{ $t('rooms.index.sorting.room_type') }} </b-dropdown-item>
           </b-dropdown>
 
-          <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms();" :variant="onlyShowFavorites?'primary':'secondary'" v-tooltip-hide-click v-b-tooltip.hover :title="$t('rooms.index.favorites')" :disabled="showFilterOptions" class=" ml-1 mb-2">
+          <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms();" :variant="onlyShowFavorites?'primary':'secondary'" v-tooltip-hide-click v-b-tooltip.hover :title="$t('rooms.index.favorites')" :disabled="showFilterOptions||loadingRooms" class=" ml-1 mb-2">
             <small class="fa-solid fa-star"></small>
           </b-button>
 
-          <b-button @click="showFilterOptions=!showFilterOptions" :disabled="onlyShowFavorites" :variant="showFilterOptions?'primary':'secondary'" class = " ml-1 mb-2">
+          <b-button @click="showFilterOptions=!showFilterOptions" :disabled="onlyShowFavorites||loadingRooms" :variant="showFilterOptions?'primary':'secondary'" class = " ml-1 mb-2">
             <small class="fa-solid fa-filter mr-1"></small>
             {{$t('rooms.index.filter')}}
             <small class="fa-solid" :class="{'fa-chevron-up': showFilterOptions, 'fa-chevron-down':!showFilterOptions }"></small>
@@ -67,7 +68,7 @@
 <!--  filter options-->
       <b-row v-if="showFilterOptions"  class="mb-2">
         <b-col md="9" class="d-flex align-items-center">
-          <b-form-group class="mb-2 mt-2">
+          <b-form-group class="mb-2 mt-2" :disabled="loadingRooms">
             <b-form-checkbox
               inline
               switch
@@ -107,7 +108,7 @@
           </b-form-group>
         </b-col>
         <b-col md="3" class="h-100">
-          <b-form-select v-model="selectedRoomType" @change="loadRooms()" class="float-right">
+          <b-form-select v-model="selectedRoomType" @change="loadRooms()" class="float-right" :disabled="loadingRooms||roomTypesBusy">
             <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
             <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
             <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>

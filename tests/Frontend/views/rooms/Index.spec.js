@@ -2,8 +2,17 @@ import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index.vue';
 import {
   BBadge,
-  BButton, BCard,
-  BCol, BDropdown, BDropdownItem, BFormCheckbox, BFormInput, BFormSelect, BFormSelectOption, BInputGroupAppend,
+  BButton,
+  BCard,
+  BCol,
+  BDropdown,
+  BDropdownItem,
+  BFormCheckbox,
+  BFormGroup,
+  BFormInput,
+  BFormSelect,
+  BFormSelectOption,
+  BInputGroupAppend,
   BListGroupItem,
   BOverlay,
   BPagination,
@@ -141,7 +150,11 @@ describe('Room Index', () => {
     expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeTruthy();
     expect(view.getComponent({ref:'search'}).element.disabled).toBeTruthy();
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeTruthy();
-
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeTruthy();
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+    expect(view.findComponent(BFormGroup).exists()).toBeFalsy();
+    expect(view.findComponent(BFormSelect).exists()).toBeFalsy();
 
     //respond with example data to room and roomType request
     await roomRequest.respondWith({
@@ -161,6 +174,13 @@ describe('Room Index', () => {
     expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
     expect(view.getComponent({ref:'search'}).element.disabled).toBeFalsy();
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    await view.findAllComponents(BButton).at(4).trigger('click');
+    expect(view.findComponent(BFormGroup).exists()).toBeTruthy();
+    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
+    //ToDo check if filter components get disabled
 
     await mockAxios.wait();
     await view.vm.$nextTick();
@@ -257,7 +277,6 @@ describe('Room Index', () => {
     expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
 
     //ToDo? check if opening another is prohibited while the other room is opening
-
     view.destroy();
   });
 
@@ -648,6 +667,10 @@ describe('Room Index', () => {
     expect(roomRequest.config.params.filter_shared).toBeTruthy();
     expect(roomRequest.config.params.filter_public).toBeTruthy();
     expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
 
     //Trigger another checkbox
     roomRequest = mockAxios.request('/api/v1/rooms');
@@ -657,6 +680,10 @@ describe('Room Index', () => {
     expect(roomRequest.config.params.filter_shared).toBeFalsy();
     expect(roomRequest.config.params.filter_public).toBeTruthy();
     expect(checkboxes.at(1).props('checked')).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
 
     //Change select option
     roomRequest = mockAxios.request('/api/v1/rooms');
@@ -665,6 +692,10 @@ describe('Room Index', () => {
 
     expect(roomRequest.config.params.room_type).toBe(2);
     expect(select.element.value).toBe('2');
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
 
     //Trigger button and check if it is shown correct
     await filterButton.trigger('click');
@@ -722,13 +753,23 @@ describe('Room Index', () => {
     expect(roomRequest.config.params.only_favorites).toBeTruthy();
     //Check if filter button is disabled
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
 
     //Trigger favorites button again
     roomRequest = mockAxios.request('/api/v1/rooms');
+    console.log(favoritesButton.html());
     favoritesButton.trigger('click');
     await roomRequest.wait();
 
     expect(roomRequest.config.params.only_favorites).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
     //Check if filter button is disabled
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
 
