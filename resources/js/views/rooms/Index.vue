@@ -56,7 +56,7 @@
             <small class="fa-solid fa-star"></small>
           </b-button>
 
-          <b-button @click="showFilterOptions=!showFilterOptions" :disabled="onlyShowFavorites||loadingRooms" :variant="showFilterOptions?'primary':'secondary'" class = " ml-1 mb-2">
+          <b-button @click="showFilterOptions=!showFilterOptions" :disabled="onlyShowFavorites" :variant="showFilterOptions?'primary':'secondary'" class = " ml-1 mb-2">
             <small class="fa-solid fa-filter mr-1"></small>
             {{$t('rooms.index.filter')}}
             <small class="fa-solid" :class="{'fa-chevron-up': showFilterOptions, 'fa-chevron-down':!showFilterOptions }"></small>

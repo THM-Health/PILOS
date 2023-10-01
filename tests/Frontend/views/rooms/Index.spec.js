@@ -9,22 +9,16 @@ import {
   BDropdownItem,
   BFormCheckbox,
   BFormGroup,
-  BFormInput,
   BFormSelect,
   BFormSelectOption,
   BInputGroupAppend,
-  BListGroupItem,
-  BOverlay,
-  BPagination,
-  BSpinner
+  BOverlay
 } from 'bootstrap-vue';
 
-import VueRouter from 'vue-router';
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
-import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import RoomComponent from "../../../../resources/js/components/Room/RoomComponent.vue";
@@ -33,7 +27,6 @@ import NewRoomComponent from "../../../../resources/js/components/Room/NewRoomCo
 import {expect} from "vitest";
 
 const localVue = createLocalVue();
-localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
@@ -152,9 +145,14 @@ describe('Room Index', () => {
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeTruthy();
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeTruthy();
     expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
     expect(view.findComponent(BFormGroup).exists()).toBeFalsy();
     expect(view.findComponent(BFormSelect).exists()).toBeFalsy();
+    await view.findAllComponents(BButton).at(4).trigger('click');
+    expect(view.findComponent(BFormGroup).exists()).toBeTruthy();
+    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
+    expect(view.findComponent(BFormGroup).element.disabled).toBeTruthy();
+    expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
 
     //respond with example data to room and roomType request
     await roomRequest.respondWith({
@@ -162,25 +160,28 @@ describe('Room Index', () => {
       data: exampleRoomResponse
     });
 
-    await roomTypeRequest.respondWith({
-      status: 200,
-      data: exampleRoomTypeResponse
-    });
-    await roomTypeRequest.wait();
-
     // check if overlay is disabled and buttons active
     expect(view.vm.$data.loadingRooms).toBeFalsy();
-    expect(view.vm.$data.roomTypesBusy).toBeFalsy();
+    expect(view.vm.$data.roomTypesBusy).toBeTruthy();
     expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
     expect(view.getComponent({ref:'search'}).element.disabled).toBeFalsy();
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
+
+    await roomTypeRequest.respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    expect(view.vm.$data.roomTypesBusy).toBeFalsy();
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
     await view.findAllComponents(BButton).at(4).trigger('click');
-    expect(view.findComponent(BFormGroup).exists()).toBeTruthy();
-    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
-    //ToDo check if filter components get disabled
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+
 
     await mockAxios.wait();
     await view.vm.$nextTick();
@@ -228,55 +229,6 @@ describe('Room Index', () => {
 
 
     // //ToDo why error?
-    view.destroy();
-  });
-
-  it('click on room in list', async ()=>{
-    const router = new VueRouter();
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
-    const exampleRoomListEntry = {
-      id: 'abc-def-123',
-      name: 'Meeting One',
-      owner: {
-        id: 1,
-        name: 'John Doe'
-      },
-      last_meeting: null,
-      type: {
-        id: 2,
-        short: 'ME',
-        description: 'Meeting',
-        color: '#4a5c66',
-        default: false
-      },
-      is_favorite:false,
-      short_description: 'Own room'
-    };
-    const view = mount(RoomComponent, {
-      localVue,
-      router,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        id: exampleRoomListEntry.id,
-        name: exampleRoomListEntry.name,
-        shortDescription: exampleRoomListEntry.short_description,
-        isFavorite: exampleRoomListEntry.is_favorite,
-        owner:exampleRoomListEntry.owner,
-        type: exampleRoomListEntry.type
-      },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
-      attachTo: createContainer()
-    });
-
-    //try to open room
-    await view.findComponent(BCard).trigger('click');
-
-    expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
-
-    //ToDo? check if opening another is prohibited while the other room is opening
     view.destroy();
   });
 
@@ -760,7 +712,6 @@ describe('Room Index', () => {
 
     //Trigger favorites button again
     roomRequest = mockAxios.request('/api/v1/rooms');
-    console.log(favoritesButton.html());
     favoritesButton.trigger('click');
     await roomRequest.wait();
 
