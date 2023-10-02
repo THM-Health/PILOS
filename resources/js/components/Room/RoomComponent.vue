@@ -50,6 +50,7 @@
 
 <!--    short Description Modal-->
     <b-modal
+      :static='modalStatic'
       ref="short-description-modal"
       :id="'short-description-modal-' + id"
       ok-variant="primary"
@@ -126,7 +127,11 @@ export default {
       default: false
     },
     type: Object,
-    owner: Object
+    owner: Object,
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
 

@@ -721,7 +721,7 @@ describe('Room Index', () => {
       data: exampleRoomResponse
     });
 
-    //Check if filter button is disabled
+    //Check if filter button is not disabled
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
 
     //ToDo why error?
