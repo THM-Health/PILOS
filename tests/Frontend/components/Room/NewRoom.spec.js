@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index.vue';
-import {BButton, BFormInput, BFormSelect} from 'bootstrap-vue';
+import { BButton, BFormInput, BFormSelect } from 'bootstrap-vue';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
@@ -39,7 +39,7 @@ describe('Create new rooms', () => {
           color: '#4a5c66',
           default: false
         },
-        is_favorite:false,
+        is_favorite: false,
         short_description: 'Own room'
       },
       {
@@ -49,9 +49,9 @@ describe('Create new rooms', () => {
           id: 1,
           name: 'John Doe'
         },
-        last_meeting:{
-          start:'2023-08-21 08:18:28:00',
-          end:null
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
         },
         type: {
           id: 2,
@@ -60,7 +60,7 @@ describe('Create new rooms', () => {
           color: '#4a5c66',
           default: false
         },
-        is_favorite:false,
+        is_favorite: false,
         short_description: null
       },
       {
@@ -71,8 +71,8 @@ describe('Create new rooms', () => {
           name: 'John Doe'
         },
         last_meeting: {
-          start:'2023-08-21 08:18:28:00',
-          end:'2023-08-21 08:20:28:00'
+          start: '2023-08-21 08:18:28:00',
+          end: '2023-08-21 08:20:28:00'
         },
         type: {
           id: 2,
@@ -81,7 +81,7 @@ describe('Create new rooms', () => {
           color: '#4a5c66',
           default: false
         },
-        is_favorite:false,
+        is_favorite: false,
         short_description: null
       }
     ],
@@ -105,13 +105,11 @@ describe('Create new rooms', () => {
     ]
   };
 
-  //ToDo
   it('frontend permission test', async () => {
     mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
-
 
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(RoomList, {
@@ -135,6 +133,8 @@ describe('Create new rooms', () => {
     PermissionService.setCurrentUser(newUser);
 
     await view.vm.$nextTick();
+    //ToDo Permission was changed but component still missing
+    console.log(PermissionService.currentUser.permissions);
 
     const newRoomComponent = view.findComponent(NewRoomComponent);
     expect(newRoomComponent.exists()).toBeTruthy();
@@ -143,7 +143,7 @@ describe('Create new rooms', () => {
   });
 
   it('frontend room limit test', async () => {
-    mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -184,9 +184,8 @@ describe('Create new rooms', () => {
 
     // Enter search query
     await searchField.setValue('test');
-    console.log("Test1")
 
-    const ownRequest = mockAxios.request('/api/v1/rooms', {filter_own:1, filter_shared: 1, filter_public: 0, filter_all:0, only_favorites: 0, sort_by:'last_started', page:1 });
+    const ownRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 });
 
     searchField.trigger('change');
 
@@ -206,7 +205,7 @@ describe('Create new rooms', () => {
           to: null,
           total: 0,
           total_no_filter: 1,
-          total_own:1
+          total_own: 1
         }
       }
     });

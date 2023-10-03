@@ -619,10 +619,10 @@ class RoomTest extends TestCase
 
     public function testRoomListSorting()
     {
-        $server   = Server::factory()->create();
-        $roomType1 = RoomType::factory()->create(['description' => 'roomType1']);
-        $roomType2 = RoomType::factory()->create(['description' => 'roomType2']);
-        $roomType3 = RoomType::factory()->create(['description' => 'roomType3']);
+        $server       = Server::factory()->create();
+        $roomType1    = RoomType::factory()->create(['description' => 'roomType1']);
+        $roomType2    = RoomType::factory()->create(['description' => 'roomType2']);
+        $roomType3    = RoomType::factory()->create(['description' => 'roomType3']);
         $roomRunning1 = Room::factory()->create(['name' => 'Runnning room 1','room_type_id'=>$roomType1->id]);
         $roomRunning1->owner()->associate($this->user);
         $meetingRunning1 = Meeting::factory()->create(['room_id' => $roomRunning1->id, 'start' => '2000-01-01 11:11:00', 'end'=> null, 'server_id'=> $server->id]);
@@ -692,7 +692,6 @@ class RoomTest extends TestCase
         $this->assertEquals($roomLastEnded->id, $results->json('data')[3] ['id']);
         $this->assertEquals($roomNeverStarted->id, $results->json('data')[4] ['id']);
         $this->assertEquals($roomRunning2->id, $results->json('data')[5] ['id']);
-
     }
 
     public function testFavorites()

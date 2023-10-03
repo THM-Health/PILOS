@@ -386,7 +386,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
-            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
+            last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1061,7 +1061,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
-            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
+            last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1133,7 +1133,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
-            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
+            last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1199,7 +1199,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
-            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
+            last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1304,7 +1304,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
-            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
+            last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1407,7 +1407,7 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
-            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
+            last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -1480,11 +1480,11 @@ describe('Room', () => {
             id: 'abc-def-789',
             name: 'Meeting One',
             owner: { id: 2, name: 'Max Doe' },
-            last_meeting:{start: '2023-08-21 08:18:28:00', end:null},
+            last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
-            short_description:null,
-            is_favorite:false,
+            short_description: null,
+            is_favorite: false,
             authenticated: true,
             allow_membership: false,
             is_member: false,
@@ -1591,7 +1591,7 @@ describe('Room', () => {
       }
     });
 
-    //ToDo
+    // ToDo
     expect(baseError).toBeCalledTimes(2);
     console.log(baseError.mock.calls[0][0].response);
     console.log(baseError.mock.calls[2][0].response);

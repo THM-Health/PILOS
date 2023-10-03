@@ -2,12 +2,12 @@ import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import {mockAxios, createContainer, createLocalVue, waitModalShown, waitModalHidden} from '../../helper';
+import { mockAxios, createContainer, createLocalVue, waitModalShown, waitModalHidden } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import RoomComponent from "../../../../resources/js/components/Room/RoomComponent.vue";
-import {expect} from "vitest";
-import {BBadge, BButton, BCard} from "bootstrap-vue";
+import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
+import { expect } from 'vitest';
+import { BBadge, BButton, BCard } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -58,24 +58,24 @@ describe('Room Component', () => {
         owner: exampleRoomListEntry.owner,
         type: exampleRoomListEntry.type
       },
-      pinia: createTestingPinia({initialState: _.cloneDeep(initialState)}),
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
-    //try to open room
+    // try to open room
     await view.findComponent(BCard).trigger('click');
 
     expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({name: 'rooms.view', params: {id: exampleRoomListEntry.id}});
+    expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
 
-    //ToDo? check if opening another is prohibited while the other room is opening
+    // ToDo? check if opening another is prohibited while the other room is opening
     view.destroy();
   });
 
-  it ('test short description', async () =>{
+  it('test short description', async () => {
     const router = new VueRouter();
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
-    let exampleRoomListEntry = {
+    const exampleRoomListEntry = {
       id: 'abc-def-123',
       name: 'Meeting One',
       owner: {
@@ -93,7 +93,7 @@ describe('Room Component', () => {
       is_favorite: false,
       short_description: 'short description for room'
     };
-    let view = mount(RoomComponent, {
+    const view = mount(RoomComponent, {
       localVue,
       router,
       mocks: {
@@ -112,29 +112,29 @@ describe('Room Component', () => {
       stubs: {
         transition: false
       },
-      pinia: createTestingPinia({initialState: _.cloneDeep(initialState)}),
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
-    //check if button is shown
+    // check if button is shown
     expect(view.findAllComponents(BButton).length).toBe(5);
-    let shortDescButton = view.findAllComponents(BButton).at(0);
+    const shortDescButton = view.findAllComponents(BButton).at(0);
     expect(shortDescButton.html()).toContain('fa-info');
 
-    //check if modal exists and is closed
-    let shortDescModal = view.findComponent({ref: 'short-description-modal'});
+    // check if modal exists and is closed
+    const shortDescModal = view.findComponent({ ref: 'short-description-modal' });
     expect(shortDescModal.exists()).toBeTruthy();
     expect(shortDescModal.find('.modal').element.style.display).toEqual('none');
 
-    //try to open modal
-    await waitModalShown(view, async () =>{
+    // try to open modal
+    await waitModalShown(view, async () => {
       shortDescButton.trigger('click');
     });
 
-    //check if modal is open
+    // check if modal is open
     expect(shortDescModal.find('.modal').element.style.display).toEqual('block');
 
-    //check if modal shows correct
+    // check if modal shows correct
     expect(shortDescModal.findAll('h5').at(0).text()).toEqual('rooms.index.room_component.details');
     expect(shortDescModal.findAll('h5').at(1).text()).toEqual(exampleRoomListEntry.name);
     expect(shortDescModal.get(BBadge).text()).toEqual(exampleRoomListEntry.type.description);
@@ -145,28 +145,28 @@ describe('Room Component', () => {
     expect(shortDescModal.findAllComponents(BButton).at(1).text()).toEqual('app.close');
     expect(shortDescModal.findAllComponents(BButton).at(2).text()).toEqual('rooms.index.room_component.open');
 
-    //check if modal closes when the button is clicked
-    await waitModalHidden(view, async () =>{
+    // check if modal closes when the button is clicked
+    await waitModalHidden(view, async () => {
       shortDescModal.findAllComponents(BButton).at(1).trigger('click');
     });
     expect(shortDescModal.find('.modal').element.style.display).toEqual('none');
 
-    //try to open modal again
-    await waitModalShown(view, async () =>{
+    // try to open modal again
+    await waitModalShown(view, async () => {
       shortDescButton.trigger('click');
     });
     expect(shortDescModal.find('.modal').element.style.display).toEqual('block');
 
-    //try to open room
+    // try to open room
     await shortDescModal.findAllComponents(BButton).at(2).trigger('click');
 
     expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({name: 'rooms.view', params: {id: exampleRoomListEntry.id}});
+    expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
 
     view.destroy();
   });
 
-  it ('test favorites', async () =>{
+  it('test favorites', async () => {
     const exampleRoomListEntry = {
       id: 'abc-def-123',
       name: 'Meeting One',
@@ -202,11 +202,11 @@ describe('Room Component', () => {
       stubs: {
         transition: false
       },
-      pinia: createTestingPinia({initialState: _.cloneDeep(initialState)}),
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
-    //check if button is shown
+    // check if button is shown
     expect(view.findAllComponents(BButton).length).toBe(5);
     let favoritesButton = view.findAllComponents(BButton).at(1);
     expect(favoritesButton.html()).toContain('fa-star');
@@ -214,7 +214,7 @@ describe('Room Component', () => {
 
     let favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
 
-    //trigger favorites button
+    // trigger favorites button
     await favoritesButton.trigger('click');
     await favoritesRequest.wait();
     expect(favoritesRequest.config.method).toEqual('put');
@@ -225,8 +225,92 @@ describe('Room Component', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    //check if button changed
+    // check if favorites_changed gets emitted
     expect(view.emitted().favorites_changed).toBeTruthy();
 
+    view.setProps({isFavorite: true});
+
+    await view.vm.$nextTick();
+
+    // check if button changed
+    expect(favoritesButton.attributes().class).toContain('dark');
+
+    // trigger favorites button again
+    favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
+    await favoritesButton.trigger('click');
+    await favoritesRequest.wait();
+    expect(favoritesRequest.config.method).toEqual('delete');
+
+    await favoritesRequest.respondWith({
+      status: 204
+    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // check if favorites_changed gets emitted
+    expect(view.emitted().favorites_changed).toBeTruthy();
+    view.setProps({isFavorite: false});
+    await view.vm.$nextTick();
+
+    // check if button to open short description modal is shown
+    const shortDescButton = view.findAllComponents(BButton).at(0);
+    expect(shortDescButton.html()).toContain('fa-info');
+
+    // check if short description modal exists and is closed
+    const shortDescModal = view.findComponent({ ref: 'short-description-modal' });
+    expect(shortDescModal.exists()).toBeTruthy();
+    expect(shortDescModal.find('.modal').element.style.display).toEqual('none');
+
+    // try to open short description modal
+    await waitModalShown(view, async () => {
+      shortDescButton.trigger('click');
+    });
+
+    // check if short description modal is open
+    expect(shortDescModal.find('.modal').element.style.display).toEqual('block');
+
+    // find favorites button and if it is shown correct
+    favoritesButton = shortDescModal.findAllComponents(BButton).at(0);
+    expect(favoritesButton.html()).toContain('fa-star');
+    expect(favoritesButton.attributes().class).toContain('light');
+
+    // trigger favorites button
+    favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
+    await favoritesButton.trigger('click');
+    await favoritesRequest.wait();
+    expect(favoritesRequest.config.method).toEqual('put');
+
+    await favoritesRequest.respondWith({
+      status: 204
+    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // check if favorites_changed gets emitted
+    expect(view.emitted().favorites_changed).toBeTruthy();
+
+    view.setProps({isFavorite: true});
+
+    await view.vm.$nextTick();
+
+    // check if button changed
+    expect(favoritesButton.attributes().class).toContain('dark');
+
+    // trigger favorites button again
+    favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
+    await favoritesButton.trigger('click');
+    await favoritesRequest.wait();
+    expect(favoritesRequest.config.method).toEqual('delete');
+
+    await favoritesRequest.respondWith({
+      status: 204
+    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // check if favorites_changed gets emitted
+    expect(view.emitted().favorites_changed).toBeTruthy();
+
+    view.destroy();
   });
 });
