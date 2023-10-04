@@ -263,9 +263,9 @@ return [
     'title' => 'Settings',
     'users' => [
         'authenticator' => [
-            'shibboleth' => 'Shibboleth',
             'ldap'       => 'LDAP',
             'local'      => 'Local',
+            'shibboleth' => 'Shibboleth',
             'title'      => 'Authentication Type',
         ],
         'base_data' => 'Base data',

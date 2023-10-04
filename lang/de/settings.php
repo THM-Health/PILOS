@@ -3,7 +3,7 @@
 return [
     'application' => [
         'attendance' => [
-            'enabled_title'          => 'Protokollierung der Teilnehmeranwenheit in Meetings zulassen',
+            'enabled_title'          => 'Protokollierung der Teilnehmeranwesenheit in Meetings zulassen',
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
         ],
         'attendance_and_statistics_title' => 'Aufzeichnung und Statistik',
@@ -263,9 +263,9 @@ return [
     'title' => 'Einstellungen',
     'users' => [
         'authenticator' => [
-            'shibboleth' => 'Shibboleth',
             'ldap'       => 'LDAP',
             'local'      => 'Lokal',
+            'shibboleth' => 'Shibboleth',
             'title'      => 'Anmeldeart',
         ],
         'base_data' => 'Stammdaten',

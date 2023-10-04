@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'authenticator'    => 'Authenticator',
+    'authenticator_id' => 'Authenticator-ID',
     'change_email'     => 'Change Email',
     'change_password'  => 'Change password',
     'current_password' => 'Current password',
@@ -11,13 +13,11 @@ return [
     'error' => [
         'login_failed'                           => 'Login failed',
         'missing_attributes'                     => 'Attributes for authentication are missing.',
-        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
         'reason'                                 => 'Error reason',
+        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
     ],
-    'authenticator'    => 'Authenticator',
-    'authenticator_id' => 'Authenticator-ID',
-    'failed'           => 'These credentials do not match our records.',
-    'flash'            => [
+    'failed' => 'These credentials do not match our records.',
+    'flash'  => [
         'login'             => 'Successfully logged in',
         'logout_all_others' => 'The other devices have been successfully logged out!',
         'logout_error'      => 'Logout failed',
@@ -39,11 +39,6 @@ return [
     'new_password_confirmation' => 'New password confirmation',
     'password'                  => 'Password',
     'reset_password'            => 'Reset password',
-    'shibboleth'                => [
-        'redirect'          => 'Log in',
-        'tab_title'         => 'Shibboleth',
-        'title'             => 'Log in with Shibboleth',
-    ],
     'send_email_confirm_mail'   => 'A verification email has been sent to {email}. Please confirm the new email address by clicking on the link in the email.',
     'send_password_reset_link'  => 'Send password reset link',
     'session_expired'           => 'Your session has expired. Please log in again.',
@@ -56,7 +51,12 @@ return [
         'logout_all'    => 'Logout all other sessions',
         'unknown_agent' => 'Unknown',
     ],
-    'set_password'   => 'Set password',
+    'set_password' => 'Set password',
+    'shibboleth'   => [
+        'redirect'  => 'Log in',
+        'tab_title' => 'Shibboleth',
+        'title'     => 'Log in with Shibboleth',
+    ],
     'throttle'       => 'Too many login attempts. Please try again in :seconds seconds.',
     'throttle_email' => 'You have recently requested an email change. Please wait and try again later.',
 ];
