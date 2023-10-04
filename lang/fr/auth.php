@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'authenticator'    => 'Authentificateur',
+    'authenticator_id' => 'Authentificateur-ID',
     'change_email'     => 'Changer l\'adresse e-mail',
     'change_password'  => 'Changer le mot de passe',
     'current_password' => 'Mot de passe actuel',
@@ -11,13 +13,11 @@ return [
     'error' => [
         'login_failed'                           => 'Connexion refusée',
         'missing_attributes'                     => 'Informations d\'identification manquantes.',
-        'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation. Veuillez vous connecter à nouveau.',
         'reason'                                 => 'Cause de l\'erreur',
+        'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation. Veuillez vous connecter à nouveau.',
     ],
-    'authenticator'    => 'Authentificateur',
-    'authenticator_id' => 'Authentificateur-ID',
-    'failed'           => 'Ces informations d\'identification ne correspondent pas à nos enregistrements.',
-    'flash'            => [
+    'failed' => 'Ces informations d\'identification ne correspondent pas à nos enregistrements.',
+    'flash'  => [
         'login'             => 'Connexion réussie',
         'logout_all_others' => 'Les autres appareils ont été déconnectés avec succès!',
         'logout_error'      => 'Échec de la déconnexion',
@@ -39,11 +39,6 @@ return [
     'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
     'password'                  => 'Mot de passe',
     'reset_password'            => 'Réinitialiser le mot de passe',
-    'shibboleth'                => [
-        'redirect'          => 'Connexion',
-        'tab_title'         => 'Shibboleth',
-        'title'             => 'Connexion avec Shibboleth',
-    ],
     'send_email_confirm_mail'   => 'Un e-mail de vérification a été envoyé à {email}. Veuillez confirmer la nouvelle adresse en cliquant sur le lien dans l\'e-mail.',
     'send_password_reset_link'  => 'Envoyer le lien de réinitialisation du mot de passe',
     'session_expired'           => 'Votre session est expirée. Veuillez vous connecter à nouveau',
@@ -56,7 +51,12 @@ return [
         'logout_all'    => 'Se déconnecter de toutes les autres sessions',
         'unknown_agent' => 'Inconnu',
     ],
-    'set_password'   => 'Définir le mot de passe',
+    'set_password' => 'Définir le mot de passe',
+    'shibboleth'   => [
+        'redirect'  => 'Connexion',
+        'tab_title' => 'Shibboleth',
+        'title'     => 'Connexion avec Shibboleth',
+    ],
     'throttle'       => 'Trop de tentatives de connexion. Veuillez réessayer dans :seconds secondes.',
     'throttle_email' => 'Vous avez récemment demandé un changement d\'adresse e-mail. Veuillez patienter et réessayer plus tard.',
 ];
