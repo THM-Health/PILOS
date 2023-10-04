@@ -41,7 +41,8 @@
               {{ $t('rooms.end_membership.message') }}
             </b-modal>
 
-            <b-button @click="toggleFavorite" :variant="room.is_favorite ? 'dark' : 'light'">
+            <!--show favorite button for logged in users-->
+            <b-button v-if="isAuthenticated" ref="favoriteButton" @click="toggleFavorite" :variant="room.is_favorite ? 'dark' : 'light'">
               <i class="fa-solid fa-star"></i>
             </b-button>
             <!-- Reload general room settings/details -->

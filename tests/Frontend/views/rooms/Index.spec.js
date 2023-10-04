@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index.vue';
 import {
-  BBadge,
   BButton,
   BDropdown,
   BDropdownItem,
@@ -16,7 +15,7 @@ import {
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
-import { mockAxios, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
@@ -127,7 +126,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
@@ -184,10 +184,9 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // Check attribute bindings
-    expect(view.vm.rooms).toEqual(exampleRoomResponse);
     const rooms = view.findAllComponents(RoomComponent);
     expect(rooms.length).toEqual(3);
-    expect(rooms.at(0).vm.id).toBe('abc-def-123');
+    expect(rooms.at(0).props('id')).toBe('abc-def-123');
     expect(rooms.at(0).vm.name).toBe('Meeting One');
     expect(rooms.at(0).vm.isFavorite).toBe(false);
     expect(rooms.at(0).vm.shortDescription).toBe('Own room');
@@ -208,23 +207,6 @@ describe('Room Index', () => {
     expect(rooms.at(2).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
     expect(rooms.at(2).vm.owner).toEqual({ id: 1, name: 'John Doe' });
 
-    // check rooms appear in the list ToDo why does only one room show
-    //ToDo part not really needed anymore (because of RoomComponent.spec.js)
-    expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
-    expect(rooms.at(0).get(BBadge).text()).toEqual('Meeting');
-    expect(rooms.at(0).findAll('small').at(0).text()).toBe('John Doe');
-    expect(rooms.at(0).findAll('small').at(1).text()).toBe('rooms.index.room_component.never_started');
-
-    // expect(rooms.at(1).get('h5').text()).toEqual('Meeting Two');
-    // expect(rooms.at(1).get(BBadge).text()).toEqual('Meeting');
-    // expect(rooms.at(1).findAll('small').at(0).text()).toBe('John Doe');
-    // expect(rooms.at(1).findAll('small').at(1).text()).toBe('rooms.index.room_component.running_since 2023-08-21 08:18:28:00');
-    //
-    // expect(rooms.at(2).get('h5').text()).toEqual('Meeting Three');
-    // expect(rooms.at(2).get(BBadge).text()).toEqual('Meeting');
-    // expect(rooms.at(2).findAll('small').at(0).text()).toBe('John Doe');
-    // expect(rooms.at(2).findAll('small').at(1).text()).toBe('rooms.index.room_component.last_ran_till 2023-08-21 08:20:28:00');
-
     view.destroy();
   });
 
@@ -242,7 +224,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
@@ -541,7 +524,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
@@ -553,9 +537,6 @@ describe('Room Index', () => {
     // find dropdown to change sorting and check if the options show
     const sortingDropdown = view.findComponent(BDropdown);
     expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.last_started');
-
-    // //Try to click on Dropdown to show options ToDo?
-    // sortingDropdown.trigger('click');
 
     const sortingDropdownOptions = sortingDropdown.findAllComponents(BDropdownItem);
     expect(sortingDropdownOptions.length).toBe(4);
@@ -598,7 +579,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
@@ -632,11 +614,12 @@ describe('Room Index', () => {
     // Make sure that filter options are shown with view.all permission
     // const oldUser = PermissionService.currentUser;
     // const newUser = _.cloneDeep(exampleUser);
-    // newUser.permissions = ['rooms.viewAll'];
+    // newUser.permissions.push('rooms.viewAll');
     // PermissionService.setCurrentUser(newUser);
     //
     // await mockAxios.wait();
     // await view.vm.$nextTick();
+    // console.log(PermissionService.currentUser.permissions);
     //
     // let checkboxes = view.findAllComponents(BFormCheckbox)
     // expect(checkboxes.length).toBe(4);
@@ -750,7 +733,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
@@ -891,9 +875,33 @@ describe('Room Index', () => {
     });
 
     await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // check if error message is shown
     expect(spy).toBeCalledTimes(1);
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
+
+    // check if buttons are disabled
+    expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    await view.findAllComponents(BButton).at(4).trigger('click');
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+    await view.findAllComponents(BButton).at(4).trigger('click');
+
+    // ToDo try if another request can be made
+
+    // const roomRequest = mockAxios.request('/api/v1/rooms');
+    // await view.findAllComponents(BButton).at(3).trigger('click');
+    // await roomRequest.wait();
+    //
+    // await roomRequest.respondWith({
+    //   status:200,
+    //   data: exampleRoomResponse
+    // });
 
     view.destroy();
   });
@@ -918,7 +926,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia(),
       attachTo: createContainer()

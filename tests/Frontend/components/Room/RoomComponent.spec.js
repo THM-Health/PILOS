@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { mockAxios, createContainer, createLocalVue, waitModalShown, waitModalHidden } from '../../helper';
+import { mockAxios, createContainer, createLocalVue, waitModalShown, waitModalHidden, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
@@ -22,6 +22,69 @@ describe('Room Component', () => {
     PermissionService.currentUser = exampleUser;
   });
 
+  it('check display of last meeting', async () => {
+    const exampleRoomListEntry = {
+      id: 'abc-def-123',
+      name: 'Meeting One',
+      owner: {
+        id: 1,
+        name: 'John Doe'
+      },
+      last_meeting: null,
+      type: {
+        id: 2,
+        short: 'ME',
+        description: 'Meeting',
+        color: '#4a5c66',
+        default: false
+      },
+      is_favorite: false,
+      short_description: null
+    };
+    const view = mount(RoomComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      propsData: {
+        id: exampleRoomListEntry.id,
+        name: exampleRoomListEntry.name,
+        shortDescription: exampleRoomListEntry.short_description,
+        isFavorite: exampleRoomListEntry.is_favorite,
+        owner: exampleRoomListEntry.owner,
+        type: exampleRoomListEntry.type,
+        meeting: exampleRoomListEntry.last_meeting
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    expect(view.get('h5').text()).toEqual(exampleRoomListEntry.name);
+    expect(view.get(BBadge).text()).toEqual(exampleRoomListEntry.type.description);
+    expect(view.findAll('small').at(0).text()).toBe(exampleRoomListEntry.owner.name);
+    expect(view.findAll('small').at(1).text()).toBe('rooms.index.room_component.never_started');
+    expect(view.findAllComponents(BButton).length).toBe(1);
+    expect(view.findAllComponents(BButton).at(0).html()).toContain('fa-star');
+    expect(view.findAllComponents(BButton).at(0).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(0).attributes().class).toContain('light');
+
+    // running room
+    exampleRoomListEntry.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+
+    await view.setProps({ meeting: exampleRoomListEntry.last_meeting });
+    await view.vm.$nextTick();
+
+    expect(view.findAll('small').at(1).text()).toBe('rooms.index.room_component.running_since:{"date":"08/21/2023, 10:18"}');
+
+    // ended room
+    exampleRoomListEntry.last_meeting = { start: '2023-08-21 08:18:28:00', end: '2023-08-21 08:20:28:00' };
+    view.setProps({ meeting: exampleRoomListEntry.last_meeting });
+    await view.vm.$nextTick();
+
+    expect(view.findAll('small').at(1).text()).toBe('rooms.index.room_component.last_ran_till:{"date":"08/21/2023, 10:20"}');
+    view.destroy();
+  });
 
   it('click on room in list', async () => {
     const router = new VueRouter();
@@ -68,7 +131,6 @@ describe('Room Component', () => {
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
 
-    // ToDo? check if opening another is prohibited while the other room is opening
     view.destroy();
   });
 
@@ -228,7 +290,7 @@ describe('Room Component', () => {
     // check if favorites_changed gets emitted
     expect(view.emitted().favorites_changed).toBeTruthy();
 
-    view.setProps({isFavorite: true});
+    view.setProps({ isFavorite: true });
 
     await view.vm.$nextTick();
 
@@ -249,7 +311,7 @@ describe('Room Component', () => {
 
     // check if favorites_changed gets emitted
     expect(view.emitted().favorites_changed).toBeTruthy();
-    view.setProps({isFavorite: false});
+    view.setProps({ isFavorite: false });
     await view.vm.$nextTick();
 
     // check if button to open short description modal is shown
@@ -289,7 +351,7 @@ describe('Room Component', () => {
     // check if favorites_changed gets emitted
     expect(view.emitted().favorites_changed).toBeTruthy();
 
-    view.setProps({isFavorite: true});
+    view.setProps({ isFavorite: true });
 
     await view.vm.$nextTick();
 

@@ -126,7 +126,7 @@
           </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
-                <room-component @favorites_changed="reload()" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavorite="room.is_favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
+                <room-component @favorites_changed="loadRooms(false)" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavorite="room.is_favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
           </b-row>
           <b-pagination
@@ -176,7 +176,6 @@ export default {
     this.userCanCreateRooms = PermissionService.can('create', 'RoomPolicy');
     this.userCanViewAll = PermissionService.can('viewAll', 'RoomPolicy');
     this.reload();
-    this.loadRoomTypes();
   },
   methods: {
 
@@ -226,6 +225,7 @@ export default {
      *  Reload rooms
      */
     reload () {
+      this.loadRoomTypes();
       this.loadRooms(false);
     },
 

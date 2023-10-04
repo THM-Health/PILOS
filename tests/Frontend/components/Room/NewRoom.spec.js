@@ -6,7 +6,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import _ from 'lodash';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import { mockAxios, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -106,7 +106,7 @@ describe('Create new rooms', () => {
   };
 
   it('frontend permission test', async () => {
-    mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { page: 1 }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -115,7 +115,8 @@ describe('Create new rooms', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
@@ -133,8 +134,10 @@ describe('Create new rooms', () => {
     PermissionService.setCurrentUser(newUser);
 
     await view.vm.$nextTick();
-    //ToDo Permission was changed but component still missing
+    // ToDo Permission was changed but component still missing
     console.log(PermissionService.currentUser.permissions);
+    await view.vm.$nextTick();
+    console.log(view.html());
 
     const newRoomComponent = view.findComponent(NewRoomComponent);
     expect(newRoomComponent.exists()).toBeTruthy();
@@ -160,7 +163,8 @@ describe('Create new rooms', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({
         initialState: {
