@@ -375,7 +375,6 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  // ToDo Test with response with a room and check if the shown rooms are changed
   it('test search', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
@@ -448,6 +447,7 @@ describe('Room Index', () => {
     await roomRequest.wait();
 
     expect(roomRequest.config.params.search).toBe('test2');
+
     // respond (no rooms available)
     await roomRequest.respondWith({
       status: 200,
@@ -468,6 +468,61 @@ describe('Room Index', () => {
 
     // check if message shows user that there are no rooms available
     expect(view.find('em').text()).toBe('rooms.no_rooms_available');
+
+    // enter another search query
+    await searchField.setValue('One');
+
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    searchField.trigger('change');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.search).toBe('One');
+
+    // respond (rooms available)
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          per_page: 10,
+          to: 5,
+          total: 1,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if room is found
+    const rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(1);
+    expect(rooms.at(0).vm.id).toBe('abc-def-123');
+    expect(rooms.at(0).vm.name).toBe('Meeting One');
+    expect(rooms.at(0).vm.isFavorite).toBe(false);
+    expect(rooms.at(0).vm.shortDescription).toBe('Own room');
+    expect(rooms.at(0).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(0).vm.owner).toEqual({ id: 1, name: 'John Doe' });
 
     view.destroy();
   });
