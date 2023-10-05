@@ -1272,7 +1272,7 @@ export default {
       formData.append('room_token_expiration', this.settings.room_token_expiration);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
       formData.append('room_pagination_page_size', this.settings.room_pagination_page_size);
-      formData.append('password_change_allowed', this.settings.password_self_reset_enabled ? 1 : 0);
+      formData.append('password_change_allowed', this.settings.password_change_allowed ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
       formData.append('help_url', this.settings.help_url || '');
       formData.append('legal_notice_url', this.settings.legal_notice_url || '');

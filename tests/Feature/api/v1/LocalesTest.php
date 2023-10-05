@@ -227,7 +227,7 @@ class LocalesTest extends TestCase
             'password' => 'secret'
         ]);
 
-        $externalUser = User::where(['authenticator' => 'external'])->first();
+        $externalUser = User::where(['authenticator' => 'ldap'])->first();
 
         $this->assertEquals('en', $externalUser->locale);
     }

@@ -15,7 +15,7 @@ const localVue = createLocalVue();
 
 const ldapUser = {
   id: 1,
-  authenticator: 'external',
+  authenticator: 'ldap',
   email: 'john@doe.com',
   external_id: 'jdo',
   firstname: 'John',

@@ -3,7 +3,7 @@
 return [
     'application' => [
         'attendance' => [
-            'enabled_title'          => 'Protokollierung der Teilnehmeranwenheit in Meetings zulassen',
+            'enabled_title'          => 'Protokollierung der Teilnehmeranwesenheit in Meetings zulassen',
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
         ],
         'attendance_and_statistics_title' => 'Aufzeichnung und Statistik',
@@ -80,8 +80,8 @@ return [
             'description' => 'Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title'       => 'Größe der Paginierung',
         ],
-        'password_change_allowed'     => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',
-        'privacy_policy_url'          => [
+        'password_change_allowed' => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',
+        'privacy_policy_url'      => [
             'description' => 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.',
             'title'       => 'URL zur Datenschutzerklärung',
         ],
@@ -228,16 +228,16 @@ return [
                 'title'       => 'Der Server wurde deaktiviert.',
             ],
         ],
-        'hide_salt'           => 'Klartext verbergen',
-        'meeting_count'       => 'Meetings',
-        'meeting_description' => 'Alle Meetings auf dem BigBlueButton-Server',
-        'new'                 => 'Neuen Server hinzufügen',
-        'no_data'             => 'Es sind keine Server vorhanden!',
-        'no_data_filtered'    => 'Für die Suchanfrage wurden keine Server gefunden!',
-        'offline'             => 'Offline',
-        'offline_reason'      => [
+        'hide_secret'           => 'Klartext verbergen',
+        'meeting_count'         => 'Meetings',
+        'meeting_description'   => 'Alle Meetings auf dem BigBlueButton-Server',
+        'new'                   => 'Neuen Server hinzufügen',
+        'no_data'               => 'Es sind keine Server vorhanden!',
+        'no_data_filtered'      => 'Für die Suchanfrage wurden keine Server gefunden!',
+        'offline'               => 'Offline',
+        'offline_reason'        => [
             'connection' => 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
-            'salt'       => 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.',
+            'secret'     => 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.',
         ],
         'online'                  => 'Online',
         'own_meeting_count'       => 'Eigene Meetings',
@@ -247,8 +247,8 @@ return [
         'panic_server'            => 'Server deaktiveren und alle Meetings beenden',
         'participant_count'       => 'Teilnehmer',
         'reload'                  => 'Auslastung neu bestimmen',
-        'salt'                    => 'API Geheimnis',
-        'show_salt'               => 'Klartext anzeigen',
+        'secret'                  => 'API Geheimnis',
+        'show_secret'             => 'Klartext anzeigen',
         'status'                  => 'Status',
         'strength'                => 'Serverstärke',
         'strength_description'    => 'Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten',
@@ -263,9 +263,10 @@ return [
     'title' => 'Einstellungen',
     'users' => [
         'authenticator' => [
-            'external' => 'Extern',
-            'local'    => 'Lokal',
-            'title'    => 'Anmeldeart',
+            'ldap'       => 'LDAP',
+            'local'      => 'Lokal',
+            'shibboleth' => 'Shibboleth',
+            'title'      => 'Anmeldeart',
         ],
         'base_data' => 'Stammdaten',
         'bbb'       => 'BigBlueButton',

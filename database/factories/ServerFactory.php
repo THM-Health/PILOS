@@ -23,7 +23,7 @@ class ServerFactory extends Factory
     {
         return [
             'base_url' => 'https://test.notld/bigbluebutton/',
-            'salt'     => $this->faker->sha1,
+            'secret'   => $this->faker->sha1,
             'name'     => $this->faker->unique()->word,
             'status'   => \App\Enums\ServerStatus::ONLINE,
             'version'  => '2.4.5',

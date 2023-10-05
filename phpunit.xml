@@ -7,6 +7,9 @@
     <testsuite name="Feature">
       <directory suffix="Test.php">./tests/Feature</directory>
     </testsuite>
+    <testsuite name="Integration">
+      <directory suffix="Test.php">./tests/Integration</directory>
+    </testsuite>
   </testsuites>
   <coverage/>
   <php>
@@ -19,7 +22,6 @@
     <env name="DB_USERNAME" value="root"/>
     <env name="MAIL_MAILER" value="array"/>
     <env name="QUEUE_CONNECTION" value="sync"/>
-    <env name="SESSION_DRIVER" value="array"/>
     <env name="TELESCOPE_ENABLED" value="false"/>
     <env name="SANCTUM_STATEFUL_DOMAINS" value="localhost,127.0.0.1"/>
     <env name="SESSION_DOMAIN" value="localhost,127.0.0.1"/>

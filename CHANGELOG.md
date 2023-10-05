@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Shibboleth authentication ([#20], [#497])
+- Database Import command: Support for postgres database ([#545])
+- Greenlight v2 migration command: Import social users ([#497])
+- Greenlight v2 migration command: Using database transactions to undo changes in case of errors ([#497])
+
+### Fixed
+- Missing locale strings from fallback locale ([#576])
+- Greenlight v2 migration command: Room feature 'Room Authentication' missing ([#497])
+- Greenlight v2 migration command: Room name too long ([#497])
+- Room type unselected in room settings on changes to the room type settings ([#577], [#586])
+
+### Changed
+- Allow more characters for role names ([#535], [#536])
 
 ## [v2.2.0] - 2023-08-28
 ### Added
@@ -406,6 +420,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#17]: https://github.com/THM-Health/PILOS/pull/17
 [#18]: https://github.com/THM-Health/PILOS/pull/18
 [#19]: https://github.com/THM-Health/PILOS/issues/19
+[#20]: https://github.com/THM-Health/PILOS/issues/20
 [#21]: https://github.com/THM-Health/PILOS/pull/21
 [#22]: https://github.com/THM-Health/PILOS/pull/22
 [#30]: https://github.com/THM-Health/PILOS/issues/30
@@ -633,11 +648,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#389]: https://github.com/THM-Health/PILOS/pull/389
 [#469]: https://github.com/THM-Health/PILOS/pull/469
 [#470]: https://github.com/THM-Health/PILOS/pull/470
+[#497]: https://github.com/THM-Health/PILOS/pull/497
 [#503]: https://github.com/THM-Health/PILOS/issues/503
 [#504]: https://github.com/THM-Health/PILOS/pull/504
 [#505]: https://github.com/THM-Health/PILOS/issues/505
 [#506]: https://github.com/THM-Health/PILOS/pull/506
 [#509]: https://github.com/THM-Health/PILOS/pull/509
+[#535]: https://github.com/THM-Health/PILOS/issues/535
+[#536]: https://github.com/THM-Health/PILOS/pull/536
+[#545]: https://github.com/THM-Health/PILOS/pull/545
+[#576]: https://github.com/THM-Health/PILOS/pull/576
+[#577]: https://github.com/THM-Health/PILOS/issues/577
+[#586]: https://github.com/THM-Health/PILOS/pull/586
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.2.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

@@ -30,7 +30,7 @@ class ServerService
     public function __construct(Server $server)
     {
         $this->server = $server;
-        $this->bbb    = new BigBlueButton($server->base_url, $server->salt, new LaravelHTTPClient());
+        $this->bbb    = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient());
     }
 
     /**

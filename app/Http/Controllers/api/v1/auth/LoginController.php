@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1\auth;
 
+use App\Auth\Shibboleth\ShibbolethProvider;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -63,8 +64,22 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        // Redirect url after logout
+        $redirect        = false;
+
+        // Logout from external authentication provider
+        switch(\Auth::user()->authenticator) {
+            case 'shibboleth':
+                $redirect = app(ShibbolethProvider::class)->logout(url('/logout'));
+
+                break;
+        }
+
+        // Destroy application session
         $this->logoutApplication($request);
 
-        return response()->noContent();
+        return response()->json([
+            'redirect'          => $redirect
+        ]);
     }
 }

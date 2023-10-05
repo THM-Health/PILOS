@@ -49,7 +49,7 @@ class ForgotPasswordTest extends TestCase
     {
         $user         = User::factory()->create();
         $externalUser = User::factory()->create([
-            'authenticator' => 'external'
+            'authenticator' => 'ldap'
         ]);
         $newUser = User::factory()->create([
             'initial_password_set' => true

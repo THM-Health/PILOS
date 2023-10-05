@@ -80,8 +80,8 @@ return [
             'description' => 'Limite la taille de la pagination pour la pagination des tables de données',
             'title'       => 'Taille de la pagination',
         ],
-        'password_change_allowed'     => 'Donnez aux utilisateurs locaux la possibilité de modifier leur mot de passe',
-        'privacy_policy_url'          => [
+        'password_change_allowed' => 'Donnez aux utilisateurs locaux la possibilité de modifier leur mot de passe',
+        'privacy_policy_url'      => [
             'description' => 'Le lien vers la page de la politique de confidentialité ne sera affiché que si une URL lui est assignée.',
             'title'       => 'URL vers la politique de confidentialité',
         ],
@@ -228,7 +228,7 @@ return [
                 'title'       => 'Le serveur a été désactivé.',
             ],
         ],
-        'hide_salt'           => 'Masquer le texte en clair',
+        'hide_secret'         => 'Masquer le texte en clair',
         'meeting_count'       => 'Réunions',
         'meeting_description' => 'Toutes les réunions sur le serveur BigBlueButton',
         'new'                 => 'Ajouter un serveur',
@@ -237,7 +237,7 @@ return [
         'offline'             => 'Hors ligne',
         'offline_reason'      => [
             'connection' => 'Aucune connexion n\'a pu être établie avec le serveur.',
-            'salt'       => 'Une connexion au serveur a pu être établie, mais le secret de l\'API n\'est pas valide.',
+            'secret'     => 'Une connexion au serveur a pu être établie, mais le secret de l\'API n\'est pas valide.',
         ],
         'online'                  => 'En ligne',
         'own_meeting_count'       => 'Réunions personnelles',
@@ -247,8 +247,8 @@ return [
         'panic_server'            => 'Désactiver le serveur et mettre fin à toutes les réunions',
         'participant_count'       => 'Participants',
         'reload'                  => 'Recalculer l\'utilisation',
-        'salt'                    => 'Secret pour l\'API',
-        'show_salt'               => 'Afficher le texte en clair',
+        'secret'                  => 'Secret pour l\'API',
+        'show_secret'             => 'Afficher le texte en clair',
         'status'                  => 'Statut',
         'strength'                => 'Puissance du serveur',
         'strength_description'    => 'Facteur d\'équilibrage de charge, plus le facteur est élevé, plus le serveur peut gérer de participants et de réunions',
@@ -263,9 +263,10 @@ return [
     'title' => 'Paramètres',
     'users' => [
         'authenticator' => [
-            'external' => 'Externe',
-            'local'    => 'Interne',
-            'title'    => 'Type d\'identification',
+            'ldap'       => 'LDAP',
+            'local'      => 'Interne',
+            'shibboleth' => 'Shibboleth',
+            'title'      => 'Type d\'identification',
         ],
         'base_data' => 'Données de base',
         'bbb'       => 'BigBlueButton',

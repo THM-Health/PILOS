@@ -92,7 +92,7 @@ class LDAPProvider extends EloquentUserProvider
         // Find or create eloquent user by ldap user's uid
         $ldap_user = new LDAPUser($this->user);
 
-        return $ldap_user->createOrFindEloquentModel();
+        return $ldap_user->createOrFindEloquentModel('ldap');
     }
 
     /**

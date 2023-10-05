@@ -1,8 +1,7 @@
 name: Upload locales to POEditor
 
 on:
-  push:
-    branches: [ master ]
+  workflow_dispatch:
 jobs:
   pull-locales:
     name: Upload locales to POEditor

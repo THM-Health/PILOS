@@ -6,8 +6,7 @@ PILOS has two types of users: Local and External.
 Local users can be created by administrators. They can log in to the system with the combination of email address and password. Via PILOS, an email can be sent to the user upon creation, also a password reset function can be activated.
 
 ## External users
-In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems.
-We currently only support LDAP. OpenID-Connect and SAML 2.0 are in planning.
+In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP and Shibboleth are available as interfaces. All authentication providers can be operated in parallel, but none of them more than once.
 
 # Setup of external authenticators
 
@@ -47,14 +46,61 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 LDAP_LOGIN_ATTRIBUTE=uid
 ```
 
+## Shibboleth
+
+The shibboleth authentication is available if the reverse proxy is apache with mod_shib.
+The application trusts the header information of the apache webserver and authenticates the user via the shibboleth protected route /auth/shibboleth/callback.
+
+### Configure Apache + mod_shib
+
+You need to add the two options to your apache reverse proxy configuration to enable shibboleth support.
+```
+<Location />
+    AuthType shibboleth
+    ShibUseHeaders On
+    Require shibboleth
+</Location>
+
+<Location /auth/shibboleth/callback>
+    AuthType shibboleth
+    ShibUseHeaders On
+    ShibRequireSession On
+    Require valid-user
+</Location>
+```
+
+If you host your own discovery service, you also need to add these lines before the `ProxyPass` so that these requests are not proxied.
+```
+ProxyPass /shibboleth-ds !
+ProxyPass /shibboleth-sp !
+```
+
+
+You need the add the url of the font- and back-channel to the ApplicationDefaults element in the `/etc/shibboleth/shibboleth2.xml` file:
+
+```xml
+<Notify Channel="back" Location="https://DOMAIN.TLD/auth/shibboleth/logout" />
+<Notify Channel="front" Location="https://DOMAIN.TLD/auth/shibboleth/logout" />
+```
+
+### Configure application to use shibboleth
+
+To enable Shibboleth, you need to enable it in the  `.env` file.
+
+```
+# Shibboleth config
+SHIBBOLETH_ENABLED=true
+```
+
 # Configure mapping
 
 For each external authenticator the attribute and role mapping needs to be configured.
 The mapping is defined in a JSON file, which is stored in the directory `app/Auth/config` of the pilos installation.
 
-| Authenticator   | Filename           |
-|-----------------|--------------------|
-| LDAP            | ldap_mapping.json  |
+| Authenticator   | Filename                |
+|-----------------|-------------------------|
+| LDAP            | ldap_mapping.json       |
+| Shibboleth      | shibboleth_mapping.json |
 
 ## Attribute mapping
 
@@ -70,8 +116,8 @@ You must add attribute mapping for the following attributes.
 | email         | Email                                        |
 
 
-**Notice:** The External identifier (`external_id`) is used to uniquely identify a user.
-If the same external_id is supplied by multiple authenticators, the user is considered to be the same. This will be useful for switching between different authenticators in the future.
+**Notice:** The external identifier (`external_id`) is used to uniquely identify a user within each authenicator.
+User accounts are not shared between authenicators.
 
 ### Array attributes
 
@@ -114,6 +160,7 @@ To negate the result of the regex, add the attribute `not` to the rule object an
 #### Arrays
 The negation of arrays means: Check that regular expression doesn't match on any entry
 If the `all` attribute is also true: Check that regular expression doesn't match matches all entries
+
 
 
 ## Examples
@@ -163,6 +210,55 @@ In this example the LDAP schema uses the common name (CN) as username and has th
                 }
       ]
     }
+    ]
+}
+```
+
+## Shibboleth
+
+### Attributes
+The attribute names are the header names in which the attribute values are send by the apache mod_shib to the application. 
+
+### Roles
+- The "admin" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
+
+- The "user" role is given to everyone.
+
+```json
+{
+    "attributes": {
+        "external_id": "principalname",
+        "first_name": "givenname",
+        "last_name": "surname",
+        "email": "mail",
+        "roles": "affiliation"
+    },
+    "roles":[
+        {
+            "name":"admin",
+            "disabled":false,
+            "all":true,
+            "rules":[
+                {
+                    "attribute":"email",
+                    "regex":"/.*(@its\\.university\\.org)$/i"
+                },
+                {
+                    "attribute":"affiliation",
+                    "regex":"/^(staff)$/im"
+                }
+            ]
+        },
+        {
+            "name": "user",
+            "disabled": false,
+            "rules": [
+                {
+                    "attribute": "external_id",
+                    "regex": "/^.*/im"
+                }
+            ]
+        }
     ]
 }
 ```
