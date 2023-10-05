@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Greenlight v2 migration command: Room feature 'Room Authentication' missing ([#497])
 - Greenlight v2 migration command: Room name too long ([#497])
 - Room type unselected in room settings on changes to the room type settings ([#577], [#586])
+- Application setting 'Give local users the possibility to change their password' not saved
 
 ### Changed
 - Allow more characters for role names ([#535], [#536])
