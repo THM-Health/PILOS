@@ -4,69 +4,99 @@ namespace Tests\Utils;
 
 use Http;
 use Illuminate\Http\Client\Request;
-use Str;
 
+/**
+ * Fake BigBlueButton server responses
+ */
 class BigBlueButtonServerFaker
 {
+    // List of requests and responses
     protected $requests     = [];
+
+    // Number of requests
     protected $requestCount = 0;
 
-    public function __construct($host, $secret)
+    /**
+     * Create a fake BBB-Server to validate checksums and fake responses
+     *
+     * @param string $host   Hostname of the BBB-Server
+     * @param string $secret Secret of the BBB-Server
+     */
+    public function __construct(string $host, string $secret)
     {
-        Http::fake(function (Request $request) use ($secret, $host) {
+        // Respond to all requests to the Host of the BBB-Server
+        Http::stubUrl($host.'*', function (Request $request) use ($secret, $host) {
             $uri = $request->toPsrRequest()->getUri();
 
-            if (!Str::startsWith($request->url(), $host)) {
-                return Http::response(null, 404);
-            }
-
+            // Get the BBB api endpoint and parameters
             $apiCallName = explode('api/', explode('?', explode($host, $request->url(), 2)[1], 2)[0])[1];
             parse_str($uri->getQuery(), $params);
 
-            $checksum = $params['checksum'];
+            // Get the checksum of the request
+            $requestChecksum = $params['checksum'];
+
+            // Remove the checksum from the list of parameters
             unset($params['checksum']);
 
-            $query = http_build_query($params, '', '&', \PHP_QUERY_RFC3986);
-            
+            // Create the hash base
+            $query    = http_build_query($params, '', '&', \PHP_QUERY_RFC3986);
             $hashBase = $apiCallName . $query . $secret;
 
-            switch(strlen($checksum)) {
+            // Check what hash algorithm was used in the request and create the hash
+            switch(strlen($requestChecksum)) {
                 case 40:
-                    $hash = sha1($hashBase);
+                    $checksum = sha1($hashBase);
 
                     break;
                 case 64:
-                    $hash = hash('sha256', $hashBase);
+                    $checksum = hash('sha256', $hashBase);
 
                     break;
                 case 96:
-                    $hash = hash('sha384', $hashBase);
+                    $checksum = hash('sha384', $hashBase);
 
                     break;
                 case 128:
-                    $hash = hash('sha384', $hashBase);
+                    $checksum = hash('sha384', $hashBase);
 
                     break;
             }
 
-            if ($hash == null || strtolower($checksum) != strtolower($hash)) {
+            // Return error if no checksum was calculated and if it doesn't matches the checksum of the request
+            if ($checksum == null || strtolower($requestChecksum) != strtolower($checksum)) {
                 return Http::response(file_get_contents(__DIR__.'/../Fixtures/ChecksumError.xml'));
             }
-
+            
+            // Save the request for inspection
             $this->requests[$this->requestCount]['request'] = $request;
-            $response                                       = call_user_func($this->requests[$this->requestCount]['response'], $request);
 
+            // Respond to the request using the stored response for this request
+            $response = call_user_func($this->requests[$this->requestCount]['response'], $request);
+
+            // Increate the request counter
             $this->requestCount++;
 
             return $response;
         });
     }
 
-    public function addRequest($response)
+    /**
+     * Add a response for a request
+     * Requests are returned in the order they are added
+     *
+     * @param  mixed $response
+     * @return void
+     */
+    public function addRequest(mixed $response)
     {
         $this->requests[] = ['request' => null, 'response' => $response];
     }
 
+    /**
+     * Add a response for a create meeting request
+     *
+     * @return void
+     */
     public function addCreateMeetingRequest()
     {
         $response = function (Request $request) {
@@ -97,7 +127,13 @@ class BigBlueButtonServerFaker
         $this->requests[] = ['request' => null, 'response' => $response];
     }
 
-    public function getRequest($id)
+    /**
+     * Get the request data for a request
+     *
+     * @param  int   $id Number of the request (starting with 0)
+     * @return mixed
+     */
+    public function getRequest(int $id)
     {
         return $this->requests[$id]['request'];
     }

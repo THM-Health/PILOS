@@ -14,7 +14,6 @@ use App\Models\RoomToken;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\User;
-use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\MeetingService;
 use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -25,7 +24,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Utils\BigBlueButtonServerFaker;
 
@@ -1069,8 +1067,10 @@ class RoomTest extends TestCase
 
         $server = Server::factory()->create();
         $room->roomType->serverPool->servers()->attach($server);
-        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
 
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Create and end 6 meetings
         for ($i = 0; $i < 6; $i++) {
             $bbbfaker->addCreateMeetingRequest();
             $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/EndMeeting.xml')));
@@ -1214,9 +1214,14 @@ class RoomTest extends TestCase
        
         $server = Server::factory()->create();
         $room->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Meeting was not found
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/MeetingNotFound.xml')));
+        // Create meeting
         $bbbfaker->addCreateMeetingRequest();
+        // Get meeting info
         $bbbfaker->addRequest(function (Request $request) {
             $uri = $request->toPsrRequest()->getUri();
             parse_str($uri->getQuery(), $params);
@@ -1305,15 +1310,24 @@ class RoomTest extends TestCase
 
     /**
      * Tests if record attendance is set on start
-     
+     */
     public function testRecordAttendanceStatus()
     {
         $room1 = Room::factory()->create(['record_attendance'=>true]);
         $room2 = Room::factory()->create(['record_attendance'=>false]);
         $room3 = Room::factory()->create(['record_attendance'=>true]);
 
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
+        $server = Server::factory()->create();
+        $room1->roomType->serverPool->servers()->attach($server);
+        $room2->roomType->serverPool->servers()->attach($server);
+        $room3->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Create 3 meetings
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
 
         // Create meeting with attendance allowed globally
         setting(['attendance.enabled' => true]);
@@ -1394,16 +1408,11 @@ class RoomTest extends TestCase
                 'running'           => true,
                 'record_attendance' => false
             ]);
-
-        // Clear
-        (new MeetingService($room1->runningMeeting()))->end();
-        (new MeetingService($room2->runningMeeting()))->end();
     }
-     */
 
     /**
      * Test joining a meeting with a running bbb server
-     
+     */
     public function testJoin()
     {
         // Allow attendance recording
@@ -1416,8 +1425,52 @@ class RoomTest extends TestCase
         ]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
 
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
+        $server = Server::factory()->create();
+        $room->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Meeting not running
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/MeetingNotFound.xml')));
+        // Create meeting
+        $bbbfaker->addCreateMeetingRequest();
+        // Get meeting info 10 times
+        $meetingInfoRequest = function (Request $request) {
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <attendeePW>asdfgh32343</attendeePW>
+                    <moderatorPW>h6gfdew423</moderatorPW>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        };
+        for ($i = 0; $i < 10; $i++) {
+            $bbbfaker->addRequest($meetingInfoRequest);
+        }
 
         // Testing join with meeting not running
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
@@ -1427,23 +1480,29 @@ class RoomTest extends TestCase
         $meeting               = $room->meetings()->create();
         $meeting->attendee_pw  = bin2hex(random_bytes(5));
         $meeting->moderator_pw = bin2hex(random_bytes(5));
-        $meeting->server()->associate(Server::where('status', ServerStatus::ONLINE)->get()->random());
+        $meeting->server()->associate($server);
         $meeting->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
         $meeting->delete();
+
+        // Check no request was send to the bbb server
+        $this->assertNull($bbbfaker->getRequest(0));
 
         // Test to join a meeting marked in the db as running, but isn't running on the server
         $meeting               = $room->meetings()->create();
         $meeting->start        = date('Y-m-d H:i:s');
         $meeting->attendee_pw  = bin2hex(random_bytes(5));
         $meeting->moderator_pw = bin2hex(random_bytes(5));
-        $meeting->server()->associate(Server::where('status', ServerStatus::ONLINE)->get()->random());
+        $meeting->server()->associate($server);
         $meeting->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
         $meeting->refresh();
         $this->assertNotNull($meeting->end);
+
+        // Check request was send to the bbb server
+        $this->assertEquals('/bigbluebutton/api/getMeetingInfo', $bbbfaker->getRequest(0)->toPsrRequest()->getUri()->getPath());
 
         // Start meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
@@ -1452,11 +1511,6 @@ class RoomTest extends TestCase
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
-
-        // Try to start bbb meeting
-        $response = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' => false])->get($response->json('url'));
-        $this->assertEquals(302, $response->status());
-        $this->assertArrayHasKey('Location', $response->headers());
 
         \Auth::logout();
 
@@ -1580,14 +1634,7 @@ class RoomTest extends TestCase
             ->assertJsonValidationErrors(['record_attendance']);
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertJsonValidationErrors(['record_attendance']);
-
-        // Clear
-        $this->assertNull($runningMeeting->end);
-        (new MeetingService($runningMeeting))->end();
-        $runningMeeting->refresh();
-        $this->assertNotNull($runningMeeting->end);
     }
-     */
 
     /**
      * Test joining a meeting with a server error in BBB
@@ -1608,7 +1655,7 @@ class RoomTest extends TestCase
 
     /**
      * Test joining urls contains correct role and name
-     
+     */
     public function testJoinUrl()
     {
         $room = Room::factory()->create([
@@ -1621,8 +1668,50 @@ class RoomTest extends TestCase
         $this->user->image = 'test.jpg';
         $this->user->save();
 
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
+        $server = Server::factory()->create();
+        $room->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Create meeting
+        $bbbfaker->addCreateMeetingRequest();
+        // Get meeting info 8 times
+        $meetingInfoRequest = function (Request $request) {
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <attendeePW>asdfgh32343</attendeePW>
+                    <moderatorPW>h6gfdew423</moderatorPW>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        };
+        for ($i = 0; $i < 8; $i++) {
+            $bbbfaker->addRequest($meetingInfoRequest);
+        }
 
         // Start meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
@@ -1714,122 +1803,5 @@ class RoomTest extends TestCase
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals($moderatorPW, $queryParams['password']);
         $this->role->permissions()->detach($this->managePermission);
-
-        // Clear
-        $this->assertNull($runningMeeting->end);
-        (new MeetingService($runningMeeting))->end();
-        $runningMeeting->refresh();
-        $this->assertNotNull($runningMeeting->end);
-    }
-     */
-
-    /**
-     * Test lobby behavior if enabled for everyone
-     
-    public function testLobbyEnabled()
-    {
-        $room = Room::factory()->create([
-            'allow_guests' => true,
-            'lobby'        => RoomLobby::ENABLED,
-        ]);
-
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
-
-        // Start meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertSuccessful();
-
-        // Check guests
-        $this->assertTrue($this->checkGuestWaitPage($room));
-
-        // Check auth. users
-        $this->assertTrue($this->checkGuestWaitPage($room, $this->user));
-
-        // Check owner
-        $this->assertFalse($this->checkGuestWaitPage($room, $room->owner));
-
-        // Testing member
-        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->assertTrue($this->checkGuestWaitPage($room, $this->user));
-
-        // Testing moderator member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
-        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
-
-        // Testing co-owner member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
-        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
-
-        // Clear
-        (new MeetingService($room->runningMeeting()))->end();
-    }
-     */
-
-    /**
-     * Test lobby behavior if enabled only for guests
-     
-    public function testLobbyOnlyGuests()
-    {
-        $room = Room::factory()->create([
-            'allow_guests' => true,
-            'lobby'        => RoomLobby::ONLY_GUEST,
-        ]);
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
-
-        // Start meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertSuccessful();
-
-        // Check guests
-        $this->assertTrue($this->checkGuestWaitPage($room));
-
-        // Check auth. users
-        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
-
-        // Check owner
-        $this->assertFalse($this->checkGuestWaitPage($room, $room->owner));
-
-        // Testing member
-        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
-
-        // Testing moderator member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
-        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
-
-        // Testing co-owner member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
-        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
-
-        // Clear
-        (new MeetingService($room->runningMeeting()))->end();
-    }
-     */
-
-    /**
-     * Check if user or guest enters room or lobby
-     * @param Room $room Room
-     * @param  User|null User or guest
-     * @return bool is entering lobby
-     */
-    protected function checkGuestWaitPage(Room $room, ?User $user = null)
-    {
-        // logout from previous calls
-        \Auth::logout();
-        // login as user is not guest
-        $request = $user == null ? $this : $this->actingAs($user);
-        // join meeting
-        $response = $request->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->access_code,'name'=>$this->faker->name,'record_attendance' => 1]))
-            ->assertSuccessful();
-        // check if response has a join url
-        $this->assertIsString($response->json('url'));
-        // check if join url is working
-        $response        = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' =>['track_redirects' => true]])->get($response->json('url'));
-        $headersRedirect = $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER);
-        $this->assertNotEmpty($headersRedirect);
-
-        return Str::contains(last($headersRedirect), 'guestWait');
     }
 }

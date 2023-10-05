@@ -78,7 +78,9 @@ class BuildHistoryTest extends TestCase
         setting(['statistics.meetings.enabled' => true]);
         setting(['attendance.enabled'=>true]);
 
+        // Create fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
+        // Get 4 times the list of meetings and 4 times the API version
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-Start.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-1.xml')));

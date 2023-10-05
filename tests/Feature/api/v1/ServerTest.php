@@ -408,13 +408,13 @@ class ServerTest extends TestCase
      */
     public function testCheck()
     {
-        // Adding server(s)
         $invalidSecret = 't64e8rtefererrg43erbgffrgz';
         $validSecret   = '8d8e8rtefererrg43erbgffrgz';
 
         $validHost   = 'https://bbb-valid.notld/bigbluebutton/';
         $invalidHost = 'https://bbb-invalid.notld/bigbluebutton/';
 
+        // Create Fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($validHost, $validSecret);
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/Attendance/GetMeetings-1.xml')));
 

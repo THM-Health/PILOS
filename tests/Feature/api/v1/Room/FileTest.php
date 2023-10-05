@@ -9,7 +9,6 @@ use App\Models\Room;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\RoomFileService;
-use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -687,35 +686,9 @@ class FileTest extends TestCase
 
         $room->roomType->serverPool->servers()->attach($server);
 
+        // Create Fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
-
-        // Fake create meeting request
-        $createMeetingRequest = function (Request $request) {
-            $uri = $request->toPsrRequest()->getUri();
-            parse_str($uri->getQuery(), $params);
-            $xml = '
-                <response>
-                    <returncode>SUCCESS</returncode>
-                    <meetingID>'.$params['meetingID'].'</meetingID>
-                    <internalMeetingID>5756487f8952a40879db59f8fe4085798cb79ccc-1695892370102</internalMeetingID>
-                    <parentMeetingID>bbb-none</parentMeetingID>
-                    <attendeePW>'.$params['attendeePW'].'</attendeePW>
-                    <moderatorPW>'.$params['moderatorPW'].'</moderatorPW>
-                    <createTime>1695892370102</createTime>
-                    <voiceBridge>92443</voiceBridge>
-                    <dialNumber>613-555-1234</dialNumber>
-                    <createDate>Thu Sep 28 09:12:50 UTC 2023</createDate>
-                    <hasUserJoined>false</hasUserJoined>
-                    <duration>0</duration>
-                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
-                    <messageKey></messageKey>
-                    <message></message>
-                </response>';
-
-            return Http::response($xml);
-        };
-
-        $bbbfaker->addRequest($createMeetingRequest);
+        $bbbfaker->addCreateMeetingRequest();
 
         // Upload a fake file
         $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.add', ['room'=>$room]), ['file' => $this->file_valid]);
