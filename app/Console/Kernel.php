@@ -35,12 +35,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command(BuildHistory::class)->everyMinute();
-        $schedule->command(DeleteUnverifiedNewUsers::class)->everyMinute();
-        $schedule->command(CleanupStatistics::class)->daily();
-        $schedule->command(CleanupAttendance::class)->daily();
-        $schedule->command(CleanupRooms::class)->daily();
-        $schedule->command(DeleteObsoleteTokens::class)->daily();
+        $schedule->command(BuildHistory::class)->everyMinute()->onOneServer();
+        $schedule->command(DeleteUnverifiedNewUsers::class)->everyMinute()->onOneServer();
+        $schedule->command(CleanupStatistics::class)->daily()->onOneServer();
+        $schedule->command(CleanupAttendance::class)->daily()->onOneServer();
+        $schedule->command(CleanupRooms::class)->daily()->onOneServer();
+        $schedule->command(DeleteObsoleteTokens::class)->daily()->onOneServer();
     }
 
     /**
