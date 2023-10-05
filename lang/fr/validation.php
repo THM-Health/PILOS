@@ -83,7 +83,7 @@ return [
         'room_limit'                         => 'Limites de salle',
         'room_token_expiration'              => 'Délai d\'expiration des liens de salle personnalisés',
         'room_type'                          => 'Type de salle',
-        'salt'                               => 'Secret de l\'API',
+        'secret'                             => 'Secret de l\'API',
         'second'                             => 'Secondes',
         'server_pool'                        => 'Groupe de serveurs',
         'servers'                            => 'Serveurr',

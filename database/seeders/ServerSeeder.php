@@ -22,7 +22,7 @@ class ServerSeeder extends Seeder
         $servers = config('bigbluebutton.testserver');
 
         foreach ($servers as $server){
-            $server = Server::create(['base_url' => $server->url,'salt' => $server->secret,'name' => $faker->unique()->word, 'status' => ServerStatus::ONLINE]);
+            $server = Server::create(['base_url' => $server->url,'secret' => $server->secret,'name' => $faker->unique()->word, 'status' => ServerStatus::ONLINE]);
             foreach(ServerPool::all() as $serverPool){
                 $serverPool->servers()->attach($server);
             }
