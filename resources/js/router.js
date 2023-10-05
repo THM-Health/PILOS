@@ -106,7 +106,13 @@ export const routes = [
     path: '/rooms/:id/:token?',
     name: 'rooms.view',
     component: RoomView,
-    meta: { redirectBackAfterLogin: true }
+    meta: { redirectBackAfterLogin: true },
+    props: route => {
+      return {
+        id: route.params.id,
+        token: route.params.token
+      };
+    }
   },
   {
     path: '/meetings',
