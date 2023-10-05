@@ -59,7 +59,7 @@
         "chart.js": "^4.4.0",
         "chartjs-adapter-dayjs-4": "^1.0.4",
         "dayjs": "^1.11.10",
-        "dompurify": "^3.0.5",
+        "dompurify": "^3.0.6",
         "pinia": "^2.1.6",
         "ua-parser-js": "^1.0.36",
         "vue-chartjs": "^5.2.0",
