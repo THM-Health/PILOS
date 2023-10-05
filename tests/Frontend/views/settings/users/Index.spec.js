@@ -127,7 +127,7 @@ describe('UsersIndex', () => {
       data: {
         data: [{
           id: 2,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'darth@vader.com',
           external_id: 'dvr',
           firstname: 'Darth',
@@ -154,7 +154,7 @@ describe('UsersIndex', () => {
     expect(html).toContain('Vader');
     expect(html).toContain('Students');
     expect(html).toContain('darth@vader.com');
-    expect(html).toContain('settings.users.authenticator.external');
+    expect(html).toContain('settings.users.authenticator.ldap');
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
@@ -195,7 +195,7 @@ describe('UsersIndex', () => {
           initial_password_set: true
         }, {
           id: 3,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'darth@vader.com',
           external_id: 'dvr',
           firstname: 'Darth',
@@ -326,7 +326,7 @@ describe('UsersIndex', () => {
           initial_password_set: true
         }, {
           id: 3,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'darth@vader.com',
           external_id: 'dvr',
           firstname: 'Darth',
@@ -404,7 +404,7 @@ describe('UsersIndex', () => {
           updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'darth@vader.com',
           external_id: 'dvr',
           firstname: 'Darth',
@@ -492,7 +492,7 @@ describe('UsersIndex', () => {
       data: {
         data: [{
           id: 2,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'darth@vader.com',
           external_id: 'dvr',
           firstname: 'Darth',
@@ -572,7 +572,7 @@ describe('UsersIndex', () => {
       data: {
         data: [{
           id: 2,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'darth@vader.com',
           external_id: 'dvr',
           firstname: 'Darth',

@@ -80,8 +80,8 @@ return [
             'description' => 'Limits the number of page size for data tables pagination',
             'title'       => 'Pagination page size',
         ],
-        'password_change_allowed'     => 'Give local users the possibility to change their password',
-        'privacy_policy_url'          => [
+        'password_change_allowed' => 'Give local users the possibility to change their password',
+        'privacy_policy_url'      => [
             'description' => 'If not set, no privacy policy link will be displayed in the footer.',
             'title'       => 'URL to the privacy policy',
         ],
@@ -230,7 +230,7 @@ return [
                 'title'       => 'The server has been disabled.',
             ],
         ],
-        'hide_salt'           => 'Hide clear text',
+        'hide_secret'         => 'Hide clear text',
         'meeting_count'       => 'Meetings',
         'meeting_description' => 'All meetings on the BigBlueButton-Server',
         'new'                 => 'Add new server',
@@ -239,7 +239,7 @@ return [
         'offline'             => 'Offline',
         'offline_reason'      => [
             'connection' => 'No connection could be established to the server.',
-            'salt'       => 'A connection to the server could be established, but the API secret is invalid.',
+            'secret'     => 'A connection to the server could be established, but the API secret is invalid.',
         ],
         'online'                  => 'Online',
         'own_meeting_count'       => 'Own meetings',
@@ -249,8 +249,8 @@ return [
         'panic_server'            => 'Disable server and end all meetings',
         'participant_count'       => 'Participants',
         'reload'                  => 'Recalculate usage',
-        'salt'                    => 'API secret',
-        'show_salt'               => 'Show clear text',
+        'secret'                  => 'API secret',
+        'show_secret'             => 'Show clear text',
         'status'                  => 'Status',
         'strength'                => 'Server strength',
         'strength_description'    => 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
@@ -265,9 +265,10 @@ return [
     'title' => 'Settings',
     'users' => [
         'authenticator' => [
-            'external' => 'External',
-            'local'    => 'Local',
-            'title'    => 'Authentication Type',
+            'ldap'       => 'LDAP',
+            'local'      => 'Local',
+            'shibboleth' => 'Shibboleth',
+            'title'      => 'Authentication Type',
         ],
         'base_data' => 'Base data',
         'bbb'       => 'BigBlueButton',

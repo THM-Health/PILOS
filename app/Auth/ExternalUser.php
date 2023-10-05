@@ -26,11 +26,11 @@ abstract class ExternalUser
      * 
      * @return User The User Eloquent model.
      */
-    public function createOrFindEloquentModel(): User
+    public function createOrFindEloquentModel(string $authenticator): User
     {
         return User::firstOrNew(
             [
-                'authenticator' => 'external',
+                'authenticator' => $authenticator,
                 'external_id'   => $this->getFirstAttributeValue('external_id')
             ],
             [

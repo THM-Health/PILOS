@@ -135,7 +135,7 @@ describe('PasswordReset', () => {
       data: {
         data: {
           id: 1,
-          authenticator: 'external',
+          authenticator: 'ldap',
           email: 'john.doe@domain.tld',
           external_id: 'user',
           firstname: 'John',

@@ -123,14 +123,24 @@ export default {
     ...mapActions(useLoadingStore, ['setLoading', 'setLoadingFinished']),
 
     async logout () {
+      let response;
       try {
         this.setLoading();
-        await this.logoutSession();
-        await this.$router.push({ name: 'logout' });
-        this.setLoadingFinished();
+        response = await this.logoutSession();
       } catch (error) {
+        this.setLoadingFinished();
         this.toastError(this.$t('auth.flash.logout_error'));
+        return;
       }
+
+      if (response.data.redirect) {
+        window.location = response.data.redirect;
+        return;
+      }
+
+      await this.$router.push({ name: 'logout' });
+
+      this.setLoadingFinished();
     }
   }
 };

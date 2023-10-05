@@ -47,7 +47,7 @@ class UserTest extends TestCase
 
         $externalUser = User::factory()->create([
             'external_id'   => $this->faker->unique()->userName,
-            'authenticator' => 'external',
+            'authenticator' => 'ldap',
             'email'         => $this->faker->unique()->safeEmail,
             'firstname'     => 'Jane',
             'lastname'      => 'Doe'
@@ -251,7 +251,7 @@ class UserTest extends TestCase
 
         $externalUser = User::factory()->create([
             'external_id'   => $this->faker->unique()->userName,
-            'authenticator' => 'external',
+            'authenticator' => 'ldap',
             'email'         => $this->faker->unique()->safeEmail,
             'firstname'     => 'Jane',
             'lastname'      => 'Doe'
@@ -290,7 +290,7 @@ class UserTest extends TestCase
             'new_password'              => 'aT2wqw_2',
             'new_password_confirmation' => 'aT2wqw_2',
             'roles'                     => [$role->id],
-            'authenticator'             => 'external',
+            'authenticator'             => 'ldap',
             'timezone'                  => 'UTC'
         ];
 
@@ -403,7 +403,7 @@ class UserTest extends TestCase
 
         $roleB = Role::factory()->create();
 
-        $user = User::factory()->create(['authenticator' => 'external', 'external_id' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $user = User::factory()->create(['authenticator' => 'ldap', 'external_id' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
         $user->roles()->sync([$roleA->id, $roleB->id]);
 
         $changes = [
@@ -492,7 +492,7 @@ class UserTest extends TestCase
         $permission = Permission::firstOrCreate(['name' => 'users.update']);
         $adminRole->permissions()->attach($permission->id);
 
-        $user  = User::factory()->create(['authenticator' => 'external', 'external_id' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $user  = User::factory()->create(['authenticator' => 'ldap', 'external_id' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
         $admin = User::factory()->create();
 
         $user->roles()->sync([$roleA->id => ['automatic' => true], $roleB->id]);
@@ -589,7 +589,7 @@ class UserTest extends TestCase
         $email                  = $this->faker->email;
         $user                   = User::factory()->create(['password' => Hash::make($password), 'email' => $email]);
         $otherUser              = User::factory()->create(['password' => Hash::make($otherUserPassword)]);
-        $externalUser           = User::factory()->create(['authenticator' => 'external']);
+        $externalUser           = User::factory()->create(['authenticator' => 'ldap']);
 
         $newEmail = $this->faker->email;
         $changes  = [
@@ -754,7 +754,7 @@ class UserTest extends TestCase
         Cache::clear();
 
         // Try to change email for different authenticator
-        $user->authenticator    = 'external';
+        $user->authenticator    = 'ldap';
         $user->external_id      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
@@ -799,7 +799,7 @@ class UserTest extends TestCase
         }
 
         // Try to change email for user with different authenticator
-        $user->authenticator    = 'external';
+        $user->authenticator    = 'ldap';
         $user->external_id      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
@@ -932,7 +932,7 @@ class UserTest extends TestCase
         Cache::clear();
 
         // Try to change password for user with different authenticator
-        $user->authenticator    = 'external';
+        $user->authenticator    = 'ldap';
         $user->external_id      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
@@ -1030,7 +1030,7 @@ class UserTest extends TestCase
         }
 
         // Try to change password for user with different authenticator
-        $user->authenticator    = 'external';
+        $user->authenticator    = 'ldap';
         $user->external_id      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
@@ -1148,7 +1148,7 @@ class UserTest extends TestCase
 
         $externalUser = User::factory()->create([
             'external_id'   => $this->faker->unique()->userName,
-            'authenticator' => 'external',
+            'authenticator' => 'ldap',
             'email'         => $this->faker->unique()->safeEmail,
             'firstname'     => $this->faker->firstName,
             'lastname'      => $this->faker->lastName
@@ -1190,7 +1190,7 @@ class UserTest extends TestCase
             ->assertJsonFragment([
                 'firstname'     => $externalUser->firstname,
                 'lastname'      => $externalUser->lastname,
-                'authenticator' => 'external',
+                'authenticator' => 'ldap',
                 'roles'         => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]]
             ]);
 
@@ -1214,7 +1214,7 @@ class UserTest extends TestCase
 
         $externalUser = User::factory()->create([
             'external_id'   => $this->faker->unique()->userName,
-            'authenticator' => 'external',
+            'authenticator' => 'ldap',
             'email'         => $this->faker->unique()->safeEmail,
             'firstname'     => $this->faker->firstName,
             'lastname'      => $this->faker->lastName
@@ -1261,7 +1261,7 @@ class UserTest extends TestCase
 
         $resetUser = User::factory()->create([
             'initial_password_set' => true,
-            'authenticator'        => 'external',
+            'authenticator'        => 'ldap',
             'locale'               => 'de'
         ]);
         $user = User::factory()->create();

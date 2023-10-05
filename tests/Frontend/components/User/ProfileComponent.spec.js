@@ -20,7 +20,7 @@ localVue.use(PiniaVuePlugin);
 
 const ldapUser = {
   id: 1,
-  authenticator: 'external',
+  authenticator: 'ldap',
   email: 'john@doe.com',
   external_id: 'jdo',
   firstname: 'John',
@@ -98,10 +98,14 @@ describe('ProfileComponent', () => {
 
     expect(inputs.at(1).props('id')).toBe('lastname');
     expect(inputs.at(1).props('value')).toBe('Doe');
-    expect(inputs.at(0).props('disabled')).toBeFalsy();
+    expect(inputs.at(1).props('disabled')).toBeFalsy();
+
+    // Check authenticator
+    expect(inputs.at(2).props('value')).toBe('settings.users.authenticator.local');
+    expect(inputs.at(2).props('disabled')).toBeTruthy();
 
     // Check no username
-    expect(inputs.length).toBe(2);
+    expect(inputs.length).toBe(3);
 
     // Check empty image
     const image = wrapper.findComponent(BImg);
@@ -168,11 +172,15 @@ describe('ProfileComponent', () => {
 
     const inputs = wrapper.findAllComponents(BFormInput);
 
-    // Check username
-    expect(inputs.length).toBe(3);
-    expect(inputs.at(2).props('id')).toBe('external_id');
-    expect(inputs.at(2).props('value')).toBe('jdo');
+    // Check authenticator
+    expect(inputs.at(2).props('value')).toBe('settings.users.authenticator.ldap');
     expect(inputs.at(2).props('disabled')).toBeTruthy();
+
+    // Check username
+    expect(inputs.length).toBe(4);
+    expect(inputs.at(3).props('id')).toBe('external_id');
+    expect(inputs.at(3).props('value')).toBe('jdo');
+    expect(inputs.at(3).props('disabled')).toBeTruthy();
 
     wrapper.destroy();
   });

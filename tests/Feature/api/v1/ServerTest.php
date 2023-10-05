@@ -10,10 +10,11 @@ use App\Models\Role;
 use App\Models\Server;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Database\Seeders\ServerSeeder;
+use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Utils\BigBlueButtonServerFaker;
 
 /**
  * General server api feature tests
@@ -96,7 +97,7 @@ class ServerTest extends TestCase
                 ]
             ])
         ->assertDontSee('base_url')
-        ->assertDontSee('salt');
+        ->assertDontSee('secret');
 
         // Pagination
         $this->getJson(route('api.v1.servers.index') . '?page=2')
@@ -199,7 +200,7 @@ class ServerTest extends TestCase
                 'name'                    => $server->name,
                 'description'             => $server->description,
                 'base_url'                => $server->base_url,
-                'salt'                    => $server->salt,
+                'secret'                  => $server->secret,
                 'strength'                => $server->strength,
                 'status'                  => $server->status,
                 'participant_count'       => $server->participant_count,
@@ -231,7 +232,7 @@ class ServerTest extends TestCase
             'name'        => $server->name,
             'description' => $server->description,
             'base_url'    => $server->base_url,
-            'salt'        => $server->salt,
+            'secret'      => $server->secret,
             'strength'    => 5,
             'disabled'    => false,
         ];
@@ -254,7 +255,7 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url'=>$server->base_url,'description'=>$server->description,'salt'=>$server->salt,'strength'=>5,'status'=>ServerStatus::OFFLINE]
+                ['base_url'=>$server->base_url,'description'=>$server->description,'secret'=>$server->secret,'strength'=>5,'status'=>ServerStatus::OFFLINE]
             );
 
         // Test with some existing base url
@@ -264,11 +265,11 @@ class ServerTest extends TestCase
         // Test with invalid data
         $data['base_url']      = 'test';
         $data['name']          = '';
-        $data['salt']          = '';
+        $data['secret']        = '';
         $data['strength']      = 1000;
         $data['disabled']      = 10;
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url','salt','name','strength','disabled']);
+            ->assertJsonValidationErrors(['base_url','secret','name','strength','disabled']);
     }
 
     /**
@@ -283,7 +284,7 @@ class ServerTest extends TestCase
             'name'        => $server->name,
             'description' => $server->description,
             'base_url'    => $server->base_url,
-            'salt'        => $server->salt,
+            'secret'      => $server->secret,
             'strength'    => $server->strength,
             'disabled'    => true,
         ];
@@ -312,7 +313,7 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url'=>$server->base_url,'salt'=>$server->salt,'status'=>$server->status]
+                ['base_url'=>$server->base_url,'secret'=>$server->secret,'status'=>$server->status]
             );
 
         // Change status to offline if server is not reachable
@@ -336,12 +337,12 @@ class ServerTest extends TestCase
         $server->refresh();
         $data['base_url']      = 'test';
         $data['name']          = '';
-        $data['salt']          = '';
+        $data['secret']        = '';
         $data['strength']      = 1000;
         $data['disabled']      = 10;
         $data['updated_at']    = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
-            ->assertJsonValidationErrors(['base_url','salt','name','strength','disabled']);
+            ->assertJsonValidationErrors(['base_url','secret','name','strength','disabled']);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;
@@ -407,11 +408,17 @@ class ServerTest extends TestCase
      */
     public function testCheck()
     {
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
-        $server = Server::all()->first();
+        $invalidSecret = 't64e8rtefererrg43erbgffrgz';
+        $validSecret   = '8d8e8rtefererrg43erbgffrgz';
 
-        $data = ['base_url'=>'https://host.tld/bigbluebutton','salt'=>'t64e8rtefererrg43erbgffrgz'];
+        $validHost   = 'https://bbb-valid.notld/bigbluebutton/';
+        $invalidHost = 'https://bbb-invalid.notld/bigbluebutton/';
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($validHost, $validSecret);
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/Attendance/GetMeetings-1.xml')));
+
+        $data = ['base_url'=> $invalidHost,'secret'=> $invalidSecret];
 
         // Test guests
         $this->postJson(route('api.v1.servers.check'), $data)
@@ -429,22 +436,22 @@ class ServerTest extends TestCase
 
         // Test with invalid api details
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>false,'salt_ok'=>false]);
+            ->assertJson(['connection_ok'=>false,'secret_ok'=>false]);
 
-        // Test with invalid salt
-        $data = ['base_url'=>$server->base_url,'salt'=>'t64e8rtefererrg43erbgffrgz'];
+        // Test with invalid secret
+        $data = ['base_url'=>$validHost,'secret'=>$invalidSecret];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>true,'salt_ok'=>false]);
+            ->assertJson(['connection_ok'=>true,'secret_ok'=>false]);
 
         // Test with valid api details
-        $data = ['base_url'=>$server->base_url,'salt'=>$server->salt];
+        $data = ['base_url'=>$validHost,'secret'=>$validSecret];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>true,'salt_ok'=>true]);
+            ->assertJson(['connection_ok'=>true,'secret_ok'=>true]);
 
         // Test with invalid data
-        $data = ['base_url'=>'test','salt'=>''];
+        $data = ['base_url'=>'test','secret'=>''];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJsonValidationErrors(['base_url','salt']);
+            ->assertJsonValidationErrors(['base_url','secret']);
     }
 
     /**

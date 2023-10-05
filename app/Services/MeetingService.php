@@ -44,7 +44,7 @@ class MeetingService
      */
     protected function getCallbackSalt(): string
     {
-        return $this->meeting->id . $this->meeting->server->salt;
+        return $this->meeting->id . $this->meeting->server->secret;
     }
 
     public function validateCallbackSalt(string $salt): bool

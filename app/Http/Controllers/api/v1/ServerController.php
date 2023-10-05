@@ -84,7 +84,7 @@ class ServerController extends Controller
         $server->name         = $request->name;
         $server->description  = $request->description;
         $server->base_url     = $request->base_url;
-        $server->salt         = $request->salt;
+        $server->secret       = $request->secret;
         $server->strength     = $request->strength;
         $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
@@ -109,7 +109,7 @@ class ServerController extends Controller
         $server->name         = $request->name;
         $server->description  = $request->description;
         $server->base_url     = $request->base_url;
-        $server->salt         = $request->salt;
+        $server->secret       = $request->secret;
         $server->strength     = $request->strength;
         $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
@@ -167,23 +167,23 @@ class ServerController extends Controller
      */
     public function check(ServerConnectionCheckRequest $request)
     {
-        $connectionOk = false;
-        $saltOk       = false;
+        $connectionOk   = false;
+        $secretOk       = false;
 
         try {
-            $bbb      = new BigBlueButton($request->base_url, $request->salt, new LaravelHTTPClient());
+            $bbb      = new BigBlueButton($request->base_url, $request->secret, new LaravelHTTPClient());
             $response = $bbb->getMeetings();
 
             if ($response->success()) {
-                $connectionOk = true;
-                $saltOk       = true;
+                $connectionOk   = true;
+                $secretOk       = true;
             } elseif ($response->hasChecksumError()) {
-                $connectionOk = true;
-                $saltOk       = false;
+                $connectionOk   = true;
+                $secretOk       = false;
             }
         } catch (\Exception $e) {
         }
 
-        return \response()->json(['connection_ok'=>$connectionOk,'salt_ok'=>$saltOk]);
+        return \response()->json(['connection_ok'=>$connectionOk,'secret_ok'=>$secretOk]);
     }
 }

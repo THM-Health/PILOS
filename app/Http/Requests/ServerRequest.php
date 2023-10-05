@@ -13,7 +13,7 @@ class ServerRequest extends FormRequest
             'name'          => ['required', 'string', 'max:255', Rule::unique('servers', 'name')],
             'description'   => ['nullable', 'string', 'max:255'],
             'base_url'      => ['required', 'url', 'string', 'max:255', Rule::unique('servers', 'base_url')],
-            'salt'          => ['required', 'string', 'max:255'],
+            'secret'        => ['required', 'string', 'max:255'],
             'strength'      => ['required', 'integer','min:1','max:10'],
             'disabled'      => ['required', 'boolean']
         ];

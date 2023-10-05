@@ -10,7 +10,7 @@ class ServerConnectionCheckRequest extends FormRequest
     {
         return [
             'base_url'      => ['required', 'url', 'string', 'max:255'],
-            'salt'          => ['required', 'string', 'max:255'],
+            'secret'        => ['required', 'string', 'max:255'],
         ];
     }
 }

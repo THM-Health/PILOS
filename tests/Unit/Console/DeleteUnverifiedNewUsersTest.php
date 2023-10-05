@@ -46,7 +46,7 @@ class DeleteUnverifiedNewUsersTest extends TestCase
         User::factory()->create([
             'email'                => 'john@doe.com',
             'initial_password_set' => true, // accidentally set to true
-            'authenticator'        => 'external'
+            'authenticator'        => 'ldap'
         ]);
 
         // Registered user with expired password reset token

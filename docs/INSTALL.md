@@ -181,9 +181,7 @@ docker compose exec --user www-data app php artisan users:create:admin
 ```
 
 ### External authentication
-PILOS can be connected to external authentication systems.
-We currently only support LDAP. OpenID-Connect and SAML 2.0 are in planning.
-
+PILOS can be connected to the following external authentication systems: LDAP and Shibboleth.
 Please have a look at our [documentation](EXTERNAL_AUTHENTICATION.md) on how to setup external authenticators.
 
 ### Customization
@@ -286,7 +284,5 @@ To log the status of all meetings and servers and to keep the database up to dat
 ```
 
 ### External authentication
-PILOS can be connected to external authentication systems.
-We currently only support LDAP. OpenID-Connect and SAML 2.0 are in planning.
-
+PILOS can be connected to the following external authentication systems: LDAP and Shibboleth.
 Please have a look at our [documentation](EXTERNAL_AUTHENTICATION.md) on how to setup external authenticators.

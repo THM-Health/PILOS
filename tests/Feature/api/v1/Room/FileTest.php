@@ -6,16 +6,16 @@ use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\Server;
 use App\Models\User;
-use App\Services\BigBlueButton\LaravelHTTPClient;
-use App\Services\MeetingService;
 use App\Services\RoomFileService;
-use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use Tests\Utils\BigBlueButtonServerFaker;
+use Illuminate\Http\Client\Request;
 
 class FileTest extends TestCase
 {
@@ -681,25 +681,45 @@ class FileTest extends TestCase
      */
     public function testStartMeetingWithFile()
     {
-        $room = Room::factory()->create();
+        $room   = Room::factory()->create();
+        $server = Server::factory()->create();
 
-        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$room]), ['file' => $this->file_valid])
+        $room->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        $bbbfaker->addCreateMeetingRequest();
+
+        // Upload a fake file
+        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.add', ['room'=>$room]), ['file' => $this->file_valid]);
+        $response->assertSuccessful();
+        
+        // Set file to be used in next meeting
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=> $room, 'file' => $response->json('data.files.0.id')]), ['use_in_meeting'=>true])
             ->assertSuccessful();
 
-        // Adding server(s)
-        $this->seed(ServerSeeder::class);
-
-        // Create server
+        // Start room
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
 
-        // Try to start bbb meeting
-        $response = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' => false])->get($response->json('url'));
-        $this->assertEquals(302, $response->status());
-        $this->assertArrayHasKey('Location', $response->headers());
+        // Get request send to BBB Server
+        $request = $bbbfaker->getRequest(0);
 
-        // Clear
-        (new MeetingService($room->runningMeeting()))->end();
+        // Get xml from request (presentation data)
+        $xml = simplexml_load_string($request->body());
+
+        $downloadUrl = (string) $xml->module->document->attributes()->url;
+        $fileName    = (string) $xml->module->document->attributes()->filename;
+
+        // Check if file name is correctly send to BBB Server
+        $this->assertEquals($this->file_valid->name, $fileName);
+
+        // Simulate BBB-Server downloading file
+        $fileResponse = $this->get($downloadUrl);
+        $fileResponse->assertSuccessful();
+
+        // Check if file headers for reverse proxy are correctly set
+        $this->assertEquals('/private-storage/'.$room->id.'/'.$this->file_valid->hashName(), $fileResponse->headers->get('x-accel-redirect'));
     }
 }

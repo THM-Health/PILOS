@@ -47,8 +47,8 @@ describe('UserPolicy', () => {
     expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update'], id: 1 } }, { id: 1337, model_name: 'User', authenticator: 'local' })).toBe(true);
     expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update'], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'local' })).toBe(false);
     expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'local' })).toBe(true);
-    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1337, model_name: 'User', authenticator: 'external' })).toBe(false);
-    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'external' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1337, model_name: 'User', authenticator: 'ldap' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'ldap' })).toBe(false);
   });
 
   it('resetPassword returns true if the user has the permission to update the user and the user is has no initial password set and is not the current user', async () => {

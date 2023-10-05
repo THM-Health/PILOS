@@ -34,7 +34,7 @@ class Server extends JsonResource
         return [
             'id'                         => $this->id,
             'base_url'                   => $this->when($this->withApi, $this->base_url),
-            'salt'                       => $this->when($this->withApi, $this->salt),
+            'secret'                     => $this->when($this->withApi, $this->secret),
             'name'                       => $this->name,
             'description'                => $this->description,
             'strength'                   => $this->strength,

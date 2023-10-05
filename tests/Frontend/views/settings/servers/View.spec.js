@@ -32,7 +32,7 @@ describe('ServerView', () => {
         name: 'Server 01',
         description: 'Testserver 01',
         base_url: 'https://localhost/bigbluebutton',
-        salt: '123456789',
+        secret: '123456789',
         strength: 1,
         status: 1,
         participant_count: 14,
@@ -112,7 +112,7 @@ describe('ServerView', () => {
           name: 'Server 01',
           description: 'Testserver 01',
           base_url: 'https://localhost/bigbluebutton',
-          salt: '123456789',
+          secret: '123456789',
           strength: 1,
           status: 1,
           participant_count: 14,
@@ -311,7 +311,7 @@ describe('ServerView', () => {
     expect(data.name).toBe('Server 01');
     expect(data.description).toBe('Testserver 01');
     expect(data.base_url).toBe('http://localhost/bbb');
-    expect(data.salt).toBe('987654321');
+    expect(data.secret).toBe('987654321');
     expect(data.strength).toBe(5);
     expect(data.disabled).toBe(true);
 
@@ -323,7 +323,7 @@ describe('ServerView', () => {
           name: ['Test name'],
           description: ['Test description'],
           base_url: ['Test base url'],
-          salt: ['Test salt'],
+          secret: ['Test secret'],
           strength: ['Test strength'],
           disabled: ['Test disabled']
         }
@@ -334,7 +334,7 @@ describe('ServerView', () => {
     expect(feedback[0].html()).toContain('Test name');
     expect(feedback[1].html()).toContain('Test description');
     expect(feedback[2].html()).toContain('Test base url');
-    expect(feedback[3].html()).toContain('Test salt');
+    expect(feedback[3].html()).toContain('Test secret');
     expect(feedback[4].html()).toContain('Test strength');
     expect(feedback[5].html()).toContain('Test disabled');
 
@@ -477,7 +477,7 @@ describe('ServerView', () => {
           name: 'Server 01',
           description: 'Testserver 01',
           base_url: 'https://localhost/bigbluebutton',
-          salt: '123456789',
+          secret: '123456789',
           strength: 1,
           status: 0,
           participant_count: 14,
@@ -509,7 +509,7 @@ describe('ServerView', () => {
           name: 'Server 01',
           description: 'Testserver 01',
           base_url: 'https://localhost/bigbluebutton',
-          salt: '123456789',
+          secret: '123456789',
           strength: 1,
           status: -1,
           participant_count: 14,
@@ -562,12 +562,12 @@ describe('ServerView', () => {
     expect(request.config.method).toBe('post');
     const data = JSON.parse(request.config.data);
     expect(data.base_url).toBe('https://localhost/bigbluebutton');
-    expect(data.salt).toBe('123456789');
+    expect(data.secret).toBe('123456789');
     await request.respondWith({
       status: 200,
       data: {
         connection_ok: false,
-        salt_ok: false
+        secret_ok: false
       }
     });
 
@@ -578,21 +578,21 @@ describe('ServerView', () => {
 
     request = mockAxios.request('/api/v1/servers/check');
 
-    // check for invalid salt
+    // check for invalid secret
     await view.findAllComponents(BButton).at(1).trigger('click');
     await request.wait();
     await request.respondWith({
       status: 200,
       data: {
         connection_ok: true,
-        salt_ok: false
+        secret_ok: false
       }
     });
 
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
     expect(view.findAllComponents(BFormText).length).toBe(3);
-    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.salt');
+    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.secret');
 
     request = mockAxios.request('/api/v1/servers/check');
 
@@ -603,7 +603,7 @@ describe('ServerView', () => {
       status: 200,
       data: {
         connection_ok: true,
-        salt_ok: true
+        secret_ok: true
       }
     });
 
@@ -660,7 +660,7 @@ describe('ServerView', () => {
           name: 'Server 01',
           description: 'Testserver 01',
           base_url: 'https://localhost/bigbluebutton',
-          salt: '123456789',
+          secret: '123456789',
           strength: 1,
           status: -1,
           participant_count: 14,
@@ -758,7 +758,7 @@ describe('ServerView', () => {
           name: 'Server 01',
           description: 'Testserver 01',
           base_url: 'https://localhost/bigbluebutton',
-          salt: '123456789',
+          secret: '123456789',
           strength: 1,
           status: 1,
           participant_count: 14,
