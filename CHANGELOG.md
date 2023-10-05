@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database Import command: Support for postgres database ([#545])
 - Greenlight v2 migration command: Import social users ([#497])
 - Greenlight v2 migration command: Using database transactions to undo changes in case of errors ([#497])
+- Link Github page in the footer ([#620], [#621])
 
 ### Fixed
 - Missing locale strings from fallback locale ([#576])
@@ -657,6 +658,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#576]: https://github.com/THM-Health/PILOS/pull/576
 [#577]: https://github.com/THM-Health/PILOS/issues/577
 [#586]: https://github.com/THM-Health/PILOS/pull/586
+[#620]: https://github.com/THM-Health/PILOS/issues/620
+[#621]: https://github.com/THM-Health/PILOS/pull/621
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.2.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
