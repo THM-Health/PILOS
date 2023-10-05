@@ -32,6 +32,8 @@ return [
 
     'version' => $version,
 
+    'whitelabel' => env('WHITELABEL', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
