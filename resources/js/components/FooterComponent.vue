@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <b-container ref="footer_container" class="border-top bg-white" fluid v-if="getSetting('legal_notice_url') || getSetting('privacy_policy_url') || getSetting('version')">
+    <b-container ref="footer_container" class="border-top bg-white" fluid v-if="getSetting('legal_notice_url') || getSetting('privacy_policy_url') || getSetting('version') || !getSetting('whitelabel')">
       <b-container>
       <div class="d-flex justify-content-between">
         <div>
@@ -13,9 +13,14 @@
             <small>{{$t('app.footer.privacy_policy')}}</small>
           </a>
         </div>
-        <small v-if="getSetting('version')">
-          {{$t('app.version')}} {{getSetting('version')}}
-        </small>
+        <div>
+          <small v-if="!getSetting('whitelabel')">
+            <a href="https://github.com/THM-Health/PILOS" target="_blank"><raw-text>PILOS</raw-text></a>
+          </small>
+          <small v-if="getSetting('version')">
+            {{$t('app.version')}} {{getSetting('version')}}
+          </small>
+        </div>
       </div>
     </b-container>
     </b-container>

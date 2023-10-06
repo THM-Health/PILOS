@@ -55,6 +55,7 @@ class SettingsTest extends TestCase
         config(['bigbluebutton.room_refresh_rate' => 20]);
         config(['app.url' => 'https://domain.tld']);
         config(['app.version' => 'v1.0.0']);
+        config(['app.whitelabel' => false]);
         config(['auth.local.enabled' => true]);
         config(['ldap.enabled' => false]);
 
@@ -74,6 +75,7 @@ class SettingsTest extends TestCase
             ->assertJson([
                 'data' => [
                     'version'                        => 'v1.0.0',
+                    'whitelabel'                     => false,
                     'base_url'                       => 'https://domain.tld',
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
@@ -132,6 +134,7 @@ class SettingsTest extends TestCase
         ]]);
 
         config(['app.version' => null]);
+        config(['app.whitelabel' => true]);
 
         setting(['attendance' => [
             'enabled'           => true,
@@ -148,6 +151,7 @@ class SettingsTest extends TestCase
             ->assertJson([
                 'data' => [
                     'version'                        => null,
+                    'whitelabel'                     => true,
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
                     'own_rooms_pagination_page_size' => '123',
