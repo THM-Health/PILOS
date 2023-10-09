@@ -1,7 +1,6 @@
 <template>
   <div class="container mt-5 mb-5" v-cloak>
 
-
     <!-- room token is invalid -->
     <div v-if="tokenInvalid">
         <!-- Show message that room can only be used by logged in users -->
@@ -82,9 +81,10 @@
                 </b-modal>
 
                 <!--show favorite button for logged in users-->
-                <b-button v-if="isAuthenticated" ref="favoriteButton" @click="toggleFavorite" :variant="room.is_favorite ? 'dark' : 'light'">
-                  <i class="fa-solid fa-star"></i>
-                </b-button>
+                <RoomFavoriteComponent v-if="isAuthenticated" ref="favoriteComponent" @favorites_changed="reload()" :is-favorite="room.is_favorite" :size="'md'" :id="room.id"></RoomFavoriteComponent>
+<!--                <b-button v-if="isAuthenticated" ref="favoriteButton" @click="toggleFavorite" :variant="room.is_favorite ? 'dark' : 'light'">-->
+<!--                  <i class="fa-solid fa-star"></i>-->
+<!--                </b-button>-->
                 <!-- Reload general room settings/details -->
                 <b-button
                   variant="secondary"
@@ -272,6 +272,7 @@ import BrowserNotification from '../../components/Room/BrowserNotification.vue';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
+import RoomFavoriteComponent from '../../components/Room/RoomFavoriteComponent.vue';
 
 export default {
   directives: {
@@ -294,6 +295,7 @@ export default {
   },
 
   components: {
+    RoomFavoriteComponent,
     BrowserNotification,
     DeleteRoomComponent,
     TabsComponent,
@@ -384,26 +386,6 @@ export default {
         }
       }
       Base.error(error, this.$root);
-    },
-
-    /**
-     * Add a room to the favorites or delete it from the favorites
-     */
-    toggleFavorite: function () {
-      let config;
-      // check if the room must be added or deleted
-      if (this.room.is_favorite) {
-        config = { method: 'delete' };
-      } else {
-        config = { method: 'put' };
-      }
-      // add or delete room
-      Base.call('rooms/' + this.room.id + '/favorites', config)
-        .then(response => {
-          this.reload();
-        }).catch(error => {
-          Base.error(error, this);
-        });
     },
 
     ...mapActions(useAuthStore, ['setCurrentUser']),

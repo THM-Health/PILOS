@@ -13,8 +13,8 @@
                 <b-col>
 
                   <div class="text-right" >
-                    <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info mr-1 p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
-                    <b-button @click.stop="toggleFavorite" :variant="isFavorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
+                    <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info mr-1 p-0 room-card-button" ></b-button>
+                    <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="isFavorite" :size="'sm'" :id="id"></RoomFavoriteComponent>
                   </div>
                 </b-col>
               </b-row>
@@ -66,7 +66,7 @@
         </b-col>
         <b-col>
           <div class="text-right" >
-            <b-button @click.stop="toggleFavorite" :variant="isFavorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
+            <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="isFavorite" :size="'sm'" :id="id"></RoomFavoriteComponent>
           </div>
         </b-col>
       </b-row>
@@ -108,9 +108,10 @@
 </template>
 <script>
 
-import Base from '../../api/base';
+import RoomFavoriteComponent from './RoomFavoriteComponent.vue';
 
 export default {
+  components: { RoomFavoriteComponent },
   data () {
     return {
       loading: false
@@ -134,26 +135,6 @@ export default {
     }
   },
   methods: {
-
-    /**
-     * Add a room to the favorites or delete it from the favorites
-     */
-    toggleFavorite: function () {
-      let config;
-      // check if the room must be added or deleted
-      if (this.isFavorite) {
-        config = { method: 'delete' };
-      } else {
-        config = { method: 'put' };
-      }
-      // add or delete room
-      Base.call('rooms/' + this.id + '/favorites', config)
-        .then(response => {
-          this.$emit('favorites_changed');
-        }).catch(error => {
-          Base.error(error, this);
-        });
-    },
 
     /**
      * open the room view

@@ -37,6 +37,13 @@
         border-width: 2.5px;
     }
 }
+
+.room-card-button{
+    height: 25px;
+    width: 25px;
+    font-size: 12px;
+}
+
 .room-card:hover{
     background-color: darken(#FFF, 7.5%) !important;
 }
