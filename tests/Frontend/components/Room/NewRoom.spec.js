@@ -105,47 +105,12 @@ describe('Create new rooms', () => {
     ]
   };
 
-  it('frontend permission test', async () => {
-    mockAxios.request('/api/v1/rooms', { page: 1 }).respondWith({
-      status: 200,
-      data: exampleRoomResponse
-    });
-
-    PermissionService.setCurrentUser(exampleUser);
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $d: i18nDateMock
-      },
-      pinia: createTestingPinia({ initialState }),
-      attachTo: createContainer()
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-    expect(missingNewRoomComponent.exists()).toBeFalsy();
-
+  it('frontend room limit test', async () => {
     const newUser = _.cloneDeep(exampleUser);
     newUser.permissions.push('rooms.create');
 
     PermissionService.setCurrentUser(newUser);
 
-    await view.vm.$nextTick();
-    // ToDo Permission was changed but component still missing
-    console.log(PermissionService.currentUser.permissions);
-    await view.vm.$nextTick();
-    console.log(view.html());
-
-    const newRoomComponent = view.findComponent(NewRoomComponent);
-    expect(newRoomComponent.exists()).toBeTruthy();
-
-    view.destroy();
-  });
-
-  it('frontend room limit test', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
       data: exampleRoomResponse
@@ -156,8 +121,6 @@ describe('Create new rooms', () => {
       data: exampleRoomTypeResponse
     });
 
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.permissions.push('rooms.create');
     newUser.room_limit = 1;
 
     const view = mount(RoomList, {

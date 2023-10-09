@@ -187,26 +187,62 @@ describe('Room Index', () => {
     const rooms = view.findAllComponents(RoomComponent);
     expect(rooms.length).toEqual(3);
     expect(rooms.at(0).props('id')).toBe('abc-def-123');
-    expect(rooms.at(0).vm.name).toBe('Meeting One');
-    expect(rooms.at(0).vm.isFavorite).toBe(false);
-    expect(rooms.at(0).vm.shortDescription).toBe('Own room');
-    expect(rooms.at(0).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
-    expect(rooms.at(0).vm.owner).toEqual({ id: 1, name: 'John Doe' });
+    expect(rooms.at(0).props('name')).toBe('Meeting One');
+    expect(rooms.at(0).props('isFavorite')).toBe(false);
+    expect(rooms.at(0).props('shortDescription')).toBe('Own room');
+    expect(rooms.at(0).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(0).props('owner')).toEqual({ id: 1, name: 'John Doe' });
 
-    expect(rooms.at(1).vm.id).toBe('def-abc-123');
-    expect(rooms.at(1).vm.name).toBe('Meeting Two');
-    expect(rooms.at(1).vm.isFavorite).toBe(false);
-    expect(rooms.at(1).vm.shortDescription).toBe(null);
-    expect(rooms.at(1).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
-    expect(rooms.at(1).vm.owner).toEqual({ id: 1, name: 'John Doe' });
+    expect(rooms.at(1).props('id')).toBe('def-abc-123');
+    expect(rooms.at(1).props('name')).toBe('Meeting Two');
+    expect(rooms.at(1).props('isFavorite')).toBe(false);
+    expect(rooms.at(1).props('shortDescription')).toBe(null);
+    expect(rooms.at(1).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(1).props('owner')).toEqual({ id: 1, name: 'John Doe' });
 
-    expect(rooms.at(2).vm.id).toBe('def-abc-456');
-    expect(rooms.at(2).vm.name).toBe('Meeting Three');
-    expect(rooms.at(2).vm.isFavorite).toBe(false);
-    expect(rooms.at(2).vm.shortDescription).toBe(null);
-    expect(rooms.at(2).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
-    expect(rooms.at(2).vm.owner).toEqual({ id: 1, name: 'John Doe' });
+    expect(rooms.at(2).props('id')).toBe('def-abc-456');
+    expect(rooms.at(2).props('name')).toBe('Meeting Three');
+    expect(rooms.at(2).props('isFavorite')).toBe(false);
+    expect(rooms.at(2).props('shortDescription')).toBe(null);
+    expect(rooms.at(2).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(2).props('owner')).toEqual({ id: 1, name: 'John Doe' });
 
+    view.destroy();
+  });
+
+  it('test missing newRoom component', async () => {
+    const oldUser = PermissionService.currentUser;
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions.pop('rooms.create');
+    PermissionService.setCurrentUser(newUser);
+
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+    expect(missingNewRoomComponent.exists()).toBeFalsy();
+
+    PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
@@ -358,6 +394,75 @@ describe('Room Index', () => {
     view.destroy();
   });
 
+  it('test room limit', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    const authStore = useAuthStore();
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // Hide room count for users without limit
+    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeFalsy();
+
+    // Show room count for users with limit
+    authStore.currentUser.room_limit = 2;
+
+    await view.vm.$nextTick();
+    // check if room limit is shown correct
+    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeTruthy();
+    expect(view.findComponent({ ref: 'room-limit' }).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
+
+    // Enter search query
+    const searchField = view.findComponent({ ref: 'search' });
+    await searchField.setValue('test');
+
+    const roomRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' });
+    searchField.trigger('change');
+    await roomRequest.wait();
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1,
+          total_own: 1
+        }
+      }
+    });
+
+    // Check if room count is not based on items on the current page or the total results,
+    // but all rooms of the user, independent of the search query
+    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeTruthy();
+    expect(view.findComponent({ ref: 'room-limit' }).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
+
+    view.destroy();
+  });
+
   it('test search', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
@@ -372,7 +477,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
@@ -565,7 +671,7 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  it('test filter', async () => {
+  it('test filter without viewAll permission', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
       data: exampleRoomResponse
@@ -609,31 +715,6 @@ describe('Room Index', () => {
 
     // make sure that the favorites button is disabled
     expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
-
-    // ToDo checkboxes with viewAll Permission
-    // Make sure that filter options are shown with view.all permission
-    // const oldUser = PermissionService.currentUser;
-    // const newUser = _.cloneDeep(exampleUser);
-    // newUser.permissions.push('rooms.viewAll');
-    // PermissionService.setCurrentUser(newUser);
-    //
-    // await mockAxios.wait();
-    // await view.vm.$nextTick();
-    // console.log(PermissionService.currentUser.permissions);
-    //
-    // let checkboxes = view.findAllComponents(BFormCheckbox)
-    // expect(checkboxes.length).toBe(4);
-    // //Make sure that checkboxes are shown correct
-    // expect(checkboxes.at(0).props('checked')).toBeTruthy();
-    // expect(checkboxes.at(0).text()).toBe('rooms.index.show_own');
-    // expect(checkboxes.at(1).props('checked')).toBeTruthy();
-    // expect(checkboxes.at(1).text()).toBe('rooms.index.show_shared');
-    // expect(checkboxes.at(2).props('checked')).toBeFalsy();
-    // expect(checkboxes.at(2).text()).toBe('rooms.index.show_public');
-    // expect(checkboxes.at(3).props('checked')).toBeFalsy();
-    // expect(checkboxes.at(3).text()).toBe('rooms.index.show_all');
-    //
-    // PermissionService.setCurrentUser(oldUser);
 
     const checkboxes = view.findAllComponents(BFormCheckbox);
     expect(checkboxes.length).toBe(3);
@@ -719,7 +800,94 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  it('test favorites', async () => {
+  it('test filter with viewAll permission', async () => {
+    const oldUser = PermissionService.currentUser;
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions.push('rooms.viewAll');
+    PermissionService.setCurrentUser(newUser);
+
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // Find filter button and trigger it to open filter options
+    const filterButton = view.findAllComponents(BButton).at(4);
+    await filterButton.trigger('click');
+
+    const checkboxes = view.findAllComponents(BFormCheckbox);
+    expect(checkboxes.length).toBe(4);
+    // Make sure that checkboxes are shown correct
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(0).text()).toBe('rooms.index.show_own');
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).text()).toBe('rooms.index.show_shared');
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+    expect(checkboxes.at(2).text()).toBe('rooms.index.show_public');
+    expect(checkboxes.at(3).props('checked')).toBeFalsy();
+    expect(checkboxes.at(3).text()).toBe('rooms.index.show_all');
+
+    // Trigger show all checkbox
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(3).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(roomRequest.config.params.filter_all).toBeTruthy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // check if all checkboxes are checked
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(checkboxes.at(3).props('checked')).toBeTruthy();
+
+    // trigger show all checkbox again
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(3).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // check if all checkboxes are checked
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(checkboxes.at(3).props('checked')).toBeFalsy();
+
+    PermissionService.setCurrentUser(oldUser);
+    view.destroy();
+  });
+
+  it('test show favorites', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
       data: exampleRoomResponse
@@ -780,7 +948,7 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  it('test room limit', async () => {
+  it('test trigger favorites', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
       data: exampleRoomResponse
@@ -794,56 +962,29 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
-    const authStore = useAuthStore();
-
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // Hide room count for users without limit
-    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeFalsy();
+    // find rooms
+    const rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(3);
 
-    // Show room count for users with limit
-    authStore.currentUser.room_limit = 2;
-
-    await view.vm.$nextTick();
-    // check if room limit is shown correct
-    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeTruthy();
-    expect(view.findComponent({ ref: 'room-limit' }).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
-
-    // Enter search query
-    const searchField = view.findComponent({ ref: 'search' });
-    await searchField.setValue('test');
-
-    const roomRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' });
-    searchField.trigger('change');
+    // fire event and check if rooms are reload
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(0).vm.$emit('favorites_changed');
     await roomRequest.wait();
-    await roomRequest.respondWith({
-      status: 200,
-      data: {
-        data: [],
-        meta: {
-          current_page: 1,
-          from: null,
-          last_page: 1,
-          per_page: 10,
-          to: null,
-          total: 0,
-          total_no_filter: 1,
-          total_own: 1
-        }
-      }
-    });
 
-    // Check if room count is not based on items on the current page or the total results,
-    // but all rooms of the user, independent of the search query
-    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeTruthy();
-    expect(view.findComponent({ ref: 'room-limit' }).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
+    // fire event for another room and check if rooms are reload
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(2).vm.$emit('favorites_changed');
+    await roomRequest.wait();
 
     view.destroy();
   });
@@ -891,8 +1032,6 @@ describe('Room Index', () => {
     expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
     expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
     await view.findAllComponents(BButton).at(4).trigger('click');
-
-    // ToDo try if another request can be made
 
     // const roomRequest = mockAxios.request('/api/v1/rooms');
     // await view.findAllComponents(BButton).at(3).trigger('click');

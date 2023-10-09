@@ -8,6 +8,7 @@ import { createTestingPinia } from '@pinia/testing';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
 import { expect } from 'vitest';
 import { BBadge, BButton, BCard } from 'bootstrap-vue';
+import RoomFavoriteComponent from '../../../../resources/js/components/Room/RoomFavoriteComponent.vue';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -64,6 +65,7 @@ describe('Room Component', () => {
     expect(view.get(BBadge).text()).toEqual(exampleRoomListEntry.type.description);
     expect(view.findAll('small').at(0).text()).toBe(exampleRoomListEntry.owner.name);
     expect(view.findAll('small').at(1).text()).toBe('rooms.index.room_component.never_started');
+    expect(view.getComponent(BCard).attributes().class).not.toContain('running');
     expect(view.findAllComponents(BButton).length).toBe(1);
     expect(view.findAllComponents(BButton).at(0).html()).toContain('fa-star');
     expect(view.findAllComponents(BButton).at(0).element.disabled).toBeFalsy();
@@ -76,6 +78,7 @@ describe('Room Component', () => {
     await view.vm.$nextTick();
 
     expect(view.findAll('small').at(1).text()).toBe('rooms.index.room_component.running_since:{"date":"08/21/2023, 10:18"}');
+    expect(view.getComponent(BCard).attributes().class).toContain('running');
 
     // ended room
     exampleRoomListEntry.last_meeting = { start: '2023-08-21 08:18:28:00', end: '2023-08-21 08:20:28:00' };
@@ -83,6 +86,8 @@ describe('Room Component', () => {
     await view.vm.$nextTick();
 
     expect(view.findAll('small').at(1).text()).toBe('rooms.index.room_component.last_ran_till:{"date":"08/21/2023, 10:20"}');
+    expect(view.getComponent(BCard).attributes().class).not.toContain('running');
+
     view.destroy();
   });
 
@@ -202,7 +207,6 @@ describe('Room Component', () => {
     expect(shortDescModal.get(BBadge).text()).toEqual(exampleRoomListEntry.type.description);
     expect(shortDescModal.get('p').text()).toEqual(exampleRoomListEntry.short_description);
     expect(shortDescModal.findAllComponents(BButton).length).toBe(3);
-    expect(shortDescModal.findAllComponents(BButton).at(0).html()).toContain('fa-star');
     expect(shortDescModal.findAllComponents(BButton).at(0).attributes().class).toContain('light');
     expect(shortDescModal.findAllComponents(BButton).at(1).text()).toEqual('app.close');
     expect(shortDescModal.findAllComponents(BButton).at(2).text()).toEqual('rooms.index.room_component.open');
@@ -268,110 +272,27 @@ describe('Room Component', () => {
       attachTo: createContainer()
     });
 
-    // check if button is shown
-    expect(view.findAllComponents(BButton).length).toBe(5);
-    let favoritesButton = view.findAllComponents(BButton).at(1);
-    expect(favoritesButton.html()).toContain('fa-star');
-    expect(favoritesButton.attributes().class).toContain('light');
+    // find room favorite component and fire event
+    const roomFavoriteComponents = view.findAllComponents(RoomFavoriteComponent);
+    expect(roomFavoriteComponents.length).toBe(2);
+    roomFavoriteComponents.at(0).vm.$emit('favorites_changed');
 
-    let favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
-
-    // trigger favorites button
-    await favoritesButton.trigger('click');
-    await favoritesRequest.wait();
-    expect(favoritesRequest.config.method).toEqual('put');
-
-    await favoritesRequest.respondWith({
-      status: 204
-    });
     await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check if favorites_changed gets emitted
     expect(view.emitted().favorites_changed).toBeTruthy();
+    expect(view.emitted().favorites_changed.length).toBe(1);
 
-    view.setProps({ isFavorite: true });
+    // fire event from second room favorite component
+    roomFavoriteComponents.at(1).vm.$emit('favorites_changed');
 
-    await view.vm.$nextTick();
-
-    // check if button changed
-    expect(favoritesButton.attributes().class).toContain('dark');
-
-    // trigger favorites button again
-    favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
-    await favoritesButton.trigger('click');
-    await favoritesRequest.wait();
-    expect(favoritesRequest.config.method).toEqual('delete');
-
-    await favoritesRequest.respondWith({
-      status: 204
-    });
     await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check if favorites_changed gets emitted
     expect(view.emitted().favorites_changed).toBeTruthy();
-    view.setProps({ isFavorite: false });
-    await view.vm.$nextTick();
-
-    // check if button to open short description modal is shown
-    const shortDescButton = view.findAllComponents(BButton).at(0);
-    expect(shortDescButton.html()).toContain('fa-info');
-
-    // check if short description modal exists and is closed
-    const shortDescModal = view.findComponent({ ref: 'short-description-modal' });
-    expect(shortDescModal.exists()).toBeTruthy();
-    expect(shortDescModal.find('.modal').element.style.display).toEqual('none');
-
-    // try to open short description modal
-    await waitModalShown(view, async () => {
-      shortDescButton.trigger('click');
-    });
-
-    // check if short description modal is open
-    expect(shortDescModal.find('.modal').element.style.display).toEqual('block');
-
-    // find favorites button and if it is shown correct
-    favoritesButton = shortDescModal.findAllComponents(BButton).at(0);
-    expect(favoritesButton.html()).toContain('fa-star');
-    expect(favoritesButton.attributes().class).toContain('light');
-
-    // trigger favorites button
-    favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
-    await favoritesButton.trigger('click');
-    await favoritesRequest.wait();
-    expect(favoritesRequest.config.method).toEqual('put');
-
-    await favoritesRequest.respondWith({
-      status: 204
-    });
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    // check if favorites_changed gets emitted
-    expect(view.emitted().favorites_changed).toBeTruthy();
-
-    view.setProps({ isFavorite: true });
-
-    await view.vm.$nextTick();
-
-    // check if button changed
-    expect(favoritesButton.attributes().class).toContain('dark');
-
-    // trigger favorites button again
-    favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
-    await favoritesButton.trigger('click');
-    await favoritesRequest.wait();
-    expect(favoritesRequest.config.method).toEqual('delete');
-
-    await favoritesRequest.respondWith({
-      status: 204
-    });
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    // check if favorites_changed gets emitted
-    expect(view.emitted().favorites_changed).toBeTruthy();
+    expect(view.emitted().favorites_changed.length).toBe(2);
 
     view.destroy();
   });

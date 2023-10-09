@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormCheckbox } from 'bootstrap-vue';
 
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminTabsComponent from '../../../../resources/js/components/Room/AdminTabsComponent.vue';
@@ -9,9 +9,9 @@ import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import env from '../../../../resources/js/env';
+// import env from '../../../../resources/js/env';
 
-import i18n from '../../../../resources/js/i18n';
+// import i18n from '../../../../resources/js/i18n';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
