@@ -2,7 +2,7 @@
   <footer class="footer">
     <b-container ref="footer_container" class="border-top bg-white" fluid v-if="getSetting('legal_notice_url') || getSetting('privacy_policy_url') || getSetting('version') || !getSetting('whitelabel')">
       <b-container>
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between flex-column flex-sm-row text-center text-sm-left">
         <div>
           <a :href="getSetting('legal_notice_url')" v-if="getSetting('legal_notice_url')" class="d-inline">
             <small>{{$t('app.footer.legal_notice')}}</small>
