@@ -883,10 +883,130 @@ describe('Room Index', () => {
     expect(checkboxes.at(2).props('checked')).toBeTruthy();
     expect(checkboxes.at(3).props('checked')).toBeFalsy();
 
+    // trigger show all checkbox again and check if all checkboxes are checked
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(3).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(roomRequest.config.params.filter_all).toBeTruthy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(checkboxes.at(3).props('checked')).toBeTruthy();
+
+    // trigger another checkbox
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(2).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeFalsy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // check if show all checkbox is unchecked
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+    expect(checkboxes.at(3).props('checked')).toBeFalsy();
+
     PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
+  it('test no filter message', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // Find filter button and trigger it to open filter options
+    const filterButton = view.findAllComponents(BButton).at(4);
+    await filterButton.trigger('click');
+
+    const checkboxes = view.findAllComponents(BFormCheckbox);
+    expect(checkboxes.length).toBe(3);
+
+    // trigger checkboxes
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(1).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeFalsy();
+    expect(roomRequest.config.params.filter_public).toBeFalsy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    checkboxes.at(0).get('input').trigger('click');
+    await view.vm.$nextTick();
+
+    // check if all checkboxes are unchecked
+    expect(checkboxes.at(0).props('checked')).toBeFalsy();
+    expect(checkboxes.at(1).props('checked')).toBeFalsy();
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+
+    // make sure that the checkboxes are not disabled
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+
+    // check if no filter message and reset button are shown
+    expect(view.find('em').text()).toBe('rooms.index.no_rooms_selected');
+    const resetButton = view.findComponent({ ref: 'reset' });
+    expect(resetButton.exists()).toBeTruthy();
+    expect(resetButton.element.disabled).toBeFalsy();
+
+    // trigger reset button
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await resetButton.trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeFalsy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // check if checkboxes are reset
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+
+    view.destroy();
+  });
+
+  // ToDo noFavorites message
   it('test show favorites', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
@@ -989,7 +1109,6 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  // ToDo
   it('error loading rooms', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
@@ -1009,7 +1128,8 @@ describe('Room Index', () => {
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia(),
       attachTo: createContainer()
@@ -1018,9 +1138,12 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // check if error message is shown
+    // check if error message, overlay and reload button are shown
     expect(spy).toBeCalledTimes(1);
-    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeTruthy();
+    let reloadButton = view.findComponent({ ref: 'reload' });
+    expect(reloadButton.exists()).toBeTruthy();
+    expect(reloadButton.element.disabled).toBeFalsy();
 
     // check if buttons are disabled
     expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
@@ -1033,14 +1156,40 @@ describe('Room Index', () => {
     expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
     await view.findAllComponents(BButton).at(4).trigger('click');
 
-    // const roomRequest = mockAxios.request('/api/v1/rooms');
-    // await view.findAllComponents(BButton).at(3).trigger('click');
-    // await roomRequest.wait();
-    //
-    // await roomRequest.respondWith({
-    //   status:200,
-    //   data: exampleRoomResponse
-    // });
+    // trigger reload button
+    const roomRequest = mockAxios.request('/api/v1/rooms');
+    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+    await reloadButton.trigger('click');
+    await roomRequest.wait();
+    await roomTypeRequest.wait();
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    await roomTypeRequest.respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+    await view.vm.$nextTick();
+
+    // check if overlay is disabled
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
+    reloadButton = view.findComponent({ ref: 'reload' });
+    expect(reloadButton.exists()).toBeFalsy();
+    expect(view.findAllComponents(RoomComponent).length).toBe(3);
+
+    // check if buttons are disabled
+    expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    await view.findAllComponents(BButton).at(4).trigger('click');
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+    await view.findAllComponents(BButton).at(4).trigger('click');
 
     view.destroy();
   });

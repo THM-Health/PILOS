@@ -91,7 +91,7 @@ describe('Room Component', () => {
     view.destroy();
   });
 
-  it('click on room in list', async () => {
+  it('click on room', async () => {
     const router = new VueRouter();
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
     const exampleRoomListEntry = {
