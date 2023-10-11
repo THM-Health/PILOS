@@ -82,9 +82,7 @@
 
                 <!--show favorite button for logged in users-->
                 <RoomFavoriteComponent v-if="isAuthenticated" ref="favoriteComponent" @favorites_changed="reload()" :is-favorite="room.is_favorite" :size="'md'" :id="room.id"></RoomFavoriteComponent>
-<!--                <b-button v-if="isAuthenticated" ref="favoriteButton" @click="toggleFavorite" :variant="room.is_favorite ? 'dark' : 'light'">-->
-<!--                  <i class="fa-solid fa-star"></i>-->
-<!--                </b-button>-->
+
                 <!-- Reload general room settings/details -->
                 <b-button
                   variant="secondary"

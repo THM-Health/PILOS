@@ -108,18 +108,57 @@
           </b-form-group>
         </b-col>
         <b-col md="3" class="h-100">
-          <b-form-select v-model="selectedRoomType" @change="loadRooms()" class="float-right" :disabled="loadingRooms||roomTypesBusy">
-            <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
-            <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
-            <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
-          </b-form-select>
+          <b-input-group>
+            <b-input-group-prepend class="flex-grow-1" style="width: 1%" v-if="roomTypesLoadingError" >
+              <b-alert class="mb-0 w-100" show variant="danger">{{ $t('rooms.room_types.loading_error') }}</b-alert>
+            </b-input-group-prepend>
+            <b-form-select v-else v-model="selectedRoomType" @change="loadRooms()" class="float-right" :disabled="loadingRooms||roomTypesBusy">
+              <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
+              <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
+              <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
+            </b-form-select>
+            <b-input-group-append>
+              <!-- Reload the room types -->
+              <b-button
+                @click="loadRoomTypes"
+                :disabled="roomTypesBusy"
+                variant="outline-secondary"
+                :title="$t('rooms.room_types.reload')"
+                v-b-tooltip.hover
+                v-tooltip-hide-click
+              ><i class="fa-solid fa-sync"  v-bind:class="{ 'fa-spin': roomTypesBusy  }"></i
+              ></b-button>
+            </b-input-group-append>
+          </b-input-group>
         </b-col>
       </b-row>
 
 <!--  rooms-->
-      <b-overlay :show="loadingRooms" v-if="!showNoFilterMessage">
+      <b-overlay :show="loadingRooms || loadingRoomsError" v-if="!showNoFilterMessage" no-center>
+        <template #overlay>
+          <div class="text-center mt-5" >
+            <b-spinner v-if="loadingRooms" ></b-spinner>
+            <b-button
+              ref="reload"
+              v-else
+              @click="reload()"
+            >
+              <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            </b-button>
+          </div>
+        </template>
+
+        <!--show room skeleton if there is an error while no rooms are displayed-->
+        <div v-if="(loadingRoomsError && (!rooms || rooms.data.length===0))">
+          <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
+            <b-col v-for="i in 3" :key="i">
+              <RoomSkeletonComponent></RoomSkeletonComponent>
+            </b-col>
+          </b-row>
+        </div>
+
         <div v-if="rooms">
-          <div class="text-center mt-3">
+          <div v-if="!loadingRooms && !loadingRoomsError" class="text-center mt-3">
             <em v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{$t('rooms.index.no_favorites')}} </em>
             <em v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
             <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
@@ -142,8 +181,9 @@
       <div v-else class="text-center mt-3">
         <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
         <br>
-        <b-button @click="filter.own=true; filter.shared=true; selectedRoomType=null; loadRooms(true);"> {{ $t('rooms.index.reset_filter') }}</b-button>
+        <b-button ref="reset" @click="filter.own=true; filter.shared=true; selectedRoomType=null; loadRooms(true);"> {{ $t('rooms.index.reset_filter') }}</b-button>
       </div>
+
     </b-container>
 </template>
 
@@ -155,9 +195,11 @@ import Base from '../../api/base';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import PermissionService from '../../services/PermissionService';
+import RoomSkeletonComponent from '../../components/Room/RoomSkeletonComponent.vue';
 
 export default {
   components: {
+    RoomSkeletonComponent,
     RoomComponent,
     NewRoomComponent
   },
@@ -256,7 +298,7 @@ export default {
       }
       this.showNoFilterMessage = false;
       // reset page of pagination if resetPage is true
-      if (resetPage) {
+      if (resetPage && this.rooms) {
         this.rooms.meta.current_page = 1;
       }
       this.loadingRooms = true;
@@ -275,10 +317,12 @@ export default {
           page: this.rooms !== null ? this.rooms.meta.current_page : 1
         }
       }).then(response => {
-        // operation successful, set rooms
+        // operation successful, set rooms and reset loadingRoomsError
         this.rooms = response.data;
+        this.loadingRoomsError = false;
       }).catch(error => {
         // failed
+        this.loadingRoomsError = true;
         Base.error(error, this);
       }).finally(() => {
         this.loadingRooms = false;
@@ -289,6 +333,7 @@ export default {
   data () {
     return {
       loadingRooms: false,
+      loadingRoomsError: false,
       rooms: null,
       rawSearchQuery: '',
       filter: {
