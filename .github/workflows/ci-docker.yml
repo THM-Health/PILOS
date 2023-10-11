@@ -58,5 +58,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-#          cache-from: type=registry,ref=pilos/pilos:buildcache
-#          cache-to: type=registry,ref=pilos/pilos:buildcache,mode=max
+          cache-from: type=registry,ref=pilos/pilos:buildcache
+          cache-to: type=registry,ref=pilos/pilos:buildcache,mode=max
