@@ -83,9 +83,6 @@ describe('Room', () => {
   });
 
   it('room token', async () => {
-    const authStore = useAuthStore();
-    authStore.setCurrentUser(null);
-
     let request = mockAxios.request('/api/v1/rooms/abc-def-123');
 
     const tabsComponentReloadSpy = vi.fn();
@@ -176,19 +173,6 @@ describe('Room', () => {
     const router = new VueRouter();
     vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    const tabsComponentReloadSpy = vi.fn();
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: tabsComponentReloadSpy
-      }
-    };
-
-    const authStore = useAuthStore();
-    authStore.setCurrentUser(null);
-
     const request = mockAxios.request('/api/v1/rooms/abc-def-123');
 
     const view = mount(RoomView, {
@@ -201,7 +185,7 @@ describe('Room', () => {
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
       },
       stubs: {
-        'tabs-component': tabsComponent
+        'tabs-component': true
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
       router,
@@ -256,6 +240,8 @@ describe('Room', () => {
     view.destroy();
   });
 
+  // ToDo error response
+
   it('room not found', async () => {
     const router = new VueRouter();
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
@@ -290,37 +276,6 @@ describe('Room', () => {
 
     view.destroy();
   });
-  //
-  // ToDo (delete?)
-  //   it('error beforeRouteEnter', async () => {
-  //     mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
-  //       status: env.HTTP_SERVICE_UNAVAILABLE
-  //     });
-  //
-  //     const view = mount(RoomView, {
-  //       localVue,
-  //       mocks: {
-  //         $t: (key) => key
-  //       },
-  //       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-  //       attachTo: createContainer()
-  //     });
-  //
-  //     const to = { params: { id: 'abc-def-456' } };
-  //
-  //     // call before route enter hook and promise to call if next is executed (room data was loaded)
-  //     const promise = new Promise((resolve) => {
-  //       RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
-  //         resolve(next);
-  //       });
-  //     });
-  //
-  //     // wait for promise to be resolved (room data loading failed)
-  //     const next = await promise;
-  //     expect(next instanceof Error).toBeTruthy();
-  //     expect(next.response.status).toBe(env.HTTP_SERVICE_UNAVAILABLE);
-  //     view.destroy();
-  //   });
 
   it('ask access token', async () => {
     mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
@@ -365,113 +320,117 @@ describe('Room', () => {
     view.destroy();
   });
 
-  // ToDo
-  // it('room details auth. guest', async () => {
-  //   mockAxios.request('/api/v1/rooms/abc-def-789').respondWith({
-  //     status:200,
-  //     data:{
-  //       data:{
-  //         id: 'abc-def-789',
-  //         name: 'Meeting One',
-  //         owner: { id: 2, name: 'Max Doe' },
-  //         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-  //         type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-  //         model_name: 'Room',
-  //         authenticated: true,
-  //         allow_membership: false,
-  //         is_member: false,
-  //         is_co_owner: false,
-  //         is_moderator: false,
-  //         can_start: false,
-  //         current_user: null
-  //       }
-  //     }
-  //   });
-  //   const view = mount(RoomView, {
-  //     localVue,
-  //     mocks: {
-  //       $t: (key) => key
-  //     },
-  //     propsData: {
-  //       id: 'abc-def-789'
-  //     },
-  //     pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
-  //     router: routerMock,
-  //     attachTo: createContainer()
-  //   });
-  //
-  //   await mockAxios.wait();
-  //   await view.vm.$nextTick();
-  //
-  //   await view.vm.$nextTick();
-  //   expect(view.html()).toContain('Meeting One');
-  //   expect(view.html()).toContain('Max Doe');
-  //   expect(view.vm.invitationText).not.toContain('rooms.invitation.code');
-  //
-  //   const joinButton = view.findComponent({ ref: 'joinMeeting' });
-  //   const nameInput = view.findComponent({ ref: 'guestName' });
-  //   expect(joinButton.attributes('disabled')).toEqual('disabled');
-  //   nameInput.setValue('John Doe');
-  //   await view.vm.$nextTick();
-  //   expect(joinButton.attributes('disabled')).toBeUndefined();
-  //   expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-  //   view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
-  //   await view.vm.$nextTick();
-  //   expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-  //
-  //   view.destroy();
-  // });
+  it('room details auth. guest', async () => {
+    mockAxios.request('/api/v1/rooms/abc-def-789').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-789',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: null
+        }
+      }
+    });
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'abc-def-789'
+      },
+      stubs: {
+        'tabs-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
+      router: routerMock,
+      attachTo: createContainer()
+    });
 
-  // ToDo
-  // it('room details moderator', async () => {
-  //   mockAxios.request('/api/v1/rooms/cba-fed-123').respondWith({
-  //     status: 200,
-  //     data:{
-  //       data:{
-  //         id: 'cba-fed-123',
-  //         name: 'Meeting One',
-  //         owner: { id: 2, name: 'Max Doe' },
-  //         type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-  //         model_name: 'Room',
-  //         authenticated: true,
-  //         allow_membership: false,
-  //         is_member: true,
-  //         is_co_owner: false,
-  //         is_moderator: true,
-  //         can_start: true,
-  //         access_code: 123456789,
-  //         current_user: exampleUser
-  //       }
-  //     }
-  //   });
-  //   const view = mount(RoomView, {
-  //     localVue,
-  //     mocks: {
-  //       $t: (key) => key
-  //     },
-  //     propsData: {
-  //       id: 'cba-fed-123'
-  //     },
-  //     pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-  //     router: routerMock,
-  //     attachTo: createContainer()
-  //   });
-  //
-  //   await mockAxios.wait();
-  //   await view.vm.$nextTick();
-  //
-  //   expect(view.html()).toContain('Meeting One');
-  //   expect(view.html()).toContain('Max Doe');
-  //   expect(view.vm.invitationText).toContain('rooms.invitation.code');
-  //
-  //   const adminComponent = view.findComponent(AdminTabsComponent);
-  //   expect(adminComponent.exists()).toBeFalsy();
-  //   expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-  //   view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
-  //   await view.vm.$nextTick();
-  //   expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
-  //   view.destroy();
-  // });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    await view.vm.$nextTick();
+    expect(view.html()).toContain('Meeting One');
+    expect(view.html()).toContain('Max Doe');
+    expect(view.vm.invitationText).not.toContain('rooms.invitation.code');
+
+    const joinButton = view.findComponent({ ref: 'joinMeeting' });
+    const nameInput = view.findComponent({ ref: 'guestName' });
+    expect(joinButton.attributes('disabled')).toEqual('disabled');
+    nameInput.setValue('John Doe');
+    await view.vm.$nextTick();
+    expect(joinButton.attributes('disabled')).toBeUndefined();
+    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+
+    view.destroy();
+  });
+
+  it('room details moderator', async () => {
+    mockAxios.request('/api/v1/rooms/cba-fed-123').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'cba-fed-123',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: true,
+          is_co_owner: false,
+          is_moderator: true,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'cba-fed-123'
+      },
+      stubs: {
+        'tabs-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      router: routerMock,
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    expect(view.html()).toContain('Meeting One');
+    expect(view.html()).toContain('Max Doe');
+    expect(view.vm.invitationText).toContain('rooms.invitation.code');
+
+    const adminComponent = view.findComponent(AdminTabsComponent);
+    expect(adminComponent.exists()).toBeFalsy();
+    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
+    view.destroy();
+  });
 
   it('room tabs components for authenticated users/guests with access token', async () => {
     const roomRequest = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8');
@@ -762,7 +721,8 @@ describe('Room', () => {
         $t: (key) => key
       },
       stubs: {
-        'admin-tabs-component': true
+        'admin-tabs-component': true,
+        'tabs-component': true
       },
       propsData: {
         id: 'gs4-6fb-kk8'
@@ -780,6 +740,7 @@ describe('Room', () => {
     expect(view.html()).toContain('John Doe');
 
     expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
+    expect(view.findComponent(TabsComponent).exists()).toBeTruthy();
 
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.viewAll'];
@@ -787,6 +748,7 @@ describe('Room', () => {
 
     await view.vm.$nextTick();
     expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
+    expect(view.findComponent(TabsComponent).exists()).toBeFalsy();
 
     view.destroy();
   });
@@ -954,56 +916,57 @@ describe('Room', () => {
     view.destroy();
   });
 
-  // ToDo
-  // it('handle invalid token', async () => {
-  //   const toastErrorSpy = vi.fn();
-  //   mockAxios.request('/api/v1/rooms/abc-def-789').respondWith({
-  //     status: 200,
-  //     data:{
-  //       data:{
-  //         id: 'abc-def-789',
-  //         name: 'Meeting One',
-  //         owner: { id: 2, name: 'Max Doe' },
-  //         type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-  //         model_name: 'Room',
-  //         authenticated: true,
-  //         username: 'John Doe',
-  //         allow_membership: false,
-  //         is_member: false,
-  //         is_co_owner: false,
-  //         is_moderator: false,
-  //         can_start: false,
-  //         record_attendance: false,
-  //         current_user: null
-  //       }
-  //     }
-  //   });
-  //
-  //   const view = mount(RoomView, {
-  //     localVue,
-  //     mocks: {
-  //       $t: (key) => key,
-  //       toastError: toastErrorSpy
-  //     },
-  //     propsData: {
-  //       id: 'abc-def-789',
-  //       token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
-  //
-  //     },
-  //     pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
-  //     attachTo: createContainer()
-  //   });
-  //
-  //   await mockAxios.wait();
-  //   await view.vm.$nextTick();
-  //
-  //   // view.vm.handleInvalidToken();
-  //   // expect(view.vm.$data.room).toBeNull();
-  //   expect(toastErrorSpy).toBeCalledTimes(1);
-  //   expect(toastErrorSpy.mock.calls[0][0]).toBe('rooms.flash.token_invalid');
-  //   // expect(view.vm.$data.reloadInterval).toBeNull();
-  //   view.destroy();
-  // });
+  it('handle invalid token', async () => {
+    const toastErrorSpy = vi.fn();
+    const clearInterval = vi.spyOn(global, 'clearInterval').mockImplementation(() => {});
+    mockAxios.request('/api/v1/rooms/abc-def-789').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-789',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          username: 'John Doe',
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: false,
+          record_attendance: false,
+          current_user: null
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        toastError: toastErrorSpy
+      },
+      propsData: {
+        id: 'abc-def-789',
+        token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
+      },
+      stubs: {
+        'tabs-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    view.vm.handleInvalidToken();
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toBe('rooms.flash.token_invalid');
+    expect(clearInterval).toBeCalledTimes(1);
+    view.destroy();
+  });
 
   it('handle empty code', async () => {
     const toastErrorSpy = vi.fn();
@@ -2265,88 +2228,84 @@ describe('Room', () => {
     view.destroy();
   });
 
-  // it('start meeting token', async () => {
-  //   const oldWindow = window.location;
-  //   delete window.location;
-  //   window.location = null;
-  //
-  //   mockAxios.request('/api/v1/rooms/abc-def-789').respondWith({
-  //     status:200,
-  //     data:{
-  //       data:{
-  //         id: 'abc-def-789',
-  //         name: 'Meeting One',
-  //         owner: { id: 2, name: 'Max Doe' },
-  //         type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-  //         model_name: 'Room',
-  //         authenticated: true,
-  //         allow_membership: false,
-  //         is_member: false,
-  //         is_co_owner: false,
-  //         is_moderator: false,
-  //         can_start: true,
-  //         record_attendance: false,
-  //         current_user: exampleUser
-  //       }
-  //     }
-  //   });
-  //
-  //   const view = mount(RoomView, {
-  //     localVue,
-  //     mocks: {
-  //       $t: (key) => key
-  //     },
-  //     stubs: {
-  //       'file-component': true
-  //     },
-  //     pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-  //     attachTo: createContainer(),
-  //     propsData:{
-  //       id: 'abc-def-789',
-  //       token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
-  //     },
-  //     data () {
-  //       return {
-  //         room_id: 'abc-def-789',
-  //         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
-  //       };
-  //     }
-  //   });
-  //
-  //   await mockAxios.wait();
-  //   await view.vm.$nextTick();
-  //   expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
-  //
-  //   const startButton = view.findComponent({ ref: 'startMeeting' });
-  //   await view.vm.$nextTick();
-  //   expect(startButton.attributes('disabled')).toBeUndefined();
-  //
-  //   const startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
-  //
-  //   await startButton.trigger('click');
-  //   await view.vm.$nextTick();
-  //
-  //   expect(startButton.attributes('disabled')).toEqual('disabled');
-  //
-  //   await startRequest.wait();
-  //   expect(startRequest.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-  //   expect(startRequest.config.params).toEqual({ name: null, record_attendance: 0 });
-  //
-  //   await startRequest.respondWith({
-  //     status: 200,
-  //     data: {
-  //       url: 'test.tld'
-  //     }
-  //   });
-  //
-  //   await view.vm.$nextTick();
-  //
-  //   expect(startButton.attributes('disabled')).toBeUndefined();
-  //
-  //   expect(window.location).toEqual('test.tld');
-  //   window.location = oldWindow;
-  //   view.destroy();
-  // });
+  it('start meeting token', async () => {
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    mockAxios.request('/api/v1/rooms/abc-def-789').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-789',
+          name: 'Meeting One',
+          last_meeting: null,
+          owner: { id: 2, name: 'Max Doe' },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          username: 'John Doe',
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
+          record_attendance: false,
+          current_user: null
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      stubs: {
+        'file-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
+      attachTo: createContainer(),
+      propsData: {
+        id: 'abc-def-789',
+        token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
+      }
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
+
+    const startButton = view.findComponent({ ref: 'startMeeting' });
+    await view.vm.$nextTick();
+    expect(startButton.attributes('disabled')).toBeUndefined();
+
+    const startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
+
+    await startButton.trigger('click');
+    await view.vm.$nextTick();
+
+    expect(startButton.attributes('disabled')).toEqual('disabled');
+
+    await startRequest.wait();
+    expect(startRequest.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    expect(startRequest.config.params).toEqual({ name: null, record_attendance: 0 });
+
+    await startRequest.respondWith({
+      status: 200,
+      data: {
+        url: 'test.tld'
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    expect(startButton.attributes('disabled')).toBeUndefined();
+
+    expect(window.location).toEqual('test.tld');
+    window.location = oldWindow;
+    view.destroy();
+  });
 
   it('end membership', async () => {
     const tabsComponent = {
@@ -2471,6 +2430,15 @@ describe('Room', () => {
   });
 
   it('logged in status change', async () => {
+    const tabsComponent = {
+      name: 'TabsComponent',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: vi.fn()
+      }
+    };
+
     mockAxios.request('/api/v1/rooms/cba-fed-234').respondWith({
       status: 200,
       data: {
@@ -2497,7 +2465,8 @@ describe('Room', () => {
         $t: (key) => key
       },
       stubs: {
-        'admin-tabs-component': true
+        'admin-tabs-component': true,
+        'tabs-component': tabsComponent
       },
       propsData: {
         id: 'cba-fed-234'
@@ -2509,7 +2478,8 @@ describe('Room', () => {
 
     await mockAxios.wait();
     await view.vm.$nextTick();
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
 
     let reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
 
@@ -2532,7 +2502,6 @@ describe('Room', () => {
           is_co_owner: false,
           is_moderator: false,
           can_start: true,
-          running: false,
           current_user: null
         }
       }
@@ -2541,7 +2510,8 @@ describe('Room', () => {
     const authStore = useAuthStore();
 
     await view.vm.$nextTick();
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeTruthy();
 
     expect(authStore.isAuthenticated).toBeFalsy();
 
@@ -2569,9 +2539,10 @@ describe('Room', () => {
         }
       }
     });
-
+    await view.vm.$nextTick();
     expect(authStore.isAuthenticated).toBeTruthy();
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
 
     reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
 
@@ -2582,7 +2553,8 @@ describe('Room', () => {
       data: { message: 'guests_not_allowed' }
     });
 
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
     expect(authStore.isAuthenticated).toBeFalsy();
     view.destroy();
   });
