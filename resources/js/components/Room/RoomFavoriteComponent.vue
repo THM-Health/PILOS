@@ -35,6 +35,7 @@ export default {
           this.$emit('favorites_changed');
         }).catch(error => {
           Base.error(error, this);
+          this.$emit('favorites_changed');
         });
     }
   }

@@ -30,7 +30,7 @@
 
         <div v-if="!room" >
           <div class="text-center my-2">
-            <b-spinner v-if="roomLoading" ></b-spinner>
+            <b-spinner ref="room-loading-spinner" v-if="roomLoading" ></b-spinner>
             <b-button
               ref="reload"
               v-else
@@ -426,7 +426,7 @@ export default {
     },
 
     /**
-     * Inital loading of the room
+     * Initial loading of the room
      */
     load: function () {
       // Enable loading indicator

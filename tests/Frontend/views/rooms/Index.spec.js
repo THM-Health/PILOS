@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index.vue';
 import {
+  BAlert,
   BButton,
   BDropdown,
   BDropdownItem,
@@ -8,7 +9,7 @@ import {
   BFormGroup,
   BFormSelect,
   BFormSelectOption,
-  BInputGroupAppend,
+  BInputGroupAppend, BInputGroupPrepend,
   BOverlay
 } from 'bootstrap-vue';
 
@@ -1006,7 +1007,6 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  // ToDo noFavorites message
   it('test show favorites', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
@@ -1044,12 +1044,14 @@ describe('Room Index', () => {
     await roomRequest.wait();
 
     expect(roomRequest.config.params.only_favorites).toBeTruthy();
-    // Check if filter button is disabled
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+
     await roomRequest.respondWith({
       status: 200,
       data: exampleRoomResponse
     });
+
+    // Check if filter button is disabled
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
 
     // Trigger favorites button again
     roomRequest = mockAxios.request('/api/v1/rooms');
@@ -1064,6 +1066,33 @@ describe('Room Index', () => {
 
     // Check if filter button is not disabled
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+
+    // Trigger favorites button again and respond without rooms
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 0,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if no favorites message is shown
+    expect(view.find('em').text()).toBe('rooms.index.no_favorites');
 
     view.destroy();
   });
@@ -1194,7 +1223,6 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  // ToDo
   it('error loading room types', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
@@ -1224,8 +1252,34 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // check if error message is shown
+    // Check if error message is shown
     expect(spy).toBeCalledTimes(1);
+
+    // Test if input group is shown correctly
+    await view.findAllComponents(BButton).at(4).trigger('click');
+    let inputGroupPrepend = view.findComponent(BInputGroupPrepend);
+    expect(inputGroupPrepend.exists()).toBeTruthy();
+    expect(inputGroupPrepend.findComponent(BAlert).text()).toBe('rooms.room_types.loading_error');
+    expect(view.findComponent(BFormSelect).exists()).toBeFalsy();
+    const reloadRoomTypesButton = view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton);
+    expect(reloadRoomTypesButton.element.disabled).toBeFalsy();
+
+    // Trigger reload room types button
+    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+    await reloadRoomTypesButton.trigger('click');
+    await roomTypeRequest.wait();
+    expect(reloadRoomTypesButton.element.disabled).toBeTruthy();
+
+    await roomTypeRequest.respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+    await view.vm.$nextTick();
+
+    inputGroupPrepend = view.findComponent(BInputGroupPrepend);
+    expect(inputGroupPrepend.exists()).toBeFalsy();
+    expect(reloadRoomTypesButton.element.disabled).toBeFalsy();
+    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
 
     view.destroy();
   });

@@ -17,6 +17,8 @@ import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../../../resources/js/stores/auth';
 import { useSettingsStore } from '../../../../resources/js/stores/settings';
+import { expect } from 'vitest';
+import RoomFavoriteComponent from '../../../../resources/js/components/Room/RoomFavoriteComponent.vue';
 
 const localVue = createLocalVue();
 
@@ -131,7 +133,6 @@ describe('Room', () => {
             false,
           is_moderator: false,
           can_start: false,
-          running: false,
           current_user: null
         }
       }
@@ -240,7 +241,131 @@ describe('Room', () => {
     view.destroy();
   });
 
-  // ToDo error response
+  it('test room loading', async () => {
+    const roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'abc-def-456'
+      },
+      stubs: {
+        'tabs-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      router: routerMock
+    });
+
+    await roomRequest.wait();
+    await view.vm.$nextTick();
+
+    // Test if spinner shows that room is loading
+    expect(view.findComponent({ ref: 'room-loading-spinner' }).exists()).toBeTruthy();
+    expect(view.html()).not.toContain('Meeting One');
+    expect(view.html()).not.toContain('Max Doe');
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          username: 'John Doe',
+          allow_membership: false,
+          is_member: false,
+          is_co_owner:
+            false,
+          is_moderator: false,
+          can_start: false,
+          current_user: null
+        }
+      }
+    });
+
+    // Test if room is shown and spinner hidden
+    expect(view.findComponent({ ref: 'room-loading-spinner' }).exists()).toBeFalsy();
+    expect(view.html()).toContain('Meeting One');
+    expect(view.html()).toContain('Max Doe');
+
+    view.destroy();
+  });
+
+  it('test error', async () => {
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'abc-def-456'
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      router: routerMock
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    expect(spy).toBeCalledTimes(1);
+    // find reload button
+    let reloadButton = view.findComponent({ ref: 'reload' });
+    expect(reloadButton.exists()).toBeTruthy();
+    expect(reloadButton.element.disabled).toBeFalsy();
+    expect(view.html()).not.toContain('Meeting One');
+    expect(view.html()).not.toContain('Max Doe');
+
+    // trigger reload button and reload with valid data
+    const roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
+    await reloadButton.trigger('click');
+    await roomRequest.wait();
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          username: 'John Doe',
+          allow_membership: false,
+          is_member: false,
+          is_co_owner:
+            false,
+          is_moderator: false,
+          can_start: false,
+          current_user: null
+        }
+      }
+    });
+
+    reloadButton = view.findComponent({ ref: 'reload' });
+    expect(reloadButton.exists()).toBeFalsy();
+    expect(view.html()).toContain('Meeting One');
+    expect(view.html()).toContain('Max Doe');
+
+    view.destroy();
+  });
 
   it('room not found', async () => {
     const router = new VueRouter();
@@ -294,7 +419,6 @@ describe('Room', () => {
           is_guest: false,
           is_moderator: false,
           can_start: false,
-          running: false,
           current_user: exampleUser
         }
       }
@@ -2425,6 +2549,84 @@ describe('Room', () => {
 
     // Check if the leave membership button is not shown anymore, as the user is no longer a member
     expect(view.find('#leave-membership-button').exists()).toBeFalsy();
+
+    view.destroy();
+  });
+
+  it('test trigger favorites', async () => {
+    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          is_favorite: false,
+          authenticated: false,
+          allow_membership: false,
+          is_member: false,
+          is_owner: false,
+          is_guest: false,
+          is_moderator: false,
+          can_start: false,
+          running: false,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'abc-def-456'
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      router: routerMock
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find room favorite component
+    const roomFavoriteComponent = view.findComponent(RoomFavoriteComponent);
+
+    // fire event
+    let roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
+    roomFavoriteComponent.vm.$emit('favorites_changed');
+    await roomRequest.wait();
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          is_favorite: true,
+          authenticated: false,
+          allow_membership: false,
+          is_member: false,
+          is_owner: false,
+          is_guest: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    // fire event again
+    roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
+    roomFavoriteComponent.vm.$emit('favorites_changed');
+    await roomRequest.wait();
 
     view.destroy();
   });

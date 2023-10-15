@@ -8,6 +8,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { expect } from 'vitest';
 import { BButton } from 'bootstrap-vue';
 import RoomFavoriteComponent from '../../../../resources/js/components/Room/RoomFavoriteComponent.vue';
+import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -102,6 +103,119 @@ describe('Room Favorite Component', () => {
     view.setProps({ isFavorite: false });
     await view.vm.$nextTick();
     expect(favoritesButton.attributes().class).toContain('light');
+
+    view.destroy();
+  });
+
+  it('test add favorite error', async () => {
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    const exampleRoomListEntry = {
+      id: 'abc-def-123',
+      name: 'Meeting One',
+      owner: {
+        id: 1,
+        name: 'John Doe'
+      },
+      last_meeting: null,
+      type: {
+        id: 2,
+        short: 'ME',
+        description: 'Meeting',
+        color: '#4a5c66',
+        default: false
+      },
+      is_favorite: false,
+      short_description: 'Own room'
+    };
+    const view = mount(RoomFavoriteComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: exampleRoomListEntry.id,
+        isFavorite: exampleRoomListEntry.is_favorite
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    // find favorites button
+    const favoritesButton = view.findComponent(BButton);
+
+    const favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
+
+    // trigger favorites button
+    await favoritesButton.trigger('click');
+    await favoritesRequest.wait();
+    expect(favoritesRequest.config.method).toEqual('put');
+
+    await favoritesRequest.respondWith({
+      status: 500
+    });
+    // check if favorites_changed gets emitted
+    expect(spy).toBeCalledTimes(1);
+    expect(view.emitted().favorites_changed).toBeTruthy();
+
+    view.destroy();
+  });
+
+  it('test delete favorite error', async () => {
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const exampleRoomListEntry = {
+      id: 'abc-def-123',
+      name: 'Meeting One',
+      owner: {
+        id: 1,
+        name: 'John Doe'
+      },
+      last_meeting: null,
+      type: {
+        id: 2,
+        short: 'ME',
+        description: 'Meeting',
+        color: '#4a5c66',
+        default: false
+      },
+      is_favorite: true,
+      short_description: 'Own room'
+    };
+    const view = mount(RoomFavoriteComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: exampleRoomListEntry.id,
+        isFavorite: exampleRoomListEntry.is_favorite
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    // find favorites button
+    const favoritesButton = view.findComponent(BButton);
+
+    const favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
+
+    // trigger favorites button
+    await favoritesButton.trigger('click');
+    await favoritesRequest.wait();
+    expect(favoritesRequest.config.method).toEqual('delete');
+
+    await favoritesRequest.respondWith({
+      status: 500
+    });
+    // check if favorites_changed gets emitted
+    expect(spy).toBeCalledTimes(1);
+    expect(view.emitted().favorites_changed).toBeTruthy();
 
     view.destroy();
   });
