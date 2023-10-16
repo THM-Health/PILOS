@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Shibboleth authentication ([#20], [#497])
+- Option to disable local authentication ([#505], [#506])
 - Database Import command: Support for postgres database ([#545])
 - Greenlight v2 migration command: Import social users ([#497])
 - Greenlight v2 migration command: Using database transactions to undo changes in case of errors ([#497])
@@ -21,18 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Allow more characters for role names ([#535], [#536])
+- Renamed env option PASSWORD_SELF_RESET_ENABLED to PASSWORD_CHANGE_ALLOWED and enabled by default (PASSWORD_SELF_RESET_ENABLED deprecated) ([#506])
 
 ## [v2.2.0] - 2023-08-28
 ### Added
 - French localisation
 - Support for PostgreSQL ([#503], [#504])
 - Warning for waiting room settings ([#302], [#509])
-- Option to disable local authentication ([#505], [#506])
 
 ### Changed
 - Bump dependencies
 - Improve performance on permission checks ([#469])
-- Renamed env option PASSWORD_SELF_RESET_ENABLED to PASSWORD_CHANGE_ALLOWED and enabled by default (PASSWORD_SELF_RESET_ENABLED deprecated) ([#506])
 
 ### Fixed
 - Network error on logout due to reload of all components
