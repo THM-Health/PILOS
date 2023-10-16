@@ -38,6 +38,7 @@ class ApplicationSettings extends JsonResource
     {
         return [
             'version'                        => config('app.version'),
+            'whitelabel'                     => config('app.whitelabel'),
             'base_url'                       => config('app.url'),
             'name'                           => setting('name'),
             'logo'                           => setting('logo'),

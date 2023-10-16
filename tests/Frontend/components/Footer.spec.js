@@ -12,7 +12,7 @@ localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 
 describe('Footer Component', () => {
-  it('footer test with two urls, no version', async () => {
+  it('footer test with two urls, no version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -25,7 +25,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: 'https://legal.org',
       privacy_policy_url: 'https://privacy.org',
-      version: null
+      version: null,
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -46,9 +47,12 @@ describe('Footer Component', () => {
     // test if version is not shown
     expect(view.text()).not.toContain('app.version');
     expect(view.text()).not.toContain('1.0.0');
+
+    // test if product name is not shown
+    expect(view.text()).not.toContain('PILOS');
   });
 
-  it('footer test with only legal notice, no version', async () => {
+  it('footer test with only legal notice, no version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -62,7 +66,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: 'https://legal.org',
       privacy_policy_url: '',
-      version: null
+      version: null,
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -81,9 +86,12 @@ describe('Footer Component', () => {
     // test if version is not shown
     expect(view.text()).not.toContain('app.version');
     expect(view.text()).not.toContain('1.0.0');
+
+    // test if product name is not shown
+    expect(view.text()).not.toContain('PILOS');
   });
 
-  it('footer test with only privacy policy, no version', async () => {
+  it('footer test with only privacy policy, no version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -97,7 +105,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: '',
       privacy_policy_url: 'https://privacy.org',
-      version: null
+      version: null,
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -116,9 +125,12 @@ describe('Footer Component', () => {
     // test if version is not shown
     expect(view.text()).not.toContain('app.version');
     expect(view.text()).not.toContain('1.0.0');
+
+    // test if product name is not shown
+    expect(view.text()).not.toContain('PILOS');
   });
 
-  it('footer test with no urls, no version', async () => {
+  it('footer test with no urls, no version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -132,7 +144,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: '',
       privacy_policy_url: '',
-      version: null
+      version: null,
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -140,13 +153,44 @@ describe('Footer Component', () => {
     // test if no footer exists
     const footer = view.findComponent({ ref: 'footer_container' });
     expect((footer).exists()).toBe(false);
+  });
+
+  it('footer test with no urls, no version, show product', async () => {
+    const view = mount(FooterComponent, {
+      localVue,
+      pinia: createTestingPinia(),
+      mocks: {
+        $t: (key) => key
+      }
+    });
+
+    // set URLs for testing
+    const settings = useSettingsStore();
+    settings.settings = {
+      legal_notice_url: '',
+      privacy_policy_url: '',
+      version: null,
+      whitelabel: false
+    };
+
+    await view.vm.$nextTick();
+
+    // test if footer exists
+    const footer = view.findComponent({ ref: 'footer_container' });
+    expect((footer).exists()).toBe(true);
 
     // test if version is not shown
     expect(view.text()).not.toContain('app.version');
     expect(view.text()).not.toContain('1.0.0');
+
+    // test if product name is shown
+    const links = footer.findAll('a');
+    expect(links.length).toBe(1);
+    expect(links.at(0).text()).toBe('PILOS');
+    expect(links.at(0).attributes('href')).toBe('https://github.com/THM-Health/PILOS');
   });
 
-  it('footer test with two urls and version', async () => {
+  it('footer test with two urls and version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -159,7 +203,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: 'https://legal.org',
       privacy_policy_url: 'https://privacy.org',
-      version: '1.0.0'
+      version: '1.0.0',
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -180,9 +225,12 @@ describe('Footer Component', () => {
     // test if version is shown
     expect(view.text()).toContain('app.version');
     expect(view.text()).toContain('1.0.0');
+
+    // test if product name is not shown
+    expect(view.text()).not.toContain('PILOS');
   });
 
-  it('footer test with only legal notice and version', async () => {
+  it('footer test with only legal notice and version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -196,7 +244,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: 'https://legal.org',
       privacy_policy_url: '',
-      version: '1.0.0'
+      version: '1.0.0',
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -215,9 +264,12 @@ describe('Footer Component', () => {
     // test if version is shown
     expect(view.text()).toContain('app.version');
     expect(view.text()).toContain('1.0.0');
+
+    // test if product name is not shown
+    expect(view.text()).not.toContain('PILOS');
   });
 
-  it('footer test with only privacy policy and version', async () => {
+  it('footer test with only privacy policy and version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -231,7 +283,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: '',
       privacy_policy_url: 'https://privacy.org',
-      version: '1.0.0'
+      version: '1.0.0',
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -250,9 +303,12 @@ describe('Footer Component', () => {
     // test if version is shown
     expect(view.text()).toContain('app.version');
     expect(view.text()).toContain('1.0.0');
+
+    // test if product name is not shown
+    expect(view.text()).not.toContain('PILOS');
   });
 
-  it('footer test with no urls, only version', async () => {
+  it('footer test with no urls, only version, whitelabel', async () => {
     const view = mount(FooterComponent, {
       localVue,
       pinia: createTestingPinia(),
@@ -266,7 +322,8 @@ describe('Footer Component', () => {
     settings.settings = {
       legal_notice_url: '',
       privacy_policy_url: '',
-      version: '1.0.0'
+      version: '1.0.0',
+      whitelabel: true
     };
 
     await view.vm.$nextTick();
@@ -282,5 +339,8 @@ describe('Footer Component', () => {
     // test if version is shown
     expect(view.text()).toContain('app.version');
     expect(view.text()).toContain('1.0.0');
+
+    // test if product name is not shown
+    expect(view.text()).not.toContain('PILOS');
   });
 });

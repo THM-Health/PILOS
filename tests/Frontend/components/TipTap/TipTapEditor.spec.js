@@ -4,12 +4,43 @@ import { BootstrapVue } from 'bootstrap-vue';
 import TipTapEditor from '../../../../resources/js/components/TipTap/TipTapEditor.vue';
 import TipTapMenu from '../../../../resources/js/components/TipTap/TipTapMenu.vue';
 import { EditorContent } from '@tiptap/vue-2';
-import { expect, it } from 'vitest';
+import { afterEach, expect, it } from 'vitest';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
 describe('TipTap Editor', () => {
+  beforeEach(() => {
+    // Mock ClipboardEvent
+    class ClipboardEventMock extends Event {
+      constructor (type, eventInitDict) {
+        super(type, eventInitDict);
+        this.clipboardData = {
+          getData: vi.fn(),
+          setData: vi.fn()
+        };
+      }
+    }
+    global.ClipboardEvent = ClipboardEventMock;
+
+    // Mock DragEvent
+    class DragEventMock extends Event {
+      constructor (type, eventInitDict) {
+        super(type, eventInitDict);
+        this.dataTransfer = {
+          getData: vi.fn(),
+          setData: vi.fn()
+        };
+      }
+    }
+    global.DragEvent = DragEventMock;
+  });
+
+  afterEach(() => {
+    delete global.ClipboardEvent;
+    delete global.DragEvent;
+  });
+
   it('Initalizing editor with value and emit content on change', async () => {
     const view = mount(TipTapEditor, {
       localVue,
