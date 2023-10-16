@@ -41,6 +41,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(CleanupAttendance::class)->daily()->onOneServer();
         $schedule->command(CleanupRooms::class)->daily()->onOneServer();
         $schedule->command(DeleteObsoleteTokens::class)->daily()->onOneServer();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes()->onOneServer();
     }
 
     /**
