@@ -517,16 +517,16 @@
         },
         {
             "name": "directorytree/ldaprecord",
-            "version": "v3.2.0",
+            "version": "v3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord.git",
-                "reference": "d0ff61aea45dd862134400038b33dcda52b67ba5"
+                "reference": "1fa74d0cfdc88a7560476a98b10df6e24db6dd52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/d0ff61aea45dd862134400038b33dcda52b67ba5",
-                "reference": "d0ff61aea45dd862134400038b33dcda52b67ba5",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/1fa74d0cfdc88a7560476a98b10df6e24db6dd52",
+                "reference": "1fa74d0cfdc88a7560476a98b10df6e24db6dd52",
                 "shasum": ""
             },
             "require": {
@@ -589,20 +589,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-06T18:13:41+00:00"
+            "time": "2023-10-12T16:46:17+00:00"
         },
         {
             "name": "directorytree/ldaprecord-laravel",
-            "version": "v3.0.8",
+            "version": "v3.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord-Laravel.git",
-                "reference": "d4dc86d002bcf2f21fd9e5346601733493587972"
+                "reference": "98bd8531365c22c4ff94d557788f8fd0d931e333"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/d4dc86d002bcf2f21fd9e5346601733493587972",
-                "reference": "d4dc86d002bcf2f21fd9e5346601733493587972",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/98bd8531365c22c4ff94d557788f8fd0d931e333",
+                "reference": "98bd8531365c22c4ff94d557788f8fd0d931e333",
                 "shasum": ""
             },
             "require": {
@@ -648,7 +648,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/LdapRecord-Laravel/issues",
-                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.0.8"
+                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.0.9"
             },
             "funding": [
                 {
@@ -656,7 +656,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-06T18:27:53+00:00"
+            "time": "2023-10-14T18:37:33+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -1361,21 +1361,21 @@
         },
         {
             "name": "fruitcake/php-cors",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fruitcake/php-cors.git",
-                "reference": "58571acbaa5f9f462c9c77e911700ac66f446d4e"
+                "reference": "3d158f36e7875e2f040f37bc0573956240a5a38b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fruitcake/php-cors/zipball/58571acbaa5f9f462c9c77e911700ac66f446d4e",
-                "reference": "58571acbaa5f9f462c9c77e911700ac66f446d4e",
+                "url": "https://api.github.com/repos/fruitcake/php-cors/zipball/3d158f36e7875e2f040f37bc0573956240a5a38b",
+                "reference": "3d158f36e7875e2f040f37bc0573956240a5a38b",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4|^8.0",
-                "symfony/http-foundation": "^4.4|^5.4|^6"
+                "symfony/http-foundation": "^4.4|^5.4|^6|^7"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.4",
@@ -1385,7 +1385,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.1-dev"
+                    "dev-master": "1.2-dev"
                 }
             },
             "autoload": {
@@ -1416,7 +1416,7 @@
             ],
             "support": {
                 "issues": "https://github.com/fruitcake/php-cors/issues",
-                "source": "https://github.com/fruitcake/php-cors/tree/v1.2.0"
+                "source": "https://github.com/fruitcake/php-cors/tree/v1.3.0"
             },
             "funding": [
                 {
@@ -1428,7 +1428,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-20T15:07:15+00:00"
+            "time": "2023-10-12T05:21:21+00:00"
         },
         {
             "name": "goldspecdigital/laravel-eloquent-uuid",
