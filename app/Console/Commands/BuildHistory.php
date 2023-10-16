@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Jobs\UpdateServerUsage;
 use App\Models\Server;
-use App\Services\ServerService;
 use Illuminate\Console\Command;
 use Log;
 
