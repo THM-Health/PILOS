@@ -3,11 +3,15 @@
 namespace App\Notifications;
 
 use App\Services\EmailVerification\NewVerifyEmailToken;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class VerifyEmail extends Notification
+class VerifyEmail extends Notification implements ShouldQueue
 {
+    use Queueable;
+    
     private NewVerifyEmailToken $token;
     private string $timezone;
 
