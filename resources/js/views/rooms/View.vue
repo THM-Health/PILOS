@@ -47,6 +47,7 @@
                 <!-- If membership is enabled, allow user to become member -->
                 <can v-if="room.authenticated && isAuthenticated" method="becomeMember" :policy="room">
                 <b-button
+                  id="join-membership-button"
                   v-on:click="joinMembership"
                   :disabled="loading"
                   variant="secondary"

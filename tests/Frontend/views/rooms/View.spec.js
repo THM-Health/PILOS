@@ -2553,7 +2553,452 @@ describe('Room', () => {
     view.destroy();
   });
 
-  it('test trigger favorites', async () => {
+  it('end membership error', async () => {
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    const tabsComponent = {
+      name: 'test-component',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: vi.fn()
+      }
+    };
+    mockAxios.request('/api/v1/rooms/cba-fed-123').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'cba-fed-123',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: true,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true,
+        id: 'cba-fed-123'
+      },
+      stubs: {
+        'tabs-component': tabsComponent,
+        transition: false
+      }
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // Find confirm modal and check if it is hidden
+    const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
+    expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
+    // Click button to leave membership
+
+    await waitModalShown(view, () => {
+      view.find('#leave-membership-button').trigger('click');
+    });
+
+    // Wait until modal is open
+    await view.vm.$nextTick();
+
+    // Confirm modal is shown
+    expect(leaveMembershipModal.vm.$data.isVisible).toBe(true);
+
+    // Find the confirm button and click it
+    const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
+    expect(leaveConfirmButton.text()).toBe('rooms.end_membership.yes');
+
+    const leaveRequest = mockAxios.request('/api/v1/rooms/cba-fed-123/membership');
+
+    await waitModalHidden(view, () => {
+      leaveConfirmButton.trigger('click');
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if the modal is hidden
+    expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
+
+    // Check leave membership request
+    await leaveRequest.wait();
+    expect(leaveRequest.config.method).toEqual('delete');
+
+    const reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
+
+    // Respond to leave membership test with error
+    await leaveRequest.respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    expect(baseError).toBeCalledTimes(1);
+
+    // response for room reload, with the user still being a member
+    await reloadRequest.wait();
+
+    // Respond to reload request
+    await reloadRequest.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'cba-fed-123',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: true,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+    // Check if the leave membership button is still shown
+    expect(view.find('#leave-membership-button').exists()).toBeTruthy();
+
+    view.destroy();
+  });
+
+  it('join membership', async () => {
+    const tabsComponent = {
+      name: 'test-component',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: vi.fn()
+      }
+    };
+
+    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: true,
+          is_member: false,
+          is_owner: false,
+          is_guest: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'abc-def-456'
+      },
+      stubs: {
+        'tabs-component': tabsComponent
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      router: routerMock
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find join membership button
+    let joinMembershipButton = view.find('#join-membership-button');
+    expect(joinMembershipButton.exists()).toBeTruthy();
+    expect(joinMembershipButton.html()).toContain('fa-user-plus');
+
+    // trigger join membership button
+    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
+
+    await joinMembershipButton.trigger('click');
+    await joinMembershipRequest.wait();
+    expect(joinMembershipRequest.config.method).toEqual('post');
+    expect(joinMembershipButton.html()).not.toContain('fa-user-plus');
+
+    const reloadRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
+
+    // Respond to join membership request
+    await joinMembershipRequest.respondWith({
+      status: 204,
+      data: {}
+    });
+
+    // response for room reload, now with the user being a member
+    await reloadRequest.wait();
+
+    await reloadRequest.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: true,
+          is_member: true,
+          is_owner: false,
+          is_guest: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    // Check if the join button is not shown anymore
+    joinMembershipButton = view.find('#join-membership-button');
+    expect(joinMembershipButton.exists()).toBeFalsy();
+
+    view.destroy();
+  });
+
+  it('join membership invalid code', async () => {
+    const toastErrorSpy = vi.fn();
+
+    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: true,
+          is_member: false,
+          is_owner: false,
+          is_guest: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        toastError: toastErrorSpy
+      },
+      propsData: {
+        id: 'abc-def-456'
+      },
+      stubs: {
+        'tabs-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      router: routerMock
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const joinMembershipButton = view.find('#join-membership-button');
+
+    // trigger join membership button
+    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
+
+    await joinMembershipButton.trigger('click');
+    await joinMembershipRequest.wait();
+    expect(joinMembershipRequest.config.method).toEqual('post');
+
+    // Respond to join membership request
+    await joinMembershipRequest.respondWith({
+      status: 401,
+      data: {
+        message: 'invalid_code'
+      }
+    });
+
+    expect(view.vm.$data.room.authenticated).toBeFalsy();
+    expect(view.vm.$data.accesCodeValid).toBeFalsy();
+    expect(toastErrorSpy).toBeCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('join membership error', async () => {
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: true,
+          is_member: false,
+          is_owner: false,
+          is_guest: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'abc-def-456'
+      },
+      stubs: {
+        'tabs-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      router: routerMock
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const joinMembershipButton = view.find('#join-membership-button');
+
+    // trigger join membership button
+    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
+
+    await joinMembershipButton.trigger('click');
+    await joinMembershipRequest.wait();
+    expect(joinMembershipRequest.config.method).toEqual('post');
+
+    // Respond to join membership request
+    await joinMembershipRequest.respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+    expect(baseError).toBeCalledTimes(1);
+    view.destroy();
+  });
+
+  it('join membership forbidden', async () => {
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'abc-def-456',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: true,
+          is_member: false,
+          is_owner: false,
+          is_guest: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'abc-def-456'
+      },
+      stubs: {
+        'tabs-component': true
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      router: routerMock
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    let joinMembershipButton = view.find('#join-membership-button');
+
+    // trigger join membership button
+    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
+
+    await joinMembershipButton.trigger('click');
+    await joinMembershipRequest.wait();
+    expect(joinMembershipRequest.config.method).toEqual('post');
+
+    // Respond to join membership request
+    await joinMembershipRequest.respondWith({
+      status: 403,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    expect(view.vm.$data.allow_membership).toBeFalsy();
+    joinMembershipButton = view.find('#join-membership-button');
+    expect(joinMembershipButton.exists()).toBeFalsy();
+    expect(baseError).toBeCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('trigger favorites', async () => {
+    const tabsComponent = {
+      name: 'test-component',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: vi.fn()
+      }
+    };
+
     mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
       status: 200,
       data: {
