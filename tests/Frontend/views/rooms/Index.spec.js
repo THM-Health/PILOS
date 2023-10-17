@@ -20,6 +20,7 @@ import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
+import RoomSkeletonComponent from '../../../../resources/js/components/Room/RoomSkeletonComponent.vue';
 import { useAuthStore } from '../../../../resources/js/stores/auth';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import { expect } from 'vitest';
@@ -217,7 +218,7 @@ describe('Room Index', () => {
     newUser.permissions.pop('rooms.create');
     PermissionService.setCurrentUser(newUser);
 
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -248,7 +249,7 @@ describe('Room Index', () => {
   });
 
   it('test reload function and room limit event', async () => {
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -279,7 +280,7 @@ describe('Room Index', () => {
     expect(rooms.length).toBe(3);
 
     // change response and fire event
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: {
         data: [
@@ -396,7 +397,7 @@ describe('Room Index', () => {
   });
 
   it('test room limit', async () => {
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -436,9 +437,10 @@ describe('Room Index', () => {
     const searchField = view.findComponent({ ref: 'search' });
     await searchField.setValue('test');
 
-    const roomRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' });
+    const roomRequest = mockAxios.request('/api/v1/rooms');
     searchField.trigger('change');
     await roomRequest.wait();
+    expect(roomRequest.config.params.search).toBe('test');
     await roomRequest.respondWith({
       status: 200,
       data: {
@@ -495,7 +497,7 @@ describe('Room Index', () => {
     // Enter search query
     await searchField.setValue('test');
 
-    let roomRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' });
+    let roomRequest = mockAxios.request('/api/v1/rooms');
     searchField.trigger('change');
 
     // Check for room pagination reset
@@ -618,7 +620,7 @@ describe('Room Index', () => {
   });
 
   it('test sorting', async () => {
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -673,7 +675,7 @@ describe('Room Index', () => {
   });
 
   it('test filter without viewAll permission', async () => {
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -807,7 +809,7 @@ describe('Room Index', () => {
     newUser.permissions.push('rooms.viewAll');
     PermissionService.setCurrentUser(newUser);
 
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -926,7 +928,7 @@ describe('Room Index', () => {
   });
 
   it('test no filter message', async () => {
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -1008,7 +1010,7 @@ describe('Room Index', () => {
   });
 
   it('test show favorites', async () => {
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -1098,7 +1100,7 @@ describe('Room Index', () => {
   });
 
   it('test trigger favorites', async () => {
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
@@ -1142,7 +1144,7 @@ describe('Room Index', () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for room load
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 500,
       data: {
         message: 'Test'
@@ -1173,6 +1175,9 @@ describe('Room Index', () => {
     let reloadButton = view.findComponent({ ref: 'reload' });
     expect(reloadButton.exists()).toBeTruthy();
     expect(reloadButton.element.disabled).toBeFalsy();
+
+    // check if room skeleton components are shown
+    expect(view.findAllComponents(RoomSkeletonComponent).length).toBe(3);
 
     // check if buttons are disabled
     expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
@@ -1227,7 +1232,7 @@ describe('Room Index', () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for room type load
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });

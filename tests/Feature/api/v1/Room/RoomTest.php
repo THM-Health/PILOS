@@ -656,6 +656,14 @@ class RoomTest extends TestCase
         $roomNeverStarted->owner()->associate($this->user);
         $roomNeverStarted->save();
 
+        //without sorting (without sort_by)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&page=1')
+            ->assertJsonValidationErrors(['sort_by']);
+
+        //with invalid sorting option
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=invalid_option&page=1')
+            ->assertJsonValidationErrors(['sort_by']);
+
         //last started
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
@@ -1383,7 +1391,7 @@ class RoomTest extends TestCase
     {
         // Add room, real servers and a fake meeting
         $room = Room::factory()->create();
-       
+
         $server = Server::factory()->create();
         $room->roomType->serverPool->servers()->attach($server);
 
@@ -1427,7 +1435,7 @@ class RoomTest extends TestCase
 
             return Http::response($xml);
         });
-        
+
         $meeting = Meeting::factory()->create(['room_id'=> $room->id, 'start' => null, 'end' => null, 'server_id' => Server::all()->first()]);
         $room->latestMeeting()->associate($meeting);
         $room->save();

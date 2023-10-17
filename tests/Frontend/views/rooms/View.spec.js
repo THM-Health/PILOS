@@ -123,14 +123,14 @@ describe('Room', () => {
           id: 'abc-def-123',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
           allow_membership: false,
           is_member: false,
-          is_co_owner:
-            false,
+          is_co_owner: false,
           is_moderator: false,
           can_start: false,
           current_user: null
@@ -158,7 +158,24 @@ describe('Room', () => {
     expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     await request.respondWith({
       status: 200,
-      data: { data: { id: 'abc-def-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'Peter Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: null } }
+      data: {
+        data: {
+          id: 'abc-def-123',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          username: 'Peter Doe',
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: false,
+          current_user: null
+        }
+      }
     });
 
     await mockAxios.wait();
@@ -193,12 +210,14 @@ describe('Room', () => {
       attachTo: createContainer()
     });
 
-    // wait for the request from the beforeRouteEnter hook in the RoomView
+    // wait for the request
     await request.wait();
     expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     await request.respondWith({
       status: 401,
-      data: { message: 'invalid_token' }
+      data: {
+        message: 'invalid_token'
+      }
     });
 
     await view.vm.$nextTick();
@@ -275,14 +294,14 @@ describe('Room', () => {
           id: 'abc-def-456',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
           allow_membership: false,
           is_member: false,
-          is_co_owner:
-            false,
+          is_co_owner: false,
           is_moderator: false,
           can_start: false,
           current_user: null
@@ -344,14 +363,14 @@ describe('Room', () => {
           id: 'abc-def-456',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
           allow_membership: false,
           is_member: false,
-          is_co_owner:
-            false,
+          is_co_owner: false,
           is_moderator: false,
           can_start: false,
           current_user: null
@@ -410,6 +429,7 @@ describe('Room', () => {
           id: 'abc-def-456',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: false,
@@ -511,6 +531,7 @@ describe('Room', () => {
           id: 'cba-fed-123',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -588,6 +609,7 @@ describe('Room', () => {
           id: 'gs4-6fb-kk8',
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -620,6 +642,7 @@ describe('Room', () => {
           id: 'gs4-6fb-kk8',
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -669,6 +692,7 @@ describe('Room', () => {
           id: 'gs4-6fb-kk8',
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -716,6 +740,7 @@ describe('Room', () => {
           id: 'gs4-6fb-kk8',
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -772,6 +797,7 @@ describe('Room', () => {
           id: 'gs4-6fb-kk8',
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -826,6 +852,7 @@ describe('Room', () => {
           id: 'gs4-6fb-kk8',
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -891,6 +918,7 @@ describe('Room', () => {
           id: 'cba-fed-234',
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -935,9 +963,35 @@ describe('Room', () => {
     await request.wait();
     await request.respondWith({
       status: 200,
-      data: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: false, is_moderator: true, can_start: true, running: false, access_code: 123456789, current_user: exampleUser } }
+      data: {
+        data: {
+          id: 'cba-fed-234',
+          name: 'Meeting Two',
+          owner: { id: 1, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: true,
+          is_co_owner: false,
+          is_moderator: true,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
     });
     expect(view.html()).toContain('Meeting Two');
+
+    // Test reload with room not found
+    request = mockAxios.request('/api/v1/rooms/cba-fed-234');
+    await reloadButton.trigger('click');
+    await request.wait();
+    await request.respondWith({
+      status: 404,
+      data: { message: 'No query results for model [App\\Room] abc-def-123' }
+    });
 
     // Test reload with access code now invalid, changed in the meantime
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
@@ -1050,6 +1104,7 @@ describe('Room', () => {
           id: 'abc-def-789',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -1173,6 +1228,7 @@ describe('Room', () => {
           id: 'abc-def-456',
           name: 'Meeting One',
           owner: 'John Doe',
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: false,
@@ -1854,6 +1910,7 @@ describe('Room', () => {
           id: 'abc-def-789',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -1928,6 +1985,7 @@ describe('Room', () => {
           id: 'abc-def-789',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -1997,6 +2055,7 @@ describe('Room', () => {
           id: 'abc-def-789',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -2113,6 +2172,7 @@ describe('Room', () => {
           id: 'abc-def-789',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -2253,6 +2313,7 @@ describe('Room', () => {
           id: 'abc-def-789',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -2283,6 +2344,7 @@ describe('Room', () => {
           id: 'abc-def-789',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -2447,6 +2509,7 @@ describe('Room', () => {
           id: 'cba-fed-123',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -2522,7 +2585,7 @@ describe('Room', () => {
       data: {}
     });
 
-    // response for room reload, now with the user not beeing a member anymore
+    // response for room reload, now with the user not being a member anymore
     await reloadRequest.wait();
 
     // Respond to leave membership request
@@ -2533,6 +2596,7 @@ describe('Room', () => {
           id: 'cba-fed-123',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -3006,17 +3070,17 @@ describe('Room', () => {
           id: 'abc-def-456',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           is_favorite: false,
-          authenticated: false,
+          authenticated: true,
           allow_membership: false,
           is_member: false,
           is_owner: false,
           is_guest: false,
           is_moderator: false,
           can_start: false,
-          running: false,
           current_user: exampleUser
         }
       }
@@ -3029,6 +3093,9 @@ describe('Room', () => {
       },
       propsData: {
         id: 'abc-def-456'
+      },
+      stubs: {
+        'tabs-component': tabsComponent
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
@@ -3053,10 +3120,11 @@ describe('Room', () => {
           id: 'abc-def-456',
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           is_favorite: true,
-          authenticated: false,
+          authenticated: true,
           allow_membership: false,
           is_member: false,
           is_owner: false,
@@ -3093,6 +3161,7 @@ describe('Room', () => {
           id: 'cba-fed-234',
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -3141,6 +3210,7 @@ describe('Room', () => {
           id: 'cba-fed-234',
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -3173,6 +3243,7 @@ describe('Room', () => {
           id: 'cba-fed-234',
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -3214,6 +3285,7 @@ describe('Room', () => {
           id: 'cba-fed-234',
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
+          last_meeting: null,
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
@@ -3222,7 +3294,6 @@ describe('Room', () => {
           is_co_owner: false,
           is_moderator: false,
           can_start: false,
-          running: false,
           access_code: 123456789,
           current_user: exampleUser
         }

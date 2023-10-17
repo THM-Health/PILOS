@@ -24,32 +24,14 @@ describe('Room Favorite Component', () => {
   });
 
   it('test toggle favorites', async () => {
-    const exampleRoomListEntry = {
-      id: 'abc-def-123',
-      name: 'Meeting One',
-      owner: {
-        id: 1,
-        name: 'John Doe'
-      },
-      last_meeting: null,
-      type: {
-        id: 2,
-        short: 'ME',
-        description: 'Meeting',
-        color: '#4a5c66',
-        default: false
-      },
-      is_favorite: false,
-      short_description: 'Own room'
-    };
     const view = mount(RoomFavoriteComponent, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        id: exampleRoomListEntry.id,
-        isFavorite: exampleRoomListEntry.is_favorite
+        id: 'abc-def-123',
+        isFavorite: false
       },
       stubs: {
         transition: false
@@ -110,32 +92,14 @@ describe('Room Favorite Component', () => {
   it('test add favorite error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const exampleRoomListEntry = {
-      id: 'abc-def-123',
-      name: 'Meeting One',
-      owner: {
-        id: 1,
-        name: 'John Doe'
-      },
-      last_meeting: null,
-      type: {
-        id: 2,
-        short: 'ME',
-        description: 'Meeting',
-        color: '#4a5c66',
-        default: false
-      },
-      is_favorite: false,
-      short_description: 'Own room'
-    };
     const view = mount(RoomFavoriteComponent, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        id: exampleRoomListEntry.id,
-        isFavorite: exampleRoomListEntry.is_favorite
+        id: 'abc-def-123',
+        isFavorite: false
       },
       stubs: {
         transition: false
@@ -166,32 +130,15 @@ describe('Room Favorite Component', () => {
 
   it('test delete favorite error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
-    const exampleRoomListEntry = {
-      id: 'abc-def-123',
-      name: 'Meeting One',
-      owner: {
-        id: 1,
-        name: 'John Doe'
-      },
-      last_meeting: null,
-      type: {
-        id: 2,
-        short: 'ME',
-        description: 'Meeting',
-        color: '#4a5c66',
-        default: false
-      },
-      is_favorite: true,
-      short_description: 'Own room'
-    };
+
     const view = mount(RoomFavoriteComponent, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        id: exampleRoomListEntry.id,
-        isFavorite: exampleRoomListEntry.is_favorite
+        id: 'abc-def-123',
+        isFavorite: true
       },
       stubs: {
         transition: false

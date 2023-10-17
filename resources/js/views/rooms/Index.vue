@@ -181,7 +181,7 @@
       <div v-else class="text-center mt-3">
         <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
         <br>
-        <b-button ref="reset" @click="filter.own=true; filter.shared=true; selectedRoomType=null; loadRooms(true);"> {{ $t('rooms.index.reset_filter') }}</b-button>
+        <b-button ref="reset" @click="resetRoomFilter"> {{ $t('rooms.index.reset_filter') }}</b-button>
       </div>
 
     </b-container>
@@ -261,6 +261,15 @@ export default {
           this.filter.all = false;
         }
       }
+      this.loadRooms(true);
+    },
+    /**
+     * Resets the room filters and reloads the rooms
+     */
+    resetRoomFilter () {
+      this.filter.own = true;
+      this.filter.shared = true;
+      this.selectedRoomType = null;
       this.loadRooms(true);
     },
     /**
