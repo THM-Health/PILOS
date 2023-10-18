@@ -452,6 +452,7 @@ export function beforeEachRoute (router, to, from, next) {
 
   const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
 
+  // Set the application name as title if loaded, otherwise the title from the html template is used
   const appName = settings.getSetting('name');
   if (appName !== undefined) {
     document.title = appName;

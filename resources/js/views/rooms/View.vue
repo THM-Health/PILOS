@@ -300,6 +300,7 @@ export default {
   watch: {
     room: {
       handler (room) {
+        // Show room name in title if set
         const appName = this.getSetting('name');
         if (room.name) {
           document.title = appName + ' - ' + room.name;
