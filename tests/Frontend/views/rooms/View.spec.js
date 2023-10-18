@@ -2852,7 +2852,7 @@ describe('Room', () => {
   });
 
   it('join membership invalid code', async () => {
-    const toastErrorSpy = vi.fn();
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
 
     mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
       status: 200,
@@ -2879,8 +2879,7 @@ describe('Room', () => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
-        $t: (key) => key,
-        toastError: toastErrorSpy
+        $t: (key) => key
       },
       propsData: {
         id: 'abc-def-456'
@@ -2913,9 +2912,7 @@ describe('Room', () => {
       }
     });
 
-    expect(view.vm.$data.room.authenticated).toBeFalsy();
-    expect(view.vm.$data.accesCodeValid).toBeFalsy();
-    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(handleInvalidCode).toBeCalledTimes(1);
 
     view.destroy();
   });

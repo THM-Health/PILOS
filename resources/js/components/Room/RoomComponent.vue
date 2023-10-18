@@ -1,23 +1,18 @@
 <template>
       <div class="h-100" >
-    <b-overlay :show="loading" class="h-100" rounded="sm" >
-<!--      room card-->
-      <b-card role="button" tabindex="0" no-body bg-variant="white" class="room-card h-100" @click="open" @keyup.enter="open"  :class="{'running': running}">
+    <!-- room card-->
+      <b-card role="button" tabindex="0" no-body bg-variant="white" class="room-card h-100" @click="open" @keyup.enter="open" :class="{'running': running}">
         <b-card-body class="p-3 h-100">
           <div class="d-flex flex-column h-100">
             <div class="flex-grow-1">
-              <b-row>
-                <b-col>
-                  <b-badge :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
-                </b-col>
-                <b-col>
+              <div class="d-flex justify-content-between align-items-start">
+                <b-badge class="flex-shrink-1 text-break" style="white-space: normal" :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
 
-                  <div class="text-right" >
-                    <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info mr-1 p-0 room-card-button" ></b-button>
+                <div class="room-card-buttons flex-shrink-0" >
+                    <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info" ></b-button>
                     <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="isFavorite" :size="'sm'" :id="id"></RoomFavoriteComponent>
-                  </div>
-                </b-col>
-              </b-row>
+                </div>
+              </div>
               <h5 class="mt-2 text-break " style="width: 100% ">{{name}}</h5>
             </div>
             <div>
@@ -44,9 +39,9 @@
               </div>
             </div>
           </div>
+          <b-link class="stretched-link" :to="{ name: 'rooms.view', params: { id: this.id }}" aria-hidden="true"></b-link>
       </b-card-body>
     </b-card>
-    </b-overlay>
 
 <!--    short Description Modal-->
     <b-modal
@@ -59,17 +54,12 @@
       :cancel-title="$t('app.close')"
       :title="$t('rooms.index.room_component.details')"
     >
-
-      <b-row>
-        <b-col>
-          <b-badge :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
-        </b-col>
-        <b-col>
-          <div class="text-right" >
+      <div class="d-flex justify-content-between align-items-start">
+        <b-badge class="flex-shrink-1 text-break" style="white-space: normal" :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
+        <div class="room-card-buttons flex-shrink-0" >
             <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="isFavorite" :size="'sm'" :id="id"></RoomFavoriteComponent>
-          </div>
-        </b-col>
-      </b-row>
+        </div>
+      </div>
       <h5 class="mt-2 text-break " style="width: 100% ">{{name}}</h5>
       <div>
         <div class="d-flex">
@@ -112,21 +102,12 @@ import RoomFavoriteComponent from './RoomFavoriteComponent.vue';
 
 export default {
   components: { RoomFavoriteComponent },
-  data () {
-    return {
-      loading: false
-    };
-  },
   props: {
     id: String,
     name: String,
     isFavorite: Boolean,
     shortDescription: String,
     meeting: Object,
-    shared: {
-      type: Boolean,
-      default: false
-    },
     type: Object,
     owner: Object,
     modalStatic: {
@@ -140,10 +121,7 @@ export default {
      * open the room view
      */
     open: function () {
-      this.loading = true;
-      this.$router.push({ name: 'rooms.view', params: { id: this.id } }).finally(() => {
-        this.loading = false;
-      });
+      this.$router.push(this.link);
     },
     /**
      * Show short description modal
@@ -154,6 +132,10 @@ export default {
 
   },
   computed: {
+
+    link: function () {
+      return this.$router.resolve({ name: 'rooms.view', params: { id: this.id } }).href;
+    },
     /**
      * Check if there is a running meeting for this room
      * @returns {boolean}

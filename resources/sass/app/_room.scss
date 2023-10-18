@@ -38,10 +38,17 @@
     }
 }
 
-.room-card-button{
-    height: 25px;
-    width: 25px;
-    font-size: 12px;
+.room-card-buttons {
+    z-index: 2;
+    position: relative;
+
+    .btn{
+        margin-left: 0.25rem;
+        padding: 0;    
+        height: 25px;
+        width: 25px;
+        font-size: 12px;
+    }     
 }
 
 .room-card:hover{

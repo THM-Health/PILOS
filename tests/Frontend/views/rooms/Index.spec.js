@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/Index.vue';
+import RoomIndex from '../../../../resources/js/views/rooms/Index.vue';
 import {
   BAlert,
   BButton,
@@ -125,7 +125,7 @@ describe('Room Index', () => {
     const roomRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' });
     const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -228,7 +228,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -259,7 +259,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -407,7 +407,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
@@ -477,7 +477,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -630,7 +630,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -685,7 +685,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -819,7 +819,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -938,7 +938,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -1020,7 +1020,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -1110,7 +1110,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
@@ -1156,7 +1156,7 @@ describe('Room Index', () => {
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -1244,7 +1244,7 @@ describe('Room Index', () => {
       }
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
         $t: (key) => key,

@@ -734,13 +734,7 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              // reset the logged in status, as it is no longer correct
-              this.room.authenticated = false;
-              // set the access code input invalid
-              this.accessCodeValid = false;
-              // Show error message
-              this.toastError(this.$t('rooms.flash.access_code_invalid'));
-              return;
+              return this.handleInvalidCode();
             }
 
             // Membership not allowed, update status

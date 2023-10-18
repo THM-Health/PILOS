@@ -18,7 +18,7 @@ return new class extends Migration
         });
 
         foreach (Room::with('meetings')->get() as $room) {
-            $room->latestMeeting()->associate($room->meetings()->orderBy('end')->orderByDesc('created_at')->first()?->id);
+            $room->latestMeeting()->associate($room->meetings()->orderByDesc('created_at')->first()?->id);
             $room->save();
         }
     }

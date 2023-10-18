@@ -9,10 +9,20 @@ import RoomComponent from '../../../../resources/js/components/Room/RoomComponen
 import { expect } from 'vitest';
 import { BBadge, BButton, BCard } from 'bootstrap-vue';
 import RoomFavoriteComponent from '../../../../resources/js/components/Room/RoomFavoriteComponent.vue';
+import RoomView from '../../../../resources/js/views/rooms/View.vue';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
+
+const routerMock = new VueRouter({
+  mode: 'abstract',
+  routes: [{
+    path: '/rooms/:id/:token?',
+    name: 'rooms.view',
+    component: RoomView
+  }]
+});
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const initialState = { auth: { currentUser: exampleUser } };
@@ -53,7 +63,7 @@ describe('Room Component', () => {
     });
 
     expect(view.get('h5').text()).toEqual('Meeting One');
-    expect(view.get(BBadge).text()).toEqual('Meeting');
+    expect(view.getComponent(BBadge).text()).toEqual('Meeting');
     expect(view.findAll('small').at(0).text()).toBe('John Doe');
     expect(view.findAll('small').at(1).text()).toBe('rooms.index.room_component.never_started');
     expect(view.getComponent(BCard).attributes().class).not.toContain('running');
@@ -80,12 +90,11 @@ describe('Room Component', () => {
   });
 
   it('click on room', async () => {
-    const router = new VueRouter();
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
+    const routerSpy = vi.spyOn(routerMock, 'push').mockImplementation(() => Promise.resolve());
 
     const view = mount(RoomComponent, {
       localVue,
-      router,
+      router: routerMock,
       mocks: {
         $t: (key) => key
       },
@@ -114,18 +123,17 @@ describe('Room Component', () => {
     await view.findComponent(BCard).trigger('click');
 
     expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: 'abc-def-123' } });
+    expect(routerSpy).toBeCalledWith('/rooms/abc-def-123');
 
     view.destroy();
   });
 
   it('test short description', async () => {
-    const router = new VueRouter();
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
+    const routerSpy = vi.spyOn(routerMock, 'push').mockImplementation(() => Promise.resolve());
 
     const view = mount(RoomComponent, {
       localVue,
-      router,
+      router: routerMock,
       mocks: {
         $t: (key) => key
       },
@@ -176,7 +184,7 @@ describe('Room Component', () => {
     // check if modal shows correct
     expect(shortDescModal.findAll('h5').at(0).text()).toEqual('rooms.index.room_component.details');
     expect(shortDescModal.findAll('h5').at(1).text()).toEqual('Meeting One');
-    expect(shortDescModal.get(BBadge).text()).toEqual('Meeting');
+    expect(shortDescModal.getComponent(BBadge).text()).toEqual('Meeting');
     expect(shortDescModal.get('p').text()).toEqual('short description for room');
     expect(shortDescModal.findAllComponents(BButton).length).toBe(3);
     expect(shortDescModal.findAllComponents(BButton).at(0).attributes().class).toContain('light');
@@ -199,7 +207,7 @@ describe('Room Component', () => {
     await shortDescModal.findAllComponents(BButton).at(2).trigger('click');
 
     expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: 'abc-def-123' } });
+    expect(routerSpy).toBeCalledWith('/rooms/abc-def-123');
 
     view.destroy();
   });

@@ -166,37 +166,4 @@ describe('Room Favorite Component', () => {
 
     view.destroy();
   });
-
-  it('test size', async () => {
-    const view = mount(RoomFavoriteComponent, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        id: 'abc-def-123',
-        isFavorite: false,
-        size: 'sm'
-      },
-      stubs: {
-        transition: false
-      },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
-      attachTo: createContainer()
-    });
-    await view.vm.$nextTick();
-    // find favorites button
-    const favoritesButton = view.findComponent(BButton);
-
-    // check if class 'room-card-button' is set
-    expect(favoritesButton.attributes().class).toContain('room-card-button');
-    expect(favoritesButton.attributes().class).toContain('p-0');
-
-    view.setProps({ size: 'md' });
-    await view.vm.$nextTick();
-
-    // check if class 'room-card-button' is missing
-    expect(favoritesButton.attributes().class).not.toContain('room-card-button');
-    expect(favoritesButton.attributes().class).not.toContain('p-0');
-  });
 });

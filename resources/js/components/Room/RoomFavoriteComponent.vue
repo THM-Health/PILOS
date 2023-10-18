@@ -2,8 +2,8 @@
   <b-button
     @click.stop="toggleFavorite"
     :variant="isFavorite ? 'dark' : 'light'"
-    :size="size" class="fa-solid fa-star"
-    :class="{'room-card-button p-0': size==='sm'}"
+    :size="size"
+    class="fa-solid fa-star"
   >
   </b-button>
 </template>
