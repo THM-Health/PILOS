@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Showing current room name in the page title  ([#649], [#650])
 
 ## [v2.3.0] - 2023-10-16
 ### Added
@@ -662,6 +664,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#586]: https://github.com/THM-Health/PILOS/pull/586
 [#620]: https://github.com/THM-Health/PILOS/issues/620
 [#621]: https://github.com/THM-Health/PILOS/pull/621
+[#649]: https://github.com/THM-Health/PILOS/issues/649
+[#650]: https://github.com/THM-Health/PILOS/pull/650
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
