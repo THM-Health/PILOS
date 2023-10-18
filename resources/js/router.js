@@ -448,8 +448,15 @@ export const routes = [
 export function beforeEachRoute (router, to, from, next) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
+  const settings = useSettingsStore();
 
   const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
+
+  const appName = settings.getSetting('name');
+  if (appName !== undefined) {
+    document.title = appName;
+  }
+
   const initializationPromise = !loading.initialized ? loading.initialize(locale) : Promise.resolve();
 
   loading.setLoading();

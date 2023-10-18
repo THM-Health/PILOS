@@ -296,6 +296,21 @@ export default {
       errors: []
     };
   },
+
+  watch: {
+    room: {
+      handler (room) {
+        const appName = this.getSetting('name');
+        if (room.name) {
+          document.title = appName + ' - ' + room.name;
+        } else {
+          document.title = appName;
+        }
+      },
+      deep: true
+    }
+  },
+
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
     const auth = useAuthStore();
