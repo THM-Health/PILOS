@@ -98,17 +98,33 @@
           <!-- Show invitation text/link to moderators and room owners -->
           <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="viewInvitation">
             <div class="jumbotron p-4" >
-              <h5>{{ $t('rooms.access_for_participants') }}</h5>
-              <b-button
-                class="float-right"
-                v-clipboard:copy="invitationText"
-                v-b-tooltip.hover
-                :title="$t('rooms.copy_access_for_participants')"
-                variant="light"
-              >
-                <i class="fa-solid fa-copy"></i>
-              </b-button>
-              <span style="white-space: pre;">{{ invitationText }}</span>
+
+              <div class="d-flex justify-content-between align-items-start">
+                <h5 class="flex-shrink-1 text-break">{{ $t('rooms.access_for_participants') }}</h5>
+                <b-button
+                  class="float-right flex-shrink-0"
+                  v-clipboard:copy="invitationText"
+                  v-b-tooltip.hover
+                  :title="$t('rooms.copy_access_for_participants')"
+                  variant="light"
+                >
+                  <i class="fa-solid fa-copy"></i>
+                </b-button>
+
+              </div>
+
+              <b-input-group >
+                <template #prepend>
+                  <b-input-group-text class="border-0 pl-0"><i class="fa-solid fa-link"></i></b-input-group-text>
+                </template>
+                <b-form-input plaintext :value="getSetting('base_url') + $router.resolve({ name: 'rooms.view', params: { id: room.id } }).route.fullPath"></b-form-input>
+              </b-input-group>
+              <b-input-group v-if="room.access_code">
+                <template #prepend>
+                  <b-input-group-text class="border-0 pl-0"><i class="fa-solid fa-key"></i></b-input-group-text>
+                </template>
+                <b-form-input plaintext :value="String(room.access_code).match(/.{1,3}/g).join('-')"></b-form-input>
+              </b-input-group>
             </div>
           </b-col>
           <b-col order="1" order-md="2" col cols="12" :md="viewInvitation ? 4 : 12" :lg="viewInvitation ? 6 : 12">
