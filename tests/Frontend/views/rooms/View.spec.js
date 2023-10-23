@@ -9,9 +9,6 @@ import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-// import env from '../../../../resources/js/env';
-
-// import i18n from '../../../../resources/js/i18n';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -282,7 +279,7 @@ describe('Room', () => {
     await roomRequest.wait();
     await view.vm.$nextTick();
 
-    // Test if spinner shows that room is loading
+    // test if spinner shows that room is loading
     expect(view.findComponent({ ref: 'room-loading-spinner' }).exists()).toBeTruthy();
     expect(view.html()).not.toContain('Meeting One');
     expect(view.html()).not.toContain('Max Doe');
@@ -309,7 +306,7 @@ describe('Room', () => {
       }
     });
 
-    // Test if room is shown and spinner hidden
+    // test if room is shown and spinner hidden
     expect(view.findComponent({ ref: 'room-loading-spinner' }).exists()).toBeFalsy();
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('Max Doe');
@@ -955,7 +952,7 @@ describe('Room', () => {
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('John Doe');
 
-    // Test reload with changes of the room data
+    // test reload with changes of the room data
     let request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     const reloadButton = view.findComponent({ ref: 'reloadButton' });
     await reloadButton.trigger('click');
@@ -984,7 +981,7 @@ describe('Room', () => {
     });
     expect(view.html()).toContain('Meeting Two');
 
-    // Test reload with room not found
+    // test reload with room not found
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
     await request.wait();
@@ -993,7 +990,7 @@ describe('Room', () => {
       data: { message: 'No query results for model [App\\Room] abc-def-123' }
     });
 
-    // Test reload with access code now invalid, changed in the meantime
+    // test reload with access code now invalid, changed in the meantime
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
     await request.wait();
@@ -1003,7 +1000,7 @@ describe('Room', () => {
     });
     expect(handleInvalidCode).toBeCalledTimes(1);
 
-    // Test reload with personalized room token now invalid, deleted/expired in the meantime
+    // test reload with personalized room token now invalid, deleted/expired in the meantime
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
     await request.wait();
@@ -1013,7 +1010,7 @@ describe('Room', () => {
     });
     expect(handleInvalidToken).toBeCalledTimes(1);
 
-    // Test reload with changed access policy, now guests are not allowed anymore
+    // test reload with changed access policy, now guests are not allowed anymore
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
     await request.wait();
@@ -1023,7 +1020,7 @@ describe('Room', () => {
     });
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
-    // Test reload with some server errors
+    // test reload with some server errors
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
     await request.wait();
@@ -1497,7 +1494,7 @@ describe('Room', () => {
 
     await joinButton.trigger('click');
 
-    // Check with invalid chars in guest name
+    // check with invalid chars in guest name
     await joinRequest.wait();
     expect(joinRequest.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
@@ -1516,7 +1513,7 @@ describe('Room', () => {
     expect(nameGroup.classes()).toContain('is-invalid');
     expect(nameGroup.text()).toContain('The name contains the following non-permitted characters: 123!');
 
-    // Check with valid name
+    // check with valid name
     nameInput.setValue('John Doe');
     await view.vm.$nextTick();
 
@@ -1607,7 +1604,7 @@ describe('Room', () => {
     let joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
 
-    // Check with invalid chars in guest name
+    // check with invalid chars in guest name
     await joinRequest.wait();
     expect(joinRequest.config.headers['Access-Code']).toBe('905992606');
     expect(joinRequest.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
@@ -1627,7 +1624,7 @@ describe('Room', () => {
     expect(nameGroup.classes()).toContain('is-invalid');
     expect(nameGroup.text()).toContain('The name contains the following non-permitted characters: 123!');
 
-    // Check with valid name
+    // check with valid name
     nameInput.setValue('John Doe');
     await view.vm.$nextTick();
     joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
@@ -1710,7 +1707,7 @@ describe('Room', () => {
 
     await joinButton.trigger('click');
 
-    // Check with invalid chars in guest name
+    // check with invalid chars in guest name
     await joinRequest.wait();
     expect(joinRequest.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     expect(joinRequest.config.params).toEqual({ name: null, record_attendance: 0 });
@@ -1778,7 +1775,7 @@ describe('Room', () => {
 
     let joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
 
-    // Test guests not allowed
+    // test guests not allowed
     await joinButton.trigger('click');
     await joinRequest.wait();
     expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 0 });
@@ -1789,7 +1786,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
-    // Test invalid access token
+    // test invalid access token
     joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
     await joinRequest.wait();
@@ -1801,7 +1798,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(1);
 
-    // Test invalid access token
+    // test invalid access token
     joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
     await joinRequest.wait();
@@ -1813,7 +1810,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(2);
 
-    // Test invalid token
+    // test invalid token
     joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
     await joinRequest.wait();
@@ -1825,7 +1822,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(handleInvalidToken).toBeCalledTimes(1);
 
-    // Test without required recording agreement
+    // test without required recording agreement
     joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
     await joinButton.trigger('click');
@@ -1843,7 +1840,7 @@ describe('Room', () => {
     expect(baseError.mock.calls[0][0].response.data.message).toEqual('Consent to record attendance is required.');
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
 
-    // Test Room closed
+    // test Room closed
     const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
     await agreementCheckbox.get('input').trigger('click');
 
@@ -2103,7 +2100,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     await startButton.trigger('click');
 
-    // Check with invalid chars in name
+    // check with invalid chars in name
     await startRequest.wait();
     expect(startRequest.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
@@ -2211,7 +2208,7 @@ describe('Room', () => {
     let startButton = view.findComponent({ ref: 'startMeeting' });
     expect(startButton.attributes('disabled')).toBeUndefined();
 
-    // Test guests not allowed
+    // test guests not allowed
     let startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
     await startRequest.wait();
@@ -2224,7 +2221,7 @@ describe('Room', () => {
 
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
-    // Test invalid access token
+    // test invalid access token
     startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
     await startRequest.wait();
@@ -2236,7 +2233,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(1);
 
-    // Test access token required
+    // test access token required
     startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
     await startRequest.wait();
@@ -2248,7 +2245,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(2);
 
-    // Test invalid token
+    // test invalid token
     startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
     await startRequest.wait();
@@ -2543,22 +2540,22 @@ describe('Room', () => {
 
     await mockAxios.wait();
     await view.vm.$nextTick();
-    // Find confirm modal and check if it is hidden
+    // find confirm modal and check if it is hidden
     const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
     expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
-    // Click button to leave membership
+    // click button to leave membership
 
     await waitModalShown(view, () => {
       view.find('#leave-membership-button').trigger('click');
     });
 
-    // Wait until modal is open
+    // wait until modal is open
     await view.vm.$nextTick();
 
-    // Confirm modal is shown
+    // confirm modal is shown
     expect(leaveMembershipModal.vm.$data.isVisible).toBe(true);
 
-    // Find the confirm button and click it
+    // find the confirm button and click it
     const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
     expect(leaveConfirmButton.text()).toBe('rooms.end_membership.yes');
 
@@ -2567,19 +2564,19 @@ describe('Room', () => {
     await waitModalHidden(view, () => {
       leaveConfirmButton.trigger('click');
     });
-    // Check if modal is closed
+    // check if modal is closed
     await view.vm.$nextTick();
 
-    // Check if the modal is hidden
+    // check if the modal is hidden
     expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
 
-    // Check leave membership request
+    // check leave membership request
     await leaveRequest.wait();
     expect(leaveRequest.config.method).toEqual('delete');
 
     const reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
 
-    // Respond to leave membership request
+    // respond to leave membership request
     await leaveRequest.respondWith({
       status: 204,
       data: {}
@@ -2588,7 +2585,7 @@ describe('Room', () => {
     // response for room reload, now with the user not being a member anymore
     await reloadRequest.wait();
 
-    // Respond to leave membership request
+    // respond to leave membership request
     await reloadRequest.respondWith({
       status: 200,
       data: {
@@ -2611,7 +2608,7 @@ describe('Room', () => {
       }
     });
 
-    // Check if the leave membership button is not shown anymore, as the user is no longer a member
+    // check if the leave membership button is not shown anymore, as the user is no longer a member
     expect(view.find('#leave-membership-button').exists()).toBeFalsy();
 
     view.destroy();
@@ -2670,22 +2667,22 @@ describe('Room', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // Find confirm modal and check if it is hidden
+    // find confirm modal and check if it is hidden
     const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
     expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
-    // Click button to leave membership
+    // click button to leave membership
 
     await waitModalShown(view, () => {
       view.find('#leave-membership-button').trigger('click');
     });
 
-    // Wait until modal is open
+    // wait until modal is open
     await view.vm.$nextTick();
 
-    // Confirm modal is shown
+    // confirm modal is shown
     expect(leaveMembershipModal.vm.$data.isVisible).toBe(true);
 
-    // Find the confirm button and click it
+    // find the confirm button and click it
     const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
     expect(leaveConfirmButton.text()).toBe('rooms.end_membership.yes');
 
@@ -2697,16 +2694,16 @@ describe('Room', () => {
 
     await view.vm.$nextTick();
 
-    // Check if the modal is hidden
+    // check if the modal is hidden
     expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
 
-    // Check leave membership request
+    // check leave membership request
     await leaveRequest.wait();
     expect(leaveRequest.config.method).toEqual('delete');
 
     const reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
 
-    // Respond to leave membership test with error
+    // respond to leave membership test with error
     await leaveRequest.respondWith({
       status: 500,
       data: {
@@ -2719,7 +2716,7 @@ describe('Room', () => {
     // response for room reload, with the user still being a member
     await reloadRequest.wait();
 
-    // Respond to reload request
+    // respond to reload request
     await reloadRequest.respondWith({
       status: 200,
       data: {
@@ -2741,7 +2738,7 @@ describe('Room', () => {
         }
       }
     });
-    // Check if the leave membership button is still shown
+    // check if the leave membership button is still shown
     expect(view.find('#leave-membership-button').exists()).toBeTruthy();
 
     view.destroy();
@@ -2813,7 +2810,7 @@ describe('Room', () => {
 
     const reloadRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
 
-    // Respond to join membership request
+    // respond to join membership request
     await joinMembershipRequest.respondWith({
       status: 204,
       data: {}
@@ -2844,7 +2841,7 @@ describe('Room', () => {
       }
     });
 
-    // Check if the join button is not shown anymore
+    // check if the join button is not shown anymore
     joinMembershipButton = view.find('#join-membership-button');
     expect(joinMembershipButton.exists()).toBeFalsy();
 
@@ -2904,7 +2901,7 @@ describe('Room', () => {
     await joinMembershipRequest.wait();
     expect(joinMembershipRequest.config.method).toEqual('post');
 
-    // Respond to join membership request
+    // respond to join membership request
     await joinMembershipRequest.respondWith({
       status: 401,
       data: {
@@ -2970,7 +2967,7 @@ describe('Room', () => {
     await joinMembershipRequest.wait();
     expect(joinMembershipRequest.config.method).toEqual('post');
 
-    // Respond to join membership request
+    // respond to join membership request
     await joinMembershipRequest.respondWith({
       status: 500,
       data: {
@@ -3034,7 +3031,7 @@ describe('Room', () => {
     await joinMembershipRequest.wait();
     expect(joinMembershipRequest.config.method).toEqual('post');
 
-    // Respond to join membership request
+    // respond to join membership request
     await joinMembershipRequest.respondWith({
       status: 403,
       data: {

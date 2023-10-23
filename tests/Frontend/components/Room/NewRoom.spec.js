@@ -149,7 +149,7 @@ describe('Create new rooms', () => {
     const searchField = view.findComponent({ ref: 'search' });
     expect(searchField.exists()).toBeTruthy();
 
-    // Enter search query
+    // enter search query
     await searchField.setValue('test');
 
     const ownRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 });
@@ -157,7 +157,7 @@ describe('Create new rooms', () => {
     searchField.trigger('change');
 
     await ownRequest.wait();
-    // Check if requests use the search string
+    // check if requests use the search string
     expect(ownRequest.config.params.search).toBe('test');
 
     await ownRequest.respondWith({
