@@ -16,6 +16,7 @@
               <h5 class="mt-2 text-break " style="width: 100% ">{{name}}</h5>
             </div>
             <div>
+              <!--owner name-->
               <div class="d-flex">
                 <div class="room-card-info-icon">
                   <i class="fa-solid fa-user"></i>
@@ -24,6 +25,7 @@
                   <small>{{ owner.name }}</small>
                 </div>
               </div>
+              <!--last meeting info (never started, last ran till, running since, starting)-->
               <div class="d-flex">
                 <div class="room-card-info-icon">
                   <i class="fa-solid fa-clock"></i>
@@ -62,6 +64,7 @@
       </div>
       <h5 class="mt-2 text-break " style="width: 100% ">{{name}}</h5>
       <div>
+        <!--owner name-->
         <div class="d-flex">
           <div class="room-info-icon">
             <i class="fa-solid fa-user"></i>
@@ -70,7 +73,7 @@
             {{ owner.name }}
           </div>
         </div>
-
+        <!--last meeting info (never started, last ran till, running since, starting)-->
         <div class="d-flex">
           <div class="room-info-icon">
             <i class="fa-solid fa-clock"></i>
@@ -118,7 +121,7 @@ export default {
   methods: {
 
     /**
-     * open the room view
+     * Open the room view
      */
     open: function () {
       this.$router.push(this.link);
@@ -146,6 +149,3 @@ export default {
   }
 };
 </script>
-<style scoped>
-
-</style>

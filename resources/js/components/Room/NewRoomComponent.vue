@@ -2,6 +2,7 @@
   <div>
     <b-button class="float-right w-100" :disabled="disabled" variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> {{ $t('rooms.create.title') }} </b-button>
 
+<!-- new room modal-->
     <b-modal
       id="new-room"
       :title="$t('rooms.create.title')"
@@ -134,9 +135,3 @@ export default {
 
 };
 </script>
-<style scoped>
-.room-card{
-  background: none;
-  border-style: dotted;
-}
-</style>

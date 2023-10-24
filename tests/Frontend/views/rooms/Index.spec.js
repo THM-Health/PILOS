@@ -279,8 +279,17 @@ describe('Room Index', () => {
     let rooms = view.findAllComponents(RoomComponent);
     expect(rooms.length).toBe(3);
 
-    // change response and fire event
-    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+    // find new room component and fire event
+    let newRoomComponent = view.findComponent(NewRoomComponent);
+    expect(newRoomComponent.exists()).toBeTruthy();
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    newRoomComponent.vm.$emit('limitReached');
+
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond with 4 rooms on 2 different pages
+    await roomRequest.respondWith({
       status: 200,
       data: {
         data: [
@@ -319,18 +328,55 @@ describe('Room Index', () => {
             },
             is_favorite: false,
             short_description: 'Own room 2'
-          },
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 2,
+          to: 2,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 2
+        }
+      }
+    });
+    await view.vm.$nextTick();
+
+    // check if now four rooms are displayed
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(2);
+
+    // try to find new room component, should be disabled as the limit is reached
+    newRoomComponent = view.findComponent(NewRoomComponent);
+    expect(newRoomComponent.exists()).toBeTruthy();
+    expect(newRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that new room component stays disabled
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(newRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
+
+    // respond with 2 rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
           {
-            id: 'def-abc-123',
-            name: 'Meeting Two',
+            id: 'abc-def-456',
+            name: 'Meeting Three',
             owner: {
               id: 1,
               name: 'John Doe'
             },
-            last_meeting: {
-              start: '2023-08-21 08:18:28:00',
-              end: null
-            },
+            last_meeting: null,
             type: {
               id: 2,
               short: 'ME',
@@ -339,11 +385,11 @@ describe('Room Index', () => {
               default: false
             },
             is_favorite: false,
-            short_description: null
+            short_description: 'Own room'
           },
           {
             id: 'def-abc-456',
-            name: 'Meeting Three',
+            name: 'Meeting Four',
             owner: {
               id: 1,
               name: 'John Doe'
@@ -361,37 +407,29 @@ describe('Room Index', () => {
             },
             is_favorite: false,
             short_description: null
-          }
-        ],
+          }],
         meta: {
-          current_page: 1,
-          from: 1,
-          last_page: 1,
-          per_page: 10,
-          to: 5,
+          current_page: 2,
+          from: 3,
+          last_page: 3,
+          per_page: 2,
+          to: 4,
           total: 4,
-          total_no_filter: 3,
+          total_no_filter: 4,
           total_own: 2
         }
       }
     });
 
-    // find new room component and fire event
-    let newRoomComponent = view.findComponent(NewRoomComponent);
-    expect(newRoomComponent.exists()).toBeTruthy();
+    // find new room component and fire event again
+    newRoomComponent = view.findComponent(NewRoomComponent);
+    roomRequest = mockAxios.request('/api/v1/rooms');
     newRoomComponent.vm.$emit('limitReached');
 
-    await mockAxios.wait();
-    await view.vm.$nextTick();
+    await roomRequest.wait();
 
-    // check if now four rooms are displayed
-    rooms = view.findAllComponents(RoomComponent);
-    expect(rooms.length).toBe(4);
-
-    // try to find new room component, should be disabled as the limit is reached
-    newRoomComponent = view.findComponent(NewRoomComponent);
-    expect(newRoomComponent.exists()).toBeTruthy();
-    expect(newRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
+    // make sure that the page stays the same
+    expect(roomRequest.config.params.page).toBe(2);
 
     view.destroy();
   });
@@ -641,7 +679,7 @@ describe('Room Index', () => {
         data: [
           {
             id: 'abc-def-456',
-            name: 'Meeting2 One',
+            name: 'Meeting Two',
             owner: {
               id: 1,
               name: 'John Doe'
@@ -674,7 +712,7 @@ describe('Room Index', () => {
     rooms = view.findAllComponents(RoomComponent);
     expect(rooms.length).toBe(1);
     expect(rooms.at(0).props('id')).toBe('abc-def-456');
-    expect(rooms.at(0).props('name')).toBe('Meeting2 One');
+    expect(rooms.at(0).props('name')).toBe('Meeting Two');
 
     // enter search query again and check if page is changed to the first page
     roomRequest = mockAxios.request('/api/v1/rooms');
@@ -790,7 +828,7 @@ describe('Room Index', () => {
         data: [
           {
             id: 'abc-def-456',
-            name: 'Meeting2 One',
+            name: 'Meeting Two',
             owner: {
               id: 1,
               name: 'John Doe'
@@ -958,7 +996,7 @@ describe('Room Index', () => {
         data: [
           {
             id: 'abc-def-456',
-            name: 'Meeting2 One',
+            name: 'Meeting Two',
             owner: {
               id: 1,
               name: 'John Doe'
@@ -1140,7 +1178,7 @@ describe('Room Index', () => {
         data: [
           {
             id: 'abc-def-456',
-            name: 'Meeting2 One',
+            name: 'Meeting Two',
             owner: {
               id: 1,
               name: 'John Doe'
@@ -1444,7 +1482,7 @@ describe('Room Index', () => {
         data: [
           {
             id: 'abc-def-456',
-            name: 'Meeting2 One',
+            name: 'Meeting Two',
             owner: {
               id: 1,
               name: 'John Doe'
@@ -1580,7 +1618,7 @@ describe('Room Index', () => {
         data: [
           {
             id: 'abc-def-456',
-            name: 'Meeting2 One',
+            name: 'Meeting Two',
             owner: {
               id: 1,
               name: 'John Doe'
@@ -1685,18 +1723,344 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // find rooms
-    const rooms = view.findAllComponents(RoomComponent);
+    let rooms = view.findAllComponents(RoomComponent);
     expect(rooms.length).toBe(3);
 
     // fire event and check if rooms are reload
     let roomRequest = mockAxios.request('/api/v1/rooms');
     rooms.at(0).vm.$emit('favorites_changed');
     await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
 
     // fire event for another room and check if rooms are reload
     roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(2).vm.$emit('favorites_changed');
+    rooms = view.findAllComponents(RoomComponent);
+    rooms.at(0).vm.$emit('favorites_changed');
     await roomRequest.wait();
+    // make sure that the page stay the same
+    expect(roomRequest.config.params.page).toBe(2);
+
+    view.destroy();
+  });
+
+  it('test trigger favorites only show favorites', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find favorites button and check if it is shown correct
+    const favoritesButton = view.findAllComponents(BButton).at(3);
+    expect(favoritesButton.html()).toContain('fa-star');
+    expect(favoritesButton.element.disabled).toBeFalsy();
+
+    // trigger favorites button
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+    expect(roomRequest.config.params.page).toBe(1);
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // find rooms
+    let rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(3);
+
+    // fire event and check if rooms are reload and page and only_favorites stay the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(1).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    // respond with 4 rooms on 2 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          },
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: null
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 2,
+          to: 2,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 1
+        }
+      }
+    });
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that only_favorites stays the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    // respond with 2 rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Three',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          },
+          {
+            id: 'def-abc-456',
+            name: 'Meeting Four',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: '2023-08-21 08:20:28:00'
+            },
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: null
+          }],
+        meta: {
+          current_page: 2,
+          from: 3,
+          last_page: 3,
+          per_page: 2,
+          to: 4,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 1
+        }
+      }
+    });
+
+    // find rooms
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(2);
+
+    // fire event and check if rooms are reload and page and only_favorites stay the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(1).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    // respond with 1 rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Three',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 3,
+          last_page: 3,
+          per_page: 1,
+          to: 3,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // find room
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(1);
+
+    // fire event and check if rooms are reload
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(0).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    // make sure page is reset and only_favorites stays the same
+    expect(roomRequest.config.params.page).toBe(1);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
 
     view.destroy();
   });
