@@ -17,9 +17,9 @@
       <b-row >
             <b-col md="4">
               <b-input-group class="mb-2">
-                <b-form-input @change="loadRooms()" :disabled="loadingRooms" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
+                <b-form-input @change="loadRooms(1)" :disabled="loadingRooms" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
                 <b-input-group-append>
-                  <b-button @click="loadRooms()" :disabled="loadingRooms" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+                  <b-button @click="loadRooms(1)" :disabled="loadingRooms" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
                 </b-input-group-append>
               </b-input-group>
             </b-col>
@@ -52,7 +52,7 @@
             <b-dropdown-item @click="changeSortingOption('room_type')"> {{ $t('rooms.index.sorting.room_type') }} </b-dropdown-item>
           </b-dropdown>
 
-          <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms();" :variant="onlyShowFavorites?'primary':'secondary'" v-tooltip-hide-click v-b-tooltip.hover :title="$t('rooms.index.favorites')" :disabled="showFilterOptions||loadingRooms" class=" ml-1 mb-2">
+          <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);" :variant="onlyShowFavorites?'primary':'secondary'" v-tooltip-hide-click v-b-tooltip.hover :title="$t('rooms.index.favorites')" :disabled="showFilterOptions||loadingRooms" class=" ml-1 mb-2">
             <small class="fa-solid fa-star"></small>
           </b-button>
 
@@ -112,7 +112,7 @@
             <b-input-group-prepend class="flex-grow-1" style="width: 1%" v-if="roomTypesLoadingError" >
               <b-alert class="mb-0 w-100" show variant="danger">{{ $t('rooms.room_types.loading_error') }}</b-alert>
             </b-input-group-prepend>
-            <b-form-select v-else v-model="selectedRoomType" @change="loadRooms()" class="float-right" :disabled="loadingRooms||roomTypesBusy">
+            <b-form-select v-else v-model="selectedRoomType" @change="loadRooms(1)" class="float-right" :disabled="loadingRooms||roomTypesBusy">
               <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
               <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
               <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
@@ -165,7 +165,7 @@
           </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
-                <room-component @favorites_changed="loadRooms(false)" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavorite="room.is_favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
+                <room-component @favorites_changed="loadRooms()" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavorite="room.is_favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
           </b-row>
           <b-pagination
@@ -174,7 +174,7 @@
             v-model="rooms.meta.current_page"
             :total-rows="rooms.meta.total"
             :per-page="rooms.meta.per_page"
-            @input="loadRooms(false)"
+            @change="loadRooms"
           ></b-pagination>
         </div>
       </b-overlay>
@@ -236,7 +236,7 @@ export default {
      */
     changeSortingOption (newOption) {
       this.selectedSortingType = newOption;
-      this.loadRooms();
+      this.loadRooms(1);
     },
 
     /**
@@ -248,7 +248,7 @@ export default {
         this.filter.public = true;
         this.filter.shared = true;
       }
-      this.loadRooms(true);
+      this.loadRooms(1);
     },
 
     /**
@@ -261,7 +261,7 @@ export default {
           this.filter.all = false;
         }
       }
-      this.loadRooms(true);
+      this.loadRooms(1);
     },
     /**
      * Resets the room filters and reloads the rooms
@@ -270,14 +270,14 @@ export default {
       this.filter.own = true;
       this.filter.shared = true;
       this.selectedRoomType = null;
-      this.loadRooms(true);
+      this.loadRooms(1);
     },
     /**
      *  Reload rooms
      */
     reload () {
       this.loadRoomTypes();
-      this.loadRooms(false);
+      this.loadRooms();
     },
 
     /**
@@ -298,17 +298,16 @@ export default {
     },
     /**
      * Load the rooms of the current user based on the given inputs
-     * @param resetPage
+     * @param page
      */
-    loadRooms (resetPage = true) {
+    loadRooms (page = null) {
       if (this.filter.own === false && this.filter.shared === false && this.filter.public === false && this.filter.all === false) {
         this.showNoFilterMessage = true;
         return;
       }
       this.showNoFilterMessage = false;
-      // reset page of pagination if resetPage is true
-      if (resetPage && this.rooms) {
-        this.rooms.meta.current_page = 1;
+      if (page === null) {
+        page = this.rooms !== null ? this.rooms.meta.current_page : 1;
       }
       this.loadingRooms = true;
 
@@ -323,12 +322,15 @@ export default {
           room_type: this.selectedRoomType,
           sort_by: this.selectedSortingType,
           search: this.rawSearchQuery.trim() !== '' ? this.rawSearchQuery.trim() : null,
-          page: this.rooms !== null ? this.rooms.meta.current_page : 1
+          page
         }
       }).then(response => {
         // operation successful, set rooms and reset loadingRoomsError
         this.rooms = response.data;
         this.loadingRoomsError = false;
+        if (this.rooms.meta.current_page > 1 && this.rooms.data.length === 0) {
+          this.loadRooms(this.rooms.meta.last_page);
+        }
       }).catch(error => {
         // failed
         this.loadingRoomsError = true;

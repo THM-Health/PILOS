@@ -1993,7 +1993,7 @@ describe('Room Index', () => {
         meta: {
           current_page: 2,
           from: 3,
-          last_page: 3,
+          last_page: 2,
           per_page: 2,
           to: 4,
           total: 4,
@@ -2040,8 +2040,8 @@ describe('Room Index', () => {
         meta: {
           current_page: 2,
           from: 3,
-          last_page: 3,
-          per_page: 1,
+          last_page: 2,
+          per_page: 2,
           to: 3,
           total: 3,
           total_no_filter: 3,
@@ -2056,11 +2056,31 @@ describe('Room Index', () => {
 
     // fire event and check if rooms are reload
     roomRequest = mockAxios.request('/api/v1/rooms');
+    const secondRoomRequest = mockAxios.request('/api/v1/rooms');
     rooms.at(0).vm.$emit('favorites_changed');
     await roomRequest.wait();
+    // reload with no rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 2,
+          from: null,
+          last_page: 1,
+          per_page: 2,
+          to: null,
+          total: 2,
+          total_no_filter: 2,
+          total_own: 1
+        }
+      }
+    });
+    // check if the rooms get reload again with the last page
+    await secondRoomRequest.wait();
     // make sure page is reset and only_favorites stays the same
-    expect(roomRequest.config.params.page).toBe(1);
-    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+    expect(secondRoomRequest.config.params.page).toBe(1);
+    expect(secondRoomRequest.config.params.only_favorites).toBeTruthy();
 
     view.destroy();
   });
