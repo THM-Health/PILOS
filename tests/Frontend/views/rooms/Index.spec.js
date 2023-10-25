@@ -973,7 +973,7 @@ describe('Room Index', () => {
       }
     });
 
-    // find pagination and
+    // find pagination
     const pagination = view.findComponent(BPagination);
     expect(pagination.exists()).toBeTruthy();
     expect(pagination.props('disabled')).toBeFalsy();

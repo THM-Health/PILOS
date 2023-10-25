@@ -47,13 +47,7 @@ class RoomController extends Controller
             if ($request->filter_all && Auth::user()->can('viewAll', Room::class)) {
                 $collection = Room::query();
             } else {
-                // list of room types for which listing is enabled
-                $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
-
-                // list of room ids where the user is member
-                $roomMemberships             = Auth::user()->sharedRooms->modelKeys();
-
-                $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled, $roomMemberships, $request) {
+                $collection = Room::where(function (Builder $query) use ($request) {
                     // own rooms
                     if ($request->filter_own) {
                         $query->orWhere('user_id', '=', Auth::user()->id);
@@ -61,12 +55,16 @@ class RoomController extends Controller
 
                     // rooms where the user is member
                     if ($request->filter_shared) {
+                        // list of room ids where the user is member
+                        $roomMemberships             = Auth::user()->sharedRooms->modelKeys();
                         $query->orWhereIn('rooms.id', $roomMemberships);
                     }
 
                     // all rooms that are public (listed and without access code)
                     if ($request->filter_public) {
-                        $query->orWhere(function (Builder $subQuery) use ($roomTypesWithListingEnabled) {
+                        $query->orWhere(function (Builder $subQuery) {
+                            // list of room types for which listing is enabled
+                            $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
                             $subQuery->where('listed', 1)
                                 ->whereNull('access_code')
                                 ->whereIn('room_type_id', $roomTypesWithListingEnabled);
