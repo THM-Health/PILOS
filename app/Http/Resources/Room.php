@@ -15,7 +15,19 @@ class Room extends JsonResource
     private bool $authenticated;
 
     // Show details of the room (otherwise only basic information for listing is shown)
-    private bool $details;
+    private bool $withDetails = false;
+
+    /**
+     * Sets the flag to also load the permissions of the role model.
+     *
+     * @return $this The role resource instance.
+     */
+    public function withDetails()
+    {
+        $this->withDetails = true;
+
+        return $this;
+    }
 
     // The token used to authenticate the user
     private ?RoomToken $token;
@@ -23,15 +35,11 @@ class Room extends JsonResource
     /**
      * Create a new resource instance.
      *
-     * @param mixed     $resource
-     * @param boolean   $authenticated Is user authenticated (has valid access code, member or owner)
-     * @param boolean   $details       Show details of the room (otherwise only basic information for listing is shown)
-     * @param RoomToken $token         The token used to authenticate the user
+     * @param mixed $resource
      */
-    public function __construct($resource, bool $details = false)
+    public function __construct($resource)
     {
         parent::__construct($resource);
-        $this->details       = $details;
 
         $roomAuthService     = app()->make(RoomAuthService::class);
         $this->token         = $roomAuthService->getRoomToken($resource);
@@ -40,7 +48,7 @@ class Room extends JsonResource
 
     public function getDetails($latestMeeting)
     {
-        if (!$this->details) {
+        if (!$this->withDetails) {
             return [];
         }
 
@@ -94,7 +102,7 @@ class Room extends JsonResource
             'model_name'            => $this->model_name,
             'short_description'     => $this->short_description,
             'is_favorite'           => Auth::user() ? Auth::user()->roomFavorites->contains($this->id) : false,
-            $this->mergeWhen($this->details, $this->getDetails($latestMeeting))
+            $this->mergeWhen($this->withDetails, $this->getDetails($latestMeeting))
         ];
     }
 }

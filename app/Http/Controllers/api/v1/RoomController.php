@@ -169,7 +169,7 @@ class RoomController extends Controller
      */
     public function show(Room $room, RoomAuthService $roomAuthService)
     {
-        return new \App\Http\Resources\Room($room, true);
+        return (new \App\Http\Resources\Room($room))->withDetails();
     }
 
     /**
