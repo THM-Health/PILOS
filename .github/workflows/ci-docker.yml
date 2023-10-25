@@ -6,7 +6,8 @@ on:
   push:
     branches:
       - master
-      - 'v[0-9]*'
+      - develop
+      - '[0-9].x'
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest

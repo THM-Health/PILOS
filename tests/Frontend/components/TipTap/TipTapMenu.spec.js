@@ -12,6 +12,37 @@ const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
 describe('TipTap Menu', () => {
+  beforeEach(() => {
+    // Mock ClipboardEvent
+    class ClipboardEventMock extends Event {
+      constructor (type, eventInitDict) {
+        super(type, eventInitDict);
+        this.clipboardData = {
+          getData: vi.fn(),
+          setData: vi.fn()
+        };
+      }
+    }
+    global.ClipboardEvent = ClipboardEventMock;
+
+    // Mock DragEvent
+    class DragEventMock extends Event {
+      constructor (type, eventInitDict) {
+        super(type, eventInitDict);
+        this.dataTransfer = {
+          getData: vi.fn(),
+          setData: vi.fn()
+        };
+      }
+    }
+    global.DragEvent = DragEventMock;
+  });
+
+  afterEach(() => {
+    delete global.ClipboardEvent;
+    delete global.DragEvent;
+  });
+
   it('Initalizing editor with value and emit content on change', async () => {
     const view = mount(TipTapMenu, {
       localVue,

@@ -5,34 +5,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v2.3.0] - 2023-10-16
 ### Added
 - Shibboleth authentication ([#20], [#497])
+- Option to disable local authentication ([#505], [#506])
 - Database Import command: Support for postgres database ([#545])
 - Greenlight v2 migration command: Import social users ([#497])
 - Greenlight v2 migration command: Using database transactions to undo changes in case of errors ([#497])
+- Link Github page in the footer ([#620], [#621])
 
 ### Fixed
 - Missing locale strings from fallback locale ([#576])
 - Greenlight v2 migration command: Room feature 'Room Authentication' missing ([#497])
 - Greenlight v2 migration command: Room name too long ([#497])
 - Room type unselected in room settings on changes to the room type settings ([#577], [#586])
+- Application setting 'Give local users the possibility to change their password' not saved
 
 ### Changed
 - Allow more characters for role names ([#535], [#536])
+- Renamed env option PASSWORD_SELF_RESET_ENABLED to PASSWORD_CHANGE_ALLOWED and enabled by default (PASSWORD_SELF_RESET_ENABLED deprecated) ([#506])
 
 ## [v2.2.0] - 2023-08-28
 ### Added
 - French localisation
 - Support for PostgreSQL ([#503], [#504])
 - Warning for waiting room settings ([#302], [#509])
-- Option to disable local authentication ([#505], [#506])
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
 - Bump dependencies
 - Improve performance on permission checks ([#469])
-- Renamed env option PASSWORD_SELF_RESET_ENABLED to PASSWORD_CHANGE_ALLOWED and enabled by default (PASSWORD_SELF_RESET_ENABLED deprecated) ([#506])
 
 ### Fixed
 - Network error on logout due to reload of all components
@@ -660,8 +664,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#576]: https://github.com/THM-Health/PILOS/pull/576
 [#577]: https://github.com/THM-Health/PILOS/issues/577
 [#586]: https://github.com/THM-Health/PILOS/pull/586
+[#620]: https://github.com/THM-Health/PILOS/issues/620
+[#621]: https://github.com/THM-Health/PILOS/pull/621
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.2.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -692,3 +698,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.1.0
 [v2.1.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.1.1
 [v2.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.2.0
+[v2.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.0
