@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.3.1] - 2023-10-16
+### Changed
+- Updated dependencies
+
+### Security
+- Fixed CSRF vulnerability [CVE-2023-4585](https://security.snyk.io/vuln/SNYK-JS-AXIOS-6032459) in axios 
+
 ## [v2.3.0] - 2023-10-16
 ### Added
 - Shibboleth authentication ([#20], [#497])
@@ -663,7 +670,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#620]: https://github.com/THM-Health/PILOS/issues/620
 [#621]: https://github.com/THM-Health/PILOS/pull/621
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.1...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -695,3 +702,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.1.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.1.1
 [v2.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.2.0
 [v2.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.0
+[v2.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.1
