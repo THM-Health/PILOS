@@ -27,14 +27,14 @@ export default {
       if (this.isFavorite) {
         config = { method: 'delete' };
       } else {
-        config = { method: 'put' };
+        config = { method: 'post' };
       }
       // add or delete room
       Base.call('rooms/' + this.id + '/favorites', config)
         .then(response => {
-          this.$emit('favorites_changed');
         }).catch(error => {
           Base.error(error, this);
+        }).finally(() => {
           this.$emit('favorites_changed');
         });
     }

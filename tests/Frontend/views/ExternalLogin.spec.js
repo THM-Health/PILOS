@@ -42,7 +42,7 @@ describe('ExternalLogin', () => {
 
     // Check user is redirected the home page
     expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({ name: 'rooms.own_index' });
+    expect(routerSpy).toBeCalledWith({ name: 'rooms.index' });
 
     view.destroy();
   });

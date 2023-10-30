@@ -1336,6 +1336,7 @@ describe('Room Index', () => {
     expect(view.find('em').text()).toBe('rooms.index.no_rooms_selected');
     const resetButton = view.findComponent({ ref: 'reset' });
     expect(resetButton.exists()).toBeTruthy();
+    expect(resetButton.text()).toBe('rooms.index.reset_filter');
     expect(resetButton.element.disabled).toBeFalsy();
 
     // trigger reset button

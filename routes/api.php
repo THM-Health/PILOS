@@ -41,7 +41,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
     Route::get('settings', [ApplicationController::class,'settings'])->name('application');
     Route::get('currentUser', [ApplicationController::class,'currentUser'])->name('currentUser');
-   
+
     Route::post('login/local', [LoginController::class,'login'])->name('login.local')->middleware(['enable_if_config:auth.local.enabled']);
     Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap')->middleware(['enable_if_config:ldap.enabled']);
 
@@ -64,7 +64,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('rooms', [RoomController::class,'index'])->name('rooms.index');
         Route::post('rooms', [RoomController::class,'store'])->name('rooms.store');
-        Route::put('rooms/{room}/favorites', [RoomController::class, 'addToFavorites'])->name('rooms.favorites.add');
+        Route::post('rooms/{room}/favorites', [RoomController::class, 'addToFavorites'])->name('rooms.favorites.add');
         Route::delete('rooms/{room}/favorites', [RoomController::class, 'deleteFromFavorites'])->name('rooms.favorites.delete');
         Route::put('rooms/{room}', [RoomController::class,'update'])->name('rooms.update');
         Route::delete('rooms/{room}', [RoomController::class,'destroy'])->name('rooms.destroy');

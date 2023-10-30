@@ -3,7 +3,6 @@
 return [
     'access_code'                  => 'Code d\'accès',
     'access_for_participants'      => 'Accès pour les participants',
-    'all_rooms'                    => 'Toutes les salles',
     'become_member'                => 'Devenir membre',
     'copy_access_for_participants' => 'Copier les informations d\'accès des participants dans le presse-papier',
     'create'                       => [
@@ -105,12 +104,6 @@ return [
         'use_in_next_meeting' => 'À utiliser lors de la prochaine réunion',
         'view'                => 'Voir le fichier',
     ],
-    'filter' => [
-        'apply' => 'Appliquer',
-        'title' => 'Filtrer',
-    ],
-    'find_rooms'         => 'Rechercher des salles',
-    'find_rooms_info'    => 'Liste de toutes les salles publiques sans code d\'accès',
     'first_and_lastname' => 'Prénom et nom',
     'flash'              => [
         'access_code_invalid' => 'Le code d\'accès est invalide.',
@@ -180,7 +173,6 @@ return [
             'title'   => 'Supprimer la salle',
         ],
     ],
-    'my_rooms'                  => 'Mes salles',
     'name'                      => 'Nom de la salle',
     'no_rooms_available'        => 'Aucune salle disponible',
     'no_rooms_available_search' => 'Aucune salle disponible avec cette recherche',
@@ -264,8 +256,6 @@ return [
         ],
         'title' => 'Paramètres',
     ],
-    'shared_by'    => 'Partagé par :name',
-    'shared_rooms' => 'Salles partagées avec moi',
     'start'        => 'Démarrer',
     'status'       => [
         'not_running' => 'Aucune réunion en cours',

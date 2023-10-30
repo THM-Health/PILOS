@@ -104,10 +104,6 @@ return [
         'use_in_next_meeting' => 'Im nächsten Meeting nutzen',
         'view'                => 'Datei anzeigen',
     ],
-    'filter' => [
-        'apply' => 'Anwenden',
-        'title' => 'Filter',
-    ],
     'first_and_lastname' => 'Vor- und Nachname',
     'flash'              => [
         'access_code_invalid' => 'Der Zugangscode ist ungültig.',
@@ -129,7 +125,6 @@ return [
         'show_public'       => 'Öffentliche Räume',
         'show_shared'       => 'Geteilte Räume',
         'sorting'           => [
-            'sort'            => 'Sortierung',
             'select_sorting'  => '-- Sortierung auswählen --',
             'alpha'           => 'Alphabetisch',
             'last_started'    => 'Zuletzt gestartet',
@@ -140,7 +135,6 @@ return [
             'never_started'   => ' Noch nie gestartet',
             'running_since'   => ' Meeting läuft seit :date',
             'last_ran_till'   => ' Zuletzt gelaufen bis :date',
-            'meeting_starting'=> ' Meeting startet gerade',
             'open'            => 'Öffnen',
             'details'         => 'Details',
         ],
@@ -292,11 +286,7 @@ return [
         'title' => 'Einstellungen',
     ],
     'start'        => 'Starten',
-    'status'       => [
-        'not_running' => 'Kein laufendes Meeting',
-        'running'     => 'Meeting läuft',
-    ],
-    'tokens' => [
+    'tokens'       => [
         'add'              => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete'   => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',
         'copy'             => 'Personalisierten Raumlink in Zwischenablage kopieren',

@@ -531,7 +531,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(0, 'data');
 
         //Test Room List with only favorites (user has favorites)
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
             ->assertNoContent();
 
         $this->user->refresh();
@@ -708,7 +708,7 @@ class RoomTest extends TestCase
         $roomOwn->save();
 
         //Try to add room to the favorites (guest)
-        $this->putJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
+        $this->postJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
             ->assertUnauthorized();
 
         //Try to delete room from the favorites (guest)
@@ -716,14 +716,14 @@ class RoomTest extends TestCase
             ->assertUnauthorized();
 
         //Try to add room to the favorites (logged in user)
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
             ->assertNoContent();
 
         //Check if room was added to the favorites
         $this->assertNotNull($this->user->roomFavorites()->find($roomOwn));
 
         //Try to add room again
-        $this->actingAs($this->user)->putJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.favorites.add', ['room'=>$roomOwn]))
             ->assertNoContent();
 
         //Check if room was added to the favorites

@@ -104,10 +104,6 @@ return [
         'use_in_next_meeting' => 'Use in the next meeting',
         'view'                => 'View file',
     ],
-    'filter' => [
-        'apply' => 'Apply',
-        'title' => 'Filter',
-    ],
     'first_and_lastname' => 'First- und last name',
     'flash'              => [
         'access_code_invalid' => 'The access code is invalid.',
@@ -129,7 +125,6 @@ return [
         'show_public'       => 'Public rooms',
         'show_shared'       => 'Shared rooms',
         'sorting'           => [
-            'sort'            => 'Sorting',
             'select_sorting'  => '-- Select sorting --',
             'alpha'           => 'Alphabetical',
             'last_started'    => 'Last started',
@@ -139,7 +134,6 @@ return [
             'never_started'   => ' Never started before',
             'running_since'   => ' Meeting running since :date',
             'last_ran_till'   => ' Last ran till :date',
-            'meeting_starting'=> ' Meeting is starting',
             'open'            => 'Open',
             'details'         => 'Details',
         ],
@@ -291,11 +285,7 @@ return [
         'title' => 'Settings',
     ],
     'start'        => 'Start',
-    'status'       => [
-        'not_running' => 'No running meeting',
-        'running'     => 'Meeting running',
-    ],
-    'tokens' => [
+    'tokens'       => [
         'add'              => 'Add personalized room link',
         'confirm_delete'   => 'Do you really want to delete the personalized room link for :firstname :lastname?',
         'copy'             => 'Copy personalized room link to clipboard',

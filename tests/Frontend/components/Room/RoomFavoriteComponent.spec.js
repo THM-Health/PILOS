@@ -50,7 +50,7 @@ describe('Room Favorite Component', () => {
     // trigger favorites button
     await favoritesButton.trigger('click');
     await favoritesRequest.wait();
-    expect(favoritesRequest.config.method).toEqual('put');
+    expect(favoritesRequest.config.method).toEqual('post');
 
     await favoritesRequest.respondWith({
       status: 204
@@ -116,7 +116,7 @@ describe('Room Favorite Component', () => {
     // trigger favorites button
     await favoritesButton.trigger('click');
     await favoritesRequest.wait();
-    expect(favoritesRequest.config.method).toEqual('put');
+    expect(favoritesRequest.config.method).toEqual('post');
 
     await favoritesRequest.respondWith({
       status: 500
