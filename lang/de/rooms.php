@@ -7,7 +7,7 @@ return [
     'copy_access_for_participants' => 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
     'create'                       => [
         'ok'    => 'Erstellen',
-        'title' => 'Neuen Raum erstellen',
+        'title' => 'Raum erstellen',
     ],
     'description' => [
         'cancel' => 'Abbrechen',
@@ -114,7 +114,7 @@ return [
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
-        'favorites'         => 'Favoriten',
+        'only_favorites'    => 'Nur Favoriten anzeigen',
         'filter'            => 'Filter',
         'no_favorites'      => 'Keine Räume als Favoriten markiert',
         'no_rooms_selected' => 'Keine Räume ausgewählt',
