@@ -26,6 +26,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        //get value for room pagination page size if it exists with the new name
+        $value = Setting::get('room_pagination_page_size');
+        if($value != null){
+            //delete setting with the new name and add setting with the old name and the value
+            Setting::forget('room_pagination_page_size');
+            Setting::set('own_rooms_pagination_page_size', $value);
+            Setting::save();
+        }
     }
 };

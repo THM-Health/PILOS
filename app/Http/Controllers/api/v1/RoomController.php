@@ -90,13 +90,13 @@ class RoomController extends Controller
         // eager load relationships
         $collection->with(['owner','roomType','latestMeeting']);
 
+        // count all available rooms before search
+        $additionalMeta['meta']['total_no_filter'] = $collection->count();
+
         // filter by specific room Type if not only favorites
         if ($request->has('room_type') && !$request->only_favorites) {
             $collection->where('room_type_id', $request->room_type);
         }
-
-        // count all available rooms before search
-        $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
         // rooms that can be found with the search
         if ($request->has('search') && trim($request->search) != '') {
