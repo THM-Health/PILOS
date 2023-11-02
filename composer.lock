@@ -517,16 +517,16 @@
         },
         {
             "name": "directorytree/ldaprecord",
-            "version": "v3.2.2",
+            "version": "v3.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord.git",
-                "reference": "1fa74d0cfdc88a7560476a98b10df6e24db6dd52"
+                "reference": "6f5b7f2b36a1622b8a90f35fd47593ee489a4e77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/1fa74d0cfdc88a7560476a98b10df6e24db6dd52",
-                "reference": "1fa74d0cfdc88a7560476a98b10df6e24db6dd52",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/6f5b7f2b36a1622b8a90f35fd47593ee489a4e77",
+                "reference": "6f5b7f2b36a1622b8a90f35fd47593ee489a4e77",
                 "shasum": ""
             },
             "require": {
@@ -589,20 +589,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-12T16:46:17+00:00"
+            "time": "2023-11-01T21:33:20+00:00"
         },
         {
             "name": "directorytree/ldaprecord-laravel",
-            "version": "v3.1.0",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord-Laravel.git",
-                "reference": "bd1cb181dbbb9b336bbbe3cdb835ecb54b2b2a2d"
+                "reference": "bd7d2e0277688e8a37c5fd9ec22df54e007bb581"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/bd1cb181dbbb9b336bbbe3cdb835ecb54b2b2a2d",
-                "reference": "bd1cb181dbbb9b336bbbe3cdb835ecb54b2b2a2d",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/bd7d2e0277688e8a37c5fd9ec22df54e007bb581",
+                "reference": "bd7d2e0277688e8a37c5fd9ec22df54e007bb581",
                 "shasum": ""
             },
             "require": {
@@ -648,7 +648,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/LdapRecord-Laravel/issues",
-                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.1.0"
+                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.1.1"
             },
             "funding": [
                 {
@@ -656,7 +656,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-26T13:37:00+00:00"
+            "time": "2023-11-01T21:50:36+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -2022,16 +2022,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v10.30.0",
+            "version": "v10.30.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "3dd85d9dbea82b937f8eaf344b50d613c5d1127a"
+                "reference": "7a2da50258c4d0f693b738d3f3c69b2693aea6c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/3dd85d9dbea82b937f8eaf344b50d613c5d1127a",
-                "reference": "3dd85d9dbea82b937f8eaf344b50d613c5d1127a",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/7a2da50258c4d0f693b738d3f3c69b2693aea6c1",
+                "reference": "7a2da50258c4d0f693b738d3f3c69b2693aea6c1",
                 "shasum": ""
             },
             "require": {
@@ -2220,7 +2220,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2023-10-31T13:19:45+00:00"
+            "time": "2023-11-01T13:52:17+00:00"
         },
         {
             "name": "laravel/prompts",
