@@ -115,13 +115,13 @@
 
               <b-input-group >
                 <template #prepend>
-                  <b-input-group-text class="border-0 pl-0"><i class="fa-solid fa-link"></i></b-input-group-text>
+                  <b-input-group-text class="border-0 pl-0"><i class="fa-solid fa-link" :title="$t('rooms.invitation.link')" v-b-tooltip.hover ></i></b-input-group-text>
                 </template>
                 <b-form-input plaintext :value="getSetting('base_url') + $router.resolve({ name: 'rooms.view', params: { id: room.id } }).route.fullPath"></b-form-input>
               </b-input-group>
               <b-input-group v-if="room.access_code">
                 <template #prepend>
-                  <b-input-group-text class="border-0 pl-0"><i class="fa-solid fa-key"></i></b-input-group-text>
+                  <b-input-group-text class="border-0 pl-0"><i class="fa-solid fa-key" :title="$t('rooms.invitation.code')" v-b-tooltip.hover></i></b-input-group-text>
                 </template>
                 <b-form-input plaintext :value="String(room.access_code).match(/.{1,3}/g).join('-')"></b-form-input>
               </b-input-group>
@@ -760,14 +760,10 @@ export default {
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.getSetting('name') }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
+      message += this.$t('rooms.invitation.link') + ': ' + (this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath);
       // If room has access code, include access code in the message
       if (this.room.access_code) {
-        message += '\n' + this.$t('rooms.invitation.code', {
-          code: String(this.room.access_code)
-            .match(/.{1,3}/g)
-            .join('-')
-        });
+        message += '\n' + this.$t('rooms.invitation.code') + ': ' + String(this.room.access_code).match(/.{1,3}/g).join('-');
       }
       return message;
     },

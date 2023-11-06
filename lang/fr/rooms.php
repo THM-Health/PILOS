@@ -122,8 +122,8 @@ return [
     ],
     'invalid_personal_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
     'invitation'            => [
-        'code' => 'Code d\'accès: :code',
-        'link' => 'Lien: :link',
+        'code' => 'Code d\'accès',
+        'link' => 'Lien',
         'room' => 'Rejoindre ":roomname" avec :platform',
     ],
     'join'            => 'Rejoindre',
