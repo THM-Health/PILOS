@@ -142,8 +142,8 @@ return [
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [
-        'code' => 'Zugangscode: :code',
-        'link' => 'Link: :link',
+        'code' => 'Zugangscode',
+        'link' => 'Link',
         'room' => 'An ":roomname" mit :platform teilnehmen',
     ],
     'join'            => 'Teilnehmen',

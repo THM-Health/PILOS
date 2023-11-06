@@ -97,7 +97,7 @@ describe('TabsComponent', () => {
     expect(fileComponent.props('token')).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
   });
 
-  it('Call reload method if reload function is called', async () => {
+  it('Call reload method of sub-components if reload function is called', async () => {
     const fileComponentReloadSpy = vi.fn();
     const fileComponent = {
       name: 'test-component',
@@ -125,7 +125,7 @@ describe('TabsComponent', () => {
       }
     });
 
-    view.findComponent({ ref: 'publicFileList' }).vm.reload();
+    view.vm.reload();
     expect(fileComponentReloadSpy).toHaveBeenCalled();
   });
 

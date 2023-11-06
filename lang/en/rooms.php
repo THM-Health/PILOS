@@ -142,8 +142,8 @@ return [
     ],
     'invalid_personal_link' => 'This personalised room link is invalid.',
     'invitation'            => [
-        'code' => 'Access code: :code',
-        'link' => 'Link: :link',
+        'code' => 'Access code',
+        'link' => 'Link',
         'room' => 'Join ":roomname" with :platform',
     ],
     'join'            => 'Join',
