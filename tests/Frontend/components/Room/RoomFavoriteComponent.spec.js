@@ -43,7 +43,7 @@ describe('Room Favorite Component', () => {
     // check if button is shown
     const favoritesButton = view.findComponent(BButton);
     expect(favoritesButton.html()).toContain('fa-star');
-    expect(favoritesButton.attributes().class).toContain('light');
+    expect(favoritesButton.attributes().class).toContain('secondary');
 
     let favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
 
@@ -66,7 +66,7 @@ describe('Room Favorite Component', () => {
     await view.vm.$nextTick();
 
     // check if button changed
-    expect(favoritesButton.attributes().class).toContain('dark');
+    expect(favoritesButton.attributes().class).toContain('primary');
 
     // trigger favorites button again
     favoritesRequest = mockAxios.request('api/v1/rooms/abc-def-123/favorites');
@@ -84,7 +84,7 @@ describe('Room Favorite Component', () => {
     expect(view.emitted().favorites_changed).toBeTruthy();
     view.setProps({ isFavorite: false });
     await view.vm.$nextTick();
-    expect(favoritesButton.attributes().class).toContain('light');
+    expect(favoritesButton.attributes().class).toContain('secondary');
 
     view.destroy();
   });

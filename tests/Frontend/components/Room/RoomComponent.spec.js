@@ -70,7 +70,7 @@ describe('Room Component', () => {
     expect(view.findAllComponents(BButton).length).toBe(1);
     expect(view.findAllComponents(BButton).at(0).html()).toContain('fa-star');
     expect(view.findAllComponents(BButton).at(0).element.disabled).toBeFalsy();
-    expect(view.findAllComponents(BButton).at(0).attributes().class).toContain('light');
+    expect(view.findAllComponents(BButton).at(0).attributes().class).toContain('secondary');
 
     // running room
     await view.setProps({ meeting: { start: '2023-08-21 08:18:28:00', end: null } });
@@ -187,7 +187,7 @@ describe('Room Component', () => {
     expect(shortDescModal.getComponent(BBadge).text()).toEqual('Meeting');
     expect(shortDescModal.get('p').text()).toEqual('short description for room');
     expect(shortDescModal.findAllComponents(BButton).length).toBe(3);
-    expect(shortDescModal.findAllComponents(BButton).at(0).attributes().class).toContain('light');
+    expect(shortDescModal.findAllComponents(BButton).at(0).attributes().class).toContain('secondary');
     expect(shortDescModal.findAllComponents(BButton).at(1).text()).toEqual('app.close');
     expect(shortDescModal.findAllComponents(BButton).at(2).text()).toEqual('rooms.index.room_component.open');
 
