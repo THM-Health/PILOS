@@ -13,9 +13,10 @@
         </b-col>
       </b-row>
       <hr>
-<!--  search, sorting, favorite and option to show filter-->
+<!--  search, sorting, favorite-->
       <b-row >
         <b-col md="4">
+          <!--search-->
           <b-input-group class="mb-2">
             <b-form-input @change="loadRooms(1)" :disabled="loadingRooms" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
             <b-input-group-append>
@@ -24,6 +25,7 @@
           </b-input-group>
         </b-col>
         <b-col md="8" class="d-flex justify-content-end flex-column-reverse flex-md-row ">
+          <!--dropdown for sorting type (on small devices only shown, when filter menu is open)-->
           <b-dropdown
             :disabled="loadingRooms"
             variant="secondary"
@@ -46,6 +48,7 @@
                 </div>
               </div>
             </template>
+
             <b-dropdown-item disabled>{{ $t('rooms.index.sorting.select_sorting') }} </b-dropdown-item>
             <b-dropdown-item @click="changeSortingOption('last_started')"> {{ $t('rooms.index.sorting.last_started') }}</b-dropdown-item>
             <b-dropdown-item @click="changeSortingOption('alpha')"> {{ $t('rooms.index.sorting.alpha') }} </b-dropdown-item>
@@ -53,6 +56,7 @@
           </b-dropdown>
 
           <div class="d-flex justify-content-start mb-2">
+            <!--button to open filter menu on small devices-->
             <b-button
               class="d-block d-md-none"
               @click="toggleMobileMenu=!toggleMobileMenu"
@@ -60,24 +64,24 @@
             >
               <small class="fa-solid fa-filter"></small> {{ $t('rooms.index.filter') }}
             </b-button>
-            <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);" :variant="onlyShowFavorites?'primary':'secondary'" :disabled="showFilterOptions||loadingRooms" class="ml-1">
+
+            <!--only favorites button-->
+            <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);" :variant="onlyShowFavorites?'primary':'secondary'" :disabled="loadingRooms" class="ml-1">
               <small class="fa-solid fa-star"></small> <span>{{ $t('rooms.index.only_favorites') }}</span>
             </b-button>
           </div>
         </b-col>
-
       </b-row>
 
-<!--  filter options-->
+      <!--filter checkboxes (on small devices only shown, when filter menu is open)-->
       <b-row class="mb-2" :class="toggleMobileMenu?'':'d-none d-md-flex'">
         <b-col md="9" class="d-flex align-items-center">
-          <b-form-group class="mb-2 mt-2" :disabled="loadingRooms">
+          <b-form-group class="mb-2 mt-2" :disabled="loadingRooms || onlyShowFavorites">
             <b-form-checkbox
               inline
               switch
               @change="toggleCheckbox"
               v-model="filter.own"
-              :disabled="onlyShowFavorites"
             >
               {{ $t('rooms.index.show_own') }}
             </b-form-checkbox>
@@ -87,7 +91,6 @@
               switch
               @change="toggleCheckbox"
               v-model="filter.shared"
-              :disabled="onlyShowFavorites"
             >
               {{ $t('rooms.index.show_shared') }}
             </b-form-checkbox>
@@ -97,7 +100,6 @@
               switch
               v-model="filter.public"
               @change="toggleCheckbox"
-              :disabled="onlyShowFavorites"
             >
               {{ $t('rooms.index.show_public') }}
             </b-form-checkbox>
@@ -108,13 +110,13 @@
               switch
               @change="toggleCheckboxAll"
               v-model="filter.all"
-              :disabled="onlyShowFavorites"
             >
               {{ $t('rooms.index.show_all') }}
             </b-form-checkbox>
           </b-form-group>
         </b-col>
         <b-col md="3" class="h-100">
+          <!-- room type select (on small devices only shown, when filter menu is open)-->
           <b-input-group >
             <b-input-group-prepend class="flex-grow-1" style="width: 1%" v-if="roomTypesLoadingError" >
               <b-alert class="mb-0 w-100" show variant="danger">{{ $t('rooms.room_types.loading_error') }}</b-alert>
@@ -125,7 +127,7 @@
               <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
             </b-form-select>
             <b-input-group-append>
-              <!-- Reload the room types -->
+              <!-- reload the room types -->
               <b-button
                 @click="loadRoomTypes"
                 :disabled="roomTypesBusy||onlyShowFavorites"
@@ -140,7 +142,7 @@
         </b-col>
       </b-row>
 
-<!--  rooms-->
+      <!--rooms overlay-->
       <b-overlay :show="loadingRooms || loadingRoomsError" v-if="!showNoFilterMessage" no-center>
         <template #overlay>
           <div class="text-center mt-5" >
@@ -164,11 +166,12 @@
           </b-row>
         </div>
 
+        <!--rooms and pagination-->
         <div v-if="rooms">
           <div v-if="!loadingRooms && !loadingRoomsError" class="text-center mt-3">
             <em v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{$t('rooms.index.no_favorites')}} </em>
             <em v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
-            <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
+            <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</em>
           </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
@@ -361,7 +364,6 @@ export default {
         public: false,
         all: false
       },
-      showFilterOptions: false,
       showNoFilterMessage: false,
       onlyShowFavorites: false,
       selectedRoomType: null,

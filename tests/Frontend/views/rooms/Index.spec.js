@@ -141,17 +141,20 @@ describe('Room Index', () => {
     expect(view.vm.$data.loadingRooms).toBeTruthy();
     expect(view.vm.$data.roomTypesBusy).toBeTruthy();
     expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeTruthy();
+    // search
     expect(view.getComponent({ ref: 'search' }).element.disabled).toBeTruthy();
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeTruthy();
+    // dropdown for sorting type
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeTruthy();
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
-    expect(view.findComponent(BFormGroup).exists()).toBeFalsy();
-    expect(view.findComponent(BFormSelect).exists()).toBeFalsy();
-    await view.findAllComponents(BButton).at(4).trigger('click');
+    // filter button on small devices
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+    // filter checkboxes
     expect(view.findComponent(BFormGroup).exists()).toBeTruthy();
-    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
     expect(view.findComponent(BFormGroup).element.disabled).toBeTruthy();
+    // room type select
+    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
     expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
 
     // respond with example data to room and roomType request
@@ -164,12 +167,18 @@ describe('Room Index', () => {
     expect(view.vm.$data.loadingRooms).toBeFalsy();
     expect(view.vm.$data.roomTypesBusy).toBeTruthy();
     expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
+    // search
     expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    // dropdown for sorting type
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
+    // filter button on small devices
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    // filter checkboxes
     expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select
     expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
 
     await roomTypeRequest.respondWith({
@@ -179,8 +188,6 @@ describe('Room Index', () => {
 
     expect(view.vm.$data.roomTypesBusy).toBeFalsy();
     expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
-    await view.findAllComponents(BButton).at(4).trigger('click');
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
 
     await mockAxios.wait();
     await view.vm.$nextTick();
@@ -562,7 +569,7 @@ describe('Room Index', () => {
     });
 
     // check if message shows user that the user has rooms, but none that match the search query
-    expect(view.find('em').text()).toBe('rooms.no_rooms_available_search');
+    expect(view.find('em').text()).toBe('rooms.no_rooms_found');
 
     // check empty list message for user rooms
     searchField = view.findComponent({ ref: 'search' });
@@ -575,7 +582,7 @@ describe('Room Index', () => {
 
     expect(roomRequest.config.params.search).toBe('test2');
 
-    // respond (no rooms available)
+    // respond no rooms available
     await roomRequest.respondWith({
       status: 200,
       data: {
@@ -895,27 +902,7 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // find filter button and check if it is shown correct
-    const filterButton = view.findAllComponents(BButton).at(4);
-    expect(filterButton.text()).toContain('rooms.index.filter');
-    expect(filterButton.html()).toContain('fa-chevron-down');
-    expect(filterButton.attributes().class).toContain('btn-secondary');
-
-    // make sure that the favorites button is not disabled
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
-
-    // make sure that filter options are hidden
-    expect(view.findAllComponents(BFormCheckbox).length).toBe(0);
-    expect(view.findAllComponents(BFormSelect).length).toBe(0);
-
-    // trigger button and check if it is shown correct
-    await filterButton.trigger('click');
-    expect(filterButton.html()).toContain('fa-chevron-up');
-    expect(filterButton.attributes().class).toContain('btn-primary');
-
-    // make sure that the favorites button is disabled
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
-
+    // find filter checkboxes
     const checkboxes = view.findAllComponents(BFormCheckbox);
     expect(checkboxes.length).toBe(3);
 
@@ -1037,24 +1024,6 @@ describe('Room Index', () => {
     // make sure that the page was reset
     expect(roomRequest.config.params.page).toBe(1);
 
-    await roomRequest.respondWith({
-      status: 200,
-      data: exampleRoomResponse
-    });
-
-    // trigger button and check if it is shown correct
-    await filterButton.trigger('click');
-    expect(filterButton.text()).toContain('rooms.index.filter');
-    expect(filterButton.html()).toContain('fa-chevron-down');
-    expect(filterButton.attributes().class).toContain('btn-secondary');
-
-    // make sure that filter options are hidden
-    expect(view.findAllComponents(BFormCheckbox).length).toBe(0);
-    expect(view.findAllComponents(BFormSelect).length).toBe(0);
-
-    // make sure that the favorites button is not disabled
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
-
     view.destroy();
   });
 
@@ -1086,10 +1055,6 @@ describe('Room Index', () => {
 
     await mockAxios.wait();
     await view.vm.$nextTick();
-
-    // find filter button and trigger it to open filter options
-    const filterButton = view.findAllComponents(BButton).at(4);
-    await filterButton.trigger('click');
 
     const checkboxes = view.findAllComponents(BFormCheckbox);
     expect(checkboxes.length).toBe(4);
@@ -1301,10 +1266,7 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // find filter button and trigger it to open filter options
-    const filterButton = view.findAllComponents(BButton).at(4);
-    await filterButton.trigger('click');
-
+    // find filter checkboxes
     const checkboxes = view.findAllComponents(BFormCheckbox);
     expect(checkboxes.length).toBe(3);
 
@@ -1384,21 +1346,7 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // find filter button and check if it is shown correct
-    const filterButton = view.findAllComponents(BButton).at(4);
-    expect(filterButton.text()).toContain('rooms.index.filter');
-    expect(filterButton.html()).toContain('fa-chevron-down');
-    expect(filterButton.attributes().class).toContain('btn-secondary');
-
-    // make sure that filter options are hidden
-    expect(view.findAllComponents(BFormCheckbox).length).toBe(0);
-    expect(view.findAllComponents(BFormSelect).length).toBe(0);
-
-    // trigger button and check if it is shown correct
-    await filterButton.trigger('click');
-    expect(filterButton.html()).toContain('fa-chevron-up');
-    expect(filterButton.attributes().class).toContain('btn-primary');
-
+    // find room type select and check if it is shown correctly
     const select = view.findComponent(BFormSelect);
     expect(select.element.value).toBe('');
     const selectOptions = select.findAllComponents(BFormSelectOption);
@@ -1522,6 +1470,57 @@ describe('Room Index', () => {
     // make sure that the page was reset
     expect(roomRequest.config.params.page).toBe(1);
 
+    // respond no rooms found for this room type
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if message shows user that the user has rooms, but none that match the search query
+    expect(view.find('em').text()).toBe('rooms.no_rooms_found');
+
+    // change select option again
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await select.setValue('2');
+    await roomRequest.wait;
+
+    expect(roomRequest.config.params.room_type).toBe(2);
+    expect(select.element.value).toBe('2');
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond no rooms available
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 0,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if message shows user that there are no rooms available
+    expect(view.find('em').text()).toBe('rooms.no_rooms_available');
+
     view.destroy();
   });
 
@@ -1550,11 +1549,15 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // find favorites button and check if it is shown correct
-    const favoritesButton = view.findAllComponents(BButton).at(3);
+    const favoritesButton = view.findAllComponents(BButton).at(4);
     expect(favoritesButton.html()).toContain('fa-star');
     expect(favoritesButton.element.disabled).toBeFalsy();
-    // check if filter button is not disabled
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    // check if filter options are not disabled
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select and button to reload room types
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton).element.disabled).toBeFalsy();
 
     // trigger favorites button
     let roomRequest = mockAxios.request('/api/v1/rooms');
@@ -1599,6 +1602,13 @@ describe('Room Index', () => {
         }
       }
     });
+
+    // check if filter options are disabled
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeTruthy();
+    // room type select and button to reload room types
+    expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
+    expect(view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton).element.disabled).toBeTruthy();
 
     // find pagination
     const pagination = view.findComponent(BPagination);
@@ -1648,9 +1658,6 @@ describe('Room Index', () => {
       }
     });
 
-    // check if filter button is disabled
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
-
     // trigger favorites button again
     roomRequest = mockAxios.request('/api/v1/rooms');
     favoritesButton.trigger('click');
@@ -1665,8 +1672,12 @@ describe('Room Index', () => {
       data: exampleRoomResponse
     });
 
-    // check if filter button is not disabled
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    // check if filter options are disabled
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select and button to reload room types
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton).element.disabled).toBeFalsy();
 
     // trigger favorites button again and respond without rooms
     roomRequest = mockAxios.request('/api/v1/rooms');
@@ -1850,7 +1861,7 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // find favorites button and check if it is shown correct
-    const favoritesButton = view.findAllComponents(BButton).at(3);
+    const favoritesButton = view.findAllComponents(BButton).at(4);
     expect(favoritesButton.html()).toContain('fa-star');
     expect(favoritesButton.element.disabled).toBeFalsy();
 
@@ -2125,16 +2136,20 @@ describe('Room Index', () => {
     // check if room skeleton components are shown
     expect(view.findAllComponents(RoomSkeletonComponent).length).toBe(3);
 
-    // check if buttons are disabled
+    // check if buttons are not disabled
+    // search
     expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    // dropdown for sorting type
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    // filter button on small devices
     expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
-    await view.findAllComponents(BButton).at(4).trigger('click');
+    // filter checkboxes
     expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select
     expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
-    await view.findAllComponents(BButton).at(4).trigger('click');
 
     // trigger reload button
     let roomRequest = mockAxios.request('/api/v1/rooms');
@@ -2192,16 +2207,20 @@ describe('Room Index', () => {
     expect(reloadButton.exists()).toBeFalsy();
     expect(view.findAllComponents(RoomComponent).length).toBe(1);
 
-    // check if buttons are disabled
+    // check if buttons are not disabled
+    // search
     expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    // dropdown for sorting type
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    // filter button on small devices
     expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
     expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
-    await view.findAllComponents(BButton).at(4).trigger('click');
+    // filter checkboxes
     expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select
     expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
-    await view.findAllComponents(BButton).at(4).trigger('click');
 
     // find pagination
     const pagination = view.findComponent(BPagination);
@@ -2271,7 +2290,6 @@ describe('Room Index', () => {
     expect(spy).toBeCalledTimes(1);
 
     // test if input group is shown correctly
-    await view.findAllComponents(BButton).at(4).trigger('click');
     let inputGroupPrepend = view.findComponent(BInputGroupPrepend);
     expect(inputGroupPrepend.exists()).toBeTruthy();
     expect(inputGroupPrepend.findComponent(BAlert).text()).toBe('rooms.room_types.loading_error');

@@ -115,6 +115,7 @@ return [
     ],
     'index' => [
         'only_favorites'    => 'Nur Favoriten anzeigen',
+        'favorites'         => 'Favoriten',
         'filter'            => 'Filter',
         'no_favorites'      => 'Keine Räume als Favoriten markiert',
         'no_rooms_selected' => 'Keine Räume ausgewählt',
@@ -202,7 +203,7 @@ return [
     ],
     'name'                      => 'Raumname',
     'no_rooms_available'        => 'Keine Räume vorhanden',
-    'no_rooms_available_search' => 'Keine Räume für diesen Suchbegriff gefunden',
+    'no_rooms_found'            => 'Keine Räume gefunden',
     'not_running'               => 'Der Raum ist noch nicht gestartet.',
     'notification'              => [
         'body'            => 'Der Raum wurde um :time gestartet',

@@ -611,7 +611,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['id'=>$roomAll1->id, 'name'=>$roomAll1->name])
             ->assertJsonFragment(['id'=>$roomAll2->id, 'name'=>$roomAll2->name])
-            ->assertJsonPath('meta.total_no_filter', 2)
+            ->assertJsonPath('meta.total_no_filter', 5)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
     }

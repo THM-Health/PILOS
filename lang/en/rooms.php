@@ -7,7 +7,7 @@ return [
     'copy_access_for_participants' => 'Copy access for participants to clipboard',
     'create'                       => [
         'ok'    => 'Create',
-        'title' => 'Create new room',
+        'title' => 'Create room',
     ],
     'description' => [
         'cancel' => 'Cancel',
@@ -114,6 +114,7 @@ return [
         'token_invalid'       => 'The personalised room link is no longer valid.',
     ],
     'index' => [
+        'only_favorites'    => 'Only show favorites',
         'favorites'         => 'Favorites',
         'filter'            => 'Filter',
         'no_favorites'      => 'No rooms marked as favorites',
@@ -201,7 +202,7 @@ return [
     ],
     'name'                      => 'Room name',
     'no_rooms_available'        => 'No rooms available',
-    'no_rooms_available_search' => 'No rooms found for this search query',
+    'no_rooms_found'            => 'No rooms found',
     'not_running'               => 'This room is not started yet.',
     'notification'              => [
         'body'            => 'The room was started at :time',
