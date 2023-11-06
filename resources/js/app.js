@@ -5,7 +5,6 @@ import App from './views/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
 import Toast from './mixins/Toast';
-import VueClipboard from 'vue-clipboard2';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
 import axios from 'axios';
@@ -20,7 +19,6 @@ window.axios = axios;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-Vue.use(VueClipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
 

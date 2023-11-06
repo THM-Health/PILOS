@@ -8,7 +8,7 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
-import VueClipboard from 'vue-clipboard2';
+
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
@@ -18,7 +18,6 @@ import { createTestingPinia } from '@pinia/testing';
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
