@@ -6,7 +6,7 @@ import BootstrapVue, {
 
 import { vi } from 'vitest';
 import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
-import VueClipboard from 'vue-clipboard2';
+
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
@@ -31,7 +31,6 @@ const i18nDateMock = (date, format) => {
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 

@@ -63,7 +63,6 @@
         "pinia": "^2.1.7",
         "ua-parser-js": "^1.0.37",
         "vue-chartjs": "^5.2.0",
-        "vue-clipboard2": "^0.3.3",
         "vue-cropperjs": "^4.2.0",
         "vue-frag": "^1.4.0",
         "vue-i18n": "^8.26.8",

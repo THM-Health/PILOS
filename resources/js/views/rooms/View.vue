@@ -97,19 +97,7 @@
         <b-row>
           <!-- Show invitation text/link to moderators and room owners -->
           <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="viewInvitation">
-            <div class="jumbotron p-4" >
-              <h5>{{ $t('rooms.access_for_participants') }}</h5>
-              <b-button
-                class="float-right"
-                v-clipboard:copy="invitationText"
-                v-b-tooltip.hover
-                :title="$t('rooms.copy_access_for_participants')"
-                variant="light"
-              >
-                <i class="fa-solid fa-copy"></i>
-              </b-button>
-              <span style="white-space: pre;">{{ invitationText }}</span>
-            </div>
+            <room-invitation ref="room-invitation" :name="room.name" :id="room.id" :accessCode="room.access_code" ></room-invitation>
           </b-col>
           <b-col order="1" order-md="2" col cols="12" :md="viewInvitation ? 4 : 12" :lg="viewInvitation ? 6 : 12">
             <b-row>
@@ -255,6 +243,7 @@ import BrowserNotification from '../../components/Room/BrowserNotification.vue';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
+import RoomInvitation from '../../components/Room/RoomInvitation.vue';
 
 export default {
   directives: {
@@ -269,6 +258,7 @@ export default {
   },
 
   components: {
+    RoomInvitation,
     BrowserNotification,
     DeleteRoomComponent,
     TabsComponent,
@@ -740,24 +730,7 @@ export default {
     ...mapState(useSettingsStore, ['getSetting']),
 
     /**
-     * Build invitation message
-     */
-    invitationText: function () {
-      let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.getSetting('name') }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
-      // If room has access code, include access code in the message
-      if (this.room.access_code) {
-        message += '\n' + this.$t('rooms.invitation.code', {
-          code: String(this.room.access_code)
-            .match(/.{1,3}/g)
-            .join('-')
-        });
-      }
-      return message;
-    },
-
-    /**
-     * Enable or disable the edition of roles and attributes depending on the permissions of the current user.
+     * Show invitation section only to users with the required permission
      */
     viewInvitation () {
       return PermissionService.can('viewInvitation', this.room);
