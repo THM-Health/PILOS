@@ -11,7 +11,7 @@ import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
-localVue.use(BootstrapVue)
+localVue.use(BootstrapVue);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };

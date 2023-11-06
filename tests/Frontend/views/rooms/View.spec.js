@@ -182,16 +182,6 @@ describe('Room', () => {
     const router = new VueRouter();
     vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    const tabsComponentReloadSpy = vi.fn();
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: tabsComponentReloadSpy
-      }
-    };
-
     const request = mockAxios.request('/api/v1/rooms/abc-def-123');
 
     const view = mount(RoomView, {
