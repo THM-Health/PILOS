@@ -4,7 +4,7 @@ import BootstrapVue, {
   BTbody
 } from 'bootstrap-vue';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
-import VueClipboard from 'vue-clipboard2';
+
 import Base from '../../../../resources/js/api/base';
 import { waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
@@ -16,7 +16,6 @@ const i18nDateMock = (date, format) => {
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };

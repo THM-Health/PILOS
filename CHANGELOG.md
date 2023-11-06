@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Layout issue in access for participants ([#653], [#654])
 
+### Removed
+- v-clipboard dependency ([#654])
+
 ## [v2.3.1] - 2023-10-16
 ### Changed
 - Updated dependencies

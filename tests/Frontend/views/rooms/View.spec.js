@@ -4,7 +4,6 @@ import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminTabsComponent from '../../../../resources/js/components/Room/AdminTabsComponent.vue';
 import TabsComponent from '../../../../resources/js/components/Room/TabsComponent.vue';
-import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import PermissionService from '../../../../resources/js/services/PermissionService';
@@ -21,7 +20,6 @@ import { useSettingsStore } from '../../../../resources/js/stores/settings';
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
@@ -377,6 +375,9 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
+      stubs: {
+        'room-invitation': true
+      },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
@@ -408,7 +409,9 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('Max Doe');
-    expect(view.vm.invitationText).not.toContain('rooms.invitation.code');
+
+    const invitationComponent = view.findComponent({ ref: 'room-invitation' });
+    expect(invitationComponent.exists()).toBeFalsy();
 
     const joinButton = view.findComponent({ ref: 'joinMeeting' });
     const nameInput = view.findComponent({ ref: 'guestName' });
@@ -429,6 +432,9 @@ describe('Room', () => {
       localVue,
       mocks: {
         $t: (key) => key
+      },
+      stubs: {
+        'room-invitation': true
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
@@ -459,7 +465,12 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('Max Doe');
-    expect(view.vm.invitationText).toContain('rooms.invitation.code');
+
+    const invitationComponent = view.findComponent({ ref: 'room-invitation' });
+    expect(invitationComponent.exists()).toBeTruthy();
+    expect(invitationComponent.props('name')).toBe('Meeting One');
+    expect(invitationComponent.props('id')).toBe('cba-fed-123');
+    expect(invitationComponent.props('accessCode')).toBe(123456789);
 
     const adminComponent = view.findComponent(AdminTabsComponent);
     expect(adminComponent.exists()).toBeFalsy();
@@ -613,7 +624,8 @@ describe('Room', () => {
         $t: (key) => key
       },
       stubs: {
-        'admin-tabs-component': true
+        'admin-tabs-component': true,
+        'room-invitation': true
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
@@ -645,7 +657,12 @@ describe('Room', () => {
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('John Doe');
 
-    expect(view.vm.invitationText).toContain('rooms.invitation.code');
+    const invitationComponent = view.findComponent({ ref: 'room-invitation' });
+    expect(invitationComponent.exists()).toBeTruthy();
+    expect(invitationComponent.props('name')).toBe('Meeting One');
+    expect(invitationComponent.props('id')).toBe('gs4-6fb-kk8');
+    expect(invitationComponent.props('accessCode')).toBe(123456789);
+
     const adminComponent = view.findComponent(AdminTabsComponent);
 
     expect(adminComponent.exists()).toBeTruthy();
@@ -665,7 +682,8 @@ describe('Room', () => {
         $t: (key) => key
       },
       stubs: {
-        'admin-tabs-component': true
+        'admin-tabs-component': true,
+        'room-invitation': true
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
@@ -685,7 +703,7 @@ describe('Room', () => {
             is_moderator: false,
             can_start: true,
             running: false,
-            access_code: 123456789,
+            access_code: null,
             current_user: exampleUser
           },
           room_id: 'gs4-6fb-kk8'
@@ -697,7 +715,12 @@ describe('Room', () => {
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('John Doe');
 
-    expect(view.vm.invitationText).toContain('rooms.invitation.code');
+    const invitationComponent = view.findComponent({ ref: 'room-invitation' });
+    expect(invitationComponent.exists()).toBeTruthy();
+    expect(invitationComponent.props('name')).toBe('Meeting One');
+    expect(invitationComponent.props('id')).toBe('gs4-6fb-kk8');
+    expect(invitationComponent.props('accessCode')).toBeNull();
+
     const adminComponent = view.findComponent(AdminTabsComponent);
     expect(adminComponent.exists()).toBeTruthy();
 
