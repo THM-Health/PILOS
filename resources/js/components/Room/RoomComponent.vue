@@ -79,9 +79,8 @@
           </div>
           <div class="room-info-text">
             <span v-if="meeting==null"> {{$t('rooms.index.room_component.never_started')}}</span>
-            <span v-else-if="meeting.start!=null && meeting.end!=null">{{$t('rooms.index.room_component.last_ran_till', {date:$d(new Date(meeting.end),'datetimeShort')})}}</span>
+            <span v-else-if="meeting.start!=null">{{$t('rooms.index.room_component.last_ran_till', {date:$d(new Date(meeting.end),'datetimeShort')})}}</span>
             <span v-else-if="meeting.end==null"> {{$t('rooms.index.room_component.running_since', {date:$d(new Date(meeting.start),'datetimeShort')})}}</span>
-            <span v-else> {{$t('rooms.index.room_component.meeting_starting')}}</span>
           </div>
         </div>
 

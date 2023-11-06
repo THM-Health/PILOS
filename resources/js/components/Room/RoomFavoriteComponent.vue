@@ -1,7 +1,12 @@
 <template>
   <b-button
     @click.stop="toggleFavorite"
-    :variant="isFavorite ? 'dark' : 'light'"
+    :variant="isFavorite ? 'primary' : 'secondary'"
+    :title="isFavorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
+    :aria-label="isFavorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
+    v-b-tooltip.hover
+    v-tooltip-hide-click
+
     :size="size"
     class="fa-solid fa-star"
   >

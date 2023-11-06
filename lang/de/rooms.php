@@ -84,6 +84,10 @@ return [
         'title'   => 'Sind Sie sicher, dass Sie die Mitgliedschaft beenden wollen?',
         'yes'     => 'Ja, Mitgliedschaft beenden',
     ],
+    'favorites' => [
+        'add' => 'Zu Favoriten hinzufügen',
+        'remove' => 'Aus Favoriten entfernen'
+    ],
     'files' => [
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
         'default'        => 'Standard',
@@ -115,7 +119,6 @@ return [
     ],
     'index' => [
         'only_favorites'    => 'Nur Favoriten anzeigen',
-        'favorites'         => 'Favoriten',
         'filter'            => 'Filter',
         'no_favorites'      => 'Keine Räume als Favoriten markiert',
         'no_rooms_selected' => 'Keine Räume ausgewählt',

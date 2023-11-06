@@ -84,6 +84,10 @@ return [
         'title'   => 'Are you sure you want to end the membership?',
         'yes'     => 'Yes, end membership',
     ],
+    'favorites' => [
+        'add' => 'Add to favourites',
+        'remove' => 'Remove from favourites'
+    ],
     'files' => [
         'confirm_delete' => 'Do you want to delete this file :filename?',
         'default'        => 'Default',

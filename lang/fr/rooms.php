@@ -175,7 +175,6 @@ return [
     ],
     'name'                      => 'Nom de la salle',
     'no_rooms_available'        => 'Aucune salle disponible',
-    'no_rooms_available_search' => 'Aucune salle disponible avec cette recherche',
     'not_running'               => 'Cette salle n\'est pas encore ouverte.',
     'notification'              => [
         'body'            => 'Cette salle a été ouverte à :time',
@@ -257,10 +256,6 @@ return [
         'title' => 'Paramètres',
     ],
     'start'        => 'Démarrer',
-    'status'       => [
-        'not_running' => 'Aucune réunion en cours',
-        'running'     => 'Réunions en cours',
-    ],
     'tokens' => [
         'add'              => 'Ajouter un lien de salle personnalisé',
         'confirm_delete'   => 'Voulez-vous vraiment supprimer le lien de salle personnalisé pour :firstname :lastname?',
