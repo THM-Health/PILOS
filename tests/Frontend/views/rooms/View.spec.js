@@ -202,7 +202,7 @@ describe('Room', () => {
         $t: (key) => key
       },
       stubs: {
-        'tabs-component': tabsComponent
+        'tabs-component': true
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
@@ -2286,13 +2286,23 @@ describe('Room', () => {
   });
 
   it('logged in status change', async () => {
+    const tabsComponent = {
+      name: 'TabsComponent',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: vi.fn()
+      }
+    };
+
     const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       stubs: {
-        'admin-tabs-component': true
+        'admin-tabs-component': true,
+        'tabs-component': tabsComponent
       },
       data () {
         return {
@@ -2320,8 +2330,10 @@ describe('Room', () => {
       attachTo: createContainer()
     });
 
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
 
     let reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
 
@@ -2353,7 +2365,8 @@ describe('Room', () => {
     const authStore = useAuthStore();
 
     await view.vm.$nextTick();
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeTruthy();
 
     expect(authStore.isAuthenticated).toBeFalsy();
 
@@ -2383,8 +2396,10 @@ describe('Room', () => {
       }
     });
 
+    await view.vm.$nextTick();
     expect(authStore.isAuthenticated).toBeTruthy();
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
 
     reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
 
@@ -2395,7 +2410,8 @@ describe('Room', () => {
       data: { message: 'guests_not_allowed' }
     });
 
-    expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
     expect(authStore.isAuthenticated).toBeFalsy();
     view.destroy();
   });
