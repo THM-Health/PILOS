@@ -85,7 +85,7 @@ return [
         'yes'     => 'Ja, Mitgliedschaft beenden',
     ],
     'favorites' => [
-        'add' => 'Zu Favoriten hinzufügen',
+        'add'    => 'Zu Favoriten hinzufügen',
         'remove' => 'Aus Favoriten entfernen'
     ],
     'files' => [

@@ -256,7 +256,7 @@ return [
         'title' => 'Paramètres',
     ],
     'start'        => 'Démarrer',
-    'tokens' => [
+    'tokens'       => [
         'add'              => 'Ajouter un lien de salle personnalisé',
         'confirm_delete'   => 'Voulez-vous vraiment supprimer le lien de salle personnalisé pour :firstname :lastname?',
         'copy'             => 'Copier le lien de la salle personnalisé dans le presse-papiers',

@@ -7,7 +7,7 @@
             {{$t('rooms.index.rooms')}}
           </h2>
         </b-col>
-        <b-col col='6' md='6' xl="3" v-if="userCanCreateRooms">
+        <b-col cols='6' md='6' xl="3" v-if="userCanCreateRooms">
             <new-room-component :disabled="limitReached" @limitReached="onReachLimit" ></new-room-component>
             <b-badge ref="room-limit" class="float-right w-100" v-if="showLimit">{{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}</b-badge>
         </b-col>

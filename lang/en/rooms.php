@@ -85,7 +85,7 @@ return [
         'yes'     => 'Yes, end membership',
     ],
     'favorites' => [
-        'add' => 'Add to favourites',
+        'add'    => 'Add to favourites',
         'remove' => 'Remove from favourites'
     ],
     'files' => [
