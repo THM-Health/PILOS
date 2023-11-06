@@ -168,11 +168,13 @@ return [
         'view'             => 'Detailed information for the role :name',
     ],
     'room_types' => [
-        'allow_listing'             => 'Room search allowed',
-        'allow_listing_description' => 'In the room settings the rooms can be made visible for the room search.',
-        'color'                     => 'Icon color',
-        'custom_color'              => 'Custom color',
-        'delete'                    => [
+        'allow_listing'                         => 'Room search allowed',
+        'allow_listing_description'             => 'In the room settings the rooms can be made visible for the room search.',
+        'color'                                 => 'Icon color',
+        'custom_color'                          => 'Custom color',
+        'custom_create_parameters'              => 'Custom create parameters',
+        'custom_create_parameters_description'  => 'Additional create api call parameters given as attribute-value pairs (one per line, without spaces)',
+        'delete'                                => [
             'confirm'          => 'Do you really want to delete the room type :name?',
             'item'             => 'Delete room type :id',
             'no_replacement'   => '-- No replacement --',

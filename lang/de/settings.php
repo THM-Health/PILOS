@@ -168,11 +168,13 @@ return [
         'view'             => 'Detaillierte Informationen für die Rolle :name',
     ],
     'room_types' => [
-        'allow_listing'             => 'Raumsuche erlaubt',
-        'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
-        'color'                     => 'Icon Farbe',
-        'custom_color'              => 'Eigene Farbe',
-        'delete'                    => [
+        'allow_listing'                         => 'Raumsuche erlaubt',
+        'allow_listing_description'             => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
+        'color'                                 => 'Icon Farbe',
+        'custom_color'                          => 'Eigene Farbe',
+        'custom_create_parameters'              => 'Custom Create Parameter',
+        'custom_create_parameters_description'  => 'Zusätzliche Create-API-Call-Parameter, die als Attribut-Wert-Paare angegeben werden (eins pro Zeile, ohne Leerzeichen)',
+        'delete'                                => [
             'confirm'          => 'Wollen Sie die Raumart :name wirklich löschen?',
             'item'             => 'Raumart :id löschen',
             'no_replacement'   => '-- Kein Ersatz --',

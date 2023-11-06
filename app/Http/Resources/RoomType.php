@@ -49,18 +49,19 @@ class RoomType extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
-            'short'         => $this->short,
-            'description'   => $this->description,
-            'color'         => $this->color,
-            'allow_listing' => $this->allow_listing,
-            'server_pool'   => $this->when($this->withServerPool, function () {
+            'id'                        => $this->id,
+            'short'                     => $this->short,
+            'description'               => $this->description,
+            'color'                     => $this->color,
+            'allow_listing'             => $this->allow_listing,
+            'server_pool'               => $this->when($this->withServerPool, function () {
                 return new ServerPool($this->serverPool);
             }),
-            'model_name'    => $this->model_name,
-            'updated_at'    => $this->updated_at,
-            'restrict'      => $this->restrict,
-            'roles'         => $this->when($this->withRoles, function () {
+            'model_name'                => $this->model_name,
+            'updated_at'                => $this->updated_at,
+            'custom_create_parameters'  => $this->custom_create_parameters,
+            'restrict'                  => $this->restrict,
+            'roles'                     => $this->when($this->withRoles, function () {
                 return new RoleCollection($this->roles);
             })
         ];

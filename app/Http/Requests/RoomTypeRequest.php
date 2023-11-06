@@ -11,14 +11,15 @@ class RoomTypeRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'description'   => ['required', 'string', 'max:255', Rule::unique('room_types', 'description')],
-            'short'         => ['required', 'string', 'max:2', Rule::unique('room_types', 'short')],
-            'color'         => ['required', 'string', new Color()],
-            'allow_listing' => ['required', 'boolean'],
-            'server_pool'   => 'required|exists:App\Models\ServerPool,id',
-            'restrict'      => ['required', 'boolean'],
-            'roles'         => [Rule::requiredIf($this->boolean('restrict')), 'array'],
-            'roles.*'       => 'distinct|exists:App\Models\Role,id'
+            'description'               => ['required', 'string', 'max:255', Rule::unique('room_types', 'description')],
+            'short'                     => ['required', 'string', 'max:2', Rule::unique('room_types', 'short')],
+            'color'                     => ['required', 'string', new Color()],
+            'allow_listing'             => ['required', 'boolean'],
+            'server_pool'               => 'required|exists:App\Models\ServerPool,id',
+            'custom_create_parameters'  => ['nullable', 'string', 'max:65000'],
+            'restrict'                  => ['required', 'boolean'],
+            'roles'                     => [Rule::requiredIf($this->boolean('restrict')), 'array'],
+            'roles.*'                   => 'distinct|exists:App\Models\Role,id'
         ];
 
         if ($this->roomType) {

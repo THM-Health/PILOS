@@ -23,6 +23,7 @@
                 :disabled="disabled"
                 v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"
                 v-on:busy="(value) => this.roomTypeSelectBusy = value"
+                v-on:input="changeRoomType"
                 ref="roomTypeSelect"
                 v-model="settings.room_type"
                 :room-id="room.id"
@@ -494,6 +495,39 @@ export default {
         }).finally(() => {
           this.isBusy = false;
         });
+    },
+
+    /**
+     * Preselects room settings based on selected room type
+     *
+     * @param roomType selected room type
+     */
+    changeRoomType (roomType) {
+      // Only change if new type is selected and custom parameters are available
+      if (roomType === null || roomType.custom_create_parameters === null) {
+        return;
+      }
+
+      for (const parameter of roomType.custom_create_parameters.split('\n')) {
+        let [key, value] = parameter.split('=', 2);
+        // Convert key to snake case
+        key = key.replace(/[A-Z]/g, (letter, index) => {
+          return index === 0 ? letter.toLowerCase() : '_' + letter.toLowerCase();
+        });
+
+        // Set value if setting exists
+        if (key in this.settings) {
+          // Cast value
+          if (value === 'true' || value === 'false') {
+            // Boolean
+            value = value === 'true';
+          } else if (/^\d+$/.test(value)) {
+            // Numeric
+            value = parseInt(value);
+          }
+          this.settings[key] = value;
+        }
+      }
     }
   },
   computed: {
