@@ -5,7 +5,6 @@ import { createTestingPinia } from '@pinia/testing';
 import { useLoadingStore } from '../../resources/js/stores/loading';
 import { useAuthStore } from '../../resources/js/stores/auth';
 import { mockAxios } from './helper';
-import { it } from 'vitest';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
