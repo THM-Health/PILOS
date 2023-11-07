@@ -58,6 +58,23 @@
               <template slot='invalid-feedback'><div v-html="fieldError('welcome')"></div></template>
             </b-form-group>
 
+            <!-- Short description-->
+            <b-form-group :state="fieldState('short_description')" :label="$t('rooms.settings.general.short_description')">
+              <b-input-group >
+                <b-form-textarea
+                  :disabled="disabled"
+                  id="short_description"
+                  :placeholder="$t('rooms.settings.none_placeholder')"
+                  rows="3"
+                  :state="fieldState('short_description')"
+                  v-model="settings.short_description"
+                ></b-form-textarea>
+              </b-input-group>
+              <small class="text-muted">
+                {{$t('rooms.settings.general.chars', {chars: charactersLeftShortDescription})}}</small>
+              <template slot='invalid-feedback'><div v-html="fieldError('short_description')"></div></template>
+            </b-form-group>
+
             <!-- Max duration -->
             <b-form-group :state="fieldState('duration')" :label="$t('rooms.settings.general.max_duration')">
               <b-input-group>
@@ -511,13 +528,23 @@ export default {
 
     /**
      * Count the chars of the welcome message
-     * @returns {string} amount of chars in comparision to the limit
+     * @returns {string} amount of chars in comparison to the limit
      */
     charactersLeftWelcomeMessage () {
       const char = this.settings.welcome
         ? this.settings.welcome.length
         : 0;
       return char + ' / ' + this.getGlobalSetting('bbb.welcome_message_limit');
+    },
+    /**
+     * Count the chars of the short description
+     * @returns {string} amount of chars in comparison to the limit
+     */
+    charactersLeftShortDescription () {
+      const char = this.settings.short_description
+        ? this.settings.short_description.length
+        : 0;
+      return char + ' / ' + 300;
     },
 
     /**
@@ -526,6 +553,7 @@ export default {
     showLobbyAlert () {
       return this.settings.default_role === 2 && this.settings.lobby === 1;
     }
+
   },
   created () {
     this.load();

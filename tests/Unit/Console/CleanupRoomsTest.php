@@ -29,14 +29,18 @@ class CleanupRoomsTest extends TestCase
         setting()->set('room_auto_delete.deadline_period', 7);
 
         // Create room that has been inactive too long
-        $roomInactiveTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
+        $roomInactiveTooLong    = Room::factory()->create();
+        $meetingInactiveTooLong =  Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveTooLong->latestMeeting()->associate($meetingInactiveTooLong);
+        $roomInactiveTooLong->save();
 
         // Create room that has not been inactive too long
-        $roomInactiveNotTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
+        $roomInactiveNotTooLong    = Room::factory()->create();
+        $meetingInactiveNotTooLong = Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveNotTooLong->latestMeeting()->associate($meetingInactiveNotTooLong);
+        $roomInactiveNotTooLong->save();
 
         // Create room has was created too long ago and never used
         $roomNeverUsedTooLong = Room::factory()->create(['created_at'=> now()->subDays(31)]);
@@ -96,14 +100,18 @@ class CleanupRoomsTest extends TestCase
         setting()->set('room_auto_delete.deadline_period', 7);
 
         // Create room that has been inactive too long
-        $roomInactiveTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
+        $roomInactiveTooLong    = Room::factory()->create();
+        $meetingInactiveTooLong = Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveTooLong->latestMeeting()->associate($meetingInactiveTooLong);
+        $roomInactiveTooLong->save();
 
         // Create room that has not been inactive too long
-        $roomInactiveNotTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
+        $roomInactiveNotTooLong    = Room::factory()->create();
+        $meetingInactiveNotTooLong = Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveNotTooLong->latestMeeting()->associate($meetingInactiveNotTooLong);
+        $roomInactiveNotTooLong->save();
 
         // Create room has was created too long ago and never used
         $roomNeverUsedTooLong = Room::factory()->create(['created_at'=> now()->subDays(31)]);
@@ -157,14 +165,18 @@ class CleanupRoomsTest extends TestCase
         setting()->set('room_auto_delete.deadline_period', 7);
 
         // Create room that has been inactive too long
-        $roomInactiveTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
+        $roomInactiveTooLong    = Room::factory()->create();
+        $meetingInactiveTooLong =  Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveTooLong->latestMeeting()->associate($meetingInactiveTooLong);
+        $roomInactiveTooLong->save();
 
         // Create room that has not been inactive too long
-        $roomInactiveNotTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
+        $roomInactiveNotTooLong    = Room::factory()->create();
+        $meetingInactiveNotTooLong = Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveNotTooLong->latestMeeting()->associate($meetingInactiveNotTooLong);
+        $roomInactiveNotTooLong->save();
 
         // Create room has was created too long ago and never used
         $roomNeverUsedTooLong = Room::factory()->create(['created_at'=> now()->subDays(31)]);
@@ -215,14 +227,18 @@ class CleanupRoomsTest extends TestCase
         setting()->set('room_auto_delete.deadline_period', 7);
 
         // Create room that has been inactive too long
-        $roomInactiveTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
+        $roomInactiveTooLong    = Room::factory()->create();
+        $meetingInactiveTooLong =  Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(91),'end' => now()->subDays(91)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveTooLong->latestMeeting()->associate($meetingInactiveTooLong);
+        $roomInactiveTooLong->save();
 
         // Create room that has not been inactive too long
-        $roomInactiveNotTooLong = Room::factory()->create();
-        Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
+        $roomInactiveNotTooLong    = Room::factory()->create();
+        $meetingInactiveNotTooLong = Meeting::factory()->create(['room_id'=>$roomInactiveNotTooLong->id, 'start' => now()->subDays(89),'end' => now()->subDays(89)->addMinutes(10)]);
         Meeting::factory()->create(['room_id'=>$roomInactiveTooLong->id, 'start' => now()->subDays(95),'end' => now()->subDays(95)->addMinutes(10)]);
+        $roomInactiveNotTooLong->latestMeeting()->associate($meetingInactiveNotTooLong);
+        $roomInactiveNotTooLong->save();
 
         // Create room has was created too long ago and never used
         $roomNeverUsedTooLong = Room::factory()->create(['created_at'=> now()->subDays(31)]);

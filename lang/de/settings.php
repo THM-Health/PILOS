@@ -72,12 +72,12 @@ return [
         'one_month'                      => '1 Monat (30 Tage)',
         'one_week'                       => '1 Woche (7 Tage)',
         'one_year'                       => '1 Jahr (365 Tage)',
-        'own_rooms_pagination_page_size' => [
-            'description' => 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite',
-            'title'       => 'Größe der Paginierung für eigene Räume',
+        'room_pagination_page_size'      => [
+            'description' => 'Anzahl der gleichzeitig angezeigten Räume auf der Startseite',
+            'title'       => 'Größe der Paginierung für die Räume',
         ],
         'pagination_page_size' => [
-            'description' => 'Begrenzt die Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
+            'description' => 'Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title'       => 'Größe der Paginierung',
         ],
         'password_change_allowed' => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',

@@ -4,7 +4,6 @@ import BootstrapVue, {
   BFormRadio, BFormTextarea, BListGroup, BListGroupItem
 
 } from 'bootstrap-vue';
-import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import {
@@ -21,7 +20,6 @@ import BulkImportMembersComponent from '../../../../resources/js/components/Room
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };

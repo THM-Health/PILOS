@@ -3,12 +3,11 @@
 return [
     'access_code'                  => 'Zugangscode',
     'access_for_participants'      => 'Zugang für Teilnehmer',
-    'all_rooms'                    => 'Alle Räume',
     'become_member'                => 'Mitglied werden',
     'copy_access_for_participants' => 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
     'create'                       => [
         'ok'    => 'Erstellen',
-        'title' => 'Neuen Raum erstellen',
+        'title' => 'Raum erstellen',
     ],
     'description' => [
         'cancel' => 'Abbrechen',
@@ -85,6 +84,10 @@ return [
         'title'   => 'Sind Sie sicher, dass Sie die Mitgliedschaft beenden wollen?',
         'yes'     => 'Ja, Mitgliedschaft beenden',
     ],
+    'favorites' => [
+        'add'    => 'Zu Favoriten hinzufügen',
+        'remove' => 'Aus Favoriten entfernen'
+    ],
     'files' => [
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
         'default'        => 'Standard',
@@ -105,12 +108,6 @@ return [
         'use_in_next_meeting' => 'Im nächsten Meeting nutzen',
         'view'                => 'Datei anzeigen',
     ],
-    'filter' => [
-        'apply' => 'Anwenden',
-        'title' => 'Filter',
-    ],
-    'find_rooms'         => 'Räume finden',
-    'find_rooms_info'    => 'Liste aller öffentlich gelisteten Räume ohne Zugangscode',
     'first_and_lastname' => 'Vor- und Nachname',
     'flash'              => [
         'access_code_invalid' => 'Der Zugangscode ist ungültig.',
@@ -120,10 +117,36 @@ return [
         'start_forbidden'     => 'Der Raum kann von Ihnen nicht gestartet werden.',
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
+    'index' => [
+        'only_favorites'    => 'Nur Favoriten anzeigen',
+        'filter'            => 'Filter',
+        'no_favorites'      => 'Keine Räume als Favoriten markiert',
+        'no_rooms_selected' => 'Keine Räume ausgewählt',
+        'reset_filter'      => 'Filter zurücksetzen',
+        'rooms'             => 'Räume',
+        'show_all'          => 'Alle Räume',
+        'show_own'          => 'Eigene Räume',
+        'show_public'       => 'Öffentliche Räume',
+        'show_shared'       => 'Geteilte Räume',
+        'sorting'           => [
+            'select_sorting'  => '-- Sortierung auswählen --',
+            'alpha'           => 'Alphabetisch',
+            'last_started'    => 'Zuletzt gestartet',
+            'room_type'       => 'Nach Raumart',
+
+        ],
+        'room_component'=> [
+            'never_started'   => ' Noch nie gestartet',
+            'running_since'   => ' Meeting läuft seit :date',
+            'last_ran_till'   => ' Zuletzt gelaufen bis :date',
+            'open'            => 'Öffnen',
+            'details'         => 'Details',
+        ],
+    ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [
-        'code' => 'Zugangscode: :code',
-        'link' => 'Link: :link',
+        'code' => 'Zugangscode',
+        'link' => 'Link',
         'room' => 'An ":roomname" mit :platform teilnehmen',
     ],
     'join'            => 'Teilnehmen',
@@ -181,10 +204,9 @@ return [
             'title'   => 'Raum löschen',
         ],
     ],
-    'my_rooms'                  => 'Meine Räume',
     'name'                      => 'Raumname',
     'no_rooms_available'        => 'Keine Räume vorhanden',
-    'no_rooms_available_search' => 'Keine Räume für diesen Suchbegriff gefunden',
+    'no_rooms_found'            => 'Keine Räume gefunden',
     'not_running'               => 'Der Raum ist noch nicht gestartet.',
     'notification'              => [
         'body'            => 'Der Raum wurde um :time gestartet',
@@ -211,16 +233,18 @@ return [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
         'select_type'   => '-- Raumart auswählen --',
+        'all'           => 'Alle Raumarten',
     ],
     'settings' => [
         'general' => [
-            'chars'           => 'Zeichen: :chars',
-            'max_duration'    => 'Max. Dauer',
-            'minutes'         => 'min.',
-            'reset_duration'  => 'Dauer zurücksetzen',
-            'title'           => 'Allgemein',
-            'type'            => 'Art',
-            'welcome_message' => 'Begrüßungsnachricht',
+            'chars'             => 'Zeichen: :chars',
+            'max_duration'      => 'Max. Dauer',
+            'minutes'           => 'min.',
+            'reset_duration'    => 'Dauer zurücksetzen',
+            'short_description' => 'Kurzbeschreibung',
+            'title'             => 'Allgemein',
+            'type'              => 'Art',
+            'welcome_message'   => 'Begrüßungsnachricht',
         ],
         'none_placeholder' => '-- keine --',
         'participants'     => [
@@ -265,14 +289,8 @@ return [
         ],
         'title' => 'Einstellungen',
     ],
-    'shared_by'    => 'Geteilt von :name',
-    'shared_rooms' => 'Mit mir geteilte Räume',
     'start'        => 'Starten',
-    'status'       => [
-        'not_running' => 'Kein laufendes Meeting',
-        'running'     => 'Meeting läuft',
-    ],
-    'tokens' => [
+    'tokens'       => [
         'add'              => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete'   => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',
         'copy'             => 'Personalisierten Raumlink in Zwischenablage kopieren',

@@ -1,11 +1,8 @@
 <template>
   <div>
-    <b-card no-body class="room-card" @click="$bvModal.show('new-room')">
-      <b-card-body class="p-3">
-       <h5 class="mt-2"><i class="fa-solid fa-plus mr-3"></i> {{ $t('rooms.create.title') }}</h5>
-      </b-card-body>
-    </b-card>
+    <b-button class="w-100" :disabled="disabled" variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> {{ $t('rooms.create.title') }} </b-button>
 
+<!-- new room modal-->
     <b-modal
       id="new-room"
       :title="$t('rooms.create.title')"
@@ -62,6 +59,10 @@ export default {
 
   props: {
     modalStatic: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }
@@ -134,9 +135,3 @@ export default {
 
 };
 </script>
-<style scoped>
-.room-card{
-  background: none;
-  border-style: dotted;
-}
-</style>

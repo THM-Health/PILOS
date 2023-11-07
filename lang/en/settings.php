@@ -72,12 +72,12 @@ return [
         'one_month'                      => '1 Month (30 Days)',
         'one_week'                       => '1 Week (7 Day)',
         'one_year'                       => '1 Year (365 Days)',
-        'own_rooms_pagination_page_size' => [
-            'description' => 'Limits the number of page size for own rooms pagination',
-            'title'       => 'Own rooms pagination page size',
+        'room_pagination_page_size'      => [
+            'description' => 'Number of rooms displayed simultaneously on the home page',
+            'title'       => 'Room pagination page size',
         ],
         'pagination_page_size' => [
-            'description' => 'Limits the number of page size for data tables pagination',
+            'description' => 'Number of records displayed simultaneously in tables',
             'title'       => 'Pagination page size',
         ],
         'password_change_allowed' => 'Give local users the possibility to change their password',

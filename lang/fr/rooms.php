@@ -3,7 +3,6 @@
 return [
     'access_code'                  => 'Code d\'accès',
     'access_for_participants'      => 'Accès pour les participants',
-    'all_rooms'                    => 'Toutes les salles',
     'become_member'                => 'Devenir membre',
     'copy_access_for_participants' => 'Copier les informations d\'accès des participants dans le presse-papier',
     'create'                       => [
@@ -105,12 +104,6 @@ return [
         'use_in_next_meeting' => 'À utiliser lors de la prochaine réunion',
         'view'                => 'Voir le fichier',
     ],
-    'filter' => [
-        'apply' => 'Appliquer',
-        'title' => 'Filtrer',
-    ],
-    'find_rooms'         => 'Rechercher des salles',
-    'find_rooms_info'    => 'Liste de toutes les salles publiques sans code d\'accès',
     'first_and_lastname' => 'Prénom et nom',
     'flash'              => [
         'access_code_invalid' => 'Le code d\'accès est invalide.',
@@ -122,8 +115,8 @@ return [
     ],
     'invalid_personal_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
     'invitation'            => [
-        'code' => 'Code d\'accès: :code',
-        'link' => 'Lien: :link',
+        'code' => 'Code d\'accès',
+        'link' => 'Lien',
         'room' => 'Rejoindre ":roomname" avec :platform',
     ],
     'join'            => 'Rejoindre',
@@ -180,10 +173,8 @@ return [
             'title'   => 'Supprimer la salle',
         ],
     ],
-    'my_rooms'                  => 'Mes salles',
     'name'                      => 'Nom de la salle',
     'no_rooms_available'        => 'Aucune salle disponible',
-    'no_rooms_available_search' => 'Aucune salle disponible avec cette recherche',
     'not_running'               => 'Cette salle n\'est pas encore ouverte.',
     'notification'              => [
         'body'            => 'Cette salle a été ouverte à :time',
@@ -264,14 +255,8 @@ return [
         ],
         'title' => 'Paramètres',
     ],
-    'shared_by'    => 'Partagé par :name',
-    'shared_rooms' => 'Salles partagées avec moi',
     'start'        => 'Démarrer',
-    'status'       => [
-        'not_running' => 'Aucune réunion en cours',
-        'running'     => 'Réunions en cours',
-    ],
-    'tokens' => [
+    'tokens'       => [
         'add'              => 'Ajouter un lien de salle personnalisé',
         'confirm_delete'   => 'Voulez-vous vraiment supprimer le lien de salle personnalisé pour :firstname :lastname?',
         'copy'             => 'Copier le lien de la salle personnalisé dans le presse-papiers',

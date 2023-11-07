@@ -32,15 +32,7 @@
 
           <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav v-if='isAuthenticated'>
-              <b-nav-item :to="{ name: 'rooms.own_index' }">{{ $t('rooms.my_rooms') }}</b-nav-item>
-              <b-nav-item :to="{ name: 'rooms.index' }">
-                <can method='viewAll' policy='RoomPolicy'>
-                  {{ $t('rooms.all_rooms') }}
-                </can>
-                <cannot method='viewAll' policy='RoomPolicy'>
-                  {{ $t('rooms.find_rooms') }}
-                </cannot>
-              </b-nav-item>
+              <b-nav-item :to="{ name: 'rooms.index' }">{{ $t('app.rooms') }}</b-nav-item>
               <can method='viewAny' policy='MeetingPolicy'>
                 <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currently_running') }}</b-nav-item>
               </can>
@@ -92,7 +84,6 @@
 <script>
 import LocaleSelector from '../components/LocaleSelector.vue';
 import Can from '../components/Permissions/Can.vue';
-import Cannot from '../components/Permissions/Cannot.vue';
 import Banner from '../components/Banner.vue';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../stores/auth';
@@ -102,7 +93,7 @@ import { useSettingsStore } from '../stores/settings';
 const FooterComponent = Object.values(import.meta.glob(['../../custom/js/components/FooterComponent.vue', '@/components/FooterComponent.vue'], { eager: true }))[0].default;
 
 export default {
-  components: { Banner, Can, Cannot, LocaleSelector, FooterComponent },
+  components: { Banner, Can, LocaleSelector, FooterComponent },
   computed: {
     ...mapState(useAuthStore, ['currentUser', 'isAuthenticated']),
     ...mapState(useSettingsStore, ['getSetting']),
