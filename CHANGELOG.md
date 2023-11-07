@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Short description for rooms ([#373])
 - Room favorites ([#373])
-- Showing current room name in the page title  ([#649], [#650])
+- Show current room name in the page title  ([#649], [#650])
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])

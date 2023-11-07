@@ -33,8 +33,8 @@ const routerMock = new VueRouter({
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
-const initialState = { auth: { currentUser: exampleUser }, settings: { settings: { room_refresh_rate: 30 } } };
-const initialStateNoUser = { settings: { settings: { room_refresh_rate: 30 } } };
+const initialState = { auth: { currentUser: exampleUser }, settings: { settings: { room_refresh_rate: 30, name: 'PILOS' } } };
+const initialStateNoUser = { settings: { settings: { room_refresh_rate: 30, name: 'PILOS' } } };
 
 describe('Room', () => {
   beforeEach(() => {
@@ -308,6 +308,9 @@ describe('Room', () => {
     expect(view.findComponent({ ref: 'room-loading-spinner' }).exists()).toBeFalsy();
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('Max Doe');
+
+    // test if room name is shown in the title
+    expect(document.title).toBe('Meeting One - PILOS');
 
     view.destroy();
   });
@@ -971,6 +974,9 @@ describe('Room', () => {
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('John Doe');
 
+    // test if room name is shown in the title
+    expect(document.title).toBe('Meeting One - PILOS');
+
     // test reload with changes of the room data
     let request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     const reloadButton = view.findComponent({ ref: 'reloadButton' });
@@ -999,6 +1005,9 @@ describe('Room', () => {
       }
     });
     expect(view.html()).toContain('Meeting Two');
+
+    // test if room name is updated in the title
+    expect(document.title).toBe('Meeting Two - PILOS');
 
     // test reload with room not found
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
