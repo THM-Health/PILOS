@@ -89,6 +89,10 @@ module.exports = {
     await module.exports.waitCollapseEvent(wrapper, action, 'shown');
   },
 
+  i18nDateMock: (date, format) => {
+    return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+  },
+
   /**
    * Create new html element in html body
    * @param tag tag of the element

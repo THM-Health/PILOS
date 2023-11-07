@@ -1,32 +1,40 @@
 import { mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/Index.vue';
+import RoomIndex from '../../../../resources/js/views/rooms/Index.vue';
 import {
+  BAlert,
   BButton,
-  BCol, BFormInput,
-  BListGroupItem,
-  BOverlay,
-  BPagination,
-  BSpinner
+  BDropdown,
+  BDropdownItem,
+  BFormCheckbox,
+  BFormGroup,
+  BFormSelect,
+  BFormSelectOption,
+  BInputGroupAppend, BInputGroupPrepend,
+  BOverlay, BPagination
 } from 'bootstrap-vue';
 
-import VueRouter from 'vue-router';
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
-import { mockAxios, createContainer, createLocalVue } from '../../helper';
-import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
+import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
+import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
+import RoomSkeletonComponent from '../../../../resources/js/components/Room/RoomSkeletonComponent.vue';
+import { useAuthStore } from '../../../../resources/js/stores/auth';
+import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
+import { expect } from 'vitest';
 
 const localVue = createLocalVue();
-localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
+const initialState = { auth: { currentUser: exampleUser } };
 
 describe('Room Index', () => {
   beforeEach(() => {
     mockAxios.reset();
+    PermissionService.currentUser = exampleUser;
   });
 
   const exampleRoomResponse = {
@@ -38,30 +46,58 @@ describe('Room Index', () => {
           id: 1,
           name: 'John Doe'
         },
-        running: false,
+        last_meeting: null,
         type: {
           id: 2,
           short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
-        }
+        },
+        is_favorite: false,
+        short_description: 'Own room'
       },
       {
-        id: 'abc-def-345',
+        id: 'def-abc-123',
         name: 'Meeting Two',
         owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        running: true,
-        type: {
           id: 1,
-          short: 'VL',
-          description: 'Vorlesung',
-          color: '#80BA27',
+          name: 'John Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          short: 'ME',
+          description: 'Meeting',
+          color: '#4a5c66',
           default: false
-        }
+        },
+        is_favorite: false,
+        short_description: null
+      },
+      {
+        id: 'def-abc-456',
+        name: 'Meeting Three',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: '2023-08-21 08:20:28:00'
+        },
+        type: {
+          id: 2,
+          short: 'ME',
+          description: 'Meeting',
+          color: '#4a5c66',
+          default: false
+        },
+        is_favorite: false,
+        short_description: null
       }
     ],
     meta: {
@@ -69,8 +105,10 @@ describe('Room Index', () => {
       from: 1,
       last_page: 1,
       per_page: 10,
-      to: 2,
-      total: 2
+      to: 5,
+      total: 3,
+      total_no_filter: 3,
+      total_own: 1
     }
   };
 
@@ -83,284 +121,182 @@ describe('Room Index', () => {
     ]
   };
 
-  it('show different heading depending on permission', async () => {
-    const oldUser = PermissionService.currentUser;
-
-    mockAxios.request('/api/v1/rooms').respondWith({
-      status: 200,
-      data: exampleRoomResponse
-    });
-    mockAxios.request('/api/v1/roomTypes').respondWith({
-      status: 200,
-      data: exampleRoomTypeResponse
-    });
-
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      attachTo: createContainer()
-    });
-
-    // user without view all permissions
-    await view.vm.$nextTick();
-    expect(view.findAll('h2').at(0).text()).toEqual('rooms.find_rooms');
-
-    // user with view all permission
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.permissions = ['rooms.viewAll'];
-    PermissionService.setCurrentUser(newUser);
-    await view.vm.$nextTick();
-    expect(view.findAll('h2').at(0).text()).toEqual('rooms.all_rooms');
-
-    PermissionService.setCurrentUser(oldUser);
-    view.destroy();
-  });
-
-  it('load rooms, load room types and open room', async () => {
-    const oldUser = PermissionService.currentUser;
-
-    const spy = vi.fn();
-    const router = new VueRouter();
-    router.push = spy;
-
-    const roomRequest = mockAxios.request('/api/v1/rooms');
+  it('check list of rooms and attribute bindings', async () => {
+    const roomRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' });
     const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
-      pinia: createTestingPinia(),
-      router,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
     await roomRequest.wait();
 
-    // check if spinners are active and buttons disabled during loading
-    expect(view.vm.$data.isBusy).toBeTruthy();
+    // check if overlay is active and buttons disabled during loading
+    expect(view.vm.$data.loadingRooms).toBeTruthy();
     expect(view.vm.$data.roomTypesBusy).toBeTruthy();
-    expect(view.findAllComponents(BSpinner).length).toEqual(2);
-    expect(view.findComponent(BPagination).props('disabled')).toBeTruthy();
-    expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeTruthy();
-    expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
-    expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeTruthy();
+    // search
+    expect(view.getComponent({ ref: 'search' }).element.disabled).toBeTruthy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeTruthy();
+    // dropdown for sorting type
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeTruthy();
+    // filter button on small devices
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).exists()).toBeTruthy();
+    expect(view.findComponent(BFormGroup).element.disabled).toBeTruthy();
+    // room type select
+    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
+    expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
 
-    // respond with example data to room and roomType requests
+    // respond with example data to room and roomType request
     await roomRequest.respondWith({
       status: 200,
       data: exampleRoomResponse
     });
 
+    // check if overlay is disabled and buttons active
+    expect(view.vm.$data.loadingRooms).toBeFalsy();
+    expect(view.vm.$data.roomTypesBusy).toBeTruthy();
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
+    // search
+    expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    // dropdown for sorting type
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    // filter button on small devices
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select
+    expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
+
     await roomTypeRequest.respondWith({
       status: 200,
       data: exampleRoomTypeResponse
     });
-    await roomTypeRequest.wait();
 
-    // check if spinners are disabled and buttons active
-    await view.vm.$nextTick();
-    expect(view.vm.$data.isBusy).toBeFalsy();
     expect(view.vm.$data.roomTypesBusy).toBeFalsy();
-    expect(view.findComponent(BPagination).props('disabled')).toBeFalsy();
-    expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeUndefined();
-    expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeUndefined();
-    expect(view.findAllComponents(BSpinner).length).toEqual(0);
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
 
-    // check rooms appear in the list
-    const rooms = view.findAllComponents(BListGroupItem);
-    expect(rooms.length).toEqual(2);
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
-    expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
-    expect(rooms.at(0).get('small').text()).toEqual('John Doe');
-    expect(rooms.at(0).get('.room-icon').text()).toEqual('ME');
-    expect(rooms.at(0).findComponent(RoomStatusComponent).props('running')).toBeFalsy();
+    // check attribute bindings
+    const rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toEqual(3);
+    expect(rooms.at(0).props('id')).toBe('abc-def-123');
+    expect(rooms.at(0).props('name')).toBe('Meeting One');
+    expect(rooms.at(0).props('isFavorite')).toBe(false);
+    expect(rooms.at(0).props('shortDescription')).toBe('Own room');
+    expect(rooms.at(0).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(0).props('owner')).toEqual({ id: 1, name: 'John Doe' });
 
-    expect(rooms.at(1).get('h5').text()).toEqual('Meeting Two');
-    expect(rooms.at(1).get('small').text()).toEqual('Max Doe');
-    expect(rooms.at(1).get('.room-icon').text()).toEqual('VL');
-    expect(rooms.at(1).findComponent(RoomStatusComponent).props('running')).toBeTruthy();
+    expect(rooms.at(1).props('id')).toBe('def-abc-123');
+    expect(rooms.at(1).props('name')).toBe('Meeting Two');
+    expect(rooms.at(1).props('isFavorite')).toBe(false);
+    expect(rooms.at(1).props('shortDescription')).toBe(null);
+    expect(rooms.at(1).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(1).props('owner')).toEqual({ id: 1, name: 'John Doe' });
 
-    // check if all room types are shown
-    const roomTypes = view.findAll('[name="room-types-checkbox"]');
-    expect(roomTypes.length).toEqual(4);
-    expect(roomTypes.at(0).element.parentElement.children[1].children[0].innerHTML).toEqual('Vorlesung');
-    expect(roomTypes.at(1).element.parentElement.children[1].children[0].innerHTML).toEqual('Meeting');
-    expect(roomTypes.at(2).element.parentElement.children[1].children[0].innerHTML).toEqual('Pr\u00fcfung');
-    expect(roomTypes.at(3).element.parentElement.children[1].children[0].innerHTML).toEqual('\u00dcbung');
+    expect(rooms.at(2).props('id')).toBe('def-abc-456');
+    expect(rooms.at(2).props('name')).toBe('Meeting Three');
+    expect(rooms.at(2).props('isFavorite')).toBe(false);
+    expect(rooms.at(2).props('shortDescription')).toBe(null);
+    expect(rooms.at(2).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(2).props('owner')).toEqual({ id: 1, name: 'John Doe' });
 
-    // open a room
-    await rooms.at(1).trigger('click');
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith({ name: 'rooms.view', params: { id: 'abc-def-345' } });
-
-    // check if opening another is prohibited while the other room is opening
-    await rooms.at(0).trigger('click');
-    expect(spy).toBeCalledTimes(1);
-
-    PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
-  it('error loading rooms', async () => {
+  it('test missing newRoom component', async () => {
     const oldUser = PermissionService.currentUser;
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions.pop('rooms.create');
+    PermissionService.setCurrentUser(newUser);
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
-
-    // respond with server error for room load
-    mockAxios.request('/api/v1/rooms').respondWith({
-      status: 500,
-      data: {
-        message: 'Test'
-      }
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
     });
+
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
-      pinia: createTestingPinia(),
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // check buttons and input fields are disabled after an error occurred
-    expect(view.findComponent(BFormInput).props('disabled')).toBeTruthy();
-    expect(view.findComponent(BPagination).props('disabled')).toBeTruthy();
-    expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeTruthy();
-    expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
-    expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
-
-    // check if error message is shown
-    expect(spy).toBeCalledTimes(1);
-
-    const request = mockAxios.request('/api/v1/rooms');
-
-    // check if reload button is shown and if a click reloads the resource
-    const reloadButton = view.findAllComponents(BCol).at(3).findComponent(BOverlay).findComponent(BButton);
-    expect(reloadButton.text()).toEqual('app.reload');
-    await reloadButton.trigger('click');
-
-    await request.wait();
-    // restore valid response
-    await request.respondWith({
-      status: 200,
-      data: exampleRoomResponse
-    });
-
-    // check if all rooms are shown and the buttons/input fields are active
-    expect(view.findAllComponents(BListGroupItem).length).toEqual(2);
-    expect(view.findComponent(BFormInput).props('disabled')).toBeFalsy();
-    expect(view.findComponent(BPagination).props('disabled')).toBeFalsy();
-    expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeFalsy();
-    expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeFalsy();
+    const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+    expect(missingNewRoomComponent.exists()).toBeFalsy();
 
     PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
-  it('error loading room types', async () => {
-    const oldUser = PermissionService.currentUser;
-
-    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
-
-    // respond with server error for room type load
-    mockAxios.request('/api/v1/rooms').respondWith({
+  it('test room limit event', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
-    mockAxios.request('/api/v1/roomTypes').respondWith({
-      status: 500,
-      data: {
-        message: 'Test'
-      }
-    });
 
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      pinia: createTestingPinia(),
-      attachTo: createContainer()
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    // check apply filter button disabled after an error occurred
-    expect(view.findAllComponents(BButton).at(2).text()).toEqual('rooms.filter.apply');
-    expect(view.findAllComponents(BButton).at(2).attributes('disabled')).toBeTruthy();
-
-    // check if error message is shown
-    expect(spy).toBeCalledTimes(1);
-
-    const request = mockAxios.request('/api/v1/roomTypes');
-
-    // check if reload button is shown and if a click reloads the resource
-    const reloadButton = view.findAllComponents(BCol).at(2).findComponent(BOverlay).findComponent(BButton);
-    expect(reloadButton.text()).toEqual('app.reload');
-    await reloadButton.trigger('click');
-
-    await request.wait();
-    // restore valid response
-    await request.respondWith({ status: 200, data: exampleRoomTypeResponse });
-
-    // check if all room types are shown and the apply filter button is active
-    const roomTypes = view.findAll('[name="room-types-checkbox"]');
-    expect(roomTypes.length).toEqual(4);
-    expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
-    expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeFalsy();
-
-    PermissionService.setCurrentUser(oldUser);
-    view.destroy();
-  });
-
-  it('search and filter rooms', async () => {
-    const oldUser = PermissionService.currentUser;
-
-    mockAxios.request('/api/v1/rooms').respondWith({
-      status: 200,
-      data: exampleRoomResponse
-    });
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       data: exampleRoomTypeResponse
     });
 
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
-      pinia: createTestingPinia(),
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
+
+    const authStore = useAuthStore();
+    authStore.currentUser.room_limit = 2;
 
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // enter search query
-    await view.findComponent(BFormInput).setValue('Meeting');
+    // find current amount of rooms
+    let rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(3);
 
-    let request = mockAxios.request('/api/v1/rooms');
+    // find new room component and fire event
+    let newRoomComponent = view.findComponent(NewRoomComponent);
+    expect(newRoomComponent.exists()).toBeTruthy();
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    newRoomComponent.vm.$emit('limitReached');
 
-    await view.findComponent(BButton).trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
 
-    // check if new request with the search query is send
-    await request.wait();
-    expect(request.config.params).toEqual({ page: 1, search: 'Meeting', room_types: [] });
-    await request.respondWith({
+    // respond with 4 rooms on 2 different pages
+    await roomRequest.respondWith({
       status: 200,
       data: {
         data: [
@@ -371,55 +307,186 @@ describe('Room Index', () => {
               id: 1,
               name: 'John Doe'
             },
+            last_meeting: null,
             type: {
               id: 2,
               short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
-            }
-          }
-        ],
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          },
+          {
+            id: 'abc-def-345',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room 2'
+          }],
         meta: {
           current_page: 1,
           from: 1,
-          last_page: 1,
-          per_page: 10,
-          to: 1,
-          total: 1
+          last_page: 2,
+          per_page: 2,
+          to: 2,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 2
+        }
+      }
+    });
+    await view.vm.$nextTick();
+
+    // check if now four rooms are displayed
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(2);
+
+    // try to find new room component, should be disabled as the limit is reached
+    newRoomComponent = view.findComponent(NewRoomComponent);
+    expect(newRoomComponent.exists()).toBeTruthy();
+    expect(newRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that new room component stays disabled
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(newRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
+
+    // respond with 2 rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Three',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          },
+          {
+            id: 'def-abc-456',
+            name: 'Meeting Four',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: '2023-08-21 08:20:28:00'
+            },
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: null
+          }],
+        meta: {
+          current_page: 2,
+          from: 3,
+          last_page: 3,
+          per_page: 2,
+          to: 4,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 2
         }
       }
     });
 
-    // check if room list was updated
+    // find new room component and fire event again
+    newRoomComponent = view.findComponent(NewRoomComponent);
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    newRoomComponent.vm.$emit('limitReached');
+
+    await roomRequest.wait();
+
+    // make sure that the page stays the same
+    expect(roomRequest.config.params.page).toBe(2);
+
+    view.destroy();
+  });
+
+  it('test room limit', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    const authStore = useAuthStore();
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    const rooms = view.findAllComponents(BListGroupItem);
-    expect(rooms.length).toEqual(1);
-    expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
-    expect(rooms.at(0).get('small').text()).toEqual('John Doe');
-    expect(rooms.at(0).get('.room-icon').text()).toEqual('ME');
 
-    // check if no room info is missing
-    expect(view.find('em').exists()).toBeFalsy();
+    // hide room count for users without limit
+    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeFalsy();
 
-    // find room type checkboxes and select two
-    const roomTypes = view.findAll('[name="room-types-checkbox"]');
-    expect(roomTypes.length).toEqual(4);
-    await roomTypes.at(0).setChecked(true);
-    await roomTypes.at(2).setChecked(true);
+    // show room count for users with limit
+    authStore.currentUser.room_limit = 2;
 
-    // find apply filter button and click to apply filter
-    const applyFilter = view.findAllComponents(BButton).at(1);
-    expect(applyFilter.text()).toEqual('rooms.filter.apply');
+    await view.vm.$nextTick();
+    // check if room limit is shown correct
+    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeTruthy();
+    expect(view.findComponent({ ref: 'room-limit' }).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
 
-    request = mockAxios.request('/api/v1/rooms');
+    // enter search query
+    const searchField = view.findComponent({ ref: 'search' });
+    await searchField.setValue('test');
 
-    await applyFilter.trigger('click');
-
-    await request.wait();
-    // check if the search query and the room filter are send, respond with no rooms found
-    expect(request.config.params).toEqual({ page: 1, search: 'Meeting', room_types: [1, 3] });
-    await request.respondWith({
+    const roomRequest = mockAxios.request('/api/v1/rooms');
+    searchField.trigger('change');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.search).toBe('test');
+    await roomRequest.respondWith({
       status: 200,
       data: {
         data: [],
@@ -429,83 +496,1823 @@ describe('Room Index', () => {
           last_page: 1,
           per_page: 10,
           to: null,
-          total: 0
+          total: 0,
+          total_no_filter: 1,
+          total_own: 1
         }
       }
     });
 
-    // check if room list is empty and noRoomsAvailable message is shown
-    await view.vm.$nextTick();
-    expect(view.findAllComponents(BListGroupItem).length).toEqual(0);
-    expect(view.find('em').text()).toEqual('rooms.no_rooms_available');
+    // check if room count is not based on items on the current page or the total results,
+    // but all rooms of the user, independent of the search query
+    expect(view.findComponent({ ref: 'room-limit' }).exists()).toBeTruthy();
+    expect(view.findComponent({ ref: 'room-limit' }).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
 
-    PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
-  it('sends request to list all rooms if user has rooms.viewAll permission', async () => {
-    const oldUser = PermissionService.currentUser;
-
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.permissions = ['rooms.viewAll'];
-    PermissionService.setCurrentUser(newUser);
-
-    const roomRequest = mockAxios.request('/api/v1/rooms');
-    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
-
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      pinia: createTestingPinia(),
-      attachTo: createContainer()
-    });
-
-    await roomRequest.wait();
-    // respond with demo content to the rooms and roomTypes requests
-    await roomRequest.respondWith({
+  it('test search', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
     });
 
-    await roomTypeRequest.wait();
-    expect(roomTypeRequest.config.params).toBeUndefined();
-    await roomRequest.respondWith({
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       data: exampleRoomTypeResponse
     });
 
-    PermissionService.setCurrentUser(oldUser);
-    view.destroy();
-  });
-
-  it('sends request to list all rooms if user has not rooms.viewAll permission', async () => {
-    const roomRequest = mockAxios.request('/api/v1/rooms');
-    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
-
-    const view = mount(RoomList, {
+    const view = mount(RoomIndex, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
-      pinia: createTestingPinia(),
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find search field
+    let searchField = view.findComponent({ ref: 'search' });
+    expect(searchField.exists()).toBeTruthy();
+
+    // enter search query
+    await searchField.setValue('test');
+
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    searchField.trigger('change');
+
     await roomRequest.wait();
-    // respond with demo content to the rooms and roomTypes requests
+
+    // check if request uses the search string
+    expect(roomRequest.config.params.search).toBe('test');
+
+    // respond (no rooms found for this search query)
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if message shows user that the user has rooms, but none that match the search query
+    expect(view.find('em').text()).toBe('rooms.no_rooms_found');
+
+    // check empty list message for user rooms
+    searchField = view.findComponent({ ref: 'search' });
+    // enter another search query
+    await searchField.setValue('test2');
+
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    searchField.trigger('change');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.search).toBe('test2');
+
+    // respond no rooms available
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 0,
+          total_own: 0
+        }
+      }
+    });
+
+    // check if message shows user that there are no rooms available
+    expect(view.find('em').text()).toBe('rooms.no_rooms_available');
+
+    // enter another search query
+    await searchField.setValue('One');
+
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    searchField.trigger('change');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.search).toBe('One');
+
+    // respond with 2 rooms on 2 pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 1,
+          to: 1,
+          total: 2,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if room is found
+    let rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(1);
+    expect(rooms.at(0).props('id')).toBe('abc-def-123');
+    expect(rooms.at(0).props('name')).toBe('Meeting One');
+    expect(rooms.at(0).props('isFavorite')).toBe(false);
+    expect(rooms.at(0).props('shortDescription')).toBe('Own room');
+    expect(rooms.at(0).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(0).props('owner')).toEqual({ id: 1, name: 'John Doe' });
+
+    // test reset of the current page after entering a search query
+    // find pagination and switch to the next page
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    const paginationButtons = pagination.findAll('li');
+    expect(paginationButtons.at(0).find('button').exists()).toBeFalsy();
+    expect(paginationButtons.at(1).find('button').exists()).toBeFalsy();
+    expect(paginationButtons.at(2).find('button').exists()).toBeTruthy();
+    expect(paginationButtons.at(3).find('button').exists()).toBeTruthy();
+    expect(paginationButtons.at(4).find('button').exists()).toBeTruthy();
+    expect(paginationButtons.at(5).find('button').exists()).toBeTruthy();
+
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await paginationButtons.at(4).find('button').trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.search).toBe('One');
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 2,
+          per_page: 1,
+          to: 2,
+          total: 2,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if room is changed
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(1);
+    expect(rooms.at(0).props('id')).toBe('abc-def-456');
+    expect(rooms.at(0).props('name')).toBe('Meeting Two');
+
+    // enter search query again and check if page is changed to the first page
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    searchField.trigger('change');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
+    expect(roomRequest.config.params.search).toBe('One');
+
+    view.destroy();
+  });
+
+  it('test sorting', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find dropdown to change sorting
+    const sortingDropdown = view.findComponent(BDropdown);
+    expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.last_started');
+
+    // check if the options show
+    const sortingDropdownOptions = sortingDropdown.findAllComponents(BDropdownItem);
+    expect(sortingDropdownOptions.length).toBe(4);
+    expect(sortingDropdownOptions.at(0).text()).toBe('rooms.index.sorting.select_sorting');
+    expect(sortingDropdownOptions.at(0).props().disabled).toBeTruthy();
+    expect(sortingDropdownOptions.at(1).text()).toBe('rooms.index.sorting.last_started');
+    expect(sortingDropdownOptions.at(2).text()).toBe('rooms.index.sorting.alpha');
+    expect(sortingDropdownOptions.at(3).text()).toBe('rooms.index.sorting.room_type');
+
+    // click on Dropdown Item to change the sorting to alpha
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    sortingDropdownOptions.at(2).get('a').trigger('click');
+
+    await roomRequest.wait();
+    expect(roomRequest.config.params.sort_by).toBe('alpha');
+    expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.alpha');
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // find pagination and switch to the next page
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    roomRequest = mockAxios.request('/api/v1/rooms');
+
+    // switch to next page and check if sorting stays the same
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.sort_by).toBe('alpha');
+    expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.alpha');
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // click on Dropdown Item to change the sorting to room type
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    sortingDropdownOptions.at(3).get('a').trigger('click');
+
+    await roomRequest.wait();
+    expect(roomRequest.config.params.sort_by).toBe('room_type');
+    expect(sortingDropdown.getComponent(BButton).text()).toBe('rooms.index.sorting.room_type');
+
+    // check if the room page was reset
+    expect(roomRequest.config.params.page).toBe(1);
+
+    view.destroy();
+  });
+
+  it('test filter without viewAll permission', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find filter checkboxes
+    const checkboxes = view.findAllComponents(BFormCheckbox);
+    expect(checkboxes.length).toBe(3);
+
+    // make sure that checkboxes are shown correct
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(0).text()).toBe('rooms.index.show_own');
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).text()).toBe('rooms.index.show_shared');
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+    expect(checkboxes.at(2).text()).toBe('rooms.index.show_public');
+
+    // trigger checkbox
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(2).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that the filter stays the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // trigger another checkbox
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(1).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeFalsy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeFalsy();
+
+    // make sure that the page was reset
+    expect(roomRequest.config.params.page).toBe(1);
+
+    view.destroy();
+  });
+
+  it('test filter with viewAll permission', async () => {
+    const oldUser = PermissionService.currentUser;
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions.push('rooms.viewAll');
+    PermissionService.setCurrentUser(newUser);
+
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const checkboxes = view.findAllComponents(BFormCheckbox);
+    expect(checkboxes.length).toBe(4);
+    // make sure that checkboxes are shown correct
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(0).text()).toBe('rooms.index.show_own');
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).text()).toBe('rooms.index.show_shared');
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+    expect(checkboxes.at(2).text()).toBe('rooms.index.show_public');
+    expect(checkboxes.at(3).props('checked')).toBeFalsy();
+    expect(checkboxes.at(3).text()).toBe('rooms.index.show_all');
+
+    // trigger show all checkbox
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(3).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(roomRequest.config.params.filter_all).toBeTruthy();
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if all checkboxes are checked
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(checkboxes.at(3).props('checked')).toBeTruthy();
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that the filter stays the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(roomRequest.config.params.filter_all).toBeTruthy();
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if all checkboxes are checked
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(checkboxes.at(3).props('checked')).toBeTruthy();
+
+    // trigger show all checkbox again
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(3).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    // make sure that the page was reset
+    expect(roomRequest.config.params.page).toBe(1);
+
     await roomRequest.respondWith({
       status: 200,
       data: exampleRoomResponse
     });
 
+    // check if all checkboxes are checked
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(checkboxes.at(3).props('checked')).toBeFalsy();
+
+    // trigger show all checkbox again and check if all checkboxes are checked
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(3).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeTruthy();
+    expect(roomRequest.config.params.filter_all).toBeTruthy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeTruthy();
+    expect(checkboxes.at(3).props('checked')).toBeTruthy();
+
+    // trigger another checkbox
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(2).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeFalsy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // check if show all checkbox are unchecked
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+    expect(checkboxes.at(3).props('checked')).toBeFalsy();
+
+    PermissionService.setCurrentUser(oldUser);
+    view.destroy();
+  });
+
+  it('test no filter message', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find filter checkboxes
+    const checkboxes = view.findAllComponents(BFormCheckbox);
+    expect(checkboxes.length).toBe(3);
+
+    // trigger checkboxes
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    checkboxes.at(1).get('input').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeFalsy();
+    expect(roomRequest.config.params.filter_public).toBeFalsy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    checkboxes.at(0).get('input').trigger('click');
+    await view.vm.$nextTick();
+
+    // check if all checkboxes are unchecked
+    expect(checkboxes.at(0).props('checked')).toBeFalsy();
+    expect(checkboxes.at(1).props('checked')).toBeFalsy();
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+
+    // make sure that the checkboxes are not disabled
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+
+    // check if no filter message and reset button are shown
+    expect(view.find('em').text()).toBe('rooms.index.no_rooms_selected');
+    const resetButton = view.findComponent({ ref: 'reset' });
+    expect(resetButton.exists()).toBeTruthy();
+    expect(resetButton.text()).toBe('rooms.index.reset_filter');
+    expect(resetButton.element.disabled).toBeFalsy();
+
+    // trigger reset button
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await resetButton.trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.filter_own).toBeTruthy();
+    expect(roomRequest.config.params.filter_shared).toBeTruthy();
+    expect(roomRequest.config.params.filter_public).toBeFalsy();
+    expect(roomRequest.config.params.filter_all).toBeFalsy();
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // check if checkboxes are reset
+    expect(checkboxes.at(0).props('checked')).toBeTruthy();
+    expect(checkboxes.at(1).props('checked')).toBeTruthy();
+    expect(checkboxes.at(2).props('checked')).toBeFalsy();
+
+    view.destroy();
+  });
+
+  it('test filter room type', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find room type select and check if it is shown correctly
+    const select = view.findComponent(BFormSelect);
+    expect(select.element.value).toBe('');
+    const selectOptions = select.findAllComponents(BFormSelectOption);
+    expect(selectOptions.length).toBe(6);
+    // make sure select options are shown correctly
+    expect(selectOptions.at(0).element.value).toBe('-1');
+    expect(selectOptions.at(0).text()).toBe('rooms.room_types.select_type');
+    expect(selectOptions.at(0).attributes().disabled).toBeTruthy();
+    expect(selectOptions.at(1).element.value).toBe('');
+    expect(selectOptions.at(1).text()).toBe('rooms.room_types.all');
+    expect(selectOptions.at(2).element.value).toBe('1');
+    expect(selectOptions.at(2).text()).toBe('Vorlesung');
+    expect(selectOptions.at(3).element.value).toBe('2');
+    expect(selectOptions.at(3).text()).toBe('Meeting');
+    expect(selectOptions.at(4).element.value).toBe('3');
+    expect(selectOptions.at(4).text()).toBe('Pr\u00fcfung');
+    expect(selectOptions.at(5).element.value).toBe('4');
+    expect(selectOptions.at(5).text()).toBe('\u00dcbung');
+
+    // change select option
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    await select.setValue('2');
+    await roomRequest.wait;
+
+    expect(roomRequest.config.params.room_type).toBe(2);
+    expect(roomRequest.config.params.page).toBe(1);
+    expect(select.element.value).toBe('2');
+
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that the room type stays the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.room_type).toBe(2);
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // change select option again
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await select.setValue('3');
+    await roomRequest.wait;
+
+    expect(roomRequest.config.params.room_type).toBe(3);
+    expect(select.element.value).toBe('3');
+    // make sure that the page was reset
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond no rooms found for this room type
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if message shows user that the user has rooms, but none that match the search query
+    expect(view.find('em').text()).toBe('rooms.no_rooms_found');
+
+    // change select option again
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await select.setValue('2');
+    await roomRequest.wait;
+
+    expect(roomRequest.config.params.room_type).toBe(2);
+    expect(select.element.value).toBe('2');
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond no rooms available
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 0,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if message shows user that there are no rooms available
+    expect(view.find('em').text()).toBe('rooms.no_rooms_available');
+
+    view.destroy();
+  });
+
+  it('test show favorites', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find favorites button and check if it is shown correct
+    const favoritesButton = view.findAllComponents(BButton).at(4);
+    expect(favoritesButton.html()).toContain('fa-star');
+    expect(favoritesButton.element.disabled).toBeFalsy();
+    // check if filter options are not disabled
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select and button to reload room types
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton).element.disabled).toBeFalsy();
+
+    // trigger favorites button
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+    expect(roomRequest.config.params.page).toBe(1);
+
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if filter options are disabled
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeTruthy();
+    // room type select and button to reload room types
+    expect(view.findComponent(BFormSelect).element.disabled).toBeTruthy();
+    expect(view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton).element.disabled).toBeTruthy();
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that only_favorites stays the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // trigger favorites button again
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeFalsy();
+    // make sure that the page was reset
+    expect(roomRequest.config.params.page).toBe(1);
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // check if filter options are disabled
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select and button to reload room types
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton).element.disabled).toBeFalsy();
+
+    // trigger favorites button again and respond without rooms
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+    expect(roomRequest.config.params.page).toBe(1);
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 0,
+          total_own: 1
+        }
+      }
+    });
+
+    // check if no favorites message is shown
+    expect(view.find('em').text()).toBe('rooms.index.no_favorites');
+
+    view.destroy();
+  });
+
+  it('test trigger favorites', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find rooms
+    let rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(3);
+
+    // fire event and check if rooms are reload
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(0).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+
+    // respond with room on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // fire event for another room and check if rooms are reload
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms = view.findAllComponents(RoomComponent);
+    rooms.at(0).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    // make sure that the page stay the same
+    expect(roomRequest.config.params.page).toBe(2);
+
+    view.destroy();
+  });
+
+  it('test trigger favorites only show favorites', async () => {
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find favorites button and check if it is shown correct
+    const favoritesButton = view.findAllComponents(BButton).at(4);
+    expect(favoritesButton.html()).toContain('fa-star');
+    expect(favoritesButton.element.disabled).toBeFalsy();
+
+    // trigger favorites button
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    favoritesButton.trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+    expect(roomRequest.config.params.page).toBe(1);
+
+    await roomRequest.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    // find rooms
+    let rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(3);
+
+    // fire event and check if rooms are reload and page and only_favorites stay the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(1).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    // respond with 4 rooms on 2 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          },
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: null
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 2,
+          to: 2,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 1
+        }
+      }
+    });
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to the next page and make sure that only_favorites stays the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    // respond with 2 rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Three',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          },
+          {
+            id: 'def-abc-456',
+            name: 'Meeting Four',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: '2023-08-21 08:20:28:00'
+            },
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: null
+          }],
+        meta: {
+          current_page: 2,
+          from: 3,
+          last_page: 2,
+          per_page: 2,
+          to: 4,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 1
+        }
+      }
+    });
+
+    // find rooms
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(2);
+
+    // fire event and check if rooms are reload and page and only_favorites stay the same
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(1).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(2);
+    expect(roomRequest.config.params.only_favorites).toBeTruthy();
+
+    // respond with 1 rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-456',
+            name: 'Meeting Three',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: true,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 2,
+          from: 3,
+          last_page: 2,
+          per_page: 2,
+          to: 3,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
+    // find room
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(1);
+
+    // fire event and check if rooms are reload
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    const secondRoomRequest = mockAxios.request('/api/v1/rooms');
+    rooms.at(0).vm.$emit('favorites_changed');
+    await roomRequest.wait();
+    // reload with no rooms on the second page
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          current_page: 2,
+          from: null,
+          last_page: 1,
+          per_page: 2,
+          to: null,
+          total: 2,
+          total_no_filter: 2,
+          total_own: 1
+        }
+      }
+    });
+    // check if the rooms get reload again with the last page
+    await secondRoomRequest.wait();
+    // make sure page is reset and only_favorites stays the same
+    expect(secondRoomRequest.config.params.page).toBe(1);
+    expect(secondRoomRequest.config.params.only_favorites).toBeTruthy();
+
+    view.destroy();
+  });
+
+  it('error loading rooms', async () => {
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    // respond with server error for room load
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia(),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // check if error message, overlay and reload button are shown
+    expect(spy).toBeCalledTimes(1);
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeTruthy();
+    let reloadButton = view.findComponent({ ref: 'reload' });
+    expect(reloadButton.exists()).toBeTruthy();
+    expect(reloadButton.element.disabled).toBeFalsy();
+
+    // check if room skeleton components are shown
+    expect(view.findAllComponents(RoomSkeletonComponent).length).toBe(3);
+
+    // check if buttons are not disabled
+    // search
+    expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    // dropdown for sorting type
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    // filter button on small devices
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+
+    // trigger reload button
+    let roomRequest = mockAxios.request('/api/v1/rooms');
+    let roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+    await reloadButton.trigger('click');
+    await roomRequest.wait();
+    expect(roomRequest.config.params.page).toBe(1);
     await roomTypeRequest.wait();
-    expect(roomTypeRequest.config.params).toStrictEqual({ filter: 'searchable' });
+
+    // respond with 3 rooms on 3 different pages
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            },
+            is_favorite: false,
+            short_description: 'Own room'
+          }],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    });
+
     await roomTypeRequest.respondWith({
       status: 200,
       data: exampleRoomTypeResponse
     });
+    await view.vm.$nextTick();
+
+    // check if overlay is disabled
+    expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
+    reloadButton = view.findComponent({ ref: 'reload' });
+    expect(reloadButton.exists()).toBeFalsy();
+    expect(view.findAllComponents(RoomComponent).length).toBe(1);
+
+    // check if buttons are not disabled
+    // search
+    expect(view.getComponent({ ref: 'search' }).element.disabled).toBeFalsy();
+    expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeFalsy();
+    // dropdown for sorting type
+    expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
+    // filter button on small devices
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    // favorites button
+    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    // filter checkboxes
+    expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
+    // room type select
+    expect(view.findComponent(BFormSelect).element.disabled).toBeFalsy();
+
+    // find pagination
+    const pagination = view.findComponent(BPagination);
+    expect(pagination.exists()).toBeTruthy();
+    expect(pagination.props('disabled')).toBeFalsy();
+
+    // switch to next page
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    await pagination.findAll('li').at(5).find('button').trigger('click');
+    await roomRequest.wait();
+
+    expect(roomRequest.config.params.page).toBe(2);
+
+    // respond with error
+    await roomRequest.respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    reloadButton = view.findComponent({ ref: 'reload' });
+    expect(reloadButton.exists()).toBeTruthy();
+
+    // trigger reload button
+    roomRequest = mockAxios.request('/api/v1/rooms');
+    roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+    await reloadButton.trigger('click');
+    await roomRequest.wait();
+    // make sure that the page stays the same
+    expect(roomRequest.config.params.page).toBe(2);
+    await roomTypeRequest.wait();
+
+    view.destroy();
+  });
+
+  it('error loading room types', async () => {
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    // respond with server error for room type load
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    const view = mount(RoomIndex, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: i18nDateMock
+      },
+      pinia: createTestingPinia(),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // check if error message is shown
+    expect(spy).toBeCalledTimes(1);
+
+    // test if input group is shown correctly
+    let inputGroupPrepend = view.findComponent(BInputGroupPrepend);
+    expect(inputGroupPrepend.exists()).toBeTruthy();
+    expect(inputGroupPrepend.findComponent(BAlert).text()).toBe('rooms.room_types.loading_error');
+    expect(view.findComponent(BFormSelect).exists()).toBeFalsy();
+    const reloadRoomTypesButton = view.findAllComponents(BInputGroupAppend).at(1).getComponent(BButton);
+    expect(reloadRoomTypesButton.element.disabled).toBeFalsy();
+
+    // trigger reload room types button
+    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+    await reloadRoomTypesButton.trigger('click');
+    await roomTypeRequest.wait();
+    expect(reloadRoomTypesButton.element.disabled).toBeTruthy();
+
+    await roomTypeRequest.respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+    await view.vm.$nextTick();
+
+    inputGroupPrepend = view.findComponent(BInputGroupPrepend);
+    expect(inputGroupPrepend.exists()).toBeFalsy();
+    expect(reloadRoomTypesButton.element.disabled).toBeFalsy();
+    expect(view.findComponent(BFormSelect).exists()).toBeTruthy();
 
     view.destroy();
   });

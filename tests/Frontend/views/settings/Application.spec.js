@@ -84,7 +84,7 @@ describe('Application', () => {
           room_limit: -1,
           room_token_expiration: 525600,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -118,7 +118,7 @@ describe('Application', () => {
     expect(view.vm.$data.settings.logo).toBe('test.svg');
     expect(view.vm.$data.settings.room_limit).toBe(-1);
     expect(view.vm.$data.settings.pagination_page_size).toBe(10);
-    expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
+    expect(view.vm.$data.settings.room_pagination_page_size).toBe(5);
     expect(view.vm.$data.roomLimitMode).toBe('unlimited');
 
     expect(view.vm.$data.settings.statistics.servers.enabled).toBeTruthy();
@@ -157,7 +157,7 @@ describe('Application', () => {
           room_limit: 32,
           room_token_expiration: 525600,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -190,7 +190,7 @@ describe('Application', () => {
     expect(view.vm.$data.settings.logo).toBe('test.svg');
     expect(view.vm.$data.settings.room_limit).toBe(32);
     expect(view.vm.$data.settings.pagination_page_size).toBe(10);
-    expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
+    expect(view.vm.$data.settings.room_pagination_page_size).toBe(5);
     expect(view.vm.$data.roomLimitMode).toBe('custom');
     expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
   });
@@ -218,7 +218,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -277,7 +277,7 @@ describe('Application', () => {
           logo: 'test1.svg',
           room_limit: 33,
           pagination_page_size: 11,
-          own_rooms_pagination_page_size: 6,
+          room_pagination_page_size: 6,
           banner: {
             enabled: false
           },
@@ -311,7 +311,7 @@ describe('Application', () => {
     expect(view.vm.$data.settings.logo).toBe('test1.svg');
     expect(view.vm.$data.settings.room_limit).toBe(33);
     expect(view.vm.$data.settings.pagination_page_size).toBe(11);
-    expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
+    expect(view.vm.$data.settings.room_pagination_page_size).toBe(6);
     expect(view.vm.$data.settings.room_token_expiration).toBe(1440);
     expect(view.vm.$data.roomLimitMode).toBe('custom');
     expect(view.vm.$data.isBusy).toBeFalsy();
@@ -346,7 +346,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -395,7 +395,7 @@ describe('Application', () => {
           logo: 'test1.svg',
           room_limit: -1,
           pagination_page_size: 11,
-          own_rooms_pagination_page_size: 6,
+          room_pagination_page_size: 6,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -429,7 +429,7 @@ describe('Application', () => {
     expect(view.vm.$data.settings.logo).toBe('test1.svg');
     expect(view.vm.$data.settings.room_limit).toBe(-1);
     expect(view.vm.$data.settings.pagination_page_size).toBe(11);
-    expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
+    expect(view.vm.$data.settings.room_pagination_page_size).toBe(6);
     expect(view.vm.$data.roomLimitMode).toBe('unlimited');
     expect(view.vm.$data.isBusy).toBeFalsy();
     view.destroy();
@@ -445,7 +445,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -553,7 +553,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: true,
@@ -677,7 +677,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -752,7 +752,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -828,7 +828,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -877,7 +877,7 @@ describe('Application', () => {
           logo: ['logo error'],
           room_limit: ['room limit error'],
           pagination_page_size: ['pagination page size error.'],
-          own_rooms_pagination_page_size: ['own rooms pagination page size error'],
+          room_pagination_page_size: ['own rooms pagination page size error'],
           help_url: ['help url error']
         }
       }
@@ -887,7 +887,7 @@ describe('Application', () => {
     expect(view.vm.$data.errors.logo.length).toBeGreaterThan(0);
     expect(view.vm.$data.errors.room_limit.length).toBeGreaterThan(0);
     expect(view.vm.$data.errors.pagination_page_size.length).toBeGreaterThan(0);
-    expect(view.vm.$data.errors.own_rooms_pagination_page_size.length).toBeGreaterThan(0);
+    expect(view.vm.$data.errors.room_pagination_page_size.length).toBeGreaterThan(0);
     expect(view.vm.$data.errors.help_url.length).toBeGreaterThan(0);
 
     view.destroy();
@@ -903,7 +903,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -987,7 +987,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1060,7 +1060,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1119,7 +1119,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1178,7 +1178,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1247,7 +1247,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1306,7 +1306,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1375,7 +1375,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1443,7 +1443,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1512,7 +1512,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1588,7 +1588,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1666,7 +1666,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1725,7 +1725,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1787,7 +1787,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1861,7 +1861,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -1944,7 +1944,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -2013,7 +2013,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -2079,7 +2079,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -2160,7 +2160,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -2226,7 +2226,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -2308,7 +2308,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -2374,7 +2374,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
@@ -2430,7 +2430,7 @@ describe('Application', () => {
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
-          own_rooms_pagination_page_size: 5,
+          room_pagination_page_size: 5,
           default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false

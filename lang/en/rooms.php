@@ -3,12 +3,11 @@
 return [
     'access_code'                  => 'Access code',
     'access_for_participants'      => 'Access for participants',
-    'all_rooms'                    => 'All rooms',
     'become_member'                => 'Become member',
     'copy_access_for_participants' => 'Copy access for participants to clipboard',
     'create'                       => [
         'ok'    => 'Create',
-        'title' => 'Create new room',
+        'title' => 'Create room',
     ],
     'description' => [
         'cancel' => 'Cancel',
@@ -85,6 +84,10 @@ return [
         'title'   => 'Are you sure you want to end the membership?',
         'yes'     => 'Yes, end membership',
     ],
+    'favorites' => [
+        'add'    => 'Add to favourites',
+        'remove' => 'Remove from favourites'
+    ],
     'files' => [
         'confirm_delete' => 'Do you want to delete this file :filename?',
         'default'        => 'Default',
@@ -105,12 +108,6 @@ return [
         'use_in_next_meeting' => 'Use in the next meeting',
         'view'                => 'View file',
     ],
-    'filter' => [
-        'apply' => 'Apply',
-        'title' => 'Filter',
-    ],
-    'find_rooms'         => 'Find rooms',
-    'find_rooms_info'    => 'List of all public listed rooms without an access code',
     'first_and_lastname' => 'First- und last name',
     'flash'              => [
         'access_code_invalid' => 'The access code is invalid.',
@@ -119,6 +116,33 @@ return [
         'no_new_room'         => 'You do not have the necessary permission to create a new room.',
         'start_forbidden'     => 'The room could not be started by you.',
         'token_invalid'       => 'The personalised room link is no longer valid.',
+    ],
+    'index' => [
+        'only_favorites'    => 'Only show favorites',
+        'favorites'         => 'Favorites',
+        'filter'            => 'Filter',
+        'no_favorites'      => 'No rooms marked as favorites',
+        'no_rooms_selected' => 'No rooms selected',
+        'reset_filter'      => 'Reset filter',
+        'rooms'             => 'Rooms',
+        'show_all'          => 'All rooms',
+        'show_own'          => 'Own rooms',
+        'show_public'       => 'Public rooms',
+        'show_shared'       => 'Shared rooms',
+        'sorting'           => [
+            'select_sorting'  => '-- Select sorting --',
+            'alpha'           => 'Alphabetical',
+            'last_started'    => 'Last started',
+            'room_type'       => 'By room type',
+        ],
+        'room_component'=> [
+            'never_started'   => ' Never started before',
+            'running_since'   => ' Meeting running since :date',
+            'last_ran_till'   => ' Last ran till :date',
+            'open'            => 'Open',
+            'details'         => 'Details',
+        ],
+
     ],
     'invalid_personal_link' => 'This personalised room link is invalid.',
     'invitation'            => [
@@ -180,10 +204,9 @@ return [
             'title'   => 'Delete room',
         ],
     ],
-    'my_rooms'                  => 'My rooms',
     'name'                      => 'Room name',
     'no_rooms_available'        => 'No rooms available',
-    'no_rooms_available_search' => 'No rooms found for this search query',
+    'no_rooms_found'            => 'No rooms found',
     'not_running'               => 'This room is not started yet.',
     'notification'              => [
         'body'            => 'The room was started at :time',
@@ -210,16 +233,18 @@ return [
         'loading_error' => 'An error occurred during loading of the room types.',
         'reload'        => 'Reload room types',
         'select_type'   => '-- Select room type --',
+        'all'           => 'All room types',
     ],
     'settings' => [
         'general' => [
-            'chars'           => 'Characters: :chars',
-            'max_duration'    => 'Max. duration',
-            'minutes'         => 'min.',
-            'reset_duration'  => 'Reset duration',
-            'title'           => 'General',
-            'type'            => 'Type',
-            'welcome_message' => 'Welcome message',
+            'chars'             => 'Characters: :chars',
+            'max_duration'      => 'Max. duration',
+            'minutes'           => 'min.',
+            'reset_duration'    => 'Reset duration',
+            'short_description' => 'Short description',
+            'title'             => 'General',
+            'type'              => 'Type',
+            'welcome_message'   => 'Welcome message',
         ],
         'none_placeholder' => '-- none --',
         'participants'     => [
@@ -264,14 +289,8 @@ return [
         ],
         'title' => 'Settings',
     ],
-    'shared_by'    => 'Shared by :name',
-    'shared_rooms' => 'Rooms shared with me',
     'start'        => 'Start',
-    'status'       => [
-        'not_running' => 'No running meeting',
-        'running'     => 'Meeting running',
-    ],
-    'tokens' => [
+    'tokens'       => [
         'add'              => 'Add personalized room link',
         'confirm_delete'   => 'Do you really want to delete the personalized room link for :firstname :lastname?',
         'copy'             => 'Copy personalized room link to clipboard',

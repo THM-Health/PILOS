@@ -88,6 +88,7 @@ return [
         'server_pool'                        => 'Serverpool',
         'servers'                            => 'Server',
         'sex'                                => 'Geschlecht',
+        'short_description'                  => 'Kurzbeschreibung',
         'size'                               => 'Größe',
         'strength'                           => 'Serverstärke',
         'time'                               => 'Uhrzeit',

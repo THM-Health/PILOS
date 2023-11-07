@@ -111,6 +111,15 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
+     * The user favorites
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function roomFavorites()
+    {
+        return $this->belongsToMany(Room::class, 'room_favorites');
+    }
+
+    /**
      * Calculation of the room limit for this user, based on groups and global settings
      * Groups have priority over global settings. Use the highest value of all groups or unlimited (-1) of
      * exits in one of the groups
@@ -233,7 +242,7 @@ class User extends Authenticatable implements HasLocalePreference
                 if ($item->included_permission_name != null) {
                     array_push($permissions, $item->included_permission_name);
                 }
-                
+
                 array_push($permissions, $item->name);
             });
 

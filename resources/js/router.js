@@ -4,7 +4,6 @@ import ExternalLogin from './views/ExternalLogin.vue';
 import Logout from './views/Logout.vue';
 import NotFound from './views/NotFound.vue';
 import RoomsIndex from './views/rooms/Index.vue';
-import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
 import RoomView from './views/rooms/View.vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings.vue';
@@ -118,17 +117,18 @@ export const routes = [
     component: RoomsIndex,
     meta: { requiresAuth: true }
   },
-  {
-    path: '/rooms/own',
-    name: 'rooms.own_index',
-    component: RoomsOwnIndex,
-    meta: { requiresAuth: true }
-  },
+
   {
     path: '/rooms/:id/:token?',
     name: 'rooms.view',
     component: RoomView,
-    meta: { redirectBackAfterLogin: true }
+    meta: { redirectBackAfterLogin: true },
+    props: route => {
+      return {
+        id: route.params.id,
+        token: route.params.token
+      };
+    }
   },
   {
     path: '/meetings',

@@ -96,6 +96,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -110,7 +111,7 @@ describe('RoomSettings', () => {
     // load all form fields and buttons
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
@@ -118,9 +119,11 @@ describe('RoomSettings', () => {
 
     // general
     expect(inputFields.at(0).element.value).toBe('Meeting One');
-    expect(textArea.element.value).toBe('welcome');
+    expect(textAreas.at(0).element.value).toBe('welcome');
+    expect(textAreas.at(1).element.value).toBe('short description');
     // check if welcome char limit is shown
-    expect(textArea.element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"7 / 250"}');
+    expect(textAreas.at(0).element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"7 / 250"}');
+    expect(textAreas.at(1).element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"17 / 300"}');
     expect(inputFields.at(1).element.value).toBe('5');
 
     // security
@@ -154,7 +157,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are disabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -183,14 +187,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are disabled during loading
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -222,6 +227,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -236,7 +242,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -290,6 +297,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -303,14 +311,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -364,6 +373,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -377,14 +387,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -421,14 +432,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are disabled during loading
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -449,7 +461,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are disabled during loading
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -497,6 +510,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -516,7 +530,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -571,6 +586,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -611,6 +627,7 @@ describe('RoomSettings', () => {
       allow_guests: true,
       allow_membership: false,
       welcome: 'welcome',
+      short_description: 'short description',
       max_participants: 10,
       duration: 5,
       default_role: 1,
@@ -669,6 +686,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -691,15 +709,19 @@ describe('RoomSettings', () => {
       data: {
         message: 'The given data was invalid.',
         errors: {
-          welcome: ['The Welcome message may not be greater than 250 characters.']
+          welcome: ['The Welcome message may not be greater than 250 characters.'],
+          short_description: ['The Short description may not be greater than 300 characters.']
+
         }
       }
     });
     await view.vm.$nextTick();
 
     // check if error message is shown
-    const welcome = view.findComponent(BFormTextarea);
+    const welcome = view.findAllComponents(BFormTextarea).at(0);
+    const shortDescription = view.findAllComponents(BFormTextarea).at(1);
     expect(welcome.element.parentElement.parentElement.children[2].innerHTML).toContain('The Welcome message may not be greater than 250 characters.');
+    expect(shortDescription.element.parentElement.parentElement.children[2].innerHTML).toContain('The Short description may not be greater than 300 characters.');
 
     view.destroy();
   });
@@ -752,6 +774,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -794,6 +817,7 @@ describe('RoomSettings', () => {
       allow_guests: true,
       allow_membership: false,
       welcome: 'welcome',
+      short_description: 'short description',
       max_participants: 10,
       duration: 5,
       default_role: 1,
@@ -851,6 +875,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,

@@ -72,7 +72,8 @@ return [
         'logo'                           => env('DEFAULT_LOGO', '/images/logo.svg'),
         'favicon'                        => env('DEFAULT_FAVICON', '/images/favicon.ico'),
         'room_limit'                     => env('DEFAULT_ROOM_LIMIT', -1),
-        'own_rooms_pagination_page_size' => env('OWN_ROOMS_PAGINATION_PAGE_SIZE', 5),
+        //@deprecate OWN_ROOMS_PAGINATION_PAGE_SIZE
+        'room_pagination_page_size'      => env('ROOM_PAGINATION_PAGE_SIZE', env('OWN_ROOMS_PAGINATION_PAGE_SIZE', 9)),
         'pagination_page_size'           => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
         'statistics'                     => [
             'servers' => [

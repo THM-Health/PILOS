@@ -249,11 +249,16 @@ class MeetingService
         $roomAuthService = app()->make(RoomAuthService::class);
         $token           = $roomAuthService->getRoomToken($this->meeting->room);
 
-        if ($token) {
-            $name = $token->fullname;
+        if (Auth::guest()) {
+            if ($token) {
+                $name = $token->fullname;
+            } else {
+                $name = $request->name;
+            }
         } else {
-            $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+            $name = Auth::user()->fullname;
         }
+
         $userId = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
         $role   = $this->meeting->room->getRole(Auth::user(), $token);
 

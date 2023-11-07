@@ -39,7 +39,7 @@ export default {
       if (this.$route.query.redirect !== undefined) {
         this.$router.push(this.$route.query.redirect);
       } else {
-        this.$router.push({ name: 'rooms.own_index' });
+        this.$router.push({ name: 'rooms.index' });
       }
     }
   }

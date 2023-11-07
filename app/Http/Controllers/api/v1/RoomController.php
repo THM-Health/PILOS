@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomSortingType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
+use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
@@ -15,6 +17,7 @@ use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use Auth;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
@@ -31,64 +34,107 @@ class RoomController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(ShowRoomsRequest $request)
     {
-        $collection     = null;
         $additionalMeta = [];
 
-        if ($request->has('filter')) {
-            switch ($request->filter) {
-                case 'own':
-                    $collection                                = Auth::user()->myRooms()->with('owner');
-                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
+        if ($request->only_favorites) {
+            //list if room favourites
+            $roomFavorites = Auth::user()->roomFavorites->modelKeys();
+            $collection    = Room::whereIn('rooms.id', $roomFavorites);
+        } else {
+            // all rooms without limitation (always include own rooms, shared rooms and public rooms)
+            if ($request->filter_all && Auth::user()->can('viewAll', Room::class)) {
+                $collection = Room::query();
+            } else {
+                $collection = Room::where(function (Builder $query) use ($request) {
+                    // own rooms
+                    if ($request->filter_own) {
+                        $query->orWhere('user_id', '=', Auth::user()->id);
+                    }
 
-                    break;
-                case 'shared':
-                    $collection                                =  Auth::user()->sharedRooms()->with('owner');
-                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
+                    // rooms where the user is member
+                    if ($request->filter_shared) {
+                        // list of room ids where the user is member
+                        $roomMemberships             = Auth::user()->sharedRooms->modelKeys();
+                        $query->orWhereIn('rooms.id', $roomMemberships);
+                    }
 
-                    break;
-                default:
-                    abort(400);
+                    // all rooms that are public (listed and without access code)
+                    if ($request->filter_public) {
+                        $query->orWhere(function (Builder $subQuery) {
+                            // list of room types for which listing is enabled
+                            $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
+                            $subQuery->where('listed', 1)
+                                ->whereNull('access_code')
+                                ->whereIn('room_type_id', $roomTypesWithListingEnabled);
+                        });
+                    }
+
+                    // prevent request with no filter (would return all rooms)
+                    if (!$request->filter_own && !$request->filter_shared && !$request->filter_public) {
+                        abort(400);
+                    }
+                });
             }
-
-            if ($request->has('search') && trim($request->search) != '') {
-                $collection = $collection->where('name', 'like', '%' . $request->search . '%');
-            }
-
-            $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
-
-            return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
         }
 
-        $collection =  Room::with('owner');
-        if (Auth::user()->cannot('viewAll', Room::class)) {
-            $collection = $collection
-                ->where('listed', 1)
-                ->whereNull('access_code')
-                ->whereIn('room_type_id', RoomType::where('allow_listing', 1)->get('id'));
+        // join relationship table to allow sorting by relationship columns
+        $collection->leftJoin('meetings', 'rooms.meeting_id', '=', 'meetings.id');
+        $collection->join('room_types', 'rooms.room_type_id', '=', 'room_types.id');
+        $collection->join('users', 'rooms.user_id', '=', 'users.id');
+
+        // only select columns from rooms table to prevent duplicate column names
+        $collection->select('rooms.*');
+
+        // eager load relationships
+        $collection->with(['owner','roomType','latestMeeting']);
+
+        // count all available rooms before search
+        $additionalMeta['meta']['total_no_filter'] = $collection->count();
+
+        // filter by specific room Type if not only favorites
+        if ($request->has('room_type') && !$request->only_favorites) {
+            $collection->where('room_type_id', $request->room_type);
         }
 
+        // rooms that can be found with the search
         if ($request->has('search') && trim($request->search) != '') {
             $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $collection = $collection->where(function ($query) use ($searchQuery) {
                     $query->where('name', 'like', '%' . $searchQuery . '%')
-                            ->orWhereHas('owner', function ($query2) use ($searchQuery) {
-                                $query2->where('firstname', 'like', '%' . $searchQuery . '%')
-                                       ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
-                            });
+                        ->orWhereHas('owner', function ($query2) use ($searchQuery) {
+                            $query2->where('firstname', 'like', '%' . $searchQuery . '%')
+                                ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
+                        });
                 });
             }
         }
+        // sort rooms by different strategies
+        switch($request->sort_by) {
+            case RoomSortingType::ALPHA:
+                $collection = $collection->orderBy('rooms.name');
 
-        if ($request->has('room_types')) {
-            $collection->whereIn('room_type_id', $request->room_types);
+                break;
+            case RoomSortingType::ROOM_TYPE:
+                $collection = $collection->orderBy('room_types.description')->orderBy('rooms.name');
+
+                break;
+            case RoomSortingType::LAST_STARTED:
+            default:
+                // 1. Sort by running state, 2. Sort by last meeting start date, 3. Sort by room name
+                $collection = $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name');
+
+                break;
         }
 
-        $collection = $collection->orderBy('name')->paginate(setting('pagination_page_size'));
+        // count own rooms
+        $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 
-        return \App\Http\Resources\Room::collection($collection);
+        $collection = $collection->paginate(setting('room_pagination_page_size'));
+
+        return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
     }
 
     /**
@@ -123,7 +169,7 @@ class RoomController extends Controller
      */
     public function show(Room $room, RoomAuthService $roomAuthService)
     {
-        return new \App\Http\Resources\Room($room, true);
+        return (new \App\Http\Resources\Room($room))->withDetails();
     }
 
     /**
@@ -179,6 +225,7 @@ class RoomController extends Controller
     {
         $room->name             = $request->name;
         $room->welcome          = $request->welcome;
+        $room->short_description= $request->short_description;
         $room->max_participants = $request->max_participants;
         $room->duration         = $request->duration;
         $room->access_code      = $request->access_code;
@@ -260,5 +307,31 @@ class RoomController extends Controller
         $meetings = $room->meetings()->orderByDesc('start')->whereNotNull('start');
 
         return \App\Http\Resources\Meeting::collection($meetings->paginate(setting('pagination_page_size')));
+    }
+
+    /**
+     * add a room to the users favorites
+     *
+     * @param  Room                      $room
+     * @return \Illuminate\Http\Response
+     */
+    public function addToFavorites(Room $room)
+    {
+        Auth::user()->roomFavorites()->syncWithoutDetaching([$room->id]);
+
+        return response()->noContent();
+    }
+
+    /**
+     * delete a room from the users favorites
+     *
+     * @param  Room                      $room
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteFromFavorites(Room $room)
+    {
+        Auth::user()->roomFavorites()->detach($room);
+
+        return response()->noContent();
     }
 }

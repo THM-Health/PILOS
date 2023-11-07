@@ -45,7 +45,7 @@ class ApplicationSettings extends JsonResource
             'favicon'                        => setting('favicon'),
             'room_limit'                     => intval(setting('room_limit')),
             'pagination_page_size'           => intval(setting('pagination_page_size')),
-            'own_rooms_pagination_page_size' => intval(setting('own_rooms_pagination_page_size')),
+            'room_pagination_page_size'      => intval(setting('room_pagination_page_size')),
             'password_change_allowed'        => boolval(setting('password_change_allowed')),
             'default_timezone'               => setting('default_timezone'),
             'bbb'                            => [
