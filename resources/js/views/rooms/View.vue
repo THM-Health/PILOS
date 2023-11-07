@@ -443,6 +443,8 @@ export default {
             this.name = this.room.username;
           }
 
+          this.setPageTitle(this.room.name);
+
           this.startAutoRefresh();
         })
         .catch((error) => {
@@ -506,6 +508,8 @@ export default {
           if (this.room.username) {
             this.name = this.room.username;
           }
+
+          this.setPageTitle(this.room.name);
 
           // Update current user, if logged in/out in another tab or session expired
           // to have the can/cannot component use the correct state
@@ -625,6 +629,15 @@ export default {
           this.loadingJoinStart = false;
         });
     },
+
+    /**
+     * Show room name in title
+     * @param {string} roomName Name of the room
+     */
+    setPageTitle: function (roomName) {
+      document.title = roomName + ' - ' + this.getSetting('name');
+    },
+
     /**
      * Join a running meeting
      */
