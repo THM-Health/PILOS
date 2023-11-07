@@ -319,7 +319,8 @@ export default {
       this.toastInfo(this.$t('app.flash.guests_only'));
       this.$router.replace({ name: 'home' });
       return;
-      }
+    }
+
     this.load();
   },
   watch: {
@@ -336,7 +337,7 @@ export default {
       deep: true
     }
   },
-    
+
   destroyed () {
     clearInterval(this.reloadInterval);
   },
