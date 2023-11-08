@@ -173,9 +173,9 @@
             <em v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
             <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</em>
           </div>
-          <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
-            <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
-                <room-component @favorites_changed="loadRooms()" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavorite="room.is_favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
+          <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" class="p-1" >
+            <b-col v-for="room in rooms.data" :key="room.id" class="p-2">
+                <room-component @favorites_changed="loadRooms()" :room="room" />
             </b-col>
           </b-row>
           <b-pagination

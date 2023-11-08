@@ -1,18 +1,16 @@
 <template>
   <div v-frag>
     <!-- Remove room -->
-    <b-button
-      :class="buttonClass"
-      variant="danger"
-      :title="$t('rooms.modals.delete.title')"
+    <b-dropdown-item-button
       ref="deleteButton"
-      v-b-tooltip.hover
-      v-tooltip-hide-click
       @click="$bvModal.show('remove-modal')"
       :disabled="disabled"
     >
-      <i class="fa-solid fa-trash"></i>
-    </b-button>
+      <div class="d-flex">
+        <i class="fa-solid fa-trash"></i>
+        <span>{{ $t('rooms.modals.delete.title') }}</span>
+      </div>
+    </b-dropdown-item-button>
 
     <!-- Remove room modal -->
     <b-modal
@@ -57,11 +55,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
-      required: false
-    },
-    buttonClass: {
-      type: String,
-      default: '',
       required: false
     }
   },

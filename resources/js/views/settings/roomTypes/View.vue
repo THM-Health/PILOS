@@ -31,15 +31,6 @@
             <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
           </b-form-group>
-          <b-form-group
-            label-cols-sm='4'
-            :label="$t('settings.room_types.short')"
-            label-for='short'
-            :state='fieldState("short")'
-          >
-            <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
-          </b-form-group>
 
           <b-form-group
             label-cols-sm='4'
@@ -58,7 +49,7 @@
             label-cols-sm='4'
             :label="$t('settings.room_types.preview')"
           >
-            <div class="room-icon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
+            <b-badge class="flex-shrink-1 text-break" style="white-space: normal" :style="{ 'background-color': model.color}">{{model.description}}</b-badge>
           </b-form-group>
 
           <b-form-group

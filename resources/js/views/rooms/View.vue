@@ -41,89 +41,59 @@
           </div>
         </div>
         <div v-else>
-          <div class="row">
-            <div class="col-12">
-              <b-button-group class="float-right">
-                <!-- If membership is enabled, allow user to become member -->
-                <can v-if="room.authenticated && isAuthenticated" method="becomeMember" :policy="room">
-                <b-button
-                  id="join-membership-button"
-                  v-on:click="joinMembership"
-                  :disabled="loading"
-                  variant="secondary"
-                >
-                  <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.become_member') }}
-                </b-button>
-                </can>
-                <!-- If user is member, allow user to end the membership -->
-                <b-button
-                  id="leave-membership-button"
-                  v-if="room.authenticated && isAuthenticated && room.is_member"
-                  v-b-modal.leave-membership-modal
-                  :disabled="loading"
-                  variant="danger"
-                >
-                  <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.end_membership.button') }}
-                </b-button>
+          <b-row >
+            <b-col md="10">
+                <!-- Display room type, name and owner  -->
+                <b-badge :style="{ 'background-color': room.type.color}">{{room.type.description}}</b-badge>
+                <h2 class="h2 mt-2 roomname">{{ room.name }}</h2>
 
-                <b-modal
-                  v-if="room.authenticated && isAuthenticated"
-                  :static='modalStatic'
-                  :title="$t('rooms.end_membership.title')"
-                  ok-variant="danger"
-                  cancel-variant="secondary"
-                  :ok-title="$t('rooms.end_membership.yes')"
-                  :cancel-title="$t('rooms.end_membership.no')"
-                  @ok="leaveMembership"
-                  id="leave-membership-modal"
-                  ref="leave-membership-modal"
-                >
-                  {{ $t('rooms.end_membership.message') }}
-                </b-modal>
+              <room-details-component :room="room" :showDescription="true"/>
 
-                <!--show favorite button for logged in users-->
-                <RoomFavoriteComponent v-if="isAuthenticated" ref="favoriteComponent" @favorites_changed="reload()" :is-favorite="room.is_favorite" :size="'md'" :id="room.id"></RoomFavoriteComponent>
-
-                <!-- Reload general room settings/details -->
-                <b-button
-                  variant="secondary"
-                  :title="$t('app.reload')"
-                  ref="reloadButton"
-                  v-b-tooltip.hover
-                  v-tooltip-hide-click
-                  v-on:click="reload"
-                  :disabled="loading"
-                >
-                  <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
-                </b-button>
-
-                <!-- Delete button and modal -->
-                <can method="delete" :policy="room">
-                  <delete-room-component
-                    @roomDeleted="$router.push({ name: 'rooms.index' })"
-                    :room="room"
+            </b-col>
+            <b-col md="2" class="d-flex justify-content-end align-items-start">
+              <b-button-group>
+                  <!-- Reload general room settings/details -->
+                  <b-button
+                    variant="secondary"
+                    :title="$t('app.reload')"
+                    ref="reloadButton"
+                    v-b-tooltip.hover
+                    v-tooltip-hide-click
+                    v-on:click="reload"
                     :disabled="loading"
-                  ></delete-room-component>
-                </can>
+                  >
+                    <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
+                  </b-button>
+                  <b-dropdown variant="dark" toggle-class="text-decoration-none" class="room-dropdown" no-caret right down v-if="room.authenticated && isAuthenticated">
+                    <template #button-content>
+                      <i class="fa-solid fa-bars"></i>
+                    </template>
+                    <room-membership-button
+                      :room="room"
+                      :accessCode="accessCode"
+                      :disabled="loading"
+                      @removed="reload()"
+                      @added="accessCode = null; reload();"
+                      @error="onMembershipButtonError"
+                    />
+                    <RoomFavoriteButton
+                      :disabled="loading"
+                      ref="favoriteComponent"
+                      @favorites_changed="reload()"
+                      :is-favorite="room.is_favorite"
+                      :id="room.id"
+                    />
+                    <can method="delete" :policy="room">
+                      <delete-room-button
+                        @roomDeleted="$router.push({ name: 'rooms.index' })"
+                        :room="room"
+                        :disabled="loading"
+                      />
+                    </can>
+                  </b-dropdown>
               </b-button-group>
-            </div>
-          </div>
-
-          <!-- Display room name, icon and owner -->
-          <div class="row pt-2">
-            <!-- Room icon -->
-            <div class="col-lg-1 col-2">
-              <div :style="{ 'background-color': room.type.color}" class="room-icon" v-if="room.type">
-                {{room.type.short}}
-              </div>
-            </div>
-            <!-- Room name and owner -->
-            <div class="col-lg-11 col-10">
-              <h2 class="roomname">{{ room.name }}</h2>
-              <h5>{{ room.owner.name}}</h5>
-            </div>
-          </div>
-
+            </b-col>
+          </b-row>
           <div class="row pt-2" v-if="room.authenticated && room.can_start && room.room_type_invalid">
             <div class="col-lg-12 col-12">
               <b-alert show variant="warning" ref="roomTypeInvalidAlert">
@@ -250,7 +220,7 @@ import Base from '../../api/base';
 import AdminTabsComponent from '../../components/Room/AdminTabsComponent.vue';
 import TabsComponent from '../../components/Room/TabsComponent.vue';
 import env from './../../env.js';
-import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent.vue';
+import DeleteRoomButton from '../../components/Room/DeleteRoomButton.vue';
 import Can from '../../components/Permissions/Can.vue';
 import Cannot from '../../components/Permissions/Cannot.vue';
 import PermissionService from '../../services/PermissionService';
@@ -260,7 +230,9 @@ import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
 import RoomInvitation from '../../components/Room/RoomInvitation.vue';
-import RoomFavoriteComponent from '../../components/Room/RoomFavoriteComponent.vue';
+import RoomFavoriteButton from '../../components/Room/RoomFavoriteButton.vue';
+import RoomMembershipButton from '../../components/Room/RoomMembershipButton.vue';
+import RoomDetailsComponent from '../../components/Room/RoomDetailsComponent.vue';
 
 export default {
   directives: {
@@ -283,12 +255,14 @@ export default {
   },
 
   components: {
-    RoomFavoriteComponent,
+    RoomDetailsComponent,
+    RoomFavoriteButton,
     RoomInvitation,
     BrowserNotification,
-    DeleteRoomComponent,
+    DeleteRoomButton,
     TabsComponent,
     AdminTabsComponent,
+    RoomMembershipButton,
     Can,
     Cannot
   },
@@ -374,6 +348,20 @@ export default {
           return this.handleGuestsNotAllowed();
         }
       }
+      Base.error(error, this.$root);
+    },
+
+    onMembershipButtonError: function (error) {
+      // Access code invalid
+      if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+        return this.handleInvalidCode();
+      }
+
+      // Membership not allowed, update status
+      if (error.response.status === env.HTTP_FORBIDDEN) {
+        this.room.allow_membership = false;
+      }
+
       Base.error(error, this.$root);
     },
 
@@ -716,55 +704,6 @@ export default {
         });
     },
     /**
-     * Become a room member
-     * @param event
-     */
-    joinMembership: function (event) {
-      // Enable loading indicator
-      this.loading = true;
-
-      // Join room as member, send access code if needed
-      const config = this.accessCode == null ? { method: 'post' } : { method: 'post', headers: { 'Access-Code': this.accessCode } };
-      Base.call('rooms/' + this.room.id + '/membership', config)
-        .then(response => {
-          // Reload room, now as a member; access code no longer needed
-          this.accessCode = null;
-          this.reload();
-        })
-        .catch((error) => {
-          this.loading = false;
-
-          if (error.response) {
-            // Access code invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.handleInvalidCode();
-            }
-
-            // Membership not allowed, update status
-            if (error.response.status === env.HTTP_FORBIDDEN) {
-              this.room.allow_membership = false;
-            }
-          }
-          Base.error(error, this.$root);
-        });
-    },
-    /**
-     * Leave room membership
-     * @param event
-     */
-    leaveMembership: function (event) {
-      // Enable loading indicator
-      this.loading = true;
-      Base.call('rooms/' + this.room.id + '/membership', {
-        method: 'delete'
-      }).catch((error) => {
-        Base.error(error, this.$root);
-      }).finally(() => {
-        // Reload without membership
-        this.reload();
-      });
-    },
-    /**
      * Handle login with access code
      */
     login: function () {
@@ -793,9 +732,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-  .room-icon {
-    margin-top: 8px;
-  }
-</style>

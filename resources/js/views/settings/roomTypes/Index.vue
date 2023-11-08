@@ -44,10 +44,6 @@
         </text-truncate>
       </template>
 
-      <template v-slot:cell(short)="data">
-        <div class="room-icon" :style="{ 'background-color': data.item.color}">{{ data.item.short }}</div>
-      </template>
-
       <template v-slot:cell(actions)="data">
         <b-button-group>
         <can method='view' :policy='data.item'>
@@ -248,8 +244,7 @@ export default {
 
     tableFields () {
       const fields = [
-        { key: 'description', label: this.$t('app.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'short', label: this.$t('settings.room_types.icon'), sortable: true, thStyle: { width: '10%' } }
+        { key: 'description', label: this.$t('app.description'), sortable: true, tdClass: 'td-max-width-0-lg' }
       ];
 
       if (this.actionColumnVisible) {

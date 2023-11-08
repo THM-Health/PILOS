@@ -1,18 +1,3 @@
-.room-icon {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    display: grid;
-    place-items: center center;
-    color: $white;
-    font-size: 15px;
-    font-weight: bold;
-    @include border-radius($thumbnail-border-radius);
-}
-
 .room-info-icon{
     width: 1rem;
     margin-right: 0.75rem;
@@ -24,8 +9,10 @@
     flex-grow: 1;
 }
 
-.room-card-info-icon{
-    width: 20px;
+.room-info-icon{
+    width: 1.5rem;
+    margin-right: 0.5rem;
+    text-align: center;
     flex-shrink: 0
 }
 
@@ -38,17 +25,29 @@
     }
 }
 
+.room-dropdown {
+
+    ul {
+        i {
+            width: 1rem;
+            margin-right: 0.5rem;
+            text-align: center;
+        }
+    }
+
+}
+
 .room-card-buttons {
     z-index: 2;
     position: relative;
 
     .btn{
         margin-left: 0.25rem;
-        padding: 0;    
+        padding: 0;
         height: 25px;
         width: 25px;
         font-size: 12px;
-    }     
+    }
 }
 
 .room-card:hover{

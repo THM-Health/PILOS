@@ -6,41 +6,18 @@
           <div class="d-flex flex-column h-100">
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between align-items-start">
-                <b-badge class="flex-shrink-1 text-break" style="white-space: normal" :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
+                <b-badge class="flex-shrink-1 text-break" style="white-space: normal" :style="{ 'background-color': room.type.color}">{{room.type.description}}</b-badge>
 
                 <div class="room-card-buttons flex-shrink-0" >
-                    <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info" ></b-button>
-                    <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="isFavorite" :size="'sm'" :id="id"></RoomFavoriteComponent>
+                    <b-button @click.stop="showShortDescriptionModal" v-if="room.short_description!=null" size="sm" class="fa-solid fa-info" ></b-button>
+                    <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="room.is_favorite" :size="'sm'" :id="room.id"></RoomFavoriteComponent>
                 </div>
               </div>
-              <h5 class="mt-2 text-break " style="width: 100% ">{{name}}</h5>
+              <h5 class="mt-2 text-break " style="width: 100% ">{{room.name}}</h5>
             </div>
-            <div>
-              <!--owner name-->
-              <div class="d-flex">
-                <div class="room-card-info-icon">
-                  <i class="fa-solid fa-user"></i>
-                </div>
-                <div class="room-info-text">
-                  <small>{{ owner.name }}</small>
-                </div>
-              </div>
-              <!--last meeting info (never started, last ran till, running since, starting)-->
-              <div class="d-flex">
-                <div class="room-card-info-icon">
-                  <i class="fa-solid fa-clock"></i>
-                </div>
-                <div class="room-info-text">
-                  <small>
-                  <span v-if="meeting==null"> {{$t('rooms.index.room_component.never_started')}}</span>
-                  <span v-else-if="meeting.end!=null">{{$t('rooms.index.room_component.last_ran_till', {date:$d(new Date(meeting.end),'datetimeShort')})}}</span>
-                  <span v-else-if="meeting.end==null"> {{$t('rooms.index.room_component.running_since', {date:$d(new Date(meeting.start),'datetimeShort')})}}</span>
-                  </small>
-                </div>
-              </div>
-            </div>
+            <room-details-component :room="room"/>
           </div>
-          <b-link class="stretched-link" :to="{ name: 'rooms.view', params: { id: this.id }}" aria-hidden="true"></b-link>
+          <b-link class="stretched-link" :to="{ name: 'rooms.view', params: { id: room.id }}" aria-hidden="true"></b-link>
       </b-card-body>
     </b-card>
 
@@ -48,7 +25,7 @@
     <b-modal
       :static='modalStatic'
       ref="short-description-modal"
-      :id="'short-description-modal-' + id"
+      :id="'short-description-modal-' + room.id"
       ok-variant="primary"
       @ok="open()"
       :ok-title="$t('rooms.index.room_component.open')"
@@ -56,43 +33,13 @@
       :title="$t('rooms.index.room_component.details')"
     >
       <div class="d-flex justify-content-between align-items-start">
-        <b-badge class="flex-shrink-1 text-break" style="white-space: normal" :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
+        <b-badge class="flex-shrink-1 text-break" style="white-space: normal" :style="{ 'background-color': room.type.color}">{{room.type.description}}</b-badge>
         <div class="room-card-buttons flex-shrink-0" >
-            <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="isFavorite" :size="'sm'" :id="id"></RoomFavoriteComponent>
+            <RoomFavoriteComponent @favorites_changed="$emit('favorites_changed')" :is-favorite="room.is_favorite" :size="'sm'" :id="room.id"></RoomFavoriteComponent>
         </div>
       </div>
-      <h5 class="mt-2 text-break " style="width: 100% ">{{name}}</h5>
-      <div>
-        <!--owner name-->
-        <div class="d-flex">
-          <div class="room-info-icon">
-            <i class="fa-solid fa-user"></i>
-          </div>
-          <div class="room-info-text">
-            {{ owner.name }}
-          </div>
-        </div>
-        <!--last meeting info (never started, last ran till, running since, starting)-->
-        <div class="d-flex">
-          <div class="room-info-icon">
-            <i class="fa-solid fa-clock"></i>
-          </div>
-          <div class="room-info-text">
-            <span v-if="meeting==null"> {{$t('rooms.index.room_component.never_started')}}</span>
-            <span v-else-if="meeting.start!=null">{{$t('rooms.index.room_component.last_ran_till', {date:$d(new Date(meeting.end),'datetimeShort')})}}</span>
-            <span v-else-if="meeting.end==null"> {{$t('rooms.index.room_component.running_since', {date:$d(new Date(meeting.start),'datetimeShort')})}}</span>
-          </div>
-        </div>
-
-        <div class="d-flex">
-          <div class="room-info-icon">
-            <i class="fa-solid fa-info-circle"></i>
-          </div>
-          <div class="room-info-text">
-            <p style="word-break: break-word">{{ shortDescription }} </p>
-          </div>
-        </div>
-      </div>
+      <h5 class="mt-2 text-break " style="width: 100% ">{{room.name}}</h5>
+      <room-details-component :room="room" :showDescription="true"/>
     </b-modal>
   </div>
 
@@ -100,17 +47,12 @@
 <script>
 
 import RoomFavoriteComponent from './RoomFavoriteComponent.vue';
+import RoomDetailsComponent from './RoomDetailsComponent.vue';
 
 export default {
-  components: { RoomFavoriteComponent },
+  components: { RoomDetailsComponent, RoomFavoriteComponent },
   props: {
-    id: String,
-    name: String,
-    isFavorite: Boolean,
-    shortDescription: String,
-    meeting: Object,
-    type: Object,
-    owner: Object,
+    room: Object,
     modalStatic: {
       type: Boolean,
       default: false
@@ -128,21 +70,21 @@ export default {
      * Show short description modal
      */
     showShortDescriptionModal () {
-      this.$bvModal.show('short-description-modal-' + this.id);
+      this.$bvModal.show('short-description-modal-' + this.room.id);
     }
 
   },
   computed: {
 
     link: function () {
-      return this.$router.resolve({ name: 'rooms.view', params: { id: this.id } }).href;
+      return this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).href;
     },
     /**
      * Check if there is a running meeting for this room
      * @returns {boolean}
      */
     running: function () {
-      return this.meeting != null && this.meeting.end == null;
+      return this.room.latest_meeting != null && this.room.latest_meeting.end == null;
     }
   }
 };
