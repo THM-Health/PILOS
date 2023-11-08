@@ -39,7 +39,7 @@ class RoomController extends Controller
         $additionalMeta = [];
 
         if ($request->only_favorites) {
-            //list if room favourites
+            //list if room favorites
             $roomFavorites = Auth::user()->roomFavorites->modelKeys();
             $collection    = Room::whereIn('rooms.id', $roomFavorites);
         } else {
