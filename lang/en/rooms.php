@@ -85,8 +85,8 @@ return [
         'yes'     => 'Yes, end membership',
     ],
     'favorites' => [
-        'add'    => 'Add to favourites',
-        'remove' => 'Remove from favourites'
+        'add'    => 'Add to favorites',
+        'remove' => 'Remove from favorites'
     ],
     'files' => [
         'confirm_delete' => 'Do you want to delete this file :filename?',
