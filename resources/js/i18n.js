@@ -1,24 +1,8 @@
 import axios from 'axios';
-import Vue from 'vue';
-import VueI18n from 'vue-i18n';
+import { createI18n } from 'vue-i18n';
 import _, { forEach } from 'lodash';
 import Base from './api/base';
-const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE;
-
-Vue.use(VueI18n);
-class CustomFormatter {
-  interpolate (message, values) {
-    if (!values) {
-      return [message];
-    }
-    Object.keys(values).forEach(key => {
-      // Use Laravel syntax :placeholder instead of {placeholder}
-      message = message.replace(`:${key}`, values[key]);
-    });
-
-    return [message];
-  }
-}
+const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE; ;
 
 const availableLocales = import.meta.env.VITE_AVAILABLE_LOCALES.split(',');
 
@@ -33,9 +17,9 @@ forEach(localeMetadataFiles, (module, path) => {
   localeMetadata[locale] = Object.assign(localeMetadata[locale], module.default);
 });
 
-const dateTimeFormats = {};
+const datetimeFormats = {};
 for (const [locale, metadata] of Object.entries(localeMetadata)) {
-  dateTimeFormats[locale] = metadata.dateTimeFormat;
+  datetimeFormats[locale] = metadata.dateTimeFormat;
 }
 
 export function getLocaleList () {
@@ -50,7 +34,7 @@ export function getLocaleList () {
  * Set the timezone for showing date and time
  * @param {string=} timezone Timezone string e.g. 'Europe/Berlin', if undefined (default) use users system timezone
  */
-export function setTimeZone (timezone) {
+export function setTimeZone (i18n, timezone) {
   availableLocales.forEach((locale) => {
     const formats = i18n.getDateTimeFormat(locale);
     Object.keys(formats).forEach((index) => {
@@ -60,43 +44,62 @@ export function setTimeZone (timezone) {
   });
 }
 
-function setI18nLanguage (lang) {
-  i18n.locale = lang;
-  axios.defaults.headers.common['Accept-Language'] = lang;
-  document.querySelector('html').setAttribute('lang', lang);
-  return lang;
+function setI18nLanguage (i18n, locale) {
+  i18n.locale = locale;
+  axios.defaults.headers.common['Accept-Language'] = locale;
+  document.querySelector('html').setAttribute('lang', locale);
+  return locale;
 }
 
 const loadedLanguages = [];
 
-export function loadLanguageAsync (lang) {
+export function loadLanguageAsync (i18n, lang) {
   if (loadedLanguages.includes(lang)) {
-    return Promise.resolve(setI18nLanguage(lang));
+    return Promise.resolve(setI18nLanguage(i18n, lang));
   }
 
   if (import.meta.env.MODE !== 'test') {
     return new Promise((resolve, reject) => {
       Base.call('locale/' + lang).then((data) => {
-        importLanguage(lang, data.data);
+        importLanguage(i18n, lang, data.data);
         resolve();
       });
     });
   } else {
-    return Promise.resolve(setI18nLanguage(lang));
+    return Promise.resolve(setI18nLanguage(i18n, lang));
   }
 }
 
-export function importLanguage (lang, messages) {
+export function importLanguage (i18n, lang, messages) {
   const existingLocaleMessages = i18n.getLocaleMessage(lang);
   i18n.setLocaleMessage(lang, _.merge({}, messages, existingLocaleMessages));
   loadedLanguages.push(lang);
-  return setI18nLanguage(lang);
+  return setI18nLanguage(i18n, lang);
 }
 
-const i18n = new VueI18n({
-  formatter: new CustomFormatter(),
+function messageCompiler (message) {
+  if (typeof message === 'string') {
+    return (ctx) => {
+      if (!ctx.values) {
+        return [message];
+      }
+      Object.keys(ctx.values).forEach(key => {
+        // Use Laravel syntax :placeholder instead of {placeholder}
+        message = message.replace(`:${key}`, ctx.values[key]);
+      });
+
+      return message;
+    };
+  }
+}
+
+const i18n = createI18n({
+  legacy: false,
+  globalInjection: true,
   locale: defaultLocale,
   fallbackLocale: defaultLocale,
-  dateTimeFormats
+  datetimeFormats,
+  messageCompiler
 });
+
 export default i18n;

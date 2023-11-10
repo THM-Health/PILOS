@@ -333,8 +333,7 @@ export default {
         if (this.currentUser && this.model.id === this.currentUser.id) {
           return this.getCurrentUser().then(() => {
             if (localeChanged) {
-              return loadLanguageAsync(this.model.user_locale).then(() => {
-                this.setCurrentLocale(this.model.user_locale);
+              return this.setCurrentLocale(this.model.user_locale).then(() => {
                 return response;
               });
             }

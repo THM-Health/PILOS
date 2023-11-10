@@ -1,14 +1,15 @@
 import { BootstrapVue } from 'bootstrap-vue';
-import Vue from 'vue';
-import { createPinia, PiniaVuePlugin } from 'pinia';
+import Vue, { createApp } from '@vue/compat';
+import { createPinia } from 'pinia';
 import App from './views/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
+import { useLoadingStore } from './stores/loading';
+
 import Toast from './mixins/Toast';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
 import axios from 'axios';
-import VueRouter from 'vue-router';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -25,24 +26,24 @@ Vue.use(BootstrapVue);
 Vue.mixin(Toast);
 
 // Add accessibility check tools for development
-if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
-  import('vue-axe').then(({ default: VueAxe }) => Vue.use(VueAxe));
-}
+// if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
+//  import('vue-axe').then(({ default: VueAxe }) => Vue.use(VueAxe));
+// }
 
 Vue.config.errorHandler = Base.error;
 
 Vue.directive('tooltip-hide-click', HideTooltip);
 
-Vue.use(PiniaVuePlugin);
 const pinia = createPinia();
-
-Vue.use(VueRouter);
 const router = createRouter();
 
-export default new Vue({
-  el: '#app',
-  components: { App },
-  pinia,
-  router,
-  i18n
-});
+const app = createApp(App);
+
+app.use(pinia);
+app.use(router);
+app.use(i18n);
+
+app.provide('$router', app.config.globalProperties.$router);
+app.provide('$route', app.config.globalProperties.$route);
+
+app.mount('#app');

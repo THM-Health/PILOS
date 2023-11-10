@@ -1,14 +1,11 @@
 <template>
-  <div v-frag v-if="slotVisible">
     <!-- @slot Content that should be only visible if permissions aren't given. -->
-    <slot></slot>
-  </div>
+    <slot v-if="slotVisible"></slot>
 </template>
 
 <script>
 import EventBus from '../../services/EventBus';
 import PermissionService from '../../services/PermissionService';
-import frag from 'vue-frag';
 
 /**
  * Checks whether the passed permissions aren't given and depending
@@ -27,10 +24,6 @@ import frag from 'vue-frag';
  *   ```
  */
 export default {
-  directives: {
-    frag
-  },
-
   props: {
     /**
      * Method to check permissions with.

@@ -140,8 +140,7 @@ export default {
         await this.getCurrentUser();
 
         if (this.currentUser.user_locale !== null) {
-          await loadLanguageAsync(this.currentUser.user_locale);
-          this.setCurrentLocale(this.currentUser.user_locale);
+          await this.setCurrentLocale(this.currentUser.user_locale);
         }
 
         await this.$router.push({ name: 'home' });

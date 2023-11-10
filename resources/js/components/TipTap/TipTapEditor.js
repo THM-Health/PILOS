@@ -1,4 +1,4 @@
-import { Editor } from '@tiptap/vue-2';
+import { Editor } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';

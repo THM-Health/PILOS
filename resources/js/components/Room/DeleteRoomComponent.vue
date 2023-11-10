@@ -1,5 +1,4 @@
 <template>
-  <div v-frag>
     <!-- Remove room -->
     <b-button
       :class="buttonClass"
@@ -33,17 +32,12 @@
       </template>
       {{ $t('rooms.modals.delete.confirm',{name: room.name}) }}
     </b-modal>
-  </div>
 </template>
 
 <script>
 import Base from '../../api/base';
-import frag from 'vue-frag';
 
 export default {
-  directives: {
-    frag
-  },
   data () {
     return {
       isDeleting: false // is room getting deleted

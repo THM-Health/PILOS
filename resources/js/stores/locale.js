@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia';
 import base from '../api/base';
 import { useAuthStore } from './auth';
+import { loadLanguageAsync } from '../i18n';
+import { useI18n } from 'vue-i18n';
 
 export const useLocaleStore = defineStore('locale', {
   state: () => {
     return {
-      currentLocale: null
+      currentLocale: null,
+      i18n: useI18n({ useScope: 'global' })
     };
   },
   actions: {
@@ -15,11 +18,12 @@ export const useLocaleStore = defineStore('locale', {
       const auth = useAuthStore();
       await auth.getCurrentUser();
 
-      this.setCurrentLocale(locale);
+      await this.setCurrentLocale(locale);
     },
 
-    setCurrentLocale (currentLocale) {
+    async setCurrentLocale (currentLocale) {
       this.currentLocale = currentLocale;
+      await loadLanguageAsync(this.i18n, currentLocale);
     }
   }
 });

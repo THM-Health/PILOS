@@ -1,7 +1,7 @@
 <template>
   <div
     v-b-tooltip.hover
-    :title='!disabled ? this.$slots.default[0].text : null'
+    :title='!disabled ? this.$slots.default()[0].text : null'
     class='text-ellipsis'
     ref="overflow"
     :disabled="disabled"

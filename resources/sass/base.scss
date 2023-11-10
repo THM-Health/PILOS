@@ -18,11 +18,8 @@ $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
 @import "override/toast";
 
 // Vue Multi-Select
-@import "vue-multiselect/dist/vue-multiselect.min.css";
+@import "vue-multiselect/dist/vue-multiselect.css";
 @import "override/multiselect";
-
-// Vue Swatches
-@import "override/vue-swatches";
 
 // Application specify style
 @import "app/app";

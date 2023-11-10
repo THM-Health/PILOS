@@ -1,4 +1,4 @@
-import VueRouter from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import Login from './views/Login.vue';
 import ExternalLogin from './views/ExternalLogin.vue';
 import Logout from './views/Logout.vue';
@@ -414,10 +414,6 @@ export const routes = [
     path: '/404',
     name: '404',
     component: NotFound
-  },
-  {
-    path: '*',
-    redirect: '/404'
   }
 ];
 
@@ -485,8 +481,8 @@ export function beforeEachRoute (router, to, from, next) {
 }
 
 export default function () {
-  const router = new VueRouter({
-    mode: 'history',
+  const router = createRouter({
+    history: createWebHistory(),
     routes
   });
 

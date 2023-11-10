@@ -530,13 +530,8 @@
                 :state='fieldState("banner.color")'
                 :label="$t('settings.application.banner.color')"
               >
-                <v-swatches
-                  class='my-2'
-                  :disabled='isBusy || !loaded || viewOnly'
-                  :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
-                  :swatches='colorSwatches'
-                  v-model='settings.banner.color'
-                  inline></v-swatches>
+                <color-select class="my-2" :disabled='isBusy || !loaded || viewOnly' :colors="textColors" v-model="settings.banner.color"></color-select>
+
                 <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                 <b-form-input
                   id='banner-color-input'
@@ -557,13 +552,8 @@
                 :state='fieldState("banner.background")'
                 :label="$t('settings.application.banner.background')"
               >
-                <v-swatches
-                  class='my-2'
-                  :disabled='isBusy || !loaded || viewOnly'
-                  :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
-                  :swatches='backgroundSwatches'
-                  v-model='settings.banner.background'
-                  inline></v-swatches>
+              <color-select class="my-2" :disabled='isBusy || !loaded || viewOnly' :colors="backgroundColors" v-model="settings.banner.background"></color-select>
+
                 <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                 <b-form-input
                   id='banner-background-input'
@@ -1157,14 +1147,13 @@ import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import PermissionService from '../../services/PermissionService';
 import Banner from '../../components/Banner.vue';
-import VSwatches from 'vue-swatches';
-import 'vue-swatches/dist/vue-swatches.css';
 import { mapActions } from 'pinia';
 import { useSettingsStore } from '../../stores/settings';
 import TimezoneSelect from '../../components/Inputs/TimezoneSelect.vue';
+import ColorSelect from '../../components/Inputs/ColorSelect.vue';
 
 export default {
-  components: { Banner, TimezoneSelect, VSwatches },
+  components: { Banner, TimezoneSelect, ColorSelect },
   mixins: [FieldErrors],
 
   data () {
@@ -1200,8 +1189,8 @@ export default {
         room_auto_delete: {}
       },
       errors: {},
-      colorSwatches: env.BANNER_TEXT_COLORS,
-      backgroundSwatches: env.BANNER_BACKGROUND_COLORS,
+      textColors: env.BANNER_TEXT_COLORS,
+      backgroundColors: env.BANNER_BACKGROUND_COLORS,
       timezonesLoading: false,
       timezonesLoadingError: false
     };
