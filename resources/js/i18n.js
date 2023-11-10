@@ -81,7 +81,7 @@ function messageCompiler (message) {
   if (typeof message === 'string') {
     return (ctx) => {
       if (!ctx.values) {
-        return [message];
+        return message;
       }
       Object.keys(ctx.values).forEach(key => {
         // Use Laravel syntax :placeholder instead of {placeholder}
