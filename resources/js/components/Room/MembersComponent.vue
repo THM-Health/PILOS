@@ -728,7 +728,7 @@ export default {
           key: 'image',
           label: this.$t('rooms.members.image'),
           sortable: false,
-          thClass: 'profileImageColumn'
+          thClass: 'profile-image-column'
         },
         {
           key: 'firstname',

@@ -1,13 +1,13 @@
 <template>
       <div class="h-100" >
     <!-- room card-->
-      <b-card role="button" tabindex="0" no-body bg-variant="white" class="room-card h-100" @click="open" @keyup.enter="open" :class="{'running': running}">
+      <b-card role="button" tabindex="0" no-body bg-variant="white" class="room-card h-100" @click="open" @keyup.enter="open" :class="{'room-card--running': running}">
         <b-card-body class="p-3 h-100">
           <div class="d-flex flex-column h-100">
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between align-items-start">
                 <room-type-badge :roomType="room.type"/>
-                <div class="room-card-buttons flex-shrink-0" >
+                <div class="room-card__buttons flex-shrink-0" >
                     <b-button @click.stop="showModal = true" v-if="room.short_description!=null" size="sm" class="fa-solid fa-info" ></b-button>
                     <room-favorite-button @favorites_changed="$emit('favorites_changed')" :room="room"/>
                 </div>
