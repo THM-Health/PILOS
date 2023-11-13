@@ -26,7 +26,7 @@ class MeetingTest extends TestCase
         parent::setUp();
 
         // Create room and meeting
-        $room                              = Room::factory()->create();
+        $room                              = Room::factory()->create(['access_code'=> 123456789]);
         $this->meeting                     = new Meeting();
         $this->meeting->attendee_pw        = bin2hex(random_bytes(5));
         $this->meeting->moderator_pw       = bin2hex(random_bytes(5));
@@ -61,6 +61,10 @@ class MeetingTest extends TestCase
         $this->assertEquals($meeting->moderator_pw, $data['moderatorPW']);
         $this->assertEquals($meeting->attendee_pw, $data['attendeePW']);
         $this->assertEquals(url('rooms/'.$meeting->room->id), $data['logoutURL']);
+
+        $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('http://localhost/rooms/'.$meeting->room->id, $data['moderatorOnlyMessage']);
+        $this->assertStringContainsString('123-456-789', $data['moderatorOnlyMessage']);
 
         $salt = urldecode(explode('?salt=', $data['meta_endCallbackUrl'])[1]);
         $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
