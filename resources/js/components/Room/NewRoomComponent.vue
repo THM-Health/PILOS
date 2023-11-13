@@ -54,6 +54,8 @@ import { mapActions } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 
 export default {
+  name: 'NewRoomComponent',
+
   components: { RoomTypeSelect },
   mixins: [FieldErrors],
 

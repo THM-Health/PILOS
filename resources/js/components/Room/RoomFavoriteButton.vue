@@ -15,6 +15,8 @@
 import Base from '../../api/base';
 
 export default {
+  name: 'RoomFavoriteButton',
+
   props: {
     room: Object
   },

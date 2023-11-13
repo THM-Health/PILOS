@@ -6,7 +6,7 @@
         <i class="fa-solid fa-user"></i>
       </div>
       <div class="room-details__text">
-        {{ room.owner.name }}
+        <span>{{ room.owner.name }}</span>
       </div>
     </div>
     <!--short description-->
@@ -15,7 +15,7 @@
         <i class="fa-solid fa-info-circle"></i>
       </div>
       <div class="room-details__text">
-        <p style="word-break: break-word;" class="mb-0">{{ room.short_description }} </p>
+        <span style="word-break: break-word;" >{{ room.short_description }} </span>
       </div>
     </div>
     <!--last meeting info (never started, last ran till, running since)-->
@@ -35,7 +35,7 @@
         <i class="fa-solid fa-users"></i>
       </div>
       <div class="room-details__text">
-        {{ room.last_meeting.usage.participant_count }} {{ $t('meetings.participant_count') }}
+        <span>{{ room.last_meeting.usage.participant_count }} {{ $t('meetings.participant_count') }}</span>
       </div>
     </div>
   </div>
@@ -44,6 +44,8 @@
 <script>
 
 export default {
+  name: 'RoomDetailsComponent',
+
   props: {
     room: Object,
     showDescription: {

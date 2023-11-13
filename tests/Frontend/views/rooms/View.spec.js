@@ -14,7 +14,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../../../resources/js/stores/auth';
 import { useSettingsStore } from '../../../../resources/js/stores/settings';
 import { expect } from 'vitest';
-import RoomFavoriteComponent from '../../../../resources/js/components/Room/RoomFavoriteComponent.vue';
+import RoomFavoriteButton from '../../../../resources/js/components/Room/RoomFavoriteButton.vue';
 
 const localVue = createLocalVue();
 
@@ -3128,7 +3128,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
 
     // find room favorite component
-    const roomFavoriteComponent = view.findComponent(RoomFavoriteComponent);
+    const roomFavoriteComponent = view.findComponent(RoomFavoriteButton);
 
     // fire event
     let roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');

@@ -49,6 +49,7 @@ import RoomDetailsComponent from './RoomDetailsComponent.vue';
 import RoomTypeBadge from './RoomTypeBadge.vue';
 
 export default {
+  name: 'RoomCardComponent',
   components: { RoomDetailsComponent, RoomFavoriteButton, RoomTypeBadge },
   props: {
     room: Object,
