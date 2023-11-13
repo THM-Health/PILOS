@@ -97,6 +97,11 @@
                   <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
                 </b-button>
 
+                <!-- transfer room ownership to another user-->
+                <can method="transfer" :policy="room">
+                  <TransferOwnershipComponent :room="room"></TransferOwnershipComponent>
+                </can>
+
                 <!-- Delete button and modal -->
                 <can method="delete" :policy="room">
                   <delete-room-component
@@ -261,6 +266,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
 import RoomInvitation from '../../components/Room/RoomInvitation.vue';
 import RoomFavoriteComponent from '../../components/Room/RoomFavoriteComponent.vue';
+import TransferOwnershipComponent from "../../components/Room/TransferOwnershipComponent.vue";
 
 export default {
   directives: {
@@ -283,6 +289,7 @@ export default {
   },
 
   components: {
+    TransferOwnershipComponent,
     RoomFavoriteComponent,
     RoomInvitation,
     BrowserNotification,
