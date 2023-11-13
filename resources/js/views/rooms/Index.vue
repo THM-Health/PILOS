@@ -175,7 +175,7 @@
           </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" class="p-1" >
             <b-col v-for="room in rooms.data" :key="room.id" class="p-2">
-                <room-component @favorites_changed="loadRooms()" :room="room" />
+                <room-card-component @favorites_changed="loadRooms()" :room="room" />
             </b-col>
           </b-row>
           <b-pagination
@@ -199,7 +199,7 @@
 
 <script>
 
-import RoomComponent from '../../components/Room/RoomComponent.vue';
+import RoomCardComponent from '../../components/Room/RoomCardComponent.vue';
 import NewRoomComponent from '../../components/Room/NewRoomComponent.vue';
 import Base from '../../api/base';
 import { mapActions, mapState } from 'pinia';
@@ -210,7 +210,7 @@ import RoomSkeletonComponent from '../../components/Room/RoomSkeletonComponent.v
 export default {
   components: {
     RoomSkeletonComponent,
-    RoomComponent,
+    RoomCardComponent,
     NewRoomComponent
   },
   computed: {

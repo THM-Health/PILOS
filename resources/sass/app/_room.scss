@@ -20,7 +20,7 @@
     pointer-events: auto;
     cursor: pointer;
     &.running{
-        border-Color: $green;
+        border-color: $green;
         border-width: 2.5px;
     }
 }

@@ -3,7 +3,7 @@
         <!-- If membership is enabled, allow user to become member -->
         <can method="becomeMember" :policy="room">
             <b-dropdown-item-button @click="joinMembership"  id="join-membership-button"  :disabled="loading || disabled">
-                <div class="d-flex">
+                <div class="d-flex align-items-baseline">
                     <i class="fa-solid fa-user"></i>
                     <span>{{ $t('rooms.become_member') }}</span>
                 </div>
@@ -11,7 +11,7 @@
         </can>
         <!-- If user is member, allow user to end the membership -->
         <b-dropdown-item-button v-if="room.is_member" v-b-modal.leave-membership-modal :disabled="loading || disabled">
-            <div class="d-flex">
+            <div class="d-flex align-items-baseline">
                 <i class="fa-solid fa-user"></i>
                 <span>{{ $t('rooms.end_membership.button') }}</span>
             </div>
@@ -36,7 +36,7 @@
 <script>
 import Base from '../../api/base';
 import frag from 'vue-frag';
-import Can from '../../components/Permissions/Can.vue';
+import Can from '../Permissions/Can.vue';
 
 export default {
   components: {

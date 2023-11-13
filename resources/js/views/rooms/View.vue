@@ -44,7 +44,7 @@
           <b-row >
             <b-col md="10">
                 <!-- Display room type, name and owner  -->
-                <b-badge :style="{ 'background-color': room.type.color}">{{room.type.description}}</b-badge>
+                <room-type-badge :roomType="room.type"/>
                 <h2 class="h2 mt-2 roomname">{{ room.name }}</h2>
 
               <room-details-component :room="room" :showDescription="true"/>
@@ -64,7 +64,7 @@
                   >
                     <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
                   </b-button>
-                  <b-dropdown variant="dark" toggle-class="text-decoration-none" class="room-dropdown" no-caret right down v-if="room.authenticated && isAuthenticated">
+                  <b-dropdown variant="secondary" toggle-class="text-decoration-none" class="room-dropdown" no-caret right down v-if="room.authenticated && isAuthenticated">
                     <template #button-content>
                       <i class="fa-solid fa-bars"></i>
                     </template>
@@ -76,12 +76,11 @@
                       @added="accessCode = null; reload();"
                       @error="onMembershipButtonError"
                     />
-                    <RoomFavoriteButton
+                    <room-favorite-button
                       :disabled="loading"
                       ref="favoriteComponent"
                       @favorites_changed="reload()"
-                      :is-favorite="room.is_favorite"
-                      :id="room.id"
+                      :room="room"
                     />
                     <can method="delete" :policy="room">
                       <delete-room-button
@@ -220,7 +219,6 @@ import Base from '../../api/base';
 import AdminTabsComponent from '../../components/Room/AdminTabsComponent.vue';
 import TabsComponent from '../../components/Room/TabsComponent.vue';
 import env from './../../env.js';
-import DeleteRoomButton from '../../components/Room/DeleteRoomButton.vue';
 import Can from '../../components/Permissions/Can.vue';
 import Cannot from '../../components/Permissions/Cannot.vue';
 import PermissionService from '../../services/PermissionService';
@@ -230,9 +228,11 @@ import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
 import RoomInvitation from '../../components/Room/RoomInvitation.vue';
-import RoomFavoriteButton from '../../components/Room/RoomFavoriteButton.vue';
-import RoomMembershipButton from '../../components/Room/RoomMembershipButton.vue';
+import RoomFavoriteButton from '../../components/Room/RoomFavoriteDropdownButton.vue';
+import RoomMembershipButton from '../../components/Room/RoomMembershipDropdownButton.vue';
+import DeleteRoomButton from '../../components/Room/DeleteRoomDropdownButton.vue';
 import RoomDetailsComponent from '../../components/Room/RoomDetailsComponent.vue';
+import RoomTypeBadge from '../../components/Room/RoomTypeBadge.vue';
 
 export default {
   directives: {
@@ -263,6 +263,7 @@ export default {
     TabsComponent,
     AdminTabsComponent,
     RoomMembershipButton,
+    RoomTypeBadge,
     Can,
     Cannot
   },

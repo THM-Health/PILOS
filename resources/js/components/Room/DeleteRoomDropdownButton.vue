@@ -6,7 +6,7 @@
       @click="$bvModal.show('remove-modal')"
       :disabled="disabled"
     >
-      <div class="d-flex">
+      <div class="d-flex align-items-baseline">
         <i class="fa-solid fa-trash"></i>
         <span>{{ $t('rooms.modals.delete.title') }}</span>
       </div>

@@ -1,16 +1,13 @@
 <template>
-  <b-button
+  <b-dropdown-item-button
     @click.stop="toggleFavorite"
-    :variant="isFavorite ? 'primary' : 'secondary'"
-    :title="isFavorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
-    :aria-label="isFavorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
-    v-b-tooltip.hover
-    v-tooltip-hide-click
-
-    :size="size"
-    class="fa-solid fa-star"
   >
-  </b-button>
+    <div class="d-flex align-items-baseline">
+      <i class="fa-solid fa-star"></i>
+      <span v-if="room.is_favorite">{{ $t('rooms.favorites.remove') }}</span>
+      <span v-else>{{ $t('rooms.favorites.add') }}</span>
+    </div>
+  </b-dropdown-item-button>
 </template>
 
 <script>
@@ -18,9 +15,7 @@ import Base from '../../api/base';
 
 export default {
   props: {
-    id: String,
-    isFavorite: Boolean,
-    size: String
+    room: Object
   },
   methods: {
     /**
@@ -29,13 +24,13 @@ export default {
     toggleFavorite: function () {
       let config;
       // check if the room must be added or deleted
-      if (this.isFavorite) {
+      if (this.room.is_favorite) {
         config = { method: 'delete' };
       } else {
         config = { method: 'post' };
       }
       // add or delete room
-      Base.call('rooms/' + this.id + '/favorites', config)
+      Base.call('rooms/' + this.room.id + '/favorites', config)
         .then(response => {
         }).catch(error => {
           Base.error(error, this);

@@ -78,10 +78,7 @@ class Room extends JsonResource
             'start' => $latestMeeting->start,
             'end'   => $latestMeeting->end,
             'usage' => $this->when($latestMeeting->end == null, [
-                'participant_count'           => $this->participant_count,
-                'listener_count'              => $this->listener_count,
-                'voice_participant_count'     => $this->voice_participant_count,
-                'video_count'                 => $this->video_count,
+                'participant_count'           => $this->participant_count
             ]),
         ];
     }
