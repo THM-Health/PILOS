@@ -9,6 +9,7 @@
         {{ room.owner.name }}
       </div>
     </div>
+    <!--short description-->
     <div class="d-flex" v-if="room.short_description && showDescription">
       <div class="room-info-icon">
         <i class="fa-solid fa-info-circle"></i>
@@ -17,7 +18,7 @@
         <p style="word-break: break-word;" class="mb-0">{{ room.short_description }} </p>
       </div>
     </div>
-    <!--last meeting info (never started, last ran till, running since, starting)-->
+    <!--last meeting info (never started, last ran till, running since)-->
     <div class="d-flex">
       <div class="room-info-icon">
         <i class="fa-solid fa-clock"></i>
@@ -28,6 +29,7 @@
         <span v-else-if="room.last_meeting.end==null"> {{$t('rooms.index.room_component.running_since', {date:$d(new Date(room.last_meeting.start),'datetimeShort')})}}</span>
       </div>
     </div>
+    <!--participant count -->
     <div class="d-flex justify-content-start" v-if="room.last_meeting && room.last_meeting.usage">
       <div class="room-info-icon">
         <i class="fa-solid fa-users"></i>
