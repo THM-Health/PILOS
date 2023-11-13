@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v2.3.3] - 2023-11-13
 ### Fixed
 - Moderator only message missing room link and access code ([#684], [#685])
 
@@ -683,7 +685,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#684]: https://github.com/THM-Health/PILOS/issues/684
 [#685]: https://github.com/THM-Health/PILOS/pull/685
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.2...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.3...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -717,3 +719,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.0
 [v2.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.1
 [v2.3.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.2
+[v2.3.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.3
