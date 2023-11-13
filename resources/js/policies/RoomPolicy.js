@@ -40,6 +40,16 @@ export default {
   delete (permissionService, model) {
     return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || permissionService.currentUser.permissions.includes('rooms.manage');
   },
+  /**
+   * Is user allowed to transfer this room to a different user
+   * @param permissionService
+   * @param model
+   * @return {boolean}
+   */
+  transfer (permissionService, model) {
+    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || permissionService.currentUser.permissions.includes('rooms.manage');
+  },
+
 
   /**
    * Is user allowed to see all room settings (including files and members)

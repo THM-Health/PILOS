@@ -8,11 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartJoinMeeting;
+use App\Http\Requests\TransferOwnershipRequest;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Models\Room;
 use App\Models\RoomType;
+use App\Models\User;
 use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use Auth;
@@ -145,7 +147,7 @@ class RoomController extends Controller
      */
     public function store(CreateRoom $request)
     {
-        if (Auth::user()->room_limit !== -1 && Auth::user()->myRooms()->count() >= Auth::user()->room_limit) {
+        if (Auth::user()->hasRoomLimitExceeded()) {
             abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED, __('app.errors.room_limit_exceeded'));
         }
 
@@ -331,6 +333,26 @@ class RoomController extends Controller
     public function deleteFromFavorites(Room $room)
     {
         Auth::user()->roomFavorites()->detach($room);
+
+        return response()->noContent();
+    }
+
+    //ToDo
+    public function transferOwnership(Room $room, TransferOwnershipRequest $request){
+        $newOwner = User::findOrFail($request->user);
+
+        if($room->members->contains($newOwner)){
+            $room->members()->detach($newOwner);
+        }
+
+        $oldOwner = $room->owner;
+
+        $room->owner()->associate($newOwner);
+        $room->save();
+
+        if($request->role){
+            $room->members()->attach($oldOwner, ['role' => $request->role]);
+        }
 
         return response()->noContent();
     }
