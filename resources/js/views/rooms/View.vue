@@ -100,7 +100,7 @@
                 <!-- transfer room ownership to another user-->
                 <can method="transfer" :policy="room">
                   <transfer-ownership-component
-                    @transferredOwnership="reload()"
+                    @transferredOwnership="reload"
                     :room="room">
                   </transfer-ownership-component>
                 </can>
@@ -269,7 +269,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
 import RoomInvitation from '../../components/Room/RoomInvitation.vue';
 import RoomFavoriteComponent from '../../components/Room/RoomFavoriteComponent.vue';
-import TransferOwnershipComponent from "../../components/Room/TransferOwnershipComponent.vue";
+import TransferOwnershipComponent from '../../components/Room/TransferOwnershipComponent.vue';
 
 export default {
   directives: {

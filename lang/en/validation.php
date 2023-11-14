@@ -154,9 +154,9 @@ return [
             ],
         ],
         'transfer_ownership' => [
-            'can_not_own_rooms' => 'The selected user can not own rooms.',
-            'invalid_room_type' => 'The selected user can not own rooms with the room type of this room.',
-            'is_owner' => 'The selected user is the owner of the room.',
+            'can_not_own_rooms'   => 'The selected user can not own rooms.',
+            'invalid_room_type'   => 'The selected user can not own rooms with the room type of this room.',
+            'is_owner'            => 'The selected user is the owner of the room.',
             'room_limit_exceeded' => 'The selected user has reached the max. amount of rooms.',
         ],
         'user' => [

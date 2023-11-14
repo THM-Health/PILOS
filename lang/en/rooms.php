@@ -203,12 +203,13 @@ return [
             'confirm' => 'Should the room ":name" be deleted?',
             'title'   => 'Delete room',
         ],
-        'transfer_ownership' =>[
-            'new_owner' => 'New owner',
-            'new_role'  => 'New role in room',
-            'select_user' => 'Please select the user who should be the new owner',
-            'stay_in_room' => 'Stay member of the room?',
-            'title' => 'Transfer room ownership'
+        'transfer_ownership' => [
+            'new_owner'            => 'New owner',
+            'new_role'             => 'New role in room',
+            'select_user'          => 'Please select the user who should be the new owner',
+            'stay_in_room'         => 'Do you want the current owner to stay a member of the room?',
+            'stay_in_room_current' => 'Stay member of the room?',
+            'title'                => 'Transfer room ownership'
         ],
     ],
     'name'                      => 'Room name',

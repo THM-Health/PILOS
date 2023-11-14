@@ -143,7 +143,12 @@ class User extends Authenticatable implements HasLocalePreference
         return intval($role_limits->max());
     }
 
-    public function hasRoomLimitExceeded(){
+    /**
+     * Check if the users room limit has exceeded
+     * @return bool
+     */
+    public function hasRoomLimitExceeded()
+    {
         return $this->room_limit !== -1 && $this->myRooms()->count() >= $this->room_limit;
     }
 

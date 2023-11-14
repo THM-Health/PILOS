@@ -337,11 +337,19 @@ class RoomController extends Controller
         return response()->noContent();
     }
 
-    //ToDo
-    public function transferOwnership(Room $room, TransferOwnershipRequest $request){
+    /**
+     * transfer the room ownership to another user
+     *
+     * @param  Room                      $room
+     * @param  TransferOwnershipRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function transferOwnership(Room $room, TransferOwnershipRequest $request)
+    {
         $newOwner = User::findOrFail($request->user);
 
-        if($room->members->contains($newOwner)){
+        //delete the new owner from the members if he is a member of the room
+        if ($room->members->contains($newOwner)) {
             $room->members()->detach($newOwner);
         }
 
@@ -350,7 +358,8 @@ class RoomController extends Controller
         $room->owner()->associate($newOwner);
         $room->save();
 
-        if($request->role){
+        //add old owner to the members
+        if ($request->role) {
             $room->members()->attach($oldOwner, ['role' => $request->role]);
         }
 

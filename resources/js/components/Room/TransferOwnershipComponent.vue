@@ -10,6 +10,7 @@
       <i class="fa-solid fa-user-gear"></i>
     </b-button>
 
+    <!--transfer ownership modal-->
     <b-modal
       :busy="isLoadingAction"
       :cancel-title="$t('app.cancel')"
@@ -56,8 +57,11 @@
         <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
       </b-form-group>
 
-      <b-form-checkbox switch v-model="stayInRoom"> {{$t('rooms.modals.transfer_ownership.stay_in_room')}}</b-form-checkbox>
+      <!--select if the owner wants/should stay in the room-->
+      <b-form-checkbox v-if="room.owner.id === currentUser.id" switch v-model="stayInRoom"> {{$t('rooms.modals.transfer_ownership.stay_in_room_current')}}</b-form-checkbox>
+      <b-form-checkbox v-else switch v-model="stayInRoom"> {{$t('rooms.modals.transfer_ownership.stay_in_room')}}</b-form-checkbox>
 
+      <!--select new role in the room for the current owner -->
       <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" v-if="stayInRoom" :state="newRoleInRoomValid" class=" mt-2">
         <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" value="1">
           <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
@@ -77,71 +81,80 @@
 
 <script>
 import { Multiselect } from 'vue-multiselect';
-import FieldErrors from "../../mixins/FieldErrors";
-import Base from "../../api/base";
-import env from "../../env";
+import FieldErrors from '../../mixins/FieldErrors';
+import Base from '../../api/base';
+import env from '../../env';
+import { mapState } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
 export default {
   name: 'TransferOwnershipComponent',
 
   mixins: [FieldErrors],
-  components:{Multiselect},
+  components: { Multiselect },
   props: {
-    room: Object //room object
+    room: Object // room object
   },
-  data(){
-    return{
+  data () {
+    return {
       isLoadingAction: false,
-      isLoadingSearch:false,
-      users:[], //list of all found users
+      isLoadingSearch: false,
+      users: [], // list of all found users
       newOwner: null,
       stayInRoom: true,
       newRoleInRoom: 3,
-      errors:[]
+      errors: []
     };
   },
-  methods:{
-    transferOwnership(bvModalEvt){
+  methods: {
+    /**
+     * transfer thr room ownership to another user
+     * @param bvModalEvt
+     */
+    transferOwnership (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
 
       this.isLoadingAction = true;
+      // reset errors
       this.errors = [];
+
       const data = {
         user: this.newOwner.id
       };
-      if(this.stayInRoom){
-        data.role =this.newRoleInRoom;
+      if (this.stayInRoom) {
+        data.role = this.newRoleInRoom;
       }
 
+      // transfer room ownership to the selected user
       Base.call('rooms/' + this.room.id + '/transfer', {
         method: 'post',
         data
-      }).then(response =>{
-        this.$emit("transferredOwnership")
-        // operation successful, close modal and reload list
+      }).then(response => {
+        // operation successful, emit "transferredOwnership" to reload room view and close modal
+        this.$emit('transferredOwnership');
         this.$bvModal.hide('transfer-ownership-modal');
       }).catch(error => {
-        // adding failed
+        // transferring failed
         if (error.response) {
-          // failed due to form validation errors
+          // failed due to validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
             return;
           }
         }
         Base.error(error, this.$root);
-      }).finally(()=>{
+      }).finally(() => {
         this.isLoadingAction = false;
       });
     },
     /**
      * show modal to transfer the room ownership
      */
-    showTransferOwnershipModal(){
+    showTransferOwnershipModal () {
       this.newOwner = null;
-      this.users=[];
+      this.users = [];
       this.errors = [];
-      this.$bvModal.show('transfer-ownership-modal')
+      this.$bvModal.show('transfer-ownership-modal');
     },
 
     /**
@@ -158,7 +171,7 @@ export default {
       };
 
       Base.call('users/search', config).then(response => {
-        // disable users that are already members of this room or the room owner
+        // disable user that is currently the owner of the room
         this.users = response.data.data.map(user => {
           if (this.room.owner.id === user.id) { user.$isDisabled = true; }
           return user;
@@ -168,15 +181,19 @@ export default {
       }).finally(() => {
         this.isLoadingSearch = false;
       });
-    },
+    }
 
   },
-  computed:{
-    newOwnerValid (){
+  computed: {
+    ...mapState(useAuthStore, ['currentUser']),
+
+    // check if new owner input field is valid
+    newOwnerValid () {
       if (this.newOwner == null || this.newOwner.id == null || this.fieldState('user') === false) { return false; }
       return null;
     },
-    newRoleInRoomValid(){
+    // check if new role input field is valid
+    newRoleInRoomValid () {
       if ((this.stayInRoom && this.newRoleInRoom == null) || this.fieldState('role') === false) { return false; }
       return null;
     },
@@ -186,7 +203,7 @@ export default {
     }
   }
 
-}
+};
 </script>
 
 <style scoped>

@@ -50,7 +50,6 @@ export default {
     return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || permissionService.currentUser.permissions.includes('rooms.manage');
   },
 
-
   /**
    * Is user allowed to see all room settings (including files and members)
    * @param permissionService
