@@ -81,6 +81,8 @@ import FieldErrors from "../../mixins/FieldErrors";
 import Base from "../../api/base";
 import env from "../../env";
 export default {
+  name: 'TransferOwnershipComponent',
+
   mixins: [FieldErrors],
   components:{Multiselect},
   props: {
@@ -115,6 +117,7 @@ export default {
         method: 'post',
         data
       }).then(response =>{
+        this.$emit("transferredOwnership")
         // operation successful, close modal and reload list
         this.$bvModal.hide('transfer-ownership-modal');
       }).catch(error => {

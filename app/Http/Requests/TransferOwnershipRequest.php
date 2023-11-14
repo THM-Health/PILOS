@@ -17,17 +17,17 @@ class TransferOwnershipRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     $user = User::find($value);
                     if ($this->room->owner->is($user)) {
-                        $fail(__('validation.custom.room.is_owner'));
+                        $fail(__('validation.custom.transfer_ownership.room.is_owner'));
                     }
                     if($user->cannot('create', Room::class)){
-                        $fail(__('validation.can_not_own_rooms'));
+                        $fail(__('validation.custom.transfer_ownership.can_not_own_rooms'));
                     }
                     if(!Room::roomTypePermitted($user, $this->room->roomType)){
-                        $fail(__('validation.custom.invalid_room_type'));
+                        $fail(__('validation.custom.transfer_ownership.invalid_room_type'));
                     }
 
                     if ($user->hasRoomLimitExceeded()) {
-                        $fail(__('app.errors.room_limit_exceeded'));
+                        $fail(__('validation.custom.transfer_ownership.room_limit_exceeded'));
                     }
                 }],
             'role' => [Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR,RoomUserRole::CO_OWNER])],

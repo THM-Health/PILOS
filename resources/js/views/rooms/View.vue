@@ -99,7 +99,10 @@
 
                 <!-- transfer room ownership to another user-->
                 <can method="transfer" :policy="room">
-                  <TransferOwnershipComponent :room="room"></TransferOwnershipComponent>
+                  <transfer-ownership-component
+                    @transferredOwnership="reload()"
+                    :room="room">
+                  </transfer-ownership-component>
                 </can>
 
                 <!-- Delete button and modal -->
