@@ -209,7 +209,8 @@ return [
             'select_user'          => 'Bitte wählen Sie den neuen Besitzer aus',
             'stay_in_room'         => 'Soll der aktuelle Besitzer ein Mitglied im Raum bleiben?',
             'stay_in_room_current' => 'Im Raum Mitglied bleiben?',
-            'title'                => 'Raum übertragen'
+            'title'                => 'Raum übertragen',
+            'transfer'             => 'Übertragen',
         ],
     ],
     'name'                      => 'Raumname',

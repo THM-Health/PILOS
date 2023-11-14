@@ -25,7 +25,8 @@
     >
 
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  Transfer
+        <b-spinner small v-if="isLoadingAction"></b-spinner>
+        {{ $t('rooms.modals.transfer_ownership.transfer') }}
       </template>
 
       <!--select new owner-->
