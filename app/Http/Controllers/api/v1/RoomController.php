@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use Auth;
+use DB;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -348,21 +349,29 @@ class RoomController extends Controller
     {
         $newOwner = User::findOrFail($request->user);
 
-        //delete the new owner from the members if he is a member of the room
-        if ($room->members->contains($newOwner)) {
-            $room->members()->detach($newOwner);
+        DB::beginTransaction();
+
+        try {
+            //delete the new owner from the members if he is a member of the room
+            if ($room->members->contains($newOwner)) {
+                $room->members()->detach($newOwner);
+            }
+
+            $oldOwner = $room->owner;
+
+            $room->owner()->associate($newOwner);
+            $room->save();
+
+            //add old owner to the members
+            if ($request->role) {
+                $room->members()->attach($oldOwner, ['role' => $request->role]);
+            }
+
+            DB::commit();
+            return response()->noContent();
+        }catch(\Exception $e) {
+            DB::rollBack();
+            return abort(500);
         }
-
-        $oldOwner = $room->owner;
-
-        $room->owner()->associate($newOwner);
-        $room->save();
-
-        //add old owner to the members
-        if ($request->role) {
-            $room->members()->attach($oldOwner, ['role' => $request->role]);
-        }
-
-        return response()->noContent();
     }
 }

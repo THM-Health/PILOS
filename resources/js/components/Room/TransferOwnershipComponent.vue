@@ -40,6 +40,7 @@
           :multiple="false"
           :searchable="true"
           :loading="isLoadingSearch"
+          :disabled="isLoadingAction"
           :internal-search="false"
           :clear-on-select="false"
           :preserveSearch="true"
@@ -59,11 +60,13 @@
       </b-form-group>
 
       <!--select if the owner wants/should stay in the room-->
-      <b-form-checkbox v-if="room.owner.id === currentUser.id" switch v-model="stayInRoom"> {{$t('rooms.modals.transfer_ownership.stay_in_room_current')}}</b-form-checkbox>
-      <b-form-checkbox v-else switch v-model="stayInRoom"> {{$t('rooms.modals.transfer_ownership.stay_in_room')}}</b-form-checkbox>
+      <b-form-checkbox  :disabled="isLoadingAction" switch v-model="stayInRoom">
+        <span v-if="room.owner.id === currentUser.id">{{$t('rooms.modals.transfer_ownership.stay_in_room_current')}}</span>
+        <span v-else>{{$t('rooms.modals.transfer_ownership.stay_in_room')}}</span>
+      </b-form-checkbox>
 
       <!--select new role in the room for the current owner -->
-      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" v-if="stayInRoom" :state="newRoleInRoomValid" class=" mt-2">
+      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" v-if="stayInRoom" :disabled="isLoadingAction" :state="newRoleInRoomValid" class=" mt-2">
         <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" value="1">
           <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
         </b-form-radio>
@@ -149,11 +152,13 @@ export default {
       });
     },
     /**
-     * show modal to transfer the room ownership
+     * reset and show modal to transfer the room ownership
      */
     showTransferOwnershipModal () {
       this.newOwner = null;
       this.users = [];
+      this.newRoleInRoom = 3;
+      this.stayInRoom = true;
       this.errors = [];
       this.$bvModal.show('transfer-ownership-modal');
     },
@@ -201,6 +206,12 @@ export default {
     // return error message for user, local or server-side
     userValidationError: function () {
       return this.fieldState('user') === false ? this.fieldError('user') : this.$t('rooms.modals.transfer_ownership.select_user');
+    }
+  },
+
+  watch: {
+    'newOwner':function(){
+      this.errors ={};
     }
   }
 
