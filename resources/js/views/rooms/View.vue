@@ -448,17 +448,6 @@ export default {
       this.reloadInterval = setInterval(this.reload, this.getRandomRefreshInterval() * 1000);
     },
 
-    onMembershipButtonError: function (error) {
-      // Access code invalid
-      if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-        return this.handleInvalidCode();
-      }
-
-      Base.error(error, this.$root);
-
-      this.reload();
-    },
-
     ...mapActions(useAuthStore, ['setCurrentUser']),
 
     /**
