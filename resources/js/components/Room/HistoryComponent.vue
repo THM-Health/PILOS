@@ -234,7 +234,7 @@ ChartJS.register(Title, Tooltip, Legend, PointElement, LineElement, TimeScale, L
 
 export default {
   name: 'HistoryComponent',
-  
+
   components: { RawText, LineChart: Line },
   props: {
     room: Object,
