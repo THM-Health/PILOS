@@ -519,6 +519,9 @@ import { useSettingsStore } from '@/stores/settings';
 import BulkImportMembersComponent from './BulkImportMembersComponent.vue';
 
 export default {
+
+  name: 'MembersComponent',
+
   components: { BulkImportMembersComponent, Multiselect, Can },
   mixins: [FieldErrors],
 

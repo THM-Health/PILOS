@@ -43,9 +43,6 @@
               </template>
               <file-component
                 :room="room"
-                @invalid-code="$emit('invalid-code')"
-                @invalid-token="$emit('invalid-token')"
-                @guests-not-allowed="$emit('guests-not-allowed')"
               />
             </b-tab>
             <!-- Statistics tab -->

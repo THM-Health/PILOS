@@ -233,6 +233,8 @@ import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
 ChartJS.register(Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale);
 
 export default {
+  name: 'HistoryComponent',
+  
   components: { RawText, LineChart: Line },
   props: {
     room: Object,

@@ -565,6 +565,70 @@ describe('Room', () => {
     view.destroy();
   });
 
+  it('room tabs component', async () => {
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/gs4-6fb-kk8').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'gs4-6fb-kk8',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'gs4-6fb-kk8'
+      },
+      stubs,
+      router: routerMock,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const tabsComponent = view.findComponent({ name: 'TabsComponent' });
+
+    // room is passed to tabs component
+    expect(tabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+
+    // handle invalid code error
+    tabsComponent.vm.$emit('invalid-code');
+    expect(handleInvalidCode).toBeCalledTimes(1);
+
+    // handle guests not allowed error
+    tabsComponent.vm.$emit('guests-not-allowed');
+    expect(handleGuestsNotAllowed).toBeCalledTimes(1);
+
+    // handle invalid token error
+    tabsComponent.vm.$emit('invalid-token');
+    expect(handleInvalidToken).toBeCalledTimes(1);
+
+    view.destroy();
+  });
+
   it('room tabs components for authenticated users/guests with access token', async () => {
     const roomRequest = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8');
     const view = mount(RoomView, {
@@ -710,6 +774,87 @@ describe('Room', () => {
     expect(tabsComponent.exists()).toBeTruthy();
 
     expect(tabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+
+    view.destroy();
+  });
+
+  it('room admin tabs component', async () => {
+    mockAxios.request('/api/v1/rooms/gs4-6fb-kk8').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'gs4-6fb-kk8',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: true,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'gs4-6fb-kk8'
+      },
+      stubs,
+      router: routerMock,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const adminTabsComponent = view.findComponent({ name: 'AdminTabsComponent' });
+
+    // room is passed to tabs component
+    expect(adminTabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+
+    const request = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8');
+
+    // handle settings-changed event
+    adminTabsComponent.vm.$emit('settings-changed');
+
+    await request.wait();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'gs4-6fb-kk8',
+          name: 'Meeting Two',
+          owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: true,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    // check if room name is updated
+    expect(view.html()).toContain('Meeting Two');
 
     view.destroy();
   });
@@ -1219,64 +1364,6 @@ describe('Room', () => {
     });
     // check if reload was successful and no other error message is shown
     expect(toastErrorSpy).toBeCalledTimes(1);
-
-    view.destroy();
-  });
-
-  it('handle tab component errors', async () => {
-    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
-    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
-    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
-
-    mockAxios.request('/api/v1/rooms/gs4-6fb-kk8').respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'gs4-6fb-kk8',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'John Doe' },
-          last_meeting: null,
-          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: false,
-          is_member: false,
-          is_co_owner: false,
-          is_moderator: false,
-          can_start: true,
-          access_code: 123456789,
-          current_user: exampleUser
-        }
-      }
-    });
-
-    const view = mount(RoomView, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        id: 'gs4-6fb-kk8'
-      },
-      stubs,
-      router: routerMock,
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-      attachTo: createContainer()
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    const tabsComponent = view.findComponent({ name: 'TabsComponent' });
-
-    tabsComponent.vm.$emit('invalid-code');
-    expect(handleInvalidCode).toBeCalledTimes(1);
-
-    tabsComponent.vm.$emit('guests-not-allowed');
-    expect(handleGuestsNotAllowed).toBeCalledTimes(1);
-
-    tabsComponent.vm.$emit('invalid-token');
-    expect(handleInvalidToken).toBeCalledTimes(1);
 
     view.destroy();
   });
