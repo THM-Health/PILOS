@@ -1,6 +1,6 @@
 import axios from 'axios';
-import env from '../env';
-import { useAuthStore } from '../stores/auth';
+import env from '@/env';
+import { useAuthStore } from '@/stores/auth';
 
 export default {
   /**

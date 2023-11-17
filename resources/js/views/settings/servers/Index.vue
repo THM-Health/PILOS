@@ -5,28 +5,38 @@
         <h3>
           {{ $t('app.servers') }}
 
-          <can method='create' policy='ServerPolicy'>
+          <can
+            method="create"
+            policy="ServerPolicy"
+          >
             <b-button
-              class='ml-2 float-right'
+              ref="newServer"
               v-b-tooltip.hover
               v-tooltip-hide-click
-              variant='success'
-              ref="newServer"
+              class="ml-2 float-right"
+              variant="success"
               :title="$t('settings.servers.new')"
               :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
-            ><i class="fa-solid fa-plus"></i></b-button>
+            >
+              <i class="fa-solid fa-plus" />
+            </b-button>
           </can>
         </h3>
       </b-col>
-      <b-col sm='12' md='3'>
+      <b-col
+        sm="12"
+        md="3"
+      >
         <b-input-group>
           <b-form-input
-            v-model='filter'
+            v-model="filter"
             :placeholder="$t('app.search')"
-            :debounce='searchDebounce'
-          ></b-form-input>
+            :debounce="searchDebounce"
+          />
           <b-input-group-append>
-            <b-input-group-text class='bg-primary'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+            <b-input-group-text class="bg-primary">
+              <i class="fa-solid fa-magnifying-glass" />
+            </b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -34,29 +44,29 @@
     <hr>
 
     <b-table
+      id="servers-table"
+      ref="servers"
       fixed
       hover
-      stacked='lg'
+      stacked="lg"
       show-empty
-      :busy.sync='isBusy'
-      :fields='tableFields'
-      :items='fetchServers'
-      id='servers-table'
-      ref='servers'
-      :filter='filter'
-      :current-page='currentPage'>
-
-      <template v-slot:empty>
+      :busy.sync="isBusy"
+      :fields="tableFields"
+      :items="fetchServers"
+      :filter="filter"
+      :current-page="currentPage"
+    >
+      <template #empty>
         <i>{{ $t('settings.servers.no_data') }}</i>
       </template>
 
-      <template v-slot:emptyfiltered>
+      <template #emptyfiltered>
         <i>{{ $t('settings.servers.no_data_filtered') }}</i>
       </template>
 
-      <template v-slot:table-busy>
+      <template #table-busy>
         <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
+          <b-spinner class="align-middle" />
         </div>
       </template>
 
@@ -66,68 +76,110 @@
         </text-truncate>
       </template>
 
-      <template v-slot:cell(status)="data">
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2"><i class='fa-solid fa-pause'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2"><i class='fa-solid fa-stop'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2"><i class='fa-solid fa-play'></i></b-badge>
+      <template #cell(status)="data">
+        <b-badge
+          v-if="data.item.status === -1"
+          v-b-tooltip.hover
+          :title="$t('settings.servers.disabled')"
+          variant="secondary"
+          class="p-2"
+        >
+          <i class="fa-solid fa-pause" />
+        </b-badge>
+        <b-badge
+          v-else-if="data.item.status === 0"
+          v-b-tooltip.hover
+          :title="$t('settings.servers.offline')"
+          variant="danger"
+          class="p-2"
+        >
+          <i class="fa-solid fa-stop" />
+        </b-badge>
+        <b-badge
+          v-else
+          v-b-tooltip.hover
+          :title="$t('settings.servers.online')"
+          variant="success"
+          class="p-2"
+        >
+          <i class="fa-solid fa-play" />
+        </b-badge>
       </template>
 
-      <template v-slot:cell(participant_count)="data">
+      <template #cell(participant_count)="data">
         <span v-if="data.item.participant_count !== null">{{ data.item.participant_count }}</span>
-        <raw-text v-else>---</raw-text>
+        <raw-text v-else>
+          ---
+        </raw-text>
       </template>
 
-      <template v-slot:cell(video_count)="data">
+      <template #cell(video_count)="data">
         <span v-if="data.item.video_count !== null">{{ data.item.video_count }}</span>
-        <raw-text v-else>---</raw-text>
+        <raw-text v-else>
+          ---
+        </raw-text>
       </template>
 
-      <template v-slot:cell(version)="data">
+      <template #cell(version)="data">
         <span v-if="data.item.version != null">{{ data.item.version }}</span>
-        <raw-text v-else>---</raw-text>
+        <raw-text v-else>
+          ---
+        </raw-text>
       </template>
 
-      <template v-slot:cell(meeting_count)="data">
+      <template #cell(meeting_count)="data">
         <span v-if="data.item.meeting_count !== null">{{ data.item.meeting_count }}</span>
-        <raw-text v-else>---</raw-text>
+        <raw-text v-else>
+          ---
+        </raw-text>
       </template>
 
-      <template v-slot:cell(actions)="data">
+      <template #cell(actions)="data">
         <b-button-group>
-          <can method='view' :policy='data.item'>
+          <can
+            method="view"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.servers.view', { name: data.item.name })"
-              :disabled='isBusy'
-              variant='info'
+              :disabled="isBusy"
+              variant="info"
               :to="{ name: 'settings.servers.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fa-solid fa-eye'></i>
+              <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can method='update' :policy='data.item'>
+          <can
+            method="update"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.servers.edit', { name: data.item.name })"
-              :disabled='isBusy'
-              variant='secondary'
+              :disabled="isBusy"
+              variant="secondary"
               :to="{ name: 'settings.servers.view', params: { id: data.item.id } }"
             >
-              <i class='fa-solid fa-edit'></i>
+              <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can method='delete' :policy='data.item'>
+          <can
+            method="delete"
+            :policy="data.item"
+          >
             <b-button
               v-if="data.item.status===-1"
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.servers.delete.item', { name: data.item.name })"
-              :disabled='isBusy'
-              variant='danger'
-              @click='showServerModal(data.item)'>
-              <i class='fa-solid fa-trash'></i>
+              :disabled="isBusy"
+              variant="danger"
+              @click="showServerModal(data.item)"
+            >
+              <i class="fa-solid fa-trash" />
             </b-button>
           </can>
         </b-button-group>
@@ -135,63 +187,67 @@
     </b-table>
 
     <b-pagination
-      v-model='currentPage'
-      :total-rows='total'
-      :per-page='perPage'
-      aria-controls='servers-table'
+      v-model="currentPage"
+      :total-rows="total"
+      :per-page="perPage"
+      aria-controls="servers-table"
+      align="center"
+      :disabled="isBusy"
       @input="$root.$emit('bv::refresh::table', 'servers-table')"
-      align='center'
-      :disabled='isBusy'
-    ></b-pagination>
+    />
 
     <b-alert show>
-      <i class="fa-solid fa-info-circle"></i>
+      <i class="fa-solid fa-info-circle" />
       {{ $t('settings.servers.usage_info') }}
       <br><br>
       <b-button
         v-b-tooltip.hover
         v-tooltip-hide-click
         size="sm"
-        variant='info'
+        variant="info"
         :disabled="isBusy"
         @click="updateUsage=true;$root.$emit('bv::refresh::table', 'servers-table')"
-      ><i class="fa-solid fa-sync"></i> {{ $t('settings.servers.reload') }}</b-button>
+      >
+        <i class="fa-solid fa-sync" /> {{ $t('settings.servers.reload') }}
+      </b-button>
     </b-alert>
 
     <b-modal
-      :busy='deleting'
-      ok-variant='danger'
-      cancel-variant='secondary'
+      ref="delete-server-modal"
+      :busy="deleting"
+      ok-variant="danger"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @ok='deleteServer($event)'
-      @cancel='clearServerToDelete'
-      @close='clearServerToDelete'
-      ref='delete-server-modal'
-      :static='modalStatic'
+      :static="modalStatic"
       :no-close-on-esc="deleting"
       :no-close-on-backdrop="deleting"
       :hide-header-close="deleting"
+      @ok="deleteServer($event)"
+      @cancel="clearServerToDelete"
+      @close="clearServerToDelete"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('settings.servers.delete.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="deleting"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="serverToDelete">
         {{ $t('settings.servers.delete.confirm', { name:serverToDelete.name }) }}
       </span>
-
     </b-modal>
   </div>
 </template>
 
 <script>
-import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can.vue';
-import ActionsColumn from '../../../mixins/ActionsColumn';
-import RawText from '../../../components/RawText.vue';
-import TextTruncate from '../../../components/TextTruncate.vue';
+import Base from '@/api/base';
+import Can from '@/components/Permissions/Can.vue';
+import ActionsColumn from '@/mixins/ActionsColumn';
+import RawText from '@/components/RawText.vue';
+import TextTruncate from '@/components/TextTruncate.vue';
 
 export default {
   components: { TextTruncate, Can, RawText },
@@ -207,6 +263,20 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+
+  data () {
+    return {
+      isBusy: false,
+      deleting: false,
+      currentPage: undefined,
+      total: undefined,
+      perPage: undefined,
+      serverToDelete: undefined,
+      actionPermissions: ['servers.view', 'servers.update', 'servers.delete'],
+      filter: undefined,
+      updateUsage: false
+    };
   },
 
   computed: {
@@ -227,20 +297,6 @@ export default {
 
       return fields;
     }
-  },
-
-  data () {
-    return {
-      isBusy: false,
-      deleting: false,
-      currentPage: undefined,
-      total: undefined,
-      perPage: undefined,
-      serverToDelete: undefined,
-      actionPermissions: ['servers.view', 'servers.update', 'servers.delete'],
-      filter: undefined,
-      updateUsage: false
-    };
   },
 
   methods: {

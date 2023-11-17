@@ -2,39 +2,43 @@
   <div>
     <h3>
       {{ $t('app.room_types') }}
-      <can method='create' policy='RoomTypePolicy'>
+      <can
+        method="create"
+        policy="RoomTypePolicy"
+      >
         <b-button
-          class='float-right'
           v-b-tooltip.hover
           v-tooltip-hide-click
-          variant='success'
+          class="float-right"
+          variant="success"
           :title="$t('settings.room_types.new')"
           :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
-        ><i class="fa-solid fa-plus"></i></b-button>
+        >
+          <i class="fa-solid fa-plus" />
+        </b-button>
       </can>
     </h3>
     <hr>
 
     <b-table
+      id="roomTypes-table"
       fixed
       hover
-      stacked='lg'
+      stacked="lg"
       show-empty
-      :busy.sync='isBusy'
+      :busy.sync="isBusy"
       :fields="tableFields"
-      :items='roomTypes'
-      :per-page='getSetting("pagination_page_size")'
+      :items="roomTypes"
+      :per-page="getSetting('pagination_page_size')"
       :current-page="currentPage"
-      id='roomTypes-table'
     >
-
-      <template v-slot:empty>
+      <template #empty>
         <i>{{ $t('settings.room_types.no_data') }}</i>
       </template>
 
-      <template v-slot:table-busy>
+      <template #table-busy>
         <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
+          <b-spinner class="align-middle" />
         </div>
       </template>
 
@@ -44,102 +48,128 @@
         </text-truncate>
       </template>
 
-      <template v-slot:cell(actions)="data">
+      <template #cell(actions)="data">
         <b-button-group>
-        <can method='view' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            v-tooltip-hide-click
-            :title="$t('settings.room_types.view', { name: data.item.description })"
-            :disabled='isBusy'
-            variant='info'
-            :to="{ name: 'settings.room_types.view', params: { id: data.item.id }, query: { view: '1' } }"
+          <can
+            method="view"
+            :policy="data.item"
           >
-            <i class='fa-solid fa-eye'></i>
-          </b-button>
-        </can>
-        <can method='update' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            v-tooltip-hide-click
-            :title="$t('settings.room_types.edit', { name: data.item.description })"
-            :disabled='isBusy'
-            variant='secondary'
-            :to="{ name: 'settings.room_types.view', params: { id: data.item.id } }"
+            <b-button
+              v-b-tooltip.hover
+              v-tooltip-hide-click
+              :title="$t('settings.room_types.view', { name: data.item.description })"
+              :disabled="isBusy"
+              variant="info"
+              :to="{ name: 'settings.room_types.view', params: { id: data.item.id }, query: { view: '1' } }"
+            >
+              <i class="fa-solid fa-eye" />
+            </b-button>
+          </can>
+          <can
+            method="update"
+            :policy="data.item"
           >
-            <i class='fa-solid fa-edit'></i>
-          </b-button>
-        </can>
-        <can method='delete' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            v-tooltip-hide-click
-            :title="$t('settings.room_types.delete.item', { id: data.item.description })"
-            :disabled='isBusy'
-            variant='danger'
-            @click='showDeleteModal(data.item)'>
-            <i class='fa-solid fa-trash'></i>
-          </b-button>
-        </can>
+            <b-button
+              v-b-tooltip.hover
+              v-tooltip-hide-click
+              :title="$t('settings.room_types.edit', { name: data.item.description })"
+              :disabled="isBusy"
+              variant="secondary"
+              :to="{ name: 'settings.room_types.view', params: { id: data.item.id } }"
+            >
+              <i class="fa-solid fa-edit" />
+            </b-button>
+          </can>
+          <can
+            method="delete"
+            :policy="data.item"
+          >
+            <b-button
+              v-b-tooltip.hover
+              v-tooltip-hide-click
+              :title="$t('settings.room_types.delete.item', { id: data.item.description })"
+              :disabled="isBusy"
+              variant="danger"
+              @click="showDeleteModal(data.item)"
+            >
+              <i class="fa-solid fa-trash" />
+            </b-button>
+          </can>
         </b-button-group>
       </template>
     </b-table>
 
     <b-pagination
-      v-model='currentPage'
-      :total-rows='roomTypes.length'
-      :per-page='getSetting("pagination_page_size")'
-      aria-controls='roomTypes-table'
-      align='center'
-      :disabled='isBusy'
-    ></b-pagination>
+      v-model="currentPage"
+      :total-rows="roomTypes.length"
+      :per-page="getSetting('pagination_page_size')"
+      aria-controls="roomTypes-table"
+      align="center"
+      :disabled="isBusy"
+    />
 
     <b-modal
-      :busy='isBusy'
-      ok-variant='danger'
-      cancel-variant='secondary'
+      ref="delete-roomType-modal"
+      :busy="isBusy"
+      ok-variant="danger"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @ok='deleteRoomType'
-      @cancel='clearRoomTypeToDelete'
-      @close='clearRoomTypeToDelete'
-      ref='delete-roomType-modal'
-      :static='modalStatic'
+      :static="modalStatic"
       :no-close-on-esc="isBusy"
       :no-close-on-backdrop="isBusy"
       :hide-header-close="isBusy"
+      @ok="deleteRoomType"
+      @cancel="clearRoomTypeToDelete"
+      @close="clearRoomTypeToDelete"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('settings.room_types.delete.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isBusy"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="roomTypeToDelete">
         {{ $t('settings.room_types.delete.confirm', { name: roomTypeToDelete.description }) }}
       </span>
       <hr>
-      <b-form-group v-if="roomTypeToDelete" label-for="replacement-room-type" :description="$t('settings.room_types.delete.replacement_info')" :state="fieldState('replacement_room_type')" :label="$t('settings.room_types.delete.replacement')">
-        <b-form-select id="replacement-room-type" :disabled="isBusy" :state="fieldState('replacement_room_type')" v-model.number="replacement" :options="roomTypeSelect"></b-form-select>
-        <template slot='invalid-feedback'><div v-html="fieldError('replacement_room_type')"></div></template>
+      <b-form-group
+        v-if="roomTypeToDelete"
+        label-for="replacement-room-type"
+        :description="$t('settings.room_types.delete.replacement_info')"
+        :state="fieldState('replacement_room_type')"
+        :label="$t('settings.room_types.delete.replacement')"
+      >
+        <b-form-select
+          id="replacement-room-type"
+          v-model.number="replacement"
+          :disabled="isBusy"
+          :state="fieldState('replacement_room_type')"
+          :options="roomTypeSelect"
+        />
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('replacement_room_type')" />
+        </template>
       </b-form-group>
-
     </b-modal>
   </div>
 </template>
 
 <script>
-import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can.vue';
-import FieldErrors from '../../../mixins/FieldErrors';
-import env from '../../../env';
-import ActionsColumn from '../../../mixins/ActionsColumn';
-import TextTruncate from '../../../components/TextTruncate.vue';
+import Base from '@/api/base';
+import Can from '@/components/Permissions/Can.vue';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
+import ActionsColumn from '@/mixins/ActionsColumn';
+import TextTruncate from '@/components/TextTruncate.vue';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 
 export default {
-  mixins: [FieldErrors, ActionsColumn],
   components: { TextTruncate, Can },
+  mixins: [FieldErrors, ActionsColumn],
 
   props: {
     modalStatic: {
@@ -158,6 +188,17 @@ export default {
       roomTypes: [],
       actionPermissions: ['roomTypes.view', 'roomTypes.update', 'roomTypes.delete']
     };
+  },
+
+  /**
+   * Sets the event listener for current user change to re-evaluate whether the
+   * action column should be shown or not.
+   *
+   * @method mounted
+   * @return undefined
+   */
+  mounted () {
+    this.fetchRoomTypes();
   },
 
   methods: {
@@ -225,17 +266,6 @@ export default {
       this.roomTypeToDelete = undefined;
     }
 
-  },
-
-  /**
-   * Sets the event listener for current user change to re-evaluate whether the
-   * action column should be shown or not.
-   *
-   * @method mounted
-   * @return undefined
-   */
-  mounted () {
-    this.fetchRoomTypes();
   },
 
   computed: {

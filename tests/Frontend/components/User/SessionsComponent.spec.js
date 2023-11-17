@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BListGroupItem, BSpinner } from 'bootstrap-vue';
 import { createContainer, mockAxios, createLocalVue } from '../../helper';
-import SessionsComponent from '../../../../resources/js/components/User/SessionsComponent.vue';
+import SessionsComponent from '@/components/User/SessionsComponent.vue';
 
-import Base from '../../../../resources/js/api/base';
+import Base from '@/api/base';
 
 const localVue = createLocalVue();
 

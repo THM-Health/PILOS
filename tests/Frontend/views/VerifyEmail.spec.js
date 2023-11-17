@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { mockAxios, createLocalVue } from '../helper';
-import VerifyEmail from '../../../resources/js/views/VerifyEmail.vue';
+import VerifyEmail from '@/views/VerifyEmail.vue';
 import { BAlert, BSpinner } from 'bootstrap-vue';
-import Base from '../../../resources/js/api/base';
+import Base from '@/api/base';
 
 const localVue = createLocalVue();
 

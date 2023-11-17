@@ -1,17 +1,12 @@
 import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import _ from 'lodash';
-import PermissionService from '../../../../resources/js/services/PermissionService';
 import { mockAxios, createContainer, createLocalVue, waitModalShown, waitModalHidden } from '../../helper';
-import { PiniaVuePlugin } from 'pinia';
-import { createTestingPinia } from '@pinia/testing';
-import RoomCardComponent from '../../../../resources/js/components/Room/RoomCardComponent.vue';
+import RoomCardComponent from '@/components/Room/RoomCardComponent.vue';
 import { expect } from 'vitest';
 import { BButton, BCard, BModal } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
-localVue.use(PiniaVuePlugin);
 
 const RoomView = {
   /* eslint-disable @intlify/vue-i18n/no-raw-text */
@@ -27,15 +22,25 @@ const routerMock = new VueRouter({
   }]
 });
 
-const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
-const initialState = { auth: { currentUser: exampleUser } };
+const room = {
+  id: 'abc-def-123',
+  name: 'Meeting One',
+  short_description: 'room short description',
+  is_favorite: false,
+  owner: {
+    id: 1,
+    name: 'John Doe'
+  },
+  type: {
+    id: 2,
+    description: 'Meeting',
+    color: '#4a5c66',
+    default: false
+  },
+  last_meeting: null
+};
 
 describe('RoomCardComponent', () => {
-  beforeEach(() => {
-    mockAxios.reset();
-    PermissionService.currentUser = exampleUser;
-  });
-
   it('pass attributes to components', async () => {
     const view = mount(RoomCardComponent, {
       localVue,
@@ -49,25 +54,8 @@ describe('RoomCardComponent', () => {
         'room-type-badge': true
       },
       propsData: {
-        room: {
-          id: 'abc-def-123',
-          name: 'Meeting One',
-          short_description: 'Own room',
-          is_favorite: false,
-          owner: {
-            id: 1,
-            name: 'John Doe'
-          },
-          type: {
-            id: 2,
-            short: 'ME',
-            description: 'Meeting',
-            color: '#4a5c66',
-            default: false
-          }
-        }
+        room
       },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -103,25 +91,8 @@ describe('RoomCardComponent', () => {
         'room-type-badge': true
       },
       propsData: {
-        room: {
-          id: 'abc-def-123',
-          name: 'Meeting One',
-          short_description: 'Own room',
-          is_favorite: false,
-          owner: {
-            id: 1,
-            name: 'John Doe'
-          },
-          type: {
-            id: 2,
-            short: 'ME',
-            description: 'Meeting',
-            color: '#4a5c66',
-            default: false
-          }
-        }
+        room
       },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -150,27 +121,9 @@ describe('RoomCardComponent', () => {
         'room-type-badge': true
       },
       propsData: {
-        room: {
-          id: 'abc-def-123',
-          name: 'Meeting One',
-          short_description: 'short description for room',
-          is_favorite: false,
-          owner: {
-            id: 1,
-            name: 'John Doe'
-          },
-          type: {
-            id: 2,
-            short: 'ME',
-            description: 'Meeting',
-            color: '#4a5c66',
-            default: false
-          },
-          meeting: null
-        },
+        room,
         modalStatic: true
       },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -241,23 +194,7 @@ describe('RoomCardComponent', () => {
         $t: (key) => key
       },
       propsData: {
-        room: {
-          id: 'abc-def-123',
-          name: 'Meeting One',
-          short_description: 'Own room',
-          is_favorite: false,
-          owner: {
-            id: 1,
-            name: 'John Doe'
-          },
-          type: {
-            id: 2,
-            short: 'ME',
-            description: 'Meeting',
-            color: '#4a5c66',
-            default: false
-          }
-        },
+        room,
         modalStatic: true
       },
       stubs: {
@@ -266,31 +203,30 @@ describe('RoomCardComponent', () => {
         'room-details-component': true,
         'room-type-badge': true
       },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
     // find room favorite component and fire event
     const roomFavoriteComponents = view.findAllComponents({ name: 'RoomFavoriteButton' });
     expect(roomFavoriteComponents.length).toBe(2);
-    roomFavoriteComponents.at(0).vm.$emit('favorites_changed');
+    roomFavoriteComponents.at(0).vm.$emit('favorites-changed');
 
     await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check if favorites_changed gets emitted
-    expect(view.emitted().favorites_changed).toBeTruthy();
-    expect(view.emitted().favorites_changed.length).toBe(1);
+    expect(view.emitted('favorites-changed')).toBeTruthy();
+    expect(view.emitted('favorites-changed').length).toBe(1);
 
     // fire event from second room favorite component
-    roomFavoriteComponents.at(1).vm.$emit('favorites_changed');
+    roomFavoriteComponents.at(1).vm.$emit('favorites-changed');
 
     await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check if favorites_changed gets emitted
-    expect(view.emitted().favorites_changed).toBeTruthy();
-    expect(view.emitted().favorites_changed.length).toBe(2);
+    expect(view.emitted('favorites-changed')).toBeTruthy();
+    expect(view.emitted('favorites-changed').length).toBe(2);
 
     view.destroy();
   });

@@ -1,38 +1,59 @@
 <template>
   <div>
-    <b-overlay :show="loading || loadingError" >
+    <b-overlay :show="loading || loadingError">
       <template #overlay>
         <div class="text-center">
-          <b-spinner v-if="loading" ></b-spinner>
+          <b-spinner v-if="loading" />
           <b-button
-            ref="reload"
             v-else
+            ref="reload"
             @click="getSessions()"
           >
-            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
       <b-list-group>
-        <b-list-group-item v-for="session in sessions" :key="session.id" class="flex-column align-items-start">
+        <b-list-group-item
+          v-for="session in sessions"
+          :key="session.id"
+          class="flex-column align-items-start"
+        >
           <div class="d-flex w-100 justify-content-between align-items-start">
             <h5 class="mb-1">
-              <i v-if="session.user_agent.device.type === 'mobile'" class="fa-solid fa-mobile-screen mr-2"></i>
-              <i v-else-if="session.user_agent.device.type === 'tablet'" class="fa-solid fa-tablet-screen-button mr-2"></i>
-              <i v-else class="fa-solid fa-display mr-2"></i>
+              <i
+                v-if="session.user_agent.device.type === 'mobile'"
+                class="fa-solid fa-mobile-screen mr-2"
+              />
+              <i
+                v-else-if="session.user_agent.device.type === 'tablet'"
+                class="fa-solid fa-tablet-screen-button mr-2"
+              />
+              <i
+                v-else
+                class="fa-solid fa-display mr-2"
+              />
               {{ session.user_agent.os.name || $t('auth.sessions.unknown_agent') }}
             </h5>
             <small
               v-if="!session.current"
-              :title="$t('auth.sessions.last_active')"
               v-b-tooltip.hover
               v-tooltip-hide-click
+              :title="$t('auth.sessions.last_active')"
             >
-              <i class="fa-solid fa-clock"></i> {{  $d(new Date( session.last_activity),'datetimeShort') }}
+              <i class="fa-solid fa-clock" /> {{ $d(new Date( session.last_activity),'datetimeShort') }}
             </small>
-            <b-badge v-else variant="dark">{{ $t('auth.sessions.current') }}</b-badge>
+            <b-badge
+              v-else
+              variant="dark"
+            >
+              {{ $t('auth.sessions.current') }}
+            </b-badge>
           </div>
-          <p class="mb-1" v-if="session.user_agent.browser.name">
+          <p
+            v-if="session.user_agent.browser.name"
+            class="mb-1"
+          >
             <strong>{{ $t('auth.sessions.browser') }}</strong> {{ session.user_agent.browser.name }}
           </p>
           <p>
@@ -46,14 +67,14 @@
         class="mt-3"
         @click="deleteAllSessions"
       >
-        <i class="fa-solid fa-right-from-bracket"></i> {{ $t('auth.sessions.logout_all') }}
+        <i class="fa-solid fa-right-from-bracket" /> {{ $t('auth.sessions.logout_all') }}
       </b-button>
     </b-overlay>
   </div>
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 import UAParser from 'ua-parser-js';
 
 export default {

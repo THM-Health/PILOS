@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
-import _ from 'lodash';
 import { createContainer, createLocalVue, i18nDateMock } from '../../helper';
-import RoomDetailsComponent from '../../../../resources/js/components/Room/RoomDetailsComponent.vue';
+import RoomDetailsComponent from '@/components/Room/RoomDetailsComponent.vue';
 
 const localVue = createLocalVue();
 
@@ -16,7 +15,6 @@ const room = {
   },
   type: {
     id: 2,
-    short: 'ME',
     description: 'Meeting',
     color: '#4a5c66',
     default: false
@@ -26,25 +24,6 @@ const room = {
 
 describe('RoomDetailsComponent', () => {
   it('show room details', async () => {
-    const room = {
-      id: 'abc-def-123',
-      name: 'Meeting One',
-      short_description: 'room short description',
-      is_favorite: false,
-      owner: {
-        id: 1,
-        name: 'John Doe'
-      },
-      type: {
-        id: 2,
-        short: 'ME',
-        description: 'Meeting',
-        color: '#4a5c66',
-        default: false
-      },
-      last_meeting: null
-    };
-
     const view = mount(RoomDetailsComponent, {
       localVue,
       mocks: {
@@ -65,8 +44,7 @@ describe('RoomDetailsComponent', () => {
     expect(view.find('.fa-users').exists()).toBe(false);
 
     // running room
-    const runningRoom = _.cloneDeep(room);
-    runningRoom.last_meeting = { start: '2023-08-21 08:18:28:00', end: null, usage: { participant_count: 5 } };
+    const runningRoom = { ...room, last_meeting: { start: '2023-08-21 08:18:28:00', end: null, usage: { participant_count: 5 } } };
     await view.setProps({ room: runningRoom });
     await view.vm.$nextTick();
 
@@ -76,8 +54,7 @@ describe('RoomDetailsComponent', () => {
     expect(view.findAll('span').at(2).text()).toBe('5 meetings.participant_count');
 
     // ended room
-    const endedRoom = _.cloneDeep(room);
-    endedRoom.last_meeting = { start: '2023-08-21 08:18:28:00', end: '2023-08-21 08:20:28:00' };
+    const endedRoom = { ...room, last_meeting: { start: '2023-08-21 08:18:28:00', end: '2023-08-21 08:20:28:00' } };
     await view.setProps({ room: endedRoom });
     await view.vm.$nextTick();
 

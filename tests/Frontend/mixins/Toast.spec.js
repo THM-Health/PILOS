@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { createLocalVue } from '../helper';
-import Toast from '../../../resources/js/mixins/Toast';
+import Toast from '@/mixins/Toast';
 
 const localVue = createLocalVue();
 localVue.mixin(Toast);

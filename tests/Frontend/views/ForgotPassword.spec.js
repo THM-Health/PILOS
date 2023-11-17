@@ -1,9 +1,9 @@
-import ForgotPassword from '../../../resources/js/views/ForgotPassword.vue';
+import ForgotPassword from '@/views/ForgotPassword.vue';
 import { mount } from '@vue/test-utils';
 
 import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
-import Base from '../../../resources/js/api/base';
+import Base from '@/api/base';
 import { mockAxios, createLocalVue } from '../helper';
 
 const localVue = createLocalVue();

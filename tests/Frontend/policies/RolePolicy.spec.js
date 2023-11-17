@@ -1,4 +1,4 @@
-import RolePolicy from '../../../resources/js/policies/RolePolicy';
+import RolePolicy from '@/policies/RolePolicy';
 
 describe('RolePolicy', () => {
   it('viewAny returns true if the user has the permission to view all roles', async () => {

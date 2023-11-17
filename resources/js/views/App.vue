@@ -1,17 +1,21 @@
 <template>
   <div>
-    <b-overlay :show="loadingCounter > 0 || overlayLoadingCounter > 0" z-index="10000" no-wrap>
-      <template v-slot:overlay>
+    <b-overlay
+      :show="loadingCounter > 0 || overlayLoadingCounter > 0"
+      z-index="10000"
+      no-wrap
+    >
+      <template #overlay>
         <div class="text-center">
-          <b-spinner variant="secondary"></b-spinner>
+          <b-spinner variant="secondary" />
         </div>
       </template>
     </b-overlay>
     <div v-if="loadingCounter == 0">
       <banner
+        v-if="getSetting('banner.enabled')"
         :background="getSetting('banner.background')"
         :color="getSetting('banner.color')"
-        :enabled="getSetting('banner.enabled')"
         :icon="getSetting('banner.icon')"
         :link="getSetting('banner.link')"
         :message="getSetting('banner.message')"
@@ -19,24 +23,47 @@
         :link-style="getSetting('banner.link_style')"
         :link-text="getSetting('banner.link_text')"
         :link-target="getSetting('banner.link_target')"
-      ></banner>
-      <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
+      />
+      <b-navbar
+        class="mainnav"
+        toggleable="lg"
+        type="light"
+        variant="white"
+      >
         <b-container>
           <h1>
             <b-navbar-brand :to="{ name: 'home' }">
-              <img style="height: 2rem;" v-if="getSetting('logo')" :src="getSetting('logo')" alt="Logo">
+              <img
+                v-if="getSetting('logo')"
+                style="height: 2rem;"
+                :src="getSetting('logo')"
+                alt="Logo"
+              >
             </b-navbar-brand>
           </h1>
 
-          <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+          <b-navbar-toggle target="nav-collapse" />
 
-          <b-collapse id="nav-collapse" is-nav>
-            <b-navbar-nav v-if='isAuthenticated'>
-              <b-nav-item :to="{ name: 'rooms.index' }">{{ $t('app.rooms') }}</b-nav-item>
-              <can method='viewAny' policy='MeetingPolicy'>
-                <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currently_running') }}</b-nav-item>
+          <b-collapse
+            id="nav-collapse"
+            is-nav
+          >
+            <b-navbar-nav v-if="isAuthenticated">
+              <b-nav-item :to="{ name: 'rooms.index' }">
+                {{ $t('app.rooms') }}
+              </b-nav-item>
+              <can
+                method="viewAny"
+                policy="MeetingPolicy"
+              >
+                <b-nav-item :to="{ name: 'meetings.index' }">
+                  {{ $t('meetings.currently_running') }}
+                </b-nav-item>
               </can>
-              <can method='manage' policy='SettingPolicy'>
+              <can
+                method="manage"
+                policy="SettingPolicy"
+              >
                 <b-nav-item :to="{ name: 'settings' }">
                   {{ $t('settings.title') }}
                 </b-nav-item>
@@ -45,50 +72,81 @@
 
             <!-- Right aligned nav items -->
             <b-navbar-nav class="ml-auto">
-              <b-nav-item :to="loginRoute" v-if='!isAuthenticated' right>{{ $t('auth.login') }}</b-nav-item>
+              <b-nav-item
+                v-if="!isAuthenticated"
+                :to="loginRoute"
+                right
+              >
+                {{ $t('auth.login') }}
+              </b-nav-item>
 
-              <b-nav-item-dropdown right v-if='isAuthenticated'>
+              <b-nav-item-dropdown
+                v-if="isAuthenticated"
+                right
+              >
                 <!-- Using 'button-content' slot -->
-                <template v-if='currentUser' v-slot:button-content>
-                  {{currentUser.firstname}} {{currentUser.lastname}}
+                <template
+                  v-if="currentUser"
+                  #button-content
+                >
+                  {{ currentUser.firstname }} {{ currentUser.lastname }}
                 </template>
 
                 <b-dropdown-item :to="{ name: 'profile' }">
                   {{ $t('app.profile') }}
                 </b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
+                <b-dropdown-divider />
 
-                <b-dropdown-item ref="logout" @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
+                <b-dropdown-item
+                  ref="logout"
+                  @click="logout"
+                >
+                  {{ $t('auth.logout') }}
+                </b-dropdown-item>
               </b-nav-item-dropdown>
-              <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-primary nav-icon-item' target="_blank" :href="getSetting('help_url')" v-if="!!getSetting('help_url')" right>
-                <i class="fa-solid fa-circle-question"></i>
+              <b-nav-item
+                v-if="!!getSetting('help_url')"
+                v-b-tooltip.hover
+                class="d-none d-lg-block"
+                :title="$t('app.help')"
+                link-classes="text-primary nav-icon-item"
+                target="_blank"
+                :href="getSetting('help_url')"
+                right
+              >
+                <i class="fa-solid fa-circle-question" />
               </b-nav-item>
-              <b-nav-item class="d-block d-lg-none" target="_blank" :href="getSetting('help_url')" v-if="!!getSetting('help_url')">
-                {{$t('app.help')}}
+              <b-nav-item
+                v-if="!!getSetting('help_url')"
+                class="d-block d-lg-none"
+                target="_blank"
+                :href="getSetting('help_url')"
+              >
+                {{ $t('app.help') }}
               </b-nav-item>
-              <locale-selector></locale-selector>
+              <locale-selector />
             </b-navbar-nav>
           </b-collapse>
         </b-container>
       </b-navbar>
 
       <main>
-        <router-view></router-view>
+        <router-view />
       </main>
 
-      <footer-component></footer-component>
+      <footer-component />
     </div>
   </div>
 </template>
 
 <script>
-import LocaleSelector from '../components/LocaleSelector.vue';
-import Can from '../components/Permissions/Can.vue';
-import Banner from '../components/Banner.vue';
+import LocaleSelector from '@/components/LocaleSelector.vue';
+import Can from '@/components/Permissions/Can.vue';
+import Banner from '@/components/Banner.vue';
 import { mapActions, mapState } from 'pinia';
-import { useAuthStore } from '../stores/auth';
-import { useLoadingStore } from '../stores/loading';
-import { useSettingsStore } from '../stores/settings';
+import { useAuthStore } from '@/stores/auth';
+import { useLoadingStore } from '@/stores/loading';
+import { useSettingsStore } from '@/stores/settings';
 
 const FooterComponent = Object.values(import.meta.glob(['../../custom/js/components/FooterComponent.vue', '@/components/FooterComponent.vue'], { eager: true }))[0].default;
 

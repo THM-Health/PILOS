@@ -1,6 +1,6 @@
-import Index from '../../../../../resources/js/views/settings/roomTypes/Index.vue';
+import Index from '@/views/settings/roomTypes/Index.vue';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 
 import BootstrapVue, {
 
@@ -11,7 +11,7 @@ import BootstrapVue, {
   BButtonClose,
   BFormSelect
 } from 'bootstrap-vue';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -50,7 +50,6 @@ describe('RoomTypesIndex', () => {
       data: {
         data: [{
           id: '1',
-          short: 'ME',
           color: '#333333',
           description: 'Meeting',
           model_name: 'RoomType'
@@ -61,7 +60,6 @@ describe('RoomTypesIndex', () => {
 
     const html = view.findComponent(BTbody).findComponent(BTr).html();
     expect(html).toContain('Meeting');
-    expect(html).toContain('ME');
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
@@ -77,7 +75,6 @@ describe('RoomTypesIndex', () => {
       data: {
         data: [{
           id: '1',
-          short: 'ME',
           color: '#333333',
           description: 'Meeting',
           model_name: 'RoomType'
@@ -148,7 +145,6 @@ describe('RoomTypesIndex', () => {
       data: {
         data: [{
           id: '1',
-          short: 'ME',
           color: '#333333',
           description: 'Meeting',
           model_name: 'RoomType'
@@ -201,14 +197,12 @@ describe('RoomTypesIndex', () => {
         data: [
           {
             id: '1',
-            short: 'ME',
             color: '#333333',
             description: 'Meeting',
             model_name: 'RoomType'
           },
           {
             id: '2',
-            short: 'TE',
             color: '#333333',
             description: 'Test',
             model_name: 'RoomType'
@@ -299,7 +293,6 @@ describe('RoomTypesIndex', () => {
         data: [
           {
             id: '2',
-            short: 'TE',
             color: '#333333',
             description: 'Test',
             model_name: 'RoomType'
@@ -331,14 +324,12 @@ describe('RoomTypesIndex', () => {
         data: [
           {
             id: '1',
-            short: 'ME',
             color: '#333333',
             description: 'Meeting',
             model_name: 'RoomType'
           },
           {
             id: '2',
-            short: 'TE',
             color: '#333333',
             description: 'Test',
             model_name: 'RoomType'
@@ -398,7 +389,6 @@ describe('RoomTypesIndex', () => {
         data: [
           {
             id: '2',
-            short: 'TE',
             color: '#333333',
             description: 'Test',
             model_name: 'RoomType'
@@ -430,7 +420,6 @@ describe('RoomTypesIndex', () => {
         data: [
           {
             id: '1',
-            short: 'ME',
             color: '#333333',
             description: 'Meeting',
             model_name: 'RoomType'

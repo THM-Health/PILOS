@@ -8,10 +8,10 @@ import BootstrapVue, {
   BFormTextarea,
   BImg
 } from 'bootstrap-vue';
-import Base from '../../../../resources/js/api/base';
-import Application from '../../../../resources/js/views/settings/Application.vue';
-import env from '../../../../resources/js/env.js';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '@/api/base';
+import Application from '@/views/settings/Application.vue';
+import env from '@/env.js';
+import PermissionService from '@/services/PermissionService';
 import VSwatches from 'vue-swatches';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';

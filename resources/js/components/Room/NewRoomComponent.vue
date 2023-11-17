@@ -1,8 +1,15 @@
 <template>
   <div>
-    <b-button class="w-100" :disabled="disabled" variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> {{ $t('rooms.create.title') }} </b-button>
+    <b-button
+      class="w-100"
+      :disabled="disabled"
+      variant="primary"
+      @click="$bvModal.show('new-room')"
+    >
+      <i class="fa-solid fa-plus" /> {{ $t('rooms.create.title') }}
+    </b-button>
 
-<!-- new room modal-->
+    <!-- new room modal-->
     <b-modal
       id="new-room"
       :title="$t('rooms.create.title')"
@@ -12,46 +19,55 @@
       :cancel-title="$t('app.cancel')"
       :static="modalStatic"
       :ok-disabled="roomTypeSelectLoadingError"
-      @ok="handleOk"
-      @hidden="handleCancel"
       :no-close-on-esc="isLoadingAction || roomTypeSelectBusy"
       :no-close-on-backdrop="isLoadingAction || roomTypeSelectBusy"
       :hide-header-close="isLoadingAction || roomTypeSelectBusy"
+      @ok="handleOk"
+      @hidden="handleCancel"
     >
-      <b-form-group :state="fieldState('room_type')" :label="$t('rooms.settings.general.type')">
+      <b-form-group
+        :state="fieldState('room_type')"
+        :label="$t('rooms.settings.general.type')"
+      >
         <room-type-select
-          :disabled="isLoadingAction"
-          v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"
-          v-on:busy="(value) => this.roomTypeSelectBusy = value"
           ref="roomTypeSelect"
           v-model="room.room_type"
+          :disabled="isLoadingAction"
           :state="fieldState('room_type')"
-        ></room-type-select>
-        <template slot='invalid-feedback'><div v-html="fieldError('room_type')"></div></template>
+          @loading-error="(value) => roomTypeSelectLoadingError = value"
+          @busy="(value) => roomTypeSelectBusy = value"
+        />
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('room_type')" />
+        </template>
       </b-form-group>
       <!-- Room name -->
-      <b-form-group :state="fieldState('name')" :label="$t('rooms.name')">
+      <b-form-group
+        :state="fieldState('name')"
+        :label="$t('rooms.name')"
+      >
         <b-input-group>
           <b-form-input
+            v-model="room.name"
             :disabled="isLoadingAction"
             :state="fieldState('name')"
-            v-model="room.name"
-          ></b-form-input>
+          />
         </b-input-group>
-        <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('name')" />
+        </template>
       </b-form-group>
     </b-modal>
-
   </div>
 </template>
 <script>
-import Base from '../../api/base';
-import FieldErrors from '../../mixins/FieldErrors';
-import env from './../../env.js';
-import RoomTypeSelect from '../Inputs/RoomTypeSelect.vue';
+import Base from '@/api/base';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env.js';
+import RoomTypeSelect from '@/components/Inputs/RoomTypeSelect.vue';
 import _ from 'lodash';
 import { mapActions } from 'pinia';
-import { useAuthStore } from '../../stores/auth';
+import { useAuthStore } from '@/stores/auth';
 
 export default {
   name: 'NewRoomComponent',
@@ -125,7 +141,7 @@ export default {
           }
           // room limit exceeded
           if (error.response.status === env.HTTP_ROOM_LIMIT_EXCEEDED) {
-            this.$emit('limitReached');
+            this.$emit('limit-reached');
           }
         }
         this.$bvModal.hide('new-room');

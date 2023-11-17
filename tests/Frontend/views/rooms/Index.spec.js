@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import RoomIndex from '../../../../resources/js/views/rooms/Index.vue';
+import RoomIndex from '@/views/rooms/Index.vue';
 import {
   BAlert,
   BButton,
@@ -14,12 +14,12 @@ import {
 } from 'bootstrap-vue';
 
 import _ from 'lodash';
-import PermissionService from '../../../../resources/js/services/PermissionService';
-import Base from '../../../../resources/js/api/base';
+import PermissionService from '@/services/PermissionService';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import { useAuthStore } from '../../../../resources/js/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 import { expect } from 'vitest';
 
 const localVue = createLocalVue();
@@ -46,7 +46,6 @@ describe('Room Index', () => {
         last_meeting: null,
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -67,7 +66,6 @@ describe('Room Index', () => {
         },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -88,7 +86,6 @@ describe('Room Index', () => {
         },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -111,10 +108,10 @@ describe('Room Index', () => {
 
   const exampleRoomTypeResponse = {
     data: [
-      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27', default: false },
-      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true },
-      { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E', default: false },
-      { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4', default: false }
+      { id: 1, description: 'Vorlesung', color: '#80BA27', default: false },
+      { id: 2, description: 'Meeting', color: '#4a5c66', default: true },
+      { id: 3, description: 'Pr\u00fcfung', color: '#9C132E', default: false },
+      { id: 4, description: '\u00dcbung', color: '#00B8E4', default: false }
     ]
   };
 
@@ -286,7 +283,7 @@ describe('Room Index', () => {
     let newRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
     expect(newRoomComponent.exists()).toBeTruthy();
     let roomRequest = mockAxios.request('/api/v1/rooms');
-    newRoomComponent.vm.$emit('limitReached');
+    newRoomComponent.vm.$emit('limit-reached');
 
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(1);
@@ -306,7 +303,7 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
+
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -324,7 +321,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -382,7 +378,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -403,7 +398,6 @@ describe('Room Index', () => {
             },
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -427,7 +421,7 @@ describe('Room Index', () => {
     // find new room component and fire event again
     newRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
     roomRequest = mockAxios.request('/api/v1/rooms');
-    newRoomComponent.vm.$emit('limitReached');
+    newRoomComponent.vm.$emit('limit-reached');
 
     await roomRequest.wait();
 
@@ -633,7 +627,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -695,7 +688,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -797,7 +789,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -848,7 +839,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -949,7 +939,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1001,7 +990,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1108,7 +1096,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1166,7 +1153,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1415,7 +1401,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1464,7 +1449,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1612,7 +1596,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1667,7 +1650,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1775,7 +1757,7 @@ describe('Room Index', () => {
 
     // fire event and check if rooms are reload
     let roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(0).vm.$emit('favorites_changed');
+    rooms.at(0).vm.$emit('favorites-changed');
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(1);
     // respond with 3 rooms on 3 different pages
@@ -1793,7 +1775,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1839,7 +1820,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1863,7 +1843,7 @@ describe('Room Index', () => {
     // fire event for another room and check if rooms are reload
     roomRequest = mockAxios.request('/api/v1/rooms');
     rooms = view.findAllComponents({ name: 'RoomCardComponent' });
-    rooms.at(0).vm.$emit('favorites_changed');
+    rooms.at(0).vm.$emit('favorites-changed');
     await roomRequest.wait();
     // make sure that the page stay the same
     expect(roomRequest.config.params.page).toBe(2);
@@ -1924,7 +1904,7 @@ describe('Room Index', () => {
 
     // fire event and check if rooms are reload and page and only_favorites stay the same
     roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(1).vm.$emit('favorites_changed');
+    rooms.at(1).vm.$emit('favorites-changed');
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(1);
     expect(roomRequest.config.params.only_favorites).toBeTruthy();
@@ -1944,7 +1924,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1965,7 +1944,6 @@ describe('Room Index', () => {
             },
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -2013,7 +1991,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -2034,7 +2011,6 @@ describe('Room Index', () => {
             },
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -2061,7 +2037,7 @@ describe('Room Index', () => {
 
     // fire event and check if rooms are reload and page and only_favorites stay the same
     roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(1).vm.$emit('favorites_changed');
+    rooms.at(1).vm.$emit('favorites-changed');
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(2);
     expect(roomRequest.config.params.only_favorites).toBeTruthy();
@@ -2081,7 +2057,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -2109,7 +2084,7 @@ describe('Room Index', () => {
     // fire event and check if rooms are reload
     roomRequest = mockAxios.request('/api/v1/rooms');
     const secondRoomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(0).vm.$emit('favorites_changed');
+    rooms.at(0).vm.$emit('favorites-changed');
     await roomRequest.wait();
     // reload with no rooms on the second page
     await roomRequest.respondWith({
@@ -2219,7 +2194,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false

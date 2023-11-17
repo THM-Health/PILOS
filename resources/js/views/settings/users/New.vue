@@ -8,11 +8,11 @@
     <b-overlay :show="isBusy">
       <template #overlay>
         <div class="text-center">
-          <b-spinner></b-spinner>
+          <b-spinner />
         </div>
       </template>
 
-      <b-container :fluid='true'>
+      <b-container :fluid="true">
         <b-form @submit="save">
           <b-form-group
             label-cols-lg="12"
@@ -22,102 +22,113 @@
             class="mb-0"
           >
             <b-form-group
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('app.firstname')"
-              label-for='firstname'
-              :state='fieldState("firstname")'
+              label-for="firstname"
+              :state="fieldState('firstname')"
             >
               <b-form-input
-                id='firstname'
+                id="firstname"
+                v-model="model.firstname"
                 required
-                type='text'
-                v-model='model.firstname'
-                :state='fieldState("firstname")'
+                type="text"
+                :state="fieldState('firstname')"
                 :disabled="isBusy"
-              ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('firstname')" />
+              </template>
             </b-form-group>
             <b-form-group
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('app.lastname')"
-              label-for='lastname'
-              :state='fieldState("lastname")'
+              label-for="lastname"
+              :state="fieldState('lastname')"
             >
               <b-form-input
-                id='lastname'
-                type='text'
+                id="lastname"
+                v-model="model.lastname"
+                type="text"
                 required
-                v-model='model.lastname'
-                :state='fieldState("lastname")'
+                :state="fieldState('lastname')"
                 :disabled="isBusy"
-              ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('lastname')" />
+              </template>
             </b-form-group>
             <b-form-group
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('app.email')"
-              label-for='email'
-              :state='fieldState("email")'
+              label-for="email"
+              :state="fieldState('email')"
             >
               <b-form-input
-                id='email'
-                type='email'
+                id="email"
+                v-model="model.email"
+                type="email"
                 required
-                v-model='model.email'
-                :state='fieldState("email")'
+                :state="fieldState('email')"
                 :disabled="isBusy"
-              ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('email')" />
+              </template>
             </b-form-group>
             <b-form-group
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('settings.users.user_locale')"
-              label-for='user_locale'
-              :state='fieldState("user_locale")'
+              label-for="user_locale"
+              :state="fieldState('user_locale')"
             >
               <locale-select
-                id='user_locale'
-                required
+                id="user_locale"
                 v-model="model.user_locale"
-                :state='fieldState("user_locale")'
+                required
+                :state="fieldState('user_locale')"
                 :disabled="isBusy"
-              ></locale-select>
-              <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('user_locale')" />
+              </template>
             </b-form-group>
             <b-form-group
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('settings.users.timezone')"
-              label-for='timezone'
-              :state='fieldState("timezone")'
+              label-for="timezone"
+              :state="fieldState('timezone')"
             >
               <timezone-select
-                id='timezone'
-                required
+                id="timezone"
                 v-model="model.timezone"
-                :state='fieldState("timezone")'
+                required
+                :state="fieldState('timezone')"
                 :disabled="isBusy"
-                @loadingError="(value) => this.timezonesLoadingError = value"
-                @busy="(value) => this.timezonesLoading = value"
                 :placeholder="$t('settings.users.timezone')"
-              >
-              </timezone-select>
-              <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
+                @loading-error="(value) => timezonesLoadingError = value"
+                @busy="(value) => timezonesLoading = value"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('timezone')" />
+              </template>
             </b-form-group>
             <b-form-group
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('app.roles')"
-              label-for='roles'
-              :state='fieldState("roles", true)'
+              label-for="roles"
+              :state="fieldState('roles', true)"
             >
               <role-select
-                id='roles'
-                v-model='model.roles'
-                :invalid='fieldState("roles", true)===false'
+                id="roles"
+                v-model="model.roles"
+                :invalid="fieldState('roles', true)===false"
                 :disabled="isBusy"
-                @loadingError="(value) => this.rolesLoadingError = value"
-                @busy="(value) => this.rolesLoading = value"
-              ></role-select>
-              <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+                @loading-error="(value) => rolesLoadingError = value"
+                @busy="(value) => rolesLoading = value"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('roles', true)" />
+              </template>
             </b-form-group>
           </b-form-group>
           <hr>
@@ -129,99 +140,111 @@
             class="mb-0"
           >
             <b-form-group
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('settings.users.generate_password')"
-              label-for='generate_password'
+              label-for="generate_password"
               :state="fieldState('generate_password')"
               :description="$t('settings.users.generate_password_description')"
               class="align-items-center d-flex"
             >
               <b-form-checkbox
-                id='generate_password'
-                v-model='generate_password'
+                id="generate_password"
+                v-model="generate_password"
                 :state="fieldState('generate_password')"
                 :disabled="isBusy"
                 switch
-              ></b-form-checkbox>
-              <template slot='invalid-feedback'><div v-html="fieldError('generate_password')"></div></template>
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('generate_password')" />
+              </template>
             </b-form-group>
             <b-form-group
               v-if="!generate_password"
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('auth.new_password')"
-              label-for='new_password'
-              :state='fieldState("new_password")'
+              label-for="new_password"
+              :state="fieldState('new_password')"
             >
               <b-input-group>
                 <b-form-input
-                  id='new_password'
-                  :type='showPassword ? "text" : "password"'
+                  id="new_password"
+                  v-model="model.new_password"
+                  :type="showPassword ? 'text' : 'password'"
                   required
-                  v-model='model.new_password'
-                  :state='fieldState("new_password")'
+                  :state="fieldState('new_password')"
                   :disabled="isBusy"
-                ></b-form-input>
+                />
                 <template #append>
                   <b-button
-                    @click="showPassword = !showPassword"
-                    :disabled='isBusy'
                     v-tooltip-hide-click
                     v-b-tooltip.hover
+                    :disabled="isBusy"
                     :title="!showPassword ? $t('settings.users.show_password') : $t('settings.users.hide_password')"
                     variant="secondary"
+                    @click="showPassword = !showPassword"
                   >
-                    <i class="fa-solid fa-eye" v-if="!showPassword"></i><i class="fa-solid fa-eye-slash" v-else></i>
+                    <i
+                      v-if="!showPassword"
+                      class="fa-solid fa-eye"
+                    /><i
+                      v-else
+                      class="fa-solid fa-eye-slash"
+                    />
                   </b-button>
                 </template>
               </b-input-group>
 
-              <template slot='invalid-feedback'><div v-html="fieldError('new_password')"></div></template>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('new_password')" />
+              </template>
             </b-form-group>
             <b-form-group
               v-if="!generate_password"
-              label-cols-sm='3'
+              label-cols-sm="3"
               :label="$t('auth.new_password_confirmation')"
-              label-for='new_password_confirmation'
-              :state='fieldState("password_confirmation")'
+              label-for="new_password_confirmation"
+              :state="fieldState('password_confirmation')"
             >
               <b-form-input
-                id='new_password_confirmation'
-                :type='showPassword ? "text" : "password"'
+                id="new_password_confirmation"
+                v-model="model.new_password_confirmation"
+                :type="showPassword ? 'text' : 'password'"
                 required
-                v-model='model.new_password_confirmation'
-                :state='fieldState("new_password_confirmation")'
+                :state="fieldState('new_password_confirmation')"
                 :disabled="isBusy"
-              ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('new_password_confirmation')"></div></template>
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('new_password_confirmation')" />
+              </template>
             </b-form-group>
           </b-form-group>
           <b-button
-            :disabled='isBusy || rolesLoadingError || timezonesLoadingError || rolesLoading || timezonesLoading'
-            variant='success'
-            type='submit'
-            >
-            <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
+            :disabled="isBusy || rolesLoadingError || timezonesLoadingError || rolesLoading || timezonesLoading"
+            variant="success"
+            type="submit"
+          >
+            <i class="fa-solid fa-save" /> {{ $t('app.save') }}
           </b-button>
         </b-form>
       </b-container>
-      </b-overlay>
+    </b-overlay>
   </div>
 </template>
 
 <script>
-import FieldErrors from '../../../mixins/FieldErrors';
-import Base from '../../../api/base';
-import env from '../../../env';
-import RoleSelect from '../../../components/Inputs/RoleSelect.vue';
+import FieldErrors from '@/mixins/FieldErrors';
+import Base from '@/api/base';
+import env from '@/env';
+import RoleSelect from '@/components/Inputs/RoleSelect.vue';
 import 'cropperjs/dist/cropper.css';
-import LocaleSelect from '../../../components/Inputs/LocaleSelect.vue';
-import TimezoneSelect from '../../../components/Inputs/TimezoneSelect.vue';
+import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
+import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 
 export default {
-  mixins: [FieldErrors],
   components: { TimezoneSelect, LocaleSelect, RoleSelect },
+  mixins: [FieldErrors],
   data () {
     return {
       isBusy: false,

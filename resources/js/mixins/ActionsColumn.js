@@ -1,4 +1,5 @@
 import EventBus from '../services/EventBus';
+import { EVENT_CURRENT_USER_CHANGED } from '../constants/events';
 import PermissionService from '../services/PermissionService';
 
 /**
@@ -98,7 +99,7 @@ export default {
    * @return undefined
    */
   mounted () {
-    EventBus.$on('currentUserChangedEvent', this.toggleActionsColumn);
+    EventBus.on(EVENT_CURRENT_USER_CHANGED, this.toggleActionsColumn);
     this.toggleActionsColumn();
   },
 
@@ -109,6 +110,6 @@ export default {
    * @return undefined
    */
   beforeDestroy () {
-    EventBus.$off('currentUserChangedEvent', this.toggleActionsColumn);
+    EventBus.off(EVENT_CURRENT_USER_CHANGED, this.toggleActionsColumn);
   }
 };

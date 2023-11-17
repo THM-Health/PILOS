@@ -9,18 +9,21 @@
       <b-overlay :show="!currentUser">
         <template #overlay>
           <div class="text-center">
-            <b-spinner></b-spinner>
+            <b-spinner />
           </div>
         </template>
-        <view-edit-component v-if="currentUser" :id="currentUser.id"></view-edit-component>
+        <view-edit-component
+          v-if="currentUser"
+          :id="currentUser.id"
+        />
       </b-overlay>
     </b-card>
   </b-container>
 </template>
 
 <script>
-import ViewEditComponent from '../components/User/ViewEditComponent.vue';
-import { useAuthStore } from '../stores/auth';
+import ViewEditComponent from '@/components/User/ViewEditComponent.vue';
+import { useAuthStore } from '@/stores/auth';
 import { mapState } from 'pinia';
 
 export default {

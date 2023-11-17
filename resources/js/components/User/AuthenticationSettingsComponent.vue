@@ -5,26 +5,32 @@
       <roles-and-permissions-component
         :user="user"
         :view-only="viewOnly"
-        @updateUser="updateUser"
-        @staleError="handleStaleError"
-        @notFoundError="handleNotFoundError"
-      ></roles-and-permissions-component>
+        @update-user="updateUser"
+        @stale-error="handleStaleError"
+        @not-found-error="handleNotFoundError"
+      />
     </div>
 
-    <div v-if="!viewOnly && user.authenticator === 'local' && canChangePassword" class="mt-3">
+    <div
+      v-if="!viewOnly && user.authenticator === 'local' && canChangePassword"
+      class="mt-3"
+    >
       <hr>
       <h4>{{ $t('auth.change_password') }}</h4>
       <password-component
         :user="user"
-        @updateUser="updateUser"
-        @notFoundError="handleNotFoundError"
-      ></password-component>
+        @update-user="updateUser"
+        @not-found-error="handleNotFoundError"
+      />
     </div>
 
-    <div v-if="isOwnUser" class="mt-3">
+    <div
+      v-if="isOwnUser"
+      class="mt-3"
+    >
       <hr>
       <h4>{{ $t('auth.sessions.active') }}</h4>
-      <sessions-component/>
+      <sessions-component />
     </div>
   </div>
 </template>
@@ -34,8 +40,8 @@ import SessionsComponent from './SessionsComponent.vue';
 import PasswordComponent from './PasswordComponent.vue';
 import RolesAndPermissionsComponent from './RolesAndPermissionsComponent.vue';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../stores/settings';
-import { useAuthStore } from '../../stores/auth';
+import { useSettingsStore } from '@/stores/settings';
+import { useAuthStore } from '@/stores/auth';
 
 export default {
   name: 'AuthenticationSettingsComponent',
@@ -63,13 +69,13 @@ export default {
   },
   methods: {
     handleStaleError (error) {
-      this.$emit('staleError', error);
+      this.$emit('stale-error', error);
     },
     updateUser (user) {
-      this.$emit('updateUser', user);
+      this.$emit('update-user', user);
     },
     handleNotFoundError (error) {
-      this.$emit('notFoundError', error);
+      this.$emit('not-found-error', error);
     }
   }
 };

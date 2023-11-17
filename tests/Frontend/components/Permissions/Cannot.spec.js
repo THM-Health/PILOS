@@ -1,6 +1,6 @@
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 import { mount, shallowMount } from '@vue/test-utils';
-import Cannot from '../../../../resources/js/components/Permissions/Cannot.vue';
+import Cannot from '@/components/Permissions/Cannot.vue';
 import { createContainer } from '../../helper';
 
 const testComponent = {

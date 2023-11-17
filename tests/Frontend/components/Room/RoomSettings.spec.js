@@ -7,10 +7,10 @@ import BootstrapVue, {
   BOverlay
 } from 'bootstrap-vue';
 
-import SettingsComponent from '../../../../resources/js/components/Room/SettingsComponent.vue';
+import SettingsComponent from '@/components/Room/SettingsComponent.vue';
 
-import Base from '../../../../resources/js/api/base';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '@/api/base';
+import PermissionService from '@/services/PermissionService';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -23,16 +23,16 @@ localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const adminUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.manage'], model_name: 'User', room_limit: -1 };
-const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
-const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
+const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 
 const exampleRoomTypeResponse = {
   data: [
-    { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27', allow_listing: true, model_name: 'RoomType' },
-    { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', allow_listing: false, model_name: 'RoomType' },
-    { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E', allow_listing: false, model_name: 'RoomType' },
-    { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4', allow_listing: true, model_name: 'RoomType' }
+    { id: 1, description: 'Vorlesung', color: '#80BA27', allow_listing: true, model_name: 'RoomType' },
+    { id: 2, description: 'Meeting', color: '#4a5c66', allow_listing: false, model_name: 'RoomType' },
+    { id: 3, description: 'Pr\u00fcfung', color: '#9C132E', allow_listing: false, model_name: 'RoomType' },
+    { id: 4, description: '\u00dcbung', color: '#00B8E4', allow_listing: true, model_name: 'RoomType' }
   ]
 };
 
@@ -75,7 +75,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -206,7 +205,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -276,7 +274,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -352,7 +349,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -489,7 +485,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -565,7 +560,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -665,7 +659,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -698,7 +691,7 @@ describe('RoomSettings', () => {
     });
     await view.vm.$nextTick();
 
-    expect(view.emitted().settingsChanged).toBeTruthy();
+    expect(view.emitted('settings-changed')).toBeTruthy();
 
     // test form validation error
     request = mockAxios.request('/api/v1/rooms/123-456-789');
@@ -753,7 +746,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -854,7 +846,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,

@@ -1,14 +1,17 @@
 <template>
-  <b-nav-item-dropdown right
-    toggle-class="text-primary nav-icon-item">
-    <template v-slot:button-content>
-      <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.select_locale') }}</span>
+  <b-nav-item-dropdown
+    right
+    toggle-class="text-primary nav-icon-item"
+  >
+    <template #button-content>
+      <i class="fa-solid fa-language" /><span class="sr-only">{{ $t('app.select_locale') }}</span>
     </template>
     <b-dropdown-item
       v-for="(label, locale) in locales"
       :key="locale"
+      :active="locale === currentLocale"
       @click="changeLocale(locale)"
-      :active="locale === currentLocale">
+    >
       {{ label }}
     </b-dropdown-item>
   </b-nav-item-dropdown>
@@ -16,11 +19,11 @@
 
 <script>
 import { loadLanguageAsync, getLocaleList } from '../i18n';
-import env from './../env.js';
-import Base from '../api/base';
+import env from '@/env.js';
+import Base from '@/api/base';
 import { mapActions, mapState } from 'pinia';
-import { useLocaleStore } from '../stores/locale';
-import { useLoadingStore } from '../stores/loading';
+import { useLocaleStore } from '@/stores/locale';
+import { useLoadingStore } from '@/stores/loading';
 
 export default {
 

@@ -1,29 +1,35 @@
 <template>
   <div>
-    <b-overlay :show="isBusy" z-index="100">
+    <b-overlay
+      :show="isBusy"
+      z-index="100"
+    >
       <div class="row">
         <div class="col-12">
           <b-button-group class="float-lg-right">
-            <can method="manageSettings" :policy="room">
+            <can
+              method="manageSettings"
+              :policy="room"
+            >
               <b-button
+                ref="add-member"
                 variant="success"
                 :disabled="isBusy"
-                ref="add-member"
                 @click="$refs['add-edit-token-modal'].show()"
               >
-                <i class="fa-solid fa-link"></i> {{ $t('rooms.tokens.add') }}
+                <i class="fa-solid fa-link" /> {{ $t('rooms.tokens.add') }}
               </b-button>
             </can>
 
             <b-button
-              variant="secondary"
-              @click="reload"
-              :disabled="isBusy"
-              :title="$t('app.reload')"
               v-b-tooltip.hover
               v-tooltip-hide-click
+              variant="secondary"
+              :disabled="isBusy"
+              :title="$t('app.reload')"
+              @click="reload"
             >
-              <i class="fa-solid fa-sync"></i>
+              <i class="fa-solid fa-sync" />
             </b-button>
           </b-button-group>
         </div>
@@ -40,83 +46,99 @@
             stacked="md"
             show-empty
           >
-            <template v-slot:empty>
+            <template #empty>
               <i>{{ $t('rooms.tokens.nodata') }}</i>
             </template>
 
-            <template v-slot:cell(expires)="data">
-              <raw-text v-if="data.item.expires == null">-</raw-text>
+            <template #cell(expires)="data">
+              <raw-text v-if="data.item.expires == null">
+                -
+              </raw-text>
               <span v-else>{{ $d(new Date(data.item.expires),'datetimeShort') }}</span>
             </template>
 
-            <template v-slot:cell(last_usage)="data">
-              <raw-text v-if="data.item.last_usage == null">-</raw-text>
+            <template #cell(last_usage)="data">
+              <raw-text v-if="data.item.last_usage == null">
+                -
+              </raw-text>
               <span v-else>{{ $d(new Date(data.item.last_usage),'datetimeShort') }}</span>
             </template>
 
-            <template v-slot:table-busy>
+            <template #table-busy>
               <div class="text-center my-2">
-                <b-spinner class="align-middle"></b-spinner>
+                <b-spinner class="align-middle" />
               </div>
             </template>
 
-            <template v-slot:cell(actions)="data">
+            <template #cell(actions)="data">
               <b-button-group
                 class="float-md-right"
               >
                 <b-button
-                  :disabled="isBusy"
-                  variant="primary"
-                  @click="copyPersonalizedRoomLink(data.item)"
-                  :title="$t('rooms.tokens.copy')"
                   v-b-tooltip.hover
                   v-tooltip-hide-click
+                  :disabled="isBusy"
+                  variant="primary"
+                  :title="$t('rooms.tokens.copy')"
+                  @click="copyPersonalizedRoomLink(data.item)"
                 >
-                  <i class="fa-solid fa-link"></i>
+                  <i class="fa-solid fa-link" />
                 </b-button>
-                <can method="manageSettings" :policy="room">
+                <can
+                  method="manageSettings"
+                  :policy="room"
+                >
                   <b-button
+                    v-b-tooltip.hover
+                    v-tooltip-hide-click
                     :disabled="isBusy"
                     variant="secondary"
-                    @click="showTokenEditModal(data.item)"
                     :title="$t('rooms.tokens.edit')"
-                    v-b-tooltip.hover
-                    v-tooltip-hide-click
+                    @click="showTokenEditModal(data.item)"
                   >
-                    <i class="fa-solid fa-pen-square"></i>
+                    <i class="fa-solid fa-pen-square" />
                   </b-button>
                   <b-button
-                    :disabled="isBusy"
-                    variant="danger"
-                    @click="showTokenDeleteModal(data.item)"
-                    :title="$t('rooms.tokens.delete')"
                     v-b-tooltip.hover
                     v-tooltip-hide-click
+                    :disabled="isBusy"
+                    variant="danger"
+                    :title="$t('rooms.tokens.delete')"
+                    @click="showTokenDeleteModal(data.item)"
                   >
-                    <i class="fa-solid fa-trash"></i>
+                    <i class="fa-solid fa-trash" />
                   </b-button>
                 </can>
               </b-button-group>
             </template>
 
-            <template v-slot:cell(role)="data">
-              <b-badge v-if="data.value === 1" variant="success"
-              >{{ $t('rooms.roles.participant') }}
+            <template #cell(role)="data">
+              <b-badge
+                v-if="data.value === 1"
+                variant="success"
+              >
+                {{ $t('rooms.roles.participant') }}
               </b-badge>
-              <b-badge v-if="data.value === 2" variant="danger"
-              >{{ $t('rooms.roles.moderator') }}
+              <b-badge
+                v-if="data.value === 2"
+                variant="danger"
+              >
+                {{ $t('rooms.roles.moderator') }}
               </b-badge>
             </template>
           </b-table>
 
           <b-row>
-            <b-col cols="12" class="my-1">
+            <b-col
+              cols="12"
+              class="my-1"
+            >
               <b-pagination
                 v-if="tokens.length>getSetting('pagination_page_size')"
                 v-model="currentPage"
                 :total-rows="tokens.length"
                 :per-page="getSetting('pagination_page_size')"
-              ></b-pagination>
+              />
             </b-col>
           </b-row>
         </div>
@@ -124,24 +146,27 @@
     </b-overlay>
 
     <b-modal
+      ref="delete-token-modal"
       :busy="actionRunning"
-      :static='modalStatic'
+      :static="modalStatic"
       ok-variant="danger"
       cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @cancel="resetModel"
-      @close="resetModel"
-      @ok="deletePersonalizedToken"
-      ref="delete-token-modal"
       :no-close-on-esc="actionRunning"
       :no-close-on-backdrop="actionRunning"
       :hide-header-close="actionRunning"
+      @cancel="resetModel"
+      @close="resetModel"
+      @ok="deletePersonalizedToken"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('rooms.tokens.delete') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="actionRunning"></b-spinner> {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="actionRunning"
+          small
+        /> {{ $t('app.yes') }}
       </template>
       <span>
         {{ $t('rooms.tokens.confirm_delete', { firstname: model.firstname,lastname: model.lastname }) }}
@@ -149,58 +174,61 @@
     </b-modal>
 
     <b-modal
+      ref="add-edit-token-modal"
       :busy="actionRunning"
       :static="modalStatic"
       ok-variant="success"
       :cancel-title="$t('app.cancel')"
-      @cancel="resetModel"
-      @close="resetModel"
-      @ok="savePersonalizedToken"
-      ref="add-edit-token-modal"
       :no-close-on-esc="actionRunning"
       :no-close-on-backdrop="actionRunning"
       :hide-header-close="actionRunning"
+      @cancel="resetModel"
+      @close="resetModel"
+      @ok="savePersonalizedToken"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t(`rooms.tokens.${model.token == null ? 'add' : 'edit'}`) }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="actionRunning"></b-spinner>  {{ $t('app.save') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="actionRunning"
+          small
+        />  {{ $t('app.save') }}
       </template>
 
       <b-form-group
-        label-cols-sm='3'
+        label-cols-sm="3"
         :label="$t('app.firstname')"
-        label-for='firstname'
-        :state='fieldState("firstname")'
+        label-for="firstname"
+        :state="fieldState('firstname')"
         :invalid-feedback="fieldError('firstname')"
       >
         <b-form-input
-          id='firstname'
-          type='text'
-          v-model='model.firstname'
-          :state='fieldState("firstname")'
+          id="firstname"
+          v-model="model.firstname"
+          type="text"
+          :state="fieldState('firstname')"
           :disabled="actionRunning"
-        ></b-form-input>
+        />
       </b-form-group>
       <b-form-group
-        label-cols-sm='3'
+        label-cols-sm="3"
         :label="$t('app.lastname')"
-        label-for='lastname'
-        :state='fieldState("lastname")'
+        label-for="lastname"
+        :state="fieldState('lastname')"
         :invalid-feedback="fieldError('lastname')"
       >
         <b-form-input
-          id='lastname'
-          type='text'
-          v-model='model.lastname'
-          :state='fieldState("lastname")'
+          id="lastname"
+          v-model="model.lastname"
+          type="text"
+          :state="fieldState('lastname')"
           :disabled="actionRunning"
-        ></b-form-input>
+        />
       </b-form-group>
       <b-form-group
         :label="$t('rooms.role')"
-        :state='fieldState("role")'
+        :state="fieldState('role')"
         :invalid-feedback="fieldError('role')"
       >
         <b-form-radio
@@ -225,18 +253,18 @@
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 import Can from '../Permissions/Can.vue';
-import FieldErrors from '../../mixins/FieldErrors';
-import env from '../../env';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
 import _ from 'lodash';
-import RawText from '../RawText.vue';
+import RawText from '@/components/RawText.vue';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 
 export default {
-  mixins: [FieldErrors],
   components: { Can, RawText },
+  mixins: [FieldErrors],
 
   props: {
     room: Object,

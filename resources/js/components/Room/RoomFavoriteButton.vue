@@ -1,18 +1,17 @@
 <template>
   <b-button
-    @click.stop="toggleFavorite"
+    v-b-tooltip.hover
+    v-tooltip-hide-click
     :variant="room.is_favorite ? 'primary' : 'secondary'"
     :title="room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
     :aria-label="room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
-    v-b-tooltip.hover
-    v-tooltip-hide-click
     class="fa-solid fa-star"
-  >
-  </b-button>
+    @click.stop="toggleFavorite"
+  />
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 
 export default {
   name: 'RoomFavoriteButton',
@@ -34,11 +33,10 @@ export default {
       }
       // add or delete room
       Base.call('rooms/' + this.room.id + '/favorites', config)
-        .then(response => {
-        }).catch(error => {
+        .catch(error => {
           Base.error(error, this);
         }).finally(() => {
-          this.$emit('favorites_changed');
+          this.$emit('favorites-changed');
         });
     }
   }

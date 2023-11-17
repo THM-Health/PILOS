@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 
-import Login from '../../../resources/js/views/Login.vue';
-import ExternalLoginComponent from '../../../resources/js/components/Login/ExternalLoginComponent.vue';
-import LocalLoginComponent from '../../../resources/js/components/Login/LocalLoginComponent.vue';
-import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
-import env from '../../../resources/js/env';
-import Base from '../../../resources/js/api/base';
+import Login from '@/views/Login.vue';
+import ExternalLoginComponent from '@/components/Login/ExternalLoginComponent.vue';
+import LocalLoginComponent from '@/components/Login/LocalLoginComponent.vue';
+import LdapLoginComponent from '@/components/Login/LdapLoginComponent.vue';
+import env from '@/env';
+import Base from '@/api/base';
 import VueRouter from 'vue-router';
 import { mockAxios, createLocalVue } from '../helper';
 import { createTestingPinia } from '@pinia/testing';

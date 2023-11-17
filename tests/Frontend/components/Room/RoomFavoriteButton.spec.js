@@ -1,42 +1,49 @@
 import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import _ from 'lodash';
-import PermissionService from '../../../../resources/js/services/PermissionService';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
-import { PiniaVuePlugin } from 'pinia';
-import { createTestingPinia } from '@pinia/testing';
 import { expect } from 'vitest';
 import { BButton } from 'bootstrap-vue';
-import RoomFavoriteComponent from '../../../../resources/js/components/Room/RoomFavoriteComponent.vue';
-import Base from '../../../../resources/js/api/base';
+import RoomFavoriteButton from '@/components/Room/RoomFavoriteButton.vue';
+import Base from '@/api/base';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
-localVue.use(PiniaVuePlugin);
 
-const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
-const initialState = { auth: { currentUser: exampleUser } };
+const room = {
+  id: 'abc-def-123',
+  name: 'Meeting One',
+  short_description: 'room short description',
+  is_favorite: false,
+  owner: {
+    id: 1,
+    name: 'John Doe'
+  },
+  type: {
+    id: 2,
+    description: 'Meeting',
+    color: '#4a5c66',
+    default: false
+  },
+  last_meeting: null
+};
 
-describe('Room Favorite Component', () => {
+describe('Room Favorite Button', () => {
   beforeEach(() => {
     mockAxios.reset();
-    PermissionService.currentUser = exampleUser;
   });
 
   it('test toggle favorites', async () => {
-    const view = mount(RoomFavoriteComponent, {
+    const view = mount(RoomFavoriteButton, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        id: 'abc-def-123',
-        isFavorite: false
+        room
       },
       stubs: {
         transition: false
       },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -59,9 +66,10 @@ describe('Room Favorite Component', () => {
     await view.vm.$nextTick();
 
     // check if favorites_changed gets emitted
-    expect(view.emitted().favorites_changed).toBeTruthy();
+    expect(view.emitted('favorites-changed')).toBeTruthy();
 
-    view.setProps({ isFavorite: true });
+    const favoriteRoom = { ...room, is_favorite: true };
+    await view.setProps({ room: favoriteRoom });
 
     await view.vm.$nextTick();
 
@@ -81,8 +89,9 @@ describe('Room Favorite Component', () => {
     await view.vm.$nextTick();
 
     // check if favorites_changed gets emitted
-    expect(view.emitted().favorites_changed).toBeTruthy();
-    view.setProps({ isFavorite: false });
+    expect(view.emitted('favorites-changed')).toBeTruthy();
+    const notFavoriteRoom = { ...room, is_favorite: false };
+    await view.setProps({ room: notFavoriteRoom });
     await view.vm.$nextTick();
     expect(favoritesButton.attributes().class).toContain('secondary');
 
@@ -92,19 +101,17 @@ describe('Room Favorite Component', () => {
   it('test add favorite error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const view = mount(RoomFavoriteComponent, {
+    const view = mount(RoomFavoriteButton, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        id: 'abc-def-123',
-        isFavorite: false
+        room
       },
       stubs: {
         transition: false
       },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -123,7 +130,7 @@ describe('Room Favorite Component', () => {
     });
     // check if favorites_changed gets emitted
     expect(spy).toBeCalledTimes(1);
-    expect(view.emitted().favorites_changed).toBeTruthy();
+    expect(view.emitted('favorites-changed')).toBeTruthy();
 
     view.destroy();
   });
@@ -131,19 +138,17 @@ describe('Room Favorite Component', () => {
   it('test delete favorite error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const view = mount(RoomFavoriteComponent, {
+    const view = mount(RoomFavoriteButton, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        id: 'abc-def-123',
-        isFavorite: true
+        room: { ...room, is_favorite: true }
       },
       stubs: {
         transition: false
       },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -162,7 +167,7 @@ describe('Room Favorite Component', () => {
     });
     // check if favorites_changed gets emitted
     expect(spy).toBeCalledTimes(1);
-    expect(view.emitted().favorites_changed).toBeTruthy();
+    expect(view.emitted('favorites-changed')).toBeTruthy();
 
     view.destroy();
   });

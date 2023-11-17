@@ -2,12 +2,12 @@ import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
-import RolesAndPermissionsComponent from '../../../../resources/js/components/User/RolesAndPermissionsComponent.vue';
+import RolesAndPermissionsComponent from '@/components/User/RolesAndPermissionsComponent.vue';
 import { BButton } from 'bootstrap-vue';
 
-import Base from '../../../../resources/js/api/base';
-import RoleSelect from '../../../../resources/js/components/Inputs/RoleSelect.vue';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '@/api/base';
+import RoleSelect from '@/components/Inputs/RoleSelect.vue';
+import PermissionService from '@/services/PermissionService';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -131,7 +131,7 @@ describe('RolesAndPermissionsComponent', () => {
     expect(saveButton.attributes('disabled')).toBeUndefined();
 
     // Check event emitted
-    expect(wrapper.emitted('updateUser')[0][0]).toEqual(newUser);
+    expect(wrapper.emitted('update-user')[0][0]).toEqual(newUser);
 
     wrapper.destroy();
   });
@@ -256,7 +256,7 @@ describe('RolesAndPermissionsComponent', () => {
 
     // Emit loading roles error
     const roleSelect = wrapper.findComponent(RoleSelect);
-    roleSelect.vm.$emit('loadingError', true);
+    roleSelect.vm.$emit('loading-error', true);
     await wrapper.vm.$nextTick();
 
     // Save button should be disabled
@@ -264,7 +264,7 @@ describe('RolesAndPermissionsComponent', () => {
     expect(saveButton.attributes('disabled')).toBe('disabled');
 
     // Resolve loading roles error
-    roleSelect.vm.$emit('loadingError', false);
+    roleSelect.vm.$emit('loading-error', false);
     await wrapper.vm.$nextTick();
 
     // Save button should be enabled
@@ -313,7 +313,7 @@ describe('RolesAndPermissionsComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().notFoundError).toBeTruthy();
+    expect(wrapper.emitted('not-found-error')).toBeTruthy();
 
     // --- Check stale error ---
     request = mockAxios.request('/api/v1/users/2');
@@ -333,8 +333,8 @@ describe('RolesAndPermissionsComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().staleError).toBeTruthy();
-    expect(wrapper.emitted().staleError[0]).toEqual([response]);
+    expect(wrapper.emitted('stale-error')).toBeTruthy();
+    expect(wrapper.emitted('stale-error')[0]).toEqual([response]);
 
     // --- Check form validation error ---
 

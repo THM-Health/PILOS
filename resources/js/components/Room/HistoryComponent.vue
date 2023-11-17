@@ -1,15 +1,15 @@
 <template>
   <div>
-    <b-overlay  :show="meetingsLoadingError" >
+    <b-overlay :show="meetingsLoadingError">
       <!-- Overlay on loading and errors -->
       <template #overlay>
         <div class="text-center my-2">
-          <b-spinner v-if="meetingsLoading" ></b-spinner>
+          <b-spinner v-if="meetingsLoading" />
           <b-button
             v-else
             @click="$root.$emit('bv::refresh::table', 'meetings-table')"
           >
-            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -18,15 +18,15 @@
         <div class="col-12">
           <!-- Reload meetings list -->
           <b-button
+            v-b-tooltip.hover
+            v-tooltip-hide-click
             class="float-right"
             variant="secondary"
             :disabled="meetingsLoading"
-            @click="$root.$emit('bv::refresh::table', 'meetings-table')"
             :title="$t('app.reload')"
-            v-b-tooltip.hover
-            v-tooltip-hide-click
+            @click="$root.$emit('bv::refresh::table', 'meetings-table')"
           >
-            <i class="fa-solid fa-sync"></i>
+            <i class="fa-solid fa-sync" />
           </b-button>
         </div>
       </div>
@@ -35,71 +35,77 @@
       <div class="row pt-4">
         <div class="col-12">
           <b-table
+            id="meetings-table"
+            ref="meetings"
             fixed
             hover
-            stacked='lg'
+            stacked="lg"
             :show-empty="!meetingsLoadingError"
-            :busy.sync='meetingsLoading'
-            :fields='meetingsTableFields'
-            :items='fetchMeetings'
-            id='meetings-table'
-            ref='meetings'
-            :current-page='meetingsMeta.current_page'>
-
-            <template v-slot:empty>
+            :busy.sync="meetingsLoading"
+            :fields="meetingsTableFields"
+            :items="fetchMeetings"
+            :current-page="meetingsMeta.current_page"
+          >
+            <template #empty>
               <i>{{ $t('meetings.no_historical_data') }}</i>
             </template>
 
-            <template v-slot:table-busy>
-              <div class="text-center my-2" v-if="!meetingsLoadingError">
-                <b-spinner className="align-middle"></b-spinner>
+            <template #table-busy>
+              <div
+                v-if="!meetingsLoadingError"
+                class="text-center my-2"
+              >
+                <b-spinner class-name="align-middle" />
               </div>
             </template>
 
-            <template v-slot:cell(start)="data">
+            <template #cell(start)="data">
               {{ $d(new Date(data.item.start),'datetimeShort') }}
             </template>
 
-            <template v-slot:cell(end)="data">
+            <template #cell(end)="data">
               {{ data.item.end == null ? $t('meetings.now') : $d(new Date(data.item.end),'datetimeShort') }}
             </template>
 
-            <template v-slot:cell(actions)="data">
+            <template #cell(actions)="data">
               <b-button
+                v-if="data.item.statistical"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
                 :title="$t('meetings.view_meeting_stats')"
-                :disabled='meetingsLoading || statsLoading || attendanceLoading'
-                v-if="data.item.statistical"
-                variant='info'
+                :disabled="meetingsLoading || statsLoading || attendanceLoading"
+                variant="info"
                 @click="loadMeetingStats(data.item)"
               >
-                <i class='fa-solid fa-chart-line'></i>
+                <i class="fa-solid fa-chart-line" />
               </b-button>
               <b-button
+                v-if="data.item.attendance && data.item.end != null"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
                 :title="$t('meetings.attendance.view')"
-                :disabled='meetingsLoading || statsLoading || attendanceLoading'
-                v-if="data.item.attendance && data.item.end != null"
-                variant='info'
+                :disabled="meetingsLoading || statsLoading || attendanceLoading"
+                variant="info"
                 @click="loadMeetingAttendance(data.item)"
               >
-                <i class="fa-solid fa-user-clock"></i>
+                <i class="fa-solid fa-user-clock" />
               </b-button>
             </template>
           </b-table>
           <b-pagination
-            v-model='meetingsMeta.current_page'
-            :total-rows='meetingsMeta.total'
-            :per-page='meetingsMeta.per_page'
-            aria-controls='meetings-table'
+            v-model="meetingsMeta.current_page"
+            :total-rows="meetingsMeta.total"
+            :per-page="meetingsMeta.per_page"
+            aria-controls="meetings-table"
+            align="center"
+            :disabled="meetingsLoading || meetingsLoadingError"
             @input="$root.$emit('bv::refresh::table', 'meetings-table')"
-            align='center'
-            :disabled='meetingsLoading || meetingsLoadingError'
-          ></b-pagination>
+          />
 
-          <div v-if="getSetting('attendance.enabled') || getSetting('statistics.meetings.enabled')" id="retentionPeriodInfo">
+          <div
+            v-if="getSetting('attendance.enabled') || getSetting('statistics.meetings.enabled')"
+            id="retentionPeriodInfo"
+          >
             <hr>
             <b>{{ $t('meetings.retention_period') }}</b><br>
             <span v-if="getSetting('statistics.meetings.enabled')">{{ $t('meetings.stats.retention_period', {'days': getSetting('statistics.meetings.retention_period')}) }}</span><br>
@@ -109,55 +115,96 @@
       </div>
 
       <!-- Statistics modal -->
-      <b-modal :static="modalStatic" size="xl" hide-footer id="statsModal">
+      <b-modal
+        id="statsModal"
+        :static="modalStatic"
+        size="xl"
+        hide-footer
+      >
         <template #modal-title>
-          <h5 v-if="statsMeeting">{{ $t('meetings.stats.modal_title',{room: room.name }) }}
-          <br><small>{{ $d(new Date(statsMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d(new Date(statsMeeting.end),'datetimeShort') }}</small>
+          <h5 v-if="statsMeeting">
+            {{ $t('meetings.stats.modal_title',{room: room.name }) }}
+            <br><small>{{ $d(new Date(statsMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d(new Date(statsMeeting.end),'datetimeShort') }}</small>
           </h5>
         </template>
-        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.stats.no_breakout_support')}}</b-alert>
+        <b-alert
+          show
+          variant="info"
+        >
+          <i class="fa-solid fa-info-circle" /> {{ $t('meetings.stats.no_breakout_support') }}
+        </b-alert>
 
-        <line-chart v-if="statsMeeting" :style="{height: '200px', position: 'relative'}" :data="chartData" :options="chartOptions"></line-chart>
+        <line-chart
+          v-if="statsMeeting"
+          :style="{height: '200px', position: 'relative'}"
+          :data="chartData"
+          :options="chartOptions"
+        />
       </b-modal>
       <!-- Attendance modal -->
-      <b-modal :static="modalStatic" size="xl" hide-footer id="attendanceModal" title-tag="div" title-class="w-100">
-        <template #modal-title >
+      <b-modal
+        id="attendanceModal"
+        :static="modalStatic"
+        size="xl"
+        hide-footer
+        title-tag="div"
+        title-class="w-100"
+      >
+        <template #modal-title>
           <div class="d-flex justify-content-between align-items-center">
-            <h5 v-if="attendanceMeeting">{{ $t('meetings.attendance.modal_title',{room: room.name}) }}
+            <h5 v-if="attendanceMeeting">
+              {{ $t('meetings.attendance.modal_title',{room: room.name}) }}
               <br><small>{{ $d(new Date(attendanceMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(attendanceMeeting.end),'datetimeShort') }}</small>
             </h5>
-            <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fa-solid fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
+            <div v-if="attendanceMeeting">
+              <b-button
+                target="_blank"
+                :href="'/download/attendance/'+attendanceMeeting.id"
+              >
+                <i class="fa-solid fa-file-excel" /> {{ $t('meetings.attendance.download') }}
+              </b-button>
+            </div>
           </div>
         </template>
-        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.attendance.no_breakout_support')}}</b-alert>
+        <b-alert
+          show
+          variant="info"
+        >
+          <i class="fa-solid fa-info-circle" /> {{ $t('meetings.attendance.no_breakout_support') }}
+        </b-alert>
 
         <b-table
-          id='attendance-table'
+          v-if="attendance"
+          id="attendance-table"
           :current-page="attendanceCurrentPage"
           :per-page="getSetting('pagination_page_size')"
           :fields="attendanceTableFields"
           sort-by="name"
-          v-if="attendance"
           :items="attendance"
           hover
           stacked="md"
           show-empty
         >
           <!-- Show message on empty attendance list -->
-          <template v-slot:empty>
+          <template #empty>
             <i>{{ $t('meetings.attendance.nodata') }}</i>
           </template>
 
-          <template v-slot:cell(email)="data">
+          <template #cell(email)="data">
             {{ data.item.email || "---" }}
           </template>
 
-          <template v-slot:cell(duration)="data">
+          <template #cell(duration)="data">
             {{ $t('meetings.attendance.duration_minute',{duration: data.item.duration}) }}
           </template>
 
-          <template v-slot:cell(sessions)="data">
-            <p v-for="session in data.item.sessions" :key="session.id" >{{ $d(new Date(session.join),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(session.leave),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.duration_minute',{duration: session.duration})}}<raw-text>)</raw-text></p>
+          <template #cell(sessions)="data">
+            <p
+              v-for="session in data.item.sessions"
+              :key="session.id"
+            >
+              {{ $d(new Date(session.join),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(session.leave),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.duration_minute',{duration: session.duration}) }}<raw-text>)</raw-text>
+            </p>
           </template>
         </b-table>
         <b-pagination
@@ -165,22 +212,21 @@
           v-model="attendanceCurrentPage"
           :total-rows="attendance.length"
           :per-page="getSetting('pagination_page_size')"
-          aria-controls='attendance-table'
-          align='center'
-        ></b-pagination>
+          aria-controls="attendance-table"
+          align="center"
+        />
       </b-modal>
-
     </b-overlay>
   </div>
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 import { Line } from 'vue-chartjs';
-import RawText from '../RawText.vue';
-import env from '../../env';
+import RawText from '@/components/RawText.vue';
+import env from '@/env';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 import { Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale } from 'chart.js';
 import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
 

@@ -3,7 +3,7 @@
     @click.stop="toggleFavorite"
   >
     <div class="d-flex align-items-baseline">
-      <i class="fa-solid fa-star"></i>
+      <i class="fa-solid fa-star" />
       <span v-if="room.is_favorite">{{ $t('rooms.favorites.remove') }}</span>
       <span v-else>{{ $t('rooms.favorites.add') }}</span>
     </div>
@@ -11,9 +11,12 @@
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 
 export default {
+
+  name: 'RoomFavoriteDropdownButton',
+
   props: {
     room: Object
   },
@@ -32,10 +35,9 @@ export default {
       // add or delete room
       Base.call('rooms/' + this.room.id + '/favorites', config)
         .then(response => {
+          this.$emit('favorites-changed');
         }).catch(error => {
           Base.error(error, this);
-        }).finally(() => {
-          this.$emit('favorites_changed');
         });
     }
   }

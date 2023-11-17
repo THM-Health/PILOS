@@ -1,202 +1,224 @@
 <template>
   <div>
-    <b-overlay :show="isBusy" >
-      <b-alert show v-if="requireAgreement && files.files && files.files.length>0" >
-        <strong>{{ $t('rooms.files.terms_of_use.title')}}</strong><br>
-        {{ $t('rooms.files.terms_of_use.content')}}
+    <b-overlay :show="isBusy">
+      <b-alert
+        v-if="requireAgreement && files.files && files.files.length>0"
+        show
+      >
+        <strong>{{ $t('rooms.files.terms_of_use.title') }}</strong><br>
+        {{ $t('rooms.files.terms_of_use.content') }}
         <hr>
         <b-form-checkbox
           v-model="downloadAgreement"
           :value="true"
           :unchecked-value="false"
         >
-          {{ $t('rooms.files.terms_of_use.accept')}}
+          {{ $t('rooms.files.terms_of_use.accept') }}
         </b-form-checkbox>
       </b-alert>
 
-    <div class="row mb-3">
-      <div class="col-10">
-
-        <can method="manageSettings" :policy="room">
-
-          <!-- Upload new file -->
-          <b-form-file
-            :disabled="isBusy"
-            :state="fieldState('file')"
-            :browse-text="$t('app.browse')"
-            :placeholder="$t('rooms.files.select_or_drag')"
-            v-on:change="uploadFile"
-            v-model="fileUpload"
-            v-bind:multiple="false"
+      <div class="row mb-3">
+        <div class="col-10">
+          <can
+            method="manageSettings"
+            :policy="room"
           >
-          </b-form-file>
-          <b-form-invalid-feedback :state="fieldState('file')" v-html="fieldError('file')"></b-form-invalid-feedback>
+            <!-- Upload new file -->
+            <b-form-file
+              v-model="fileUpload"
+              :disabled="isBusy"
+              :state="fieldState('file')"
+              :browse-text="$t('app.browse')"
+              :placeholder="$t('rooms.files.select_or_drag')"
+              :multiple="false"
+              @change="uploadFile"
+            />
+            <b-form-invalid-feedback
+              :state="fieldState('file')"
+              v-html="fieldError('file')"
+            />
 
-          <b-form-text>{{ $t('rooms.files.formats',{formats: getSetting('bbb.file_mimes')}) }}<br>{{ $t('rooms.files.size',{size: getSetting('bbb.max_filesize')}) }}</b-form-text>
-
-        </can>
+            <b-form-text>{{ $t('rooms.files.formats',{formats: getSetting('bbb.file_mimes')}) }}<br>{{ $t('rooms.files.size',{size: getSetting('bbb.max_filesize')}) }}</b-form-text>
+          </can>
+        </div>
+        <div class="col-2">
+          <!-- Reload file list -->
+          <b-button
+            v-if="!hideReload"
+            v-b-tooltip.hover
+            v-tooltip-hide-click
+            class="float-right"
+            variant="secondary"
+            :disabled="isBusy"
+            :title="$t('app.reload')"
+            @click="reload"
+          >
+            <i class="fa-solid fa-sync" />
+          </b-button>
+        </div>
       </div>
-      <div class="col-2">
-        <!-- Reload file list -->
-        <b-button
-          v-if="!hideReload"
-          class="float-right"
-          variant="secondary"
-          :disabled="isBusy"
-          @click="reload"
-          :title="$t('app.reload')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-        >
-          <i class="fa-solid fa-sync"></i>
-        </b-button>
-      </div>
-    </div>
       <!-- Display files -->
       <b-table
+        v-if="files.files"
         :current-page="currentPage"
         :per-page="getSetting('pagination_page_size')"
         :fields="filefields"
         sort-by="uploaded"
         :sort-desc="true"
-        v-if="files.files"
         :items="files.files"
         hover
         stacked="lg"
         show-empty
       >
         <!-- Show message on empty file list -->
-        <template v-slot:empty>
+        <template #empty>
           <i>{{ $t('rooms.files.nodata') }}</i>
         </template>
 
         <!-- Show spinner while table is loading -->
-        <template v-slot:table-busy>
+        <template #table-busy>
           <div class="text-center my-2">
-            <b-spinner class="align-middle"></b-spinner>
+            <b-spinner class="align-middle" />
           </div>
         </template>
 
         <!-- Render action column -->
-        <template v-slot:cell(actions)="data">
+        <template #cell(actions)="data">
           <b-button-group class="float-md-right">
-            <can method="manageSettings" :policy="room">
+            <can
+              method="manageSettings"
+              :policy="room"
+            >
               <!-- Delete file -->
               <b-button
-                variant="danger"
-                :disabled="loadingDownload===data.item.id"
-                @click="showDeleteFileModal(data.item)"
-                :title="$t('rooms.files.delete')"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
+                variant="danger"
+                :disabled="loadingDownload===data.item.id"
+                :title="$t('rooms.files.delete')"
+                @click="showDeleteFileModal(data.item)"
               >
-                <i class="fa-solid fa-trash"></i>
+                <i class="fa-solid fa-trash" />
               </b-button>
             </can>
             <!-- View file -->
             <b-button
+              v-b-tooltip.hover
+              v-tooltip-hide-click
               variant="secondary"
-              @click="downloadFile(data.item)"
               :disabled="disableDownload"
               target="_blank"
               :title="$t('rooms.files.view')"
-              v-b-tooltip.hover
-              v-tooltip-hide-click
+              @click="downloadFile(data.item)"
             >
-              <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fa-solid fa-eye"></i>
+              <b-spinner
+                v-if="loadingDownload===data.item.id"
+                small
+              /> <i
+                v-else
+                class="fa-solid fa-eye"
+              />
             </b-button>
           </b-button-group>
         </template>
 
         <!-- Checkbox if file should be downloadable by all room participants -->
-        <template v-slot:cell(download)="data">
+        <template #cell(download)="data">
           <b-form-checkbox
+            v-model="data.item.download"
             size="lg"
             switch
             @change="changeSettings(data.item,'download',$event)"
-            v-model="data.item.download"
-          ></b-form-checkbox>
+          />
         </template>
 
         <!--
         Checkbox if file should be send to the api on the next meeting start,
         setting can't be changed manually if the file is the default presentation
         -->
-        <template v-slot:cell(use_in_meeting)="data">
+        <template #cell(use_in_meeting)="data">
           <b-form-checkbox
+            v-model="data.item.use_in_meeting"
             size="lg"
             switch
             @change="changeSettings(data.item,'use_in_meeting',$event)"
-            v-model="data.item.use_in_meeting"
-          ></b-form-checkbox>
+          />
         </template>
 
         <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
-        <template v-slot:cell(default)="data">
+        <template #cell(default)="data">
           <b-form-radio
+            v-model="files.default"
             size="lg"
             name="default"
             :value="data.item.id"
             :disabled="data.item.use_in_meeting !== true"
             @change="changeSettings(data.item,'default',$event)"
-            v-model="files.default"
-          ></b-form-radio>
+          />
         </template>
 
         <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
-        <template v-slot:cell(uploaded)="data">
-         {{ $d(new Date(data.item.uploaded), 'datetimeLong') }}
+        <template #cell(uploaded)="data">
+          {{ $d(new Date(data.item.uploaded), 'datetimeLong') }}
         </template>
-
       </b-table>
       <b-row v-if="files.files">
-        <b-col cols="12" class="my-1">
+        <b-col
+          cols="12"
+          class="my-1"
+        >
           <b-pagination
             v-if="files.files.length>getSetting('pagination_page_size')"
             v-model="currentPage"
             :total-rows="files.files.length"
             :per-page="getSetting('pagination_page_size')"
-          ></b-pagination>
+          />
         </b-col>
       </b-row>
     </b-overlay>
 
     <!-- remove file modal -->
     <b-modal
+      ref="delete-file-modal"
       :busy="isLoadingAction"
-      :static='modalStatic'
+      :static="modalStatic"
       ok-variant="danger"
       cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @ok="confirmDeleteFile"
-      ref="delete-file-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
+      @ok="confirmDeleteFile"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('rooms.files.delete') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isLoadingAction"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="deleteFile">
         {{ $t('rooms.files.confirm_delete', { filename: deleteFile.filename }) }}
       </span>
     </b-modal>
-
   </div>
 </template>
 <script>
-import Base from '../../api/base';
-import Can from '../Permissions/Can.vue';
-import PermissionService from '../../services/PermissionService';
-import FieldErrors from '../../mixins/FieldErrors';
-import env from './../../env.js';
+import Base from '@/api/base';
+import Can from '@/components/Permissions/Can.vue';
+import PermissionService from '@/services/PermissionService';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env.js';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
+import EventBus from '@/services/EventBus';
+import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 
 export default {
+
+  name: 'FileComponent',
 
   components: {
     Can
@@ -206,7 +228,7 @@ export default {
     room: Object,
 
     accessCode: {
-      type: String,
+      type: Number,
       required: false
     },
     token: {
@@ -224,11 +246,6 @@ export default {
       required: false
     },
     requireAgreement: {
-      type: Boolean,
-      default: false,
-      required: false
-    },
-    emitErrors: {
       type: Boolean,
       default: false,
       required: false
@@ -291,17 +308,17 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.$emit('error', error);
+              return this.$emit('invalid-code');
             }
 
             // Room token is invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-              return this.$emit('error', error);
+              return this.$emit('invalid-token');
             }
 
             // Forbidden, require access code
             if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-              return this.$emit('error', error);
+              return this.$emit('invalid-code');
             }
 
             // Forbidden, not allowed to download this file
@@ -425,7 +442,23 @@ export default {
           // Fetch successful
           this.files = response.data.data;
         }).catch((error) => {
-          if (this.emitErrors) { this.$emit('error', error); } else { Base.error(error, this.$root); }
+          if (error.response) {
+            // Access code invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.$emit('invalid-code');
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.$emit('invalid-token');
+            }
+
+            // Forbidden, require access code
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+              return this.$emit('invalid-code');
+            }
+          }
+          Base.error(error, this.$root);
         }).finally(() => {
           this.isBusy = false;
         });
@@ -529,8 +562,25 @@ export default {
     }
 
   },
-  created () {
+  /**
+   * Sets the event listener for current room change to reload the file list.
+   *
+   * @method mounted
+   * @return undefined
+   */
+  mounted () {
+    EventBus.on(EVENT_CURRENT_ROOM_CHANGED, this.reload);
     this.reload();
+  },
+
+  /**
+   * Removes the listener for current room change
+   *
+   * @method beforeDestroy
+   * @return undefined
+   */
+  beforeDestroy () {
+    EventBus.off(EVENT_CURRENT_ROOM_CHANGED, this.reload);
   }
 };
 </script>

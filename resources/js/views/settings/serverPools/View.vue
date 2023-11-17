@@ -3,7 +3,7 @@
     <h3>
       {{ id === 'new' ? $t('settings.server_pools.new') : (
         viewOnly ? $t('settings.server_pools.view', { name : model.name })
-          : $t('settings.server_pools.edit', { name: model.name })
+        : $t('settings.server_pools.edit', { name: model.name })
       ) }}
     </h3>
     <hr>
@@ -11,143 +11,189 @@
     <b-overlay :show="isBusy || modelLoadingError">
       <template #overlay>
         <div class="text-center">
-          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-spinner v-if="isBusy" />
           <b-button
             v-else
             ref="reloadServerPool"
             @click="load()"
           >
-            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
 
-      <b-form @submit='saveServerPool' :aria-hidden="modelLoadingError">
+      <b-form
+        :aria-hidden="modelLoadingError"
+        @submit="saveServerPool"
+      >
         <b-container fluid>
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('app.model_name')"
-            label-for='name'
-            :state='fieldState("name")'
+            label-for="name"
+            :state="fieldState('name')"
           >
-            <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+            <b-form-input
+              id="name"
+              v-model="model.name"
+              type="text"
+              :state="fieldState('name')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('name')" />
+            </template>
           </b-form-group>
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('app.description')"
-            label-for='description'
-            :state='fieldState("description")'
+            label-for="description"
+            :state="fieldState('description')"
           >
-            <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
+            <b-form-input
+              id="description"
+              v-model="model.description"
+              type="text"
+              :state="fieldState('description')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('description')" />
+            </template>
           </b-form-group>
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('app.servers')"
-            label-for='servers'
-            :state='fieldState("servers", true)'
+            label-for="servers"
+            :state="fieldState('servers', true)"
           >
             <b-input-group>
               <multiselect
-                :placeholder="$t('settings.server_pools.select_servers')"
+                id="servers"
                 ref="servers-multiselect"
-                v-model='model.servers'
-                track-by='id'
-                open-direction='bottom'
-                :multiple='true'
-                :searchable='false'
-                :internal-search='false'
-                :clear-on-select='false'
-                :close-on-select='false'
-                :show-no-results='false'
-                :showLabels='false'
-                :options='servers'
+                v-model="model.servers"
+                :placeholder="$t('settings.server_pools.select_servers')"
+                track-by="id"
+                open-direction="bottom"
+                :multiple="true"
+                :searchable="false"
+                :internal-search="false"
+                :clear-on-select="false"
+                :close-on-select="false"
+                :show-no-results="false"
+                :show-labels="false"
+                :options="servers"
                 :disabled="isBusy || modelLoadingError || serversLoadingError || viewOnly"
-                id='servers'
-                :loading='serversLoading'
-                :allowEmpty='true'
-                :class="{ 'is-invalid': fieldState('servers', true), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.servers.no_data') }}</template>
-                <template slot='option' slot-scope="props">{{ props.option.name }}</template>
-                <template slot='tag' slot-scope='{ option, remove }'>
-                  <h5 class='d-inline mr-1 mb-1'>
-                    <b-badge variant='secondary'>
+                :loading="serversLoading"
+                :allow-empty="true"
+                :class="{ 'is-invalid': fieldState('servers', true), 'multiselect-form-control': true }"
+              >
+                <template slot="noOptions">
+                  {{ $t('settings.servers.no_data') }}
+                </template>
+                <template
+                  slot="option"
+                  slot-scope="props"
+                >
+                  {{ props.option.name }}
+                </template>
+                <template
+                  slot="tag"
+                  slot-scope="{ option, remove }"
+                >
+                  <h5 class="d-inline mr-1 mb-1">
+                    <b-badge variant="secondary">
                       {{ option.name }}
-                      <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.server_pools.remove_server')"></i></span>
+                      <span @click="remove(option)"><i
+                        class="fa-solid fa-xmark"
+                        :aria-label="$t('settings.server_pools.remove_server')"
+                      /></span>
                     </b-badge>
                   </h5>
                 </template>
-                <template slot='afterList'>
+                <template slot="afterList">
                   <b-button
-                    :disabled='serversLoading || currentPage === 1'
-                    variant='outline-secondary'
-                    @click='loadServers(Math.max(1, currentPage - 1))'>
-                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
+                    :disabled="serversLoading || currentPage === 1"
+                    variant="outline-secondary"
+                    @click="loadServers(Math.max(1, currentPage - 1))"
+                  >
+                    <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
                   </b-button>
                   <b-button
-                    :disabled='serversLoading || !hasNextPage'
-                    variant='outline-secondary'
-                    @click='loadServers(currentPage + 1)'>
-                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
+                    :disabled="serversLoading || !hasNextPage"
+                    variant="outline-secondary"
+                    @click="loadServers(currentPage + 1)"
+                  >
+                    <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
                   </b-button>
                 </template>
               </multiselect>
               <b-input-group-append>
                 <b-button
                   v-if="serversLoadingError"
-                  @click="loadServers(currentPage)"
                   variant="outline-secondary"
-                ><i class="fa-solid fa-sync"></i></b-button>
+                  @click="loadServers(currentPage)"
+                >
+                  <i class="fa-solid fa-sync" />
+                </b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('servers', true)"></div></template>
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('servers', true)" />
+            </template>
           </b-form-group>
 
           <hr>
-          <b-row class='my-1 float-right'>
-            <b-col sm='12'>
+          <b-row class="my-1 float-right">
+            <b-col sm="12">
               <b-button
-                :disabled='isBusy'
-                variant='secondary'
-                @click="$router.push({ name: 'settings.server_pools' })">
-                <i class='fa-solid fa-arrow-left'></i> {{ $t('app.back') }}
+                :disabled="isBusy"
+                variant="secondary"
+                @click="$router.push({ name: 'settings.server_pools' })"
+              >
+                <i class="fa-solid fa-arrow-left" /> {{ $t('app.back') }}
               </b-button>
               <b-button
-                :disabled='isBusy || modelLoadingError || serversLoadingError || serversLoading'
-                variant='success'
-                type='submit'
-                class='ml-1'
-                v-if='!viewOnly'>
-                <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
+                v-if="!viewOnly"
+                :disabled="isBusy || modelLoadingError || serversLoadingError || serversLoading"
+                variant="success"
+                type="submit"
+                class="ml-1"
+              >
+                <i class="fa-solid fa-save" /> {{ $t('app.save') }}
               </b-button>
             </b-col>
           </b-row>
-
         </b-container>
-
       </b-form>
 
       <b-modal
-        :static='modalStatic'
-        :busy='isBusy'
-        ok-variant='danger'
-        cancel-variant='secondary'
-        @ok='forceOverwrite'
-        @cancel='refreshServerPool'
-        :hide-header-close='true'
-        :no-close-on-backdrop='true'
-        :no-close-on-esc='true'
-        ref='stale-server-pool-modal'
-        :hide-header='true'>
-        <template v-slot:default>
+        ref="stale-server-pool-modal"
+        :static="modalStatic"
+        :busy="isBusy"
+        ok-variant="danger"
+        cancel-variant="secondary"
+        :hide-header-close="true"
+        :no-close-on-backdrop="true"
+        :no-close-on-esc="true"
+        :hide-header="true"
+        @ok="forceOverwrite"
+        @cancel="refreshServerPool"
+      >
+        <template #default>
           <h5>{{ staleError.message }}</h5>
         </template>
-        <template v-slot:modal-ok>
-          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.overwrite') }}
+        <template #modal-ok>
+          <b-spinner
+            v-if="isBusy"
+            small
+          />  {{ $t('app.overwrite') }}
         </template>
-        <template v-slot:modal-cancel>
-          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
+        <template #modal-cancel>
+          <b-spinner
+            v-if="isBusy"
+            small
+          />  {{ $t('app.reload') }}
         </template>
       </b-modal>
     </b-overlay>
@@ -155,9 +201,9 @@
 </template>
 
 <script>
-import Base from '../../../api/base';
-import FieldErrors from '../../../mixins/FieldErrors';
-import env from '../../../env';
+import Base from '@/api/base';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
 
 import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';

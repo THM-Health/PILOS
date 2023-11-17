@@ -1,115 +1,117 @@
 <template>
- <div>
+  <div>
     <h4>{{ $t('settings.application.title') }}</h4>
     <hr>
     <b-overlay :show="isBusy || !loaded">
-
       <template #overlay>
         <div class="text-center">
-          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-spinner v-if="isBusy" />
           <b-button
-           v-else
+            v-else
             @click="getSettings()"
           >
-            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
 
-      <b-form @submit="onSubmit" :aria-hidden="!loaded">
-        <b-row cols='12'>
-          <b-col md='6'>
+      <b-form
+        :aria-hidden="!loaded"
+        @submit="onSubmit"
+      >
+        <b-row cols="12">
+          <b-col md="6">
             <!--Application name-->
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-name-input"
               :description="$t('settings.application.name.description')"
-              :state='fieldState("name")'
+              :state="fieldState('name')"
               :label="$t('settings.application.name.title')"
             >
-              <b-form-input id="application-name-input"
-                            v-model="settings.name"
-                            type="text"
-                            required
-                            :disabled="isBusy || viewOnly || !loaded"
-                            :state='fieldState("name")'
-              >
-              </b-form-input>
+              <b-form-input
+                id="application-name-input"
+                v-model="settings.name"
+                type="text"
+                required
+                :disabled="isBusy || viewOnly || !loaded"
+                :state="fieldState('name')"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('name')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('name')" />
               </template>
             </b-form-group>
           </b-col>
-          <b-col md='6'>
+          <b-col md="6">
             <!--Help URL-->
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="help-url-input"
               :description="$t('settings.application.help_url.description')"
-              :state='fieldState("help_url")'
+              :state="fieldState('help_url')"
               :label="$t('settings.application.help_url.title')"
             >
-              <b-form-input id="help-url-input"
-                            v-model="settings.help_url"
-                            type="url"
-                            :disabled="isBusy || viewOnly || !loaded"
-                            :state='fieldState("help_url")'
-              >
-              </b-form-input>
+              <b-form-input
+                id="help-url-input"
+                v-model="settings.help_url"
+                type="url"
+                :disabled="isBusy || viewOnly || !loaded"
+                :state="fieldState('help_url')"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('help_url')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('help_url')" />
               </template>
             </b-form-group>
           </b-col>
         </b-row>
-        <b-row cols='12'>
-          <b-col md='6'>
+        <b-row cols="12">
+          <b-col md="6">
             <!--Legal Notice URL-->
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="legal-notice-url-input"
               :description="$t('settings.application.legal_notice_url.description')"
-              :state='fieldState("legal_notice_url")'
+              :state="fieldState('legal_notice_url')"
               :label="$t('settings.application.legal_notice_url.title')"
             >
-              <b-form-input id="legal-notice-url-input"
-                            v-model="settings.legal_notice_url"
-                            type="url"
-                            :disabled="isBusy || viewOnly || !loaded"
-                            :state='fieldState("legal_notice_url")'
-              >
-              </b-form-input>
+              <b-form-input
+                id="legal-notice-url-input"
+                v-model="settings.legal_notice_url"
+                type="url"
+                :disabled="isBusy || viewOnly || !loaded"
+                :state="fieldState('legal_notice_url')"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('legal_notice_url')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('legal_notice_url')" />
               </template>
             </b-form-group>
           </b-col>
-          <b-col md='6'>
+          <b-col md="6">
             <!--Privacy Policy URL-->
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="privacy-policy-url-input"
               :description="$t('settings.application.privacy_policy_url.description')"
-              :state='fieldState("privacy_policy_url")'
+              :state="fieldState('privacy_policy_url')"
               :label="$t('settings.application.privacy_policy_url.title')"
             >
-              <b-form-input id="privacy-policy-url-input"
-                            v-model="settings.privacy_policy_url"
-                            type="url"
-                            :disabled="isBusy || viewOnly || !loaded"
-                            :state='fieldState("privacy_policy_url")'
-              >
-              </b-form-input>
+              <b-form-input
+                id="privacy-policy-url-input"
+                v-model="settings.privacy_policy_url"
+                type="url"
+                :disabled="isBusy || viewOnly || !loaded"
+                :state="fieldState('privacy_policy_url')"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('privacy_policy_url')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('privacy_policy_url')" />
               </template>
             </b-form-group>
           </b-col>
@@ -119,11 +121,18 @@
           label-class="font-weight-bold"
           class="mb-4"
           label-for="application-favicon-input"
-          :state='(fieldState("favicon") == null && fieldState("favicon_file") == null) ? null : false'
+          :state="(fieldState('favicon') == null && fieldState('favicon_file') == null) ? null : false"
           :label="$t('settings.application.favicon.title')"
         >
-          <b-row class="my-3" align-v="center">
-            <b-col sm="6" lg="3" class="text-center">
+          <b-row
+            class="my-3"
+            align-v="center"
+          >
+            <b-col
+              sm="6"
+              lg="3"
+              class="text-center"
+            >
               <b-img
                 v-if="uploadFaviconFileSrc!==null || settings.favicon!==null"
                 :src="uploadFaviconFileSrc ? uploadFaviconFileSrc : settings.favicon"
@@ -133,46 +142,56 @@
                 width="32"
                 height="32"
                 fluid
-              >
-              </b-img>
+              />
             </b-col>
-            <b-col sm="6" lg="9">
-              <b-form-text v-if="!uploadFaviconFile">{{ $t('settings.application.favicon.url_title') }}</b-form-text>
+            <b-col
+              sm="6"
+              lg="9"
+            >
+              <b-form-text v-if="!uploadFaviconFile">
+                {{ $t('settings.application.favicon.url_title') }}
+              </b-form-text>
               <b-form-input
-                id="application-favicon-input"
                 v-if="!uploadFaviconFile"
+                id="application-favicon-input"
+                v-model="settings.favicon"
                 required
                 :placeholder="$t('settings.application.favicon.hint')"
-                v-model="settings.favicon"
                 :disabled="isBusy || viewOnly || !loaded"
                 class="my-2"
-                :state='fieldState("favicon")'
-              >
-              </b-form-input>
-              <b-form-text v-if="!viewOnly">{{ $t('settings.application.favicon.upload_title') }}</b-form-text>
+                :state="fieldState('favicon')"
+              />
+              <b-form-text v-if="!viewOnly">
+                {{ $t('settings.application.favicon.upload_title') }}
+              </b-form-text>
               <b-input-group v-if="!viewOnly">
                 <b-form-file
                   id="application-favicon-form-file"
-                  :state='fieldState("favicon_file")'
+                  v-model="uploadFaviconFile"
+                  :state="fieldState('favicon_file')"
                   :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
                   :placeholder="$t('settings.application.favicon.select_file')"
-                  v-model="uploadFaviconFile"
                   accept="image/x-icon"
+                />
+                <template
+                  v-if="uploadFaviconFile"
+                  #append
                 >
-                </b-form-file>
-                <template #append v-if="uploadFaviconFile">
-                  <b-button variant="danger" @click="uploadFaviconFile = null">
-                    <i class="fa-solid fa-xmark"></i>
+                  <b-button
+                    variant="danger"
+                    @click="uploadFaviconFile = null"
+                  >
+                    <i class="fa-solid fa-xmark" />
                   </b-button>
                 </template>
               </b-input-group>
             </b-col>
           </b-row>
 
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('favicon')"></div>
-            <div v-html="fieldError('favicon_file')"></div>
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('favicon')" />
+            <div v-html="fieldError('favicon_file')" />
           </template>
         </b-form-group>
 
@@ -181,11 +200,18 @@
           label-class="font-weight-bold"
           class="mb-4"
           label-for="application-logo-input"
-          :state='(fieldState("logo") == null && fieldState("logo_file") == null) ? null : false'
+          :state="(fieldState('logo') == null && fieldState('logo_file') == null) ? null : false"
           :label="$t('settings.application.logo.title')"
         >
-          <b-row class="my-3" align-v="center">
-            <b-col sm="6" lg="3" class="text-center">
+          <b-row
+            class="my-3"
+            align-v="center"
+          >
+            <b-col
+              sm="6"
+              lg="3"
+              class="text-center"
+            >
               <b-img
                 v-if="uploadLogoFileSrc!==null || settings.logo!==null"
                 :src="uploadLogoFileSrc ? uploadLogoFileSrc : settings.logo"
@@ -195,560 +221,577 @@
                 width="150"
                 height="100"
                 fluid
-              >
-              </b-img>
+              />
             </b-col>
-            <b-col sm="6" lg="9">
-              <b-form-text v-if="!uploadLogoFile">{{ $t('settings.application.logo.url_title') }}</b-form-text>
+            <b-col
+              sm="6"
+              lg="9"
+            >
+              <b-form-text v-if="!uploadLogoFile">
+                {{ $t('settings.application.logo.url_title') }}
+              </b-form-text>
               <b-form-input
-                id="application-logo-input"
                 v-if="!uploadLogoFile"
+                id="application-logo-input"
+                v-model="settings.logo"
                 required
                 :placeholder="$t('settings.application.logo.hint')"
-                v-model="settings.logo"
                 :disabled="isBusy || viewOnly || !loaded"
                 class="my-2"
-                :state='fieldState("logo")'
-              >
-              </b-form-input>
-              <b-form-text v-if="!viewOnly">{{ $t('settings.application.logo.upload_title') }}</b-form-text>
+                :state="fieldState('logo')"
+              />
+              <b-form-text v-if="!viewOnly">
+                {{ $t('settings.application.logo.upload_title') }}
+              </b-form-text>
               <b-input-group v-if="!viewOnly">
                 <b-form-file
                   id="application-logo-form-file"
-                  :state='fieldState("logo_file")'
+                  v-model="uploadLogoFile"
+                  :state="fieldState('logo_file')"
                   :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
                   :placeholder="$t('settings.application.logo.select_file')"
-                  v-model="uploadLogoFile"
                   accept="image/jpeg, image/png, image/gif, image/svg+xml"
+                />
+                <template
+                  v-if="uploadLogoFile"
+                  #append
                 >
-                </b-form-file>
-                <template #append v-if="uploadLogoFile">
-                  <b-button id="application-upload-button" variant="danger" @click="uploadLogoFile = null">
-                    <i class="fa-solid fa-xmark"></i>
+                  <b-button
+                    id="application-upload-button"
+                    variant="danger"
+                    @click="uploadLogoFile = null"
+                  >
+                    <i class="fa-solid fa-xmark" />
                   </b-button>
                 </template>
               </b-input-group>
             </b-col>
           </b-row>
 
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('logo')"></div>
-            <div v-html="fieldError('logo_file')"></div>
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('logo')" />
+            <div v-html="fieldError('logo_file')" />
           </template>
         </b-form-group>
 
-        <b-row cols='12'>
-          <b-col md='6'>
+        <b-row cols="12">
+          <b-col md="6">
             <!--Pagination page size settings-->
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-pagination-page-size-input"
               :description="$t('settings.application.pagination_page_size.description')"
-              :state='fieldState("pagination_page_size")'
+              :state="fieldState('pagination_page_size')"
               :label="$t('settings.application.pagination_page_size.title')"
             >
-              <b-form-input id="application-pagination-page-size-input"
-                            v-model="settings.pagination_page_size"
-                            type="number"
-                            :disabled="isBusy || viewOnly || !loaded"
-                            min="1"
-                            max="100"
-                            required
-                            :state='fieldState("pagination_page_size")'
-              >
-              </b-form-input>
+              <b-form-input
+                id="application-pagination-page-size-input"
+                v-model="settings.pagination_page_size"
+                type="number"
+                :disabled="isBusy || viewOnly || !loaded"
+                min="1"
+                max="100"
+                required
+                :state="fieldState('pagination_page_size')"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('pagination_page_size')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('pagination_page_size')" />
               </template>
             </b-form-group>
           </b-col>
 
-          <b-col md='6'>
+          <b-col md="6">
             <!--Room pagination page size settings-->
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-pagination-own-room-page-size-input"
               :description="$t('settings.application.room_pagination_page_size.description')"
-              :state='fieldState("room_pagination_page_size")'
+              :state="fieldState('room_pagination_page_size')"
               :label="$t('settings.application.room_pagination_page_size.title')"
             >
-              <b-form-input id="application-pagination-own-room-page-size-input"
-                            v-model="settings.room_pagination_page_size"
-                            type="number"
-                            min="1"
-                            max="25"
-                            required
-                            :disabled="isBusy || viewOnly || !loaded"
-                            :state='fieldState("room_pagination_page_size")'
-              >
-              </b-form-input>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_pagination_page_size')"></div>
+              <b-form-input
+                id="application-pagination-own-room-page-size-input"
+                v-model="settings.room_pagination_page_size"
+                type="number"
+                min="1"
+                max="25"
+                required
+                :disabled="isBusy || viewOnly || !loaded"
+                :state="fieldState('room_pagination_page_size')"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('room_pagination_page_size')" />
               </template>
             </b-form-group>
           </b-col>
         </b-row>
 
-        <b-row cols='12'>
-          <b-col md='6'>
+        <b-row cols="12">
+          <b-col md="6">
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               :label="$t('settings.application.default_timezone')"
-              label-for='timezone'
-              :state='fieldState("default_timezone")'
+              label-for="timezone"
+              :state="fieldState('default_timezone')"
             >
               <timezone-select
-                id='timezone'
-                required
+                id="timezone"
                 v-model="settings.default_timezone"
-                :state='fieldState("default_timezone")'
+                required
+                :state="fieldState('default_timezone')"
                 :disabled="isBusy || viewOnly || !loaded"
-                @loadingError="(value) => this.timezonesLoadingError = value"
-                @busy="(value) => this.timezonesLoading = value"
                 :placeholder="$t('settings.application.default_timezone')"
-              >
-              </timezone-select>
-              <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
+                @loading-error="(value) => timezonesLoadingError = value"
+                @busy="(value) => timezonesLoading = value"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('default_timezone')" />
+              </template>
             </b-form-group>
           </b-col>
-
         </b-row>
 
         <!-- Banner -->
         <b-form-group
+          ref="banner-form-group"
           label-class="font-weight-bold"
-          :state='fieldState("banner")'
+          :state="fieldState('banner')"
           :label="$t('settings.application.banner.title')"
-          ref='banner-form-group'
         >
           <b-form-group
-            :state='fieldState("banner.enabled")'
+            :state="fieldState('banner.enabled')"
           >
             <b-form-checkbox
-              id='banner-enabled'
-              v-model='settings.banner.enabled'
+              id="banner-enabled"
+              v-model="settings.banner.enabled"
               :state="fieldState('banner.enabled')"
-              :disabled='isBusy || viewOnly || !loaded'
+              :disabled="isBusy || viewOnly || !loaded"
               switch
             >
               {{ $t('settings.application.banner.enabled') }}
             </b-form-checkbox>
 
-            <template slot='invalid-feedback'>
-              <div v-html="fieldError('banner.enabled')"></div>
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('banner.enabled')" />
             </template>
           </b-form-group>
 
-          <b-card v-if='settings.banner.enabled'>
+          <b-card v-if="settings.banner.enabled">
+            <banner
+              class="mt-4"
+              :background="settings.banner.background"
+              :color="settings.banner.color"
+              :enabled="settings.banner.enabled"
+              :icon="settings.banner.icon"
+              :link="settings.banner.link"
+              :message="settings.banner.message"
+              :title="settings.banner.title"
+              :link-target="settings.banner.link_target"
+              :link-text="settings.banner.link_text"
+              :link-style="settings.banner.link_style"
+            />
 
-          <banner
-            class='mt-4'
-            :background='settings.banner.background'
-            :color='settings.banner.color'
-            :enabled='settings.banner.enabled'
-            :icon='settings.banner.icon'
-            :link='settings.banner.link'
-            :message='settings.banner.message'
-            :title='settings.banner.title'
-            :link-target='settings.banner.link_target'
-            :link-text='settings.banner.link_text'
-            :link-style='settings.banner.link_style'
-          ></banner>
-
-          <b-row
-            cols='12'
-            class='mt-4'
-          >
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-title-input'
-                :state='fieldState("banner.title")'
-                :label="$t('settings.application.banner.banner_title')"
-              >
-                <b-form-input
-                  id='banner-title-input'
-                  v-model='settings.banner.title'
-                  type='text'
-                  :disabled='isBusy || viewOnly || !loaded'
-                  :state='fieldState("banner.title")'
-                ></b-form-input>
-
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.title')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-icon-input'
-                :state='fieldState("banner.icon")'
-                :description="$t('settings.application.banner.icon_description')"
-                :label="$t('settings.application.banner.icon')"
-              >
-                <b-form-input
-                  id='banner-icon-input'
-                  v-model='settings.banner.icon'
-                  type='text'
-                  :disabled='isBusy || viewOnly || !loaded'
-                  :state='fieldState("banner.icon")'
-                ></b-form-input>
-
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.icon')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-          </b-row>
-
-          <b-form-group
-            label-for='banner-message-input'
-            :state='fieldState("banner.message")'
-            :label="$t('settings.application.banner.message')"
-          >
-            <b-form-textarea
-              id='banner-message-input'
-              v-model='settings.banner.message'
-              rows='3'
-              :disabled='isBusy || viewOnly || !loaded'
-              :state='fieldState("banner.message")'
-            ></b-form-textarea>
-
-            <template slot='invalid-feedback'>
-              <div v-html="fieldError('banner.message')"></div>
-            </template>
-          </b-form-group>
-
-          <b-row
-            cols='12'
-          >
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-link-input'
-                :state='fieldState("banner.link")'
-                :label="$t('settings.application.banner.link')"
-              >
-                <b-form-input
-                  id='banner-link-input'
-                  v-model='settings.banner.link'
-                  type='text'
-                  :disabled='isBusy || viewOnly || !loaded'
-                  :state='fieldState("banner.link")'
-                ></b-form-input>
-
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.link')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-link-text-input'
-                :state='fieldState("banner.link_text")'
-                :label="$t('settings.application.banner.link_text')"
-              >
-                <b-form-input
-                  id='banner-link-text-input'
-                  v-model='settings.banner.link_text'
-                  type='text'
-                  :disabled='isBusy || viewOnly || !loaded'
-                  :state='fieldState("banner.link_text")'
-                ></b-form-input>
-
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.link_text')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-          </b-row>
-
-          <b-row
-            cols='12'
-          >
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-link-style-input'
-                :state='fieldState("banner.link_style")'
-                :label="$t('settings.application.banner.link_style')"
-              >
-                <b-form-select
-                  id='banner-link-style-input'
-                  :disabled='isBusy || viewOnly || !loaded'
-                  :state='fieldState("banner.link_style")'
-                  v-model='settings.banner.link_style'
-                  :options='linkBtnStyles'
+            <b-row
+              cols="12"
+              class="mt-4"
+            >
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-title-input"
+                  :state="fieldState('banner.title')"
+                  :label="$t('settings.application.banner.banner_title')"
                 >
-                  <template #first>
-                    <b-form-select-option :value='null' disabled>
-                      {{ $t('settings.application.banner.select_link_style') }}
-                    </b-form-select-option>
-                  </template>
-                </b-form-select>
+                  <b-form-input
+                    id="banner-title-input"
+                    v-model="settings.banner.title"
+                    type="text"
+                    :disabled="isBusy || viewOnly || !loaded"
+                    :state="fieldState('banner.title')"
+                  />
 
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.link_style')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-link-target-input'
-                :state='fieldState("banner.link_target")'
-                :label="$t('settings.application.banner.link_target')"
-              >
-                <b-form-select
-                  id='banner-link-target-input'
-                  :disabled='isBusy || viewOnly || !loaded'
-                  :state='fieldState("banner.link_target")'
-                  v-model='settings.banner.link_target'
-                  :options='linkTargets'
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.title')" />
+                  </template>
+                </b-form-group>
+              </b-col>
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-icon-input"
+                  :state="fieldState('banner.icon')"
+                  :description="$t('settings.application.banner.icon_description')"
+                  :label="$t('settings.application.banner.icon')"
                 >
-                  <template #first>
-                    <b-form-select-option :value='null' disabled>
-                      {{ $t('settings.application.banner.select_link_target') }}
-                    </b-form-select-option>
+                  <b-form-input
+                    id="banner-icon-input"
+                    v-model="settings.banner.icon"
+                    type="text"
+                    :disabled="isBusy || viewOnly || !loaded"
+                    :state="fieldState('banner.icon')"
+                  />
+
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.icon')" />
                   </template>
-                </b-form-select>
+                </b-form-group>
+              </b-col>
+            </b-row>
 
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.link_target')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-          </b-row>
+            <b-form-group
+              label-for="banner-message-input"
+              :state="fieldState('banner.message')"
+              :label="$t('settings.application.banner.message')"
+            >
+              <b-form-textarea
+                id="banner-message-input"
+                v-model="settings.banner.message"
+                rows="3"
+                :disabled="isBusy || viewOnly || !loaded"
+                :state="fieldState('banner.message')"
+              />
 
-          <b-row
-            cols='12'
-          >
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-color-input'
-                :state='fieldState("banner.color")'
-                :label="$t('settings.application.banner.color')"
-              >
-                <v-swatches
-                  class='my-2'
-                  :disabled='isBusy || !loaded || viewOnly'
-                  :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
-                  :swatches='colorSwatches'
-                  v-model='settings.banner.color'
-                  inline></v-swatches>
-                <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
-                <b-form-input
-                  id='banner-color-input'
-                  type='text'
-                  v-model='settings.banner.color'
-                  :state='fieldState("banner.color")'
-                  :disabled='isBusy || !loaded || viewOnly'
-                ></b-form-input>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('banner.message')" />
+              </template>
+            </b-form-group>
 
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.color')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-            <b-col md='6'>
-              <b-form-group
-                label-for='banner-background-input'
-                :state='fieldState("banner.background")'
-                :label="$t('settings.application.banner.background')"
-              >
-                <v-swatches
-                  class='my-2'
-                  :disabled='isBusy || !loaded || viewOnly'
-                  :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
-                  :swatches='backgroundSwatches'
-                  v-model='settings.banner.background'
-                  inline></v-swatches>
-                <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
-                <b-form-input
-                  id='banner-background-input'
-                  type='text'
-                  v-model='settings.banner.background'
-                  :state='fieldState("banner.background")'
-                  :disabled='isBusy || !loaded || viewOnly'
-                ></b-form-input>
+            <b-row
+              cols="12"
+            >
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-link-input"
+                  :state="fieldState('banner.link')"
+                  :label="$t('settings.application.banner.link')"
+                >
+                  <b-form-input
+                    id="banner-link-input"
+                    v-model="settings.banner.link"
+                    type="text"
+                    :disabled="isBusy || viewOnly || !loaded"
+                    :state="fieldState('banner.link')"
+                  />
 
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('banner.background')"></div>
-                </template>
-              </b-form-group>
-            </b-col>
-          </b-row>
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.link')" />
+                  </template>
+                </b-form-group>
+              </b-col>
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-link-text-input"
+                  :state="fieldState('banner.link_text')"
+                  :label="$t('settings.application.banner.link_text')"
+                >
+                  <b-form-input
+                    id="banner-link-text-input"
+                    v-model="settings.banner.link_text"
+                    type="text"
+                    :disabled="isBusy || viewOnly || !loaded"
+                    :state="fieldState('banner.link_text')"
+                  />
 
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.link_text')" />
+                  </template>
+                </b-form-group>
+              </b-col>
+            </b-row>
+
+            <b-row
+              cols="12"
+            >
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-link-style-input"
+                  :state="fieldState('banner.link_style')"
+                  :label="$t('settings.application.banner.link_style')"
+                >
+                  <b-form-select
+                    id="banner-link-style-input"
+                    v-model="settings.banner.link_style"
+                    :disabled="isBusy || viewOnly || !loaded"
+                    :state="fieldState('banner.link_style')"
+                    :options="linkBtnStyles"
+                  >
+                    <template #first>
+                      <b-form-select-option
+                        :value="null"
+                        disabled
+                      >
+                        {{ $t('settings.application.banner.select_link_style') }}
+                      </b-form-select-option>
+                    </template>
+                  </b-form-select>
+
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.link_style')" />
+                  </template>
+                </b-form-group>
+              </b-col>
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-link-target-input"
+                  :state="fieldState('banner.link_target')"
+                  :label="$t('settings.application.banner.link_target')"
+                >
+                  <b-form-select
+                    id="banner-link-target-input"
+                    v-model="settings.banner.link_target"
+                    :disabled="isBusy || viewOnly || !loaded"
+                    :state="fieldState('banner.link_target')"
+                    :options="linkTargets"
+                  >
+                    <template #first>
+                      <b-form-select-option
+                        :value="null"
+                        disabled
+                      >
+                        {{ $t('settings.application.banner.select_link_target') }}
+                      </b-form-select-option>
+                    </template>
+                  </b-form-select>
+
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.link_target')" />
+                  </template>
+                </b-form-group>
+              </b-col>
+            </b-row>
+
+            <b-row
+              cols="12"
+            >
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-color-input"
+                  :state="fieldState('banner.color')"
+                  :label="$t('settings.application.banner.color')"
+                >
+                  <v-swatches
+                    v-model="settings.banner.color"
+                    class="my-2"
+                    :disabled="isBusy || !loaded || viewOnly"
+                    :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
+                    :swatches="colorSwatches"
+                    inline
+                  />
+                  <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
+                  <b-form-input
+                    id="banner-color-input"
+                    v-model="settings.banner.color"
+                    type="text"
+                    :state="fieldState('banner.color')"
+                    :disabled="isBusy || !loaded || viewOnly"
+                  />
+
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.color')" />
+                  </template>
+                </b-form-group>
+              </b-col>
+              <b-col md="6">
+                <b-form-group
+                  label-for="banner-background-input"
+                  :state="fieldState('banner.background')"
+                  :label="$t('settings.application.banner.background')"
+                >
+                  <v-swatches
+                    v-model="settings.banner.background"
+                    class="my-2"
+                    :disabled="isBusy || !loaded || viewOnly"
+                    :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
+                    :swatches="backgroundSwatches"
+                    inline
+                  />
+                  <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
+                  <b-form-input
+                    id="banner-background-input"
+                    v-model="settings.banner.background"
+                    type="text"
+                    :state="fieldState('banner.background')"
+                    :disabled="isBusy || !loaded || viewOnly"
+                  />
+
+                  <template slot="invalid-feedback">
+                    <div v-html="fieldError('banner.background')" />
+                  </template>
+                </b-form-group>
+              </b-col>
+            </b-row>
           </b-card>
 
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('banner')"></div>
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('banner')" />
           </template>
         </b-form-group>
 
         <h4>{{ $t('app.rooms') }}</h4>
         <hr>
 
-        <b-row cols='12'>
+        <b-row cols="12">
           <!--Room limit settings-->
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-limit-input"
               :description="$t('settings.application.room_limit.description')"
-              :state='fieldState("room_limit")'
+              :state="fieldState('room_limit')"
               :label="$t('settings.application.room_limit.title')"
             >
               <b-form-radio-group
-                class='mb-2'
                 id="application-room-limit-radio-group"
-                v-model='roomLimitMode'
-                :options='roomLimitModeOptions'
-                :disabled='isBusy || viewOnly || !loaded'
+                v-model="roomLimitMode"
+                class="mb-2"
+                :options="roomLimitModeOptions"
+                :disabled="isBusy || viewOnly || !loaded"
                 required
-                :state='fieldState("room_limit")'
+                :state="fieldState('room_limit')"
                 @change="roomLimitModeChanged"
-              ></b-form-radio-group>
+              />
 
               <b-form-input
-                id='application-room-limit-input'
-                type='number'
-                :state='fieldState("room_limit")'
-                v-model='settings.room_limit'
-                min='0'
+                v-if="roomLimitMode === 'custom'"
+                id="application-room-limit-input"
+                v-model="settings.room_limit"
+                type="number"
+                :state="fieldState('room_limit')"
+                min="0"
                 max="100"
                 required
-                :disabled='isBusy || viewOnly || !loaded'
-                v-if="roomLimitMode === 'custom'">
-              </b-form-input>
+                :disabled="isBusy || viewOnly || !loaded"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_limit')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('room_limit')" />
               </template>
             </b-form-group>
           </b-col>
           <!--Token expiration time-->
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
               :description="$t('settings.application.room_token_expiration.description')"
-              :state='fieldState("room_token_expiration")'
+              :state="fieldState('room_token_expiration')"
               :label="$t('settings.application.room_token_expiration.title')"
             >
               <b-form-select
+                id="application-room-token-expiration"
                 v-model="settings.room_token_expiration"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 required
                 :options="roomTokenExpirationOptions"
-                :state='fieldState("room_token_expiration")'
-                class='mb-2'
-                id="application-room-token-expiration"
-              ></b-form-select>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_token_expiration')"></div>
+                :state="fieldState('room_token_expiration')"
+                class="mb-2"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('room_token_expiration')" />
               </template>
             </b-form-group>
           </b-col>
         </b-row>
 
-        <b-row cols='12'>
+        <b-row cols="12">
           <!--Enable room auto delete-->
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
+              ref="application-room-auto-delete-enabled-form-group"
               label-class="font-weight-bold"
-              :state='fieldState("room_auto_delete.enabled")'
+              :state="fieldState('room_auto_delete.enabled')"
               :label="$t('settings.application.room_auto_delete.enabled.title')"
-              ref='application-room-auto-delete-enabled-form-group'
             >
               <b-form-checkbox
-                id='application-room-auto-delete-enabled'
-                v-model='settings.room_auto_delete.enabled'
+                id="application-room-auto-delete-enabled"
+                v-model="settings.room_auto_delete.enabled"
                 :state="fieldState('room_auto_delete.enabled')"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 switch
               >
                 {{ $t('app.enable') }}
               </b-form-checkbox>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_auto_delete.enabled')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('room_auto_delete.enabled')" />
               </template>
             </b-form-group>
           </b-col>
           <!--Room delete deadline-->
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
               :description="$t('settings.application.room_auto_delete.deadline_period.description')"
-              :state='fieldState("room_auto_delete.deadline_period")'
+              :state="fieldState('room_auto_delete.deadline_period')"
               :label="$t('settings.application.room_auto_delete.deadline_period.title')"
             >
               <b-form-select
+                id="application-room-auto-delete-deadline-period"
                 v-model="settings.room_auto_delete.deadline_period"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 required
                 :options="roomDeleteDeadlineOptions"
-                :state='fieldState("room_auto_delete.deadline_period")'
-                class='mb-2'
-                id="application-room-auto-delete-deadline-period"
-              ></b-form-select>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_auto_delete.deadline_period')"></div>
+                :state="fieldState('room_auto_delete.deadline_period')"
+                class="mb-2"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('room_auto_delete.deadline_period')" />
               </template>
             </b-form-group>
           </b-col>
         </b-row>
-        <b-row cols='12'>
+        <b-row cols="12">
           <!--Room delete inactive-->
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
               :description="$t('settings.application.room_auto_delete.inactive_period.description')"
-              :state='fieldState("room_auto_delete.inactive_period")'
+              :state="fieldState('room_auto_delete.inactive_period')"
               :label="$t('settings.application.room_auto_delete.inactive_period.title')"
             >
               <b-form-select
+                id="application-room-auto-delete-inactive-period"
                 v-model="settings.room_auto_delete.inactive_period"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 required
                 :options="roomDeleteNotificationOptions"
-                :state='fieldState("room_auto_delete.inactive_period")'
-                class='mb-2'
-                id="application-room-auto-delete-inactive-period"
-              ></b-form-select>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_auto_delete.inactive_period')"></div>
+                :state="fieldState('room_auto_delete.inactive_period')"
+                class="mb-2"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('room_auto_delete.inactive_period')" />
               </template>
             </b-form-group>
           </b-col>
           <!--Room delete never used-->
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
               :description="$t('settings.application.room_auto_delete.never_used_period.description')"
-              :state='fieldState("room_auto_delete.never_used_period")'
+              :state="fieldState('room_auto_delete.never_used_period')"
               :label="$t('settings.application.room_auto_delete.never_used_period.title')"
             >
               <b-form-select
+                id="application-room-auto-delete-never-used-period"
                 v-model="settings.room_auto_delete.never_used_period"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 required
                 :options="roomDeleteNotificationOptions"
-                :state='fieldState("room_auto_delete.never_used_period")'
-                class='mb-2'
-                id="application-room-auto-delete-never-used-period"
-              ></b-form-select>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_auto_delete.never_used_period')"></div>
+                :state="fieldState('room_auto_delete.never_used_period')"
+                class="mb-2"
+              />
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('room_auto_delete.never_used_period')" />
               </template>
             </b-form-group>
           </b-col>
@@ -757,25 +800,25 @@
         <h4>{{ $t('app.users') }}</h4>
         <hr>
 
-        <b-row cols='12'>
-          <b-col md='6'>
+        <b-row cols="12">
+          <b-col md="6">
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               :label="$t('settings.application.user_settings')"
-              :state='fieldState("password_change_allowed")'
+              :state="fieldState('password_change_allowed')"
             >
               <b-form-checkbox
-                v-model='settings.password_change_allowed'
+                v-model="settings.password_change_allowed"
                 :state="fieldState('password_change_allowed')"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 switch
               >
                 {{ $t('settings.application.password_change_allowed') }}
               </b-form-checkbox>
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('password_change_allowed')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('password_change_allowed')" />
               </template>
             </b-form-group>
           </b-col>
@@ -783,143 +826,140 @@
 
         <h4>{{ $t('settings.application.attendance_and_statistics_title') }}</h4>
         <hr>
-        <b-row cols='12'>
-          <b-col md='6'>
+        <b-row cols="12">
+          <b-col md="6">
             <b-form-group
+              ref="statistics-servers-enabled-form-group"
               label-class="font-weight-bold"
-              :state='fieldState("statistics.servers.enabled")'
+              :state="fieldState('statistics.servers.enabled')"
               :label="$t('settings.application.statistics.servers.enabled_title')"
-              ref='statistics-servers-enabled-form-group'
             >
-                <b-form-checkbox
-                  id='statistics-server-enabled'
-                  v-model='settings.statistics.servers.enabled'
-                  :state="fieldState('statistics.servers.enabled')"
-                  :disabled='isBusy || viewOnly || !loaded'
-                  switch
-                >
-                  {{ $t('app.enable') }}
-                </b-form-checkbox>
-                <template slot='invalid-feedback'>
-                  <div v-html="fieldError('statistics.servers.enabled')"></div>
-                </template>
-              </b-form-group>
+              <b-form-checkbox
+                id="statistics-server-enabled"
+                v-model="settings.statistics.servers.enabled"
+                :state="fieldState('statistics.servers.enabled')"
+                :disabled="isBusy || viewOnly || !loaded"
+                switch
+              >
+                {{ $t('app.enable') }}
+              </b-form-checkbox>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('statistics.servers.enabled')" />
+              </template>
+            </b-form-group>
           </b-col>
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
+              ref="statistics-servers-retention-form-group"
               label-class="font-weight-bold"
-              :state='fieldState("statistics.servers.retention_period")'
+              :state="fieldState('statistics.servers.retention_period')"
               :label="$t('settings.application.statistics.servers.retention_period_title')"
-              ref='statistics-servers-retention-form-group'
             >
               <b-form-input
-                id='statistics-server-retention-period-input'
-                type='number'
-                :state='fieldState("statistics.servers.retention_period")'
-                v-model='settings.statistics.servers.retention_period'
-                min='1'
+                id="statistics-server-retention-period-input"
+                v-model="settings.statistics.servers.retention_period"
+                type="number"
+                :state="fieldState('statistics.servers.retention_period')"
+                min="1"
                 max="365"
                 required
-                :disabled='isBusy || viewOnly || !loaded'
-               >
-              </b-form-input>
+                :disabled="isBusy || viewOnly || !loaded"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('statistics.servers.retention_period')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('statistics.servers.retention_period')" />
               </template>
             </b-form-group>
           </b-col>
         </b-row>
-        <b-row cols='12'>
-          <b-col md='6'>
+        <b-row cols="12">
+          <b-col md="6">
             <b-form-group
+              ref="statistics-meetings-enabled-form-group"
               label-class="font-weight-bold"
-              :state='fieldState("statistics.meetings.enabled")'
+              :state="fieldState('statistics.meetings.enabled')"
               :label="$t('settings.application.statistics.meetings.enabled_title')"
-              ref='statistics-meetings-enabled-form-group'
             >
               <b-form-checkbox
-                id='statistics-meetings-enabled'
-                v-model='settings.statistics.meetings.enabled'
+                id="statistics-meetings-enabled"
+                v-model="settings.statistics.meetings.enabled"
                 :state="fieldState('statistics.meetings.enabled')"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 switch
               >
                 {{ $t('app.enable') }}
               </b-form-checkbox>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('statistics.meetings.enabled')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('statistics.meetings.enabled')" />
               </template>
             </b-form-group>
           </b-col>
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
+              ref="statistics-meetings-retention-form-group"
               label-class="font-weight-bold"
-              :state='fieldState("statistics.meetings.retention_period")'
+              :state="fieldState('statistics.meetings.retention_period')"
               :label="$t('settings.application.statistics.meetings.retention_period_title')"
-              ref='statistics-meetings-retention-form-group'
             >
               <b-form-input
-                id='statistics-meetings-retention-period-input'
-                type='number'
-                :state='fieldState("statistics.meetings.retention_period")'
-                v-model='settings.statistics.meetings.retention_period'
-                min='1'
+                id="statistics-meetings-retention-period-input"
+                v-model="settings.statistics.meetings.retention_period"
+                type="number"
+                :state="fieldState('statistics.meetings.retention_period')"
+                min="1"
                 max="365"
                 required
-                :disabled='isBusy || viewOnly || !loaded'
-              >
-              </b-form-input>
+                :disabled="isBusy || viewOnly || !loaded"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('statistics.meetings.retention_period')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('statistics.meetings.retention_period')" />
               </template>
             </b-form-group>
           </b-col>
         </b-row>
-        <b-row cols='12'>
-          <b-col md='6'>
+        <b-row cols="12">
+          <b-col md="6">
             <b-form-group
+              ref="attendance-enabled-form-group"
               label-class="font-weight-bold"
-              :state='fieldState("attendance.enabled")'
+              :state="fieldState('attendance.enabled')"
               :label="$t('settings.application.attendance.enabled_title')"
-              ref='attendance-enabled-form-group'
             >
               <b-form-checkbox
-                id='attendance-enabled'
-                v-model='settings.attendance.enabled'
+                id="attendance-enabled"
+                v-model="settings.attendance.enabled"
                 :state="fieldState('attendance.enabled')"
-                :disabled='isBusy || viewOnly || !loaded'
+                :disabled="isBusy || viewOnly || !loaded"
                 switch
               >
                 {{ $t('app.enable') }}
               </b-form-checkbox>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('attendance.enabled')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('attendance.enabled')" />
               </template>
             </b-form-group>
           </b-col>
-          <b-col md='6'>
+          <b-col md="6">
             <b-form-group
+              ref="attendance-retention-form-group"
               label-class="font-weight-bold"
-              :state='fieldState("attendance.retention_period")'
+              :state="fieldState('attendance.retention_period')"
               :label="$t('settings.application.attendance.retention_period_title')"
-              ref='attendance-retention-form-group'
             >
               <b-form-input
-                id='statistics-meetings-retention-period-input'
-                type='number'
-                :state='fieldState("attendance.retention_period")'
-                v-model='settings.attendance.retention_period'
-                min='1'
+                id="statistics-meetings-retention-period-input"
+                v-model="settings.attendance.retention_period"
+                type="number"
+                :state="fieldState('attendance.retention_period')"
+                min="1"
                 max="365"
                 required
-                :disabled='isBusy || viewOnly || !loaded'
-              >
-              </b-form-input>
+                :disabled="isBusy || viewOnly || !loaded"
+              />
 
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('attendance.retention_period')"></div>
+              <template slot="invalid-feedback">
+                <div v-html="fieldError('attendance.retention_period')" />
               </template>
             </b-form-group>
           </b-col>
@@ -929,15 +969,22 @@
         <hr>
         <!--Logo Settings-->
         <b-form-group
+          ref="bbb-logo-form-group"
           label-class="font-weight-bold"
-          ref='bbb-logo-form-group'
           class="mb-4"
           label-for="bbb-logo-input"
-          :state='(fieldState("bbb.logo") == null && fieldState("bbb.logo_file") == null) ? null : false'
+          :state="(fieldState('bbb.logo') == null && fieldState('bbb.logo_file') == null) ? null : false"
           :label="$t('settings.application.bbb.logo.title')"
         >
-          <b-row class="my-3" align-v="center">
-            <b-col sm="6" lg="3" class="text-center">
+          <b-row
+            class="my-3"
+            align-v="center"
+          >
+            <b-col
+              sm="6"
+              lg="3"
+              class="text-center"
+            >
               <b-img
                 v-if="(uploadBBBLogoFileSrc!==null || settings.bbb.logo!==null) && !bbb_logo_deleted"
                 :src="uploadBBBLogoFileSrc ? uploadBBBLogoFileSrc : settings.bbb.logo"
@@ -947,221 +994,241 @@
                 width="150"
                 height="100"
                 fluid
-              >
-              </b-img>
+              />
             </b-col>
-            <b-col sm="6" lg="9">
-              <b-form-text v-if="!uploadBBBLogoFile">{{ $t('settings.application.bbb.logo.url_title') }}</b-form-text>
-              <b-input-group class="my-2" v-if="!uploadBBBLogoFile">
-              <b-form-input
-                id="bbb-logo-input"
-                :placeholder="$t('settings.application.bbb.logo.hint')"
-                v-model="settings.bbb.logo"
-                :disabled="isBusy || viewOnly || !loaded || bbb_logo_deleted"
-                :state='fieldState("bbb.logo")'
-                trim
+            <b-col
+              sm="6"
+              lg="9"
+            >
+              <b-form-text v-if="!uploadBBBLogoFile">
+                {{ $t('settings.application.bbb.logo.url_title') }}
+              </b-form-text>
+              <b-input-group
+                v-if="!uploadBBBLogoFile"
+                class="my-2"
               >
-              </b-form-input>
-              <template #append>
-                <b-button
-                  v-if='!viewOnly && bbb_logo_deleted'
-                  variant='secondary'
-                  @click='bbb_logo_deleted = false'
-                  ref='reset-bbb-logo'
-                  v-b-tooltip
-                  :title="$t('app.reset')"
-                >
-                  <i class="fa-solid fa-undo"></i>
-                </b-button>
-                <!-- Delete file -->
-                <b-button
-                  v-if='!viewOnly && !bbb_logo_deleted && settings.bbb.logo!=null'
-                  variant='danger'
-                  @click="bbb_logo_deleted = true"
-                  ref='delete-bbb-logo'
-                  v-b-tooltip
-                  :title="$t('app.delete')"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </b-button>
-              </template>
+                <b-form-input
+                  id="bbb-logo-input"
+                  v-model="settings.bbb.logo"
+                  :placeholder="$t('settings.application.bbb.logo.hint')"
+                  :disabled="isBusy || viewOnly || !loaded || bbb_logo_deleted"
+                  :state="fieldState('bbb.logo')"
+                  trim
+                />
+                <template #append>
+                  <b-button
+                    v-if="!viewOnly && bbb_logo_deleted"
+                    ref="reset-bbb-logo"
+                    v-b-tooltip
+                    variant="secondary"
+                    :title="$t('app.reset')"
+                    @click="bbb_logo_deleted = false"
+                  >
+                    <i class="fa-solid fa-undo" />
+                  </b-button>
+                  <!-- Delete file -->
+                  <b-button
+                    v-if="!viewOnly && !bbb_logo_deleted && settings.bbb.logo!=null"
+                    ref="delete-bbb-logo"
+                    v-b-tooltip
+                    variant="danger"
+                    :title="$t('app.delete')"
+                    @click="bbb_logo_deleted = true"
+                  >
+                    <i class="fa-solid fa-trash" />
+                  </b-button>
+                </template>
               </b-input-group>
-              <b-form-text v-if="!viewOnly && !bbb_logo_deleted">{{ $t('settings.application.bbb.logo.upload_title') }}</b-form-text>
+              <b-form-text v-if="!viewOnly && !bbb_logo_deleted">
+                {{ $t('settings.application.bbb.logo.upload_title') }}
+              </b-form-text>
               <b-input-group v-if="!viewOnly && !bbb_logo_deleted">
                 <b-form-file
                   id="bbb-logo-form-file"
-                  :state='fieldState("bbb.logo_file")'
+                  v-model="uploadBBBLogoFile"
+                  :state="fieldState('bbb.logo_file')"
                   :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
                   :placeholder="$t('settings.application.bbb.logo.select_file')"
-                  v-model="uploadBBBLogoFile"
                   accept="image/jpeg, image/png, image/gif, image/svg+xml"
+                />
+                <template
+                  v-if="uploadBBBLogoFile"
+                  #append
                 >
-                </b-form-file>
-                <template #append v-if="uploadBBBLogoFile">
-                  <b-button id="bbb-upload-button" variant="danger" @click="uploadBBBLogoFile = null">
-                    <i class="fa-solid fa-xmark"></i>
+                  <b-button
+                    id="bbb-upload-button"
+                    variant="danger"
+                    @click="uploadBBBLogoFile = null"
+                  >
+                    <i class="fa-solid fa-xmark" />
                   </b-button>
                 </template>
               </b-input-group>
             </b-col>
           </b-row>
 
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('logo')"></div>
-            <div v-html="fieldError('logo_file')"></div>
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('logo')" />
+            <div v-html="fieldError('logo_file')" />
+          </template>
+        </b-form-group>
+
+        <b-form-group
+          ref="bbb-style-form-group"
+          label-class="font-weight-bold"
+          class="mb-4"
+          :label="$t('settings.application.bbb.style.title')"
+          label-for="bbb-style-form-file"
+          :state="fieldState('bbb.style')"
+        >
+          <b-input-group>
+            <b-form-file
+              id="bbb-style-form-file"
+              v-model="bbb_style"
+              accept="text/css,.css"
+              :disabled="isBusy || viewOnly || !loaded"
+              :state="fieldState('bbb.style')"
+              :browse-text="$t('app.browse')"
+              :placeholder="$t('settings.application.bbb.style.title')"
+            />
+            <b-input-group-append v-if="settings.bbb.style || !!bbb_style">
+              <!-- View file -->
+              <b-button
+                v-if="settings.bbb.style"
+                ref="view-bbb-style"
+                v-b-tooltip
+                variant="secondary"
+                :href="settings.bbb.style"
+                target="_blank"
+                :title="$t('app.view')"
+              >
+                <i class="fa-solid fa-eye" />
+              </b-button>
+              <b-button
+                v-if="!viewOnly && (bbb_style !== null || bbb_style_deleted)"
+                ref="reset-bbb-style"
+                v-b-tooltip
+                variant="secondary"
+                :title="$t('app.reset')"
+                @click="bbb_style = null; bbb_style_deleted = false"
+              >
+                <i class="fa-solid fa-undo" />
+              </b-button>
+              <!-- Delete file -->
+              <b-button
+                v-if="!viewOnly && bbb_style === null && !bbb_style_deleted"
+                ref="delete-bbb-style"
+                v-b-tooltip
+                variant="danger"
+                :title="$t('app.delete')"
+                @click="bbb_style_deleted = true"
+              >
+                <i class="fa-solid fa-trash" />
+              </b-button>
+            </b-input-group-append>
+          </b-input-group>
+          <template
+            v-if="!viewOnly"
+            slot="invalid-feedback"
+          >
+            <div v-html="fieldError('bbb.style')" />
           </template>
         </b-form-group>
 
         <b-form-group
           label-class="font-weight-bold"
-          ref='bbb-style-form-group'
           class="mb-4"
-          :label="$t('settings.application.bbb.style.title')"
-          label-for='bbb-style-form-file'
-          :state='fieldState("bbb.style")'
+          :label="$t('settings.application.default_presentation')"
+          label-for="default_presentation"
+          :state="fieldState('default_presentation')"
         >
           <b-input-group>
             <b-form-file
-              accept="text/css,.css"
+              id="default_presentation"
+              v-model="default_presentation"
               :disabled="isBusy || viewOnly || !loaded"
-              id='bbb-style-form-file'
-              :state="fieldState('bbb.style')"
+              :state="fieldState('default_presentation')"
               :browse-text="$t('app.browse')"
-              :placeholder="$t('settings.application.bbb.style.title')"
-              v-model="bbb_style"
-            >
-            </b-form-file>
-            <b-input-group-append v-if='settings.bbb.style || !!bbb_style'>
+              :placeholder="$t('settings.application.default_presentation')"
+            />
+            <b-input-group-append v-if="settings.default_presentation || !!default_presentation">
               <!-- View file -->
               <b-button
-                v-if='settings.bbb.style'
-                variant='secondary'
-                :href='settings.bbb.style'
-                target='_blank'
-                ref='view-bbb-style'
+                v-if="settings.default_presentation"
+                ref="view-default-presentation"
                 v-b-tooltip
+                variant="secondary"
+                :href="settings.default_presentation"
+                target="_blank"
                 :title="$t('app.view')"
               >
-                <i class="fa-solid fa-eye"></i>
+                <i class="fa-solid fa-eye" />
               </b-button>
               <b-button
-                v-if='!viewOnly && (bbb_style !== null || bbb_style_deleted)'
-                variant='secondary'
-                @click='bbb_style = null; bbb_style_deleted = false'
-                ref='reset-bbb-style'
+                v-if="!viewOnly && (default_presentation !== null || default_presentation_deleted)"
+                ref="reset-default-presentation"
                 v-b-tooltip
+                variant="secondary"
                 :title="$t('app.reset')"
+                @click="default_presentation = null; default_presentation_deleted = false"
               >
-                <i class="fa-solid fa-undo"></i>
+                <i class="fa-solid fa-undo" />
               </b-button>
               <!-- Delete file -->
               <b-button
-                v-if='!viewOnly && bbb_style === null && !bbb_style_deleted'
-                variant='danger'
-                @click="bbb_style_deleted = true"
-                ref='delete-bbb-style'
+                v-if="!viewOnly && default_presentation === null && !default_presentation_deleted"
+                ref="delete-default-presentation"
                 v-b-tooltip
+                variant="danger"
                 :title="$t('app.delete')"
+                @click="default_presentation_deleted = true"
               >
-                <i class="fa-solid fa-trash"></i>
+                <i class="fa-solid fa-trash" />
               </b-button>
-
             </b-input-group-append>
           </b-input-group>
-          <template slot='invalid-feedback' v-if="!viewOnly">
-            <div v-html="fieldError('bbb.style')"></div>
+          <b-form-text v-if="!viewOnly">
+            {{ $t('rooms.files.formats', { formats: String(settings.bbb.file_mimes).split(",").join(', ') }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}
+          </b-form-text>
+          <template
+            v-if="!viewOnly"
+            slot="invalid-feedback"
+          >
+            <div v-html="fieldError('default_presentation')" />
           </template>
         </b-form-group>
-
-        <b-form-group
-            label-class="font-weight-bold"
-            class="mb-4"
-            :label="$t('settings.application.default_presentation')"
-            label-for='default_presentation'
-            :state='fieldState("default_presentation")'
-          >
-            <b-input-group>
-              <b-form-file
-                :disabled="isBusy || viewOnly || !loaded"
-                id='default_presentation'
-                :state="fieldState('default_presentation')"
-                :browse-text="$t('app.browse')"
-                :placeholder="$t('settings.application.default_presentation')"
-                v-model="default_presentation"
-              >
-              </b-form-file>
-              <b-input-group-append v-if='settings.default_presentation || !!default_presentation'>
-                <!-- View file -->
-                <b-button
-                  v-if='settings.default_presentation'
-                  variant='secondary'
-                  :href='settings.default_presentation'
-                  target='_blank'
-                  ref='view-default-presentation'
-                  v-b-tooltip
-                  :title="$t('app.view')"
-                >
-                  <i class="fa-solid fa-eye"></i>
-                </b-button>
-                <b-button
-                  v-if='!viewOnly && (default_presentation !== null || default_presentation_deleted)'
-                  variant='secondary'
-                  @click='default_presentation = null; default_presentation_deleted = false'
-                  ref='reset-default-presentation'
-                  v-b-tooltip
-                  :title="$t('app.reset')"
-                >
-                  <i class="fa-solid fa-undo"></i>
-                </b-button>
-                <!-- Delete file -->
-                <b-button
-                  v-if='!viewOnly && default_presentation === null && !default_presentation_deleted'
-                  variant='danger'
-                  @click="default_presentation_deleted = true"
-                  ref='delete-default-presentation'
-                  v-b-tooltip
-                  :title="$t('app.delete')"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </b-button>
-
-              </b-input-group-append>
-            </b-input-group>
-            <b-form-text v-if="!viewOnly">{{ $t('rooms.files.formats', { formats: String(settings.bbb.file_mimes).split(",").join(', ') }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}</b-form-text>
-            <template slot='invalid-feedback' v-if="!viewOnly">
-              <div v-html="fieldError('default_presentation')"></div>
-            </template>
-          </b-form-group>
 
         <hr>
 
         <div class="clearfix">
-          <b-button id="application-save-button"
-                    class="float-right mr-1 mb-1"
-                    variant="success"
-                    type="submit"
-                    v-if="!viewOnly"
-                    :disabled="isBusy || !loaded || timezonesLoadingError || timezonesLoading">
-            <span><i class="fa-solid fa-save mr-2"></i>{{ $t('app.save') }}</span>
+          <b-button
+            v-if="!viewOnly"
+            id="application-save-button"
+            class="float-right mr-1 mb-1"
+            variant="success"
+            type="submit"
+            :disabled="isBusy || !loaded || timezonesLoadingError || timezonesLoading"
+          >
+            <span><i class="fa-solid fa-save mr-2" />{{ $t('app.save') }}</span>
           </b-button>
         </div>
       </b-form>
     </b-overlay>
- </div>
+  </div>
 </template>
 
 <script>
-import Base from '../../api/base';
-import FieldErrors from '../../mixins/FieldErrors';
-import env from '../../env';
-import PermissionService from '../../services/PermissionService';
-import Banner from '../../components/Banner.vue';
+import Base from '@/api/base';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
+import PermissionService from '@/services/PermissionService';
+import Banner from '@/components/Banner.vue';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
 import { mapActions } from 'pinia';
-import { useSettingsStore } from '../../stores/settings';
-import TimezoneSelect from '../../components/Inputs/TimezoneSelect.vue';
+import { useSettingsStore } from '@/stores/settings';
+import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
 
 export default {
   components: { Banner, TimezoneSelect, VSwatches },
@@ -1384,9 +1451,6 @@ export default {
       });
     }
   },
-  mounted () {
-    this.getSettings();
-  },
   computed: {
     linkBtnStyles () {
       return (this.settings.link_btn_styles || []).map((style) => {
@@ -1520,6 +1584,9 @@ export default {
         }
       }
     }
+  },
+  mounted () {
+    this.getSettings();
   }
 };
 </script>

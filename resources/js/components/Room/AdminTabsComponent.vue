@@ -3,48 +3,69 @@
     <div class="row">
       <div class="col-12">
         <b-card no-body>
-          <b-tabs content-class="p-3" fill active-nav-item-class="bg-primary">
+          <b-tabs
+            content-class="p-3"
+            fill
+            active-nav-item-class="bg-primary"
+          >
             <!-- Room description tab -->
             <b-tab>
-              <template v-slot:title>
-                <i class="fa-solid fa-file-lines"></i> {{ $t('rooms.description.title') }}
+              <template #title>
+                <i class="fa-solid fa-file-lines" /> {{ $t('rooms.description.title') }}
               </template>
-              <room-description-component @settingsChanged="$emit('settingsChanged')" :room="room"></room-description-component>
+              <room-description-component
+                :room="room"
+                @settings-changed="$emit('settings-changed')"
+              />
             </b-tab>
             <!-- Membership tab -->
             <b-tab>
-              <template v-slot:title>
-                <i class="fa-solid fa-users"></i> {{ $t('rooms.members.title') }}
+              <template #title>
+                <i class="fa-solid fa-users" /> {{ $t('rooms.members.title') }}
               </template>
-              <members-component :room="room"></members-component>
+              <members-component
+                :room="room"
+              />
             </b-tab>
             <!-- Personal room links tab -->
             <b-tab>
-              <template v-slot:title>
-                <i class="fa-solid fa-link"></i> {{ $t('rooms.tokens.title') }}
+              <template #title>
+                <i class="fa-solid fa-link" /> {{ $t('rooms.tokens.title') }}
               </template>
-              <tokens-component :room="room"></tokens-component>
+              <tokens-component
+                :room="room"
+              />
             </b-tab>
             <!-- File management tab -->
             <b-tab>
-              <template v-slot:title>
-                <i class="fa-solid fa-folder-open"></i> {{ $t('rooms.files.title') }}
+              <template #title>
+                <i class="fa-solid fa-folder-open" /> {{ $t('rooms.files.title') }}
               </template>
-              <file-component :room="room" ></file-component>
+              <file-component
+                :room="room"
+                @invalid-code="$emit('invalid-code')"
+                @invalid-token="$emit('invalid-token')"
+                @guests-not-allowed="$emit('guests-not-allowed')"
+              />
             </b-tab>
             <!-- Statistics tab -->
             <b-tab>
-              <template v-slot:title>
-                <i class="fa-solid fa-history"></i> {{ $t('rooms.meeting_history.title') }}
+              <template #title>
+                <i class="fa-solid fa-history" /> {{ $t('rooms.meeting_history.title') }}
               </template>
-              <history-component :room="room"></history-component>
+              <history-component
+                :room="room"
+              />
             </b-tab>
             <!-- Room settings tab -->
             <b-tab>
-              <template v-slot:title>
-                <i class="fa-solid fa-cog"></i> {{ $t('rooms.settings.title') }}
+              <template #title>
+                <i class="fa-solid fa-cog" /> {{ $t('rooms.settings.title') }}
               </template>
-              <settings-component @settingsChanged="$emit('settingsChanged')" :room="room"></settings-component>
+              <settings-component
+                :room="room"
+                @settings-changed="$emit('settings-changed')"
+              />
             </b-tab>
           </b-tabs>
         </b-card>
@@ -62,6 +83,7 @@ import RoomDescriptionComponent from './RoomDescriptionComponent.vue';
 
 export default {
 
+  name: 'AdminTabsComponent',
   components: {
     RoomDescriptionComponent,
     HistoryComponent,
@@ -75,4 +97,3 @@ export default {
   }
 };
 </script>
-<style scoped></style>

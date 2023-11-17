@@ -3,17 +3,18 @@
     <!-- Remove room -->
     <b-dropdown-item-button
       ref="deleteButton"
-      @click="$bvModal.show('remove-modal')"
       :disabled="disabled"
+      @click="$bvModal.show('remove-modal')"
     >
       <div class="d-flex align-items-baseline">
-        <i class="fa-solid fa-trash"></i>
+        <i class="fa-solid fa-trash" />
         <span>{{ $t('rooms.modals.delete.title') }}</span>
       </div>
     </b-dropdown-item-button>
 
     <!-- Remove room modal -->
     <b-modal
+      id="remove-modal"
       :busy="isDeleting"
       :no-close-on-backdrop="isDeleting"
       :no-close-on-esc="isDeleting"
@@ -22,12 +23,15 @@
       cancel-variant="secondary"
       :cancel-title="$t('app.no')"
       @ok="deleteRoom"
-      id="remove-modal" >
-      <template v-slot:modal-title>
+    >
+      <template #modal-title>
         {{ $t('rooms.modals.delete.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isDeleting"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isDeleting"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       {{ $t('rooms.modals.delete.confirm',{name: room.name}) }}
     </b-modal>
@@ -35,17 +39,12 @@
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 import frag from 'vue-frag';
 
 export default {
   directives: {
     frag
-  },
-  data () {
-    return {
-      isDeleting: false // is room getting deleted
-    };
   },
   props: {
     room: {
@@ -57,6 +56,11 @@ export default {
       default: false,
       required: false
     }
+  },
+  data () {
+    return {
+      isDeleting: false // is room getting deleted
+    };
   },
   methods: {
     /**
@@ -72,7 +76,7 @@ export default {
         method: 'delete'
       }).then(response => {
         // delete successful
-        this.$emit('roomDeleted');
+        this.$emit('room-deleted');
       }).catch((error) => {
         this.isDeleting = false;
         this.$bvModal.hide('remove-modal');

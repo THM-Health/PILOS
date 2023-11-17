@@ -1,4 +1,4 @@
-import ServerPolicy from '../../../resources/js/policies/ServerPolicy';
+import ServerPolicy from '@/policies/ServerPolicy';
 
 describe('ServerPolicy', () => {
   it('viewAny returns true if the user has the permission to view any servers', async () => {

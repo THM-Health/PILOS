@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, waitModalShown, waitModalHidden } from '../../helper';
 import { BButton, BModal, BootstrapVue } from 'bootstrap-vue';
-import RoomDescriptionHtmlComponent from '../../../../resources/js/components/Room/RoomDescriptionHtmlComponent.vue';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import RoomDescriptionHtmlComponent from '@/components/Room/RoomDescriptionHtmlComponent.vue';
+import PermissionService from '@/services/PermissionService';
 import { expect, it } from 'vitest';
 
 const localVue = createLocalVue();
