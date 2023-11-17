@@ -559,7 +559,10 @@ describe('RoomFile', () => {
     view.destroy();
   });
 
-  it('error emitted on files load', async () => {
+  it('error handling on files load', async () => {
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    // Test 403, code required
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 403,
       data: {
@@ -587,6 +590,7 @@ describe('RoomFile', () => {
 
     expect(view.emitted('invalid-code').length).toBe(1);
 
+    // Test 401, code invalid
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 401,
       data: {
@@ -611,6 +615,20 @@ describe('RoomFile', () => {
     await mockAxios.wait();
 
     expect(view.emitted('invalid-token').length).toBe(1);
+
+    // Test other errors
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    view.vm.reload();
+    await mockAxios.wait();
+
+    expect(baseError).toBeCalledTimes(1);
+    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
 
     view.destroy();
   });
