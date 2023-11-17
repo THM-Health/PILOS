@@ -127,9 +127,9 @@ describe('Room Favorite Dropdown Button', () => {
     await favoritesRequest.respondWith({
       status: 500
     });
-    // check if favorites_changed gets emitted
+
+    // check if error handler gets called
     expect(spy).toBeCalledTimes(1);
-    expect(view.emitted('favorites-changed')).toBeTruthy();
 
     view.destroy();
   });
@@ -164,9 +164,9 @@ describe('Room Favorite Dropdown Button', () => {
     await favoritesRequest.respondWith({
       status: 500
     });
-    // check if favorites_changed gets emitted
+
+    // check if error handler gets called
     expect(spy).toBeCalledTimes(1);
-    expect(view.emitted('favorites-changed')).toBeTruthy();
 
     view.destroy();
   });

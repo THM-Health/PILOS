@@ -1227,18 +1227,36 @@ describe('Room', () => {
     const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
     const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
     const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
-    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
-    const toastErrorSpy = vi.fn();
-    mockAxios.request('/api/v1/rooms/abc-def-789');
+
+    mockAxios.request('/api/v1/rooms/gs4-6fb-kk8').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'gs4-6fb-kk8',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
 
     const view = mount(RoomView, {
       localVue,
       mocks: {
-        $t: (key) => key,
-        toastError: toastErrorSpy
+        $t: (key) => key
       },
       propsData: {
-        id: 'abc-def-789'
+        id: 'gs4-6fb-kk8'
       },
       stubs,
       router: routerMock,
@@ -1246,21 +1264,19 @@ describe('Room', () => {
       attachTo: createContainer()
     });
 
-    view.vm.onTabComponentError({ response: { status: 401, data: { message: 'invalid_code' } } });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const tabsComponent = view.findComponent({ name: 'TabsComponent' });
+
+    tabsComponent.vm.$emit('invalid-code');
     expect(handleInvalidCode).toBeCalledTimes(1);
 
-    view.vm.onTabComponentError({ response: { status: 403, data: { message: 'require_code' } } });
-    expect(handleInvalidCode).toBeCalledTimes(2);
-
-    view.vm.onTabComponentError({ response: { status: 403, data: { message: 'guests_not_allowed' } } });
+    tabsComponent.vm.$emit('guests-not-allowed');
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
-    view.vm.onTabComponentError({ response: { status: 401, data: { message: 'invalid_token' } } });
+    tabsComponent.vm.$emit('invalid-token');
     expect(handleInvalidToken).toBeCalledTimes(1);
-
-    view.vm.onTabComponentError({ response: { status: 500, data: { message: 'Internal server error' } } });
-    expect(baseError).toBeCalledTimes(1);
-    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
 
     view.destroy();
   });
@@ -2434,7 +2450,6 @@ describe('Room', () => {
   });
 
   it('membership dropdown button', async () => {
-    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
 
     const room = {
@@ -2490,29 +2505,8 @@ describe('Room', () => {
 
     let reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
 
-    // Trigger event on error while attempting to leave membership
-    roomMembershipDropdownButton.vm.$emit('error', { response: { message: 'Request failed with status code 500', status: 500 } });
-
-    // Check if global error handler is called
-    expect(baseError).toBeCalledTimes(1);
-    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
-
-    // response for room reload, nothing changed
-    await reloadRequest.wait();
-    await reloadRequest.respondWith({
-      status: 200,
-      data: {
-        data: { ...room, is_member: true }
-      }
-    });
-
-    reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
-
     // Trigger event on successful leave membership
     roomMembershipDropdownButton.vm.$emit('removed');
-
-    // Check if no additional error is called
-    expect(baseError).toBeCalledTimes(1);
 
     // response for room reload, now with the user not being a member anymore
     await reloadRequest.wait();
@@ -2529,22 +2523,15 @@ describe('Room', () => {
     // Trigger event on error while attempting to join membership due to invalid code
     expect(handleInvalidCode).toBeCalledTimes(0);
 
-    roomMembershipDropdownButton.vm.$emit('error', { response: { data: { message: 'invalid_code' }, status: 401 } });
+    roomMembershipDropdownButton.vm.$emit('invalid-code');
 
     // Check if invalid code handler is called
     expect(handleInvalidCode).toBeCalledTimes(1);
 
-    // Check if no additional error is called
-    expect(baseError).toBeCalledTimes(1);
-
     // Trigger event on error while attempting to join membership due to invalid code
     reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
 
-    roomMembershipDropdownButton.vm.$emit('error', { response: { data: { message: 'Membership failed! Membership for this room is currently not available.' }, status: 403 } });
-
-    // Check if global error handler is called
-    expect(baseError).toBeCalledTimes(2);
-    expect(baseError.mock.calls[1][0].response.status).toEqual(403);
+    roomMembershipDropdownButton.vm.$emit('membership-disabled');
 
     // response for room reload to check the membership allowed state
     await reloadRequest.wait();
