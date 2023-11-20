@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, waitModalShown, waitModalHidden } from '../../helper';
 import { BButton, BFormInput, BModal, BootstrapVue } from 'bootstrap-vue';
-import TipTapLink from '../../../../resources/js/components/TipTap/TipTapLink.vue';
+import TipTapLink from '@/components/TipTap/TipTapLink.vue';
 import { expect, it } from 'vitest';
 
 const localVue = createLocalVue();

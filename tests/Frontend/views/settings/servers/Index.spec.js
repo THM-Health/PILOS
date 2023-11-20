@@ -1,6 +1,6 @@
-import Index from '../../../../../resources/js/views/settings/servers/Index.vue';
+import Index from '@/views/settings/servers/Index.vue';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 
 import BootstrapVue, {
 
@@ -11,7 +11,7 @@ import BootstrapVue, {
   BButtonClose,
   BFormInput
 } from 'bootstrap-vue';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();

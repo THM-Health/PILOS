@@ -1,12 +1,12 @@
 <template>
   <div
-    v-b-tooltip.hover
-    :title='!disabled ? this.$slots.default[0].text : null'
-    class='text-ellipsis'
     ref="overflow"
+    v-b-tooltip.hover
+    :title="!disabled ? $slots.default[0].text : null"
+    class="text-ellipsis"
     :disabled="disabled"
   >
-    <slot></slot>
+    <slot />
   </div>
 </template>
 

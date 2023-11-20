@@ -1,7 +1,7 @@
 import mockAxios from './mock-axios';
 import { createLocalVue as originalCreateLocalVue } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
-import HideTooltip from '../../resources/js/directives/hide-tooltip';
+import HideTooltip from '@/directives/hide-tooltip';
 
 function createLocalVue () {
   const localVue = originalCreateLocalVue();

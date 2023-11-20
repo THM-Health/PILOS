@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Short description for rooms ([#373])
 - Room favorites ([#373])
 - Show current room name in the page title  ([#649], [#650])
+- Show amount of users in a room ([#681])
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
+- Refactor user interface room details ([#681])
 
 ## [v2.3.3] - 2023-11-13
 ### Fixed
@@ -692,6 +694,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#621]: https://github.com/THM-Health/PILOS/pull/621
 [#653]: https://github.com/THM-Health/PILOS/issues/653
 [#654]: https://github.com/THM-Health/PILOS/pull/654
+[#681]: https://github.com/THM-Health/PILOS/pull/681
 [#684]: https://github.com/THM-Health/PILOS/issues/684
 [#685]: https://github.com/THM-Health/PILOS/pull/685
 

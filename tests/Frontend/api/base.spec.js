@@ -1,8 +1,8 @@
-import Base from '../../../resources/js/api/base';
+import Base from '@/api/base';
 import VueRouter from 'vue-router';
 import { mockAxios } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
-import { useAuthStore } from '../../../resources/js/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 
 let consoleErrorStub;
 

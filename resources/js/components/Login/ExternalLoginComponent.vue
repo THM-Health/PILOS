@@ -1,9 +1,13 @@
 <template>
   <div>
-    <h5>{{title}}</h5>
+    <h5>{{ title }}</h5>
 
-    <b-button :href="redirectUrl"  variant="primary" block>
-      {{redirectLabel}}
+    <b-button
+      :href="redirectUrl"
+      variant="primary"
+      block
+    >
+      {{ redirectLabel }}
     </b-button>
   </div>
 </template>

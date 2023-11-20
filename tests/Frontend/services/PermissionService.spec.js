@@ -1,8 +1,9 @@
-import PermissionService from '../../../resources/js/services/PermissionService';
-import ParameterMissingError from '../../../resources/js/errors/ParameterMissingError';
-import WrongTypeError from '../../../resources/js/errors/WrongTypeError';
-import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError';
-import EventBus from '../../../resources/js/services/EventBus';
+import PermissionService from '@/services/PermissionService';
+import ParameterMissingError from '@/errors/ParameterMissingError';
+import WrongTypeError from '@/errors/WrongTypeError';
+import PolicyDoesNotExistsError from '@/errors/PolicyDoesNotExistsError';
+import EventBus from '@/services/EventBus';
+import { EVENT_CURRENT_USER_CHANGED } from '@/constants/events';
 import { nextTick } from 'vue';
 
 describe('PermissionService', () => {
@@ -12,23 +13,23 @@ describe('PermissionService', () => {
       const newUser = { permissions: ['foo', 'bar'] };
       const handleUserChanged = vi.fn();
 
-      EventBus.$on('currentUserChangedEvent', handleUserChanged);
+      EventBus.on(EVENT_CURRENT_USER_CHANGED, handleUserChanged);
       PermissionService.setCurrentUser(newUser);
       await nextTick();
 
       expect(handleUserChanged).toBeCalledTimes(1);
       expect(handleUserChanged).toBeCalledWith(newUser);
 
-      EventBus.$off('currentUserChangedEvent', handleUserChanged);
+      EventBus.off(EVENT_CURRENT_USER_CHANGED, handleUserChanged);
 
       const spy = vi.fn();
-      EventBus.$on('currentUserChangedEvent', spy);
+      EventBus.on(EVENT_CURRENT_USER_CHANGED, spy);
       PermissionService.setCurrentUser(newUser, false);
       await nextTick();
 
       expect(spy).toBeCalledTimes(0);
 
-      EventBus.$off('currentUserChangedEvent', spy);
+      EventBus.off(EVENT_CURRENT_USER_CHANGED, spy);
       PermissionService.setCurrentUser(oldUser);
     });
   });

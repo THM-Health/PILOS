@@ -1,6 +1,6 @@
-import View from '../../../../../resources/js/views/settings/roles/View.vue';
+import View from '@/views/settings/roles/View.vue';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 
 import BootstrapVue, {
 
@@ -10,9 +10,9 @@ import BootstrapVue, {
   BForm,
   BFormInvalidFeedback, BButton, BModal, BFormRadio
 } from 'bootstrap-vue';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import VueRouter from 'vue-router';
-import env from '../../../../../resources/js/env';
+import env from '@/env';
 import _ from 'lodash';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';

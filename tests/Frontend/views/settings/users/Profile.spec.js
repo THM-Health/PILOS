@@ -1,11 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
 import { PiniaVuePlugin } from 'pinia';
 import { createContainer, createLocalVue } from '../../../helper';
-import Profile from '../../../../../resources/js/views/Profile.vue';
-import ViewEditComponent from '../../../../../resources/js/components/User/ViewEditComponent.vue';
+import Profile from '@/views/Profile.vue';
+import ViewEditComponent from '@/components/User/ViewEditComponent.vue';
 import { BOverlay } from 'bootstrap-vue';
 import { createTestingPinia } from '@pinia/testing';
-import { useAuthStore } from '../../../../../resources/js/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);

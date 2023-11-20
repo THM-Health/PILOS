@@ -1,4 +1,4 @@
-import UserPolicy from '../../../resources/js/policies/UserPolicy';
+import UserPolicy from '@/policies/UserPolicy';
 
 describe('UserPolicy', () => {
   it('viewAny returns true if the user has the permission to view all users', async () => {

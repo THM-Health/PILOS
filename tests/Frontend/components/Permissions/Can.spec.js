@@ -1,6 +1,6 @@
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 import { shallowMount, mount } from '@vue/test-utils';
-import Can from '../../../../resources/js/components/Permissions/Can.vue';
+import Can from '@/components/Permissions/Can.vue';
 import { createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();

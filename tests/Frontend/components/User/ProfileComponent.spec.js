@@ -2,18 +2,18 @@ import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
-import ProfileComponent from '../../../../resources/js/components/User/ProfileComponent.vue';
+import ProfileComponent from '@/components/User/ProfileComponent.vue';
 import { BButton, BForm, BFormInput, BImg } from 'bootstrap-vue';
-import PermissionService from '../../../../resources/js/services/PermissionService';
-import LocaleSelect from '../../../../resources/js/components/Inputs/LocaleSelect.vue';
-import TimezoneSelect from '../../../../resources/js/components/Inputs/TimezoneSelect.vue';
+import PermissionService from '@/services/PermissionService';
+import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
+import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
 import { createCanvas, Image } from 'canvas';
 
 import _ from 'lodash';
-import { useAuthStore } from '../../../../resources/js/stores/auth';
-import { useLocaleStore } from '../../../../resources/js/stores/locale';
-import i18n from '../../../../resources/js/i18n';
-import Base from '../../../../resources/js/api/base';
+import { useAuthStore } from '@/stores/auth';
+import { useLocaleStore } from '@/stores/locale';
+import i18n from '@/i18n';
+import Base from '@/api/base';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -388,7 +388,7 @@ describe('ProfileComponent', () => {
     });
 
     // Check if changes are emitted
-    expect(wrapper.emitted('updateUser')[0][0]).toStrictEqual(userAfterChanges);
+    expect(wrapper.emitted('update-user')[0][0]).toStrictEqual(userAfterChanges);
     // Update user prop
     await wrapper.setProps({ user: userAfterChanges });
     await wrapper.vm.$nextTick();
@@ -483,7 +483,7 @@ describe('ProfileComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if event is emitted and update prop
-    expect(wrapper.emitted('updateUser')[0][0]).toStrictEqual(user);
+    expect(wrapper.emitted('update-user')[0][0]).toStrictEqual(user);
     await wrapper.setProps({ user });
     await wrapper.vm.$nextTick();
 
@@ -541,7 +541,7 @@ describe('ProfileComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().notFoundError).toBeTruthy();
+    expect(wrapper.emitted('not-found-error')).toBeTruthy();
 
     // --- Check stale error ---
     request = mockAxios.request('/api/v1/users/2');
@@ -561,8 +561,8 @@ describe('ProfileComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().staleError).toBeTruthy();
-    expect(wrapper.emitted().staleError[0]).toEqual([response]);
+    expect(wrapper.emitted('stale-error')).toBeTruthy();
+    expect(wrapper.emitted('stale-error')[0]).toEqual([response]);
 
     // --- Check form validation error ---
     request = mockAxios.request('/api/v1/users/2');

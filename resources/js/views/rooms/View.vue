@@ -1,271 +1,383 @@
 <template>
-  <div class="container mt-5 mb-5" v-cloak>
-
+  <div
+    v-cloak
+    class="container mt-5 mb-5"
+  >
     <!-- room token is invalid -->
     <div v-if="tokenInvalid">
-        <!-- Show message that room can only be used by logged in users -->
-        <b-alert show variant="danger">
-          <i class="fa-solid fa-unlink"></i> {{ $t('rooms.invalid_personal_link') }}
-        </b-alert>
-      </div>
+      <!-- Show message that room can only be used by logged in users -->
+      <b-alert
+        show
+        variant="danger"
+      >
+        <i class="fa-solid fa-unlink" /> {{ $t('rooms.invalid_personal_link') }}
+      </b-alert>
+    </div>
 
-      <!-- room is only for logged in users -->
-      <div v-else-if="guestsNotAllowed">
-        <!-- Show message that room can only be used by logged in users -->
-        <b-alert show>
-          <i class="fa-solid fa-exclamation-circle"></i> {{ $t('rooms.only_used_by_authenticated_users') }}
-        </b-alert>
-        <b-button-group>
-          <!-- Reload page, in case the room settings changed -->
+    <!-- room is only for logged in users -->
+    <div v-else-if="guestsNotAllowed">
+      <!-- Show message that room can only be used by logged in users -->
+      <b-alert show>
+        <i class="fa-solid fa-exclamation-circle" /> {{ $t('rooms.only_used_by_authenticated_users') }}
+      </b-alert>
+      <b-button-group>
+        <!-- Reload page, in case the room settings changed -->
+        <b-button
+          :disabled="loading"
+          @click="reload"
+        >
+          <b-spinner
+            v-if="loading"
+            small
+          /> <i
+            v-if="!loading"
+            class="fa-solid fa-sync"
+          /> {{ $t('rooms.try_again') }}
+        </b-button>
+      </b-button-group>
+    </div>
+
+    <div v-else>
+      <div v-if="!room">
+        <div class="text-center my-2">
+          <b-spinner
+            v-if="roomLoading"
+            ref="room-loading-spinner"
+          />
           <b-button
-            v-on:click="reload"
-            :disabled="loading"
+            v-else
+            ref="reload"
+            @click="load()"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-sync"></i> {{$t('rooms.try_again')}}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
-        </b-button-group>
-      </div>
-
-      <div v-else>
-
-        <div v-if="!room" >
-          <div class="text-center my-2">
-            <b-spinner ref="room-loading-spinner" v-if="roomLoading" ></b-spinner>
-            <b-button
-              ref="reload"
-              v-else
-              @click="load()"
-            >
-              <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
-            </b-button>
-          </div>
         </div>
-        <div v-else>
-          <div class="row">
-            <div class="col-12">
-              <b-button-group class="float-right">
-                <!-- If membership is enabled, allow user to become member -->
-                <can v-if="room.authenticated && isAuthenticated" method="becomeMember" :policy="room">
-                <b-button
-                  id="join-membership-button"
-                  v-on:click="joinMembership"
+      </div>
+      <div v-else>
+        <b-row>
+          <b-col md="10">
+            <!-- Display room type, name and owner  -->
+            <room-type-badge :room-type="room.type" />
+            <h2 class="h2 mt-2 roomname">
+              {{ room.name }}
+            </h2>
+
+            <room-details-component
+              :room="room"
+              :show-description="true"
+            />
+          </b-col>
+          <b-col
+            md="2"
+            class="d-flex justify-content-end align-items-start"
+          >
+            <b-button-group>
+              <!-- Reload general room settings/details -->
+              <b-button
+                ref="reloadButton"
+                v-b-tooltip.hover
+                v-tooltip-hide-click
+                variant="secondary"
+                :title="$t('app.reload')"
+                :disabled="loading"
+                @click="reload"
+              >
+                <i
+                  :class="{ 'fa-spin': loading }"
+                  class="fa-solid fa-sync"
+                />
+              </b-button>
+              <b-dropdown
+                v-if="room.authenticated && isAuthenticated"
+                variant="secondary"
+                toggle-class="text-decoration-none"
+                class="room-dropdown"
+                no-caret
+                right
+                down
+              >
+                <template #button-content>
+                  <i class="fa-solid fa-bars" />
+                </template>
+                <room-membership-dropdown-button
+                  :room="room"
+                  :access-code="accessCode"
                   :disabled="loading"
-                  variant="secondary"
-                >
-                  <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.become_member') }}
-                </b-button>
-                </can>
-                <!-- If user is member, allow user to end the membership -->
-                <b-button
-                  id="leave-membership-button"
-                  v-if="room.authenticated && isAuthenticated && room.is_member"
-                  v-b-modal.leave-membership-modal
+                  @removed="reload()"
+                  @added="accessCode = null; reload();"
+                  @invalid-code="handleInvalidCode"
+                  @membership-disabled="reload"
+                />
+                <room-favorite-dropdown-button
                   :disabled="loading"
-                  variant="danger"
+                  :room="room"
+                  @favorites-changed="reload()"
+                />
+                <can
+                  method="delete"
+                  :policy="room"
                 >
-                  <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.end_membership.button') }}
-                </b-button>
-
-                <b-modal
-                  v-if="room.authenticated && isAuthenticated"
-                  :static='modalStatic'
-                  :title="$t('rooms.end_membership.title')"
-                  ok-variant="danger"
-                  cancel-variant="secondary"
-                  :ok-title="$t('rooms.end_membership.yes')"
-                  :cancel-title="$t('rooms.end_membership.no')"
-                  @ok="leaveMembership"
-                  id="leave-membership-modal"
-                  ref="leave-membership-modal"
-                >
-                  {{ $t('rooms.end_membership.message') }}
-                </b-modal>
-
-                <!--show favorite button for logged in users-->
-                <RoomFavoriteComponent v-if="isAuthenticated" ref="favoriteComponent" @favorites_changed="reload()" :is-favorite="room.is_favorite" :size="'md'" :id="room.id"></RoomFavoriteComponent>
-
-                <!-- Reload general room settings/details -->
-                <b-button
-                  variant="secondary"
-                  :title="$t('app.reload')"
-                  ref="reloadButton"
-                  v-b-tooltip.hover
-                  v-tooltip-hide-click
-                  v-on:click="reload"
-                  :disabled="loading"
-                >
-                  <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
-                </b-button>
-
-                <!-- Delete button and modal -->
-                <can method="delete" :policy="room">
-                  <delete-room-component
-                    @roomDeleted="$router.push({ name: 'rooms.index' })"
+                  <delete-room-dropdown-button
                     :room="room"
                     :disabled="loading"
-                  ></delete-room-component>
+                    @room-deleted="$router.push({ name: 'rooms.index' })"
+                  />
                 </can>
-              </b-button-group>
-            </div>
-          </div>
-
-          <!-- Display room name, icon and owner -->
-          <div class="row pt-2">
-            <!-- Room icon -->
-            <div class="col-lg-1 col-2">
-              <div :style="{ 'background-color': room.type.color}" class="room-icon" v-if="room.type">
-                {{room.type.short}}
-              </div>
-            </div>
-            <!-- Room name and owner -->
-            <div class="col-lg-11 col-10">
-              <h2 class="roomname">{{ room.name }}</h2>
-              <h5>{{ room.owner.name}}</h5>
-            </div>
-          </div>
-
-          <div class="row pt-2" v-if="room.authenticated && room.can_start && room.room_type_invalid">
-            <div class="col-lg-12 col-12">
-              <b-alert show variant="warning" ref="roomTypeInvalidAlert">
-                {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
-              </b-alert>
-            </div>
-          </div>
-
-          <hr>
-
-          <!-- room join/start, files, settings for logged in users -->
-          <template v-if="room.authenticated">
-            <!-- Room join/start -->
-            <b-row>
-              <!-- Show invitation text/link to moderators and room owners -->
-              <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="viewInvitation">
-                <room-invitation ref="room-invitation" :name="room.name" :id="room.id" :accessCode="room.access_code" ></room-invitation>
-              </b-col>
-              <b-col order="1" order-md="2" col cols="12" :md="viewInvitation ? 4 : 12" :lg="viewInvitation ? 6 : 12">
-                <b-row>
-                  <!-- Ask guests for their first and lastname -->
-                  <b-col col cols="12" md="6" v-if="!isAuthenticated">
-                    <b-form-group id="guest-name-group" :label="$t('rooms.first_and_lastname')" :state="fieldState('name')">
-                      <b-input-group>
-                        <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholder_name')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
-                      </b-input-group>
-                      <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
-                    </b-form-group>
-                  </b-col>
-                  <!-- Show room start or join button -->
-                  <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
-
-                    <b-alert show v-if="room.record_attendance" class="text-center p-3" ref="recordingAttendanceInfo">
-                      <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recording_attendance_info') }}
-                      <b-form-checkbox
-                        v-model="recordAttendanceAgreement"
-                        :value="true"
-                        :unchecked-value="false"
-                      >
-                        {{ $t('rooms.recording_attendance_accept')}}
-                      </b-form-checkbox>
-                    </b-alert>
-
-                    <!-- If room is running, show join button -->
-                    <template v-if="running">
-                      <!-- If user is guest, join is only possible if a name is provided -->
-                      <b-button
-                        block
-                        ref="joinMeeting"
-                        v-on:click="join"
-                        :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
-                        variant="primary"
-                      >
-                        <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.join') }}
-                      </b-button>
-                    </template>
-                    <!-- If room is not running -->
-                    <template v-else>
-                      <b-button
-                        block
-                        ref="startMeeting"
-                        v-if="room.can_start"
-                        :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
-                        v-on:click="start"
-                        variant="primary"
-                      >
-                          <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.start') }}
-                      </b-button>
-                      <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-                      <div v-else class="text-center p-3">
-                        <div class="mb-3">
-                          <b-spinner></b-spinner>
-                        </div>
-                        {{ $t('rooms.not_running') }}
-                      </div>
-                    </template>
-
-                    <browser-notification :running="running" :name="room.name"></browser-notification>
-                  </b-col>
-                </b-row>
-              </b-col>
-            </b-row>
-
-            <!-- Show limited file list for guests, users, members and moderators-->
-            <cannot method="viewSettings" :policy="room">
-              <hr>
-              <tabs-component ref="tabs" :access-code="accessCode" :token="token" :room="room" v-on:tabComponentError="onTabComponentError" />
-            </cannot>
-
-            <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
-            <can method="viewSettings" :policy="room">
-              <admin-tabs-component @settingsChanged="reload" :room="room" />
-            </can>
-          </template>
-          <!-- Ask for room access code -->
-          <div v-else>
-            <b-alert show>{{ $t('rooms.require_access_code') }}</b-alert>
-            <b-input-group>
-              <b-form-input
-                :state="accessCodeValid"
-                :placeholder="$t('rooms.access_code')"
-                v-mask="'999-999-999'"
-                v-model="accessCodeInput"
-                v-on:keyup.enter="login"
-              ></b-form-input>
-              <b-input-group-append>
-                <b-button
-                  v-on:click="login"
-                  :disabled="loading"
-                  variant="primary"
-                >
-                  <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-lock"></i> {{ $t('rooms.login') }}
-                </b-button>
-              </b-input-group-append>
-            </b-input-group>
+              </b-dropdown>
+            </b-button-group>
+          </b-col>
+        </b-row>
+        <div
+          v-if="room.authenticated && room.can_start && room.room_type_invalid"
+          class="row pt-2"
+        >
+          <div class="col-lg-12 col-12">
+            <b-alert
+              ref="roomTypeInvalidAlert"
+              show
+              variant="warning"
+            >
+              {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
+            </b-alert>
           </div>
         </div>
+
+        <hr>
+
+        <!-- room join/start, files, settings for logged in users -->
+        <template v-if="room.authenticated">
+          <!-- Room join/start -->
+          <b-row>
+            <!-- Show invitation text/link to moderators and room owners -->
+            <b-col
+              v-if="viewInvitation"
+              order="2"
+              order-md="1"
+              col
+              cols="12"
+              md="8"
+              lg="6"
+            >
+              <room-invitation
+                ref="room-invitation"
+                :room="room"
+              />
+            </b-col>
+            <b-col
+              order="1"
+              order-md="2"
+              col
+              cols="12"
+              :md="viewInvitation ? 4 : 12"
+              :lg="viewInvitation ? 6 : 12"
+            >
+              <b-row>
+                <!-- Ask guests for their first and lastname -->
+                <b-col
+                  v-if="!isAuthenticated"
+                  col
+                  cols="12"
+                  md="6"
+                >
+                  <b-form-group
+                    id="guest-name-group"
+                    :label="$t('rooms.first_and_lastname')"
+                    :state="fieldState('name')"
+                  >
+                    <b-input-group>
+                      <b-form-input
+                        ref="guestName"
+                        v-model="name"
+                        :placeholder="$t('rooms.placeholder_name')"
+                        :disabled="!!token"
+                        :state="fieldState('name')"
+                      />
+                    </b-input-group>
+                    <template slot="invalid-feedback">
+                      <div v-html="fieldError('name')" />
+                    </template>
+                  </b-form-group>
+                </b-col>
+                <!-- Show room start or join button -->
+                <b-col
+                  col
+                  cols="12"
+                  :md="isAuthenticated ? 12 : 6"
+                >
+                  <b-alert
+                    v-if="room.record_attendance"
+                    ref="recordingAttendanceInfo"
+                    show
+                    class="text-center p-3"
+                  >
+                    <i class="fa-solid fa-info-circle" /> {{ $t('rooms.recording_attendance_info') }}
+                    <b-form-checkbox
+                      v-model="recordAttendanceAgreement"
+                      :value="true"
+                      :unchecked-value="false"
+                    >
+                      {{ $t('rooms.recording_attendance_accept') }}
+                    </b-form-checkbox>
+                  </b-alert>
+
+                  <!-- If room is running, show join button -->
+                  <template v-if="running">
+                    <!-- If user is guest, join is only possible if a name is provided -->
+                    <b-button
+                      ref="joinMeeting"
+                      block
+                      :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
+                      variant="primary"
+                      @click="join"
+                    >
+                      <b-spinner
+                        v-if="loadingJoinStart"
+                        small
+                      /> <i class="fa-solid fa-door-open" /> {{ $t('rooms.join') }}
+                    </b-button>
+                  </template>
+                  <!-- If room is not running -->
+                  <template v-else>
+                    <b-button
+                      v-if="room.can_start"
+                      ref="startMeeting"
+                      block
+                      :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
+                      variant="primary"
+                      @click="start"
+                    >
+                      <b-spinner
+                        v-if="loadingJoinStart"
+                        small
+                      /> <i class="fa-solid fa-door-open" /> {{ $t('rooms.start') }}
+                    </b-button>
+                    <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
+                    <div
+                      v-else
+                      class="text-center p-3"
+                    >
+                      <div class="mb-3">
+                        <b-spinner />
+                      </div>
+                      {{ $t('rooms.not_running') }}
+                    </div>
+                  </template>
+
+                  <browser-notification
+                    :running="running"
+                    :name="room.name"
+                  />
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+
+          <!-- Show limited file list for guests, users, members and moderators-->
+          <cannot
+            method="viewSettings"
+            :policy="room"
+          >
+            <hr>
+            <tabs-component
+              ref="tabs"
+              :access-code="accessCode"
+              :token="token"
+              :room="room"
+
+              @invalid-code="handleInvalidCode"
+              @invalid-token="handleInvalidToken"
+              @guests-not-allowed="handleGuestsNotAllowed"
+            />
+          </cannot>
+
+          <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
+          <can
+            method="viewSettings"
+            :policy="room"
+          >
+            <admin-tabs-component
+              :room="room"
+              @settings-changed="reload"
+            />
+          </can>
+        </template>
+        <!-- Ask for room access code -->
+        <div v-else>
+          <b-alert show>
+            {{ $t('rooms.require_access_code') }}
+          </b-alert>
+          <b-input-group>
+            <b-form-input
+              v-model="accessCodeInput"
+              v-mask="'999-999-999'"
+              :state="accessCodeValid"
+              :placeholder="$t('rooms.access_code')"
+              @keyup.enter="login"
+            />
+            <b-input-group-append>
+              <b-button
+                :disabled="loading"
+                variant="primary"
+                @click="login"
+              >
+                <b-spinner
+                  v-if="loading"
+                  small
+                /> <i
+                  v-if="!loading"
+                  class="fa-solid fa-lock"
+                /> {{ $t('rooms.login') }}
+              </b-button>
+            </b-input-group-append>
+          </b-input-group>
+        </div>
       </div>
+    </div>
   </div>
 </template>
 <script>
 import AwesomeMask from 'awesome-mask';
-import Base from '../../api/base';
-import AdminTabsComponent from '../../components/Room/AdminTabsComponent.vue';
-import TabsComponent from '../../components/Room/TabsComponent.vue';
-import env from './../../env.js';
-import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent.vue';
-import Can from '../../components/Permissions/Can.vue';
-import Cannot from '../../components/Permissions/Cannot.vue';
-import PermissionService from '../../services/PermissionService';
-import FieldErrors from '../../mixins/FieldErrors';
-import BrowserNotification from '../../components/Room/BrowserNotification.vue';
+import Base from '@/api/base';
+import AdminTabsComponent from '@/components/Room/AdminTabsComponent.vue';
+import TabsComponent from '@/components/Room/TabsComponent.vue';
+import env from '@/env.js';
+import Can from '@/components/Permissions/Can.vue';
+import Cannot from '@/components/Permissions/Cannot.vue';
+import PermissionService from '@/services/PermissionService';
+import FieldErrors from '@/mixins/FieldErrors';
+import BrowserNotification from '@/components/Room/BrowserNotification.vue';
 import { mapActions, mapState } from 'pinia';
-import { useAuthStore } from '../../stores/auth';
-import { useSettingsStore } from '../../stores/settings';
-import RoomInvitation from '../../components/Room/RoomInvitation.vue';
-import RoomFavoriteComponent from '../../components/Room/RoomFavoriteComponent.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useSettingsStore } from '@/stores/settings';
+import RoomInvitation from '@/components/Room/RoomInvitation.vue';
+import RoomFavoriteDropdownButton from '@/components/Room/RoomFavoriteDropdownButton.vue';
+import RoomMembershipDropdownButton from '@/components/Room/RoomMembershipDropdownButton.vue';
+import DeleteRoomDropdownButton from '@/components/Room/DeleteRoomDropdownButton.vue';
+import RoomDetailsComponent from '@/components/Room/RoomDetailsComponent.vue';
+import RoomTypeBadge from '@/components/Room/RoomTypeBadge.vue';
+import EventBus from '@/services/EventBus';
+import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 
 export default {
   directives: {
     mask: AwesomeMask
   },
+
+  components: {
+    RoomDetailsComponent,
+    RoomInvitation,
+    BrowserNotification,
+    TabsComponent,
+    AdminTabsComponent,
+    RoomFavoriteDropdownButton,
+    RoomMembershipDropdownButton,
+    DeleteRoomDropdownButton,
+    RoomTypeBadge,
+    Can,
+    Cannot
+  },
+
+  mixins: [FieldErrors],
 
   props: {
     modalStatic: {
@@ -281,19 +393,6 @@ export default {
       default: null
     }
   },
-
-  components: {
-    RoomFavoriteComponent,
-    RoomInvitation,
-    BrowserNotification,
-    DeleteRoomComponent,
-    TabsComponent,
-    AdminTabsComponent,
-    Can,
-    Cannot
-  },
-
-  mixins: [FieldErrors],
 
   data () {
     return {
@@ -347,34 +446,6 @@ export default {
      */
     startAutoRefresh: function () {
       this.reloadInterval = setInterval(this.reload, this.getRandomRefreshInterval() * 1000);
-    },
-
-    /**
-     *  Handle errors of the file list
-     */
-    onTabComponentError: function (error) {
-      if (error.response) {
-        // Access code invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-          return this.handleInvalidCode();
-        }
-
-        // Access code invalid
-        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-          return this.handleInvalidCode();
-        }
-
-        // Room token is invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-          return this.handleInvalidToken();
-        }
-
-        // Forbidden, guests not allowed
-        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
-          return this.handleGuestsNotAllowed();
-        }
-      }
-      Base.error(error, this.$root);
     },
 
     ...mapActions(useAuthStore, ['setCurrentUser']),
@@ -501,9 +572,7 @@ export default {
             this.accessCodeValid = null;
           }
 
-          if (this.$refs.tabs) {
-            this.$refs.tabs.reload();
-          }
+          EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, this.room);
 
           if (this.room.username) {
             this.name = this.room.username;
@@ -716,62 +785,13 @@ export default {
         });
     },
     /**
-     * Become a room member
-     * @param event
-     */
-    joinMembership: function (event) {
-      // Enable loading indicator
-      this.loading = true;
-
-      // Join room as member, send access code if needed
-      const config = this.accessCode == null ? { method: 'post' } : { method: 'post', headers: { 'Access-Code': this.accessCode } };
-      Base.call('rooms/' + this.room.id + '/membership', config)
-        .then(response => {
-          // Reload room, now as a member; access code no longer needed
-          this.accessCode = null;
-          this.reload();
-        })
-        .catch((error) => {
-          this.loading = false;
-
-          if (error.response) {
-            // Access code invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.handleInvalidCode();
-            }
-
-            // Membership not allowed, update status
-            if (error.response.status === env.HTTP_FORBIDDEN) {
-              this.room.allow_membership = false;
-            }
-          }
-          Base.error(error, this.$root);
-        });
-    },
-    /**
-     * Leave room membership
-     * @param event
-     */
-    leaveMembership: function (event) {
-      // Enable loading indicator
-      this.loading = true;
-      Base.call('rooms/' + this.room.id + '/membership', {
-        method: 'delete'
-      }).catch((error) => {
-        Base.error(error, this.$root);
-      }).finally(() => {
-        // Reload without membership
-        this.reload();
-      });
-    },
-    /**
      * Handle login with access code
      */
     login: function () {
       // Remove all non-numeric or dash chars
       this.accessCodeInput = this.accessCodeInput.replace(/[^0-9-]/g, '');
       // Remove the dashes for storing the access code
-      this.accessCode = this.accessCodeInput.replace(/[-]/g, '');
+      this.accessCode = parseInt(this.accessCodeInput.replace(/[-]/g, '')) || '';
       // Reload the room with an access code
       this.reload();
     }
@@ -793,9 +813,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-  .room-icon {
-    margin-top: 8px;
-  }
-</style>

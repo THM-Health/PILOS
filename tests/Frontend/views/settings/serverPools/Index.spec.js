@@ -1,6 +1,6 @@
-import Index from '../../../../../resources/js/views/settings/serverPools/Index.vue';
+import Index from '@/views/settings/serverPools/Index.vue';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 
 import BootstrapVue, {
   BTr,
@@ -10,7 +10,7 @@ import BootstrapVue, {
   BButtonClose,
   BFormInput, BAlert
 } from 'bootstrap-vue';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
@@ -508,7 +508,6 @@ describe('ServerPoolsIndex', () => {
         room_types: [
           {
             id: 1,
-            short: 'TA',
             description: 'Test A',
             color: '#ffffff',
             model_name: 'RoomType',
@@ -516,7 +515,6 @@ describe('ServerPoolsIndex', () => {
           },
           {
             id: 2,
-            short: 'TB',
             description: 'Test B',
             color: '#000000',
             model_name: 'RoomType',

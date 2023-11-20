@@ -1,29 +1,31 @@
 <template>
-    <div v-frag>
-        <b-button
-        variant="outline-dark"
-        @click="openModal"
-        :title="$t('rooms.description.tooltips.source_code')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-
-        >
-            <i class="fa-solid fa-code"></i>
-        </b-button>
-        <b-modal
-        :static='modalStatic'
-        size="xl"
-        id="code-modal"
-        :title="$t('rooms.description.modals.source_code.title')"
-        :cancel-title="$t('app.cancel')"
-        cancel-variant="dark"
-        :ok-title="$t('app.save')"
-        ok-variant="success"
-        @ok="save"
-        >
-          <b-form-textarea v-model="source" rows="5"></b-form-textarea>
-        </b-modal>
-    </div>
+  <div v-frag>
+    <b-button
+      v-b-tooltip.hover
+      v-tooltip-hide-click
+      variant="outline-dark"
+      :title="$t('rooms.description.tooltips.source_code')"
+      @click="openModal"
+    >
+      <i class="fa-solid fa-code" />
+    </b-button>
+    <b-modal
+      id="code-modal"
+      :static="modalStatic"
+      size="xl"
+      :title="$t('rooms.description.modals.source_code.title')"
+      :cancel-title="$t('app.cancel')"
+      cancel-variant="dark"
+      :ok-title="$t('app.save')"
+      ok-variant="success"
+      @ok="save"
+    >
+      <b-form-textarea
+        v-model="source"
+        rows="5"
+      />
+    </b-modal>
+  </div>
 </template>
 <script>
 
@@ -32,11 +34,6 @@ export default {
   directives: {
     frag
   },
-  data () {
-    return {
-      source: null
-    };
-  },
   props: {
     editor: Object,
     modalStatic: {
@@ -44,6 +41,11 @@ export default {
       default: false,
       required: false
     }
+  },
+  data () {
+    return {
+      source: null
+    };
   },
   methods: {
     /**

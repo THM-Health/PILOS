@@ -1,64 +1,85 @@
 <template>
   <b-input-group>
     <multiselect
-      :placeholder="$t('settings.roles.select_roles')"
-      ref="roles-multiselect"
-      :value="selectedRoles"
-      @input="input"
-      track-by='id'
-      open-direction='bottom'
-      :multiple='true'
-      :searchable='false'
-      :internal-search='false'
-      :clear-on-select='false'
-      :close-on-select='false'
-      :show-no-results='false'
-      :showLabels='false'
-      :options='roles'
-      :disabled="disabled || loading || loadingError"
       :id="id"
-      :loading='loading'
-      :allowEmpty='false'
-      :class="{ 'is-invalid': invalid, 'multiselect-form-control': true }">
-      <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-      <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
-      <template slot='tag' slot-scope='{ option, remove }'>
-        <h5 class='d-inline mr-1 mb-1'>
-          <b-badge variant='secondary' >
+      ref="roles-multiselect"
+      :placeholder="$t('settings.roles.select_roles')"
+      :value="selectedRoles"
+      track-by="id"
+      open-direction="bottom"
+      :multiple="true"
+      :searchable="false"
+      :internal-search="false"
+      :clear-on-select="false"
+      :close-on-select="false"
+      :show-no-results="false"
+      :show-labels="false"
+      :options="roles"
+      :disabled="disabled || loading || loadingError"
+      :loading="loading"
+      :allow-empty="false"
+      :class="{ 'is-invalid': invalid, 'multiselect-form-control': true }"
+      @input="input"
+    >
+      <template slot="noOptions">
+        {{ $t('settings.roles.nodata') }}
+      </template>
+      <template
+        slot="option"
+        slot-scope="props"
+      >
+        {{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}
+      </template>
+      <template
+        slot="tag"
+        slot-scope="{ option, remove }"
+      >
+        <h5 class="d-inline mr-1 mb-1">
+          <b-badge variant="secondary">
             {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
-            <span @click='remove(option)' v-if="!option.$isDisabled"><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.remove_role')"></i></span>
+            <span
+              v-if="!option.$isDisabled"
+              @click="remove(option)"
+            ><i
+              class="fa-solid fa-xmark"
+              :aria-label="$t('settings.users.remove_role')"
+            /></span>
           </b-badge>
         </h5>
       </template>
-      <template slot='afterList'>
+      <template slot="afterList">
         <b-button
-          :disabled='loading || currentPage === 1'
-          variant='outline-secondary'
-          @click='loadRoles(Math.max(1, currentPage - 1))'>
-          <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
+          :disabled="loading || currentPage === 1"
+          variant="outline-secondary"
+          @click="loadRoles(Math.max(1, currentPage - 1))"
+        >
+          <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
         </b-button>
         <b-button
-          :disabled='loading || !hasNextPage'
-          variant='outline-secondary'
-          @click='loadRoles(currentPage + 1)'>
-          <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
+          :disabled="loading || !hasNextPage"
+          variant="outline-secondary"
+          @click="loadRoles(currentPage + 1)"
+        >
+          <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
         </b-button>
       </template>
     </multiselect>
     <b-input-group-append v-if="loadingError">
       <b-button
-        :disabled='loading'
         ref="reloadRolesButton"
-        @click="loadRoles(currentPage)"
+        :disabled="loading"
         variant="outline-secondary"
-      ><i class="fa-solid fa-sync"></i></b-button>
+        @click="loadRoles(currentPage)"
+      >
+        <i class="fa-solid fa-sync" />
+      </b-button>
     </b-input-group-append>
   </b-input-group>
 </template>
 
 <script>
 import { Multiselect } from 'vue-multiselect';
-import Base from '../../api/base';
+import Base from '@/api/base';
 
 export default {
   name: 'RoleSelect',
@@ -84,6 +105,16 @@ export default {
       default: 'roles'
     }
   },
+  data: function () {
+    return {
+      selectedRoles: [],
+      roles: [],
+      loading: false,
+      loadingError: false,
+      currentPage: 1,
+      hasNextPage: false
+    };
+  },
   watch: {
     value: {
       handler (value) {
@@ -103,7 +134,7 @@ export default {
 
     // detect changes of the model loading error
     loadingError: function () {
-      this.$emit('loadingError', this.loadingError);
+      this.$emit('loading-error', this.loadingError);
     },
 
     // detect busy status while data fetching and notify parent
@@ -116,16 +147,6 @@ export default {
         this.loadRoles();
       }
     }
-  },
-  data: function () {
-    return {
-      selectedRoles: [],
-      roles: [],
-      loading: false,
-      loadingError: false,
-      currentPage: 1,
-      hasNextPage: false
-    };
   },
   mounted () {
     if (!this.disabled) {

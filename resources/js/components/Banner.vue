@@ -1,12 +1,29 @@
 <template>
-  <b-alert v-if='enabled' :show='true' :style="{ 'border-color': background, 'background-color': background, 'color': color }" class='mb-0 p-2'>
-    <div class='container'>
-      <h4 v-if='title' class='alert-heading'>
-        <i v-if='icon' :class='`${icon}`'></i>
+  <b-alert
+    :show="true"
+    :style="{ 'border-color': background, 'background-color': background, 'color': color }"
+    class="mb-0 p-2 rounded-0"
+  >
+    <div class="container">
+      <h4
+        v-if="title"
+        class="alert-heading"
+      >
+        <i
+          v-if="icon"
+          :class="`${icon}`"
+        />
         {{ title }}
       </h4>
-      <div class='banner-message'>{{ message }}</div>
-      <a :class='`btn btn-${linkStyle}`' v-if='link' :href='link' :target='`_${linkTarget}`'>{{ linkText ? linkText : link }}</a>
+      <div class="banner-message">
+        {{ message }}
+      </div>
+      <a
+        v-if="link"
+        :class="`btn btn-${linkStyle}`"
+        :href="link"
+        :target="`_${linkTarget}`"
+      >{{ linkText ? linkText : link }}</a>
     </div>
   </b-alert>
 </template>
@@ -15,43 +32,54 @@
 export default {
   props: {
     background: {
-      type: String
+      type: String,
+      default: null,
+      required: false
     },
 
     color: {
-      type: String
-    },
-
-    enabled: {
-      type: Boolean
+      type: String,
+      default: null,
+      required: false
     },
 
     icon: {
-      type: String
+      type: String,
+      default: null,
+      required: false
     },
 
     link: {
-      type: String
+      type: String,
+      default: null,
+      required: false
     },
 
     linkStyle: {
-      type: String
+      type: String,
+      default: 'primary'
     },
 
     linkTarget: {
-      type: String
+      type: String,
+      default: '_self'
     },
 
     linkText: {
-      type: String
+      type: String,
+      default: null,
+      required: false
     },
 
     message: {
-      type: String
+      type: String,
+      required: true
     },
 
     title: {
-      type: String
+      type: String,
+      default: null,
+      required: false
     }
   }
 };

@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BFormSelect, BInputGroupAppend } from 'bootstrap-vue';
-import TimezoneSelect from '../../../../resources/js/components/Inputs/TimezoneSelect.vue';
+import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
 import { createContainer, mockAxios, createLocalVue } from '../../helper';
 
-import Base from '../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -153,7 +153,7 @@ describe('TimezoneSelect', () => {
     // Check if the select are still disabled, busy event is emitted and error is emitted
     expect(select.props('disabled')).toBeTruthy();
     expect(view.emitted().busy[1]).toEqual([false]);
-    expect(view.emitted().loadingError[0]).toEqual([true]);
+    expect(view.emitted('loading-error')[0]).toEqual([true]);
 
     // Check if global error handler is called
     expect(spy).toBeCalledTimes(1);
@@ -190,7 +190,7 @@ describe('TimezoneSelect', () => {
     });
 
     // Check if parent component is notified and reload button is removed
-    expect(view.emitted().loadingError[1]).toEqual([false]);
+    expect(view.emitted('loading-error')[1]).toEqual([false]);
     expect(view.findComponent(BInputGroupAppend).exists()).toBeFalsy();
 
     view.destroy();

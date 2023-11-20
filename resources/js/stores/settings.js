@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import base from '../api/base';
+import base from '@/api/base';
 import _ from 'lodash';
 
 export const useSettingsStore = defineStore('settings', {

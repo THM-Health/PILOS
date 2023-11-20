@@ -2,8 +2,8 @@ import { mount } from '@vue/test-utils';
 import { BButton, BInputGroupAppend } from 'bootstrap-vue';
 import { createContainer, mockAxios, createLocalVue } from '../../helper';
 import { Multiselect } from 'vue-multiselect';
-import Base from '../../../../resources/js/api/base';
-import RoleSelect from '../../../../resources/js/components/Inputs/RoleSelect.vue';
+import Base from '@/api/base';
+import RoleSelect from '@/components/Inputs/RoleSelect.vue';
 
 const localVue = createLocalVue();
 
@@ -248,7 +248,7 @@ describe('RoleSelect', () => {
     expect(spy.mock.calls[0][0].response.status).toBe(500);
 
     // Check if parent component is notified
-    expect(view.emitted().loadingError[0]).toEqual([true]);
+    expect(view.emitted('loading-error')[0]).toEqual([true]);
 
     // Check if reload button is shown
     const appendWrapper = view.findComponent(BInputGroupAppend);
@@ -300,7 +300,7 @@ describe('RoleSelect', () => {
     });
 
     // Check if parent component is notified and reload button is removed
-    expect(view.emitted().loadingError[1]).toEqual([false]);
+    expect(view.emitted('loading-error')[1]).toEqual([false]);
     expect(view.findComponent(BInputGroupAppend).exists()).toBeFalsy();
 
     view.destroy();

@@ -1,14 +1,14 @@
 import { mount } from '@vue/test-utils';
 import { BFormSelect } from 'bootstrap-vue';
-import LocaleSelect from '../../../../resources/js/components/Inputs/LocaleSelect.vue';
+import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
 import { createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 
 describe('LocaleSelect', () => {
   beforeEach(() => {
-    vi.mock('../../../../resources/js/i18n.js', async () => {
-      const mod = await import('../../../../resources/js/i18n.js');
+    vi.mock('@/i18n.js', async () => {
+      const mod = await import('@/i18n.js');
       return {
         ...mod,
         getLocaleList: () => {

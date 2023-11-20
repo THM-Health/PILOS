@@ -1,13 +1,13 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
-import PasswordReset from '../../../resources/js/views/PasswordReset.vue';
-import Base from '../../../resources/js/api/base';
-import env from '../../../resources/js/env';
+import PasswordReset from '@/views/PasswordReset.vue';
+import Base from '@/api/base';
+import env from '@/env';
 import { mockAxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import { useLocaleStore } from '../../../resources/js/stores/locale';
+import { useLocaleStore } from '@/stores/locale';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);

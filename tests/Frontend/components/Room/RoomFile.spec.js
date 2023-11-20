@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormFile, BFormInvalidFeedback, BModal, BTbody } from 'bootstrap-vue';
-import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
+import FileComponent from '@/components/Room/FileComponent.vue';
 
-import Base from '../../../../resources/js/api/base';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '@/api/base';
+import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
@@ -15,9 +15,9 @@ localVue.use(BootstrapVue);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
-const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
-const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
+const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 
 describe('RoomFile', () => {
   beforeEach(() => {
@@ -559,13 +559,14 @@ describe('RoomFile', () => {
     view.destroy();
   });
 
-  it('error emitted on files load', async () => {
+  it('error handling on files load', async () => {
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    // Test 403, code required
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 403,
       data: {
-        data: {
-          message: 'require_code'
-        }
+        message: 'require_code'
       }
     });
 
@@ -587,8 +588,48 @@ describe('RoomFile', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    expect(view.emitted().error).toBeTruthy();
-    expect(view.emitted().error[0][0].response.status).toBe(403);
+    expect(view.emitted('invalid-code').length).toBe(1);
+
+    // Test 401, code invalid
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 401,
+      data: {
+        message: 'invalid_code'
+      }
+    });
+
+    view.vm.reload();
+    await mockAxios.wait();
+
+    expect(view.emitted('invalid-code').length).toBe(2);
+
+    // Test 401, token invalid
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 401,
+      data: {
+        message: 'invalid_token'
+      }
+    });
+
+    view.vm.reload();
+    await mockAxios.wait();
+
+    expect(view.emitted('invalid-token').length).toBe(1);
+
+    // Test other errors
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    view.vm.reload();
+    await mockAxios.wait();
+
+    expect(baseError).toBeCalledTimes(1);
+    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
+
     view.destroy();
   });
 
@@ -920,8 +961,7 @@ describe('RoomFile', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    expect(view.emitted().error.length).toBe(1);
-    expect(view.emitted().error[0][0].response.status).toBe(401);
+    expect(view.emitted('invalid-code').length).toBe(1);
 
     // Test 401, token invalid
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
@@ -937,8 +977,7 @@ describe('RoomFile', () => {
     await view.vm.$nextTick();
 
     view.vm.$nextTick();
-    expect(view.emitted().error.length).toBe(2);
-    expect(view.emitted().error[1][0].response.status).toBe(401);
+    expect(view.emitted('invalid-token').length).toBe(1);
 
     // Test 403, require code
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
@@ -952,8 +991,7 @@ describe('RoomFile', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    expect(view.emitted().error.length).toBe(3);
-    expect(view.emitted().error[2][0].response.status).toBe(403);
+    expect(view.emitted('invalid-code').length).toBe(2);
 
     // Test 403, file not available for download
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({

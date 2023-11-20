@@ -1,48 +1,54 @@
 <template>
   <div>
-    <can method="manageSettings" :policy="room">
+    <can
+      method="manageSettings"
+      :policy="room"
+    >
       <div class="row mb-3">
-      <div class="col-12">
-        <b-button-group class="float-lg-right">
-          <b-button
-            variant="secondary"
-            v-if="!editorOpen"
-            :disabled="isBusy"
-            ref="edit"
-            @click="edit"
-          >
-            <i class="fa-solid fa-pen-square"></i> {{ $t('rooms.description.edit') }}
-          </b-button>
-          <b-button
-            variant="success"
-            v-if="editorOpen"
-            :disabled="isBusy"
-            ref="save-edit"
-            @click="save"
-          >
-            <i class="fa-solid fa-save"></i> {{ $t('rooms.description.save') }}
-          </b-button>
-          <b-button
-            variant="dark"
-            v-if="editorOpen"
-            :disabled="isBusy"
-            ref="cancel-edit"
-            @click="cancel"
-          >
-            <i class="fa-solid fa-times"></i> {{ $t('rooms.description.cancel') }}
-          </b-button>
-        </b-button-group>
+        <div class="col-12">
+          <b-button-group class="float-lg-right">
+            <b-button
+              v-if="!editorOpen"
+              ref="edit"
+              variant="secondary"
+              :disabled="isBusy"
+              @click="edit"
+            >
+              <i class="fa-solid fa-pen-square" /> {{ $t('rooms.description.edit') }}
+            </b-button>
+            <b-button
+              v-if="editorOpen"
+              ref="save-edit"
+              variant="success"
+              :disabled="isBusy"
+              @click="save"
+            >
+              <i class="fa-solid fa-save" /> {{ $t('rooms.description.save') }}
+            </b-button>
+            <b-button
+              v-if="editorOpen"
+              ref="cancel-edit"
+              variant="dark"
+              :disabled="isBusy"
+              @click="cancel"
+            >
+              <i class="fa-solid fa-times" /> {{ $t('rooms.description.cancel') }}
+            </b-button>
+          </b-button-group>
+        </div>
       </div>
-    </div>
     </can>
-    <b-overlay :show="isBusy" >
+    <b-overlay :show="isBusy">
       <template #overlay>
-        <b-spinner></b-spinner>
+        <b-spinner />
       </template>
       <div
         v-if="!editorOpen"
       >
-        <room-description-html-component v-if="room.description !== null" :html="sanitizedHtml"></room-description-html-component>
+        <room-description-html-component
+          v-if="room.description !== null"
+          :html="sanitizedHtml"
+        />
         <div v-else>
           <i>{{ $t('rooms.description.missing') }}</i>
         </div>
@@ -50,36 +56,38 @@
 
       <div v-else>
         <tip-tap-editor
-          v-bind:class="{'is-invalid': fieldState('description') === false}"
+          v-model="newContent"
+          :class="{'is-invalid': fieldState('description') === false}"
           :disabled="isBusy"
-          v-model="newContent">
-        </tip-tap-editor>
-        <b-form-invalid-feedback :state="fieldState('description')" v-html="fieldError('description')"></b-form-invalid-feedback>
-    </div>
-
-  </b-overlay>
+        />
+        <b-form-invalid-feedback
+          :state="fieldState('description')"
+          v-html="fieldError('description')"
+        />
+      </div>
+    </b-overlay>
   </div>
 </template>
 
 <script>
-import TipTapEditor from '../TipTap/TipTapEditor.vue';
-import Can from '../Permissions/Can.vue';
-import Base from '../../api/base';
-import env from '../../env';
+import TipTapEditor from '@/components/TipTap/TipTapEditor.vue';
+import Can from '@/components/Permissions/Can.vue';
+import Base from '@/api/base';
+import env from '@/env';
 import createDOMPurify from 'dompurify';
 import RoomDescriptionHtmlComponent from './RoomDescriptionHtmlComponent.vue';
-import FieldErrors from '../../mixins/FieldErrors';
+import FieldErrors from '@/mixins/FieldErrors';
 
 export default {
   name: 'RoomDescriptionComponent',
-  mixins: [FieldErrors],
-  props: {
-    room: Object
-  },
   components: {
     TipTapEditor,
     Can,
     RoomDescriptionHtmlComponent
+  },
+  mixins: [FieldErrors],
+  props: {
+    room: Object
   },
 
   data () {
@@ -139,7 +147,7 @@ export default {
       }).then(() => {
         // Description successfully saved
         // inform parent component about changed description
-        this.$emit('settingsChanged');
+        this.$emit('settings-changed');
         this.errors = {};
         this.editorOpen = false;
       }).catch((error) => {

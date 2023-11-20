@@ -1,26 +1,38 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
-
-import RoomView from '../../../../resources/js/views/rooms/View.vue';
-import AdminTabsComponent from '../../../../resources/js/components/Room/AdminTabsComponent.vue';
-import TabsComponent from '../../../../resources/js/components/Room/TabsComponent.vue';
-import Base from '../../../../resources/js/api/base';
+import RoomView from '@/views/rooms/View.vue';
+import AdminTabsComponent from '@/components/Room/AdminTabsComponent.vue';
+import TabsComponent from '@/components/Room/TabsComponent.vue';
+import Base from '@/api/base';
 import VueRouter from 'vue-router';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import { useAuthStore } from '../../../../resources/js/stores/auth';
-import { useSettingsStore } from '../../../../resources/js/stores/settings';
+import { useAuthStore } from '@/stores/auth';
+import { useSettingsStore } from '@/stores/settings';
 import { expect } from 'vitest';
-import RoomFavoriteComponent from '../../../../resources/js/components/Room/RoomFavoriteComponent.vue';
+import EventBus from '@/services/EventBus';
+import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
 localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
+
+const stubs = {
+  'room-details-component': true,
+  'room-invitation': true,
+  'browser-notification': true,
+  'tabs-component': true,
+  'admin-tabs-component': true,
+  'room-favorite-dropdown-button': true,
+  'room-membership-dropdown-button': true,
+  'delete-room-dropdown-button': true,
+  'room-type-badge': true
+};
 
 const routerMock = new VueRouter({
   mode: 'abstract',
@@ -55,6 +67,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
+      stubs,
       propsData: {
         id: 'abc-def-123'
       },
@@ -82,16 +95,6 @@ describe('Room', () => {
   it('room token', async () => {
     let request = mockAxios.request('/api/v1/rooms/abc-def-123');
 
-    const tabsComponentReloadSpy = vi.fn();
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: tabsComponentReloadSpy
-      }
-    };
-
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -101,9 +104,7 @@ describe('Room', () => {
         id: 'abc-def-123',
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
       },
-      stubs: {
-        'tabs-component': tabsComponent
-      },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
       attachTo: createContainer()
     });
@@ -119,7 +120,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
@@ -137,7 +138,7 @@ describe('Room', () => {
 
     // check if view shows meeting data and the correct guests name (due to the personalized room link token)
     expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('Max Doe');
+
     expect(view.findComponent({ ref: 'guestName' }).element.value).toBe('John Doe');
     expect(view.vm.$data.reloadInterval).not.toBeNull();
 
@@ -159,7 +160,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'Peter Doe',
@@ -197,9 +198,7 @@ describe('Room', () => {
         id: 'abc-def-123',
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
       },
-      stubs: {
-        'tabs-component': true
-      },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
       router,
       attachTo: createContainer()
@@ -242,6 +241,7 @@ describe('Room', () => {
         id: 'abc-def-123',
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
       },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
       attachTo: createContainer()
@@ -266,9 +266,7 @@ describe('Room', () => {
       propsData: {
         id: 'abc-def-456'
       },
-      stubs: {
-        'tabs-component': true
-      },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       router: routerMock
@@ -280,7 +278,6 @@ describe('Room', () => {
     // test if spinner shows that room is loading
     expect(view.findComponent({ ref: 'room-loading-spinner' }).exists()).toBeTruthy();
     expect(view.html()).not.toContain('Meeting One');
-    expect(view.html()).not.toContain('Max Doe');
 
     await roomRequest.respondWith({
       status: 200,
@@ -290,7 +287,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
@@ -307,7 +304,6 @@ describe('Room', () => {
     // test if room is shown and spinner hidden
     expect(view.findComponent({ ref: 'room-loading-spinner' }).exists()).toBeFalsy();
     expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('Max Doe');
 
     // test if room name is shown in the title
     expect(document.title).toBe('Meeting One - PILOS');
@@ -333,6 +329,7 @@ describe('Room', () => {
       propsData: {
         id: 'abc-def-456'
       },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       router: routerMock
@@ -347,7 +344,6 @@ describe('Room', () => {
     expect(reloadButton.exists()).toBeTruthy();
     expect(reloadButton.element.disabled).toBeFalsy();
     expect(view.html()).not.toContain('Meeting One');
-    expect(view.html()).not.toContain('Max Doe');
 
     // trigger reload button and reload with valid data
     const roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
@@ -362,7 +358,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
@@ -379,7 +375,6 @@ describe('Room', () => {
     reloadButton = view.findComponent({ ref: 'reload' });
     expect(reloadButton.exists()).toBeFalsy();
     expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('Max Doe');
 
     view.destroy();
   });
@@ -398,6 +393,7 @@ describe('Room', () => {
       propsData: {
         id: 'abc-def-123'
       },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
       attachTo: createContainer()
@@ -428,7 +424,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: false,
           allow_membership: false,
@@ -450,6 +446,7 @@ describe('Room', () => {
       propsData: {
         id: 'abc-def-456'
       },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       router: routerMock
@@ -471,7 +468,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -491,10 +488,7 @@ describe('Room', () => {
       propsData: {
         id: 'abc-def-789'
       },
-      stubs: {
-        'tabs-component': true,
-        'room-invitation': true
-      },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
       router: routerMock,
       attachTo: createContainer()
@@ -503,23 +497,21 @@ describe('Room', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    await view.vm.$nextTick();
     expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('Max Doe');
 
+    // Check if invitation component is not shown
     const invitationComponent = view.findComponent({ ref: 'room-invitation' });
     expect(invitationComponent.exists()).toBeFalsy();
 
+    // Check if join button is disabled as long as no name is entered
     const joinButton = view.findComponent({ ref: 'joinMeeting' });
     const nameInput = view.findComponent({ ref: 'guestName' });
     expect(joinButton.attributes('disabled')).toEqual('disabled');
+
+    // Check if join button is shown if name is entered
     nameInput.setValue('John Doe');
     await view.vm.$nextTick();
     expect(joinButton.attributes('disabled')).toBeUndefined();
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
-    await view.vm.$nextTick();
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
 
     view.destroy();
   });
@@ -533,7 +525,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -554,10 +546,7 @@ describe('Room', () => {
       propsData: {
         id: 'cba-fed-123'
       },
-      stubs: {
-        'tabs-component': true,
-        'room-invitation': true
-      },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer()
@@ -567,20 +556,76 @@ describe('Room', () => {
     await view.vm.$nextTick();
 
     expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('Max Doe');
 
+    // Check if invitation component is shown
     const invitationComponent = view.findComponent({ ref: 'room-invitation' });
     expect(invitationComponent.exists()).toBeTruthy();
-    expect(invitationComponent.props('name')).toBe('Meeting One');
-    expect(invitationComponent.props('id')).toBe('cba-fed-123');
-    expect(invitationComponent.props('accessCode')).toBe(123456789);
+    expect(invitationComponent.props('room').id).toBe('cba-fed-123');
 
-    const adminComponent = view.findComponent(AdminTabsComponent);
-    expect(adminComponent.exists()).toBeFalsy();
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
+    view.destroy();
+  });
+
+  it('room tabs component', async () => {
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/gs4-6fb-kk8').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'gs4-6fb-kk8',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'gs4-6fb-kk8'
+      },
+      stubs,
+      router: routerMock,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
+
+    const tabsComponent = view.findComponent({ name: 'TabsComponent' });
+
+    // room is passed to tabs component
+    expect(tabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+
+    // handle invalid code error
+    tabsComponent.vm.$emit('invalid-code');
+    expect(handleInvalidCode).toBeCalledTimes(1);
+
+    // handle guests not allowed error
+    tabsComponent.vm.$emit('guests-not-allowed');
+    expect(handleGuestsNotAllowed).toBeCalledTimes(1);
+
+    // handle invalid token error
+    tabsComponent.vm.$emit('invalid-token');
+    expect(handleInvalidToken).toBeCalledTimes(1);
+
     view.destroy();
   });
 
@@ -597,12 +642,10 @@ describe('Room', () => {
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
-      stubs: {
-        'tabs-component': true
-      },
+      stubs,
       data () {
         return {
-          accessCode: '905992606'
+          accessCode: 905992606
         };
       }
     });
@@ -617,7 +660,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -636,7 +679,7 @@ describe('Room', () => {
     expect(tabsComponent.exists()).toBeTruthy();
 
     expect(tabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
-    expect(tabsComponent.props('accessCode')).toEqual('905992606');
+    expect(tabsComponent.props('accessCode')).toEqual(905992606);
 
     view.destroy();
   });
@@ -650,7 +693,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -673,9 +716,7 @@ describe('Room', () => {
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
-      stubs: {
-        'tabs-component': true
-      }
+      stubs
     });
 
     await mockAxios.wait();
@@ -700,7 +741,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -722,9 +763,7 @@ describe('Room', () => {
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
-      stubs: {
-        'tabs-component': true
-      }
+      stubs
     });
 
     await mockAxios.wait();
@@ -739,6 +778,87 @@ describe('Room', () => {
     view.destroy();
   });
 
+  it('room admin tabs component', async () => {
+    mockAxios.request('/api/v1/rooms/gs4-6fb-kk8').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'gs4-6fb-kk8',
+          name: 'Meeting One',
+          owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: true,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        id: 'gs4-6fb-kk8'
+      },
+      stubs,
+      router: routerMock,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const adminTabsComponent = view.findComponent({ name: 'AdminTabsComponent' });
+
+    // room is passed to tabs component
+    expect(adminTabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+
+    const request = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8');
+
+    // handle settings-changed event
+    adminTabsComponent.vm.$emit('settings-changed');
+
+    await request.wait();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 'gs4-6fb-kk8',
+          name: 'Meeting Two',
+          owner: { id: 2, name: 'John Doe' },
+          last_meeting: null,
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+          model_name: 'Room',
+          authenticated: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: true,
+          is_moderator: false,
+          can_start: true,
+          access_code: 123456789,
+          current_user: exampleUser
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    // check if room name is updated
+    expect(view.html()).toContain('Meeting Two');
+
+    view.destroy();
+  });
+
   it('room admin tabs components for owner', async () => {
     mockAxios.request('/api/v1/rooms/gs4-6fb-kk8').respondWith({
       status: 200,
@@ -748,7 +868,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -766,10 +886,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'admin-tabs-component': true,
-        'room-invitation': true
-      },
+      stubs,
       propsData: {
         id: 'gs4-6fb-kk8'
       },
@@ -781,23 +898,11 @@ describe('Room', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('John Doe');
-
-    const invitationComponent = view.findComponent({ ref: 'room-invitation' });
-    expect(invitationComponent.exists()).toBeTruthy();
-    expect(invitationComponent.props('name')).toBe('Meeting One');
-    expect(invitationComponent.props('id')).toBe('gs4-6fb-kk8');
-    expect(invitationComponent.props('accessCode')).toBe(123456789);
-
     const adminComponent = view.findComponent(AdminTabsComponent);
 
     expect(adminComponent.exists()).toBeTruthy();
 
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
-    await view.vm.$nextTick();
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
+    expect(adminComponent.props('room').id).toEqual('gs4-6fb-kk8');
 
     view.destroy();
   });
@@ -811,7 +916,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -829,10 +934,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'admin-tabs-component': true,
-        'room-invitation': true
-      },
+      stubs,
       propsData: {
         id: 'gs4-6fb-kk8'
       },
@@ -843,22 +945,12 @@ describe('Room', () => {
 
     await mockAxios.wait();
     await view.vm.$nextTick();
-    expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('John Doe');
-
-    const invitationComponent = view.findComponent({ ref: 'room-invitation' });
-    expect(invitationComponent.exists()).toBeTruthy();
-    expect(invitationComponent.props('name')).toBe('Meeting One');
-    expect(invitationComponent.props('id')).toBe('gs4-6fb-kk8');
-    expect(invitationComponent.props('accessCode')).toBeNull();
 
     const adminComponent = view.findComponent(AdminTabsComponent);
+
     expect(adminComponent.exists()).toBeTruthy();
 
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
-    await view.vm.$nextTick();
-    expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
+    expect(adminComponent.props('room').id).toEqual('gs4-6fb-kk8');
 
     view.destroy();
   });
@@ -872,7 +964,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -890,10 +982,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'admin-tabs-component': true,
-        'tabs-component': true
-      },
+      stubs,
       propsData: {
         id: 'gs4-6fb-kk8'
       },
@@ -905,9 +994,6 @@ describe('Room', () => {
     const authStore = useAuthStore();
     await mockAxios.wait();
     await view.vm.$nextTick();
-
-    expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('John Doe');
 
     expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
     expect(view.findComponent(TabsComponent).exists()).toBeTruthy();
@@ -926,6 +1012,9 @@ describe('Room', () => {
   it('reload', async () => {
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    const currentRoomChangedEventSpy = vi.fn();
+    EventBus.on(EVENT_CURRENT_ROOM_CHANGED, currentRoomChangedEventSpy);
+
     const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
     const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
     const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
@@ -938,7 +1027,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -957,9 +1046,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'admin-tabs-component': true
-      },
+      stubs,
       propsData: {
         id: 'cba-fed-234'
       },
@@ -972,7 +1059,10 @@ describe('Room', () => {
     await view.vm.$nextTick();
 
     expect(view.html()).toContain('Meeting One');
-    expect(view.html()).toContain('John Doe');
+
+    const details = view.findComponent({ name: 'RoomDetailsComponent' });
+    expect(details.exists()).toBeTruthy();
+    expect(details.props('room').name).toEqual('Meeting One');
 
     // test if room name is shown in the title
     expect(document.title).toBe('Meeting One - PILOS');
@@ -991,7 +1081,7 @@ describe('Room', () => {
           name: 'Meeting Two',
           owner: { id: 1, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -1006,8 +1096,13 @@ describe('Room', () => {
     });
     expect(view.html()).toContain('Meeting Two');
 
+    expect(details.props('room').name).toEqual('Meeting Two');
+
     // test if room name is updated in the title
     expect(document.title).toBe('Meeting Two - PILOS');
+
+    // test if currentRoomChangedEvent is emitted
+    expect(currentRoomChangedEventSpy).toBeCalledTimes(1);
 
     // test reload with room not found
     request = mockAxios.request('/api/v1/rooms/cba-fed-234');
@@ -1074,7 +1169,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: 'John Doe',
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: false,
           allow_membership: false,
@@ -1100,6 +1195,7 @@ describe('Room', () => {
           accessCode: 123456789
         };
       },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -1130,7 +1226,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
@@ -1155,9 +1251,7 @@ describe('Room', () => {
         id: 'abc-def-789',
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
       },
-      stubs: {
-        'tabs-component': true
-      },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
       attachTo: createContainer()
     });
@@ -1183,7 +1277,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: 'John Doe',
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: false,
           allow_membership: false,
@@ -1206,6 +1300,7 @@ describe('Room', () => {
       propsData: {
         id: 'abc-def-456'
       },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer()
     });
@@ -1218,7 +1313,7 @@ describe('Room', () => {
     expect(view.html()).toContain('rooms.require_access_code');
 
     // click on the login button without input to access code field
-    const loginButton = view.findAllComponents(BButton).at(2);
+    const loginButton = view.findAllComponents(BButton).at(1);
     expect(loginButton.text()).toBe('rooms.login');
 
     const request = mockAxios.request('/api/v1/rooms/abc-def-456');
@@ -1254,7 +1349,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: 'John Doe',
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: false,
           allow_membership: false,
@@ -1273,47 +1368,6 @@ describe('Room', () => {
     view.destroy();
   });
 
-  it('handle tab component errors', async () => {
-    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
-    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
-    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
-    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
-    const toastErrorSpy = vi.fn();
-    mockAxios.request('/api/v1/rooms/abc-def-789');
-
-    const view = mount(RoomView, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        toastError: toastErrorSpy
-      },
-      propsData: {
-        id: 'abc-def-789'
-      },
-      router: routerMock,
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-      attachTo: createContainer()
-    });
-
-    view.vm.onTabComponentError({ response: { status: 401, data: { message: 'invalid_code' } } });
-    expect(handleInvalidCode).toBeCalledTimes(1);
-
-    view.vm.onTabComponentError({ response: { status: 403, data: { message: 'require_code' } } });
-    expect(handleInvalidCode).toBeCalledTimes(2);
-
-    view.vm.onTabComponentError({ response: { status: 403, data: { message: 'guests_not_allowed' } } });
-    expect(handleGuestsNotAllowed).toBeCalledTimes(1);
-
-    view.vm.onTabComponentError({ response: { status: 401, data: { message: 'invalid_token' } } });
-    expect(handleInvalidToken).toBeCalledTimes(1);
-
-    view.vm.onTabComponentError({ response: { status: 500, data: { message: 'Internal server error' } } });
-    expect(baseError).toBeCalledTimes(1);
-    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
-
-    view.destroy();
-  });
-
   it('join running meeting', async () => {
     const oldWindow = window.location;
     delete window.location;
@@ -1326,7 +1380,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -1345,9 +1399,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -1402,7 +1454,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -1421,9 +1473,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -1473,7 +1523,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -1492,9 +1542,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -1580,7 +1628,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -1599,9 +1647,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -1609,7 +1655,7 @@ describe('Room', () => {
       attachTo: createContainer(),
       data () {
         return {
-          accessCode: '905992606'
+          accessCode: 905992606
         };
       }
     });
@@ -1690,7 +1736,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
@@ -1710,9 +1756,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789',
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
@@ -1765,7 +1809,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28', end: null },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           short_description: null,
           is_favorite: false,
@@ -1786,9 +1830,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -1903,7 +1945,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: { start: '2023-08-21 08:18:28', end: '2023-08-21 08:18:30' },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           short_description: null,
           is_favorite: false,
@@ -1936,7 +1978,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -1955,9 +1997,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -2011,7 +2051,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -2030,9 +2070,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -2081,7 +2119,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -2100,9 +2138,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -2177,16 +2213,6 @@ describe('Room', () => {
     const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
     const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
 
-    const tabsComponentReloadSpy = vi.fn();
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: tabsComponentReloadSpy
-      }
-    };
-
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const toastErrorSpy = vi.fn();
@@ -2198,7 +2224,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -2218,9 +2244,7 @@ describe('Room', () => {
         $t: (key) => key,
         toastError: toastErrorSpy
       },
-      stubs: {
-        'tabs-component': tabsComponent
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -2339,7 +2363,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -2352,8 +2376,6 @@ describe('Room', () => {
         }
       }
     });
-
-    expect(tabsComponentReloadSpy).toBeCalledTimes(1);
 
     view.destroy();
   });
@@ -2370,7 +2392,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 2, name: 'Max Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -2389,9 +2411,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       propsData: {
         id: 'abc-def-789'
       },
@@ -2399,7 +2419,7 @@ describe('Room', () => {
       attachTo: createContainer(),
       data () {
         return {
-          accessCode: '905992606'
+          accessCode: 905992606
         };
       }
     });
@@ -2452,7 +2472,7 @@ describe('Room', () => {
           name: 'Meeting One',
           last_meeting: null,
           owner: { id: 2, name: 'Max Doe' },
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           username: 'John Doe',
@@ -2472,9 +2492,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'file-component': true
-      },
+      stubs,
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialStateNoUser), stubActions: false }),
       attachTo: createContainer(),
       propsData: {
@@ -2518,34 +2536,29 @@ describe('Room', () => {
     view.destroy();
   });
 
-  it('end membership', async () => {
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: vi.fn()
-      }
+  it('membership dropdown button', async () => {
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
+
+    const room = {
+      id: 'cba-fed-123',
+      name: 'Meeting One',
+      owner: { id: 2, name: 'Max Doe' },
+      last_meeting: null,
+      type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+      model_name: 'Room',
+      authenticated: true,
+      allow_membership: false,
+      is_member: true,
+      is_co_owner: false,
+      is_moderator: false,
+      can_start: true,
+      current_user: exampleUser
     };
+
     mockAxios.request('/api/v1/rooms/cba-fed-123').respondWith({
       status: 200,
       data: {
-        data: {
-          id: 'cba-fed-123',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: false,
-          is_member: true,
-          is_co_owner: false,
-          is_moderator: false,
-          can_start: true,
-          access_code: 123456789,
-          current_user: exampleUser
-        }
+        data: { ...room, is_member: true }
       }
     });
 
@@ -2560,118 +2573,107 @@ describe('Room', () => {
         modalStatic: true,
         id: 'cba-fed-123'
       },
-      stubs: {
-        'tabs-component': tabsComponent,
-        transition: false
-      }
+      data () {
+        return {
+          accessCode: 123456789
+        };
+      },
+      stubs
     });
 
     await mockAxios.wait();
     await view.vm.$nextTick();
-    // find confirm modal and check if it is hidden
-    const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
-    expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
-    // click button to leave membership
 
-    await waitModalShown(view, () => {
-      view.find('#leave-membership-button').trigger('click');
-    });
+    // Find the room membership dropdown button
+    const roomMembershipDropdownButton = view.findComponent({ name: 'RoomMembershipDropdownButton' });
 
-    // wait until modal is open
-    await view.vm.$nextTick();
+    // Check if the membership is correctly passed as prop
+    expect(roomMembershipDropdownButton.props('room').is_member).toBeTruthy();
 
-    // confirm modal is shown
-    expect(leaveMembershipModal.vm.$data.isVisible).toBe(true);
+    let reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
 
-    // find the confirm button and click it
-    const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
-    expect(leaveConfirmButton.text()).toBe('rooms.end_membership.yes');
-
-    const leaveRequest = mockAxios.request('/api/v1/rooms/cba-fed-123/membership');
-
-    await waitModalHidden(view, () => {
-      leaveConfirmButton.trigger('click');
-    });
-    // check if modal is closed
-    await view.vm.$nextTick();
-
-    // check if the modal is hidden
-    expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
-
-    // check leave membership request
-    await leaveRequest.wait();
-    expect(leaveRequest.config.method).toEqual('delete');
-
-    const reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
-
-    // respond to leave membership request
-    await leaveRequest.respondWith({
-      status: 204,
-      data: {}
-    });
+    // Trigger event on successful leave membership
+    roomMembershipDropdownButton.vm.$emit('removed');
 
     // response for room reload, now with the user not being a member anymore
     await reloadRequest.wait();
-
-    // respond to leave membership request
     await reloadRequest.respondWith({
       status: 200,
       data: {
-        data: {
-          id: 'cba-fed-123',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: false,
-          is_member: false,
-          is_co_owner: false,
-          is_moderator: false,
-          can_start: true,
-          access_code: 123456789,
-          current_user: exampleUser
-        }
+        data: { ...room, is_member: false }
       }
     });
 
-    // check if the leave membership button is not shown anymore, as the user is no longer a member
-    expect(view.find('#leave-membership-button').exists()).toBeFalsy();
+    // check if the prop is updated
+    expect(roomMembershipDropdownButton.props('room').is_member).toBeFalsy();
+
+    // Trigger event on error while attempting to join membership due to invalid code
+    expect(handleInvalidCode).toBeCalledTimes(0);
+
+    roomMembershipDropdownButton.vm.$emit('invalid-code');
+
+    // Check if invalid code handler is called
+    expect(handleInvalidCode).toBeCalledTimes(1);
+
+    // Trigger event on error while attempting to join membership due to invalid code
+    reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
+
+    roomMembershipDropdownButton.vm.$emit('membership-disabled');
+
+    // response for room reload to check the membership allowed state
+    await reloadRequest.wait();
+    await reloadRequest.respondWith({
+      status: 200,
+      data: {
+        data: { ...room, is_member: false }
+      }
+    });
+
+    // Trigger event on successful join membership
+    reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
+    roomMembershipDropdownButton.vm.$emit('added');
+
+    await reloadRequest.wait();
+
+    // Check if access code is reset after joining membership and not used for the next request
+    expect(view.vm.$data.accessCode).toEqual(null);
+    expect(reloadRequest.config.headers['Access-Code']).toBeUndefined();
+
+    await reloadRequest.respondWith({
+      status: 200,
+      data: {
+        data: { ...room, is_member: true }
+      }
+    });
+
+    // check if the prop is updated
+    expect(roomMembershipDropdownButton.props('room').is_member).toBeTruthy();
 
     view.destroy();
   });
 
-  it('end membership error', async () => {
-    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
-
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: vi.fn()
-      }
+  it('favorites dropdown button', async () => {
+    const room = {
+      id: 'cba-fed-123',
+      name: 'Meeting One',
+      owner: { id: 2, name: 'Max Doe' },
+      last_meeting: null,
+      type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+      model_name: 'Room',
+      authenticated: true,
+      allow_membership: false,
+      is_member: true,
+      is_co_owner: false,
+      is_moderator: false,
+      is_favorite: false,
+      can_start: true,
+      current_user: exampleUser
     };
+
     mockAxios.request('/api/v1/rooms/cba-fed-123').respondWith({
       status: 200,
       data: {
-        data: {
-          id: 'cba-fed-123',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: false,
-          is_member: true,
-          is_co_owner: false,
-          is_moderator: false,
-          can_start: true,
-          access_code: 123456789,
-          current_user: exampleUser
-        }
+        data: { ...room, is_favorite: false }
       }
     });
 
@@ -2686,496 +2688,40 @@ describe('Room', () => {
         modalStatic: true,
         id: 'cba-fed-123'
       },
-      stubs: {
-        'tabs-component': tabsComponent,
-        transition: false
-      }
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    // find confirm modal and check if it is hidden
-    const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
-    expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
-    // click button to leave membership
-
-    await waitModalShown(view, () => {
-      view.find('#leave-membership-button').trigger('click');
-    });
-
-    // wait until modal is open
-    await view.vm.$nextTick();
-
-    // confirm modal is shown
-    expect(leaveMembershipModal.vm.$data.isVisible).toBe(true);
-
-    // find the confirm button and click it
-    const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
-    expect(leaveConfirmButton.text()).toBe('rooms.end_membership.yes');
-
-    const leaveRequest = mockAxios.request('/api/v1/rooms/cba-fed-123/membership');
-
-    await waitModalHidden(view, () => {
-      leaveConfirmButton.trigger('click');
-    });
-
-    await view.vm.$nextTick();
-
-    // check if the modal is hidden
-    expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
-
-    // check leave membership request
-    await leaveRequest.wait();
-    expect(leaveRequest.config.method).toEqual('delete');
-
-    const reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
-
-    // respond to leave membership test with error
-    await leaveRequest.respondWith({
-      status: 500,
-      data: {
-        message: 'Test'
-      }
-    });
-
-    expect(baseError).toBeCalledTimes(1);
-
-    // response for room reload, with the user still being a member
-    await reloadRequest.wait();
-
-    // respond to reload request
-    await reloadRequest.respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'cba-fed-123',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: false,
-          is_member: true,
-          is_co_owner: false,
-          is_moderator: false,
-          can_start: true,
-          access_code: 123456789,
-          current_user: exampleUser
-        }
-      }
-    });
-    // check if the leave membership button is still shown
-    expect(view.find('#leave-membership-button').exists()).toBeTruthy();
-
-    view.destroy();
-  });
-
-  it('join membership', async () => {
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: vi.fn()
-      }
-    };
-
-    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'abc-def-456',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: true,
-          is_member: false,
-          is_owner: false,
-          is_guest: false,
-          is_moderator: false,
-          can_start: false,
-          current_user: exampleUser
-        }
-      }
-    });
-
-    const view = mount(RoomView, {
-      localVue,
-      mocks: {
-        $t: (key) => key
+      data () {
+        return {
+          accessCode: 123456789
+        };
       },
-      propsData: {
-        id: 'abc-def-456'
-      },
-      stubs: {
-        'tabs-component': tabsComponent
-      },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-      attachTo: createContainer(),
-      router: routerMock
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    // find join membership button
-    let joinMembershipButton = view.find('#join-membership-button');
-    expect(joinMembershipButton.exists()).toBeTruthy();
-    expect(joinMembershipButton.html()).toContain('fa-user-plus');
-
-    // trigger join membership button
-    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
-
-    await joinMembershipButton.trigger('click');
-    await joinMembershipRequest.wait();
-    expect(joinMembershipRequest.config.method).toEqual('post');
-    expect(joinMembershipButton.html()).not.toContain('fa-user-plus');
-
-    const reloadRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
-
-    // respond to join membership request
-    await joinMembershipRequest.respondWith({
-      status: 204,
-      data: {}
-    });
-
-    // response for room reload, now with the user being a member
-    await reloadRequest.wait();
-
-    await reloadRequest.respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'abc-def-456',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: true,
-          is_member: true,
-          is_owner: false,
-          is_guest: false,
-          is_moderator: false,
-          can_start: false,
-          current_user: exampleUser
-        }
-      }
-    });
-
-    // check if the join button is not shown anymore
-    joinMembershipButton = view.find('#join-membership-button');
-    expect(joinMembershipButton.exists()).toBeFalsy();
-
-    view.destroy();
-  });
-
-  it('join membership invalid code', async () => {
-    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
-
-    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'abc-def-456',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: true,
-          is_member: false,
-          is_owner: false,
-          is_guest: false,
-          is_moderator: false,
-          can_start: false,
-          current_user: exampleUser
-        }
-      }
-    });
-
-    const view = mount(RoomView, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        id: 'abc-def-456'
-      },
-      stubs: {
-        'tabs-component': true
-      },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-      attachTo: createContainer(),
-      router: routerMock
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    const joinMembershipButton = view.find('#join-membership-button');
-
-    // trigger join membership button
-    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
-
-    await joinMembershipButton.trigger('click');
-    await joinMembershipRequest.wait();
-    expect(joinMembershipRequest.config.method).toEqual('post');
-
-    // respond to join membership request
-    await joinMembershipRequest.respondWith({
-      status: 401,
-      data: {
-        message: 'invalid_code'
-      }
-    });
-
-    expect(handleInvalidCode).toBeCalledTimes(1);
-
-    view.destroy();
-  });
-
-  it('join membership error', async () => {
-    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
-
-    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'abc-def-456',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: true,
-          is_member: false,
-          is_owner: false,
-          is_guest: false,
-          is_moderator: false,
-          can_start: false,
-          current_user: exampleUser
-        }
-      }
-    });
-
-    const view = mount(RoomView, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        id: 'abc-def-456'
-      },
-      stubs: {
-        'tabs-component': true
-      },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-      attachTo: createContainer(),
-      router: routerMock
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    const joinMembershipButton = view.find('#join-membership-button');
-
-    // trigger join membership button
-    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
-
-    await joinMembershipButton.trigger('click');
-    await joinMembershipRequest.wait();
-    expect(joinMembershipRequest.config.method).toEqual('post');
-
-    // respond to join membership request
-    await joinMembershipRequest.respondWith({
-      status: 500,
-      data: {
-        message: 'Test'
-      }
-    });
-    expect(baseError).toBeCalledTimes(1);
-    view.destroy();
-  });
-
-  it('join membership forbidden', async () => {
-    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
-
-    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'abc-def-456',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          authenticated: true,
-          allow_membership: true,
-          is_member: false,
-          is_owner: false,
-          is_guest: false,
-          is_moderator: false,
-          can_start: false,
-          current_user: exampleUser
-        }
-      }
-    });
-
-    const view = mount(RoomView, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        id: 'abc-def-456'
-      },
-      stubs: {
-        'tabs-component': true
-      },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-      attachTo: createContainer(),
-      router: routerMock
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    let joinMembershipButton = view.find('#join-membership-button');
-
-    // trigger join membership button
-    const joinMembershipRequest = mockAxios.request('/api/v1/rooms/abc-def-456/membership');
-
-    await joinMembershipButton.trigger('click');
-    await joinMembershipRequest.wait();
-    expect(joinMembershipRequest.config.method).toEqual('post');
-
-    // respond to join membership request
-    await joinMembershipRequest.respondWith({
-      status: 403,
-      data: {
-        message: 'Test'
-      }
-    });
-
-    expect(view.vm.$data.allow_membership).toBeFalsy();
-    joinMembershipButton = view.find('#join-membership-button');
-    expect(joinMembershipButton.exists()).toBeFalsy();
-    expect(baseError).toBeCalledTimes(1);
-
-    view.destroy();
-  });
-
-  it('trigger favorites', async () => {
-    const tabsComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: vi.fn()
-      }
-    };
-
-    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
-      status: 200,
-      data: {
-        data: {
-          id: 'abc-def-456',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          is_favorite: false,
-          authenticated: true,
-          allow_membership: false,
-          is_member: false,
-          is_owner: false,
-          is_guest: false,
-          is_moderator: false,
-          can_start: false,
-          current_user: exampleUser
-        }
-      }
-    });
-
-    const view = mount(RoomView, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        id: 'abc-def-456'
-      },
-      stubs: {
-        'tabs-component': tabsComponent
-      },
-      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
-      attachTo: createContainer(),
-      router: routerMock
+      stubs
     });
 
     await mockAxios.wait();
     await view.vm.$nextTick();
 
     // find room favorite component
-    const roomFavoriteComponent = view.findComponent(RoomFavoriteComponent);
+    const roomFavoriteDropdownButton = view.findComponent({ name: 'RoomFavoriteDropdownButton' });
+
+    // Check if the membership is correctly passed as prop
+    expect(roomFavoriteDropdownButton.props('room').is_favorite).toBeFalsy();
+
+    const roomRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
 
     // fire event
-    let roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
-    roomFavoriteComponent.vm.$emit('favorites_changed');
+    roomFavoriteDropdownButton.vm.$emit('favorites-changed');
     await roomRequest.wait();
 
     await roomRequest.respondWith({
       status: 200,
       data: {
-        data: {
-          id: 'abc-def-456',
-          name: 'Meeting One',
-          owner: { id: 2, name: 'Max Doe' },
-          last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
-          model_name: 'Room',
-          is_favorite: true,
-          authenticated: true,
-          allow_membership: false,
-          is_member: false,
-          is_owner: false,
-          is_guest: false,
-          is_moderator: false,
-          can_start: false,
-          current_user: exampleUser
-        }
+        data: { ...room, is_favorite: true }
       }
     });
-
-    // fire event again
-    roomRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
-    roomFavoriteComponent.vm.$emit('favorites_changed');
-    await roomRequest.wait();
 
     view.destroy();
   });
 
   it('logged in status change', async () => {
-    const tabsComponent = {
-      name: 'TabsComponent',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: vi.fn()
-      }
-    };
-
     mockAxios.request('/api/v1/rooms/cba-fed-234').respondWith({
       status: 200,
       data: {
@@ -3184,7 +2730,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -3202,10 +2748,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'admin-tabs-component': true,
-        'tabs-component': tabsComponent
-      },
+      stubs,
       propsData: {
         id: 'cba-fed-234'
       },
@@ -3216,8 +2759,8 @@ describe('Room', () => {
 
     await mockAxios.wait();
     await view.vm.$nextTick();
-    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeTruthy();
-    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'AdminTabsComponent' }).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'TabsComponent' }).exists()).toBeFalsy();
 
     let reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
 
@@ -3233,7 +2776,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -3249,8 +2792,8 @@ describe('Room', () => {
     const authStore = useAuthStore();
 
     await view.vm.$nextTick();
-    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeFalsy();
-    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'AdminTabsComponent' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'TabsComponent' }).exists()).toBeTruthy();
 
     expect(authStore.isAuthenticated).toBeFalsy();
 
@@ -3266,7 +2809,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -3281,8 +2824,8 @@ describe('Room', () => {
     });
     await view.vm.$nextTick();
     expect(authStore.isAuthenticated).toBeTruthy();
-    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeTruthy();
-    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'AdminTabsComponent' }).exists()).toBeTruthy();
+    expect(view.findComponent({ name: 'TabsComponent' }).exists()).toBeFalsy();
 
     reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
 
@@ -3293,8 +2836,8 @@ describe('Room', () => {
       data: { message: 'guests_not_allowed' }
     });
 
-    expect(view.findComponent({ name: 'admin-tabs-component' }).exists()).toBeFalsy();
-    expect(view.findComponent({ name: 'tabs-component' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'AdminTabsComponent' }).exists()).toBeFalsy();
+    expect(view.findComponent({ name: 'TabsComponent' }).exists()).toBeFalsy();
     expect(authStore.isAuthenticated).toBeFalsy();
     view.destroy();
   });
@@ -3308,7 +2851,7 @@ describe('Room', () => {
           name: 'Meeting One',
           owner: { id: 1, name: 'John Doe' },
           last_meeting: null,
-          type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+          type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
           allow_membership: false,
@@ -3326,9 +2869,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      stubs: {
-        'admin-tabs-component': true
-      },
+      stubs,
       propsData: {
         id: 'cba-fed-234'
       },
