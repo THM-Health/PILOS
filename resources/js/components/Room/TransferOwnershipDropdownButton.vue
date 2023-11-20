@@ -1,14 +1,13 @@
 <template>
   <div>
-    <b-button
-      variant="warning"
-      v-b-tooltip.hover
-      v-tooltip-hide-click
-      :title="$t('rooms.modals.transfer_ownership.title')"
+    <b-dropdown-item-button
       @click="showTransferOwnershipModal"
     >
-      <i class="fa-solid fa-user-gear"></i>
-    </b-button>
+      <div class="d-flex align-items-baseline">
+        <i class="fa-solid fa-user-gear" />
+        <span>{{ $t('rooms.modals.transfer_ownership.title') }}</span>
+      </div>
+    </b-dropdown-item-button>
 
     <!--transfer ownership modal-->
     <b-modal
@@ -91,7 +90,7 @@ import env from '../../env';
 import { mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 export default {
-  name: 'TransferOwnershipComponent',
+  name: 'TransferOwnershipDropdownButton',
 
   mixins: [FieldErrors],
   components: { Multiselect },

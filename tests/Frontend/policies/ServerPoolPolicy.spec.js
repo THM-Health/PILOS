@@ -1,4 +1,4 @@
-import ServerPoolPolicy from '../../../resources/js/policies/ServerPoolPolicy';
+import ServerPoolPolicy from '@/policies/ServerPoolPolicy';
 
 describe('ServerPoolPolicy', () => {
   it('viewAny returns true if the user has the permission to view any Server Pools', async () => {

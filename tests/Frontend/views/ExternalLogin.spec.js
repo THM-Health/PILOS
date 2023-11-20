@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BCard } from 'bootstrap-vue';
 
-import ExternalLogin from '../../../resources/js/views/ExternalLogin.vue';
+import ExternalLogin from '@/views/ExternalLogin.vue';
 import VueRouter from 'vue-router';
 import { mockAxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';

@@ -1,6 +1,6 @@
-import ActionsColumn from '../../../resources/js/mixins/ActionsColumn';
+import ActionsColumn from '@/mixins/ActionsColumn';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 import { nextTick } from 'vue';
 
 describe('ActionsColumn', () => {

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import TextTruncate from '../../../resources/js/components/TextTruncate.vue';
+import TextTruncate from '@/components/TextTruncate.vue';
 import { createContainer, createLocalVue } from '../helper';
 
 const localVue = createLocalVue();

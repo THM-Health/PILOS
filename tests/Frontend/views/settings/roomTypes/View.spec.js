@@ -1,6 +1,6 @@
-import View from '../../../../../resources/js/views/settings/roomTypes/View.vue';
+import View from '@/views/settings/roomTypes/View.vue';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 
 import BootstrapVue, {
 
@@ -9,9 +9,9 @@ import BootstrapVue, {
   BButton, BForm, BFormInvalidFeedback, BModal
 } from 'bootstrap-vue';
 import VSwatches from 'vue-swatches';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import VueRouter from 'vue-router';
-import env from '../../../../../resources/js/env';
+import env from '@/env';
 import _ from 'lodash';
 import { Multiselect } from 'vue-multiselect';
 import { mockAxios, createLocalVue } from '../../../helper';
@@ -30,7 +30,6 @@ describe('RoomTypeView', () => {
     const roomTypeResponse = {
       data: {
         id: 1,
-        short: 'ME',
         color: '#333333',
         description: 'Meeting',
         model_name: 'RoomType',
@@ -340,7 +339,6 @@ describe('RoomTypeView', () => {
       data: {
         data: {
           id: 1,
-          short: 'ME',
           color: '#333333',
           description: 'Meeting',
           model_name: 'RoomType',
@@ -552,8 +550,7 @@ describe('RoomTypeView', () => {
     const inputs = view.findAllComponents(BFormInput).wrappers;
 
     await inputs[0].setValue('Meeting');
-    await inputs[1].setValue('ME');
-    await inputs[2].setValue('#333333');
+    await inputs[1].setValue('#333333');
     await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
 
     const request = mockAxios.request('/api/v1/roomTypes/1');
@@ -564,7 +561,6 @@ describe('RoomTypeView', () => {
     const data = JSON.parse(request.config.data);
 
     expect(data.description).toBe('Meeting');
-    expect(data.short).toBe('ME');
     expect(data.color).toBe('#333333');
     expect(data.server_pool).toBe(2);
 
@@ -574,7 +570,6 @@ describe('RoomTypeView', () => {
         message: 'The given data was invalid.',
         errors: {
           description: ['Test description'],
-          short: ['Test short'],
           color: ['Test color']
         }
       }
@@ -582,8 +577,7 @@ describe('RoomTypeView', () => {
 
     const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
     expect(feedback[0].html()).toContain('Test description');
-    expect(feedback[1].html()).toContain('Test short');
-    expect(feedback[2].html()).toContain('Test color');
+    expect(feedback[1].html()).toContain('Test color');
 
     mockAxios.request('/api/v1/roomTypes/1').respondWith({
       status: 204

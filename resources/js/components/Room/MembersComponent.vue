@@ -1,192 +1,256 @@
 <template>
   <div>
-    <b-overlay :show="isBusy" z-index="100">
-    <div class="row">
-      <div class="col-12">
+    <b-overlay
+      :show="isBusy"
+      z-index="100"
+    >
+      <div class="row">
+        <div class="col-12">
+          <b-button-group class="float-lg-right">
+            <can
+              method="manageSettings"
+              :policy="room"
+            >
+              <!-- Add existing user from database -->
+              <b-button
+                ref="add-member"
+                variant="success"
+                :disabled="isBusy"
+                @click="showAddMemberModal"
+              >
+                <i class="fa-solid fa-user-plus" /> {{ $t('rooms.members.add_user') }}
+              </b-button>
 
-        <b-button-group class="float-lg-right">
-          <can method="manageSettings" :policy="room">
-          <!-- Add existing user from database -->
-          <b-button
-            variant="success"
-            :disabled="isBusy"
-            ref="add-member"
-            @click="showAddMemberModal"
-          >
-            <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.add_user') }}
-          </b-button>
+              <!-- Bulk Import -->
+              <bulk-import-members-component
+                ref="import-members"
+                :room-id="room.id"
+                @imported="reload"
+              />
+            </can>
 
-            <!-- Bulk Import -->
-          <bulk-import-members-component ref="import-members" :room-id="room.id" @imported="reload"></bulk-import-members-component>
-
-          </can>
-
-          <!-- Reload members list -->
-          <b-button
-            variant="secondary"
-            @click="reload"
-            :disabled="isBusy"
-            :title="$t('app.reload')"
-            v-b-tooltip.hover
-            v-tooltip-hide-click
-          >
-            <i class="fa-solid fa-sync"></i>
-          </b-button>
-        </b-button-group>
+            <!-- Reload members list -->
+            <b-button
+              v-b-tooltip.hover
+              v-tooltip-hide-click
+              variant="secondary"
+              :disabled="isBusy"
+              :title="$t('app.reload')"
+              @click="reload"
+            >
+              <i class="fa-solid fa-sync" />
+            </b-button>
+          </b-button-group>
+        </div>
       </div>
-    </div>
-    <div class="row pt-4">
-      <div class="col-12">
-        <!-- table with all room members -->
-        <b-table
-          :current-page="currentPage"
-          :per-page="getSetting('pagination_page_size')"
-          :fields="tableFields"
-          :items="members"
-          v-model="displayedMembers"
-          hover
-          ref="membersTable"
-          stacked="lg"
-          show-empty
-          selectable
-          :no-select-on-click="true"
-          @row-selected="onRowsSelected"
-        >
-          <!-- message on no members -->
-          <template v-slot:empty>
-            <i>{{ $t('rooms.members.nodata') }}</i>
-          </template>
+      <div class="row pt-4">
+        <div class="col-12">
+          <!-- table with all room members -->
+          <b-table
+            ref="membersTable"
+            v-model="displayedMembers"
+            :current-page="currentPage"
+            :per-page="getSetting('pagination_page_size')"
+            :fields="tableFields"
+            :items="members"
+            hover
+            stacked="lg"
+            show-empty
+            selectable
+            :no-select-on-click="true"
+            @row-selected="onRowsSelected"
+          >
+            <!-- message on no members -->
+            <template #empty>
+              <i>{{ $t('rooms.members.nodata') }}</i>
+            </template>
 
-          <!-- checkbox in header -->
-          <template #head(selected)>
-            <b-form-checkbox v-if="selectableMembers>0" :checked="selectedMembers.length == selectableMembers && displayedMembers.length > 0" @change="onAllRowsSelected" />
-            <span v-else></span>
-          </template>
+            <!-- checkbox in header -->
+            <template #head(selected)>
+              <b-form-checkbox
+                v-if="selectableMembers>0"
+                :checked="selectedMembers.length == selectableMembers && displayedMembers.length > 0"
+                @change="onAllRowsSelected"
+              />
+              <span v-else />
+            </template>
 
-          <!-- checkbox to select the current row -->
-          <template #cell(selected)="{ item, rowSelected, selectRow, unselectRow }">
-            <b-form-checkbox v-if="currentUser && currentUser.id !== item.id" :checked="rowSelected" @change="rowSelected ? unselectRow() : selectRow() "/>
-          </template>
+            <!-- checkbox to select the current row -->
+            <template #cell(selected)="{ item, rowSelected, selectRow, unselectRow }">
+              <b-form-checkbox
+                v-if="currentUser && currentUser.id !== item.id"
+                :checked="rowSelected"
+                @change="rowSelected ? unselectRow() : selectRow() "
+              />
+            </template>
 
-          <!-- action buttons -->
-          <template v-slot:cell(actions)="data">
-            <b-button-group class="float-md-right" v-if="currentUser && currentUser.id !== data.item.id" >
-              <!-- edit membership role -->
-              <b-button
-                :disabled="isBusy"
-                variant="secondary"
-                @click="showEditMemberModal(data.item)"
-                v-b-tooltip.hover
-                v-tooltip-hide-click
-                :title="$t('rooms.members.edit_user')"
+            <!-- action buttons -->
+            <template #cell(actions)="data">
+              <b-button-group
+                v-if="currentUser && currentUser.id !== data.item.id"
+                class="float-md-right"
               >
-                <i class="fa-solid fa-user-edit"></i>
-              </b-button>
-              <!-- remove member -->
-              <b-button
-                :disabled="isBusy"
+                <!-- edit membership role -->
+                <b-button
+                  v-b-tooltip.hover
+                  v-tooltip-hide-click
+                  :disabled="isBusy"
+                  variant="secondary"
+                  :title="$t('rooms.members.edit_user')"
+                  @click="showEditMemberModal(data.item)"
+                >
+                  <i class="fa-solid fa-user-edit" />
+                </b-button>
+                <!-- remove member -->
+                <b-button
+                  v-b-tooltip.hover
+                  v-tooltip-hide-click
+                  :disabled="isBusy"
+                  variant="danger"
+                  :title="$t('rooms.members.remove_user')"
+                  @click="showRemoveMemberModal(data.item)"
+                >
+                  <i class="fa-solid fa-trash" />
+                </b-button>
+              </b-button-group>
+            </template>
+
+            <!-- render user profile image -->
+            <template #cell(image)="data">
+              <img
+                :src="data.value ? data.value : '/images/default_profile.png'"
+                class="profile-image"
+              >
+            </template>
+
+            <!-- render user role -->
+            <template #cell(role)="data">
+              <b-badge
+                v-if="data.value === 0"
+                variant="info"
+              >
+                {{ $t('rooms.roles.guest') }}
+              </b-badge>
+              <b-badge
+                v-if="data.value === 1"
+                variant="success"
+              >
+                {{ $t('rooms.roles.participant') }}
+              </b-badge>
+              <b-badge
+                v-if="data.value === 2"
                 variant="danger"
-                @click="showRemoveMemberModal(data.item)"
-                v-b-tooltip.hover
-                v-tooltip-hide-click
-                :title="$t('rooms.members.remove_user')"
               >
-                <i class="fa-solid fa-trash"></i>
-              </b-button>
-            </b-button-group>
-          </template>
-
-          <!-- render user profile image -->
-          <template v-slot:cell(image)="data">
-            <img :src="data.value ? data.value : '/images/default_profile.png'" class="profile-image" />
-          </template>
-
-          <!-- render user role -->
-          <template v-slot:cell(role)="data">
-            <b-badge v-if="data.value === 0" variant="info">{{ $t('rooms.roles.guest') }}</b-badge>
-            <b-badge v-if="data.value === 1" variant="success"
-            >{{ $t('rooms.roles.participant') }}
-            </b-badge>
-            <b-badge v-if="data.value === 2" variant="danger"
-            >{{ $t('rooms.roles.moderator') }}
-            </b-badge>
-            <b-badge v-if="data.value === 3" variant="dark"
-            >{{ $t('rooms.roles.co_owner') }}
-            </b-badge>
-          </template>
-
-        </b-table>
-        <b-row>
-          <b-col cols="12" class="my-1">
-            <b-pagination
-              v-model="currentPage"
-              :total-rows="members.length"
-              :per-page="getSetting('pagination_page_size')"
-            ></b-pagination>
-          </b-col>
-        </b-row>
-        <!-- selected rows action buttons -->
-        <b-button-group class="float-md-right" v-if="selectedMembers.length > 0">
+                {{ $t('rooms.roles.moderator') }}
+              </b-badge>
+              <b-badge
+                v-if="data.value === 3"
+                variant="dark"
+              >
+                {{ $t('rooms.roles.co_owner') }}
+              </b-badge>
+            </template>
+          </b-table>
+          <b-row>
+            <b-col
+              cols="12"
+              class="my-1"
+            >
+              <b-pagination
+                v-model="currentPage"
+                :total-rows="members.length"
+                :per-page="getSetting('pagination_page_size')"
+              />
+            </b-col>
+          </b-row>
+          <!-- selected rows action buttons -->
+          <b-button-group
+            v-if="selectedMembers.length > 0"
+            class="float-md-right"
+          >
             <!-- bulk edit membership role -->
             <b-button
+              ref="bulk-edit-members-button"
+              v-b-tooltip.hover
               :disabled="isBusy"
               variant="dark"
-              @click="showBulkEditMemberModal"
-              v-b-tooltip.hover
-              ref="bulk-edit-members-button"
               :title="$t('rooms.members.bulk_edit_user',{numberOfSelectedUsers: selectedMembers.length})"
+              @click="showBulkEditMemberModal"
             >
-              <i class="fas fa-users-cog"></i>
+              <i class="fas fa-users-cog" />
             </b-button>
             <!-- bulk remove member -->
             <b-button
+              ref="bulk-remove-members-button"
+              v-b-tooltip.hover
               :disabled="isBusy"
               variant="danger"
-              @click="showBulkRemoveMemberModal"
-              v-b-tooltip.hover
-              ref="bulk-remove-members-button"
               :title="$t('rooms.members.bulk_remove_user',{numberOfSelectedUsers: selectedMembers.length})"
+              @click="showBulkRemoveMemberModal"
             >
-              <i class="fas fa-users-slash"></i>
+              <i class="fas fa-users-slash" />
             </b-button>
           </b-button-group>
+        </div>
       </div>
-    </div>
-
     </b-overlay>
 
     <!-- Modals -->
 
     <!-- edit user role modal -->
     <b-modal
-      :static='modalStatic'
+      ref="edit-member-modal"
+      :static="modalStatic"
       :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('app.cancel')"
-      @ok="saveEditMember"
-      ref="edit-member-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
+      @ok="saveEditMember"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         <span v-if="editMember">
-        {{ $t('rooms.members.modals.edit.title',{firstname: editMember.firstname,lastname: editMember.lastname}) }}
-          </span>
+          {{ $t('rooms.members.modals.edit.title',{firstname: editMember.firstname,lastname: editMember.lastname}) }}
+        </span>
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.save') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isLoadingAction"
+          small
+        />  {{ $t('app.save') }}
       </template>
       <div v-if="editMember">
-        <b-form-group :label="$t('rooms.role')" v-if="editMember">
-          <b-form-radio v-model.number="editMember.role" name="some-radios" value="1">
-            <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
+        <b-form-group
+          v-if="editMember"
+          :label="$t('rooms.role')"
+        >
+          <b-form-radio
+            v-model.number="editMember.role"
+            name="some-radios"
+            value="1"
+          >
+            <b-badge variant="success">
+              {{ $t('rooms.roles.participant') }}
+            </b-badge>
           </b-form-radio>
-          <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
-            <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
+          <b-form-radio
+            v-model.number="editMember.role"
+            name="some-radios"
+            value="2"
+          >
+            <b-badge variant="danger">
+              {{ $t('rooms.roles.moderator') }}
+            </b-badge>
           </b-form-radio>
-          <b-form-radio v-model.number="editMember.role" name="some-radios" value="3">
-            <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
+          <b-form-radio
+            v-model.number="editMember.role"
+            name="some-radios"
+            value="3"
+          >
+            <b-badge variant="dark">
+              {{ $t('rooms.roles.co_owner') }}
+            </b-badge>
           </b-form-radio>
         </b-form-group>
       </div>
@@ -194,178 +258,272 @@
 
     <!-- bulk edit users role modal -->
     <b-modal
-      :static='modalStatic'
+      ref="bulk-edit-members-modal"
+      :static="modalStatic"
       :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('app.cancel')"
-      @ok="saveBulkEditMembers"
-      ref="bulk-edit-members-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
+      @ok="saveBulkEditMembers"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         <span>
-        {{ $t('rooms.members.modals.edit.title_bulk', {numberOfSelectedUsers: selectedMembers.length}) }}
-          </span>
+          {{ $t('rooms.members.modals.edit.title_bulk', {numberOfSelectedUsers: selectedMembers.length}) }}
+        </span>
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.save') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isLoadingAction"
+          small
+        />  {{ $t('app.save') }}
       </template>
       <div>
-        <b-form-group :state="fieldState('role')" :label="$t('rooms.role')">
-          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="1">
-            <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
+        <b-form-group
+          :state="fieldState('role')"
+          :label="$t('rooms.role')"
+        >
+          <b-form-radio
+            v-model.number="bulkEditRole"
+            :state="fieldState('role')"
+            name="some-radios"
+            value="1"
+          >
+            <b-badge
+              class="text-white"
+              variant="success"
+            >
+              {{ $t('rooms.roles.participant') }}
+            </b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="2">
-            <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
+          <b-form-radio
+            v-model.number="bulkEditRole"
+            :state="fieldState('role')"
+            name="some-radios"
+            value="2"
+          >
+            <b-badge variant="danger">
+              {{ $t('rooms.roles.moderator') }}
+            </b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="3">
-            <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
+          <b-form-radio
+            v-model.number="bulkEditRole"
+            :state="fieldState('role')"
+            name="some-radios"
+            value="3"
+          >
+            <b-badge variant="dark">
+              {{ $t('rooms.roles.co_owner') }}
+            </b-badge>
           </b-form-radio>
 
-          <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
-
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('role')" />
+          </template>
         </b-form-group>
 
-        <b-form-invalid-feedback :force-show="true"><div v-html="fieldError('users',true)"></div></b-form-invalid-feedback>
-
+        <b-form-invalid-feedback :force-show="true">
+          <div v-html="fieldError('users',true)" />
+        </b-form-invalid-feedback>
       </div>
     </b-modal>
 
     <!-- remove user modal -->
     <b-modal
+      ref="remove-member-modal"
       :busy="isLoadingAction"
-      :static='modalStatic'
+      :static="modalStatic"
       ok-variant="danger"
       cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @ok="confirmRemoveMember"
-      ref="remove-member-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
+      @ok="confirmRemoveMember"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('rooms.members.modals.remove.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isLoadingAction"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="removeMember">
         {{ $t('rooms.members.modals.remove.confirm',{firstname: removeMember.firstname,lastname: removeMember.lastname}) }}
       </span>
-
     </b-modal>
 
     <!-- bulk remove user modal -->
     <b-modal
+      ref="bulk-remove-members-modal"
       :busy="isLoadingAction"
-      :static='modalStatic'
+      :static="modalStatic"
       ok-variant="danger"
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
-      @ok="confirmBulkRemoveMember"
-      ref="bulk-remove-members-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
+      @ok="confirmBulkRemoveMember"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('rooms.members.modals.remove.title_bulk', {numberOfSelectedUsers: selectedMembers.length}) }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isLoadingAction"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span>
         {{ $t('rooms.members.modals.remove.confirm_bulk', {numberOfSelectedUsers: selectedMembers.length}) }}
       </span>
 
-      <b-form-invalid-feedback :force-show="true"><div v-html="fieldError('users',true)"></div></b-form-invalid-feedback>
-
+      <b-form-invalid-feedback :force-show="true">
+        <div v-html="fieldError('users',true)" />
+      </b-form-invalid-feedback>
     </b-modal>
 
     <!-- add new user modal -->
     <b-modal
+      ref="add-member-modal"
       :busy="isLoadingAction"
-      :static='modalStatic'
+      :static="modalStatic"
       :ok-disabled="!newMember"
       ok-variant="success"
       :cancel-title="$t('app.cancel')"
-      @ok="saveNewMember"
-      ref="add-member-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
+      @ok="saveNewMember"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('rooms.members.add_user') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.add.add') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isLoadingAction"
+          small
+        />  {{ $t('rooms.members.modals.add.add') }}
       </template>
       <!-- show server validation errors -->
-      <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
+      <b-alert
+        v-if="createError"
+        show
+        variant="danger"
+      >
+        {{ createError }}
+      </b-alert>
       <!-- select user -->
-      <b-form-group :label="$t('app.user')" :state="newMemberValid">
-        <multiselect v-model="newMember"
-                     label="lastname"
-                     track-by="id"
-                     :placeholder="$t('app.user_name')"
-                     open-direction="bottom"
-                     :options="users"
-                     :multiple="false"
-                     :searchable="true"
-                     :loading="isLoadingSearch"
-                     :internal-search="false"
-                     :clear-on-select="false"
-                     :preserveSearch="true"
-                     :close-on-select="true"
-                     :options-limit="300"
-                     :max-height="600"
-                     :show-no-results="true"
-                     :showLabels="false"
-                     @search-change="asyncFind">
-          <template slot="noResult">{{ $t('rooms.members.modals.add.no_result') }}</template>
-          <template slot="noOptions">{{ $t('rooms.members.modals.add.no_options') }}</template>
-          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small></template>
-          <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
+      <b-form-group
+        :label="$t('app.user')"
+        :state="newMemberValid"
+      >
+        <multiselect
+          v-model="newMember"
+          label="lastname"
+          track-by="id"
+          :placeholder="$t('app.user_name')"
+          open-direction="bottom"
+          :options="users"
+          :multiple="false"
+          :searchable="true"
+          :loading="isLoadingSearch"
+          :internal-search="false"
+          :clear-on-select="false"
+          :preserve-search="true"
+          :close-on-select="true"
+          :options-limit="300"
+          :max-height="600"
+          :show-no-results="true"
+          :show-labels="false"
+          @search-change="asyncFind"
+        >
+          <template slot="noResult">
+            {{ $t('rooms.members.modals.add.no_result') }}
+          </template>
+          <template slot="noOptions">
+            {{ $t('rooms.members.modals.add.no_options') }}
+          </template>
+          <template
+            slot="option"
+            slot-scope="props"
+          >
+            {{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small>
+          </template>
+          <template
+            slot="singleLabel"
+            slot-scope="props"
+          >
+            {{ props.option.firstname }} {{ props.option.lastname }}
+          </template>
         </multiselect>
-        <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
+        <template slot="invalid-feedback">
+          <div v-html="userValidationError" />
+        </template>
       </b-form-group>
       <!-- select role -->
-      <b-form-group :label="$t('rooms.role')" v-if="newMember" :state="newMemberRoleValid">
-        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="1">
-          <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
+      <b-form-group
+        v-if="newMember"
+        :label="$t('rooms.role')"
+        :state="newMemberRoleValid"
+      >
+        <b-form-radio
+          v-model.number="newMember.role"
+          name="addmember-role-radios"
+          value="1"
+        >
+          <b-badge variant="success">
+            {{ $t('rooms.roles.participant') }}
+          </b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="2">
-          <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
+        <b-form-radio
+          v-model.number="newMember.role"
+          name="addmember-role-radios"
+          value="2"
+        >
+          <b-badge variant="danger">
+            {{ $t('rooms.roles.moderator') }}
+          </b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="3">
-          <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
+        <b-form-radio
+          v-model.number="newMember.role"
+          name="addmember-role-radios"
+          value="3"
+        >
+          <b-badge variant="dark">
+            {{ $t('rooms.roles.co_owner') }}
+          </b-badge>
         </b-form-radio>
-        <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
+        <template slot="invalid-feedback">
+          <div v-html="roleValidationError" />
+        </template>
       </b-form-group>
     </b-modal>
-
   </div>
 </template>
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
-import FieldErrors from '../../mixins/FieldErrors';
-import env from '../../env';
-import Can from '../Permissions/Can.vue';
-import PermissionService from '../../services/PermissionService';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
+import Can from '@/components/Permissions/Can.vue';
+import PermissionService from '@/services/PermissionService';
 import { mapState } from 'pinia';
-import { useAuthStore } from '../../stores/auth';
-import { useSettingsStore } from '../../stores/settings';
+import { useAuthStore } from '@/stores/auth';
+import { useSettingsStore } from '@/stores/settings';
 import BulkImportMembersComponent from './BulkImportMembersComponent.vue';
 
 export default {
-  mixins: [FieldErrors],
+
+  name: 'MembersComponent',
+
   components: { BulkImportMembersComponent, Multiselect, Can },
+  mixins: [FieldErrors],
 
   props: {
     room: Object, // room object
@@ -728,7 +886,7 @@ export default {
           key: 'image',
           label: this.$t('rooms.members.image'),
           sortable: false,
-          thClass: 'profileImageColumn'
+          thClass: 'profile-image-column'
         },
         {
           key: 'firstname',

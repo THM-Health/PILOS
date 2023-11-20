@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BFormSelect } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
-import Base from '../../../../resources/js/api/base';
-import RoomTypeSelect from '../../../../resources/js/components/Inputs/RoomTypeSelect.vue';
+import Base from '@/api/base';
+import RoomTypeSelect from '@/components/Inputs/RoomTypeSelect.vue';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -18,10 +18,10 @@ describe('RoomType Select', () => {
 
   const exampleRoomTypeResponse = {
     data: [
-      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' },
-      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' },
-      { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E' },
-      { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4' }
+      { id: 1, description: 'Vorlesung', color: '#80BA27' },
+      { id: 2, description: 'Meeting', color: '#4a5c66' },
+      { id: 3, description: 'Pr\u00fcfung', color: '#9C132E' },
+      { id: 4, description: '\u00dcbung', color: '#00B8E4' }
     ]
   };
 
@@ -37,7 +37,7 @@ describe('RoomType Select', () => {
         $t: (key) => key
       },
       propsData: {
-        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
+        value: { id: 1, description: 'Vorlesung', color: '#80BA27' }
       },
       pinia: createTestingPinia(),
       attachTo: createContainer()
@@ -61,7 +61,7 @@ describe('RoomType Select', () => {
         $t: (key) => key
       },
       propsData: {
-        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
+        value: { id: 1, description: 'Vorlesung', color: '#80BA27' }
       },
       pinia: createTestingPinia(),
       attachTo: createContainer()
@@ -95,7 +95,7 @@ describe('RoomType Select', () => {
         $t: (key) => key
       },
       propsData: {
-        value: { id: 10, short: 'VL', description: 'Test', color: '#80BA27' }
+        value: { id: 10, description: 'Test', color: '#80BA27' }
       },
       pinia: createTestingPinia(),
       attachTo: createContainer()
@@ -120,7 +120,7 @@ describe('RoomType Select', () => {
         $t: (key) => key
       },
       propsData: {
-        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
+        value: { id: 1, description: 'Vorlesung', color: '#80BA27' }
       },
       pinia: createTestingPinia(),
       attachTo: createContainer()
@@ -141,7 +141,7 @@ describe('RoomType Select', () => {
     expect(view.vm.$data.roomType).toEqual(2);
 
     await view.vm.$nextTick();
-    expect(view.emitted().input[0]).toEqual([{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }]);
+    expect(view.emitted().input[0]).toEqual([{ id: 2, description: 'Meeting', color: '#4a5c66' }]);
 
     view.destroy();
   });
@@ -162,7 +162,7 @@ describe('RoomType Select', () => {
         $t: (key) => key
       },
       propsData: {
-        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
+        value: { id: 1, description: 'Vorlesung', color: '#80BA27' }
       },
       pinia: createTestingPinia(),
       attachTo: createContainer()
@@ -171,20 +171,20 @@ describe('RoomType Select', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    expect(view.emitted().loadingError[0]).toEqual([true]);
+    expect(view.emitted('loading-error')[0]).toEqual([true]);
     expect(spy).toBeCalledTimes(1);
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       data: {
-        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+        data: [{ id: 3, description: 'Meeting', color: '#4a5c66' }]
       }
     });
 
     view.vm.reloadRoomTypes();
     await mockAxios.wait();
     await view.vm.$nextTick();
-    expect(view.emitted().loadingError[1]).toEqual([false]);
+    expect(view.emitted('loading-error')[1]).toEqual([false]);
 
     view.destroy();
   });
@@ -230,7 +230,7 @@ describe('RoomType Select', () => {
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       data: {
-        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+        data: [{ id: 3, description: 'Meeting', color: '#4a5c66' }]
       }
     });
 

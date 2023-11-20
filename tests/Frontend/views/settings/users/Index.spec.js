@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BButtonClose, BTbody, BTr } from 'bootstrap-vue';
 
-import PermissionService from '../../../../../resources/js/services/PermissionService';
-import Index from '../../../../../resources/js/views/settings/users/Index.vue';
-import Base from '../../../../../resources/js/api/base';
+import PermissionService from '@/services/PermissionService';
+import Index from '@/views/settings/users/Index.vue';
+import Base from '@/api/base';
 import { Multiselect } from 'vue-multiselect';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
-import { useSettingsStore } from '../../../../../resources/js/stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 

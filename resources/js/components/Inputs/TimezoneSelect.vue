@@ -1,30 +1,40 @@
 <template>
   <b-input-group>
     <b-form-select
-      :options='timezones'
-      :id='id'
+      :id="id"
+      :options="timezones"
       :required="required"
       :value="value"
-      @input="input"
-      :state='state'
+      :state="state"
       :disabled="disabled || loading || loadingError"
+      @input="input"
     >
-      <template v-slot:first v-if="placeholder">
-        <b-form-select-option :value="null" disabled>{{ placeholder }}</b-form-select-option>
+      <template
+        v-if="placeholder"
+        #first
+      >
+        <b-form-select-option
+          :value="null"
+          disabled
+        >
+          {{ placeholder }}
+        </b-form-select-option>
       </template>
     </b-form-select>
     <b-input-group-append v-if="loadingError">
       <b-button
-        :disabled='loading'
-        @click="loadTimezones()"
+        :disabled="loading"
         variant="outline-secondary"
-      ><i class="fa-solid fa-sync"></i></b-button>
+        @click="loadTimezones()"
+      >
+        <i class="fa-solid fa-sync" />
+      </b-button>
     </b-input-group-append>
   </b-input-group>
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '@/api/base';
 
 export default {
   name: 'TimezoneSelect',
@@ -64,7 +74,7 @@ export default {
   watch: {
     // detect changes of the model loading error
     loadingError: function () {
-      this.$emit('loadingError', this.loadingError);
+      this.$emit('loading-error', this.loadingError);
     },
 
     // detect busy status while data fetching and notify parent

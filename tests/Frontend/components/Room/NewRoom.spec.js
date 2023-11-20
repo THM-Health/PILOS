@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/Index.vue';
+import RoomList from '@/views/rooms/Index.vue';
 import { BButton, BFormInput, BFormSelect } from 'bootstrap-vue';
-import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import NewRoomComponent from '@/components/Room/NewRoomComponent.vue';
+import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
 import VueRouter from 'vue-router';
-import Base from '../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -34,7 +34,6 @@ describe('Create new rooms', () => {
         last_meeting: null,
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -55,7 +54,6 @@ describe('Create new rooms', () => {
         },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -76,7 +74,6 @@ describe('Create new rooms', () => {
         },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -98,10 +95,10 @@ describe('Create new rooms', () => {
   };
   const exampleRoomTypeResponse = {
     data: [
-      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' },
-      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' },
-      { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E' },
-      { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4' }
+      { id: 1, description: 'Vorlesung', color: '#80BA27' },
+      { id: 2, description: 'Meeting', color: '#4a5c66' },
+      { id: 3, description: 'Pr\u00fcfung', color: '#9C132E' },
+      { id: 4, description: '\u00dcbung', color: '#00B8E4' }
     ]
   };
 
@@ -225,7 +222,7 @@ describe('Create new rooms', () => {
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 201,
-      data: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
+      data: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66' } } }
     });
 
     await view.vm.$nextTick();
@@ -329,7 +326,7 @@ describe('Create new rooms', () => {
 
     expect(baseError).toBeCalledTimes(1);
     expect(baseError.mock.calls[0][0].response.data.message).toBe('test');
-    expect(view.emitted().limitReached).toBeTruthy();
+    expect(view.emitted('limit-reached')).toBeTruthy();
     view.destroy();
   });
 
@@ -401,7 +398,7 @@ describe('Create new rooms', () => {
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       data: {
-        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+        data: [{ id: 3, description: 'Meeting', color: '#4a5c66' }]
       }
     });
 
@@ -428,7 +425,7 @@ describe('Create new rooms', () => {
   });
 
   it('cancel or close', async () => {
-    const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
+    const roomTypes = [{ id: 2, description: 'Meeting', color: '#4a5c66' }];
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
@@ -458,7 +455,7 @@ describe('Create new rooms', () => {
     await typeInput.trigger('change');
 
     await view.findComponent(BFormInput).setValue('Test');
-    expect(view.vm.$data.room).toMatchObject({ room_type: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
+    expect(view.vm.$data.room).toMatchObject({ room_type: { color: '#4a5c66', description: 'Meeting', id: 2 }, name: 'Test' });
     view.vm.handleCancel();
     view.destroy();
     expect(view.vm.$data.room).toMatchObject({});

@@ -1,73 +1,90 @@
 <template>
-    <div v-frag>
-        <b-button
-          variant="outline-dark"
-          :title="$t('rooms.description.tooltips.image')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="openModal"
-          :pressed="editor.isActive('image')"
-        >
-            <i class="fa-solid fa-image"></i>
-        </b-button>
-        <b-modal
-        :static='modalStatic'
-        id="image-modal"
-        :title="newImage ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
-        >
-
-          <b-form-group
-            :label="$t('rooms.description.modals.image.src')"
-            label-for="src"
-            :invalid-feedback="$t('rooms.description.modals.image.invalid_src')"
+  <div v-frag>
+    <b-button
+      v-b-tooltip.hover
+      v-tooltip-hide-click
+      variant="outline-dark"
+      :title="$t('rooms.description.tooltips.image')"
+      :pressed="editor.isActive('image')"
+      @click="openModal"
+    >
+      <i class="fa-solid fa-image" />
+    </b-button>
+    <b-modal
+      id="image-modal"
+      :static="modalStatic"
+      :title="newImage ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
+    >
+      <b-form-group
+        :label="$t('rooms.description.modals.image.src')"
+        label-for="src"
+        :invalid-feedback="$t('rooms.description.modals.image.invalid_src')"
+        :state="srcState"
+      >
+        <b-form-input
+          id="src"
+          v-model="src"
+          type="text"
           :state="srcState"
-          >
-            <b-form-input
-              id="src"
-              v-model="src"
-              type="text"
-              :state="srcState"
-              trim
-            />
-          </b-form-group>
+          trim
+        />
+      </b-form-group>
 
-          <b-form-group
-          :label="$t('rooms.description.modals.image.width')"
-            label-for="width"
-            :description="$t('rooms.description.modals.image.width_description')"
-          >
-            <b-form-input
-              id="width"
-              v-model="width"
-              type="text"
-            />
-          </b-form-group>
+      <b-form-group
+        :label="$t('rooms.description.modals.image.width')"
+        label-for="width"
+        :description="$t('rooms.description.modals.image.width_description')"
+      >
+        <b-form-input
+          id="width"
+          v-model="width"
+          type="text"
+        />
+      </b-form-group>
 
-          <b-form-group
-          :label="$t('rooms.description.modals.image.alt')"
-            label-for="alt"
-          >
-            <b-form-input
-              id="alt"
-              v-model="alt"
-              type="text"
-            />
-          </b-form-group>
+      <b-form-group
+        :label="$t('rooms.description.modals.image.alt')"
+        label-for="alt"
+      >
+        <b-form-input
+          id="alt"
+          v-model="alt"
+          type="text"
+        />
+      </b-form-group>
 
-          <template #modal-footer="{ cancel }">
-            <div class="w-100 d-flex justify-content-between">
-              <div>
-                <b-button variant="danger" class="mr-2" @click="deleteImage" v-if="!newImage" >{{ $t('app.delete') }}</b-button>
-              </div>
-              <div>
-                <b-button variant="secondary" @click="cancel">{{ $t('app.cancel') }}</b-button>
-                <b-button variant="success" class="ml-2" @click="save" :disabled="srcState !== true">{{ $t('app.save') }}</b-button>
-              </div>
+      <template #modal-footer="{ cancel }">
+        <div class="w-100 d-flex justify-content-between">
+          <div>
+            <b-button
+              v-if="!newImage"
+              variant="danger"
+              class="mr-2"
+              @click="deleteImage"
+            >
+              {{ $t('app.delete') }}
+            </b-button>
           </div>
-
+          <div>
+            <b-button
+              variant="secondary"
+              @click="cancel"
+            >
+              {{ $t('app.cancel') }}
+            </b-button>
+            <b-button
+              variant="success"
+              class="ml-2"
+              :disabled="srcState !== true"
+              @click="save"
+            >
+              {{ $t('app.save') }}
+            </b-button>
+          </div>
+        </div>
       </template>
-        </b-modal>
-    </div>
+    </b-modal>
+  </div>
 </template>
 <script>
 
@@ -75,6 +92,14 @@ import frag from 'vue-frag';
 export default {
   directives: {
     frag
+  },
+  props: {
+    editor: Object,
+    modalStatic: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
   },
   data () {
     return {
@@ -91,14 +116,6 @@ export default {
       }
       const regex = /^(https|http):\/\//;
       return regex.exec(this.src) !== null;
-    }
-  },
-  props: {
-    editor: Object,
-    modalStatic: {
-      type: Boolean,
-      default: false,
-      required: false
     }
   },
   methods: {

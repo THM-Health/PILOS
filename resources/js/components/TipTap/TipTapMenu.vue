@@ -1,151 +1,188 @@
 <template>
   <div>
-    <b-button-toolbar v-if="editor" justify>
+    <b-button-toolbar
+      v-if="editor"
+      justify
+    >
       <!-- Text styling -->
       <b-button-group>
         <!-- Text type -->
         <b-dropdown
-          variant="outline-dark"
-          :title="$t('rooms.description.tooltips.text_type')"
           v-b-tooltip.hover
           v-tooltip-hide-click
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.text_type')"
         >
-          <template v-slot:button-content>
-            <i class="fa-solid fa-heading"></i>
+          <template #button-content>
+            <i class="fa-solid fa-heading" />
           </template>
 
-          <b-dropdown-item @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :active="editor.isActive('heading', { level: 1 })">
+          <b-dropdown-item
+            :active="editor.isActive('heading', { level: 1 })"
+            @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+          >
             {{ $t('rooms.description.heading1') }}
           </b-dropdown-item>
-          <b-dropdown-item @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :active="editor.isActive('heading', { level: 2 })">
+          <b-dropdown-item
+            :active="editor.isActive('heading', { level: 2 })"
+            @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+          >
             {{ $t('rooms.description.heading2') }}
           </b-dropdown-item>
-          <b-dropdown-item @click="editor.chain().focus().toggleHeading({ level: 3 }).run()" :active="editor.isActive('heading', { level: 3 })">
+          <b-dropdown-item
+            :active="editor.isActive('heading', { level: 3 })"
+            @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+          >
             {{ $t('rooms.description.heading3') }}
           </b-dropdown-item>
-          <b-dropdown-item @click="editor.chain().focus().setParagraph().run()" :active="editor.isActive('paragraph')">
+          <b-dropdown-item
+            :active="editor.isActive('paragraph')"
+            @click="editor.chain().focus().setParagraph().run()"
+          >
             {{ $t('rooms.description.paragraph') }}
           </b-dropdown-item>
         </b-dropdown>
 
         <!-- Text font styling -->
         <b-button
+          v-b-tooltip.hover
+          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.bold')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="editor.chain().focus().toggleBold().run()"
           :pressed="editor.isActive('bold')"
+          @click="editor.chain().focus().toggleBold().run()"
         >
-          <i class="fa-solid fa-bold"></i>
+          <i class="fa-solid fa-bold" />
         </b-button>
         <b-button
+          v-b-tooltip.hover
+          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.italic')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="editor.chain().focus().toggleItalic().run()"
           :pressed="editor.isActive('italic')"
+          @click="editor.chain().focus().toggleItalic().run()"
         >
-          <i class="fa-solid fa-italic"></i>
+          <i class="fa-solid fa-italic" />
         </b-button>
         <b-button
+          v-b-tooltip.hover
+          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.underline')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="editor.chain().focus().toggleUnderline().run()"
           :pressed="editor.isActive('underline')"
+          @click="editor.chain().focus().toggleUnderline().run()"
         >
-          <i class="fa-solid fa-underline"></i>
+          <i class="fa-solid fa-underline" />
         </b-button>
         <b-button
-          variant="outline-dark"
-          :title="$t('rooms.description.tooltips.strikethrough')"
           v-b-tooltip.hover
           v-tooltip-hide-click
-          @click="editor.chain().focus().toggleStrike().run()"
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.strikethrough')"
           :pressed="editor.isActive('strike')"
+          @click="editor.chain().focus().toggleStrike().run()"
         >
-          <i class="fa-solid fa-strikethrough"></i>
+          <i class="fa-solid fa-strikethrough" />
         </b-button>
 
         <!-- Text color -->
         <b-dropdown
-          :title="$t('rooms.description.tooltips.color')"
           v-b-tooltip.hover
           v-tooltip-hide-click
+          :title="$t('rooms.description.tooltips.color')"
           variant="outline-dark"
         >
-          <template v-slot:button-content>
-            <i class="fa-solid fa-palette"></i>
+          <template #button-content>
+            <i class="fa-solid fa-palette" />
           </template>
           <!-- Clear color -->
-          <b-dropdown-item @click="editor.chain().focus().unsetColor().run()" :active="!editor.isActive('textStyle')">
-            <div class="color-picker-block" v-bind:style="{background: '#000'}" /> {{ $t('rooms.description.color.black') }}
+          <b-dropdown-item
+            :active="!editor.isActive('textStyle')"
+            @click="editor.chain().focus().unsetColor().run()"
+          >
+            <div
+              class="color-picker-block"
+              :style="{background: '#000'}"
+            /> {{ $t('rooms.description.color.black') }}
           </b-dropdown-item>
-          <b-dropdown-item v-for="color in textColors" :key="color.color" @click="editor.chain().focus().setColor(color.color ).run()" :active="editor.isActive('textStyle', { color: color.color  })">
-            <div class="color-picker-block" v-bind:style="{background: color.color}" /> {{ color.name }}
+          <b-dropdown-item
+            v-for="color in textColors"
+            :key="color.color"
+            :active="editor.isActive('textStyle', { color: color.color })"
+            @click="editor.chain().focus().setColor(color.color ).run()"
+          >
+            <div
+              class="color-picker-block"
+              :style="{background: color.color}"
+            /> {{ color.name }}
           </b-dropdown-item>
         </b-dropdown>
 
         <!-- Highlight -->
         <b-dropdown
-          variant="outline-dark"
-          :title="$t('rooms.description.tooltips.highlight')"
           v-b-tooltip.hover
           v-tooltip-hide-click
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.highlight')"
         >
-          <template v-slot:button-content>
-            <i class="fa-solid fa-highlighter"></i>
+          <template #button-content>
+            <i class="fa-solid fa-highlighter" />
           </template>
-          <b-dropdown-item v-for="color in highlightColors" :key="color.color" @click="editor.chain().focus().toggleHighlight({ color: color.color }).run()" :active="editor.isActive('highlight', { color: color.color  })">
-            <div class="color-picker-block" v-bind:style="{background: color.color}" /> {{ color.name }}
+          <b-dropdown-item
+            v-for="color in highlightColors"
+            :key="color.color"
+            :active="editor.isActive('highlight', { color: color.color })"
+            @click="editor.chain().focus().toggleHighlight({ color: color.color }).run()"
+          >
+            <div
+              class="color-picker-block"
+              :style="{background: color.color}"
+            /> {{ color.name }}
           </b-dropdown-item>
         </b-dropdown>
 
         <b-button
-          variant="outline-dark"
-          @click="editor.chain().focus().unsetAllMarks().run()"
-          :title="$t('rooms.description.tooltips.clear')"
           v-b-tooltip.hover
           v-tooltip-hide-click
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.clear')"
+          @click="editor.chain().focus().unsetAllMarks().run()"
         >
-          <i class="fa-solid fa-times"></i>
+          <i class="fa-solid fa-times" />
         </b-button>
-
       </b-button-group>
 
       <!-- Text alignment -->
       <b-button-group>
         <b-button
+          v-b-tooltip.hover
+          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.left')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="editor.chain().focus().setTextAlign('left').run()"
           :pressed="editor.isActive({ textAlign: 'left' })"
+          @click="editor.chain().focus().setTextAlign('left').run()"
         >
-          <i class="fa-solid fa-align-left"></i>
+          <i class="fa-solid fa-align-left" />
         </b-button>
         <b-button
+          v-b-tooltip.hover
+          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.center')"
+          :pressed="editor.isActive({ textAlign: 'center' })"
+          @click="editor.chain().focus().setTextAlign('center').run()"
+        >
+          <i class="fa-solid fa-align-center" />
+        </b-button>
+        <b-button
           v-b-tooltip.hover
           v-tooltip-hide-click
-          @click="editor.chain().focus().setTextAlign('center').run()"
-          :pressed="editor.isActive({ textAlign: 'center' })"
-        >
-          <i class="fa-solid fa-align-center"></i></b-button>
-        <b-button
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.right')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="editor.chain().focus().setTextAlign('right').run()"
           :pressed="editor.isActive({ textAlign: 'right' })"
+          @click="editor.chain().focus().setTextAlign('right').run()"
         >
-          <i class="fa-solid fa-align-right"></i>
+          <i class="fa-solid fa-align-right" />
         </b-button>
       </b-button-group>
 
@@ -153,75 +190,75 @@
       <b-button-group>
         <!-- Unordered list -->
         <b-button
-          variant="outline-dark"
-          :title="$t('rooms.description.tooltips.list')"
           v-b-tooltip.hover
           v-tooltip-hide-click
-          @click="editor.chain().focus().toggleBulletList().run()"
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.list')"
           :pressed="editor.isActive('bulletList')"
+          @click="editor.chain().focus().toggleBulletList().run()"
         >
-          <i class="fa-solid fa-list-ul"></i>
+          <i class="fa-solid fa-list-ul" />
         </b-button>
         <!-- Ordered list -->
         <b-button
-          variant="outline-dark"
-          :title="$t('rooms.description.tooltips.numbered_list')"
           v-b-tooltip.hover
           v-tooltip-hide-click
-          @click="editor.chain().focus().toggleOrderedList().run()"
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.numbered_list')"
           :pressed="editor.isActive('orderedList')"
+          @click="editor.chain().focus().toggleOrderedList().run()"
         >
-          <i class="fa-solid fa-list-ol"></i>
+          <i class="fa-solid fa-list-ol" />
         </b-button>
         <!-- Quote -->
         <b-button
-          variant="outline-dark"
-          :title="$t('rooms.description.tooltips.quote')"
           v-b-tooltip.hover
           v-tooltip-hide-click
-          @click="editor.chain().focus().toggleBlockquote().run()"
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.quote')"
           :pressed="editor.isActive('blockquote')"
+          @click="editor.chain().focus().toggleBlockquote().run()"
         >
-          <i class="fa-solid fa-quote-right"></i>
+          <i class="fa-solid fa-quote-right" />
         </b-button>
         <!-- Link -->
-        <tip-tap-link :editor="editor"/>
+        <tip-tap-link :editor="editor" />
         <!-- Image -->
-        <tip-tap-image :editor="editor"/>
+        <tip-tap-image :editor="editor" />
       </b-button-group>
 
       <!-- History -->
       <b-button-group>
         <b-button
+          v-b-tooltip.hover
+          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.undo')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="editor.chain().focus().undo().run()"
           :disabled="!editor.can().undo()"
+          @click="editor.chain().focus().undo().run()"
         >
-          <i class="fa-solid fa-undo"></i>
+          <i class="fa-solid fa-undo" />
         </b-button>
         <b-button
+          v-b-tooltip.hover
+          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.redo')"
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          @click="editor.chain().focus().redo().run()"
           :disabled="!editor.can().redo()"
+          @click="editor.chain().focus().redo().run()"
         >
-          <i class="fa-solid fa-redo"></i>
+          <i class="fa-solid fa-redo" />
         </b-button>
         <b-button
-          variant="danger"
-          :title="$t('rooms.description.tooltips.delete')"
           v-b-tooltip.hover
           v-tooltip-hide-click
+          variant="danger"
+          :title="$t('rooms.description.tooltips.delete')"
           @click="editor.commands.clearContent(true)"
         >
-          <i class="fa-solid fa-trash"></i>
+          <i class="fa-solid fa-trash" />
         </b-button>
-        <tip-tap-source :editor="editor"/>
+        <tip-tap-source :editor="editor" />
       </b-button-group>
     </b-button-toolbar>
   </div>
@@ -234,14 +271,14 @@ import TipTapLink from './TipTapLink.vue';
 import TipTapSource from './TipTapSource.vue';
 export default {
   name: 'TipTapMenu',
-  props: [
-    'editor'
-  ],
   components: {
     TipTapLink,
     TipTapImage,
     TipTapSource
   },
+  props: [
+    'editor'
+  ],
   computed: {
     // Text highlight colors
     highlightColors: function () {

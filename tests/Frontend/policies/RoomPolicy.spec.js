@@ -1,4 +1,4 @@
-import RoomPolicy from '../../../resources/js/policies/RoomPolicy';
+import RoomPolicy from '@/policies/RoomPolicy';
 
 describe('RoomPolicy', () => {
   it('viewAll returns returns if the user has the permission to view all rooms', async () => {

@@ -5,28 +5,38 @@
         <h3>
           {{ $t('app.server_pools') }}
 
-          <can method='create' policy='ServerPoolPolicy'>
+          <can
+            method="create"
+            policy="ServerPoolPolicy"
+          >
             <b-button
-              class='ml-2 float-right'
+              ref="newServerPool"
               v-b-tooltip.hover
               v-tooltip-hide-click
-              variant='success'
-              ref="newServerPool"
+              class="ml-2 float-right"
+              variant="success"
               :title="$t('settings.server_pools.new')"
               :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
-            ><i class="fa-solid fa-plus"></i></b-button>
+            >
+              <i class="fa-solid fa-plus" />
+            </b-button>
           </can>
         </h3>
       </b-col>
-      <b-col sm='12' md='3'>
+      <b-col
+        sm="12"
+        md="3"
+      >
         <b-input-group>
           <b-form-input
-            v-model='filter'
+            v-model="filter"
             :placeholder="$t('app.search')"
-            :debounce='searchDebounce'
-          ></b-form-input>
+            :debounce="searchDebounce"
+          />
           <b-input-group-append>
-            <b-input-group-text class='bg-primary'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+            <b-input-group-text class="bg-primary">
+              <i class="fa-solid fa-magnifying-glass" />
+            </b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -34,67 +44,77 @@
     <hr>
 
     <b-table
+      id="server-pools-table"
+      ref="serverPools"
       :responsive="true"
       hover
-      stacked='xl'
+      stacked="xl"
       show-empty
-      :busy.sync='isBusy'
-      :fields='tableFields'
-      :items='fetchServerPools'
-      id='server-pools-table'
-      ref='serverPools'
-      :filter='filter'
-      :current-page='currentPage'>
-
-      <template v-slot:empty>
+      :busy.sync="isBusy"
+      :fields="tableFields"
+      :items="fetchServerPools"
+      :filter="filter"
+      :current-page="currentPage"
+    >
+      <template #empty>
         <i>{{ $t('settings.server_pools.no_data') }}</i>
       </template>
 
-      <template v-slot:emptyfiltered>
+      <template #emptyfiltered>
         <i>{{ $t('settings.server_pools.no_data_filtered') }}</i>
       </template>
 
-      <template v-slot:table-busy>
+      <template #table-busy>
         <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
+          <b-spinner class="align-middle" />
         </div>
       </template>
 
-      <template v-slot:cell(actions)="data">
+      <template #cell(actions)="data">
         <b-button-group>
-          <can method='view' :policy='data.item'>
+          <can
+            method="view"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover.bottom
               v-tooltip-hide-click
               :title="$t('settings.server_pools.view', { name: data.item.name })"
-              :disabled='isBusy'
-              variant='info'
+              :disabled="isBusy"
+              variant="info"
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fa-solid fa-eye'></i>
+              <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can method='update' :policy='data.item'>
+          <can
+            method="update"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover.bottom
               v-tooltip-hide-click
               :title="$t('settings.server_pools.edit', { name: data.item.name })"
-              :disabled='isBusy'
-              variant='secondary'
+              :disabled="isBusy"
+              variant="secondary"
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id } }"
             >
-              <i class='fa-solid fa-edit'></i>
+              <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can method='delete' :policy='data.item'>
+          <can
+            method="delete"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover.bottom
               v-tooltip-hide-click
               :title="$t('settings.server_pools.delete.item', { name: data.item.name })"
-              :disabled='isBusy'
-              variant='danger'
-              @click='showServerPoolModal(data.item)'>
-              <i class='fa-solid fa-trash'></i>
+              :disabled="isBusy"
+              variant="danger"
+              @click="showServerPoolModal(data.item)"
+            >
+              <i class="fa-solid fa-trash" />
             </b-button>
           </can>
         </b-button-group>
@@ -102,59 +122,68 @@
     </b-table>
 
     <b-pagination
-      v-model='currentPage'
-      :total-rows='total'
-      :per-page='perPage'
-      aria-controls='server-pools-table'
+      v-model="currentPage"
+      :total-rows="total"
+      :per-page="perPage"
+      aria-controls="server-pools-table"
+      align="center"
+      :disabled="isBusy"
       @input="$root.$emit('bv::refresh::table', 'server-pools-table')"
-      align='center'
-      :disabled='isBusy'
-    ></b-pagination>
+    />
 
     <b-modal
-      :busy='deleting'
+      ref="delete-server-pool-modal"
+      :busy="deleting"
       :hide-footer="deleteFailedRoomTypes!=null"
-      ok-variant='danger'
-      cancel-variant='dark'
+      ok-variant="danger"
+      cancel-variant="dark"
       :cancel-title="$t('app.no')"
-      @ok='deleteServerPool($event)'
-      @cancel='clearServerPoolToDelete'
-      @close='clearServerPoolToDelete'
-      ref='delete-server-pool-modal'
-      :static='modalStatic'
+      :static="modalStatic"
       :no-close-on-esc="deleting"
       :no-close-on-backdrop="deleting"
       :hide-header-close="deleting"
+      @ok="deleteServerPool($event)"
+      @cancel="clearServerPoolToDelete"
+      @close="clearServerPoolToDelete"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('settings.server_pools.delete.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="deleting"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="serverPoolToDelete">
         {{ $t('settings.server_pools.delete.confirm', { name:serverPoolToDelete.name }) }}
       </span>
 
       <div v-if="deleteFailedRoomTypes">
-        <b-alert :show="true" variant="danger">{{ $t('settings.server_pools.delete.failed') }}
+        <b-alert
+          :show="true"
+          variant="danger"
+        >
+          {{ $t('settings.server_pools.delete.failed') }}
           <ul>
-            <li v-for="roomType in deleteFailedRoomTypes" :key="roomType.id">
+            <li
+              v-for="roomType in deleteFailedRoomTypes"
+              :key="roomType.id"
+            >
               {{ roomType.description }}
             </li>
           </ul>
         </b-alert>
       </div>
-
     </b-modal>
   </div>
 </template>
 
 <script>
-import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can.vue';
-import ActionsColumn from '../../../mixins/ActionsColumn';
-import env from '../../../env';
+import Base from '@/api/base';
+import Can from '@/components/Permissions/Can.vue';
+import ActionsColumn from '@/mixins/ActionsColumn';
+import env from '@/env';
 
 export default {
   components: { Can },
@@ -172,6 +201,20 @@ export default {
     }
   },
 
+  data () {
+    return {
+      isBusy: false,
+      deleting: false,
+      currentPage: undefined,
+      total: undefined,
+      perPage: undefined,
+      serverPoolToDelete: undefined,
+      actionPermissions: ['serverPools.view', 'serverPools.update', 'serverPools.delete'],
+      filter: undefined,
+      deleteFailedRoomTypes: null
+    };
+  },
+
   computed: {
     tableFields () {
       const fields = [
@@ -186,20 +229,6 @@ export default {
 
       return fields;
     }
-  },
-
-  data () {
-    return {
-      isBusy: false,
-      deleting: false,
-      currentPage: undefined,
-      total: undefined,
-      perPage: undefined,
-      serverPoolToDelete: undefined,
-      actionPermissions: ['serverPools.view', 'serverPools.update', 'serverPools.delete'],
-      filter: undefined,
-      deleteFailedRoomTypes: null
-    };
   },
 
   methods: {

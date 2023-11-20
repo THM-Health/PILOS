@@ -97,6 +97,10 @@ class RoomService
                 $meeting->save();
 
                 $this->room->latestMeeting()->associate($meeting);
+                $this->room->participant_count       = 0;
+                $this->room->listener_count          = 0;
+                $this->room->voice_participant_count = 0;
+                $this->room->video_count             = 0;
                 $this->room->save();
 
                 $lock->release();

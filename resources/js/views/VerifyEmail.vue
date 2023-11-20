@@ -5,16 +5,36 @@
         {{ $t('app.verify_email.title') }}
       </h3>
       <hr>
-      <div v-if="loading" class="text-center my-5">
-        <b-spinner></b-spinner>
+      <div
+        v-if="loading"
+        class="text-center my-5"
+      >
+        <b-spinner />
       </div>
-      <div v-else >
+      <div v-else>
         <div v-if="success">
-          <b-alert variant="success" show><i class="fa-solid fa-envelope-circle-check"></i> {{ $t('app.verify_email.success') }}</b-alert>
+          <b-alert
+            variant="success"
+            show
+          >
+            <i class="fa-solid fa-envelope-circle-check" /> {{ $t('app.verify_email.success') }}
+          </b-alert>
         </div>
         <div v-else>
-          <b-alert v-if="error === env.HTTP_UNPROCESSABLE_ENTITY" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.invalid') }}</b-alert>
-          <b-alert v-else variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.fail') }}</b-alert>
+          <b-alert
+            v-if="error === env.HTTP_UNPROCESSABLE_ENTITY"
+            variant="danger"
+            show
+          >
+            <i class="fa-solid fa-triangle-exclamation" /> {{ $t('app.verify_email.invalid') }}
+          </b-alert>
+          <b-alert
+            v-else
+            variant="danger"
+            show
+          >
+            <i class="fa-solid fa-triangle-exclamation" /> {{ $t('app.verify_email.fail') }}
+          </b-alert>
         </div>
       </div>
     </b-card>
@@ -22,8 +42,8 @@
 </template>
 
 <script>
-import Base from '../api/base';
-import env from '../env';
+import Base from '@/api/base';
+import env from '@/env';
 
 export default {
   name: 'ConfirmEmailChange.vue',

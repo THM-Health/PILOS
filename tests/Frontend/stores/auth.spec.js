@@ -1,8 +1,8 @@
-import i18n from '../../../resources/js/i18n';
+import i18n from '@/i18n';
 import { mockAxios } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
-import { useAuthStore } from '../../../resources/js/stores/auth';
-import PermissionService from '../../../resources/js/services/PermissionService';
+import { useAuthStore } from '@/stores/auth';
+import PermissionService from '@/services/PermissionService';
 
 describe('Auth Store', () => {
   beforeEach(() => {

@@ -1,8 +1,21 @@
 <template>
-  <div v-if="notificationSupport && !running" class="w-100 text-center my-2">
-    <b-button v-if="!notificationEnabled" block @click="enableNotification"><i class="fa-solid fa-bell"></i> {{ $t('rooms.notification.enable') }} </b-button>
-    <b-alert v-else variant="success" show>
-      <i class="fa-solid fa-bell"></i> {{ $t('rooms.notification.enabled') }}
+  <div
+    v-if="notificationSupport && !running"
+    class="w-100 text-center my-2"
+  >
+    <b-button
+      v-if="!notificationEnabled"
+      block
+      @click="enableNotification"
+    >
+      <i class="fa-solid fa-bell" /> {{ $t('rooms.notification.enable') }}
+    </b-button>
+    <b-alert
+      v-else
+      variant="success"
+      show
+    >
+      <i class="fa-solid fa-bell" /> {{ $t('rooms.notification.enabled') }}
     </b-alert>
   </div>
 </template>
@@ -10,7 +23,7 @@
 <script>
 
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 
 export default {
   name: 'BrowserNotification',
@@ -30,6 +43,30 @@ export default {
 
   computed: {
     ...mapState(useSettingsStore, ['getSetting'])
+  },
+
+  watch: {
+    /**
+     * check if the running status of the room has changed
+     * @param running current running status
+     * @param wasRunning previous running status
+     */
+    running: function (running, wasRunning) {
+      // only check for changes it notifications is enabled
+      if (this.notificationEnabled) {
+        // room was not running and now is running
+        // clear older notifications and send new notification if notifications are enabled
+        if (wasRunning === false && running === true) {
+          this.clearNotification();
+          this.sendNotification();
+        }
+        // room was running and now stopped running
+        // clear notification to prevent confusion
+        if (wasRunning === true && running === false) {
+          this.clearNotification();
+        }
+      }
+    }
   },
 
   mounted () {
@@ -123,30 +160,6 @@ export default {
             this.toastError(this.$t('rooms.notification.denied'));
           }
         });
-      }
-    }
-  },
-
-  watch: {
-    /**
-     * check if the running status of the room has changed
-     * @param running current running status
-     * @param wasRunning previous running status
-     */
-    running: function (running, wasRunning) {
-      // only check for changes it notifications is enabled
-      if (this.notificationEnabled) {
-        // room was not running and now is running
-        // clear older notifications and send new notification if notifications are enabled
-        if (wasRunning === false && running === true) {
-          this.clearNotification();
-          this.sendNotification();
-        }
-        // room was running and now stopped running
-        // clear notification to prevent confusion
-        if (wasRunning === true && running === false) {
-          this.clearNotification();
-        }
       }
     }
   }

@@ -1,10 +1,10 @@
-import Index from '../../../../../resources/js/views/settings/roles/Index.vue';
+import Index from '@/views/settings/roles/Index.vue';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 
 import { BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { expect } from 'vitest';
 
 const localVue = createLocalVue();

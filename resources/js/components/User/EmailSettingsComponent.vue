@@ -2,55 +2,70 @@
   <div>
     <h4>{{ $t('app.email') }}</h4>
     <b-form @submit="save">
-      <can method='updateAttributes' :policy='user'>
+      <can
+        method="updateAttributes"
+        :policy="user"
+      >
         <b-form-group
-          label-cols-sm='3'
-          :label="$t('auth.current_password')"
-          label-for='current_password'
-          :state='fieldState("password")'
           v-if="!viewOnly && isOwnUser"
+          label-cols-sm="3"
+          :label="$t('auth.current_password')"
+          label-for="current_password"
+          :state="fieldState('password')"
         >
           <b-form-input
-            id='current_password'
-            type='password'
+            id="current_password"
+            v-model="current_password"
+            type="password"
             required
-            v-model='current_password'
-            :state='fieldState("current_password")'
+            :state="fieldState('current_password')"
             :disabled="isBusy"
-          ></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('current_password')"></div></template>
+          />
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('current_password')" />
+          </template>
         </b-form-group>
       </can>
       <b-form-group
-        label-cols-sm='3'
+        label-cols-sm="3"
         :label="$t('app.email')"
-        label-for='email'
-        :state='fieldState("email")'
+        label-for="email"
+        :state="fieldState('email')"
       >
         <b-form-input
-          id='email'
-          type='email'
-          v-model='email'
+          id="email"
+          v-model="email"
+          type="email"
           required
-          :state='fieldState("email")'
+          :state="fieldState('email')"
           :disabled="isBusy || viewOnly || !canUpdateAttributes"
-        ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
+        />
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('email')" />
+        </template>
 
         <div v-if="validationRequiredEmail">
-          <b-alert variant="success" show dismissible class="mt-3">
+          <b-alert
+            variant="success"
+            show
+            dismissible
+            class="mt-3"
+          >
             {{ $t('auth.send_email_confirm_mail', {email: validationRequiredEmail}) }}
           </b-alert>
         </div>
       </b-form-group>
-      <can method='updateAttributes' :policy='user'>
+      <can
+        method="updateAttributes"
+        :policy="user"
+      >
         <b-button
-          :disabled='isBusy'
           v-if="!viewOnly"
-          variant='success'
-          type='submit'
+          :disabled="isBusy"
+          variant="success"
+          type="submit"
         >
-          <i class='fa-solid fa-save'></i> {{ $t('auth.change_email') }}
+          <i class="fa-solid fa-save" /> {{ $t('auth.change_email') }}
         </b-button>
       </can>
     </b-form>
@@ -58,28 +73,18 @@
 </template>
 
 <script>
-import FieldErrors from '../../mixins/FieldErrors';
-import Base from '../../api/base';
-import env from '../../env';
-import PermissionService from '../../services/PermissionService';
+import FieldErrors from '@/mixins/FieldErrors';
+import Base from '@/api/base';
+import env from '@/env';
+import PermissionService from '@/services/PermissionService';
 import { mapState } from 'pinia';
-import { useAuthStore } from '../../stores/auth';
-import Can from '../Permissions/Can.vue';
+import { useAuthStore } from '@/stores/auth';
+import Can from '@/components/Permissions/Can.vue';
 
 export default {
   name: 'EmailSettingsComponent',
   components: { Can },
   mixins: [FieldErrors],
-  data () {
-    return {
-      current_password: '',
-      email: '',
-      isBusy: false,
-      validationRequiredEmail: null,
-      canUpdateAttributes: false,
-      errors: {}
-    };
-  },
   props: {
     user: {
       type: Object,
@@ -89,6 +94,16 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+  data () {
+    return {
+      current_password: '',
+      email: '',
+      isBusy: false,
+      validationRequiredEmail: null,
+      canUpdateAttributes: false,
+      errors: {}
+    };
   },
   computed: {
 
@@ -127,7 +142,7 @@ export default {
       })
         .then(response => {
           if (response.status === 200) {
-            this.$emit('updateUser', response.data.data);
+            this.$emit('update-user', response.data.data);
           }
           if (response.status === 202) {
             this.validationRequiredEmail = this.email;
@@ -136,7 +151,7 @@ export default {
         })
         .catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-            this.$emit('notFoundError', error);
+            this.$emit('not-found-error', error);
           } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
           } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {

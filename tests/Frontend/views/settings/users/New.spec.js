@@ -2,12 +2,12 @@ import { mount } from '@vue/test-utils';
 import { BButton, BForm, BFormInput } from 'bootstrap-vue';
 
 import VueRouter from 'vue-router';
-import New from '../../../../../resources/js/views/settings/users/New.vue';
-import TimezoneSelect from '../../../../../resources/js/components/Inputs/TimezoneSelect.vue';
-import LocaleSelect from '../../../../../resources/js/components/Inputs/LocaleSelect.vue';
-import RoleSelect from '../../../../../resources/js/components/Inputs/RoleSelect.vue';
+import New from '@/views/settings/users/New.vue';
+import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
+import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
+import RoleSelect from '@/components/Inputs/RoleSelect.vue';
 import { createContainer, mockAxios, createLocalVue } from '../../../helper';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 
@@ -306,9 +306,9 @@ describe('NewUserView', () => {
     expect(submitButton.attributes('disabled')).toBeFalsy();
 
     // Load roles error
-    await roleSelect.vm.$emit('loadingError', true);
+    await roleSelect.vm.$emit('loading-error', true);
     expect(submitButton.attributes('disabled')).toBeTruthy();
-    await roleSelect.vm.$emit('loadingError', false);
+    await roleSelect.vm.$emit('loading-error', false);
     expect(submitButton.attributes('disabled')).toBeFalsy();
 
     // Load timezones
@@ -318,9 +318,9 @@ describe('NewUserView', () => {
     expect(submitButton.attributes('disabled')).toBeFalsy();
 
     // Load timezones error
-    await timezoneSelect.vm.$emit('loadingError', true);
+    await timezoneSelect.vm.$emit('loading-error', true);
     expect(submitButton.attributes('disabled')).toBeTruthy();
-    await timezoneSelect.vm.$emit('loadingError', false);
+    await timezoneSelect.vm.$emit('loading-error', false);
     expect(submitButton.attributes('disabled')).toBeFalsy();
 
     view.destroy();

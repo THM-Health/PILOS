@@ -1,6 +1,6 @@
 <template>
   <div v-frag>
-    <slot></slot>
+    <slot />
   </div>
 </template>
 

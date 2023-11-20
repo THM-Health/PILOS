@@ -2,11 +2,11 @@ import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import RoomInvitation from '../../../../resources/js/components/Room/RoomInvitation.vue';
+import RoomInvitation from '@/components/Room/RoomInvitation.vue';
 import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 
 import VueRouter from 'vue-router';
-import RoomView from '../../../../resources/js/views/rooms/View.vue';
+import RoomView from '@/views/rooms/View.vue';
 import _ from 'lodash';
 
 const localVue = createLocalVue();
@@ -24,6 +24,24 @@ const routerMock = new VueRouter({
   }]
 });
 
+const room = {
+  id: 'abc-def-123',
+  name: 'Meeting One',
+  short_description: 'room short description',
+  is_favorite: false,
+  owner: {
+    id: 1,
+    name: 'John Doe'
+  },
+  type: {
+    id: 2,
+    description: 'Meeting',
+    color: '#4a5c66',
+    default: false
+  },
+  last_meeting: null
+};
+
 const initialState = { settings: { settings: { base_url: 'https://pilos.tld', name: 'PILOS' } } };
 
 describe('RoomInvitation', () => {
@@ -34,9 +52,7 @@ describe('RoomInvitation', () => {
     const view = mount(RoomInvitation, {
       localVue,
       propsData: {
-        name: 'Meeting One',
-        id: '123-abc-def',
-        accessCode: 123456789
+        room: { ...room, access_code: '123456789' }
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
@@ -51,14 +67,14 @@ describe('RoomInvitation', () => {
     const urlInput = inputs.at(0);
     const codeInput = inputs.at(1);
 
-    expect(urlInput.element.value).toBe('https://pilos.tld/rooms/123-abc-def');
+    expect(urlInput.element.value).toBe('https://pilos.tld/rooms/abc-def-123');
     expect(codeInput.element.value).toBe('123-456-789');
 
     const copyButton = view.findComponent(BButton);
     await copyButton.trigger('click');
 
     expect(clipboardSpy).toBeCalledTimes(1);
-    expect(clipboardSpy).toBeCalledWith('rooms.invitation.room:{"roomname":"Meeting One","platform":"PILOS"}\nrooms.invitation.link: https://pilos.tld/rooms/123-abc-def\nrooms.invitation.code: 123-456-789');
+    expect(clipboardSpy).toBeCalledWith('rooms.invitation.room:{"roomname":"Meeting One","platform":"PILOS"}\nrooms.invitation.link: https://pilos.tld/rooms/abc-def-123\nrooms.invitation.code: 123-456-789');
   });
 
   it('Without access code', async () => {
@@ -68,9 +84,7 @@ describe('RoomInvitation', () => {
     const view = mount(RoomInvitation, {
       localVue,
       propsData: {
-        name: 'Meeting One',
-        id: '123-abc-def',
-        accessCode: null
+        room
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
@@ -86,12 +100,12 @@ describe('RoomInvitation', () => {
 
     expect(inputs.length).toBe(1);
 
-    expect(urlInput.element.value).toBe('https://pilos.tld/rooms/123-abc-def');
+    expect(urlInput.element.value).toBe('https://pilos.tld/rooms/abc-def-123');
 
     const copyButton = view.findComponent(BButton);
     await copyButton.trigger('click');
 
     expect(clipboardSpy).toBeCalledTimes(1);
-    expect(clipboardSpy).toBeCalledWith('rooms.invitation.room:{"roomname":"Meeting One","platform":"PILOS"}\nrooms.invitation.link: https://pilos.tld/rooms/123-abc-def');
+    expect(clipboardSpy).toBeCalledWith('rooms.invitation.room:{"roomname":"Meeting One","platform":"PILOS"}\nrooms.invitation.link: https://pilos.tld/rooms/abc-def-123');
   });
 });

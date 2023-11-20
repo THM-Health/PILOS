@@ -137,7 +137,7 @@ return [
         ],
         'room_component'=> [
             'never_started'   => ' Never started before',
-            'running_since'   => ' Meeting running since :date',
+            'running_since'   => ' Running since :date',
             'last_ran_till'   => ' Last ran till :date',
             'open'            => 'Open',
             'details'         => 'Details',
@@ -250,7 +250,7 @@ return [
             'max_duration'      => 'Max. duration',
             'minutes'           => 'min.',
             'reset_duration'    => 'Reset duration',
-            'short_description' => 'Short description',
+            'short_description' => 'Public short description',
             'title'             => 'General',
             'type'              => 'Type',
             'welcome_message'   => 'Welcome message',

@@ -88,7 +88,7 @@ return [
         'server_pool'                        => 'Server pool',
         'servers'                            => 'Server',
         'sex'                                => 'Sex',
-        'short_description'                  => 'Short description',
+        'short_description'                  => 'Public short description',
         'size'                               => 'Size',
         'strength'                           => 'Server strength',
         'time'                               => 'Time',

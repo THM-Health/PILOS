@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import RoomIndex from '../../../../resources/js/views/rooms/Index.vue';
+import RoomIndex from '@/views/rooms/Index.vue';
 import {
   BAlert,
   BButton,
@@ -14,15 +14,12 @@ import {
 } from 'bootstrap-vue';
 
 import _ from 'lodash';
-import PermissionService from '../../../../resources/js/services/PermissionService';
-import Base from '../../../../resources/js/api/base';
+import PermissionService from '@/services/PermissionService';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
-import RoomSkeletonComponent from '../../../../resources/js/components/Room/RoomSkeletonComponent.vue';
-import { useAuthStore } from '../../../../resources/js/stores/auth';
-import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
+import { useAuthStore } from '@/stores/auth';
 import { expect } from 'vitest';
 
 const localVue = createLocalVue();
@@ -49,7 +46,6 @@ describe('Room Index', () => {
         last_meeting: null,
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -70,7 +66,6 @@ describe('Room Index', () => {
         },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -91,7 +86,6 @@ describe('Room Index', () => {
         },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
@@ -114,10 +108,10 @@ describe('Room Index', () => {
 
   const exampleRoomTypeResponse = {
     data: [
-      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27', default: false },
-      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true },
-      { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E', default: false },
-      { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4', default: false }
+      { id: 1, description: 'Vorlesung', color: '#80BA27', default: false },
+      { id: 2, description: 'Meeting', color: '#4a5c66', default: true },
+      { id: 3, description: 'Pr\u00fcfung', color: '#9C132E', default: false },
+      { id: 4, description: '\u00dcbung', color: '#00B8E4', default: false }
     ]
   };
 
@@ -127,6 +121,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -146,10 +145,11 @@ describe('Room Index', () => {
     expect(view.getComponent(BInputGroupAppend).getComponent(BButton).element.disabled).toBeTruthy();
     // dropdown for sorting type
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeTruthy();
+
     // filter button on small devices
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(2).element.disabled).toBeFalsy();
     // favorites button
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeTruthy();
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeTruthy();
     // filter checkboxes
     expect(view.findComponent(BFormGroup).exists()).toBeTruthy();
     expect(view.findComponent(BFormGroup).element.disabled).toBeTruthy();
@@ -173,9 +173,9 @@ describe('Room Index', () => {
     // dropdown for sorting type
     expect(view.getComponent(BDropdown).getComponent(BButton).element.disabled).toBeFalsy();
     // filter button on small devices
-    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(2).element.disabled).toBeFalsy();
     // favorites button
-    expect(view.findAllComponents(BButton).at(4).element.disabled).toBeFalsy();
+    expect(view.findAllComponents(BButton).at(3).element.disabled).toBeFalsy();
     // filter checkboxes
     expect(view.findComponent(BFormGroup).element.disabled).toBeFalsy();
     // room type select
@@ -193,28 +193,11 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // check attribute bindings
-    const rooms = view.findAllComponents(RoomComponent);
+    const rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toEqual(3);
-    expect(rooms.at(0).props('id')).toBe('abc-def-123');
-    expect(rooms.at(0).props('name')).toBe('Meeting One');
-    expect(rooms.at(0).props('isFavorite')).toBe(false);
-    expect(rooms.at(0).props('shortDescription')).toBe('Own room');
-    expect(rooms.at(0).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
-    expect(rooms.at(0).props('owner')).toEqual({ id: 1, name: 'John Doe' });
-
-    expect(rooms.at(1).props('id')).toBe('def-abc-123');
-    expect(rooms.at(1).props('name')).toBe('Meeting Two');
-    expect(rooms.at(1).props('isFavorite')).toBe(false);
-    expect(rooms.at(1).props('shortDescription')).toBe(null);
-    expect(rooms.at(1).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
-    expect(rooms.at(1).props('owner')).toEqual({ id: 1, name: 'John Doe' });
-
-    expect(rooms.at(2).props('id')).toBe('def-abc-456');
-    expect(rooms.at(2).props('name')).toBe('Meeting Three');
-    expect(rooms.at(2).props('isFavorite')).toBe(false);
-    expect(rooms.at(2).props('shortDescription')).toBe(null);
-    expect(rooms.at(2).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
-    expect(rooms.at(2).props('owner')).toEqual({ id: 1, name: 'John Doe' });
+    expect(rooms.at(0).props('room').id).toBe('abc-def-123');
+    expect(rooms.at(1).props('room').id).toBe('def-abc-123');
+    expect(rooms.at(2).props('room').id).toBe('def-abc-456');
 
     view.destroy();
   });
@@ -237,6 +220,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -248,7 +236,7 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+    const missingNewRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
     expect(missingNewRoomComponent.exists()).toBeFalsy();
 
     PermissionService.setCurrentUser(oldUser);
@@ -268,6 +256,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -283,14 +276,14 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // find current amount of rooms
-    let rooms = view.findAllComponents(RoomComponent);
+    let rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(3);
 
     // find new room component and fire event
-    let newRoomComponent = view.findComponent(NewRoomComponent);
+    let newRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
     expect(newRoomComponent.exists()).toBeTruthy();
     let roomRequest = mockAxios.request('/api/v1/rooms');
-    newRoomComponent.vm.$emit('limitReached');
+    newRoomComponent.vm.$emit('limit-reached');
 
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(1);
@@ -310,7 +303,7 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
+
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -328,7 +321,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -351,13 +343,13 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // check if now four rooms are displayed
-    rooms = view.findAllComponents(RoomComponent);
+    rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(2);
 
     // try to find new room component, should be disabled as the limit is reached
-    newRoomComponent = view.findComponent(NewRoomComponent);
+    newRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
     expect(newRoomComponent.exists()).toBeTruthy();
-    expect(newRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
+    expect(newRoomComponent.props('disabled')).toBeTruthy();
 
     // find pagination
     const pagination = view.findComponent(BPagination);
@@ -369,7 +361,7 @@ describe('Room Index', () => {
     await pagination.findAll('li').at(5).find('button').trigger('click');
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(2);
-    expect(newRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
+    expect(newRoomComponent.props('disabled')).toBeTruthy();
 
     // respond with 2 rooms on the second page
     await roomRequest.respondWith({
@@ -386,7 +378,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -407,7 +398,6 @@ describe('Room Index', () => {
             },
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -429,9 +419,9 @@ describe('Room Index', () => {
     });
 
     // find new room component and fire event again
-    newRoomComponent = view.findComponent(NewRoomComponent);
+    newRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
     roomRequest = mockAxios.request('/api/v1/rooms');
-    newRoomComponent.vm.$emit('limitReached');
+    newRoomComponent.vm.$emit('limit-reached');
 
     await roomRequest.wait();
 
@@ -454,6 +444,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock
@@ -524,6 +519,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -627,7 +627,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -649,14 +648,9 @@ describe('Room Index', () => {
     });
 
     // check if room is found
-    let rooms = view.findAllComponents(RoomComponent);
+    let rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(1);
-    expect(rooms.at(0).props('id')).toBe('abc-def-123');
-    expect(rooms.at(0).props('name')).toBe('Meeting One');
-    expect(rooms.at(0).props('isFavorite')).toBe(false);
-    expect(rooms.at(0).props('shortDescription')).toBe('Own room');
-    expect(rooms.at(0).props('type')).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
-    expect(rooms.at(0).props('owner')).toEqual({ id: 1, name: 'John Doe' });
+    expect(rooms.at(0).props('room').id).toBe('abc-def-123');
 
     // test reset of the current page after entering a search query
     // find pagination and switch to the next page
@@ -694,7 +688,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -716,10 +709,9 @@ describe('Room Index', () => {
     });
 
     // check if room is changed
-    rooms = view.findAllComponents(RoomComponent);
+    rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(1);
-    expect(rooms.at(0).props('id')).toBe('abc-def-456');
-    expect(rooms.at(0).props('name')).toBe('Meeting Two');
+    expect(rooms.at(0).props('room').id).toBe('abc-def-456');
 
     // enter search query again and check if page is changed to the first page
     roomRequest = mockAxios.request('/api/v1/rooms');
@@ -744,6 +736,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -792,7 +789,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -843,7 +839,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -891,6 +886,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -939,7 +939,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -991,7 +990,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1045,6 +1043,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -1093,7 +1096,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1151,7 +1153,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1255,6 +1256,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -1335,6 +1341,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -1390,7 +1401,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1439,7 +1449,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1537,6 +1546,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -1549,7 +1563,7 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // find favorites button and check if it is shown correct
-    const favoritesButton = view.findAllComponents(BButton).at(4);
+    const favoritesButton = view.findAllComponents(BButton).at(3);
     expect(favoritesButton.html()).toContain('fa-star');
     expect(favoritesButton.element.disabled).toBeFalsy();
     // check if filter options are not disabled
@@ -1582,7 +1596,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1637,7 +1650,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1723,6 +1735,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock
@@ -1735,12 +1752,12 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // find rooms
-    let rooms = view.findAllComponents(RoomComponent);
+    let rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(3);
 
     // fire event and check if rooms are reload
     let roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(0).vm.$emit('favorites_changed');
+    rooms.at(0).vm.$emit('favorites-changed');
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(1);
     // respond with 3 rooms on 3 different pages
@@ -1758,7 +1775,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1804,7 +1820,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1827,8 +1842,8 @@ describe('Room Index', () => {
 
     // fire event for another room and check if rooms are reload
     roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms = view.findAllComponents(RoomComponent);
-    rooms.at(0).vm.$emit('favorites_changed');
+    rooms = view.findAllComponents({ name: 'RoomCardComponent' });
+    rooms.at(0).vm.$emit('favorites-changed');
     await roomRequest.wait();
     // make sure that the page stay the same
     expect(roomRequest.config.params.page).toBe(2);
@@ -1849,6 +1864,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -1861,7 +1881,7 @@ describe('Room Index', () => {
     await view.vm.$nextTick();
 
     // find favorites button and check if it is shown correct
-    const favoritesButton = view.findAllComponents(BButton).at(4);
+    const favoritesButton = view.findAllComponents(BButton).at(3);
     expect(favoritesButton.html()).toContain('fa-star');
     expect(favoritesButton.element.disabled).toBeFalsy();
 
@@ -1879,12 +1899,12 @@ describe('Room Index', () => {
     });
 
     // find rooms
-    let rooms = view.findAllComponents(RoomComponent);
+    let rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(3);
 
     // fire event and check if rooms are reload and page and only_favorites stay the same
     roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(1).vm.$emit('favorites_changed');
+    rooms.at(1).vm.$emit('favorites-changed');
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(1);
     expect(roomRequest.config.params.only_favorites).toBeTruthy();
@@ -1904,7 +1924,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1925,7 +1944,6 @@ describe('Room Index', () => {
             },
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1973,7 +1991,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -1994,7 +2011,6 @@ describe('Room Index', () => {
             },
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -2016,12 +2032,12 @@ describe('Room Index', () => {
     });
 
     // find rooms
-    rooms = view.findAllComponents(RoomComponent);
+    rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(2);
 
     // fire event and check if rooms are reload and page and only_favorites stay the same
     roomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(1).vm.$emit('favorites_changed');
+    rooms.at(1).vm.$emit('favorites-changed');
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(2);
     expect(roomRequest.config.params.only_favorites).toBeTruthy();
@@ -2041,7 +2057,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -2063,13 +2078,13 @@ describe('Room Index', () => {
     });
 
     // find room
-    rooms = view.findAllComponents(RoomComponent);
+    rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(1);
 
     // fire event and check if rooms are reload
     roomRequest = mockAxios.request('/api/v1/rooms');
     const secondRoomRequest = mockAxios.request('/api/v1/rooms');
-    rooms.at(0).vm.$emit('favorites_changed');
+    rooms.at(0).vm.$emit('favorites-changed');
     await roomRequest.wait();
     // reload with no rooms on the second page
     await roomRequest.respondWith({
@@ -2115,6 +2130,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
@@ -2134,7 +2154,7 @@ describe('Room Index', () => {
     expect(reloadButton.element.disabled).toBeFalsy();
 
     // check if room skeleton components are shown
-    expect(view.findAllComponents(RoomSkeletonComponent).length).toBe(3);
+    expect(view.findAllComponents({ name: 'RoomSkeletonComponent' }).length).toBe(3);
 
     // check if buttons are not disabled
     // search
@@ -2174,7 +2194,6 @@ describe('Room Index', () => {
             last_meeting: null,
             type: {
               id: 2,
-              short: 'ME',
               description: 'Meeting',
               color: '#4a5c66',
               default: false
@@ -2205,7 +2224,7 @@ describe('Room Index', () => {
     expect(view.getComponent(BOverlay).attributes('aria-busy')).toBeUndefined();
     reloadButton = view.findComponent({ ref: 'reload' });
     expect(reloadButton.exists()).toBeFalsy();
-    expect(view.findAllComponents(RoomComponent).length).toBe(1);
+    expect(view.findAllComponents({ name: 'RoomCardComponent' }).length).toBe(1);
 
     // check if buttons are not disabled
     // search
@@ -2275,6 +2294,11 @@ describe('Room Index', () => {
 
     const view = mount(RoomIndex, {
       localVue,
+      stubs: {
+        'room-skeleton-component': true,
+        'room-card-component': true,
+        'new-room-component': true
+      },
       mocks: {
         $t: (key) => key,
         $d: i18nDateMock
