@@ -217,7 +217,8 @@ class RoomTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testTransferRoom(){
+    public function testTransferRoom()
+    {
         //Create users
         $role       = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
@@ -225,7 +226,7 @@ class RoomTest extends TestCase
         $userThatCanHaveRooms = User::factory()->create();
         $userThatCanHaveRooms->roles()->attach($role);
         $userThatCanNotHaveRooms = User::factory()->create();
-        $userThatReachedLimit =User::factory()->create();
+        $userThatReachedLimit    =User::factory()->create();
         $userThatReachedLimit->roles()->attach($role);
         setting(['room_limit' => '1']);
 
@@ -279,6 +280,9 @@ class RoomTest extends TestCase
         $this->assertEquals($room->owner->id, $this->user->id);
         $foundOldOwner = $room->members()->find($userThatCanHaveRooms);
         $this->assertNotNull($foundOldOwner);
+        //Make sure that the new owner was deleted from the members
+        $foundNewOwner = $room->members()->find($this->user);
+        $this->assertNull($foundNewOwner);
         $this->assertEquals(RoomUserRole::MODERATOR, $foundOldOwner->pivot->role);
 
         //Test transfer room to user that can have rooms and stay in room as co owner

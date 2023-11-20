@@ -368,12 +368,16 @@ class RoomController extends Controller
             }
 
             DB::commit();
-            Log::info('Transferred room ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}',['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
-            if($request->role) Log::info('Changed role of previous owner {oldOwner} of the room {room} to the role {role}',['oldOwner' => $oldOwner->getLogLabel(), 'room'=> $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role)]);
+            Log::info('Transferred room ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
+            if ($request->role) {
+                Log::info('Changed role of previous owner {oldOwner} of the room {room} to the role {role}', ['oldOwner' => $oldOwner->getLogLabel(), 'room'=> $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role)]);
+            }
+
             return response()->noContent();
-        }catch(\Exception $e) {
+        } catch(\Exception $e) {
             DB::rollBack();
-            Log::error('Failed to transfer room ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}',['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
+            Log::error('Failed to transfer room ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
+
             return abort(500);
         }
     }

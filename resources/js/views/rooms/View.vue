@@ -126,7 +126,7 @@
                 <!-- transfer room ownership to another user-->
                 <can method="transfer" :policy="room">
                   <transfer-ownership-dropdown-button
-                    @transferredOwnership="reload"
+                    @transferred-ownership="reload"
                     :room="room">
                   </transfer-ownership-dropdown-button>
                 </can>

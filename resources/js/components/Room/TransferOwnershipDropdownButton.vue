@@ -15,12 +15,14 @@
       :cancel-title="$t('app.cancel')"
       :title="$t('rooms.modals.transfer_ownership.title')"
       id="transfer-ownership-modal"
+      ref="transfer-ownership-modal"
       @ok="transferOwnership"
       :ok-disabled="!newOwner"
       ok-variant="success"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
+      :static="modalStatic"
     >
 
       <template v-slot:modal-ok>
@@ -95,7 +97,11 @@ export default {
   mixins: [FieldErrors],
   components: { Multiselect },
   props: {
-    room: Object // room object
+    room: Object, // room object
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
@@ -134,7 +140,7 @@ export default {
         data
       }).then(response => {
         // operation successful, emit "transferredOwnership" to reload room view and close modal
-        this.$emit('transferredOwnership');
+        this.$emit('transferred-ownership');
         this.$bvModal.hide('transfer-ownership-modal');
       }).catch(error => {
         // transferring failed
@@ -209,8 +215,8 @@ export default {
   },
 
   watch: {
-    'newOwner':function(){
-      this.errors ={};
+    newOwner: function () {
+      this.errors = {};
     }
   }
 
