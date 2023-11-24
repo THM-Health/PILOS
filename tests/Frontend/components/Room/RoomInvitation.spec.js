@@ -75,7 +75,7 @@ describe('RoomInvitation', () => {
 
     expect(clipboardSpy).toBeCalledTimes(1);
     expect(clipboardSpy).toBeCalledWith('rooms.invitation.room:{"roomname":"Meeting One","platform":"PILOS"}\nrooms.invitation.link: https://pilos.tld/rooms/abc-def-123\nrooms.invitation.code: 123-456-789');
-    
+
     delete navigator.clipboard;
     view.destroy();
   });
@@ -110,7 +110,7 @@ describe('RoomInvitation', () => {
 
     expect(clipboardSpy).toBeCalledTimes(1);
     expect(clipboardSpy).toBeCalledWith('rooms.invitation.room:{"roomname":"Meeting One","platform":"PILOS"}\nrooms.invitation.link: https://pilos.tld/rooms/abc-def-123');
-   
+
     delete navigator.clipboard;
     view.destroy();
   });
