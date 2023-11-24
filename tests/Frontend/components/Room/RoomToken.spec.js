@@ -173,6 +173,7 @@ describe('Room Token', () => {
 
   it('copy to clipboard', async () => {
     const clipboardSpy = vi.fn();
+    navigator.clipboard = { writeText: clipboardSpy };
 
     const toastInfoSpy = vi.fn();
 
@@ -183,7 +184,6 @@ describe('Room Token', () => {
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
-        $copyText: clipboardSpy,
         toastInfo: toastInfoSpy
       },
       propsData: {
@@ -218,6 +218,7 @@ describe('Room Token', () => {
     expect(toastInfoSpy).toBeCalledTimes(1);
     expect(toastInfoSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
 
+    delete navigator.clipboard;
     view.destroy();
   });
 
