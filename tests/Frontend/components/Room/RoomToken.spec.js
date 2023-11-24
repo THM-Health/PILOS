@@ -218,6 +218,7 @@ describe('Room Token', () => {
     expect(toastInfoSpy).toBeCalledTimes(1);
     expect(toastInfoSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
 
+    delete navigator.clipboard;
     view.destroy();
   });
 
