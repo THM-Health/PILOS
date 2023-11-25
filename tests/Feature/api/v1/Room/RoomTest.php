@@ -219,32 +219,49 @@ class RoomTest extends TestCase
 
     public function testTransferRoom()
     {
-        //Create users
+        //Create roles and users
+        //Roles
         $role       = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
+        $role2 = Role::factory()->create();
+        $role2->permissions()->attach($this->createPermission);
+        //Users
         $this->user->roles()->attach($role);
         $userThatCanHaveRooms = User::factory()->create();
         $userThatCanHaveRooms->roles()->attach($role);
         $userThatCanNotHaveRooms = User::factory()->create();
         $userThatReachedLimit    =User::factory()->create();
         $userThatReachedLimit->roles()->attach($role);
+        $userThatCanNotHaveRoomType = User::factory()->create();
+        $userThatCanNotHaveRoomType->roles()->attach($role2);
         setting(['room_limit' => '1']);
 
         //create rooms
-        $room = Room::factory()->create();
-        $room->owner()->associate($this->user);
+        $room                     = Room::factory()->create();
         $room->roomType->restrict = true;
         $room->roomType->save();
-        //ToDo
         $room->roomType->roles()->sync([$role->id]);
         $room->save();
-        $limitRoom = Room::factory()->create();
-        $limitRoom->owner()->associate($userThatReachedLimit);
-        $limitRoom->save();
+        //Limit room (lets userThatReachedLimit reach the limit)
+        Room::factory()->create(['user_id'=>$userThatReachedLimit->id]);
 
         //Test unauthenticated user
         $this->postJson(route('api.v1.rooms.transfer', ['room' => $room]))
             ->assertUnauthorized();
+
+        //Test user that is not the owner of the room
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => -1])
+            ->assertForbidden();
+
+        //Test user that has manage permission
+        $role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id])
+            ->assertNoContent();
+        $role->permissions()->detach($this->managePermission);
+
+        //Make sure that the owner was changed
+        $room->refresh();
+        $this->assertEquals($room->owner->id, $this->user->id);
 
         //Test transfer room to invalid user
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => -1])
@@ -276,7 +293,7 @@ class RoomTest extends TestCase
         $this->assertEquals(RoomUserRole::USER, $foundOldOwner->pivot->role);
 
         //Test transfer room to previous owner and stay in room as moderator
-        $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id, 'role' => RoomUserRole::MODERATOR])
+        $this->actingAs($userThatCanHaveRooms)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $this->user->id, 'role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
 
         //Check if owner was changed and that the old owner was added as a moderator
@@ -284,10 +301,11 @@ class RoomTest extends TestCase
         $this->assertEquals($room->owner->id, $this->user->id);
         $foundOldOwner = $room->members()->find($userThatCanHaveRooms);
         $this->assertNotNull($foundOldOwner);
+        $this->assertEquals(RoomUserRole::MODERATOR, $foundOldOwner->pivot->role);
+
         //Make sure that the new owner was deleted from the members
         $foundNewOwner = $room->members()->find($this->user);
         $this->assertNull($foundNewOwner);
-        $this->assertEquals(RoomUserRole::MODERATOR, $foundOldOwner->pivot->role);
 
         //Test transfer room to user that can have rooms and stay in room as co owner
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanHaveRooms->id, 'role' => RoomUserRole::CO_OWNER])
@@ -299,6 +317,8 @@ class RoomTest extends TestCase
         $foundOldOwner = $room->members()->find($this->user);
         $this->assertNotNull($foundOldOwner);
         $this->assertEquals(RoomUserRole::CO_OWNER, $foundOldOwner->pivot->role);
+
+        //reset owner and membership
         $room->owner()->associate($this->user);
         $room->members()->detach($this->user);
         $room->save();
@@ -319,7 +339,9 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatReachedLimit->id])
             ->assertJsonValidationErrors(['user']);
 
-        //ToDo Test transfer room to user that can not have rooms of the room type of the room
+        //Test transfer room to user that can not have rooms of the room type of the room
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.transfer', ['room' => $room]), ['user' => $userThatCanNotHaveRoomType->id])
+            ->assertJsonValidationErrors(['user']);
     }
 
     /**
