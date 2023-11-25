@@ -233,6 +233,10 @@ class RoomTest extends TestCase
         //create rooms
         $room = Room::factory()->create();
         $room->owner()->associate($this->user);
+        $room->roomType->restrict = true;
+        $room->roomType->save();
+        //ToDo
+        $room->roomType->roles()->sync([$role->id]);
         $room->save();
         $limitRoom = Room::factory()->create();
         $limitRoom->owner()->associate($userThatReachedLimit);

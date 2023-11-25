@@ -205,12 +205,13 @@ return [
         ],
         'transfer_ownership' => [
             'new_owner'            => 'New owner',
-            'new_role'             => 'New role in room: ',
-            'select_user'          => 'Please select the user who should be the new owner',
-            'stay_in_room'         => 'Do you want the current owner to stay a member of the room?',
-            'stay_in_room_current' => 'Stay member of the room?',
-            'title'                => 'Transfer room ownership',
+            'new_role'             => 'New role of the current owner',
+            'no_role'              => 'No role',
+            'select_user'          => 'Please select the new owner',
+            'title'                => 'Transfer ownership',
             'transfer'             => 'Transfer',
+            'warning'              => 'Caution: This may result in the previous owner losing access to this room',
+
         ],
     ],
     'name'                      => 'Room name',

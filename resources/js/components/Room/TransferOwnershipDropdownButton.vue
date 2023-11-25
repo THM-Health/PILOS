@@ -60,14 +60,8 @@
         <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
       </b-form-group>
 
-      <!--select if the owner wants/should stay in the room-->
-      <b-form-checkbox  :disabled="isLoadingAction" switch v-model="stayInRoom">
-        <span v-if="room.owner.id === currentUser.id">{{$t('rooms.modals.transfer_ownership.stay_in_room_current')}}</span>
-        <span v-else>{{$t('rooms.modals.transfer_ownership.stay_in_room')}}</span>
-      </b-form-checkbox>
-
-      <!--select new role in the room for the current owner -->
-      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" v-if="stayInRoom" :disabled="isLoadingAction" :state="newRoleInRoomValid" class=" mt-2">
+      <!--select new role with which the current owner should be added as a member of the room -->
+      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" :disabled="isLoadingAction" :state="newRoleInRoomValid" class=" mt-2">
         <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" value="1">
           <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
         </b-form-radio>
@@ -76,6 +70,13 @@
         </b-form-radio>
         <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" value="3">
           <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
+        </b-form-radio>
+
+        <hr>
+        <!--option to not add the current user as a member of the room-->
+        <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" :value="null">
+          <b-badge variant="secondary">{{$t('rooms.modals.transfer_ownership.no_role')}}</b-badge>
+          <b-form-text>{{$t('rooms.modals.transfer_ownership.warning')}}</b-form-text>
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="fieldError('role')"></div> </template>
       </b-form-group>
@@ -109,7 +110,6 @@ export default {
       isLoadingSearch: false,
       users: [], // list of all found users
       newOwner: null,
-      stayInRoom: true,
       newRoleInRoom: 3,
       errors: []
     };
@@ -130,7 +130,7 @@ export default {
       const data = {
         user: this.newOwner.id
       };
-      if (this.stayInRoom) {
+      if (this.newRoleInRoom) {
         data.role = this.newRoleInRoom;
       }
 

@@ -20,7 +20,7 @@ return [
     'no_data_filtered'   => 'Für die Suchanfrage wurden keine laufenden Meetings gefunden!',
     'no_historical_data' => 'Es sind keine vergangenen Meetings verfügbar',
     'now'                => 'Jetzt',
-    'owner'              => 'Besitzer',
+    'owner'              => 'Eigentümer',
     'participant_count'  => 'Teilnehmer',
     'retention_period'   => 'Aufbewahrungsfristen',
     'start'              => 'Beginn',
