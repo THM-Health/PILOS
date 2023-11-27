@@ -5,6 +5,7 @@ import { expect } from 'vitest';
 import TransferOwnershipDropdownButton from '@/components/Room/TransferOwnershipDropdownButton.vue';
 import { createTestingPinia } from '@pinia/testing';
 import { BDropdownItemButton, BFormRadio } from 'bootstrap-vue';
+import Base from '@/api/base';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -371,5 +372,185 @@ describe('Room Transfer Dropdown Button', () => {
 
     view.destroy();
   });
-  // ToDo test with errors
+
+  it('test transfer ownership with errors', async () => {
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const view = mount(TransferOwnershipDropdownButton, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        room,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+
+    // find modal
+    const modal = view.findComponent({ ref: 'transfer-ownership-modal' });
+    expect(modal.exists()).toBeTruthy();
+
+    // check if modal is closed
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    // check if button to open the modal exists
+    const transferButton = view.findComponent(BDropdownItemButton).find('button');
+    expect(transferButton.exists()).toBeTruthy();
+
+    // try to open modal
+    await waitModalShown(view, async () => {
+      transferButton.trigger('click');
+    });
+
+    // check if modal is open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // find user search and enter query
+    const searchField = modal.find('input');
+
+    const searchRequest = mockAxios.request('/api/v1/users/search');
+
+    await searchField.setValue('John');
+    await searchRequest.wait();
+    // check user search query request and respond with found users
+    expect(searchRequest.config.params.query).toEqual('John');
+    await searchRequest.respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 1, firstname: 'John', lastname: 'Doe', email: 'JohnWDoe@domain.tld', image: null },
+          { id: 10, firstname: 'John', lastname: 'Walter', email: 'JohnMWalter@domain.tld', image: null }
+        ]
+      }
+    });
+
+    // select new owner
+    await modal.findAll('li').at(1).find('span').trigger('click');
+    expect(view.vm.$data.newOwner.id).toBe(10);
+    expect(view.vm.$data.newRoleInRoom).toBe(3);
+
+    // find modal action buttons
+    const footerButtons = modal.find('footer').findAll('button');
+    expect(footerButtons.length).toBe(2);
+
+    let transferOwnershipRequest = mockAxios.request('/api/v1/rooms/abc-def-123/transfer');
+
+    // confirm transfer of room ownership
+    await footerButtons.at(1).trigger('click');
+
+    // check for request and respond
+    await transferOwnershipRequest.wait();
+    expect(transferOwnershipRequest.config.method).toEqual('post');
+    expect(JSON.parse(transferOwnershipRequest.config.data)).toMatchObject({ user: 10, role: 3 });
+
+    // respond with error (user is the owner)
+    await transferOwnershipRequest.respondWith({
+      status: 422,
+      data: {
+        errors: {
+          user: ['The selected user is the owner of the room.']
+        }
+      }
+    });
+
+    // check if the modal shows correctly
+    expect(footerButtons.at(1).element.disabled).toBeFalsy();
+    expect(modal.html()).toContain('The selected user is the owner of the room.');
+
+    // confirm transfer of room ownership
+    transferOwnershipRequest = mockAxios.request('/api/v1/rooms/abc-def-123/transfer');
+    await footerButtons.at(1).trigger('click');
+
+    // check for request and respond
+    await transferOwnershipRequest.wait();
+    expect(transferOwnershipRequest.config.method).toEqual('post');
+
+    // respond with error (user can not own rooms)
+    await transferOwnershipRequest.respondWith({
+      status: 422,
+      data: {
+        errors: {
+          user: ['The selected user can not own rooms.']
+        }
+      }
+    });
+
+    // check if the modal shows correctly
+    expect(footerButtons.at(1).element.disabled).toBeFalsy();
+    console.log(modal.html());
+    expect(modal.html()).toContain('The selected user can not own rooms.');
+
+    // confirm transfer of room ownership
+    transferOwnershipRequest = mockAxios.request('/api/v1/rooms/abc-def-123/transfer');
+    await footerButtons.at(1).trigger('click');
+
+    // check for request and respond
+    await transferOwnershipRequest.wait();
+    expect(transferOwnershipRequest.config.method).toEqual('post');
+
+    // respond with error (user reached max. amount of rooms and can not own rooms with the room type)
+    await transferOwnershipRequest.respondWith({
+      status: 422,
+      data: {
+        errors: {
+          user: ['The selected user has reached the max. amount of rooms.', 'The selected user can not own rooms with the room type of this room.']
+        }
+      }
+    });
+
+    // check if the modal shows correctly
+    expect(footerButtons.at(1).element.disabled).toBeFalsy();
+    expect(modal.html()).toContain('The selected user has reached the max. amount of rooms.');
+    expect(modal.html()).toContain('The selected user can not own rooms with the room type of this room.');
+
+    // confirm transfer of room ownership
+    transferOwnershipRequest = mockAxios.request('/api/v1/rooms/abc-def-123/transfer');
+    await footerButtons.at(1).trigger('click');
+
+    // check for request and respond
+    await transferOwnershipRequest.wait();
+    expect(transferOwnershipRequest.config.method).toEqual('post');
+
+    // respond with error (invalid role)
+    await transferOwnershipRequest.respondWith({
+      status: 422,
+      data: {
+        errors: {
+          role: ['The selected role is invalid']
+        }
+      }
+    });
+
+    // check if the modal shows correctly
+    expect(footerButtons.at(1).element.disabled).toBeFalsy();
+    expect(modal.html()).toContain('The selected role is invalid');
+
+    // confirm transfer of room ownership
+    transferOwnershipRequest = mockAxios.request('/api/v1/rooms/abc-def-123/transfer');
+    await footerButtons.at(1).trigger('click');
+
+    // check for request and respond
+    await transferOwnershipRequest.wait();
+    expect(transferOwnershipRequest.config.method).toEqual('post');
+
+    // respond with error
+    await transferOwnershipRequest.respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    // check if the modal shows correctly
+    expect(footerButtons.at(1).element.disabled).toBeFalsy();
+
+    expect(baseError).toBeCalledTimes(1);
+    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
+    view.destroy();
+  });
 });
