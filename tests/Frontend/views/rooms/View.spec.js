@@ -2721,6 +2721,85 @@ describe('Room', () => {
     view.destroy();
   });
 
+  it('transfer ownership dropdown button', async () => {
+    const room = {
+      id: 'cba-fed-123',
+      name: 'Meeting One',
+      owner: { id: 1, name: 'John Doe' },
+      last_meeting: null,
+      type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
+      model_name: 'Room',
+      authenticated: true,
+      allow_membership: false,
+      is_member: false,
+      is_co_owner: false,
+      is_moderator: false,
+      is_favorite: false,
+      can_start: true,
+      current_user: exampleUser
+    };
+
+    mockAxios.request('/api/v1/rooms/cba-fed-123').respondWith({
+      status: 200,
+      data: {
+        data: { ...room, owner: { id: 1, name: 'John Doe' }, is_member: false, is_co_owner: false, is_moderator: false }
+      }
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true,
+        id: 'cba-fed-123'
+      },
+      data () {
+        return {
+          accessCode: 123456789
+        };
+      },
+      stubs
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    // find the transfer ownership dropdown button
+    const transferOwnershipDropdownButton = view.findComponent({ name: 'TransferOwnershipDropdownButton' });
+    expect(transferOwnershipDropdownButton.exists()).toBeTruthy();
+
+    // Check if the owner and membership are correctly passed as prop
+    expect(transferOwnershipDropdownButton.props('room').owner.id).toBe(1);
+    expect(transferOwnershipDropdownButton.props('room').owner.name).toBe('John Doe');
+    expect(transferOwnershipDropdownButton.props('room').is_member).toBeFalsy();
+    expect(transferOwnershipDropdownButton.props('room').is_co_owner).toBeFalsy();
+    expect(transferOwnershipDropdownButton.props('room').is_moderator).toBeFalsy();
+
+    const roomRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
+
+    // fire event
+    transferOwnershipDropdownButton.vm.$emit('transferred-ownership');
+    await roomRequest.wait();
+
+    // respond with different owner and current user as co_owner
+    await roomRequest.respondWith({
+      status: 200,
+      data: {
+        data: { ...room, owner: { id: 2, name: 'Max Doe' }, is_member: true, is_co_owner: true, is_moderator: false }
+      }
+    });
+    await view.vm.$nextTick();
+
+    // make sure that the transfer ownership dropdown button is not shown for user that is not the owner
+    expect(transferOwnershipDropdownButton.exists()).toBeFalsy();
+
+    view.destroy();
+  });
+
   it('logged in status change', async () => {
     mockAxios.request('/api/v1/rooms/cba-fed-234').respondWith({
       status: 200,
