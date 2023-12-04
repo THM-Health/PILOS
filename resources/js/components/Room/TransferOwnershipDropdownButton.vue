@@ -62,19 +62,18 @@
 
       <!--select new role with which the current owner should be added as a member of the room -->
       <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" :disabled="isLoadingAction" :state="newRoleInRoomValid" class=" mt-2">
-        <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" value="1">
+        <b-form-radio v-model.number="newRoleInRoom" value="1">
           <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" value="2">
+        <b-form-radio v-model.number="newRoleInRoom" value="2">
           <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" value="3">
+        <b-form-radio v-model.number="newRoleInRoom" value="3">
           <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
         </b-form-radio>
-
         <hr>
         <!--option to not add the current user as a member of the room-->
-        <b-form-radio v-model.number="newRoleInRoom" name="addmember-role-radios" :value="null">
+        <b-form-radio v-model.number="newRoleInRoom" :value="null">
           <b-badge variant="secondary">{{$t('rooms.modals.transfer_ownership.no_role')}}</b-badge>
           <b-form-text>{{$t('rooms.modals.transfer_ownership.warning')}}</b-form-text>
         </b-form-radio>
@@ -139,7 +138,7 @@ export default {
         method: 'post',
         data
       }).then(response => {
-        // operation successful, emit "transferredOwnership" to reload room view and close modal
+        // operation successful, emit "transferred-ownership" to reload room view and close modal
         this.$emit('transferred-ownership');
         this.$bvModal.hide('transfer-ownership-modal');
       }).catch(error => {
@@ -193,7 +192,6 @@ export default {
         this.isLoadingSearch = false;
       });
     }
-
   },
   computed: {
     ...mapState(useAuthStore, ['currentUser']),
@@ -222,7 +220,3 @@ export default {
 
 };
 </script>
-
-<style scoped>
-
-</style>

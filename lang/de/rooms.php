@@ -210,7 +210,7 @@ return [
             'select_user'          => 'Bitte wählen Sie den neuen Eigentümer aus',
             'title'                => 'Eigentümer ändern',
             'transfer'             => 'Übertragen',
-            'warning'              => 'Achtung: Kann dazu führen, dass der bisherige Eigentümer den  Zugriff auf diesen Raum verliert',
+            'warning'              => 'Achtung: Kann dazu führen, dass der aktuelle Eigentümer den  Zugriff auf diesen Raum verliert',
         ],
     ],
     'name'                      => 'Raumname',

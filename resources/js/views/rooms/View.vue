@@ -113,6 +113,13 @@
                   :room="room"
                   @favorites-changed="reload()"
                 />
+                <!-- transfer room ownership to another user-->
+                <can method="transfer" :policy="room">
+                  <transfer-ownership-dropdown-button
+                    @transferred-ownership="reload"
+                    :room="room">
+                  </transfer-ownership-dropdown-button>
+                </can>
                 <can
                   method="delete"
                   :policy="room"
@@ -122,13 +129,6 @@
                     :disabled="loading"
                     @room-deleted="$router.push({ name: 'rooms.index' })"
                   />
-                </can>
-                <!-- transfer room ownership to another user-->
-                <can method="transfer" :policy="room">
-                  <transfer-ownership-dropdown-button
-                    @transferred-ownership="reload"
-                    :room="room">
-                  </transfer-ownership-dropdown-button>
                 </can>
               </b-dropdown>
             </b-button-group>

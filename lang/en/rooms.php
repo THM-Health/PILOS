@@ -210,7 +210,7 @@ return [
             'select_user'          => 'Please select the new owner',
             'title'                => 'Transfer ownership',
             'transfer'             => 'Transfer',
-            'warning'              => 'Caution: This may result in the previous owner losing access to this room',
+            'warning'              => 'Caution: This may result in the current owner losing access to this room',
 
         ],
     ],
