@@ -170,7 +170,7 @@ return [
     'room_types' => [
         'allow_listing'             => 'Recherche de salle autorisée',
         'allow_listing_description' => 'Dans les paramètres, les salles peuvent être rendues visibles pour les recherches.',
-        'color'                     => 'Couleur de l\'icône',
+        'color'                     => 'Couleur',
         'custom_color'              => 'Couleur personnalisée',
         'delete'                    => [
             'confirm'          => 'Voulez-vous vraiment supprimer le type de salle :name?',
