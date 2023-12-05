@@ -18,7 +18,7 @@
       ref="transfer-ownership-modal"
       @ok="transferOwnership"
       :ok-disabled="!newOwner"
-      ok-variant="success"
+      ok-variant="danger"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
