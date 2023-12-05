@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
+use Artisan;
 use DB;
 use Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -209,13 +210,16 @@ class ImportGreenlight2Test extends TestCase
         // mock database connections with fake data
         $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses));
 
+        $roomType = RoomType::where('description', 'Lecture')->first();
+        $role     = Role::where('name', 'student')->first();
+
         // run artisan command and text questions and outputs
         $this->artisan('import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678')
             ->expectsQuestion('Please select the authenticator for the social provider: shibboleth', 'shibboleth')
             ->expectsQuestion('Please select the authenticator for the social provider: google', 'shibboleth')
-            ->expectsQuestion('What room type should the rooms be assigned to?', 'LE')
-            ->expectsQuestion('Prefix for room names:', $prefix)
-            ->expectsQuestion('Please select the default role for new imported non-ldap users', 'student')
+            ->expectsQuestion('What room type should the rooms be assigned to?', $roomType->id)
+            ->expectsQuestion('Prefix for room names', $prefix)
+            ->expectsQuestion('Please select the default role for new imported non-ldap users', $role->id)
             ->expectsOutput('Importing users')
             ->expectsOutput('3 created, 3 skipped (already existed)')
             ->expectsOutput('Importing rooms')

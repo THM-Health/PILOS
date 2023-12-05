@@ -170,7 +170,7 @@ return [
     'room_types' => [
         'allow_listing'             => 'Room search allowed',
         'allow_listing_description' => 'In the room settings the rooms can be made visible for the room search.',
-        'color'                     => 'Icon color',
+        'color'                     => 'Color',
         'custom_color'              => 'Custom color',
         'delete'                    => [
             'confirm'          => 'Do you really want to delete the room type :name?',

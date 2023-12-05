@@ -170,7 +170,7 @@ return [
     'room_types' => [
         'allow_listing'             => 'Raumsuche erlaubt',
         'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
-        'color'                     => 'Icon Farbe',
+        'color'                     => 'Farbe',
         'custom_color'              => 'Eigene Farbe',
         'delete'                    => [
             'confirm'          => 'Wollen Sie die Raumart :name wirklich löschen?',

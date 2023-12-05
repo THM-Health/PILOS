@@ -14,7 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
-- Refactor user interface room details ([#681])
+- Refactor user interface room details ([#681], [#724])
+
+## [v2.3.4] - 2023-11-24
+### Fixed
+- Error copying personalized room link ([#700], [#701])
 
 ## [v2.3.3] - 2023-11-13
 ### Fixed
@@ -692,13 +696,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#586]: https://github.com/THM-Health/PILOS/pull/586
 [#620]: https://github.com/THM-Health/PILOS/issues/620
 [#621]: https://github.com/THM-Health/PILOS/pull/621
+[#649]: https://github.com/THM-Health/PILOS/issues/649
+[#650]: https://github.com/THM-Health/PILOS/pull/650
 [#653]: https://github.com/THM-Health/PILOS/issues/653
 [#654]: https://github.com/THM-Health/PILOS/pull/654
 [#681]: https://github.com/THM-Health/PILOS/pull/681
 [#684]: https://github.com/THM-Health/PILOS/issues/684
 [#685]: https://github.com/THM-Health/PILOS/pull/685
+[#700]: https://github.com/THM-Health/PILOS/issues/700
+[#701]: https://github.com/THM-Health/PILOS/pull/701
+[#724]: https://github.com/THM-Health/PILOS/pull/724
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.3...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.4...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -733,3 +742,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.1
 [v2.3.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.2
 [v2.3.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.3
+[v2.3.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.4

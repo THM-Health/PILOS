@@ -11,7 +11,6 @@ class RoomTypeRequest extends FormRequest
     {
         $rules = [
             'description'   => ['required', 'string', 'max:255', Rule::unique('room_types', 'description')],
-            'short'         => ['required', 'string', 'max:2', Rule::unique('room_types', 'short')],
             'color'         => ['required', 'string', 'hex_color'],
             'allow_listing' => ['required', 'boolean'],
             'server_pool'   => 'required|exists:App\Models\ServerPool,id',
@@ -22,21 +21,8 @@ class RoomTypeRequest extends FormRequest
 
         if ($this->roomType) {
             $rules['description']   = ['required', 'string', 'max:255', Rule::unique('room_types', 'description')->ignore($this->roomType->id)];
-            $rules['short']         = ['required', 'string', 'max:2', Rule::unique('room_types', 'short')->ignore($this->roomType->id)];
         }
 
         return $rules;
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array
-     */
-    public function attributes()
-    {
-        return [
-            'short' => __('validation.attributes.icon_text'),
-        ];
     }
 }

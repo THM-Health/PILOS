@@ -50,7 +50,6 @@ return [
         'gender'                             => 'Geschlecht',
         'help_url'                           => 'Hilfeseite',
         'hour'                               => 'Stunde',
-        'icon_text'                          => 'Icon Text',
         'last_name'                          => 'Nachname',
         'lastname'                           => 'Nachname',
         'legal_notice_url'                   => 'Impressum',
