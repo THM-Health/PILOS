@@ -190,7 +190,6 @@ return [
         'select_roles'            => 'Selection des rôles',
         'select_server_pool'      => 'Selection du groupe de serveurs',
         'server_pool_description' => 'Les serveurs de ce groupe seront utilisés pour l\'équilibrage de charge',
-        'short'                   => 'Texte de l\'icône',
         'tile_description'        => 'Les types de salle permettent d\'organiser les salles, en y associant un groupe de serveur ainsi qu\'un icône pour une reconnaisance visuelle rapide.',
         'view'                    => 'Informations détaillées sur le type de salle :name',
     ],

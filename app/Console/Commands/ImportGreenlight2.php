@@ -15,6 +15,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Str;
 
+use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\progress;
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\text;
+
 class ImportGreenlight2 extends Command
 {
     protected $signature = 'import:greenlight-v2
@@ -52,41 +57,34 @@ class ImportGreenlight2 extends Command
         $providerAuthenticatorMap = [];
 
         foreach ($socialProviders as $socialProvider) {
-            $authenticator = $this->choice(
-                'Please select the authenticator for the social provider: '.$socialProvider->provider,
-                $availableAuthenticators,
-                null,
-                $maxAttempts             = null,
-                $allowMultipleSelections = false
+            $authenticator = select(
+                label: 'Please select the authenticator for the social provider: '.$socialProvider->provider,
+                options: $availableAuthenticators,
+                scroll: 10
             );
             $providerAuthenticatorMap[$socialProvider->provider] = $authenticator;
         }
 
         // ask user what room type the imported rooms should get
-        $roomTypeShort = $this->choice(
-            'What room type should the rooms be assigned to?',
-            RoomType::all()->pluck('short')->toArray(),
-            0,
-            $maxAttempts             = null,
-            $allowMultipleSelections = false
+        $roomType = select(
+            label: 'What room type should the rooms be assigned to?',
+            options: RoomType::pluck('description', 'id'),
+            scroll: 10
         );
-
-        // find id of the selected roomType
-        $roomType = RoomType::where('short', $roomTypeShort)->first()->id;
 
         // ask user to add prefix to room names
-        $prefix = $this->ask('Prefix for room names:');
+        $prefix = text(
+            label: 'Prefix for room names',
+            placeholder: 'E.g. (Imported)',
+            hint: '(Optional).'
+        );
 
         // ask user what room type the imported rooms should get
-        $defaultRole = $this->choice(
+        $defaultRole = select(
             'Please select the default role for new imported non-ldap users',
-            Role::all()->pluck('name')->toArray(),
-            null,
-            $maxAttempts             = null,
-            $allowMultipleSelections = false
+            options: Role::pluck('name', 'id'),
+            scroll: 10
         );
-        // find id of the selected role
-        $defaultRole = Role::where('name', $defaultRole)->first()->id;
 
         // Start transaction to rollback if import fails or user cancels
         DB::beginTransaction();
@@ -96,7 +94,7 @@ class ImportGreenlight2 extends Command
             $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth, $prefix);
             $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
 
-            if ($this->confirm('Do you wish to commit the import?')) {
+            if (confirm('Do you wish to commit the import?')) {
                 DB::commit();
                 $this->info('Import completed');
             } else {
@@ -121,7 +119,7 @@ class ImportGreenlight2 extends Command
         $this->line('Importing users');
         $userMap  = [];
 
-        $bar = $this->output->createProgressBar($users->count());
+        $bar = progress(label: 'Importing users', steps: $users->count());
         $bar->start();
 
         // counter of user ids that already exists
@@ -220,6 +218,8 @@ class ImportGreenlight2 extends Command
                 }
             }
         }
+
+        $bar->finish();
 
         // show import results
         $this->line('');

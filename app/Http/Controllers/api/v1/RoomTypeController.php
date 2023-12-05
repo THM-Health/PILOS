@@ -82,7 +82,6 @@ class RoomTypeController extends Controller
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
         $roomType->description   = $request->description;
-        $roomType->short         = $request->short;
         $roomType->color         = $request->color;
         $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict      = $request->restrict;
@@ -105,7 +104,6 @@ class RoomTypeController extends Controller
     {
         $roomType                = new RoomType();
         $roomType->description   = $request->description;
-        $roomType->short         = $request->short;
         $roomType->color         = $request->color;
         $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict      = $request->restrict;
