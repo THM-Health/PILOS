@@ -101,6 +101,12 @@ describe('Room Transfer Dropdown Button', () => {
     expect(userOptions.at(2).text()).toBe('rooms.members.modals.add.no_result');
     expect(userOptions.at(3).text()).toBe('rooms.members.modals.add.no_options');
 
+    // check which user options are shown to the user
+    expect(userOptions.at(0).element.style.display).toEqual('');
+    expect(userOptions.at(1).element.style.display).toEqual('');
+    expect(userOptions.at(2).element.style.display).toEqual('none');
+    expect(userOptions.at(3).element.style.display).toEqual('none');
+
     expect(userOptions.at(0).find('span').classes()).toContain('multiselect__option--disabled');
     expect(userOptions.at(1).find('span').classes()).not.toContain('multiselect__option--disabled');
 
@@ -271,6 +277,79 @@ describe('Room Transfer Dropdown Button', () => {
     view.destroy();
   });
 
+  it('test transfer ownership with error search users', async () => {
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const view = mount(TransferOwnershipDropdownButton, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        room,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+
+    // find modal
+    const modal = view.findComponent({ ref: 'transfer-ownership-modal' });
+    expect(modal.exists()).toBeTruthy();
+
+    // check if modal is closed
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    // check if button to open the modal exists
+    const transferButton = view.findComponent(BDropdownItemButton).find('button');
+    expect(transferButton.exists()).toBeTruthy();
+
+    // try to open modal
+    await waitModalShown(view, async () => {
+      transferButton.trigger('click');
+    });
+
+    // check if modal is open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // find user search and enter query
+    const searchField = modal.find('input');
+
+    const searchRequest = mockAxios.request('/api/v1/users/search');
+
+    await searchField.setValue('J');
+    await searchRequest.wait();
+    // check user search query request and respond with found users
+    expect(searchRequest.config.params.query).toEqual('J');
+
+    // respond with error
+    await searchRequest.respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
+    // check if modal shows correctly
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+    expect(modal.find('footer').findAll('button').at(1).element.disabled).toBeTruthy();
+    const userOptions = modal.findAll('li');
+    expect(userOptions.at(0).text()).toBe('rooms.members.modals.add.no_result');
+    expect(userOptions.at(1).text()).toBe('rooms.members.modals.add.no_options');
+
+    // check which user options are shown to the user
+    expect(userOptions.at(0).element.style.display).toEqual('');
+    expect(userOptions.at(1).element.style.display).toEqual('none');
+
+    // check if baseError was called
+    expect(baseError).toBeCalledTimes(1);
+    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
+
+    view.destroy();
+  });
+
   it('test transfer ownership with errors', async () => {
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(TransferOwnershipDropdownButton, {
@@ -380,7 +459,6 @@ describe('Room Transfer Dropdown Button', () => {
 
     // check if the modal shows correctly
     expect(footerButtons.at(1).element.disabled).toBeFalsy();
-    console.log(modal.html());
     expect(modal.html()).toContain('The selected user can not own rooms.');
 
     // confirm transfer of room ownership
@@ -445,8 +523,10 @@ describe('Room Transfer Dropdown Button', () => {
     });
 
     // check if the modal shows correctly
+    expect(modal.find('.modal').element.style.display).toEqual('block');
     expect(footerButtons.at(1).element.disabled).toBeFalsy();
 
+    // check if baseError was called
     expect(baseError).toBeCalledTimes(1);
     expect(baseError.mock.calls[0][0].response.status).toEqual(500);
     view.destroy();
