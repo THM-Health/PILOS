@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
 - Refactor user interface room details ([#681], [#724])
-- PHP 8.3 docker base image ([#704])
+- PHP 8.3 docker base image ([#704], [#735])
 
 ## [v2.3.4] - 2023-11-24
 ### Fixed
@@ -708,6 +708,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#704]: https://github.com/THM-Health/PILOS/issues/704
 [#701]: https://github.com/THM-Health/PILOS/pull/701
 [#724]: https://github.com/THM-Health/PILOS/pull/724
+[#735]: https://github.com/THM-Health/PILOS/pull/735
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.4...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
