@@ -48,10 +48,6 @@ RUN groupmod -o -g $WWWGROUP www-data
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
 
-# Copy scheduler script
-COPY ./docker/app/scheduler /usr/local/etc/scheduler
-RUN chmod +x /usr/local/etc/scheduler/run.sh
-
 # Copy frontend wrapper script
 COPY ./docker/app/frontend /usr/local/etc/frontend
 RUN chmod +x /usr/local/etc/frontend/run.sh
@@ -84,12 +80,9 @@ COPY ./docker/app/ldap/ /etc/ldap
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
-USER www-data
 # Run npm and composer install as www-data user
-RUN npm install
-RUN composer install
-
-USER root
+RUN gosu www-data npm install
+RUN gosu www-data composer install
 
 EXPOSE 80
 EXPOSE 443

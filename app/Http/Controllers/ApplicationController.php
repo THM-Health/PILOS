@@ -8,4 +8,9 @@ class ApplicationController extends Controller
     {
         return view('application');
     }
+
+    public function health()
+    {
+        return response()->json(['status' => 'ok']);
+    }
 }

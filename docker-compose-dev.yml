@@ -16,6 +16,7 @@ services:
         environment:
           ENABLE_XDEBUG: '${ENABLE_XDEBUG:-no}'
           TRUSTED_PROXIES: "*"
+          PHP_PM_MAX_CHILDREN: "5"
         volumes:
           - './:/var/www/html/'
           - './ssl:/local/certs/'
