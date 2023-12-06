@@ -4,9 +4,8 @@ import BootstrapVue, {
   BFormRadio, BFormTextarea, BListGroup, BListGroupItem
 
 } from 'bootstrap-vue';
-import VueClipboard from 'vue-clipboard2';
-import Base from '../../../../resources/js/api/base';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '@/api/base';
+import PermissionService from '@/services/PermissionService';
 import {
   waitModalHidden,
   waitModalShown,
@@ -17,15 +16,14 @@ import {
 } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import BulkImportMembersComponent from '../../../../resources/js/components/Room/BulkImportMembersComponent.vue';
+import BulkImportMembersComponent from '@/components/Room/BulkImportMembersComponent.vue';
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
-const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 
 const initialState = { auth: { currentUser: exampleUser } };
 

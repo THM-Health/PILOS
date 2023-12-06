@@ -7,10 +7,10 @@ import BootstrapVue, {
   BOverlay
 } from 'bootstrap-vue';
 
-import SettingsComponent from '../../../../resources/js/components/Room/SettingsComponent.vue';
-import VueClipboard from 'vue-clipboard2';
-import Base from '../../../../resources/js/api/base';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import SettingsComponent from '@/components/Room/SettingsComponent.vue';
+
+import Base from '@/api/base';
+import PermissionService from '@/services/PermissionService';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -19,21 +19,20 @@ import { expect } from 'vitest';
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const adminUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.manage'], model_name: 'User', room_limit: -1 };
-const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
-const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
+const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 
 const exampleRoomTypeResponse = {
   data: [
-    { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27', allow_listing: true, model_name: 'RoomType' },
-    { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', allow_listing: false, model_name: 'RoomType' },
-    { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E', allow_listing: false, model_name: 'RoomType' },
-    { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4', allow_listing: true, model_name: 'RoomType' }
+    { id: 1, description: 'Vorlesung', color: '#80BA27', allow_listing: true, model_name: 'RoomType' },
+    { id: 2, description: 'Meeting', color: '#4a5c66', allow_listing: false, model_name: 'RoomType' },
+    { id: 3, description: 'Pr\u00fcfung', color: '#9C132E', allow_listing: false, model_name: 'RoomType' },
+    { id: 4, description: '\u00dcbung', color: '#00B8E4', allow_listing: true, model_name: 'RoomType' }
   ]
 };
 
@@ -76,7 +75,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -97,6 +95,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -111,7 +110,7 @@ describe('RoomSettings', () => {
     // load all form fields and buttons
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
@@ -119,9 +118,11 @@ describe('RoomSettings', () => {
 
     // general
     expect(inputFields.at(0).element.value).toBe('Meeting One');
-    expect(textArea.element.value).toBe('welcome');
+    expect(textAreas.at(0).element.value).toBe('welcome');
+    expect(textAreas.at(1).element.value).toBe('short description');
     // check if welcome char limit is shown
-    expect(textArea.element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"7 / 250"}');
+    expect(textAreas.at(0).element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"7 / 250"}');
+    expect(textAreas.at(1).element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"17 / 300"}');
     expect(inputFields.at(1).element.value).toBe('5');
 
     // security
@@ -155,7 +156,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are disabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -184,14 +186,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are disabled during loading
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -202,7 +205,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -223,6 +225,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -237,7 +240,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -270,7 +274,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -291,6 +294,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -304,14 +308,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -344,7 +349,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -365,6 +369,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -378,14 +383,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -422,14 +428,15 @@ describe('RoomSettings', () => {
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
-    const textArea = view.findComponent(BFormTextarea);
+    const textAreas = view.findAllComponents(BFormTextarea);
     const checkboxes = view.findAll('input[type="checkbox"]');
     const radios = view.findAll('input[type="radio"]');
 
     // check if all fields and buttons are disabled during loading
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -450,7 +457,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are disabled during loading
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
-    expect(textArea.attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(0).attributes('disabled')).toBe('disabled');
+    expect(textAreas.at(1).attributes('disabled')).toBe('disabled');
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
 
@@ -477,7 +485,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -498,6 +505,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -517,7 +525,8 @@ describe('RoomSettings', () => {
     // check if all fields and buttons are enabled
     inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     buttons.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
-    expect(textArea.attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(0).attributes('disabled')).toBeUndefined();
+    expect(textAreas.at(1).attributes('disabled')).toBeUndefined();
     checkboxes.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
     radios.wrappers.forEach(element => expect(element.attributes('disabled')).toBeUndefined());
 
@@ -551,7 +560,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -572,6 +580,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -612,6 +621,7 @@ describe('RoomSettings', () => {
       allow_guests: true,
       allow_membership: false,
       welcome: 'welcome',
+      short_description: 'short description',
       max_participants: 10,
       duration: 5,
       default_role: 1,
@@ -649,7 +659,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -670,6 +679,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -681,7 +691,7 @@ describe('RoomSettings', () => {
     });
     await view.vm.$nextTick();
 
-    expect(view.emitted().settingsChanged).toBeTruthy();
+    expect(view.emitted('settings-changed')).toBeTruthy();
 
     // test form validation error
     request = mockAxios.request('/api/v1/rooms/123-456-789');
@@ -692,15 +702,19 @@ describe('RoomSettings', () => {
       data: {
         message: 'The given data was invalid.',
         errors: {
-          welcome: ['The Welcome message may not be greater than 250 characters.']
+          welcome: ['The Welcome message may not be greater than 250 characters.'],
+          short_description: ['The Short description may not be greater than 300 characters.']
+
         }
       }
     });
     await view.vm.$nextTick();
 
     // check if error message is shown
-    const welcome = view.findComponent(BFormTextarea);
+    const welcome = view.findAllComponents(BFormTextarea).at(0);
+    const shortDescription = view.findAllComponents(BFormTextarea).at(1);
     expect(welcome.element.parentElement.parentElement.children[2].innerHTML).toContain('The Welcome message may not be greater than 250 characters.');
+    expect(shortDescription.element.parentElement.parentElement.children[2].innerHTML).toContain('The Short description may not be greater than 300 characters.');
 
     view.destroy();
   });
@@ -732,7 +746,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -753,6 +766,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,
@@ -795,6 +809,7 @@ describe('RoomSettings', () => {
       allow_guests: true,
       allow_membership: false,
       welcome: 'welcome',
+      short_description: 'short description',
       max_participants: 10,
       duration: 5,
       default_role: 1,
@@ -831,7 +846,6 @@ describe('RoomSettings', () => {
           name: 'Meeting One',
           room_type: {
             id: 1,
-            short: 'VL',
             description: 'Vorlesung',
             color: '#80BA27',
             allow_listing: true,
@@ -852,6 +866,7 @@ describe('RoomSettings', () => {
           allow_guests: true,
           allow_membership: false,
           welcome: 'welcome',
+          short_description: 'short description',
           max_participants: 10,
           duration: 5,
           default_role: 1,

@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue } from '../../helper';
 import { BootstrapVue } from 'bootstrap-vue';
-import TabComponent from '../../../../resources/js/components/Room/TabsComponent.vue';
-import RoomDescriptionComponent from '../../../../resources/js/components/Room/RoomDescriptionComponent.vue';
-import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
+import TabComponent from '@/components/Room/TabsComponent.vue';
+import RoomDescriptionComponent from '@/components/Room/RoomDescriptionComponent.vue';
+import FileComponent from '@/components/Room/FileComponent.vue';
 import { expect, it } from 'vitest';
 
 const localVue = createLocalVue();
@@ -14,7 +14,7 @@ const room = {
   name: 'Meeting One',
   description: null,
   owner: { id: 2, name: 'John Doe' },
-  type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+  type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
   model_name: 'Room',
   authenticated: false,
   allow_membership: false,
@@ -84,7 +84,7 @@ describe('TabsComponent', () => {
       },
       propsData: {
         room,
-        accessCode: '905992606',
+        accessCode: 905992606,
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
       }
     });
@@ -93,40 +93,8 @@ describe('TabsComponent', () => {
     expect(fileComponent.exists()).toBe(true);
 
     expect(fileComponent.props('room')).toBe(room);
-    expect(fileComponent.props('accessCode')).toBe('905992606');
+    expect(fileComponent.props('accessCode')).toBe(905992606);
     expect(fileComponent.props('token')).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-  });
-
-  it('Call reload method if reload function is called', async () => {
-    const fileComponentReloadSpy = vi.fn();
-    const fileComponent = {
-      name: 'test-component',
-      // eslint-disable @intlify/vue-i18n/no-raw-text
-      template: '<p>test</p>',
-      methods: {
-        reload: fileComponentReloadSpy
-      }
-    };
-
-    const view = mount(TabComponent, {
-      localVue,
-      mocks: {
-        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
-      },
-      attachTo: createContainer(),
-      stubs: {
-        'file-component': fileComponent,
-        'room-description-component': true
-      },
-      propsData: {
-        room,
-        accessCode: '905992606',
-        token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
-      }
-    });
-
-    view.findComponent({ ref: 'publicFileList' }).vm.reload();
-    expect(fileComponentReloadSpy).toHaveBeenCalled();
   });
 
   it('Pass error from components to parent', async () => {
@@ -142,13 +110,18 @@ describe('TabsComponent', () => {
       },
       propsData: {
         room,
-        accessCode: '905992606',
+        accessCode: 905992606,
         token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
       }
     });
 
-    view.findComponent({ ref: 'publicFileList' }).vm.$emit('error', 'test error');
-    expect(view.emitted('tabComponentError')).toBeTruthy();
-    expect(view.emitted('tabComponentError')[0]).toEqual(['test error']);
+    view.findComponent({ name: 'FileComponent' }).vm.$emit('invalid-code');
+    expect(view.emitted('invalid-code').length).toBe(1);
+
+    view.findComponent({ name: 'FileComponent' }).vm.$emit('invalid-token');
+    expect(view.emitted('invalid-token')).toBeTruthy();
+
+    view.findComponent({ name: 'FileComponent' }).vm.$emit('guests-not-allowed');
+    expect(view.emitted('guests-not-allowed')).toBeTruthy();
   });
 });

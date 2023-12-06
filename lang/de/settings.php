@@ -72,12 +72,12 @@ return [
         'one_month'                      => '1 Monat (30 Tage)',
         'one_week'                       => '1 Woche (7 Tage)',
         'one_year'                       => '1 Jahr (365 Tage)',
-        'own_rooms_pagination_page_size' => [
-            'description' => 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite',
-            'title'       => 'Größe der Paginierung für eigene Räume',
+        'room_pagination_page_size'      => [
+            'description' => 'Anzahl der gleichzeitig angezeigten Räume auf der Startseite',
+            'title'       => 'Größe der Paginierung für die Räume',
         ],
         'pagination_page_size' => [
-            'description' => 'Begrenzt die Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
+            'description' => 'Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title'       => 'Größe der Paginierung',
         ],
         'password_change_allowed' => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',
@@ -170,7 +170,7 @@ return [
     'room_types' => [
         'allow_listing'             => 'Raumsuche erlaubt',
         'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
-        'color'                     => 'Icon Farbe',
+        'color'                     => 'Farbe',
         'custom_color'              => 'Eigene Farbe',
         'delete'                    => [
             'confirm'          => 'Wollen Sie die Raumart :name wirklich löschen?',
@@ -181,7 +181,6 @@ return [
             'title'            => 'Raumart löschen?',
         ],
         'edit'                    => 'Raumart :name bearbeiten',
-        'icon'                    => 'Icon',
         'new'                     => 'Neue Raumart erstellen',
         'no_data'                 => 'Es sind keine Raumarten vorhanden!',
         'preview'                 => 'Vorschau',
@@ -190,7 +189,6 @@ return [
         'select_roles'            => 'Rollen auswählen',
         'select_server_pool'      => 'Serverpool auswählen',
         'server_pool_description' => 'Server dieses Serverpools werden für die Lastverteilung verwendet',
-        'short'                   => 'Icon Text',
         'tile_description'        => 'Die Raumarten sortieren die Räume, geben diesen Icons zur schnelleren Wiedererkennung und bestimmen auf welchem Serverpool ein Meeting stattfindet.',
         'view'                    => 'Detaillierte Informationen für die Raumart :name',
     ],

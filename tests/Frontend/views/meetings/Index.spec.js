@@ -1,13 +1,13 @@
-import Index from '../../../../resources/js/views/meetings/Index.vue';
+import Index from '@/views/meetings/Index.vue';
 import { mount } from '@vue/test-utils';
 
 import BootstrapVue, {
   BTr,
   BTbody, BButton, BPagination, BFormInput, BOverlay, BThead, BTh
 } from 'bootstrap-vue';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 import VueRouter from 'vue-router';
-import Base from '../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { expect } from 'vitest';
 

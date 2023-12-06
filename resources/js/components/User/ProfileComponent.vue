@@ -1,189 +1,247 @@
 <template>
   <div>
-
-      <h4>{{ $t('settings.users.base_data') }}</h4>
-      <b-form @submit="save">
-        <b-form-group
-          label-cols-sm='3'
-          :label="$t('app.firstname')"
-          label-for='firstname'
-          :state='fieldState("firstname")'
-        >
-          <b-form-input
-            id='firstname'
-            type='text'
-            required
-            v-model='model.firstname'
-            :state='fieldState("firstname")'
-            :disabled="isBusy || viewOnly || !canUpdateAttributes"
-          ></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
-        </b-form-group>
-        <b-form-group
-          label-cols-sm='3'
-          :label="$t('app.lastname')"
-          label-for='lastname'
-          :state='fieldState("lastname")'
-        >
-          <b-form-input
-            id='lastname'
-            required
-            type='text'
-            v-model='model.lastname'
-            :state='fieldState("lastname")'
-            :disabled="isBusy || viewOnly || !canUpdateAttributes"
-          ></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
-        </b-form-group>
-        <b-form-group
-          label-cols-sm='3'
-          :label="$t('auth.authenticator')"
-          label-for='provauthenticatorider'
-        >
-          <b-form-input
-            id='authenticator'
-            type='text'
-            :value="$t(`settings.users.authenticator.${model.authenticator}`)"
-            :disabled="true"
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          label-cols-sm='3'
-          :label="$t('auth.authenticator_id')"
-          label-for='external_id'
-          v-if="model.authenticator !== 'local'"
-        >
-          <b-form-input
-            id='external_id'
-            type='text'
-            v-model='model.external_id'
-            :disabled="true"
-          ></b-form-input>
-        </b-form-group>
-        <!-- Profile image-->
-        <b-form-group
-          label-cols-sm='3'
-          label-for="profile-image"
-          :state='fieldState("image")'
-          :label="$t('settings.users.image.title')"
-        >
-          <b-row>
-            <b-col sm="12" lg="9" v-if="!viewOnly">
-              <input ref="ProfileImage" id="profile-image" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
-
-              <b-button class="my-1 my-lg-0" variant='secondary' :disabled="isBusy" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fa-solid fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
-              <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('app.cancel') }}</b-button>
-              <b-button class="my-1 my-lg-0" v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy" @click="image_deleted = true" variant="danger"><i class="fa-solid fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
-              <b-button class="my-1 my-lg-0" v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fa-solid fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
-
-            </b-col>
-
-            <b-col sm="12" lg="3" class="text-left" v-bind:class="{'text-lg-right': !viewOnly}">
-              <b-img
-                v-if="(croppedImage!==null || model.image!==null) && !image_deleted"
-                :src="croppedImage ? croppedImage : model.image"
-                :alt="$t('settings.users.image.title')"
-                width="80"
-                height="80"
-              >
-              </b-img>
-              <b-img
-                v-else
-                src="/images/default_profile.png"
-                :alt="$t('settings.users.image.title')"
-                width="80"
-                height="80"
-              >
-              </b-img>
-            </b-col>
-          </b-row>
-
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('image')"></div>
-          </template>
-
-          <b-modal
-            :static='modalStatic'
-            id="modal-image-upload"
-            ref="modal-image-upload"
-            :busy="imageToBlobLoading"
-            :hide-header-close="true"
-            :no-close-on-backdrop="true"
-            :no-close-on-esc="true"
-            :title="$t('settings.users.image.crop')"
-            @ok="saveImage"
-            ok-variant="success"
-            :ok-title="$t('settings.users.image.save')"
-            cancel-variant="secondary"
-            :cancel-title="$t('app.cancel')"
+    <h4>{{ $t('settings.users.base_data') }}</h4>
+    <b-form @submit="save">
+      <b-form-group
+        label-cols-sm="3"
+        :label="$t('app.firstname')"
+        label-for="firstname"
+        :state="fieldState('firstname')"
+      >
+        <b-form-input
+          id="firstname"
+          v-model="model.firstname"
+          type="text"
+          required
+          :state="fieldState('firstname')"
+          :disabled="isBusy || viewOnly || !canUpdateAttributes"
+        />
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('firstname')" />
+        </template>
+      </b-form-group>
+      <b-form-group
+        label-cols-sm="3"
+        :label="$t('app.lastname')"
+        label-for="lastname"
+        :state="fieldState('lastname')"
+      >
+        <b-form-input
+          id="lastname"
+          v-model="model.lastname"
+          required
+          type="text"
+          :state="fieldState('lastname')"
+          :disabled="isBusy || viewOnly || !canUpdateAttributes"
+        />
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('lastname')" />
+        </template>
+      </b-form-group>
+      <b-form-group
+        label-cols-sm="3"
+        :label="$t('auth.authenticator')"
+        label-for="provauthenticatorider"
+      >
+        <b-form-input
+          id="authenticator"
+          type="text"
+          :value="$t(`settings.users.authenticator.${model.authenticator}`)"
+          :disabled="true"
+        />
+      </b-form-group>
+      <b-form-group
+        v-if="model.authenticator !== 'local'"
+        label-cols-sm="3"
+        :label="$t('auth.authenticator_id')"
+        label-for="external_id"
+      >
+        <b-form-input
+          id="external_id"
+          v-model="model.external_id"
+          type="text"
+          :disabled="true"
+        />
+      </b-form-group>
+      <!-- Profile image-->
+      <b-form-group
+        label-cols-sm="3"
+        label-for="profile-image"
+        :state="fieldState('image')"
+        :label="$t('settings.users.image.title')"
+      >
+        <b-row>
+          <b-col
+            v-if="!viewOnly"
+            sm="12"
+            lg="9"
           >
-            <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" :alt="$t('settings.users.image.title')"></VueCropper>
-          </b-modal>
-        </b-form-group>
-        <b-form-group
-          label-cols-sm='3'
-          :label="$t('settings.users.user_locale')"
-          label-for='user_locale'
-          :state='fieldState("user_locale")'
-        >
-          <locale-select
-            id='user_locale'
-            required
-            v-model="model.user_locale"
-            :state='fieldState("user_locale")'
-            :disabled="isBusy || viewOnly"
-          ></locale-select>
-          <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
-        </b-form-group>
-        <b-form-group
-          label-cols-sm='3'
-          :label="$t('settings.users.timezone')"
-          label-for='timezone'
-          :state='fieldState("timezone")'
-        >
-          <timezone-select
-            id='timezone'
-            required
-            v-model="model.timezone"
-            :state='fieldState("timezone")'
-            :disabled="isBusy || viewOnly"
-            @loadingError="(value) => this.timezonesLoadingError = value"
-            @busy="(value) => this.timezonesLoading = value"
-            :placeholder="$t('settings.users.timezone')"
-          >
-          </timezone-select>
-          <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
-        </b-form-group>
+            <input
+              id="profile-image"
+              ref="ProfileImage"
+              type="file"
+              style="display: none;"
+              accept="image/png, image/jpeg"
+              @change="onFileSelect"
+            >
 
-        <b-button
-          :disabled='isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading'
-          variant='success'
-          type='submit'
-          v-if="!viewOnly"
+            <b-button
+              v-if="!image_deleted"
+              class="my-1 my-lg-0"
+              variant="secondary"
+              :disabled="isBusy"
+              @click="resetFileUpload(); $refs.ProfileImage.click()"
+            >
+              <i class="fa-solid fa-upload" /> {{ $t('settings.users.image.upload') }}
+            </b-button>
+            <b-button
+              v-if="croppedImage"
+              class="my-1 my-lg-0"
+              variant="danger"
+              @click="resetFileUpload"
+            >
+              <i class="fa-solid fa-times" /> {{ $t('app.cancel') }}
+            </b-button>
+            <b-button
+              v-if="!image_deleted && !croppedImage && model.image"
+              class="my-1 my-lg-0"
+              :disabled="isBusy"
+              variant="danger"
+              @click="image_deleted = true"
+            >
+              <i class="fa-solid fa-trash" /> {{ $t('settings.users.image.delete') }}
+            </b-button>
+            <b-button
+              v-if="image_deleted"
+              class="my-1 my-lg-0"
+              variant="secondary"
+              @click="image_deleted = false"
+            >
+              <i class="fa-solid fa-undo" /> {{ $t('settings.users.image.undo_delete') }}
+            </b-button>
+          </b-col>
+
+          <b-col
+            sm="12"
+            lg="3"
+            class="text-left"
+            :class="{'text-lg-right': !viewOnly}"
+          >
+            <b-img
+              v-if="(croppedImage!==null || model.image!==null) && !image_deleted"
+              :src="croppedImage ? croppedImage : model.image"
+              :alt="$t('settings.users.image.title')"
+              width="80"
+              height="80"
+            />
+            <b-img
+              v-else
+              src="/images/default_profile.png"
+              :alt="$t('settings.users.image.title')"
+              width="80"
+              height="80"
+            />
+          </b-col>
+        </b-row>
+
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('image')" />
+        </template>
+
+        <b-modal
+          id="modal-image-upload"
+          ref="modal-image-upload"
+          :static="modalStatic"
+          :busy="imageToBlobLoading"
+          :hide-header-close="true"
+          :no-close-on-backdrop="true"
+          :no-close-on-esc="true"
+          :title="$t('settings.users.image.crop')"
+          ok-variant="success"
+          :ok-title="$t('settings.users.image.save')"
+          cancel-variant="secondary"
+          :cancel-title="$t('app.cancel')"
+          @ok="saveImage"
         >
-          <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
-        </b-button>
-      </b-form>
+          <VueCropper
+            v-show="selectedFile"
+            ref="cropper"
+            :auto-crop-area="1"
+            :aspect-ratio="1"
+            :view-mode="1"
+            :src="selectedFile"
+            :alt="$t('settings.users.image.title')"
+          />
+        </b-modal>
+      </b-form-group>
+      <b-form-group
+        label-cols-sm="3"
+        :label="$t('settings.users.user_locale')"
+        label-for="user_locale"
+        :state="fieldState('user_locale')"
+      >
+        <locale-select
+          id="user_locale"
+          v-model="model.user_locale"
+          required
+          :state="fieldState('user_locale')"
+          :disabled="isBusy || viewOnly"
+        />
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('user_locale')" />
+        </template>
+      </b-form-group>
+      <b-form-group
+        label-cols-sm="3"
+        :label="$t('settings.users.timezone')"
+        label-for="timezone"
+        :state="fieldState('timezone')"
+      >
+        <timezone-select
+          id="timezone"
+          v-model="model.timezone"
+          required
+          :state="fieldState('timezone')"
+          :disabled="isBusy || viewOnly"
+          :placeholder="$t('settings.users.timezone')"
+          @loading-error="(value) => timezonesLoadingError = value"
+          @busy="(value) => timezonesLoading = value"
+        />
+        <template slot="invalid-feedback">
+          <div v-html="fieldError('timezone')" />
+        </template>
+      </b-form-group>
+
+      <b-button
+        v-if="!viewOnly"
+        :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
+        variant="success"
+        type="submit"
+      >
+        <i class="fa-solid fa-save" /> {{ $t('app.save') }}
+      </b-button>
+    </b-form>
   </div>
 </template>
 
 <script>
-import FieldErrors from '../../mixins/FieldErrors';
-import PermissionService from '../../services/PermissionService';
-import Base from '../../api/base';
-import env from '../../env';
-import { loadLanguageAsync } from '../../i18n';
+import FieldErrors from '@/mixins/FieldErrors';
+import PermissionService from '@/services/PermissionService';
+import Base from '@/api/base';
+import env from '@/env';
+import { loadLanguageAsync } from '@/i18n';
 import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
-import LocaleSelect from '../Inputs/LocaleSelect.vue';
-import TimezoneSelect from '../Inputs/TimezoneSelect.vue';
-import { useLocaleStore } from '../../stores/locale';
-import { useAuthStore } from '../../stores/auth';
+import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
+import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
+import { useLocaleStore } from '@/stores/locale';
+import { useAuthStore } from '@/stores/auth';
 import { mapActions, mapState } from 'pinia';
 
 export default {
   name: 'ProfileComponent',
   components: { LocaleSelect, TimezoneSelect, VueCropper },
+  mixins: [FieldErrors],
   props: {
     viewOnly: {
       type: Boolean,
@@ -198,15 +256,6 @@ export default {
       default: false
     }
   },
-  watch: {
-    user: {
-      handler (user) {
-        this.model = _.cloneDeep(user);
-      },
-      deep: true
-    }
-  },
-  mixins: [FieldErrors],
   data () {
     return {
       isBusy: false,
@@ -222,6 +271,14 @@ export default {
       selectedFile: null,
       image_deleted: false
     };
+  },
+  watch: {
+    user: {
+      handler (user) {
+        this.model = _.cloneDeep(user);
+      },
+      deep: true
+    }
   },
 
   mounted () {
@@ -343,18 +400,18 @@ export default {
         }
         return Promise.resolve(response);
       }).then(response => {
-        this.$emit('updateUser', response.data.data);
+        this.$emit('update-user', response.data.data);
         this.resetFileUpload();
         this.image_deleted = false;
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$emit('notFoundError', error);
+          this.$emit('not-found-error', error);
         } else if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           // Validation error
           this.errors = error.response.data.errors;
         } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
           // Stale error
-          this.$emit('staleError', error.response.data);
+          this.$emit('stale-error', error.response.data);
         } else {
           Base.error(error, this.$root, error.message);
         }

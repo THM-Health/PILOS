@@ -1,15 +1,15 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue } from '../../helper';
 import AuthenticationSettingsComponent
-  from '../../../../resources/js/components/User/AuthenticationSettingsComponent.vue';
+  from '@/components/User/AuthenticationSettingsComponent.vue';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
-import RolesAndPermissionsComponent from '../../../../resources/js/components/User/RolesAndPermissionsComponent.vue';
+import RolesAndPermissionsComponent from '@/components/User/RolesAndPermissionsComponent.vue';
 import _ from 'lodash';
-import PasswordComponent from '../../../../resources/js/components/User/PasswordComponent.vue';
-import { useAuthStore } from '../../../../resources/js/stores/auth';
-import { useSettingsStore } from '../../../../resources/js/stores/settings';
-import SessionsComponent from '../../../../resources/js/components/User/SessionsComponent.vue';
+import PasswordComponent from '@/components/User/PasswordComponent.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useSettingsStore } from '@/stores/settings';
+import SessionsComponent from '@/components/User/SessionsComponent.vue';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -76,17 +76,17 @@ describe('AuthenticationSettingsComponent', () => {
     // Check events emitted to parent
     const newUser = _.cloneDeep(user);
     newUser.id = 3;
-    roles.vm.$emit('updateUser', newUser);
+    roles.vm.$emit('update-user', newUser);
     await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().updateUser[0][0].id).toEqual(3);
+    expect(wrapper.emitted('update-user')[0][0].id).toEqual(3);
 
-    roles.vm.$emit('staleError', new Error('Stale'));
+    roles.vm.$emit('stale-error', new Error('Stale'));
     await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().staleError[0][0].message).toEqual('Stale');
+    expect(wrapper.emitted('stale-error')[0][0].message).toEqual('Stale');
 
-    roles.vm.$emit('notFoundError', new Error('NotFound'));
+    roles.vm.$emit('not-found-error', new Error('NotFound'));
     await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().notFoundError[0][0].message).toEqual('NotFound');
+    expect(wrapper.emitted('not-found-error')[0][0].message).toEqual('NotFound');
 
     wrapper.destroy();
   });
@@ -148,13 +148,13 @@ describe('AuthenticationSettingsComponent', () => {
     // Check events emitted to parent
     const newUser = _.cloneDeep(user);
     newUser.id = 3;
-    passwordComponent.vm.$emit('updateUser', newUser);
+    passwordComponent.vm.$emit('update-user', newUser);
     await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().updateUser[0][0].id).toEqual(3);
+    expect(wrapper.emitted('update-user')[0][0].id).toEqual(3);
 
-    passwordComponent.vm.$emit('notFoundError', new Error('NotFound'));
+    passwordComponent.vm.$emit('not-found-error', new Error('NotFound'));
     await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().notFoundError[0][0].message).toEqual('NotFound');
+    expect(wrapper.emitted('not-found-error')[0][0].message).toEqual('NotFound');
 
     wrapper.destroy();
   });

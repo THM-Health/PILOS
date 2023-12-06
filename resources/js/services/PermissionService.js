@@ -1,8 +1,9 @@
-import ParameterMissingError from '../errors/ParameterMissingError';
-import WrongTypeError from '../errors/WrongTypeError';
-import Policies from '../policies';
-import PolicyDoesNotExistsError from '../errors/PolicyDoesNotExistsError';
+import ParameterMissingError from '@/errors/ParameterMissingError';
+import WrongTypeError from '@/errors/WrongTypeError';
+import Policies from '@/policies';
+import PolicyDoesNotExistsError from '@/errors/PolicyDoesNotExistsError';
 import EventBus from './EventBus';
+import { EVENT_CURRENT_USER_CHANGED } from '@/constants/events';
 import _ from 'lodash';
 
 /**
@@ -50,7 +51,7 @@ class PermissionService {
      * @property {Object} currentUser The newly set current user
      */
     if (emit) {
-      EventBus.$emit('currentUserChangedEvent', currentUser);
+      EventBus.emit(EVENT_CURRENT_USER_CHANGED, currentUser);
     }
   }
 

@@ -1,47 +1,56 @@
-.room-icon {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    display: grid;
-    place-items: center center;
-    color: $white;
-    font-size: 15px;
-    font-weight: bold;
-    @include border-radius($thumbnail-border-radius);
+.room-details {
+    &__icon{
+        width: 1.5rem;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+        text-align: center
+    }
+    
+    &__text{
+        flex-grow: 1;
+    }
 }
 
 .room-card{
     pointer-events: auto;
     cursor: pointer;
+    
+    &--running{
+        border-color: $green;
+        border-width: 2.5px;
+    }
+
+    &__buttons {
+        z-index: 2;
+        position: relative;
+    
+        .btn{
+            margin-left: 0.25rem;
+            padding: 0;
+            height: 25px;
+            width: 25px;
+            font-size: 12px;
+        }
+    }
 }
+
+.room-dropdown {
+    ul {
+        i {
+            width: 1rem;
+            margin-right: 0.5rem;
+            text-align: center;
+        }
+    }
+}
+
+
+
 .room-card:hover{
     background-color: darken(#FFF, 7.5%) !important;
 }
 
-.room-status {
-    content: '';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    @if($showRoomClosedIndicator) {
-        display: block;
-        background-color: $red;
-    }
-    @else {
-        display: none;
-    }
-}
 
-.room-status.running {
-    display: block;
-    background-color: $green;
-}
 
 /* Basic editor styles */
 .ProseMirror {

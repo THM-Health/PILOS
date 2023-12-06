@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { BButton, BFormInvalidFeedback, BootstrapVue } from 'bootstrap-vue';
-import RoomDescriptionComponent from '../../../../resources/js/components/Room/RoomDescriptionComponent.vue';
-import RoomDescriptionHtmlComponent from '../../../../resources/js/components/Room/RoomDescriptionHtmlComponent.vue';
-import TipTapEditor from '../../../../resources/js/components/TipTap/TipTapEditor.vue';
-import PermissionService from '../../../../resources/js/services/PermissionService';
-import Base from '../../../../resources/js/api/base';
+import RoomDescriptionComponent from '@/components/Room/RoomDescriptionComponent.vue';
+import RoomDescriptionHtmlComponent from '@/components/Room/RoomDescriptionHtmlComponent.vue';
+import TipTapEditor from '@/components/TipTap/TipTapEditor.vue';
+import PermissionService from '@/services/PermissionService';
+import Base from '@/api/base';
 import { expect, it } from 'vitest';
 
 const localVue = createLocalVue();
@@ -16,7 +16,7 @@ const room = {
   name: 'Meeting One',
   description: '<script>alert("XSS Code")</script><a href="https://example.org">Link text</a><p>Regular content</p>',
   owner: { id: 2, name: 'John Doe' },
-  type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+  type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false },
   model_name: 'Room',
   authenticated: false,
   allow_membership: false,
@@ -340,7 +340,7 @@ describe('RoomDescriptionComponent', () => {
     });
 
     // Check if event is emitted
-    expect(view.emitted('settingsChanged')).toBeTruthy();
+    expect(view.emitted('settings-changed')).toBeTruthy();
 
     // Check if editor is hidden and description is shown
     expect(view.findComponent(RoomDescriptionHtmlComponent).exists()).toBe(true);
@@ -398,7 +398,7 @@ describe('RoomDescriptionComponent', () => {
     expect(baseError.mock.calls[0][0].response.status).toEqual(500);
 
     // Check if event is NOT emitted and editor is still shown
-    expect(view.emitted('settingsChanged')).toBeFalsy();
+    expect(view.emitted('settings-changed')).toBeFalsy();
     expect(view.findComponent(TipTapEditor).exists()).toBe(true);
 
     const request2 = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8/description');
@@ -416,7 +416,7 @@ describe('RoomDescriptionComponent', () => {
     await view.vm.$nextTick();
 
     // Check if event is NOT emitted and editor is still shown
-    expect(view.emitted('settingsChanged')).toBeFalsy();
+    expect(view.emitted('settings-changed')).toBeFalsy();
     expect(view.findComponent(TipTapEditor).exists()).toBe(true);
 
     // Check if error is shown

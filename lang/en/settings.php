@@ -72,12 +72,12 @@ return [
         'one_month'                      => '1 Month (30 Days)',
         'one_week'                       => '1 Week (7 Day)',
         'one_year'                       => '1 Year (365 Days)',
-        'own_rooms_pagination_page_size' => [
-            'description' => 'Limits the number of page size for own rooms pagination',
-            'title'       => 'Own rooms pagination page size',
+        'room_pagination_page_size'      => [
+            'description' => 'Number of rooms displayed simultaneously on the home page',
+            'title'       => 'Room pagination page size',
         ],
         'pagination_page_size' => [
-            'description' => 'Limits the number of page size for data tables pagination',
+            'description' => 'Number of records displayed simultaneously in tables',
             'title'       => 'Pagination page size',
         ],
         'password_change_allowed' => 'Give local users the possibility to change their password',
@@ -170,7 +170,7 @@ return [
     'room_types' => [
         'allow_listing'             => 'Room search allowed',
         'allow_listing_description' => 'In the room settings the rooms can be made visible for the room search.',
-        'color'                     => 'Icon color',
+        'color'                     => 'Color',
         'custom_color'              => 'Custom color',
         'delete'                    => [
             'confirm'          => 'Do you really want to delete the room type :name?',
@@ -181,7 +181,6 @@ return [
             'title'            => 'Delete room type?',
         ],
         'edit'                    => 'Edit room type :name',
-        'icon'                    => 'Icon',
         'new'                     => 'Create new room type',
         'no_data'                 => 'No room types found!',
         'preview'                 => 'Preview',
@@ -190,7 +189,6 @@ return [
         'select_roles'            => 'Select roles',
         'select_server_pool'      => 'Select server pool',
         'server_pool_description' => 'Servers of this server pool are used for load balancing',
-        'short'                   => 'Icon text',
         'tile_description'        => 'The room types organize the rooms, give them icons for quicker recognition and determine on which server pool a meeting takes place.',
         'view'                    => 'Detailed information for the room type :name',
     ],

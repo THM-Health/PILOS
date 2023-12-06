@@ -1,4 +1,4 @@
-import FieldErrors from '../../../resources/js/mixins/FieldErrors';
+import FieldErrors from '@/mixins/FieldErrors';
 import { mount } from '@vue/test-utils';
 
 describe('FieldErrors', () => {

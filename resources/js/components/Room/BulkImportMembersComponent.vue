@@ -2,92 +2,174 @@
   <div v-frag>
     <!-- Add list of users from database -->
     <b-button
-      variant="success"
       ref="bulk-import-members-button"
+      variant="success"
       @click="showModal"
     >
-      <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.bulk_import_users') }}
+      <i class="fa-solid fa-user-plus" /> {{ $t('rooms.members.bulk_import_users') }}
     </b-button>
 
     <!-- bulk add new user modal -->
     <b-modal
-      :static='modalStatic'
+      id="bulk-import-modal"
+      ref="bulk-import-modal"
+      :static="modalStatic"
       :no-close-on-backdrop="true"
       hide-footer
       class="pb-0"
-      ref="bulk-import-modal"
-      id="bulk-import-modal"
       :busy="loading"
       :no-close-on-esc="loading"
       :hide-header-close="loading"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('rooms.members.bulk_import_users') }}
       </template>
 
       <div v-if="step === 0">
-      <b-form-group
-        :state="fieldState('user_emails')"
-        :description="$t('rooms.members.modals.bulk_import.list_description')"
-        :label="$t('rooms.members.modals.bulk_import.label')"
-      >
-        <b-form-textarea
+        <b-form-group
           :state="fieldState('user_emails')"
-          v-model="rawList"
-          :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
-          :disabled="loading"
+          :description="$t('rooms.members.modals.bulk_import.list_description')"
+          :label="$t('rooms.members.modals.bulk_import.label')"
+        >
+          <b-form-textarea
+            v-model="rawList"
+            :state="fieldState('user_emails')"
+            :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
+            :disabled="loading"
 
-        rows = "8"
-      ></b-form-textarea>
-          <template slot='invalid-feedback'><div v-html="fieldError('user_emails')"></div>
-        </template>
-      </b-form-group>
+            rows="8"
+          />
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('user_emails')" />
+          </template>
+        </b-form-group>
 
-        <b-form-group :label="$t('rooms.role')" :state="fieldState('role')" >
-          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="1">
-            <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
+        <b-form-group
+          :label="$t('rooms.role')"
+          :state="fieldState('role')"
+        >
+          <b-form-radio
+            v-model.number="newUsersRole"
+            :state="fieldState('role')"
+            :disabled="loading"
+            name="some-radios"
+            value="1"
+          >
+            <b-badge
+              class="text-white"
+              variant="success"
+            >
+              {{ $t('rooms.roles.participant') }}
+            </b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="2">
-            <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
+          <b-form-radio
+            v-model.number="newUsersRole"
+            :state="fieldState('role')"
+            :disabled="loading"
+            name="some-radios"
+            value="2"
+          >
+            <b-badge variant="danger">
+              {{ $t('rooms.roles.moderator') }}
+            </b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="3">
-            <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
+          <b-form-radio
+            v-model.number="newUsersRole"
+            :state="fieldState('role')"
+            :disabled="loading"
+            name="some-radios"
+            value="3"
+          >
+            <b-badge variant="dark">
+              {{ $t('rooms.roles.co_owner') }}
+            </b-badge>
           </b-form-radio>
-          <template slot='invalid-feedback'><div v-html="fieldError('role')"></div> </template>
+          <template slot="invalid-feedback">
+            <div v-html="fieldError('role')" />
+          </template>
         </b-form-group>
 
         <div class="modal-footer">
-          <b-button :disabled='rawList.length === 0 || loading' @click="importUsers(true)" variant="success">
-            <b-spinner label="Loading..." small v-if="loading"></b-spinner>
-            {{$t('rooms.members.modals.add.add')}}</b-button>
+          <b-button
+            :disabled="rawList.length === 0 || loading"
+            variant="success"
+            @click="importUsers(true)"
+          >
+            <b-spinner
+              v-if="loading"
+              label="Loading..."
+              small
+            />
+            {{ $t('rooms.members.modals.add.add') }}
+          </b-button>
         </div>
       </div>
 
       <div v-if="step === 1">
+        <bulk-import-members-list-component
+          :list="validUsers"
+          variant="success"
+          :description="$t('rooms.members.modals.bulk_import.can_import_users')"
+        />
 
-        <bulk-import-members-list-component :list="validUsers" variant="success" :description="$t('rooms.members.modals.bulk_import.can_import_users')"/>
-
-        <bulk-import-members-list-component :list="invalidUsers" variant="danger" :description="$t('rooms.members.modals.bulk_import.cannot_import_users')"/>
+        <bulk-import-members-list-component
+          :list="invalidUsers"
+          variant="danger"
+          :description="$t('rooms.members.modals.bulk_import.cannot_import_users')"
+        />
 
         <i v-if="validUsers.length>0">
-          {{$t('rooms.members.modals.bulk_import.import_importable_question')}}</i>
+          {{ $t('rooms.members.modals.bulk_import.import_importable_question') }}</i>
         <br>
         <div class="modal-footer">
-          <b-button @click="step = 0" :disabled="loading" variant="dark">{{$t('app.back')}}</b-button>
-          <b-button @click="importUsers(false)" :disabled="loading" variant="success" v-if="validUsers.length > 0">
-            <b-spinner label="Loading..." small v-if="loading"></b-spinner>
-            {{$t('rooms.members.modals.bulk_import.import_importable_button')}}</b-button>
+          <b-button
+            :disabled="loading"
+            variant="dark"
+            @click="step = 0"
+          >
+            {{ $t('app.back') }}
+          </b-button>
+          <b-button
+            v-if="validUsers.length > 0"
+            :disabled="loading"
+            variant="success"
+            @click="importUsers(false)"
+          >
+            <b-spinner
+              v-if="loading"
+              label="Loading..."
+              small
+            />
+            {{ $t('rooms.members.modals.bulk_import.import_importable_button') }}
+          </b-button>
         </div>
       </div>
       <div v-if="step === 2">
+        <bulk-import-members-list-component
+          :list="validUsers"
+          variant="success"
+          :description="$t('rooms.members.modals.bulk_import.imported_users')"
+        />
 
-        <bulk-import-members-list-component :list="validUsers" variant="success" :description="$t('rooms.members.modals.bulk_import.imported_users')"/>
-
-        <bulk-import-members-list-component :list="invalidUsers" variant="danger" :description="$t('rooms.members.modals.bulk_import.could_not_import_users')"/>
+        <bulk-import-members-list-component
+          :list="invalidUsers"
+          variant="danger"
+          :description="$t('rooms.members.modals.bulk_import.could_not_import_users')"
+        />
 
         <div class="modal-footer">
-          <b-button variant="success" @click="finish">{{ $t('app.close') }}</b-button>
-          <b-button v-if="invalidUsers.length>0" @click="copyInvalidUsers">{{$t('rooms.members.modals.bulk_import.copy_and_close')}}</b-button>
+          <b-button
+            variant="success"
+            @click="finish"
+          >
+            {{ $t('app.close') }}
+          </b-button>
+          <b-button
+            v-if="invalidUsers.length>0"
+            @click="copyInvalidUsers"
+          >
+            {{ $t('rooms.members.modals.bulk_import.copy_and_close') }}
+          </b-button>
         </div>
       </div>
     </b-modal>
@@ -98,15 +180,19 @@
 
 import _ from 'lodash';
 import frag from 'vue-frag';
-import Base from '../../api/base';
-import FieldErrors from '../../mixins/FieldErrors';
-import env from '../../env';
+import Base from '@/api/base';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
 import BulkImportMembersListComponent from './BulkImportMembersListComponent.vue';
 
 export default {
-  components: { BulkImportMembersListComponent },
-  mixins: [FieldErrors],
   name: 'BulkImportMembersComponent',
+  components: { BulkImportMembersListComponent },
+
+  directives: {
+    frag
+  },
+  mixins: [FieldErrors],
 
   props: {
     roomId: {
@@ -117,10 +203,6 @@ export default {
       type: Boolean,
       default: false
     }
-  },
-
-  directives: {
-    frag
   },
 
   data () {

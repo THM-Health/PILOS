@@ -1,9 +1,9 @@
-import { beforeEachRoute, routes } from '../../resources/js/router';
-import PermissionService from '../../resources/js/services/PermissionService';
-import Base from '../../resources/js/api/base';
+import { beforeEachRoute, routes } from '@/router';
+import PermissionService from '@/services/PermissionService';
+import Base from '@/api/base';
 import { createTestingPinia } from '@pinia/testing';
-import { useLoadingStore } from '../../resources/js/stores/loading';
-import { useAuthStore } from '../../resources/js/stores/auth';
+import { useLoadingStore } from '@/stores/loading';
+import { useAuthStore } from '@/stores/auth';
 import { mockAxios } from './helper';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
@@ -37,6 +37,26 @@ describe('Router', () => {
   });
 
   describe('beforeEachRoute', () => {
+    it('beforeEachRoute sets the application title', async () => {
+      const router = {};
+
+      createTestingPinia({ initialState: { settings: { settings: { name: 'Appname' } } }, stubActions: false });
+      const loading = useLoadingStore();
+      loading.initialized = true;
+
+      const to = {
+        matched: [{ path: '/', meta: {} }]
+      };
+
+      await new Promise((resolve) => {
+        beforeEachRoute(router, to, undefined, () => {
+          resolve();
+        });
+      });
+
+      expect(document.title).toBe('Appname');
+    });
+
     it('beforeEachRoute calls next if there is no permission checks or required authentication', async () => {
       const router = {};
 

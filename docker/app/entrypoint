@@ -26,7 +26,7 @@ function migrateDatabase() {
         echo "Waiting before trying again..."
         sleep 5
     done
-    gosu www-data php artisan migrate --force --seed
+    gosu www-data php artisan migrate --force --isolated --seed
 }
 
 function linkStorage() {

@@ -1,6 +1,6 @@
-import View from '../../../../../resources/js/views/settings/servers/View.vue';
+import View from '@/views/settings/servers/View.vue';
 import { mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 
 import BootstrapVue, {
 
@@ -8,9 +8,9 @@ import BootstrapVue, {
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal, BFormRating, BFormCheckbox, BFormText
 } from 'bootstrap-vue';
-import Base from '../../../../../resources/js/api/base';
+import Base from '@/api/base';
 import VueRouter from 'vue-router';
-import env from '../../../../../resources/js/env';
+import env from '@/env';
 import _ from 'lodash';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 

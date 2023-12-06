@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import FooterComponent from '../../../resources/js/components/FooterComponent.vue';
+import FooterComponent from '@/components/FooterComponent.vue';
 import VueRouter from 'vue-router';
-import RawText from '../../../resources/js/components/RawText.vue';
+import RawText from '@/components/RawText.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import { useSettingsStore } from '../../../resources/js/stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 import { createLocalVue } from '../helper';
 
 const localVue = createLocalVue();

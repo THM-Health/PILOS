@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BCard } from 'bootstrap-vue';
 
-import ExternalLogin from '../../../resources/js/views/ExternalLogin.vue';
+import ExternalLogin from '@/views/ExternalLogin.vue';
 import VueRouter from 'vue-router';
 import { mockAxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
@@ -42,7 +42,7 @@ describe('ExternalLogin', () => {
 
     // Check user is redirected the home page
     expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({ name: 'rooms.own_index' });
+    expect(routerSpy).toBeCalledWith({ name: 'rooms.index' });
 
     view.destroy();
   });

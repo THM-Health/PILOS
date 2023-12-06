@@ -1,4 +1,4 @@
-import RoomTypePolicy from '../../../resources/js/policies/RoomTypePolicy';
+import RoomTypePolicy from '@/policies/RoomTypePolicy';
 
 describe('RoomTypePolicy', () => {
   it('viewAny always returns true', async () => {

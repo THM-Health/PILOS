@@ -1,21 +1,26 @@
 <template>
   <b-form-select
-    :options='locales'
-    :id='id'
+    :id="id"
+    :options="locales"
     :required="required"
     :value="value"
-    @input="input"
-    :state='state'
+    :state="state"
     :disabled="disabled"
+    @input="input"
   >
-    <template v-slot:first>
-      <b-form-select-option :value="null" disabled>{{ $t('app.select_locale') }}</b-form-select-option>
+    <template #first>
+      <b-form-select-option
+        :value="null"
+        disabled
+      >
+        {{ $t('app.select_locale') }}
+      </b-form-select-option>
     </template>
   </b-form-select>
 </template>
 
 <script>
-import { getLocaleList } from '../../i18n';
+import { getLocaleList } from '@/i18n';
 
 export default {
   name: 'LocaleSelect',

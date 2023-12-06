@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import View from '../../../../../resources/js/views/settings/users/View.vue';
+import View from '@/views/settings/users/View.vue';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
-import ViewEditComponent from '../../../../../resources/js/components/User/ViewEditComponent.vue';
+import ViewEditComponent from '@/components/User/ViewEditComponent.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createLocalVue } from '../../../helper';
 
@@ -52,7 +52,7 @@ describe('UsersView', () => {
     expect(view.find('h3').text()).toBe('settings.users.edit:{"firstname":"","lastname":""}');
 
     // Trigger event to update user object
-    await component.vm.$emit('updateUser', _.clone(user));
+    await component.vm.$emit('update-user', _.clone(user));
     await view.vm.$nextTick();
     // Check if title contains user first- and lastname
     expect(view.find('h3').text()).toBe('settings.users.edit:{"firstname":"John","lastname":"Doe"}');
@@ -68,7 +68,7 @@ describe('UsersView', () => {
     expect(view.find('h3').text()).toBe('settings.users.view:{"firstname":"","lastname":""}');
 
     // Trigger event to update user object
-    await component.vm.$emit('updateUser', _.clone(user));
+    await component.vm.$emit('update-user', _.clone(user));
     await view.vm.$nextTick();
     // Check if title contains user first- and lastname
     expect(view.find('h3').text()).toBe('settings.users.view:{"firstname":"John","lastname":"Doe"}');

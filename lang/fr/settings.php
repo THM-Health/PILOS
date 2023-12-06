@@ -72,7 +72,7 @@ return [
         'one_month'                      => '1 mois (30 jours)',
         'one_week'                       => '1 semaine (7 jours)',
         'one_year'                       => '1 an (365 jours)',
-        'own_rooms_pagination_page_size' => [
+        'room_pagination_page_size'      => [
             'description' => 'Limites de pagination pour les salles personnelles',
             'title'       => 'Taille de la pagination pour les salles personnelles',
         ],
@@ -170,7 +170,7 @@ return [
     'room_types' => [
         'allow_listing'             => 'Recherche de salle autorisée',
         'allow_listing_description' => 'Dans les paramètres, les salles peuvent être rendues visibles pour les recherches.',
-        'color'                     => 'Couleur de l\'icône',
+        'color'                     => 'Couleur',
         'custom_color'              => 'Couleur personnalisée',
         'delete'                    => [
             'confirm'          => 'Voulez-vous vraiment supprimer le type de salle :name?',
@@ -190,7 +190,6 @@ return [
         'select_roles'            => 'Selection des rôles',
         'select_server_pool'      => 'Selection du groupe de serveurs',
         'server_pool_description' => 'Les serveurs de ce groupe seront utilisés pour l\'équilibrage de charge',
-        'short'                   => 'Texte de l\'icône',
         'tile_description'        => 'Les types de salle permettent d\'organiser les salles, en y associant un groupe de serveur ainsi qu\'un icône pour une reconnaisance visuelle rapide.',
         'view'                    => 'Informations détaillées sur le type de salle :name',
     ],

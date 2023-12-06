@@ -37,7 +37,7 @@ class SettingsTest extends TestCase
     {
         setting(['logo' => 'testlogo.svg']);
         setting(['pagination_page_size' => '123']);
-        setting(['own_rooms_pagination_page_size' => '123']);
+        setting(['room_pagination_page_size' => '123']);
         setting(['room_limit' => '-1']);
         setting(['banner' => [
             'enabled'    => true,
@@ -79,7 +79,7 @@ class SettingsTest extends TestCase
                     'base_url'                       => 'https://domain.tld',
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
-                    'own_rooms_pagination_page_size' => '123',
+                    'room_pagination_page_size'      => '123',
                     'room_limit'                     => '-1',
                     'banner'                         => [
                         'enabled'    => true,
@@ -154,7 +154,7 @@ class SettingsTest extends TestCase
                     'whitelabel'                     => true,
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
-                    'own_rooms_pagination_page_size' => '123',
+                    'room_pagination_page_size'      => '123',
                     'room_limit'                     => '-1',
                     'banner'                         => [
                         'enabled'    => false
@@ -193,7 +193,7 @@ class SettingsTest extends TestCase
     {
         setting(['logo' => 'testlogo.svg']);
         setting(['pagination_page_size' => '123']);
-        setting(['own_rooms_pagination_page_size' => '123']);
+        setting(['room_pagination_page_size' => '123']);
         setting(['room_limit' => '-1']);
         setting(['banner' => [
             'enabled'    => true,
@@ -251,7 +251,7 @@ class SettingsTest extends TestCase
                     'base_url'                       => 'https://domain.tld',
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
-                    'own_rooms_pagination_page_size' => '123',
+                    'room_pagination_page_size'      => '123',
                     'room_limit'                     => '-1',
                     'room_refresh_rate'              => 20,
                     'banner'                         => [
@@ -333,7 +333,7 @@ class SettingsTest extends TestCase
                 'data' => [
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
-                    'own_rooms_pagination_page_size' => '123',
+                    'room_pagination_page_size'      => '123',
                     'room_limit'                     => '-1',
                     'banner'                         => [
                         'enabled'    => false,
@@ -379,7 +379,7 @@ class SettingsTest extends TestCase
                 'logo' => 'bbblogo.png',
             ],
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => [
                 'enabled'     => false,
@@ -433,7 +433,7 @@ class SettingsTest extends TestCase
                     'logo'                           => 'testlogo.svg',
                     'favicon'                        => 'favicon.ico',
                     'pagination_page_size'           => 10,
-                    'own_rooms_pagination_page_size' => 15,
+                    'room_pagination_page_size'      => 15,
                     'room_limit'                     => -1,
                     'bbb'                            => [
                       'logo' => 'bbblogo.png'
@@ -511,7 +511,7 @@ class SettingsTest extends TestCase
                 'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
             ],
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => false,
@@ -572,7 +572,7 @@ class SettingsTest extends TestCase
                 'logo'                           => '/storage/image/testbbblogo.png',
              ],
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => '1',
@@ -641,7 +641,7 @@ class SettingsTest extends TestCase
                 'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
             ],
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => '1',
@@ -707,7 +707,7 @@ class SettingsTest extends TestCase
                 'logo_file'                      => 'notimagefile',
              ],
             'pagination_page_size'           => 'notnumber',
-            'own_rooms_pagination_page_size' => 'notnumber',
+            'room_pagination_page_size'      => 'notnumber',
             'room_limit'                     => 'notnumber',
             'password_change_allowed'        => 'foo',
             'default_timezone'               => 'timezone',
@@ -746,7 +746,7 @@ class SettingsTest extends TestCase
                 'logo',
                 'logo_file',
                 'pagination_page_size',
-                'own_rooms_pagination_page_size',
+                'room_pagination_page_size',
                 'room_limit',
                 'banner',
                 'banner.enabled',
@@ -776,7 +776,7 @@ class SettingsTest extends TestCase
             'favicon'                        => '/storage/image/favicon.ico',
             'logo'                           => '/storage/image/testfile.svg',
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => false,
             'password_change_allowed'        => '1',
@@ -898,7 +898,7 @@ class SettingsTest extends TestCase
                 'favicon'                        => '/storage/image/favicon.ico',
                 'logo'                           => '/storage/image/testfile.svg',
                 'pagination_page_size'           => '0',
-                'own_rooms_pagination_page_size' => '0',
+                'room_pagination_page_size'      => '0',
                 'room_limit'                     => '-2',
                 'banner'                         => ['enabled' => false],
                 'statistics'                     => [
@@ -926,7 +926,7 @@ class SettingsTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'pagination_page_size',
-                'own_rooms_pagination_page_size',
+                'room_pagination_page_size',
                 'room_limit',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
@@ -944,7 +944,7 @@ class SettingsTest extends TestCase
                 'favicon'                        => '/storage/image/favicon.ico',
                 'logo'                           => '/storage/image/testfile.svg',
                 'pagination_page_size'           => '101',
-                'own_rooms_pagination_page_size' => '26',
+                'room_pagination_page_size'      => '26',
                 'room_limit'                     => '101',
                 'banner'                         => ['enabled' => false],
                 'statistics'                     => [
@@ -972,7 +972,7 @@ class SettingsTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'pagination_page_size',
-                'own_rooms_pagination_page_size',
+                'room_pagination_page_size',
                 'room_limit',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
@@ -998,7 +998,7 @@ class SettingsTest extends TestCase
             'favicon'                        => '/storage/image/favicon.ico',
             'logo'                           => '/storage/image/testfile.svg',
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => '1',
@@ -1101,7 +1101,7 @@ class SettingsTest extends TestCase
             'favicon'                        => '/storage/image/favicon.ico',
             'logo'                           => '/storage/image/testfile.svg',
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => '1',
@@ -1184,7 +1184,7 @@ class SettingsTest extends TestCase
             'favicon'                        => '/storage/image/favicon.ico',
             'logo'                           => '/storage/image/testfile.svg',
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => '1',
@@ -1255,7 +1255,7 @@ class SettingsTest extends TestCase
             'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
             'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => false,
@@ -1319,7 +1319,7 @@ class SettingsTest extends TestCase
             'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
             'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => false,
@@ -1358,7 +1358,7 @@ class SettingsTest extends TestCase
             'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
             'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'pagination_page_size'           => '10',
-            'own_rooms_pagination_page_size' => '15',
+            'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_change_allowed'        => false,

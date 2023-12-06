@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue } from '../../helper';
 import { BootstrapVue } from 'bootstrap-vue';
-import TipTapEditor from '../../../../resources/js/components/TipTap/TipTapEditor.vue';
-import TipTapMenu from '../../../../resources/js/components/TipTap/TipTapMenu.vue';
+import TipTapEditor from '@/components/TipTap/TipTapEditor.vue';
+import TipTapMenu from '@/components/TipTap/TipTapMenu.vue';
 import { EditorContent } from '@tiptap/vue-2';
 import { afterEach, expect, it } from 'vitest';
 

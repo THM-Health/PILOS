@@ -1,60 +1,75 @@
 <template>
-  <div class='container'>
-    <div class='row mt-4 mb-5'>
-      <div class='col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3'>
-        <b-card no-body bg-variant='light'>
-          <div class='m-3'>
+  <div class="container">
+    <div class="row mt-4 mb-5">
+      <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
+        <b-card
+          no-body
+          bg-variant="light"
+        >
+          <div class="m-3">
             <h5>{{ welcome ? $t('auth.input_new_password_new_user') : $t('auth.input_new_password') }}</h5>
             <b-form @submit.prevent="submit">
               <b-form-group
-                label-cols-sm='3'
+                label-cols-sm="3"
                 :label="$t('auth.new_password')"
-                label-for='password'
-                :state='fieldState("password")'
+                label-for="password"
+                :state="fieldState('password')"
               >
                 <b-form-input
-                  id='password'
-                  v-model='password'
-                  type='password'
+                  id="password"
+                  v-model="password"
+                  type="password"
                   required
-                  :state='fieldState("password")'
-                  :disabled='loading'
-                ></b-form-input>
+                  :state="fieldState('password')"
+                  :disabled="loading"
+                />
 
-                <template slot='invalid-feedback'><div v-html="fieldError('password')"></div></template>
+                <template slot="invalid-feedback">
+                  <div v-html="fieldError('password')" />
+                </template>
               </b-form-group>
               <b-form-group
-                label-cols-sm='3'
+                label-cols-sm="3"
                 :label="$t('auth.new_password_confirmation')"
-                label-for='password_confirmation'
-                :state='fieldState("password_confirmation")'
+                label-for="password_confirmation"
+                :state="fieldState('password_confirmation')"
               >
                 <b-form-input
-                  id='password_confirmation'
-                  v-model='password_confirmation'
-                  type='password'
+                  id="password_confirmation"
+                  v-model="password_confirmation"
+                  type="password"
                   required
-                  :state='fieldState("password_confirmation")'
-                  :disabled='loading'
-                ></b-form-input>
+                  :state="fieldState('password_confirmation')"
+                  :disabled="loading"
+                />
 
-                <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
+                <template slot="invalid-feedback">
+                  <div v-html="fieldError('password_confirmation')" />
+                </template>
               </b-form-group>
 
-              <b-form-invalid-feedback  v-if='fieldState("email") === false'>
+              <b-form-invalid-feedback v-if="fieldState('email') === false">
                 <template>
                   {{ fieldError('email') }}
                 </template>
               </b-form-invalid-feedback>
 
-              <b-form-invalid-feedback  v-if='fieldState("token") === false'>
+              <b-form-invalid-feedback v-if="fieldState('token') === false">
                 <template>
                   {{ fieldError('token') }}
                 </template>
               </b-form-invalid-feedback>
 
-              <b-button type='submit' variant='primary' :disabled="loading" block>
-                <b-spinner v-if="loading" small></b-spinner>
+              <b-button
+                type="submit"
+                variant="primary"
+                :disabled="loading"
+                block
+              >
+                <b-spinner
+                  v-if="loading"
+                  small
+                />
                 {{ welcome ? $t('auth.set_password') : $t('auth.change_password') }}
               </b-button>
             </b-form>
@@ -66,13 +81,13 @@
 </template>
 
 <script>
-import FieldErrors from '../mixins/FieldErrors';
-import Base from '../api/base';
-import env from '../env';
-import { loadLanguageAsync } from '../i18n';
+import FieldErrors from '@/mixins/FieldErrors';
+import Base from '@/api/base';
+import env from '@/env';
+import { loadLanguageAsync } from '@/i18n';
 import { mapActions, mapState } from 'pinia';
-import { useAuthStore } from '../stores/auth';
-import { useLocaleStore } from '../stores/locale';
+import { useAuthStore } from '@/stores/auth';
+import { useLocaleStore } from '@/stores/locale';
 
 export default {
   mixins: [FieldErrors],

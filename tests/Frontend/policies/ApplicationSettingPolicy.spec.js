@@ -1,4 +1,4 @@
-import ApplicationSettingPolicy from '../../../resources/js/policies/ApplicationSettingPolicy';
+import ApplicationSettingPolicy from '@/policies/ApplicationSettingPolicy';
 
 describe('ApplicationSettingPolicy', () => {
   it('viewAny returns true if the user has the permission to view all settings', async () => {

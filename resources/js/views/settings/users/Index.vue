@@ -6,135 +6,164 @@
           {{ $t('app.users') }}
         </h3>
       </b-col>
-        <b-col>
-          <can method='create' policy='UserPolicy'>
-            <b-button
-              class='float-right'
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              variant='success'
-              ref="new-user-button"
-              :title="$t('settings.users.new')"
-              :to="{ name: 'settings.users.new' }"
-              v-if="getSetting('auth.local')"
-            ><i class="fa-solid fa-plus"></i></b-button>
-          </can>
-        </b-col>
+      <b-col>
+        <can
+          method="create"
+          policy="UserPolicy"
+        >
+          <b-button
+            v-if="getSetting('auth.local')"
+            ref="new-user-button"
+            v-b-tooltip.hover
+            v-tooltip-hide-click
+            class="float-right"
+            variant="success"
+            :title="$t('settings.users.new')"
+            :to="{ name: 'settings.users.new' }"
+          >
+            <i class="fa-solid fa-plus" />
+          </b-button>
+        </can>
+      </b-col>
     </b-row>
 
-        <b-row>
-          <b-col sm='12' md='4'>
-            <b-input-group>
-              <b-form-input
-                v-model='filter.name'
-                :placeholder="$t('app.search')"
-                :debounce='200'
-              ></b-form-input>
-              <b-input-group-append>
-                <b-input-group-text class='bg-primary'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
-              </b-input-group-append>
-            </b-input-group>
-          </b-col>
+    <b-row>
+      <b-col
+        sm="12"
+        md="4"
+      >
+        <b-input-group>
+          <b-form-input
+            v-model="filter.name"
+            :placeholder="$t('app.search')"
+            :debounce="200"
+          />
+          <b-input-group-append>
+            <b-input-group-text class="bg-primary">
+              <i class="fa-solid fa-magnifying-glass" />
+            </b-input-group-text>
+          </b-input-group-append>
+        </b-input-group>
+      </b-col>
 
-          <b-col sm='12' md='4' offset-md="4">
-
-          <b-input-group>
-            <multiselect
-              :placeholder="$t('settings.users.role_filter')"
-              ref="roles-multiselect"
-              v-model='filter.role'
-              track-by='id'
-              open-direction='bottom'
-              :multiple='false'
-              :searchable='false'
-              :internal-search='false'
-              :clear-on-select='false'
-              :close-on-select='false'
-              :show-no-results='false'
-              :showLabels='false'
-              :options='roles'
-              :disabled="rolesLoadingError"
-              id='roles'
-              :loading='rolesLoading'
-              :allowEmpty='true'
-              class="multiselect-form-control"
-             >
-              <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-              <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
-              <template slot='singleLabel' slot-scope='{ option }'>
-                    {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
-
-              </template>
-              <template slot='afterList'>
-                <b-button
-                  :disabled='rolesLoading || rolesCurrentPage === 1'
-                  variant='outline-secondary'
-                  @click='loadRoles(Math.max(1, rolesCurrentPage - 1))'>
-                  <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
-                </b-button>
-                <b-button
-                  :disabled='rolesLoading || !rolesHasNextPage'
-                  variant='outline-secondary'
-                  @click='loadRoles(rolesCurrentPage + 1)'>
-                  <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
-                </b-button>
-              </template>
-            </multiselect>
-            <b-input-group-append>
+      <b-col
+        sm="12"
+        md="4"
+        offset-md="4"
+      >
+        <b-input-group>
+          <multiselect
+            id="roles"
+            ref="roles-multiselect"
+            v-model="filter.role"
+            :placeholder="$t('settings.users.role_filter')"
+            track-by="id"
+            open-direction="bottom"
+            :multiple="false"
+            :searchable="false"
+            :internal-search="false"
+            :clear-on-select="false"
+            :close-on-select="false"
+            :show-no-results="false"
+            :show-labels="false"
+            :options="roles"
+            :disabled="rolesLoadingError"
+            :loading="rolesLoading"
+            :allow-empty="true"
+            class="multiselect-form-control"
+          >
+            <template slot="noOptions">
+              {{ $t('settings.roles.nodata') }}
+            </template>
+            <template
+              slot="option"
+              slot-scope="props"
+            >
+              {{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}
+            </template>
+            <template
+              slot="singleLabel"
+              slot-scope="{ option }"
+            >
+              {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+            </template>
+            <template slot="afterList">
               <b-button
-                ref="clearRolesButton"
-                v-if="!rolesLoadingError && filter.role"
-                @click="filter.role = null"
+                :disabled="rolesLoading || rolesCurrentPage === 1"
                 variant="outline-secondary"
-              ><i class="fa-solid fa-xmark"></i></b-button>
-
+                @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
+              >
+                <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
+              </b-button>
               <b-button
-                ref="reloadRolesButton"
-                v-if="rolesLoadingError"
-                @click="loadRoles(rolesCurrentPage)"
+                :disabled="rolesLoading || !rolesHasNextPage"
                 variant="outline-secondary"
-              ><i class="fa-solid fa-sync"></i></b-button>
-            </b-input-group-append>
-          </b-input-group>
-            </b-col>
+                @click="loadRoles(rolesCurrentPage + 1)"
+              >
+                <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
+              </b-button>
+            </template>
+          </multiselect>
+          <b-input-group-append>
+            <b-button
+              v-if="!rolesLoadingError && filter.role"
+              ref="clearRolesButton"
+              variant="outline-secondary"
+              @click="filter.role = null"
+            >
+              <i class="fa-solid fa-xmark" />
+            </b-button>
 
-          </b-row>
+            <b-button
+              v-if="rolesLoadingError"
+              ref="reloadRolesButton"
+              variant="outline-secondary"
+              @click="loadRoles(rolesCurrentPage)"
+            >
+              <i class="fa-solid fa-sync" />
+            </b-button>
+          </b-input-group-append>
+        </b-input-group>
+      </b-col>
+    </b-row>
     <hr>
 
     <b-table
+      id="users-table"
+      ref="users"
       fixed
       hover
       show-empty
-      stacked='lg'
-      :busy.sync='isBusy'
-      :fields='tableFields'
-      :items='fetchUsers'
-      id='users-table'
-      :current-page='meta.current_page'
-      :filter='filter'
-      ref='users'
-      >
-
-      <template v-slot:table-busy>
+      stacked="lg"
+      :busy.sync="isBusy"
+      :fields="tableFields"
+      :items="fetchUsers"
+      :current-page="meta.current_page"
+      :filter="filter"
+    >
+      <template #table-busy>
         <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
+          <b-spinner class="align-middle" />
         </div>
       </template>
 
-      <template v-slot:empty>
+      <template #empty>
         <i>{{ $t('settings.users.no_data') }}</i>
       </template>
 
-      <template v-slot:emptyfiltered>
+      <template #emptyfiltered>
         <i>{{ $t('settings.users.no_data_filtered') }}</i>
       </template>
 
-      <template v-slot:cell(authenticator)="data">
+      <template #cell(authenticator)="data">
         {{ $t(`settings.users.authenticator.${data.item.authenticator}`) }}
       </template>
 
-      <template v-slot:cell(roles)="data">
-        <text-truncate  v-for="role in data.item.roles" :key="role.id">
+      <template #cell(roles)="data">
+        <text-truncate
+          v-for="role in data.item.roles"
+          :key="role.id"
+        >
           {{ $te(`app.role_lables.${role.name}`) ? $t(`app.role_lables.${role.name}`) : role.name }}
         </text-truncate>
       </template>
@@ -145,59 +174,72 @@
         </text-truncate>
       </template>
 
-      <template v-slot:cell(actions)="data">
+      <template #cell(actions)="data">
         <b-button-group>
-          <can method='view' :policy='data.item'>
+          <can
+            method="view"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.users.view', { firstname: data.item.firstname, lastname: data.item.lastname })"
-              :disabled='isBusy'
-              variant='info'
-              class='mb-1'
+              :disabled="isBusy"
+              variant="info"
+              class="mb-1"
               :to="{ name: 'settings.users.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fa-solid fa-eye'></i>
+              <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can method='update' :policy='data.item'>
+          <can
+            method="update"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.users.edit', { firstname: data.item.firstname, lastname: data.item.lastname })"
-              :disabled='isBusy'
-              variant='secondary'
-              class='mb-1'
+              :disabled="isBusy"
+              variant="secondary"
+              class="mb-1"
               :to="{ name: 'settings.users.view', params: { id: data.item.id } }"
             >
-              <i class='fa-solid fa-edit'></i>
+              <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can method='resetPassword' :policy='data.item'>
+          <can
+            method="resetPassword"
+            :policy="data.item"
+          >
             <b-button
+              v-if="getSetting('auth.local')"
               :id="'resetPassword' + data.item.id"
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.users.reset_password.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
-              :disabled='isBusy'
-              variant='warning'
-              class='mb-1'
-              v-if="getSetting('auth.local')"
-              @click='showResetPasswordModal(data.item)'
+              :disabled="isBusy"
+              variant="warning"
+              class="mb-1"
+              @click="showResetPasswordModal(data.item)"
             >
-              <i class='fa-solid fa-key'></i>
+              <i class="fa-solid fa-key" />
             </b-button>
           </can>
-          <can method='delete' :policy='data.item'>
+          <can
+            method="delete"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.users.delete.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
-              :disabled='isBusy'
-              variant='danger'
-              class='mb-1'
-              @click='showDeleteModal(data.item)'>
-              <i class='fa-solid fa-trash'></i>
+              :disabled="isBusy"
+              variant="danger"
+              class="mb-1"
+              @click="showDeleteModal(data.item)"
+            >
+              <i class="fa-solid fa-trash" />
             </b-button>
           </can>
         </b-button-group>
@@ -205,34 +247,37 @@
     </b-table>
 
     <b-pagination
-      v-model='meta.current_page'
-      :total-rows='meta.total'
-      :per-page='meta.per_page'
-      aria-controls='users-table'
+      v-model="meta.current_page"
+      :total-rows="meta.total"
+      :per-page="meta.per_page"
+      aria-controls="users-table"
+      align="center"
+      :disabled="isBusy"
       @input="$root.$emit('bv::refresh::table', 'users-table')"
-      align='center'
-      :disabled='isBusy'
-    ></b-pagination>
+    />
 
     <b-modal
-      :busy='resetting'
-      ok-variant='danger'
-      cancel-variant='secondary'
+      ref="reset-user-password-modal"
+      :busy="resetting"
+      ok-variant="danger"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @ok='resetPassword($event)'
-      @cancel='clearUserToResetPassword'
-      @close='clearUserToResetPassword'
-      ref='reset-user-password-modal'
-      :static='modalStatic'
+      :static="modalStatic"
       :no-close-on-esc="resetting"
       :no-close-on-backdrop="resetting"
       :hide-header-close="resetting"
+      @ok="resetPassword($event)"
+      @cancel="clearUserToResetPassword"
+      @close="clearUserToResetPassword"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('settings.users.reset_password.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="resetting"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="resetting"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="userToResetPassword">
         {{ $t('settings.users.reset_password.confirm', { firstname: userToResetPassword.firstname, lastname: userToResetPassword.lastname }) }}
@@ -240,24 +285,27 @@
     </b-modal>
 
     <b-modal
-      :busy='deleting'
-      ok-variant='danger'
-      cancel-variant='secondary'
+      ref="delete-user-modal"
+      :busy="deleting"
+      ok-variant="danger"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @ok='deleteUser($event)'
-      @cancel='clearUserToDelete'
-      @close='clearUserToDelete'
-      ref='delete-user-modal'
-      :static='modalStatic'
+      :static="modalStatic"
       :no-close-on-esc="deleting"
       :no-close-on-backdrop="deleting"
       :hide-header-close="deleting"
+      @ok="deleteUser($event)"
+      @cancel="clearUserToDelete"
+      @close="clearUserToDelete"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('settings.users.delete.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="deleting"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="userToDelete">
         {{ $t('settings.users.delete.confirm', { firstname: userToDelete.firstname, lastname: userToDelete.lastname }) }}
@@ -267,13 +315,13 @@
 </template>
 
 <script>
-import ActionsColumn from '../../../mixins/ActionsColumn';
-import Can from '../../../components/Permissions/Can.vue';
-import Base from '../../../api/base';
-import TextTruncate from '../../../components/TextTruncate.vue';
+import ActionsColumn from '@/mixins/ActionsColumn';
+import Can from '@/components/Permissions/Can.vue';
+import Base from '@/api/base';
+import TextTruncate from '@/components/TextTruncate.vue';
 import { Multiselect } from 'vue-multiselect';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 
 export default {
   components: { TextTruncate, Can, Multiselect },

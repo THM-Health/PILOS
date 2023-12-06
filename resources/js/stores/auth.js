@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import auth from '../api/auth';
-import { loadLanguageAsync, setTimeZone } from '../i18n';
-import PermissionService from '../services/PermissionService';
+import auth from '@/api/auth';
+import { loadLanguageAsync, setTimeZone } from '@/i18n';
+import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
 

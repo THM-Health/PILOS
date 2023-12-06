@@ -5,13 +5,13 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 
 import { vi } from 'vitest';
-import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
-import VueClipboard from 'vue-clipboard2';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import TokensComponent from '@/components/Room/TokensComponent.vue';
+
+import PermissionService from '@/services/PermissionService';
 import VueRouter from 'vue-router';
-import RoomView from '../../../../resources/js/views/rooms/View.vue';
+import RoomView from '@/views/rooms/View.vue';
 import _ from 'lodash';
-import Base from '../../../../resources/js/api/base';
+import Base from '@/api/base';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -31,12 +31,11 @@ const i18nDateMock = (date, format) => {
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
-const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'Max Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 const initialState = { settings: { settings: { base_url: 'https://domain.tld' } } };
 
 describe('Room Token', () => {
@@ -174,6 +173,7 @@ describe('Room Token', () => {
 
   it('copy to clipboard', async () => {
     const clipboardSpy = vi.fn();
+    navigator.clipboard = { writeText: clipboardSpy };
 
     const toastInfoSpy = vi.fn();
 
@@ -184,7 +184,6 @@ describe('Room Token', () => {
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
-        $copyText: clipboardSpy,
         toastInfo: toastInfoSpy
       },
       propsData: {
@@ -219,6 +218,7 @@ describe('Room Token', () => {
     expect(toastInfoSpy).toBeCalledTimes(1);
     expect(toastInfoSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
 
+    delete navigator.clipboard;
     view.destroy();
   });
 

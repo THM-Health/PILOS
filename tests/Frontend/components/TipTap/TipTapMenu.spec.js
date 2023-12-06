@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue } from '../../helper';
 import { BootstrapVue } from 'bootstrap-vue';
-import TipTapMenu from '../../../../resources/js/components/TipTap/TipTapMenu.vue';
-import TipTapImage from '../../../../resources/js/components/TipTap/TipTapImage.vue';
-import TipTapLink from '../../../../resources/js/components/TipTap/TipTapLink.vue';
-import TipTapSource from '../../../../resources/js/components/TipTap/TipTapSource.vue';
-import TipTapEditor from '../../../../resources/js/components/TipTap/TipTapEditor.js';
+import TipTapMenu from '@/components/TipTap/TipTapMenu.vue';
+import TipTapImage from '@/components/TipTap/TipTapImage.vue';
+import TipTapLink from '@/components/TipTap/TipTapLink.vue';
+import TipTapSource from '@/components/TipTap/TipTapSource.vue';
+import TipTapEditor from '@/components/TipTap/TipTapEditor.js';
 import { expect, it } from 'vitest';
 
 const localVue = createLocalVue();

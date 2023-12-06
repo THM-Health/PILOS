@@ -2,11 +2,11 @@ import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
-import PasswordComponent from '../../../../resources/js/components/User/PasswordComponent.vue';
+import PasswordComponent from '@/components/User/PasswordComponent.vue';
 import { BButton, BFormInput } from 'bootstrap-vue';
 
-import Base from '../../../../resources/js/api/base';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '@/api/base';
+import PermissionService from '@/services/PermissionService';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -90,8 +90,8 @@ describe('PasswordComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if event is emitted
-    expect(wrapper.emitted().updateUser).toBeTruthy();
-    expect(wrapper.emitted().updateUser[0][0]).toEqual(user);
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[0][0]).toEqual(user);
 
     // Check if toast is shown
     expect(toastSuccessSpy).toHaveBeenCalled();
@@ -159,8 +159,8 @@ describe('PasswordComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if event is emitted
-    expect(wrapper.emitted().updateUser).toBeTruthy();
-    expect(wrapper.emitted().updateUser[0][0]).toEqual(user);
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[0][0]).toEqual(user);
 
     // Check if toast is shown
     expect(toastSuccessSpy).toHaveBeenCalled();
@@ -217,7 +217,7 @@ describe('PasswordComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().notFoundError).toBeTruthy();
+    expect(wrapper.emitted('not-found-error')).toBeTruthy();
 
     // --- Check form validation error ---
     request = mockAxios.request('/api/v1/users/2/password');

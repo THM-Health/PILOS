@@ -1,14 +1,14 @@
 import { mount } from '@vue/test-utils';
 
 import { waitModalShown, waitModalHidden, createContainer, createLocalVue, mockAxios } from '../../helper';
-import ViewEditComponent from '../../../../resources/js/components/User/ViewEditComponent.vue';
-import EmailSettingsComponent from '../../../../resources/js/components/User/EmailSettingsComponent.vue';
-import ProfileComponent from '../../../../resources/js/components/User/ProfileComponent.vue';
-import AuthenticationSettingsComponent from '../../../../resources/js/components/User/AuthenticationSettingsComponent.vue';
-import OtherSettingsComponent from '../../../../resources/js/components/User/OtherSettingsComponent.vue';
+import ViewEditComponent from '@/components/User/ViewEditComponent.vue';
+import EmailSettingsComponent from '@/components/User/EmailSettingsComponent.vue';
+import ProfileComponent from '@/components/User/ProfileComponent.vue';
+import AuthenticationSettingsComponent from '@/components/User/AuthenticationSettingsComponent.vue';
+import OtherSettingsComponent from '@/components/User/OtherSettingsComponent.vue';
 import _ from 'lodash';
 import { BButton, BLink, BModal, BOverlay } from 'bootstrap-vue';
-import Base from '../../../../resources/js/api/base';
+import Base from '@/api/base';
 import VueRouter from 'vue-router';
 
 const localVue = createLocalVue();
@@ -93,8 +93,8 @@ describe('ViewEditComponent', () => {
     });
 
     // Check if user updated event is emitted
-    expect(wrapper.emitted('updateUser')).toBeTruthy();
-    expect(wrapper.emitted('updateUser')[0][0].id).toBe(ldapUser.id);
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[0][0].id).toBe(ldapUser.id);
 
     wrapper.destroy();
   });
@@ -149,7 +149,7 @@ describe('ViewEditComponent', () => {
     expect(reloadButton.text()).toBe('app.reload');
 
     // Check if user updated event is not emitted
-    expect(wrapper.emitted('updateUser')).toBeFalsy();
+    expect(wrapper.emitted('update-user')).toBeFalsy();
 
     // Check if error handler is called
     expect(baseErrorSpy).toBeCalledTimes(1);
@@ -181,8 +181,8 @@ describe('ViewEditComponent', () => {
     expect(wrapper.findComponent(BOverlay).props('show')).toBe(false);
 
     // Check if user updated event is emitted
-    expect(wrapper.emitted('updateUser')).toBeTruthy();
-    expect(wrapper.emitted('updateUser')[0][0].id).toBe(ldapUser.id);
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[0][0].id).toBe(ldapUser.id);
 
     wrapper.destroy();
   });
@@ -224,8 +224,8 @@ describe('ViewEditComponent', () => {
     wrapper.vm.updateUser(newUser);
 
     // Check if user updated event is emitted
-    expect(wrapper.emitted('updateUser')).toBeTruthy();
-    expect(wrapper.emitted('updateUser')[1][0].id).toBe(newUser.id);
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[1][0].id).toBe(newUser.id);
 
     // New user should be set in data
     await wrapper.vm.$nextTick();
@@ -360,8 +360,8 @@ describe('ViewEditComponent', () => {
     });
 
     // Check if update user event is emitted
-    expect(wrapper.emitted('updateUser')).toBeTruthy();
-    expect(wrapper.emitted('updateUser')[1][0].id).toBe(newUser.id);
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[1][0].id).toBe(newUser.id);
 
     wrapper.destroy();
   });
@@ -413,15 +413,15 @@ describe('ViewEditComponent', () => {
     // Test events
     const newUser = _.cloneDeep(ldapUser);
     newUser.id = 2;
-    await profileComponent.vm.$emit('updateUser', newUser);
+    await profileComponent.vm.$emit('update-user', newUser);
     expect(spyUpdateUser).toBeCalledTimes(1);
     expect(spyUpdateUser.mock.calls[0][0]).toEqual(newUser);
 
-    await profileComponent.vm.$emit('staleError', new Error('Stale'));
+    await profileComponent.vm.$emit('stale-error', new Error('Stale'));
     expect(spyHandleStaleError).toBeCalledTimes(1);
     expect(spyHandleStaleError.mock.calls[0][0].message).toEqual('Stale');
 
-    await profileComponent.vm.$emit('notFoundError', new Error('NotFound'));
+    await profileComponent.vm.$emit('not-found-error', new Error('NotFound'));
     expect(spyHandleNotFoundError).toBeCalledTimes(1);
     expect(spyHandleNotFoundError.mock.calls[0][0].message).toEqual('NotFound');
 
@@ -482,11 +482,11 @@ describe('ViewEditComponent', () => {
     // Test events
     const newUser = _.cloneDeep(ldapUser);
     newUser.id = 2;
-    await emailSettingsComponent.vm.$emit('updateUser', newUser);
+    await emailSettingsComponent.vm.$emit('update-user', newUser);
     expect(spyUpdateUser).toBeCalledTimes(1);
     expect(spyUpdateUser.mock.calls[0][0]).toEqual(newUser);
 
-    await emailSettingsComponent.vm.$emit('notFoundError', new Error('NotFound'));
+    await emailSettingsComponent.vm.$emit('not-found-error', new Error('NotFound'));
     expect(spyHandleNotFoundError).toBeCalledTimes(1);
     expect(spyHandleNotFoundError.mock.calls[0][0].message).toEqual('NotFound');
 
@@ -549,15 +549,15 @@ describe('ViewEditComponent', () => {
     // Test events
     const newUser = _.cloneDeep(ldapUser);
     newUser.id = 2;
-    await authenticationSettingsComponent.vm.$emit('updateUser', newUser);
+    await authenticationSettingsComponent.vm.$emit('update-user', newUser);
     expect(spyUpdateUser).toBeCalledTimes(1);
     expect(spyUpdateUser.mock.calls[0][0]).toEqual(newUser);
 
-    await authenticationSettingsComponent.vm.$emit('staleError', new Error('Stale'));
+    await authenticationSettingsComponent.vm.$emit('stale-error', new Error('Stale'));
     expect(spyHandleStaleError).toBeCalledTimes(1);
     expect(spyHandleStaleError.mock.calls[0][0].message).toEqual('Stale');
 
-    await authenticationSettingsComponent.vm.$emit('notFoundError', new Error('NotFound'));
+    await authenticationSettingsComponent.vm.$emit('not-found-error', new Error('NotFound'));
     expect(spyHandleNotFoundError).toBeCalledTimes(1);
     expect(spyHandleNotFoundError.mock.calls[0][0].message).toEqual('NotFound');
 
@@ -620,15 +620,15 @@ describe('ViewEditComponent', () => {
     // Test events
     const newUser = _.cloneDeep(ldapUser);
     newUser.id = 2;
-    await otherSettingsComponent.vm.$emit('updateUser', newUser);
+    await otherSettingsComponent.vm.$emit('update-user', newUser);
     expect(spyUpdateUser).toBeCalledTimes(1);
     expect(spyUpdateUser.mock.calls[0][0]).toEqual(newUser);
 
-    await otherSettingsComponent.vm.$emit('staleError', new Error('Stale'));
+    await otherSettingsComponent.vm.$emit('stale-error', new Error('Stale'));
     expect(spyHandleStaleError).toBeCalledTimes(1);
     expect(spyHandleStaleError.mock.calls[0][0].message).toEqual('Stale');
 
-    await otherSettingsComponent.vm.$emit('notFoundError', new Error('NotFound'));
+    await otherSettingsComponent.vm.$emit('not-found-error', new Error('NotFound'));
     expect(spyHandleNotFoundError).toBeCalledTimes(1);
     expect(spyHandleNotFoundError.mock.calls[0][0].message).toEqual('NotFound');
 

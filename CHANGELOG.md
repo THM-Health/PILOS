@@ -5,6 +5,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Short description for rooms ([#373])
+- Room favorites ([#373])
+- Show current room name in the page title  ([#649], [#650])
+- Show amount of users in a room ([#681])
+
+### Changed
+- Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
+- Refactor user interface for room search and home page ([#372], [#373])
+- Refactor user interface room details ([#681], [#724])
+- PHP 8.3 docker base image ([#704], [#735])
+
+## [v2.3.4] - 2023-11-24
+### Fixed
+- Error copying personalized room link ([#700], [#701])
+
+## [v2.3.3] - 2023-11-13
+### Fixed
+- Moderator only message missing room link and access code ([#684], [#685])
+
+## [v2.3.2] - 2023-11-06
+### Fixed
+- Layout issue in access for participants ([#653], [#654])
+
+### Removed
+- v-clipboard dependency ([#654])
+
+## [v2.3.1] - 2023-10-16
+### Changed
+- Updated dependencies
+
+### Security
+- Fixed CSRF vulnerability [CVE-2023-4585](https://security.snyk.io/vuln/SNYK-JS-AXIOS-6032459) in axios 
 
 ## [v2.3.0] - 2023-10-16
 ### Added
@@ -641,6 +674,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#345]: https://github.com/THM-Health/PILOS/pull/345
 [#346]: https://github.com/THM-Health/PILOS/issues/346
 [#371]: https://github.com/THM-Health/PILOS/pull/371
+[#372]: https://github.com/THM-Health/PILOS/issues/372
+[#373]: https://github.com/THM-Health/PILOS/pull/373
 [#377]: https://github.com/THM-Health/PILOS/issues/377
 [#380]: https://github.com/THM-Health/PILOS/issues/380
 [#381]: https://github.com/THM-Health/PILOS/pull/381
@@ -662,8 +697,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#586]: https://github.com/THM-Health/PILOS/pull/586
 [#620]: https://github.com/THM-Health/PILOS/issues/620
 [#621]: https://github.com/THM-Health/PILOS/pull/621
+[#649]: https://github.com/THM-Health/PILOS/issues/649
+[#650]: https://github.com/THM-Health/PILOS/pull/650
+[#653]: https://github.com/THM-Health/PILOS/issues/653
+[#654]: https://github.com/THM-Health/PILOS/pull/654
+[#681]: https://github.com/THM-Health/PILOS/pull/681
+[#684]: https://github.com/THM-Health/PILOS/issues/684
+[#685]: https://github.com/THM-Health/PILOS/pull/685
+[#700]: https://github.com/THM-Health/PILOS/issues/700
+[#704]: https://github.com/THM-Health/PILOS/issues/704
+[#701]: https://github.com/THM-Health/PILOS/pull/701
+[#724]: https://github.com/THM-Health/PILOS/pull/724
+[#735]: https://github.com/THM-Health/PILOS/pull/735
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.4...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -695,3 +742,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.1.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.1.1
 [v2.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.2.0
 [v2.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.0
+[v2.3.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.1
+[v2.3.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.2
+[v2.3.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.3
+[v2.3.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.4

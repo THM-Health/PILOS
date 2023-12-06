@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-bullseye
+FROM php:8.3-fpm-bullseye
 
 LABEL maintainer="Samuel Weirich"
 LABEL description="Development container for PILOS, compatible with laravel sail; heavily inspired by offical image"
@@ -25,7 +25,7 @@ RUN apt-get update \
     && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
     && docker-php-ext-configure pcntl --enable-pcntl \
     && docker-php-ext-install -j$(nproc) bcmath pdo_mysql pdo_pgsql pgsql ldap zip gd opcache soap pcntl \
-    && pecl install xdebug-3.1.5 redis \
+    && pecl install xdebug-3.3.0 redis \
     && docker-php-ext-enable redis \
     && php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \

@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { BAlert, BButton } from 'bootstrap-vue';
-import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification.vue';
+import BrowserNotification from '@/components/Room/BrowserNotification.vue';
 import VueRouter from 'vue-router';
 import { createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
-import { useSettingsStore } from '../../../../resources/js/stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();

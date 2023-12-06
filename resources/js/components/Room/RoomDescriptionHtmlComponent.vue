@@ -1,18 +1,20 @@
 <template>
-    <div>
-        <div class="px-2 room-description" v-html="html"></div>
-        <b-modal
-            :static='modalStatic'
-            id="linkModal"
-            :title="$t('rooms.description.external_link_warning.title')"
-            :ok-title="$t('app.continue')"
-            :cancel-title="$t('app.cancel')"
-            @ok="onConfirm"
-        >
-        {{ $t('rooms.description.external_link_warning.description', {link: link}) }}
-        </b-modal>
-    </div>
-
+  <div>
+    <div
+      class="px-2 room-description"
+      v-html="html"
+    />
+    <b-modal
+      id="linkModal"
+      :static="modalStatic"
+      :title="$t('rooms.description.external_link_warning.title')"
+      :ok-title="$t('app.continue')"
+      :cancel-title="$t('app.cancel')"
+      @ok="onConfirm"
+    >
+      {{ $t('rooms.description.external_link_warning.description', {link: link}) }}
+    </b-modal>
+  </div>
 </template>
 <script>
 export default {

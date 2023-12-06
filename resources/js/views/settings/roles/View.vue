@@ -3,7 +3,7 @@
     <h3>
       {{ id === 'new' ? $t('settings.roles.new') : (
         viewOnly ? $t('settings.roles.view', { name: $te(`app.role_lables.${model.name}`) ? $t(`app.role_lables.${model.name}`) : model.name })
-          : $t('settings.roles.edit', { name: $te(`app.role_lables.${model.name}`) ? $t(`app.role_lables.${model.name}`) : model.name })
+        : $t('settings.roles.edit', { name: $te(`app.role_lables.${model.name}`) ? $t(`app.role_lables.${model.name}`) : model.name })
       ) }}
     </h3>
     <hr>
@@ -11,125 +11,159 @@
     <b-overlay :show="isBusy || modelLoadingError">
       <template #overlay>
         <div class="text-center">
-          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-spinner v-if="isBusy" />
           <b-button
             v-else
             @click="load()"
           >
-            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
 
-      <b-form @submit='saveRole' :aria-hidden="modelLoadingError">
+      <b-form
+        :aria-hidden="modelLoadingError"
+        @submit="saveRole"
+      >
         <b-container fluid>
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('app.model_name')"
-            label-for='name'
-            :state='fieldState("name")'
+            label-for="name"
+            :state="fieldState('name')"
           >
-            <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+            <b-form-input
+              id="name"
+              v-model="model.name"
+              type="text"
+              :state="fieldState('name')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('name')" />
+            </template>
           </b-form-group>
 
-          <b-modal id="modal-help-roomlimit" size="lg" :hide-footer="true">
-            <template v-slot:modal-title>
-              <i class="fa-solid fa-circle-info"></i> {{ $t('app.room_limit') }}
+          <b-modal
+            id="modal-help-roomlimit"
+            size="lg"
+            :hide-footer="true"
+          >
+            <template #modal-title>
+              <i class="fa-solid fa-circle-info" /> {{ $t('app.room_limit') }}
             </template>
             <p>{{ $t('settings.roles.room_limit.help_modal.info') }}</p>
 
             <strong>{{ $t('settings.roles.room_limit.help_modal.examples') }}</strong>
             <table class="table">
               <thead>
-              <tr>
-                <th scope="col">{{ $t('settings.roles.room_limit.help_modal.system_default') }}</th>
-                <th scope="col">{{ $t('settings.roles.room_limit.help_modal.role_a') }}</th>
-                <th scope="col">{{ $t('settings.roles.room_limit.help_modal.role_b') }}</th>
-                <th scope="col">{{ $t('app.room_limit') }}</th>
-              </tr>
+                <tr>
+                  <th scope="col">
+                    {{ $t('settings.roles.room_limit.help_modal.system_default') }}
+                  </th>
+                  <th scope="col">
+                    {{ $t('settings.roles.room_limit.help_modal.role_a') }}
+                  </th>
+                  <th scope="col">
+                    {{ $t('settings.roles.room_limit.help_modal.role_b') }}
+                  </th>
+                  <th scope="col">
+                    {{ $t('app.room_limit') }}
+                  </th>
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td><raw-text>5</raw-text></td>
-                <td><raw-text>X</raw-text></td>
-                <td><raw-text>X</raw-text></td>
-                <td><raw-text>5</raw-text></td>
-              </tr>
-              <tr>
-                <td><raw-text>1</raw-text></td>
-                <td><raw-text>5</raw-text></td>
-                <td><raw-text>X</raw-text></td>
-                <td><raw-text>5</raw-text></td>
-              </tr>
-              <tr>
-                <td><raw-text>5</raw-text></td>
-                <td><raw-text>1</raw-text></td>
-                <td><raw-text>X</raw-text></td>
-                <td><raw-text>1</raw-text></td>
-              </tr>
-              <tr>
-                <td><raw-text>5</raw-text></td>
-                <td><raw-text>1</raw-text></td>
-                <td><raw-text>2</raw-text></td>
-                <td><raw-text>2</raw-text></td>
-              </tr>
-              <tr>
-                <td><raw-text>5</raw-text></td>
-                <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
-                <td><raw-text>2</raw-text></td>
-                <td><raw-text>5</raw-text></td>
-              </tr>
-              <tr>
-                <td><raw-text>5</raw-text></td>
-                <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
-                <td><raw-text>10</raw-text></td>
-                <td><raw-text>10</raw-text></td>
-              </tr>
-              <tr>
-                <td><raw-text>5</raw-text></td>
-                <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
-                <td><raw-text>2</raw-text></td>
-                <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
-              </tr>
+                <tr>
+                  <td><raw-text>5</raw-text></td>
+                  <td><raw-text>X</raw-text></td>
+                  <td><raw-text>X</raw-text></td>
+                  <td><raw-text>5</raw-text></td>
+                </tr>
+                <tr>
+                  <td><raw-text>1</raw-text></td>
+                  <td><raw-text>5</raw-text></td>
+                  <td><raw-text>X</raw-text></td>
+                  <td><raw-text>5</raw-text></td>
+                </tr>
+                <tr>
+                  <td><raw-text>5</raw-text></td>
+                  <td><raw-text>1</raw-text></td>
+                  <td><raw-text>X</raw-text></td>
+                  <td><raw-text>1</raw-text></td>
+                </tr>
+                <tr>
+                  <td><raw-text>5</raw-text></td>
+                  <td><raw-text>1</raw-text></td>
+                  <td><raw-text>2</raw-text></td>
+                  <td><raw-text>2</raw-text></td>
+                </tr>
+                <tr>
+                  <td><raw-text>5</raw-text></td>
+                  <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
+                  <td><raw-text>2</raw-text></td>
+                  <td><raw-text>5</raw-text></td>
+                </tr>
+                <tr>
+                  <td><raw-text>5</raw-text></td>
+                  <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
+                  <td><raw-text>10</raw-text></td>
+                  <td><raw-text>10</raw-text></td>
+                </tr>
+                <tr>
+                  <td><raw-text>5</raw-text></td>
+                  <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
+                  <td><raw-text>2</raw-text></td>
+                  <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
+                </tr>
               </tbody>
             </table>
             <p>{{ $t('settings.roles.room_limit.help_modal.note') }}</p>
           </b-modal>
 
           <b-form-group
-            label-cols-sm='4'
-            label-for='room-limit'
-            :state='fieldState("room_limit")'
+            label-cols-sm="4"
+            label-for="room-limit"
+            :state="fieldState('room_limit')"
           >
-            <template slot='label'>{{ $t('app.room_limit') }}  <b-button variant="link" class="secondary" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
+            <template slot="label">
+              {{ $t('app.room_limit') }}  <b-button
+                v-b-modal.modal-help-roomlimit
+                variant="link"
+                class="secondary"
+                :disabled="isBusy || modelLoadingError"
+              >
+                <i class="fa-solid fa-circle-info" />
+              </b-button>
+            </template>
             <b-form-radio-group
-              class='mb-2'
-              v-model='roomLimitMode'
-              :options='roomLimitModeOptions'
-              :disabled='isBusy || modelLoadingError || viewOnly'
-              :state='fieldState("room_limit")'
-              @change="roomLimitModeChanged"
+              v-model="roomLimitMode"
+              class="mb-2"
+              :options="roomLimitModeOptions"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              :state="fieldState('room_limit')"
               stacked
-            ></b-form-radio-group>
+              @change="roomLimitModeChanged"
+            />
             <b-form-input
-              id='room-limit'
-              type='number'
-              :state='fieldState("room_limit")'
-              v-model='model.room_limit'
-              min='0'
-              :disabled='isBusy || modelLoadingError || viewOnly'
-              v-if="roomLimitMode === 'custom'">
-            </b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
+              v-if="roomLimitMode === 'custom'"
+              id="room-limit"
+              v-model="model.room_limit"
+              type="number"
+              :state="fieldState('room_limit')"
+              min="0"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('room_limit')" />
+            </template>
           </b-form-group>
           <b-form-group
             :label="$t('settings.roles.permissions')"
-            label-size='lg'
-            label-class='font-weight-bold pt-0'
+            label-size="lg"
+            label-class="font-weight-bold pt-0"
             :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
           >
-            <b-row v-if='!isBusy && Object.keys(permissions).length > 0'>
+            <b-row v-if="!isBusy && Object.keys(permissions).length > 0">
               <b-col cols="8">
                 <b>{{ $t('settings.roles.permission_name') }}</b>
               </b-col>
@@ -138,82 +172,89 @@
               </b-col>
               <b-col cols="2">
                 <b>{{ $t('settings.roles.permission_included') }}
-                  <i class="fa-solid fa-circle-info"
+                  <i
                     v-b-tooltip.hover
+                    class="fa-solid fa-circle-info"
                     :title="$t('settings.roles.permission_included_help')"
-                  ></i></b>
+                  /></b>
               </b-col>
               <b-col cols="12">
                 <hr>
-              <b-row
-                v-for="key in Object.keys(permissions)"
-                :key='key'
-                class="mb-2"
-              >
-                <b-col cols="12">
-                  <b>{{ $t(`app.permissions.${key}.title`) }}</b>
-                </b-col>
-                <b-col cols="12">
                 <b-row
-                  :key='permission.id' v-for="permission in permissions[key]"
+                  v-for="key in Object.keys(permissions)"
+                  :key="key"
+                  class="mb-2"
                 >
-                  <b-col cols="8">
-                    <label :for="permission.name">{{ $t(`app.permissions.${permission.name}`) }}</label>
+                  <b-col cols="12">
+                    <b>{{ $t(`app.permissions.${key}.title`) }}</b>
                   </b-col>
-                  <b-col cols="2">
-                    <b-form-checkbox
-                      v-model="model.permissions"
-                      :id="permission.name"
-                      :value="permission.id"
-                      switch
-                      :disabled='isBusy || modelLoadingError || viewOnly'
-                      :state="fieldState('permissions', true)"
+                  <b-col cols="12">
+                    <b-row
+                      v-for="permission in permissions[key]"
+                      :key="permission.id"
                     >
-                    </b-form-checkbox>
+                      <b-col cols="8">
+                        <label :for="permission.name">{{ $t(`app.permissions.${permission.name}`) }}</label>
+                      </b-col>
+                      <b-col cols="2">
+                        <b-form-checkbox
+                          :id="permission.name"
+                          v-model="model.permissions"
+                          :value="permission.id"
+                          switch
+                          :disabled="isBusy || modelLoadingError || viewOnly"
+                          :state="fieldState('permissions', true)"
+                        />
+                      </b-col>
+                      <b-col cols="2">
+                        <i
+                          v-if="includedPermissions.includes(permission.id)"
+                          v-b-tooltip.hover
+                          class="fa-solid fa-check-circle text-success"
+                          :title="$t('settings.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                        />
+                        <i
+                          v-else
+                          v-b-tooltip.hover
+                          class="fa-solid fa-minus-circle text-danger"
+                          :title="$t('settings.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                        />
+                      </b-col>
+                    </b-row>
                   </b-col>
-                  <b-col cols="2">
-                    <i
-                      v-if="includedPermissions.includes(permission.id)"
-                      class="fa-solid fa-check-circle text-success"
-                      v-b-tooltip.hover
-                      :title="$t('settings.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
-                    ></i>
-                    <i
-                      v-else
-                      class="fa-solid fa-minus-circle text-danger"
-                      v-b-tooltip.hover
-                      :title="$t('settings.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
-                    ></i>
-                  </b-col>
-
                 </b-row>
-                </b-col>
-              </b-row>
               </b-col>
             </b-row>
 
-            <div class="ml-3" v-if="!isBusy && Object.keys(permissions).length === 0">
+            <div
+              v-if="!isBusy && Object.keys(permissions).length === 0"
+              class="ml-3"
+            >
               {{ $t('settings.roles.no_options') }}
             </div>
 
-            <template slot="invalid-feedback"><div v-html="fieldError('permissions', true)"></div></template>
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('permissions', true)" />
+            </template>
           </b-form-group>
           <hr>
-          <b-row class='my-1 float-right'>
-            <b-col sm='12'>
+          <b-row class="my-1 float-right">
+            <b-col sm="12">
               <b-button
-                :disabled='isBusy'
-                variant='secondary'
-                @click="$router.push({ name: 'settings.roles' })">
-                <i class='fa-solid fa-arrow-left'></i> {{ $t('app.back') }}
+                :disabled="isBusy"
+                variant="secondary"
+                @click="$router.push({ name: 'settings.roles' })"
+              >
+                <i class="fa-solid fa-arrow-left" /> {{ $t('app.back') }}
               </b-button>
               <b-button
-                :disabled='isBusy || modelLoadingError'
-                variant='success'
-                type='submit'
-                class='ml-1'
-                v-if='!viewOnly'>
-                <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
+                v-if="!viewOnly"
+                :disabled="isBusy || modelLoadingError"
+                variant="success"
+                type="submit"
+                class="ml-1"
+              >
+                <i class="fa-solid fa-save" /> {{ $t('app.save') }}
               </b-button>
             </b-col>
           </b-row>
@@ -221,25 +262,32 @@
       </b-form>
 
       <b-modal
-        :static='modalStatic'
-        :busy='isBusy'
-        ok-variant='danger'
-        cancel-variant='secondary'
-        @ok='forceOverwrite'
-        @cancel='refreshRole'
-        :hide-header-close='true'
-        :no-close-on-backdrop='true'
-        :no-close-on-esc='true'
-        ref='stale-role-modal'
-        :hide-header='true'>
-        <template v-slot:default>
+        ref="stale-role-modal"
+        :static="modalStatic"
+        :busy="isBusy"
+        ok-variant="danger"
+        cancel-variant="secondary"
+        :hide-header-close="true"
+        :no-close-on-backdrop="true"
+        :no-close-on-esc="true"
+        :hide-header="true"
+        @ok="forceOverwrite"
+        @cancel="refreshRole"
+      >
+        <template #default>
           <h5>{{ staleError.message }}</h5>
         </template>
-        <template v-slot:modal-ok>
-          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.overwrite') }}
+        <template #modal-ok>
+          <b-spinner
+            v-if="isBusy"
+            small
+          />  {{ $t('app.overwrite') }}
         </template>
-        <template v-slot:modal-cancel>
-          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
+        <template #modal-cancel>
+          <b-spinner
+            v-if="isBusy"
+            small
+          />  {{ $t('app.reload') }}
         </template>
       </b-modal>
     </b-overlay>
@@ -247,19 +295,19 @@
 </template>
 
 <script>
-import Base from '../../../api/base';
-import FieldErrors from '../../../mixins/FieldErrors';
-import env from '../../../env';
-import RawText from '../../../components/RawText.vue';
+import Base from '@/api/base';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
+import RawText from '@/components/RawText.vue';
 import _ from 'lodash';
 import { mapState } from 'pinia';
-import { useSettingsStore } from '../../../stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 
 export default {
-  mixins: [FieldErrors],
   components: {
     RawText
   },
+  mixins: [FieldErrors],
   props: {
     id: {
       type: [String, Number],

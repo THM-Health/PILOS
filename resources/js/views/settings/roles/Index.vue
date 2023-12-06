@@ -2,86 +2,101 @@
   <div>
     <h3>
       {{ $t('app.roles') }}
-      <can method='create' policy='RolePolicy'>
+      <can
+        method="create"
+        policy="RolePolicy"
+      >
         <b-button
-          class='float-right'
           v-b-tooltip.hover
           v-tooltip-hide-click
-          variant='success'
+          class="float-right"
+          variant="success"
           :title="$t('settings.roles.new')"
           :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
-        ><i class="fa-solid fa-plus"></i></b-button>
+        >
+          <i class="fa-solid fa-plus" />
+        </b-button>
       </can>
     </h3>
     <hr>
 
     <b-table
+      id="roles-table"
+      ref="roles"
       fixed
       hover
-      stacked='lg'
+      stacked="lg"
       show-empty
-      :busy.sync='isBusy'
-      :fields='tableFields'
-      :items='fetchRoles'
-      id='roles-table'
-      ref='roles'
-      :current-page='currentPage'>
-
-      <template v-slot:empty>
+      :busy.sync="isBusy"
+      :fields="tableFields"
+      :items="fetchRoles"
+      :current-page="currentPage"
+    >
+      <template #empty>
         <i>{{ $t('settings.roles.nodata') }}</i>
       </template>
 
-      <template v-slot:table-busy>
+      <template #table-busy>
         <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
+          <b-spinner class="align-middle" />
         </div>
       </template>
 
-      <template v-slot:cell(name)="data">
+      <template #cell(name)="data">
         <text-truncate>
           {{ $te(`app.role_lables.${data.item.name}`) ? $t(`app.role_lables.${data.item.name}`) : data.item.name }}
         </text-truncate>
       </template>
 
-      <template v-slot:cell(default)="data">
+      <template #cell(default)="data">
         {{ $t(`app.${data.item.default ? 'yes' : 'no'}`) }}
       </template>
 
-      <template v-slot:cell(actions)="data">
+      <template #cell(actions)="data">
         <b-button-group>
-          <can method='view' :policy='data.item'>
+          <can
+            method="view"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.roles.view', { name: data.item.id })"
-              :disabled='isBusy'
-              variant='info'
+              :disabled="isBusy"
+              variant="info"
               :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fa-solid fa-eye'></i>
+              <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can method='update' :policy='data.item'>
+          <can
+            method="update"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.roles.edit', { name: data.item.id })"
-              :disabled='isBusy'
-              variant='secondary'
+              :disabled="isBusy"
+              variant="secondary"
               :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
             >
-              <i class='fa-solid fa-edit'></i>
+              <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can method='delete' :policy='data.item'>
+          <can
+            method="delete"
+            :policy="data.item"
+          >
             <b-button
               v-b-tooltip.hover
               v-tooltip-hide-click
               :title="$t('settings.roles.delete.item', { id: data.item.id })"
-              :disabled='isBusy'
-              variant='danger'
-              @click='showDeleteModal(data.item)'>
-              <i class='fa-solid fa-trash'></i>
+              :disabled="isBusy"
+              variant="danger"
+              @click="showDeleteModal(data.item)"
+            >
+              <i class="fa-solid fa-trash" />
             </b-button>
           </can>
         </b-button-group>
@@ -89,48 +104,50 @@
     </b-table>
 
     <b-pagination
-      v-model='currentPage'
-      :total-rows='total'
-      :per-page='perPage'
-      aria-controls='roles-table'
+      v-model="currentPage"
+      :total-rows="total"
+      :per-page="perPage"
+      aria-controls="roles-table"
+      align="center"
+      :disabled="isBusy"
       @input="$root.$emit('bv::refresh::table', 'roles-table')"
-      align='center'
-      :disabled='isBusy'
-    ></b-pagination>
+    />
 
     <b-modal
-      :busy='deleting'
-      ok-variant='danger'
-      cancel-variant='secondary'
+      ref="delete-role-modal"
+      :busy="deleting"
+      ok-variant="danger"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
-      @ok='deleteRole($event)'
-      @cancel='clearRoleToDelete'
-      @close='clearRoleToDelete'
-      ref='delete-role-modal'
-      :static='modalStatic'
+      :static="modalStatic"
       :no-close-on-esc="deleting"
       :no-close-on-backdrop="deleting"
       :hide-header-close="deleting"
+      @ok="deleteRole($event)"
+      @cancel="clearRoleToDelete"
+      @close="clearRoleToDelete"
     >
-      <template v-slot:modal-title>
+      <template #modal-title>
         {{ $t('settings.roles.delete.title') }}
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="deleting"
+          small
+        />  {{ $t('app.yes') }}
       </template>
       <span v-if="roleToDelete">
         {{ $t('settings.roles.delete.confirm', { name: $te(`app.role_lables.${roleToDelete.name}`) ? $t(`app.role_lables.${roleToDelete.name}`) : roleToDelete.name }) }}
       </span>
-
     </b-modal>
   </div>
 </template>
 
 <script>
-import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can.vue';
-import ActionsColumn from '../../../mixins/ActionsColumn';
-import TextTruncate from '../../../components/TextTruncate.vue';
+import Base from '@/api/base';
+import Can from '@/components/Permissions/Can.vue';
+import ActionsColumn from '@/mixins/ActionsColumn';
+import TextTruncate from '@/components/TextTruncate.vue';
 
 export default {
   components: { TextTruncate, Can },
@@ -141,6 +158,18 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+
+  data () {
+    return {
+      isBusy: false,
+      deleting: false,
+      currentPage: undefined,
+      total: undefined,
+      perPage: undefined,
+      roleToDelete: undefined,
+      actionPermissions: ['roles.view', 'roles.update', 'roles.delete']
+    };
   },
 
   computed: {
@@ -157,18 +186,6 @@ export default {
 
       return fields;
     }
-  },
-
-  data () {
-    return {
-      isBusy: false,
-      deleting: false,
-      currentPage: undefined,
-      total: undefined,
-      perPage: undefined,
-      roleToDelete: undefined,
-      actionPermissions: ['roles.view', 'roles.update', 'roles.delete']
-    };
   },
 
   methods: {

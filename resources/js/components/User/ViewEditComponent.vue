@@ -3,112 +3,112 @@
     <b-overlay :show="isBusy || loadingError">
       <template #overlay>
         <div class="text-center">
-          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-spinner v-if="isBusy" />
           <b-button
             v-else
             @click="loadUser()"
           >
-            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
-      <b-tabs v-if="!isBusy && user" fill nav-wrapper-class="mb-3">
-      <b-tab lazy>
-        <template #title>
-          <i class="fa-solid fa-user"></i> {{ $t('settings.users.base_data') }}
-        </template>
-        <profile-component
-          :user="user"
-          :view-only="viewOnly"
-          @updateUser="updateUser"
-          @staleError="handleStaleError"
-          @notFoundError="handleNotFoundError"
-        ></profile-component>
-      </b-tab>
-      <b-tab lazy>
-        <template #title>
-          <i class="fa-solid fa-envelope"></i> {{ $t('app.email') }}
-        </template>
-        <email-settings-component
-          :user="user"
-          :view-only="viewOnly"
-          @updateUser="updateUser"
-          @notFoundError="handleNotFoundError"
-        ></email-settings-component>
-      </b-tab>
-      <b-tab lazy>
-        <template #title>
-          <i class="fa-solid fa-user-shield"></i> {{ $t('app.security') }}
-        </template>
-        <authentication-settings-component
-          :user="user"
-          :view-only="viewOnly"
-          @updateUser="updateUser"
-          @staleError="handleStaleError"
-          @notFoundError="handleNotFoundError"
-        ></authentication-settings-component>
-      </b-tab>
-      <b-tab lazy>
-        <template #title>
-          <i class="fa-solid fa-user-gear"></i> {{ $t('settings.users.other_settings') }}
-        </template>
-        <other-settings-component
-          :user="user"
-          :view-only="viewOnly"
-          @updateUser="updateUser"
-          @staleError="handleStaleError"
-          @notFoundError="handleNotFoundError"
-        ></other-settings-component>
-      </b-tab>
-    </b-tabs>
+      <b-tabs
+        v-if="!isBusy && user"
+        fill
+        nav-wrapper-class="mb-3"
+      >
+        <b-tab lazy>
+          <template #title>
+            <i class="fa-solid fa-user" /> {{ $t('settings.users.base_data') }}
+          </template>
+          <profile-component
+            :user="user"
+            :view-only="viewOnly"
+            @update-user="updateUser"
+            @stale-error="handleStaleError"
+            @not-found-error="handleNotFoundError"
+          />
+        </b-tab>
+        <b-tab lazy>
+          <template #title>
+            <i class="fa-solid fa-envelope" /> {{ $t('app.email') }}
+          </template>
+          <email-settings-component
+            :user="user"
+            :view-only="viewOnly"
+            @update-user="updateUser"
+            @not-found-error="handleNotFoundError"
+          />
+        </b-tab>
+        <b-tab lazy>
+          <template #title>
+            <i class="fa-solid fa-user-shield" /> {{ $t('app.security') }}
+          </template>
+          <authentication-settings-component
+            :user="user"
+            :view-only="viewOnly"
+            @update-user="updateUser"
+            @stale-error="handleStaleError"
+            @not-found-error="handleNotFoundError"
+          />
+        </b-tab>
+        <b-tab lazy>
+          <template #title>
+            <i class="fa-solid fa-user-gear" /> {{ $t('settings.users.other_settings') }}
+          </template>
+          <other-settings-component
+            :user="user"
+            :view-only="viewOnly"
+            @update-user="updateUser"
+            @stale-error="handleStaleError"
+            @not-found-error="handleNotFoundError"
+          />
+        </b-tab>
+      </b-tabs>
     </b-overlay>
     <b-modal
-      :static='modalStatic'
-      :busy='isBusy'
-      ok-variant='secondary'
-      @ok='refreshUser'
+      ref="stale-user-modal"
+      :static="modalStatic"
+      :busy="isBusy"
+      ok-variant="secondary"
       :ok-only="true"
-      :hide-header-close='true'
-      :no-close-on-backdrop='true'
-      :no-close-on-esc='true'
-      ref='stale-user-modal'
-      :hide-header='true'>
-      <template v-slot:default>
+      :hide-header-close="true"
+      :no-close-on-backdrop="true"
+      :no-close-on-esc="true"
+      :hide-header="true"
+      @ok="refreshUser"
+    >
+      <template #default>
         <h5>{{ staleError.message }}</h5>
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isBusy"
+          small
+        />  {{ $t('app.reload') }}
       </template>
     </b-modal>
   </div>
 </template>
 
 <script>
-import FieldErrors from '../../mixins/FieldErrors';
+import FieldErrors from '@/mixins/FieldErrors';
 import 'cropperjs/dist/cropper.css';
 import AuthenticationSettingsComponent from './AuthenticationSettingsComponent.vue';
 import OtherSettingsComponent from './OtherSettingsComponent.vue';
 import EmailSettingsComponent from './EmailSettingsComponent.vue';
 import ProfileComponent from './ProfileComponent.vue';
-import Base from '../../api/base';
-import env from '../../env';
+import Base from '@/api/base';
+import env from '@/env';
 
 export default {
-  mixins: [FieldErrors],
   components: {
     ProfileComponent,
     EmailSettingsComponent,
     OtherSettingsComponent,
     AuthenticationSettingsComponent
   },
-  data () {
-    return {
-      user: null,
-      isBusy: false,
-      loadingError: false,
-      staleError: {}
-    };
-  },
+  mixins: [FieldErrors],
   props: {
     id: {
       type: [String, Number],
@@ -123,6 +123,17 @@ export default {
       default: false
     }
   },
+  data () {
+    return {
+      user: null,
+      isBusy: false,
+      loadingError: false,
+      staleError: {}
+    };
+  },
+  mounted () {
+    this.loadUser();
+  },
   methods: {
     handleNotFoundError (error) {
       this.$router.push({ name: 'settings.users' });
@@ -136,7 +147,7 @@ export default {
 
     updateUser (user) {
       this.user = user;
-      this.$emit('updateUser', this.user);
+      this.$emit('update-user', this.user);
     },
 
     /**
@@ -147,7 +158,7 @@ export default {
       this.user.roles.forEach(role => {
         role.$isDisabled = role.automatic;
       });
-      this.$emit('updateUser', this.staleError.new_model);
+      this.$emit('update-user', this.staleError.new_model);
       this.staleError = {};
       this.$refs['stale-user-modal'].hide();
     },
@@ -164,7 +175,7 @@ export default {
         this.user.roles.forEach(role => {
           role.$isDisabled = role.automatic;
         });
-        this.$emit('updateUser', this.user);
+        this.$emit('update-user', this.user);
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
           this.$router.push({ name: 'settings.users' });
@@ -176,9 +187,6 @@ export default {
         this.isBusy = false;
       });
     }
-  },
-  mounted () {
-    this.loadUser();
   }
 };
 

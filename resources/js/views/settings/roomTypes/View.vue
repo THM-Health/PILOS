@@ -3,220 +3,286 @@
     <h3>
       {{ id === 'new' ? $t('settings.room_types.new') : (
         viewOnly ? $t('settings.room_types.view', { name: model.description })
-          : $t('settings.room_types.edit', { name: model.description })
+        : $t('settings.room_types.edit', { name: model.description })
       ) }}
     </h3>
     <hr>
     <b-overlay :show="isBusy || modelLoadingError">
       <template #overlay>
         <div class="text-center">
-          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-spinner v-if="isBusy" />
           <b-button
-            ref="reloadRoomType"
             v-else
+            ref="reloadRoomType"
             @click="loadRoomType()"
           >
-            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
-      <b-form @submit='saveRoomType'>
+      <b-form @submit="saveRoomType">
         <b-container fluid>
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('app.description')"
-            label-for='description'
-            :state='fieldState("description")'
+            label-for="description"
+            :state="fieldState('description')"
           >
-            <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='4'
-            :label="$t('settings.room_types.short')"
-            label-for='short'
-            :state='fieldState("short")'
-          >
-            <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
+            <b-form-input
+              id="description"
+              v-model="model.description"
+              type="text"
+              :state="fieldState('description')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('description')" />
+            </template>
           </b-form-group>
 
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('settings.room_types.color')"
-            label-for='color'
-            :state='fieldState("color")'
+            label-for="color"
+            :state="fieldState('color')"
           >
-            <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatches="swatches" v-model="model.color" inline></v-swatches>
+            <v-swatches
+              v-model="model.color"
+              class="my-2"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              :swatches="swatches"
+              inline
+            />
             <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
-            <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
+            <b-form-input
+              id="color"
+              v-model="model.color"
+              type="text"
+              :state="fieldState('color')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
 
-            <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('color')" />
+            </template>
           </b-form-group>
 
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('settings.room_types.preview')"
           >
-            <div class="room-icon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
+            <b-badge
+              class="flex-shrink-1 text-break"
+              style="white-space: normal"
+              :style="{ 'background-color': model.color}"
+            >
+              {{ model.description }}
+            </b-badge>
           </b-form-group>
 
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('settings.room_types.allow_listing')"
             :description="$t('settings.room_types.allow_listing_description')"
-            label-for='allow_listing'
-            :state='fieldState("allow_listing")'
+            label-for="allow_listing"
+            :state="fieldState('allow_listing')"
           >
-            <b-form-checkbox switch id='allow_listing' v-model='model.allow_listing' :state='fieldState("allow_listing")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('allow_listing')"></div></template>
+            <b-form-checkbox
+              id="allow_listing"
+              v-model="model.allow_listing"
+              switch
+              :state="fieldState('allow_listing')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('allow_listing')" />
+            </template>
           </b-form-group>
 
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('app.server_pool')"
-            label-for='server_pool'
-            :state='fieldState("server_pool")'
+            label-for="server_pool"
+            :state="fieldState('server_pool')"
             :description="$t('settings.room_types.server_pool_description')"
           >
             <b-input-group>
               <multiselect
-                :placeholder="$t('settings.room_types.select_server_pool')"
+                id="server_pool"
                 ref="server-pool-multiselect"
-                v-model='model.server_pool'
-                track-by='id'
-                label='name'
-                open-direction='bottom'
-                :multiple='false'
-                :searchable='false'
-                :internal-search='false'
-                :clear-on-select='false'
-                :close-on-select='false'
-                :show-no-results='false'
-                :showLabels='false'
-                :options='serverPools'
+                v-model="model.server_pool"
+                :placeholder="$t('settings.room_types.select_server_pool')"
+                track-by="id"
+                label="name"
+                open-direction="bottom"
+                :multiple="false"
+                :searchable="false"
+                :internal-search="false"
+                :clear-on-select="false"
+                :close-on-select="false"
+                :show-no-results="false"
+                :show-labels="false"
+                :options="serverPools"
                 :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || viewOnly"
-                id='server_pool'
-                :loading='serverPoolsLoading'
-                :allowEmpty='false'
-                :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.server_pools.no_data') }}</template>
-                <template slot='afterList'>
+                :loading="serverPoolsLoading"
+                :allow-empty="false"
+                :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }"
+              >
+                <template slot="noOptions">
+                  {{ $t('settings.server_pools.no_data') }}
+                </template>
+                <template slot="afterList">
                   <b-button
-                    :disabled='serverPoolsLoading || currentPage === 1'
-                    variant='outline-secondary'
-                    @click='loadServerPools(Math.max(1, currentPage - 1))'>
-                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
+                    :disabled="serverPoolsLoading || currentPage === 1"
+                    variant="outline-secondary"
+                    @click="loadServerPools(Math.max(1, currentPage - 1))"
+                  >
+                    <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
                   </b-button>
                   <b-button
-                    :disabled='serverPoolsLoading || !hasNextPage'
-                    variant='outline-secondary'
-                    @click='loadServerPools(currentPage + 1)'>
-                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
+                    :disabled="serverPoolsLoading || !hasNextPage"
+                    variant="outline-secondary"
+                    @click="loadServerPools(currentPage + 1)"
+                  >
+                    <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
                   </b-button>
                 </template>
               </multiselect>
               <b-input-group-append>
                 <b-button
                   v-if="serverPoolsLoadingError"
-                  @click="loadServerPools(currentPage)"
                   variant="outline-secondary"
-                ><i class="fa-solid fa-sync"></i></b-button>
+                  @click="loadServerPools(currentPage)"
+                >
+                  <i class="fa-solid fa-sync" />
+                </b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('server_pool')"></div></template>
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('server_pool')" />
+            </template>
           </b-form-group>
 
           <b-form-group
-            label-cols-sm='4'
+            label-cols-sm="4"
             :label="$t('settings.room_types.restrict')"
             :description="$t('settings.room_types.restrict_description')"
-            label-for='restrict'
-            :state='fieldState("restrict")'
+            label-for="restrict"
+            :state="fieldState('restrict')"
           >
-            <b-form-checkbox switch id='restrict' v-model='model.restrict' :state='fieldState("restrict")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('restrict')"></div></template>
+            <b-form-checkbox
+              id="restrict"
+              v-model="model.restrict"
+              switch
+              :state="fieldState('restrict')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('restrict')" />
+            </template>
           </b-form-group>
           <b-form-group
-            label-cols-sm='4'
+            v-if="model.restrict"
+            label-cols-sm="4"
             :label="$t('app.roles')"
-            label-for='roles'
-            :state='fieldState("roles", true)'
-            v-if='model.restrict'
+            label-for="roles"
+            :state="fieldState('roles', true)"
           >
             <b-input-group>
               <multiselect
-                :placeholder="$t('settings.room_types.select_roles')"
+                id="roles"
                 ref="roles-multiselect"
-                v-model='model.roles'
-                track-by='id'
-                open-direction='bottom'
-                :multiple='true'
-                :searchable='false'
-                :internal-search='false'
-                :clear-on-select='false'
-                :close-on-select='false'
-                :show-no-results='false'
-                :showLabels='false'
-                :options='roles'
+                v-model="model.roles"
+                :placeholder="$t('settings.room_types.select_roles')"
+                track-by="id"
+                open-direction="bottom"
+                :multiple="true"
+                :searchable="false"
+                :internal-search="false"
+                :clear-on-select="false"
+                :close-on-select="false"
+                :show-no-results="false"
+                :show-labels="false"
+                :options="roles"
                 :disabled="isBusy || modelLoadingError || viewOnly || rolesLoadingError"
-                id='roles'
-                :loading='rolesLoading'
-                :allowEmpty='!!model.restrict'
-                :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-                <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
-                <template slot='tag' slot-scope='{ option, remove }'>
-                  <h5 class='d-inline mr-1 mb-1'>
-                    <b-badge variant='secondary'>
+                :loading="rolesLoading"
+                :allow-empty="!!model.restrict"
+                :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }"
+              >
+                <template slot="noOptions">
+                  {{ $t('settings.roles.nodata') }}
+                </template>
+                <template
+                  slot="option"
+                  slot-scope="props"
+                >
+                  {{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}
+                </template>
+                <template
+                  slot="tag"
+                  slot-scope="{ option, remove }"
+                >
+                  <h5 class="d-inline mr-1 mb-1">
+                    <b-badge variant="secondary">
                       {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
-                      <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.remove_role')"></i></span>
+                      <span @click="remove(option)"><i
+                        class="fa-solid fa-xmark"
+                        :aria-label="$t('settings.users.remove_role')"
+                      /></span>
                     </b-badge>
                   </h5>
                 </template>
-                <template slot='afterList'>
+                <template slot="afterList">
                   <b-button
-                    :disabled='rolesLoading || currentRolePage === 1'
-                    variant='outline-secondary'
-                    @click='loadRoles(Math.max(1, currentRolePage - 1))'>
-                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
+                    :disabled="rolesLoading || currentRolePage === 1"
+                    variant="outline-secondary"
+                    @click="loadRoles(Math.max(1, currentRolePage - 1))"
+                  >
+                    <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
                   </b-button>
                   <b-button
-                    :disabled='rolesLoading || !hasNextRolePage'
-                    variant='outline-secondary'
-                    @click='loadRoles(currentRolePage + 1)'>
-                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
+                    :disabled="rolesLoading || !hasNextRolePage"
+                    variant="outline-secondary"
+                    @click="loadRoles(currentRolePage + 1)"
+                  >
+                    <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
                   </b-button>
                 </template>
               </multiselect>
               <b-input-group-append>
                 <b-button
-                  ref="reloadRolesButton"
                   v-if="rolesLoadingError"
-                  @click="loadRoles(currentRolePage)"
+                  ref="reloadRolesButton"
                   variant="outline-secondary"
-                ><i class="fa-solid fa-sync"></i></b-button>
+                  @click="loadRoles(currentRolePage)"
+                >
+                  <i class="fa-solid fa-sync" />
+                </b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+            <template slot="invalid-feedback">
+              <div v-html="fieldError('roles', true)" />
+            </template>
           </b-form-group>
 
           <hr>
-          <b-row class='my-1 float-right'>
-            <b-col sm='12'>
+          <b-row class="my-1 float-right">
+            <b-col sm="12">
               <b-button
-                :disabled='isBusy'
-                variant='secondary'
-                @click="$router.push({ name: 'settings.room_types' })">
-                <i class='fa-solid fa-arrow-left'></i> {{ $t('app.back') }}
+                :disabled="isBusy"
+                variant="secondary"
+                @click="$router.push({ name: 'settings.room_types' })"
+              >
+                <i class="fa-solid fa-arrow-left" /> {{ $t('app.back') }}
               </b-button>
               <b-button
-                :disabled='isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError'
-                variant='success'
-                type='submit'
-                class='ml-1'
-                v-if='!viewOnly'>
-                <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
+                v-if="!viewOnly"
+                :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
+                variant="success"
+                type="submit"
+                class="ml-1"
+              >
+                <i class="fa-solid fa-save" /> {{ $t('app.save') }}
               </b-button>
             </b-col>
           </b-row>
@@ -224,45 +290,52 @@
       </b-form>
     </b-overlay>
     <b-modal
-      :static='modalStatic'
-      :busy='isBusy'
-      ok-variant='danger'
-      cancel-variant='secondary'
-      @ok='forceOverwrite'
-      @cancel='refreshRoomType'
-      :hide-header-close='true'
-      :no-close-on-backdrop='true'
-      :no-close-on-esc='true'
-      ref='stale-roomType-modal'
-      :hide-header='true'>
-      <template v-slot:default>
+      ref="stale-roomType-modal"
+      :static="modalStatic"
+      :busy="isBusy"
+      ok-variant="danger"
+      cancel-variant="secondary"
+      :hide-header-close="true"
+      :no-close-on-backdrop="true"
+      :no-close-on-esc="true"
+      :hide-header="true"
+      @ok="forceOverwrite"
+      @cancel="refreshRoomType"
+    >
+      <template #default>
         <h5>{{ staleError.message }}</h5>
       </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.overwrite') }}
+      <template #modal-ok>
+        <b-spinner
+          v-if="isBusy"
+          small
+        />  {{ $t('app.overwrite') }}
       </template>
-      <template v-slot:modal-cancel>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
+      <template #modal-cancel>
+        <b-spinner
+          v-if="isBusy"
+          small
+        />  {{ $t('app.reload') }}
       </template>
     </b-modal>
   </div>
 </template>
 
 <script>
-import Base from '../../../api/base';
-import FieldErrors from '../../../mixins/FieldErrors';
-import env from '../../../env';
+import Base from '@/api/base';
+import FieldErrors from '@/mixins/FieldErrors';
+import env from '@/env';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
 import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
 
 export default {
-  mixins: [FieldErrors],
   components: {
     VSwatches,
     Multiselect
   },
+  mixins: [FieldErrors],
   props: {
     id: {
       type: [String, Number],
@@ -288,7 +361,6 @@ export default {
       staleError: {},
       model: {
         description: null,
-        short: null,
         color: env.ROOM_TYPE_COLORS[0],
         server_pool: null,
         allow_listing: false,

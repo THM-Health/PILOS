@@ -1,42 +1,38 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
-import VueClipboard from 'vue-clipboard2';
-import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent.vue';
-import Base from '../../../../resources/js/api/base';
+import DeleteRoomDropdownButton from '@/components/Room/DeleteRoomDropdownButton.vue';
+import Base from '@/api/base';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(VueClipboard);
 
-const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_guest: false, is_moderator: false, can_start: true, running: false, access_code: 123456789, files: [] };
+const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_guest: false, is_moderator: false, can_start: true, running: false, access_code: 123456789, files: [] };
 
-describe('Delete room', () => {
+describe('Delete Room Dropdown Button', () => {
   beforeEach(() => {
     mockAxios.reset();
   });
 
   it('default render', () => {
-    const component = mount(DeleteRoomComponent, {
+    const component = mount(DeleteRoomDropdownButton, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        room: exampleRoom,
-        buttonClass: 'demoClass'
+        room: exampleRoom
       },
       attachTo: createContainer()
     });
 
-    const deleteButton = component.findComponent({ ref: 'deleteButton' });
+    const deleteButton = component.findComponent({ ref: 'deleteButton' }).find('button');
     expect(deleteButton.exists()).toBe(true);
     expect(deleteButton.attributes('disabled')).not.toBe('disabled');
-    expect(deleteButton.classes()).toContain('demoClass');
   });
 
   it('disable button', () => {
-    const component = mount(DeleteRoomComponent, {
+    const component = mount(DeleteRoomDropdownButton, {
       localVue,
       mocks: {
         $t: (key) => key
@@ -48,13 +44,13 @@ describe('Delete room', () => {
       attachTo: createContainer()
     });
 
-    const deleteButton = component.findComponent({ ref: 'deleteButton' });
+    const deleteButton = component.findComponent({ ref: 'deleteButton' }).find('button');
     expect(deleteButton.exists()).toBe(true);
     expect(deleteButton.attributes('disabled')).toBe('disabled');
   });
 
   it('successfull delete', async () => {
-    const component = mount(DeleteRoomComponent, {
+    const component = mount(DeleteRoomDropdownButton, {
       localVue,
       mocks: {
         $t: (key) => key
@@ -83,13 +79,13 @@ describe('Delete room', () => {
     });
 
     await component.vm.$nextTick();
-    expect(component.emitted().roomDeleted).toBeTruthy();
+    expect(component.emitted('room-deleted')).toBeTruthy();
   });
 
   it('failed delete room not found', async () => {
     const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const component = mount(DeleteRoomComponent, {
+    const component = mount(DeleteRoomDropdownButton, {
       localVue,
       mocks: {
         $t: (key) => key

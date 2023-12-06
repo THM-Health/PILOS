@@ -34,6 +34,7 @@ class UpdateRoomSettings extends FormRequest
             'max_participants'                   => 'nullable|numeric|min:1',
             'name'                               => 'required|string|min:2|max:'.config('bigbluebutton.room_name_limit'),
             'welcome'                            => 'nullable|string|max:'.config('bigbluebutton.welcome_message_limit'),
+            'short_description'                  => 'nullable|string|max:300',
             'listed'                             => 'required|boolean',
             'record_attendance'                  => 'required|boolean'
         ];

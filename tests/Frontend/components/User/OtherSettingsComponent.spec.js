@@ -2,10 +2,10 @@ import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
-import OtherSettingsComponent from '../../../../resources/js/components/User/OtherSettingsComponent.vue';
+import OtherSettingsComponent from '@/components/User/OtherSettingsComponent.vue';
 import { BButton, BFormCheckbox } from 'bootstrap-vue';
 
-import Base from '../../../../resources/js/api/base';
+import Base from '@/api/base';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -152,7 +152,7 @@ describe('OtherSettingComponent', () => {
     });
 
     // Check if changes are emitted
-    expect(wrapper.emitted('updateUser')[0][0]).toStrictEqual(userAfterChanges);
+    expect(wrapper.emitted('update-user')[0][0]).toStrictEqual(userAfterChanges);
     // Update user prop
     await wrapper.setProps({ user: userAfterChanges });
     await wrapper.vm.$nextTick();
@@ -203,7 +203,7 @@ describe('OtherSettingComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().notFoundError).toBeTruthy();
+    expect(wrapper.emitted('not-found-error')).toBeTruthy();
 
     // --- Check 428 error ---
     request = mockAxios.request('/api/v1/users/2');
@@ -223,8 +223,8 @@ describe('OtherSettingComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().staleError).toBeTruthy();
-    expect(wrapper.emitted().staleError[0]).toEqual([response]);
+    expect(wrapper.emitted('stale-error')).toBeTruthy();
+    expect(wrapper.emitted('stale-error')[0]).toEqual([response]);
 
     // --- Check form validation error ---
     request = mockAxios.request('/api/v1/users/2');

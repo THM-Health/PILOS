@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
-import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue';
+import LocaleSelector from '@/components/LocaleSelector.vue';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
-import Base from '../../../resources/js/api/base';
+import Base from '@/api/base';
 import { createLocalVue, mockAxios } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
-import { useLoadingStore } from '../../../resources/js/stores/loading';
+import { useLoadingStore } from '@/stores/loading';
 import { expect, vi } from 'vitest';
 
 const localVue = createLocalVue();
@@ -14,8 +14,8 @@ localVue.use(PiniaVuePlugin);
 
 describe('LocaleSelector', () => {
   beforeEach(() => {
-    vi.mock('../../../resources/js/i18n.js', async () => {
-      const mod = await import('../../../resources/js/i18n.js');
+    vi.mock('@/i18n.js', async () => {
+      const mod = await import('@/i18n.js');
       return {
         ...mod,
         getLocaleList: () => {

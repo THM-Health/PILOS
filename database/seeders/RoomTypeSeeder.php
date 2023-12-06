@@ -18,12 +18,38 @@ class RoomTypeSeeder extends Seeder
         // Only create room types if none exits
         if(RoomType::all()->count()==0) {
             $pool = ServerPool::all()->first();
+
             $pool->roomTypes()->createMany([
-                ['short' => 'LE', 'description' => 'Lecture', 'color' => '#16a085'],
-                ['short' => 'ME', 'description' => 'Meeting', 'color' => '#2c3e50'],
-                ['short' => 'EX', 'description' => 'Exam', 'color' => '#c0392b'],
-                ['short' => 'SE', 'description' => 'Seminar', 'color' => '#2980b9']
+                ['description' => 'Lecture', 'color' => '#16a085'],
+                ['description' => 'Meeting', 'color' => '#2c3e50'],
+                ['description' => 'Exam', 'color' => '#c0392b'],
+                ['description' => 'Seminar', 'color' => '#2980b9']
             ]);
+
+/*
+            $roomType = new RoomType();
+            $roomType->description = 'Lecture';
+            $roomType->color = '#16a085';
+            $roomType->serverPool()->associate($pool);
+            $roomType->save();
+
+            $roomType = new RoomType();
+            $roomType->description = 'Meeting';
+            $roomType->color = '#2c3e50';
+            $roomType->serverPool()->associate($pool);
+            $roomType->save();
+
+            $roomType = new RoomType();
+            $roomType->description = 'Exam';
+            $roomType->color = '#c0392b';
+            $roomType->serverPool()->associate($pool);
+            $roomType->save();
+
+            $roomType = new RoomType();
+            $roomType->description = 'Seminar';
+            $roomType->color = '#2980b9';
+            $roomType->serverPool()->associate($pool);
+            $roomType->save();*/
         }
     }
 }

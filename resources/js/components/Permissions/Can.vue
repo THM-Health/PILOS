@@ -1,13 +1,17 @@
 <template>
-  <div v-frag v-if="slotVisible">
+  <div
+    v-if="slotVisible"
+    v-frag
+  >
     <!-- @slot Content that should be only visible if necessary permissions are given. -->
-    <slot></slot>
+    <slot />
   </div>
 </template>
 
 <script>
-import EventBus from '../../services/EventBus';
-import PermissionService from '../../services/PermissionService';
+import EventBus from '@/services/EventBus';
+import { EVENT_CURRENT_USER_CHANGED } from '@/constants/events';
+import PermissionService from '@/services/PermissionService';
 import frag from 'vue-frag';
 
 /**
@@ -89,18 +93,6 @@ export default {
     }
   },
 
-  methods: {
-    /**
-     * Re-evaluates on permission change whether the slot content should be shown or not.
-     *
-     * @method evaluatePermissions
-     * @return undefined
-     */
-    evaluatePermissions () {
-      this.slotVisible = PermissionService.can(this.method, this.policy);
-    }
-  },
-
   /**
    * Sets the event listener for current user change to re-evaluate whether the
    * slot content can be shown or not.
@@ -109,7 +101,7 @@ export default {
    * @return undefined
    */
   mounted () {
-    EventBus.$on('currentUserChangedEvent', this.evaluatePermissions);
+    EventBus.on(EVENT_CURRENT_USER_CHANGED, this.evaluatePermissions);
     this.evaluatePermissions();
   },
 
@@ -120,7 +112,19 @@ export default {
    * @return undefined
    */
   beforeDestroy () {
-    EventBus.$off('currentUserChangedEvent', this.evaluatePermissions);
+    EventBus.off(EVENT_CURRENT_USER_CHANGED, this.evaluatePermissions);
+  },
+
+  methods: {
+    /**
+     * Re-evaluates on permission change whether the slot content should be shown or not.
+     *
+     * @method evaluatePermissions
+     * @return undefined
+     */
+    evaluatePermissions () {
+      this.slotVisible = PermissionService.can(this.method, this.policy);
+    }
   }
 };
 </script>

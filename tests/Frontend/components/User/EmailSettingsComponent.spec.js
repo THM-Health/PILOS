@@ -2,11 +2,11 @@ import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
-import EmailSettingsComponent from '../../../../resources/js/components/User/EmailSettingsComponent.vue';
+import EmailSettingsComponent from '@/components/User/EmailSettingsComponent.vue';
 import { BAlert, BButton, BFormInput } from 'bootstrap-vue';
 
-import Base from '../../../../resources/js/api/base';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '@/api/base';
+import PermissionService from '@/services/PermissionService';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -91,8 +91,8 @@ describe('EmailSettingsComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if event is emitted
-    expect(wrapper.emitted().updateUser).toBeTruthy();
-    expect(wrapper.emitted().updateUser[0][0]).toEqual(newUser);
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[0][0]).toEqual(newUser);
 
     wrapper.destroy();
   });
@@ -190,7 +190,7 @@ describe('EmailSettingsComponent', () => {
     expect(saveButton.attributes('disabled')).toBeFalsy();
 
     // Check if no event is emitted
-    expect(wrapper.emitted().updateUser).toBeFalsy();
+    expect(wrapper.emitted('update-user')).toBeFalsy();
 
     // Check if email is changed back to original
     expect(inputs.at(1).props('value')).toBe('john@doe.com');
@@ -227,8 +227,8 @@ describe('EmailSettingsComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if event is emitted
-    expect(wrapper.emitted().updateUser).toBeTruthy();
-    expect(wrapper.emitted().updateUser[0][0]).toEqual({ ...user, email: 'john.doe@example.com' });
+    expect(wrapper.emitted('update-user')).toBeTruthy();
+    expect(wrapper.emitted('update-user')[0][0]).toEqual({ ...user, email: 'john.doe@example.com' });
 
     // Check if new email is shown
     expect(inputs.at(1).props('value')).toBe('john.doe@example.com');
@@ -276,7 +276,7 @@ describe('EmailSettingsComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if error is emitted
-    expect(wrapper.emitted().notFoundError).toBeTruthy();
+    expect(wrapper.emitted('not-found-error')).toBeTruthy();
 
     // --- Check email change throttle error ---
     request = mockAxios.request('/api/v1/users/2/email');

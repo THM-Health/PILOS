@@ -62,7 +62,7 @@ class RoomExpires extends Notification implements ShouldQueue
         $url = url('rooms/'.$this->room->id);
 
         // Get the latest meeting of the room
-        $lastMeeting = $this->room->latestMeeting();
+        $lastMeeting = $this->room->latestMeeting;
 
         $message = (new MailMessage)
             ->subject(__('mail.room_expires.subject', ['name' => $this->room->name]))

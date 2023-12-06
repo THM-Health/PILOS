@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { mockAxios } from '../helper';
-import { useSettingsStore } from '../../../resources/js/stores/settings';
+import { useSettingsStore } from '@/stores/settings';
 
 describe('SettingsStore', () => {
   beforeEach(() => {

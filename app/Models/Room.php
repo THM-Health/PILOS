@@ -142,6 +142,15 @@ class Room extends Model
     }
 
     /**
+     * Meetings
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function latestMeeting()
+    {
+        return $this->belongsTo(Meeting::class, 'meeting_id');
+    }
+
+    /**
      * Files
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -166,15 +175,6 @@ class Room extends Model
     public function runningMeeting()
     {
         return $this->meetings()->whereNull('end')->orderByDesc('created_at')->first();
-    }
-
-    /**
-     * Get the latest meeting
-     * @return Meeting|null
-     */
-    public function latestMeeting()
-    {
-        return $this->meetings()->orderByDesc('created_at')->first();
     }
 
     /** Check if user is moderator of this room
@@ -255,9 +255,9 @@ class Room extends Model
     public function getModeratorOnlyMessage()
     {
         $message =  __('rooms.invitation.room', ['roomname'=>$this->name, 'platform' => setting('name')]).'<br>';
-        $message .= __('rooms.invitation.link', ['link'=>config('app.url').'/rooms/'.$this->id]);
+        $message .= __('rooms.invitation.link').': '.config('app.url').'/rooms/'.$this->id;
         if ($this->access_code != null) {
-            $message .= '<br>'.__('rooms.invitation.code', ['code'=>implode('-', str_split($this->access_code, 3))]);
+            $message .= '<br>'.__('rooms.invitation.code').': '.implode('-', str_split($this->access_code, 3));
         }
 
         return $message;

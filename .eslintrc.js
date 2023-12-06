@@ -7,6 +7,7 @@ module.exports = {
   },
   extends: [
     'plugin:vue/essential',
+    // 'plugin:vue/recommended',
     'standard',
     'plugin:jsonc/base',
     'plugin:vitest-globals/recommended'
@@ -45,7 +46,6 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
     'vue/no-v-text-v-html-on-component': 'warn',
     '@intlify/vue-i18n/no-missing-keys': 'error',
-    '@intlify/vue-i18n/no-missing-keys-in-other-locales': 'error',
     '@intlify/vue-i18n/key-format-style': ['warn', 'snake_case', {
       splitByDots: true
     }],
@@ -53,7 +53,14 @@ module.exports = {
     semi: ['error', 'always'],
     'vue/valid-v-slot': ['error', {
       allowModifiers: true
-    }]
+    }],
+    'vue/custom-event-name-casing': [
+      'error',
+      'kebab-case',
+      {
+        ignores: ['/^bv::.*$/u']
+      }
+    ]
   },
   settings: {
     'vue-i18n': {

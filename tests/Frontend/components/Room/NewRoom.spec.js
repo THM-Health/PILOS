@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
-import { BFormInput, BFormSelect } from 'bootstrap-vue';
-import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
-import PermissionService from '../../../../resources/js/services/PermissionService';
+import RoomList from '@/views/rooms/Index.vue';
+import { BButton, BFormInput, BFormSelect } from 'bootstrap-vue';
+import NewRoomComponent from '@/components/Room/NewRoomComponent.vue';
+import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
 import VueRouter from 'vue-router';
-import Base from '../../../../resources/js/api/base';
-import { mockAxios, createContainer, createLocalVue } from '../../helper';
+import Base from '@/api/base';
+import { mockAxios, createContainer, createLocalVue, i18nDateMock } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -22,7 +22,7 @@ describe('Create new rooms', () => {
     mockAxios.reset();
   });
 
-  const exampleOwnRoomResponse = {
+  const exampleRoomResponse = {
     data: [
       {
         id: 'abc-def-123',
@@ -31,27 +31,16 @@ describe('Create new rooms', () => {
           id: 1,
           name: 'John Doe'
         },
+        last_meeting: null,
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
-        }
-      }
-    ],
-    meta: {
-      current_page: 1,
-      from: 1,
-      last_page: 1,
-      per_page: 10,
-      to: 1,
-      total: 1,
-      total_no_filter: 1
-    }
-  };
-  const exampleSharedRoomResponse = {
-    data: [
+        },
+        is_favorite: false,
+        short_description: 'Own room'
+      },
       {
         id: 'def-abc-123',
         name: 'Meeting Two',
@@ -59,13 +48,18 @@ describe('Create new rooms', () => {
           id: 1,
           name: 'John Doe'
         },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
-        }
+        },
+        is_favorite: false,
+        short_description: null
       },
       {
         id: 'def-abc-456',
@@ -74,13 +68,18 @@ describe('Create new rooms', () => {
           id: 1,
           name: 'John Doe'
         },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: '2023-08-21 08:20:28:00'
+        },
         type: {
           id: 2,
-          short: 'ME',
           description: 'Meeting',
           color: '#4a5c66',
           default: false
-        }
+        },
+        is_favorite: false,
+        short_description: null
       }
     ],
     meta: {
@@ -89,66 +88,29 @@ describe('Create new rooms', () => {
       last_page: 1,
       per_page: 10,
       to: 5,
-      total: 2,
-      total_no_filter: 2
+      total: 3,
+      total_no_filter: 3,
+      total_own: 1
     }
   };
   const exampleRoomTypeResponse = {
     data: [
-      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' },
-      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' },
-      { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E' },
-      { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4' }
+      { id: 1, description: 'Vorlesung', color: '#80BA27' },
+      { id: 2, description: 'Meeting', color: '#4a5c66' },
+      { id: 3, description: 'Pr\u00fcfung', color: '#9C132E' },
+      { id: 4, description: '\u00dcbung', color: '#00B8E4' }
     ]
   };
 
-  it('frontend permission test', async () => {
-    mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
-      status: 200,
-      data: exampleOwnRoomResponse
-    });
-    mockAxios.request('/api/v1/rooms', { filter: 'shared', page: 1 }).respondWith({
-      status: 200,
-      data: exampleSharedRoomResponse
-    });
-
-    PermissionService.setCurrentUser(exampleUser);
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      pinia: createTestingPinia({ initialState }),
-      attachTo: createContainer()
-    });
-
-    await mockAxios.wait();
-    await view.vm.$nextTick();
-
-    const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-    expect(missingNewRoomComponent.exists()).toBeFalsy();
-
+  it('frontend room limit test', async () => {
     const newUser = _.cloneDeep(exampleUser);
     newUser.permissions.push('rooms.create');
 
     PermissionService.setCurrentUser(newUser);
 
-    await view.vm.$nextTick();
-
-    const newRoomComponent = view.findComponent(NewRoomComponent);
-    expect(newRoomComponent.exists()).toBeTruthy();
-
-    view.destroy();
-  });
-
-  it('frontend room limit test', async () => {
-    mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
+    mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 }).respondWith({
       status: 200,
-      data: exampleOwnRoomResponse
-    });
-    mockAxios.request('/api/v1/rooms', { filter: 'shared', page: 1 }).respondWith({
-      status: 200,
-      data: exampleSharedRoomResponse
+      data: exampleRoomResponse
     });
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
@@ -156,14 +118,13 @@ describe('Create new rooms', () => {
       data: exampleRoomTypeResponse
     });
 
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.permissions.push('rooms.create');
     newUser.room_limit = 1;
 
     const view = mount(RoomList, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: i18nDateMock
       },
       pinia: createTestingPinia({
         initialState: {
@@ -178,25 +139,23 @@ describe('Create new rooms', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    let missingNewRoomComponent = view.findComponent(NewRoomComponent);
-    expect(missingNewRoomComponent.exists()).toBeFalsy();
+    let disabledNewRoomComponent = view.findComponent(NewRoomComponent);
+    expect(disabledNewRoomComponent.exists()).toBeTruthy();
+    expect(disabledNewRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
 
     const searchField = view.findComponent({ ref: 'search' });
     expect(searchField.exists()).toBeTruthy();
 
-    // Enter search query
+    // enter search query
     await searchField.setValue('test');
 
-    const ownRequest = mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 });
-    const sharedRequest = mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 });
+    const ownRequest = mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started', page: 1 });
 
     searchField.trigger('change');
 
     await ownRequest.wait();
-    await sharedRequest.wait();
-    // Check if requests use the search string
+    // check if requests use the search string
     expect(ownRequest.config.params.search).toBe('test');
-    expect(sharedRequest.config.params.search).toBe('test');
 
     await ownRequest.respondWith({
       status: 200,
@@ -209,28 +168,15 @@ describe('Create new rooms', () => {
           per_page: 10,
           to: null,
           total: 0,
-          total_no_filter: 1
-        }
-      }
-    });
-    await sharedRequest.respondWith({
-      status: 200,
-      data: {
-        data: [],
-        meta: {
-          current_page: 1,
-          from: null,
-          last_page: 1,
-          per_page: 10,
-          to: null,
-          total: 0,
-          total_no_filter: 1
+          total_no_filter: 1,
+          total_own: 1
         }
       }
     });
 
-    missingNewRoomComponent = view.findComponent(NewRoomComponent);
-    expect(missingNewRoomComponent.exists()).toBeFalsy();
+    disabledNewRoomComponent = view.findComponent(NewRoomComponent);
+    expect(disabledNewRoomComponent.exists()).toBeTruthy();
+    expect(disabledNewRoomComponent.findComponent(BButton).element.disabled).toBeTruthy();
 
     view.destroy();
   });
@@ -276,7 +222,7 @@ describe('Create new rooms', () => {
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 201,
-      data: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
+      data: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66' } } }
     });
 
     await view.vm.$nextTick();
@@ -380,7 +326,7 @@ describe('Create new rooms', () => {
 
     expect(baseError).toBeCalledTimes(1);
     expect(baseError.mock.calls[0][0].response.data.message).toBe('test');
-    expect(view.emitted().limitReached).toBeTruthy();
+    expect(view.emitted('limit-reached')).toBeTruthy();
     view.destroy();
   });
 
@@ -452,7 +398,7 @@ describe('Create new rooms', () => {
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       data: {
-        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+        data: [{ id: 3, description: 'Meeting', color: '#4a5c66' }]
       }
     });
 
@@ -479,7 +425,7 @@ describe('Create new rooms', () => {
   });
 
   it('cancel or close', async () => {
-    const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
+    const roomTypes = [{ id: 2, description: 'Meeting', color: '#4a5c66' }];
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
@@ -509,7 +455,7 @@ describe('Create new rooms', () => {
     await typeInput.trigger('change');
 
     await view.findComponent(BFormInput).setValue('Test');
-    expect(view.vm.$data.room).toMatchObject({ room_type: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
+    expect(view.vm.$data.room).toMatchObject({ room_type: { color: '#4a5c66', description: 'Meeting', id: 2 }, name: 'Test' });
     view.vm.handleCancel();
     view.destroy();
     expect(view.vm.$data.room).toMatchObject({});

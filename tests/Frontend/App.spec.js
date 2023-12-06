@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
-import App from '../../resources/js/views/App.vue';
-import Profile from '../../resources/js/views/Profile.vue';
+import App from '@/views/App.vue';
+import Profile from '@/views/Profile.vue';
 import BootstrapVue, { BLink, BNavItem } from 'bootstrap-vue';
-import PermissionService from '../../resources/js/services/PermissionService';
+import PermissionService from '@/services/PermissionService';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import { useAuthStore } from '../../resources/js/stores/auth';
-import { useLoadingStore } from '../../resources/js/stores/loading';
+import { useAuthStore } from '@/stores/auth';
+import { useLoadingStore } from '@/stores/loading';
 import { createLocalVue, mockAxios } from './helper';
 import VueRouter from 'vue-router';
 import { expect } from 'vitest';
