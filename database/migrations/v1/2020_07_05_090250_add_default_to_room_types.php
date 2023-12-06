@@ -1,6 +1,5 @@
 <?php
 
-use Database\Seeders\RoomTypeSeederV1;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,9 +11,6 @@ class AddDefaultToRoomTypes extends Migration
         Schema::table('room_types', function (Blueprint $table) {
             $table->boolean('default')->default(false);
         });
-
-        $seeder = new RoomTypeSeederV1();
-        $seeder->run();
     }
 
     public function down()
