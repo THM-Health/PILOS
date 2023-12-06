@@ -492,7 +492,6 @@ class RoomTest extends TestCase
                     'last_meeting' => $room->latestMeeting,
                     'type'         => [
                         'id'            => $room->roomType->id,
-                        'short'         => $room->roomType->short,
                         'description'   => $room->roomType->description,
                         'color'         => $room->roomType->color,
                         'allow_listing' => $room->roomType->allow_listing,
@@ -524,7 +523,8 @@ class RoomTest extends TestCase
      */
     public function testRoomList()
     {
-        setting(['pagination_page_size' => 10]);
+        setting(['room_pagination_page_size' => 10]);
+
         $roomType1 = RoomType::factory()->create();
         $roomType2 = RoomType::factory()->create(['allow_listing'=>false]);
         $roomType3 = RoomType::factory()->create(['allow_listing'=>true]);
@@ -576,7 +576,6 @@ class RoomTest extends TestCase
                         'last_meeting',
                         'type' => [
                             'id',
-                            'short',
                             'description',
                             'color'
                         ],
@@ -745,6 +744,8 @@ class RoomTest extends TestCase
 
     public function testRoomListSorting()
     {
+        setting(['room_pagination_page_size' => 10]);
+
         $server       = Server::factory()->create();
         $roomType1    = RoomType::factory()->create(['description' => 'roomType1']);
         $roomType2    = RoomType::factory()->create(['description' => 'roomType2']);

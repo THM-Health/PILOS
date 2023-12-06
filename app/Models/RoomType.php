@@ -16,7 +16,7 @@ class RoomType extends Model
         'restrict'      => 'boolean'
     ];
 
-    protected $fillable = ['short','description','color', 'restrict'];
+    protected $fillable = ['description','color', 'restrict'];
 
     public function rooms()
     {
