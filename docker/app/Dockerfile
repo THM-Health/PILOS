@@ -16,7 +16,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update \
     && mkdir -p /etc/apt/keyrings \
-    && apt-get install -y gnupg gosu curl ca-certificates zip unzip pv libzip-dev git supervisor libcap2-bin libpng-dev python2 \
+    && apt-get install -y gnupg gosu curl ca-certificates zip unzip pv libzip-dev git supervisor cron libcap2-bin libpng-dev python2 \
     && apt-get install -y nginx \
     && apt-get install -y default-mysql-client postgresql-client libpq-dev \
     && apt-get install -y libldap2-dev libxml2-dev libpq-dev \
@@ -44,9 +44,18 @@ RUN chown www-data:www-data /var/www/
 RUN usermod -u $WWWUSER www-data
 RUN groupmod -o -g $WWWGROUP www-data
 
-# Copy start script
+# Copy entrypoint
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
+
+# Copy pilos-cli
+COPY ./docker/app/pilos-cli /usr/local/bin/pilos-cli
+RUN chmod +x /usr/local/bin/pilos-cli
+
+# Copy cron config
+COPY ./docker/app/cron/scheduler /etc/cron.d/scheduler
+RUN chmod 644 /etc/cron.d/scheduler
+RUN crontab /etc/cron.d/scheduler
 
 # Copy frontend wrapper script
 COPY ./docker/app/frontend /usr/local/etc/frontend

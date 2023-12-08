@@ -5,6 +5,8 @@ services:
         build:
             context: ./
             dockerfile: docker/app/Dockerfile
+            tags:
+              - 'pilos/pilos:local-dev'
             args:
               WWWGROUP: '${WWWGROUP}'
               WWWUSER: '${WWWUSER}'
@@ -16,12 +18,15 @@ services:
         environment:
           ENABLE_XDEBUG: '${ENABLE_XDEBUG:-no}'
           TRUSTED_PROXIES: "*"
-          PHP_PM_MAX_CHILDREN: "5"
+          CONTAINER_ROLE: 'dev'
         volumes:
           - './:/var/www/html/'
           - './ssl:/local/certs/'
         depends_on:
-          - db
+          db:
+            condition: service_healthy
+          redis:
+            condition: service_healthy  
     db:
       image: 'mariadb:10'
       environment:
@@ -36,13 +41,19 @@ services:
         - './tests/Utils/create-mysql-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
       healthcheck:
         test: [ "CMD", "mysqladmin", "ping", "-u${DB_USERNAME}", "-p${DB_PASSWORD}" ]
-        retries: 3
+        interval: 5s
+        retries: 12
         timeout: 5s
     redis:
       image: redis:7.2-alpine3.18
       restart: unless-stopped
       volumes:
         - redis:/data
+      healthcheck:
+        test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+        interval: 5s
+        retries: 12  
+        timeout: 5s  
     mailhog:
       image: 'mailhog/mailhog:latest'
       ports:

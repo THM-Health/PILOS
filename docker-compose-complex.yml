@@ -3,10 +3,14 @@ version: '3'
 services:
     app:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        ports:
+          - '80:80'
+          - '443:443'
         env_file:
           - .env
         environment:
           TRUSTED_PROXIES: "*"
+          CONTAINER_ROLE: 'web'
         volumes:
           - './storage/:/var/www/html/storage/'
           - './resources/custom:/var/www/html/resources/custom'
@@ -26,10 +30,41 @@ services:
           retries: 6  
           timeout: 5s
         depends_on:
+          init:
+            condition: service_completed_successfully
+    init:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        env_file:
+          - .env
+        entrypoint: ['pilos-cli', 'init']
+        volumes:
+          - './storage/:/var/www/html/storage/'
+          - './resources/custom:/var/www/html/resources/custom'
+          - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
+          - './app/Auth/config:/var/www/html/app/Auth/config'
+          - './public/images/custom:/var/www/html/public/images/custom'
+          - './public/build:/var/www/html/public/build'
+        depends_on:
           db:
             condition: service_healthy
           redis:
             condition: service_healthy
+    cron:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        env_file:
+          - .env
+        entrypoint: ['cron','-f']
+        depends_on:
+          init:
+            condition: service_completed_successfully
+    horizon:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        env_file:
+          - .env
+        entrypoint: ['pilos-cli', 'horizon']
+        depends_on:
+          init:
+            condition: service_completed_successfully
     db:
       image: 'mariadb:10'
       environment:

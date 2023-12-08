@@ -1,38 +1,11 @@
 #!/usr/bin/env bash
 
-function changePermissions() {
-    echo "Changing permissions"
-    chown -R :www-data /var/www/html/storage/app
-    chown -R :www-data /var/www/html/storage/logs
-    chown -R :www-data /var/www/html/resources/custom
-    chown -R :www-data /var/www/html/resources/sass/theme/custom
-    find /var/www/html/storage/ -type f -exec chmod 664 {} \;
-    find /var/www/html/storage/ -type d -exec chmod 775 {} \;
-    find /var/www/html/resources/custom/ -type f -exec chmod 664 {} \;
-    find /var/www/html/resources/custom/ -type d -exec chmod 775 {} \;
-    find /var/www/html/resources/sass/theme/custom/ -type f -exec chmod 664 {} \;
-    find /var/www/html/resources/sass/theme/custom/ -type d -exec chmod 775 {} \;
-}
+# If there is a command line argument, run it as the www-data user
+if [ $# -gt 0 ]; then
+    exec gosu www-data "$@"
+fi
 
-function buildFrontend() {
-    echo "Building frontend"
-	gosu www-data /usr/local/etc/frontend/run.sh
-}
-
-function migrateDatabase() {
-    echo "Migrating database and seed with example data"
-
-    while ! gosu www-data php artisan db:check; do
-        echo "Waiting before trying again..."
-        sleep 5
-    done
-    gosu www-data php artisan migrate --force --isolated --seed
-}
-
-function linkStorage() {
-    gosu www-data php artisan storage:link
-}
-
+# Helper functions
 function enableSSL() {
     echo "Checking SSL files"
     if [ -e /local/certs/fullchain.pem -a -e /local/certs/privkey.pem ]; then
@@ -43,37 +16,77 @@ function enableSSL() {
     fi
 }
 
-function optimize() {
-    gosu www-data composer dump-autoload -o
-    gosu www-data php artisan config:cache
-    gosu www-data php artisan route:cache
-    gosu www-data php artisan view:cache
-    gosu www-data php artisan locales:cache
+
+function addSupervisorConfig() {
+    CONFIG_DIR="/etc/supervisor/conf.d"
+    SUPERVISORD_CONFIG="$CONFIG_DIR/supervisord.conf"
+    CONFIG="$CONFIG_DIR/$1.conf"
+
+    echo "Adding $CONFIG supervisor config $SUPERVISORD_CONFIG"
+    echo >> "$SUPERVISORD_CONFIG"
+    echo >> "$SUPERVISORD_CONFIG"
+    cat "$CONFIG" >> "$SUPERVISORD_CONFIG"
 }
 
-function enableOPCacheTimestamps() {
-    echo "Enabling opcache timestamps"
-    sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
-}
 
-if [ "$ENABLE_XDEBUG" == "yes" ]; then
-    echo "Enabling xdebug"
-    docker-php-ext-enable xdebug
-fi
+# Set the container role, use 'all' as fallback
+CONTAINER_ROLE="${CONTAINER_ROLE:-all}" 
 
-if [ $# -gt 0 ]; then
-    exec gosu www-data "$@"
-else
-    if [ "$APP_ENV" == "production" ]; then
-        changePermissions
-        buildFrontend
-        migrateDatabase
-        linkStorage
-        optimize
-    else
-        enableSSL
-        enableOPCacheTimestamps
-    fi
+case $CONTAINER_ROLE in
+  web)
+    echo "Web container"
+
+    export PHP_PM_MAX_CHILDREN="${PHP_PM_MAX_CHILDREN:-100}"
+
+    enableSSL
+
+    addSupervisorConfig 'nginx'
+    addSupervisorConfig 'php-fpm'
 
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-fi
+    ;;
+
+  dev)
+    echo "Dev container"
+
+    export PHP_PM_MAX_CHILDREN="${PHP_PM_MAX_CHILDREN:-5}"
+
+    if [ "$ENABLE_XDEBUG" == "yes" ]; then
+        echo "Enabling xdebug"
+        docker-php-ext-enable xdebug
+    fi
+
+    enableSSL
+
+    echo "Enabling opcache timestamps"
+    sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
+
+    addSupervisorConfig 'nginx'
+    addSupervisorConfig 'php-fpm'
+    addSupervisorConfig 'cron'
+    addSupervisorConfig 'horizon'
+
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+    ;;
+
+  all)
+    echo "All-in-one container"
+
+    export PHP_PM_MAX_CHILDREN="${PHP_PM_MAX_CHILDREN:-100}"
+
+    pilos-cli init
+
+    enableSSL
+
+    addSupervisorConfig 'nginx'
+    addSupervisorConfig 'php-fpm'
+    addSupervisorConfig 'cron'
+    addSupervisorConfig 'horizon'
+
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+    ;;  
+  *)
+    echo "Invalid container role '$CONTAINER_ROLE' use one of: web, dev, all"
+    exit 1
+    ;;
+esac
