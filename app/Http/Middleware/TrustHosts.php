@@ -11,7 +11,7 @@ class TrustHosts extends Middleware
      * Handle the incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  \Closure                  $next
      * @return \Illuminate\Http\Response
      */
     public function handle(Request $request, $next)
@@ -21,7 +21,6 @@ class TrustHosts extends Middleware
         if ($request->fullUrlIs($except) || $request->is($except)) {
             return $next($request);
         }
-
 
         return parent::handle($request, $next);
     }
