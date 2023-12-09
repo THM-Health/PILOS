@@ -114,7 +114,10 @@
                   @favorites-changed="reload()"
                 />
                 <!-- transfer room ownership to another user-->
-                <can method="transfer" :policy="room">
+                <can
+                  method="transfer"
+                  :policy="room"
+                >
                   <transfer-ownership-dropdown-button
                     @transferred-ownership="reload"
                     :room="room">

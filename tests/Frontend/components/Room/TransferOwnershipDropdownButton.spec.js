@@ -321,7 +321,7 @@ describe('Room Transfer Dropdown Button', () => {
 
     await searchField.setValue('J');
     await searchRequest.wait();
-    // check user search query request and respond with found users
+    // check user search query request
     expect(searchRequest.config.params.query).toEqual('J');
 
     // respond with error

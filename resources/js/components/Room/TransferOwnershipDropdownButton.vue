@@ -25,7 +25,7 @@
       :static="modalStatic"
     >
 
-      <template v-slot:modal-ok>
+      <template #modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>
         {{ $t('rooms.modals.transfer_ownership.transfer') }}
       </template>
