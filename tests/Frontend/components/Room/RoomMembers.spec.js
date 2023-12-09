@@ -290,6 +290,7 @@ describe('RoomMembers', () => {
       pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
+    await view.vm.$nextTick();
 
     // check for initial reload
     expect(reloadSpy).toBeCalledTimes(1);
