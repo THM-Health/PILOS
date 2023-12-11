@@ -20,7 +20,7 @@
       hover
       stacked='lg'
       show-empty
-      :busy.sync='isBusy'
+      v-model:busy='isBusy'
       :fields="tableFields"
       :items='roomTypes'
       :per-page='getSetting("pagination_page_size")'

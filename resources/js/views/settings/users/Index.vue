@@ -105,7 +105,7 @@
       hover
       show-empty
       stacked='lg'
-      :busy.sync='isBusy'
+      v-model:busy='isBusy'
       :fields='tableFields'
       :items='fetchUsers'
       id='users-table'
