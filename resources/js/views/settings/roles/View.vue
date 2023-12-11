@@ -30,7 +30,7 @@
             :state='fieldState("name")'
           >
             <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('name')"></div></template>
           </b-form-group>
 
           <b-modal id="modal-help-roomlimit" size="lg" :hide-footer="true">
@@ -121,7 +121,7 @@
               :disabled='isBusy || modelLoadingError || viewOnly'
               v-if="roomLimitMode === 'custom'">
             </b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('room_limit')"></div></template>
           </b-form-group>
           <b-form-group
             :label="$t('settings.roles.permissions')"

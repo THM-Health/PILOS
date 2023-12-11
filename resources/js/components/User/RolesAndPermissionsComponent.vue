@@ -17,7 +17,7 @@
           @busy="(value) => this.rolesLoading = value"
 
           ></role-select>
-        <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('roles', true)"></div></template>
       </b-form-group>
 
       <b-button

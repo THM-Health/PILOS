@@ -16,7 +16,7 @@
           :state='fieldState("current_password")'
           :disabled="isBusy"
         ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('current_password')"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('current_password')"></div></template>
       </b-form-group>
       <b-form-group
         label-cols-sm='3'
@@ -32,7 +32,7 @@
           :state='fieldState("new_password")'
           :disabled="isBusy"
         ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('new_password')"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('new_password')"></div></template>
       </b-form-group>
       <b-form-group
         label-cols-sm='3'
@@ -48,7 +48,7 @@
           :state='fieldState("new_password_confirmation")'
           :disabled="isBusy"
         ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('new_password_confirmation')"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('new_password_confirmation')"></div></template>
       </b-form-group>
       <b-button
         :disabled='isBusy'

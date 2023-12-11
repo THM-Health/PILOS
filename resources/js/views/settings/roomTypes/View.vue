@@ -29,7 +29,7 @@
             :state='fieldState("description")'
           >
             <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('description')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -38,7 +38,7 @@
             :state='fieldState("short")'
           >
             <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('short')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -47,12 +47,12 @@
             label-for='color'
             :state='fieldState("color")'
           >
-  
+
             <color-select class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :colors="colors" v-model="model.color"/>
             <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
             <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 
-            <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('color')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -70,7 +70,7 @@
             :state='fieldState("allow_listing")'
           >
             <b-form-checkbox switch id='allow_listing' v-model='model.allow_listing' :state='fieldState("allow_listing")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('allow_listing')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('allow_listing')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -125,7 +125,7 @@
                 ><i class="fa-solid fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('server_pool')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('server_pool')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -136,7 +136,7 @@
             :state='fieldState("restrict")'
           >
             <b-form-checkbox switch id='restrict' v-model='model.restrict' :state='fieldState("restrict")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('restrict')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('restrict')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -199,7 +199,7 @@
                 ><i class="fa-solid fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('roles', true)"></div></template>
           </b-form-group>
 
           <hr>
