@@ -1,5 +1,4 @@
 import { defineConfig, loadEnv } from 'vite';
-import i18n from 'laravel-vue-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import * as fs from 'fs';
@@ -64,7 +63,6 @@ export default ({ mode }) => {
         'resources/js/app.js',
         'resources/sass/theme/' + THEME + '/app.scss'
       ]),
-      i18n(),
       vue({
         template: {
           compilerOptions: {
