@@ -43,13 +43,13 @@
       </b-form-group>
 
         <b-form-group :label="$t('rooms.role')" :state="fieldState('role')" >
-          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="1">
+          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" :value="1">
             <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="2">
+          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" :value="2">
             <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="3">
+          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" :value="3">
             <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
           <template #invalid-feedback><div v-html="fieldError('role')"></div> </template>

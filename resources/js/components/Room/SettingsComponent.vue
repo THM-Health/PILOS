@@ -214,7 +214,7 @@
                   name="setting-defaultRole"
                   v-model.number="settings.default_role"
                   :state="fieldState('default_role')"
-                  value="1">
+                  :value="1">
                   {{ $t('rooms.roles.participant') }}
                 </b-form-radio>
                 <b-form-radio
@@ -222,7 +222,7 @@
                   :disabled="disabled"
                   v-model.number="settings.default_role"
                   :state="fieldState('default_role')"
-                  value="2">
+                  :value="2">
                   {{ $t('rooms.roles.moderator') }}
                 </b-form-radio>
                 <template #invalid-feedback><div v-html="fieldError('default_role')"></div></template>
@@ -235,7 +235,7 @@
                   name="setting-lobby"
                   v-model.number="settings.lobby"
                   :state="fieldState('lobby')"
-                  value="0">
+                  :value="0">
                   {{ $t('app.disabled') }}
                 </b-form-radio>
                 <b-form-radio
@@ -243,7 +243,7 @@
                   name="setting-lobby"
                   v-model.number="settings.lobby"
                   :state="fieldState('lobby')"
-                  value="1">
+                  :value="1">
                   {{ $t('app.enabled') }}
                 </b-form-radio>
                 <b-form-radio
@@ -251,7 +251,7 @@
                   name="setting-lobby"
                   v-model.number="settings.lobby"
                   :state="fieldState('lobby')"
-                  value="2">
+                  :value="2">
                   {{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}
                 </b-form-radio>
                 <template #invalid-feedback><div v-html="fieldError('lobby')"></div></template>
