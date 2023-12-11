@@ -84,6 +84,9 @@ export default ({ mode }) => {
     },
     resolve: {
       alias: getAlias()
+    },
+    optimizeDeps: {
+      include: ['axe-core']
     }
   });
 };

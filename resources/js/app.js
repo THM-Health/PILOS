@@ -1,5 +1,5 @@
 import { BootstrapVue } from 'bootstrap-vue';
-import Vue, { createApp } from '@vue/compat';
+import Vue, { createApp, h, Fragment } from '@vue/compat';
 import { createPinia } from 'pinia';
 import App from './views/App.vue';
 import createRouter from './router';
@@ -24,12 +24,6 @@ Vue.use(BootstrapVue);
 
 Vue.mixin(Toast);
 
-// Add accessibility check tools for development
-// @TODO
-// if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
-//  import('vue-axe').then(({ default: VueAxe }) => Vue.use(VueAxe));
-// }
-
 Vue.config.errorHandler = Base.error;
 
 Vue.directive('tooltip-hide-click', HideTooltip);
@@ -37,13 +31,28 @@ Vue.directive('tooltip-hide-click', HideTooltip);
 const pinia = createPinia();
 const router = createRouter();
 
-const app = createApp(App);
+let app = null;
 
-app.use(pinia);
-app.use(router);
-app.use(i18n);
+const setupApp = (app) => {
+  app.use(pinia);
+  app.use(router);
+  app.use(i18n);
 
-app.provide('$router', app.config.globalProperties.$router);
-app.provide('$route', app.config.globalProperties.$route);
+  app.provide('$router', app.config.globalProperties.$router);
+  app.provide('$route', app.config.globalProperties.$route);
 
-app.mount('#app');
+  app.mount('#app');
+};
+
+if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
+  import('vue-axe').then((VueAxe) => {
+    app = createApp({
+      render: () => h(Fragment, [h(App), h(VueAxe.VueAxePopup)])
+    });
+    app.use(VueAxe.default);
+    setupApp(app);
+  });
+} else {
+  app = createApp(App);
+  setupApp(app);
+}
