@@ -68,7 +68,7 @@ export default {
       return this.getSetting('base_url') + this.$router.resolve({
         name: 'rooms.view',
         params: { id: this.id }
-      }).route.fullPath;
+      }).href;
     },
 
     formattedAccessCode: function () {
