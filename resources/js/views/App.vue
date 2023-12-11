@@ -117,6 +117,9 @@ export default {
       return route;
     }
   },
+  mounted () {
+    this.$router.app = this;
+  },
   methods: {
 
     ...mapActions(useAuthStore, { logoutSession: 'logout' }),

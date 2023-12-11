@@ -34,11 +34,6 @@ export default {
    */
   error (error, vm, info) {
 
-
-    console.error(error);
-
-    /*
-    @TODO
     const auth = useAuthStore();
 
     const responseStatus = error.response !== undefined ? error.response.status : undefined;
@@ -70,7 +65,6 @@ export default {
       vm.toastError(vm.$t('app.flash.client_error'));
       console.error(`Error: ${error.toString()}\nInfo: ${info}`);
     }
-    */
   },
 
   /**

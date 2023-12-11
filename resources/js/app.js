@@ -4,7 +4,6 @@ import { createPinia } from 'pinia';
 import App from './views/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
-import { useLoadingStore } from './stores/loading';
 
 import Toast from './mixins/Toast';
 import Base from './api/base';
@@ -26,6 +25,7 @@ Vue.use(BootstrapVue);
 Vue.mixin(Toast);
 
 // Add accessibility check tools for development
+// @TODO
 // if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
 //  import('vue-axe').then(({ default: VueAxe }) => Vue.use(VueAxe));
 // }

@@ -1,11 +1,10 @@
 export default {
   methods: {
     $toastMessage (variant, message, title = null) {
-      /*
       this.$root.$bvToast.toast(message, {
         title,
         variant
-      });*/
+      });
     },
 
     toastError (message, title = null) {

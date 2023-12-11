@@ -67,8 +67,7 @@ export default ({ mode }) => {
         template: {
           compilerOptions: {
             compatConfig: {
-              MODE: 2,
-              INSTANCE_EVENT_EMITTER: false
+              MODE: 2
             }
           }
         }
