@@ -172,7 +172,6 @@ import FieldErrors from '../../mixins/FieldErrors';
 import PermissionService from '../../services/PermissionService';
 import Base from '../../api/base';
 import env from '../../env';
-import { loadLanguageAsync } from '../../i18n';
 import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
 import LocaleSelect from '../Inputs/LocaleSelect.vue';

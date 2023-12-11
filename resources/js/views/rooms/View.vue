@@ -344,7 +344,7 @@ export default {
       }
     });
   },
-  destroyed () {
+  unmounted () {
     clearInterval(this.reloadInterval);
   },
   methods: {

@@ -112,7 +112,7 @@ export default {
    * @method beforeDestroy
    * @return undefined
    */
-  beforeDestroy () {
+  beforeUnmount () {
     EventBus.$off('currentUserChangedEvent', this.evaluatePermissions);
   }
 };

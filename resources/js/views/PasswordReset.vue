@@ -65,7 +65,6 @@
 import FieldErrors from '../mixins/FieldErrors';
 import Base from '../api/base';
 import env from '../env';
-import { loadLanguageAsync } from '../i18n';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';

@@ -1059,7 +1059,7 @@
 
             </b-input-group-append>
           </b-input-group>
-          <template slot='invalid-feedback' v-if="!viewOnly">
+          <template v-slot:invalid-feedback v-if="!viewOnly">
             <div v-html="fieldError('bbb.style')"></div>
           </template>
         </b-form-group>
@@ -1119,7 +1119,7 @@
               </b-input-group-append>
             </b-input-group>
             <b-form-text v-if="!viewOnly">{{ $t('rooms.files.formats', { formats: String(settings.bbb.file_mimes).split(",").join(', ') }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}</b-form-text>
-            <template slot='invalid-feedback' v-if="!viewOnly">
+            <template v-slot:invalid-feedback v-if="!viewOnly">
               <div v-html="fieldError('default_presentation')"></div>
             </template>
           </b-form-group>

@@ -33,7 +33,6 @@ export default {
    * @param info Some additional error information
    */
   error (error, vm, info) {
-
     const auth = useAuthStore();
 
     const responseStatus = error.response !== undefined ? error.response.status : undefined;
