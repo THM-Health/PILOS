@@ -78,7 +78,7 @@
                     </b-badge>
                   </h5>
                 </template>
-                <template slot='afterList'>
+                <template #afterList>
                   <b-button
                     :disabled='serversLoading || currentPage === 1'
                     variant='outline-secondary'

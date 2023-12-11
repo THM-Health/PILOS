@@ -165,9 +165,9 @@
                 :loading='rolesLoading'
                 :allowEmpty='!!model.restrict'
                 :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-                <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
-                <template slot='tag' slot-scope='{ option, remove }'>
+                <template #noOptions>{{ $t('settings.roles.nodata') }}</template>
+                <template v-slot:option="{ option }">{{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}</template>
+                <template v-slot:tag="{ option, remove }">
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='secondary'>
                       {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
@@ -175,7 +175,7 @@
                     </b-badge>
                   </h5>
                 </template>
-                <template slot='afterList'>
+                <template #afterList>
                   <b-button
                     :disabled='rolesLoading || currentRolePage === 1'
                     variant='outline-secondary'
