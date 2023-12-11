@@ -326,10 +326,10 @@
                      :show-no-results="true"
                      :showLabels="false"
                      @search-change="asyncFind">
-          <template slot="noResult">{{ $t('rooms.members.modals.add.no_result') }}</template>
-          <template slot="noOptions">{{ $t('rooms.members.modals.add.no_options') }}</template>
-          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small></template>
-          <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
+          <template #noResult>{{ $t('rooms.members.modals.add.no_result') }}</template>
+          <template #noOptions>{{ $t('rooms.members.modals.add.no_options') }}</template>
+          <template v-slot:option="{ option }">{{ option.firstname }} {{ option.lastname }}<br><small>{{ option.email }}</small></template>
+          <template v-slot:singleLabel="{ option }">{{ option.firstname }} {{ option.lastname }}</template>
         </multiselect>
         <template #invalid-feedback><div v-html="userValidationError"></div></template>
       </b-form-group>

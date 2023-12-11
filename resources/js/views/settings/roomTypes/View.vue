@@ -101,8 +101,8 @@
                 :loading='serverPoolsLoading'
                 :allowEmpty='false'
                 :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.server_pools.no_data') }}</template>
-                <template slot='afterList'>
+                <template #noOptions>{{ $t('settings.server_pools.no_data') }}</template>
+                <template #afterList>
                   <b-button
                     :disabled='serverPoolsLoading || currentPage === 1'
                     variant='outline-secondary'

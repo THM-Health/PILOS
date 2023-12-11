@@ -3,8 +3,8 @@
     <multiselect
       :placeholder="$t('settings.roles.select_roles')"
       ref="roles-multiselect"
-      :value="selectedRoles"
-      @input="input"
+      :model-value="selectedRoles"
+      @update:model-value="input"
       track-by='id'
       open-direction='bottom'
       :multiple='true'
@@ -20,9 +20,9 @@
       :loading='loading'
       :allowEmpty='false'
       :class="{ 'is-invalid': invalid, 'multiselect-form-control': true }">
-      <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-      <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
-      <template slot='tag' slot-scope='{ option, remove }'>
+      <template #noOptions>{{ $t('settings.roles.nodata') }}</template>
+      <template v-slot:option="{ option }">{{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}</template>
+      <template v-slot:tag="{ option, remove }">
         <h5 class='d-inline mr-1 mb-1'>
           <b-badge variant='secondary' >
             {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
@@ -30,7 +30,7 @@
           </b-badge>
         </h5>
       </template>
-      <template slot='afterList'>
+      <template #afterList>
         <b-button
           :disabled='loading || currentPage === 1'
           variant='outline-secondary'
