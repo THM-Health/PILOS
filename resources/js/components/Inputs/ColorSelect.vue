@@ -6,11 +6,11 @@
             :key="color"
             class="color-select"
             :style="{'background-color': color}"
-            :class="{'selected': value.toLowerCase() === color.toLowerCase(), 'disabled': disabled}"
+            :class="{'selected': isColorSelected(color), 'disabled': disabled}"
             @click="input(color)"
             >
                 <div class="overlay">
-                    <i v-if="value.toLowerCase() === color.toLowerCase()" class="fa-solid fa-circle-check"></i>
+                    <i v-if="isColorSelected(color)" class="fa-solid fa-circle-check"></i>
                 </div>
 
         </div>
@@ -41,6 +41,9 @@ export default {
     input (value) {
       if (this.disabled) return;
       this.$emit('input', value);
+    },
+    isColorSelected (color) {
+      return this.value && this.value.toLowerCase() === color.toLowerCase();
     }
   }
 };
