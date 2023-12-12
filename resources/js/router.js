@@ -448,7 +448,7 @@ export function beforeEachRoute (router, to, from, next) {
   const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
   const initializationPromise = !loading.initialized ? loading.initialize(locale) : Promise.resolve();
 
-  loading.setLoading();
+  if (!loading.initialized) { loading.setLoading(); }
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
       record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
