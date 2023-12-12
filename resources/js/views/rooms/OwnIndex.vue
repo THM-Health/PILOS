@@ -112,7 +112,6 @@ export default {
     },
     // Load the rooms shared with the current user
     loadSharedRooms (page = null) {
-
       this.loadingShared = true;
 
       const config = {
