@@ -12,23 +12,23 @@ describe('PermissionService', () => {
       const newUser = { permissions: ['foo', 'bar'] };
       const handleUserChanged = vi.fn();
 
-      EventBus.$on('currentUserChangedEvent', handleUserChanged);
+      EventBus.on('currentUserChangedEvent', handleUserChanged);
       PermissionService.setCurrentUser(newUser);
       await nextTick();
 
       expect(handleUserChanged).toBeCalledTimes(1);
       expect(handleUserChanged).toBeCalledWith(newUser);
 
-      EventBus.$off('currentUserChangedEvent', handleUserChanged);
+      EventBus.off('currentUserChangedEvent', handleUserChanged);
 
       const spy = vi.fn();
-      EventBus.$on('currentUserChangedEvent', spy);
+      EventBus.on('currentUserChangedEvent', spy);
       PermissionService.setCurrentUser(newUser, false);
       await nextTick();
 
       expect(spy).toBeCalledTimes(0);
 
-      EventBus.$off('currentUserChangedEvent', spy);
+      EventBus.off('currentUserChangedEvent', spy);
       PermissionService.setCurrentUser(oldUser);
     });
   });
