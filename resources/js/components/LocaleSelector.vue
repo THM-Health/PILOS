@@ -5,7 +5,7 @@
       <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.select_locale') }}</span>
     </template>
     <b-dropdown-item
-      v-for="(label, locale) in locales"
+      v-for="(label, locale) in availableLocales"
       :key="locale"
       @click="changeLocale(locale)"
       :active="locale === currentLocale">
@@ -15,7 +15,6 @@
 </template>
 
 <script>
-import { getLocaleList } from '../i18n';
 import env from './../env.js';
 import Base from '../api/base';
 import { mapActions, mapState } from 'pinia';
@@ -25,12 +24,7 @@ import { useLoadingStore } from '../stores/loading';
 export default {
 
   computed: {
-
-    locales () {
-      return getLocaleList();
-    },
-
-    ...mapState(useLocaleStore, ['currentLocale'])
+    ...mapState(useLocaleStore, ['currentLocale', 'availableLocales'])
   },
   methods: {
     ...mapActions(useLocaleStore, ['setLocale']),
