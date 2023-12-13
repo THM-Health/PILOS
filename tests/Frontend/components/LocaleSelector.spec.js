@@ -12,22 +12,14 @@ const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(PiniaVuePlugin);
 
+const availableLocales = {
+  de: 'German',
+  en: 'English',
+  ru: 'Russian'
+};
+
 describe('LocaleSelector', () => {
   beforeEach(() => {
-    vi.mock('../../../resources/js/i18n.js', async () => {
-      const mod = await import('../../../resources/js/i18n.js');
-      return {
-        ...mod,
-        getLocaleList: () => {
-          return {
-            de: 'German',
-            en: 'English',
-            ru: 'Russian'
-          };
-        }
-      };
-    });
-
     mockAxios.reset();
   });
 
@@ -38,7 +30,7 @@ describe('LocaleSelector', () => {
       mocks: {
         $t: (key) => key
       },
-      pinia: createTestingPinia()
+      pinia: createTestingPinia({ initialState: { locale: { availableLocales } } })
     });
 
     const dropdownItems = wrapper.findAllComponents(BDropdownItem);
@@ -56,7 +48,7 @@ describe('LocaleSelector', () => {
       mocks: {
         $t: (key) => key
       },
-      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } } })
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru', availableLocales } } })
     });
 
     const activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
@@ -75,7 +67,7 @@ describe('LocaleSelector', () => {
         $t: (key) => key,
         toastError: toastErrorSpy
       },
-      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru', availableLocales } }, stubActions: false })
     });
 
     mockAxios.request('/api/v1/locale').respondWith({
@@ -115,7 +107,7 @@ describe('LocaleSelector', () => {
       mocks: {
         $t: (key) => key
       },
-      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru', availableLocales } }, stubActions: false })
     });
 
     mockAxios.request('/api/v1/locale').respondWith({
@@ -156,7 +148,7 @@ describe('LocaleSelector', () => {
       mocks: {
         $t: (key) => key
       },
-      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru', availableLocales } }, stubActions: false })
     });
 
     mockAxios.request('/api/v1/locale').respondWith({
