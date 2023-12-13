@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import auth from '../api/auth';
-import { loadLanguageAsync, setTimeZone } from '../i18n';
 import PermissionService from '../services/PermissionService';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
@@ -20,10 +19,8 @@ export const useAuthStore = defineStore('auth', {
       await this.getCurrentUser();
 
       if (this.currentUser.user_locale !== null) {
-        await loadLanguageAsync(this.currentUser.user_locale);
-
         const locale = useLocaleStore();
-        locale.setCurrentLocale(this.currentUser.user_locale);
+        await locale.setCurrentLocale(this.currentUser.user_locale);
       }
     },
 
@@ -33,7 +30,8 @@ export const useAuthStore = defineStore('auth', {
         currentUser = null;
       }
       // set timezone of i18n, if user not logged in use undefined to set timezone to local system timezone
-      setTimeZone(currentUser == null ? undefined : currentUser.timezone);
+      const locale = useLocaleStore();
+      locale.setTimezone(currentUser == null ? undefined : currentUser.timezone);
 
       this.setCurrentUser(currentUser);
     },
@@ -44,7 +42,8 @@ export const useAuthStore = defineStore('auth', {
       // logout successfull, clear current user
       this.setCurrentUser(null, false);
       // reset timezone of i18n to use local system timezone
-      setTimeZone(undefined);
+      const locale = useLocaleStore();
+      locale.setTimezone(undefined);
 
       return response;
     },

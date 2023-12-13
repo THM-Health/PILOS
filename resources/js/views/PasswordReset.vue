@@ -69,7 +69,6 @@
 import FieldErrors from '../mixins/FieldErrors';
 import Base from '../api/base';
 import env from '../env';
-import { loadLanguageAsync } from '../i18n';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
@@ -140,7 +139,6 @@ export default {
         await this.getCurrentUser();
 
         if (this.currentUser.user_locale !== null) {
-          await loadLanguageAsync(this.currentUser.user_locale);
           this.setCurrentLocale(this.currentUser.user_locale);
         }
 

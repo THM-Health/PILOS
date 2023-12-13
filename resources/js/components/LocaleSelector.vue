@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { loadLanguageAsync, getLocaleList } from '../i18n';
+import { getLocaleList } from '../i18n';
 import env from './../env.js';
 import Base from '../api/base';
 import { mapActions, mapState } from 'pinia';
@@ -40,7 +40,6 @@ export default {
       this.setOverlayLoading();
       try {
         await this.setLocale(locale);
-        await loadLanguageAsync(locale);
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.toastError(error.response.data.errors.locale.join(' '));
