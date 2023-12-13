@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room favorites ([#373])
 - Show current room name in the page title  ([#649], [#650])
 - Show amount of users in a room ([#681])
+- Transfer room ownership ([#532], [#686])
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
@@ -689,6 +690,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#505]: https://github.com/THM-Health/PILOS/issues/505
 [#506]: https://github.com/THM-Health/PILOS/pull/506
 [#509]: https://github.com/THM-Health/PILOS/pull/509
+[#532]: https://github.com/THM-Health/PILOS/issues/532
 [#535]: https://github.com/THM-Health/PILOS/issues/535
 [#536]: https://github.com/THM-Health/PILOS/pull/536
 [#545]: https://github.com/THM-Health/PILOS/pull/545
@@ -704,6 +706,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#681]: https://github.com/THM-Health/PILOS/pull/681
 [#684]: https://github.com/THM-Health/PILOS/issues/684
 [#685]: https://github.com/THM-Health/PILOS/pull/685
+[#686]: https://github.com/THM-Health/PILOS/pull/686
 [#700]: https://github.com/THM-Health/PILOS/issues/700
 [#704]: https://github.com/THM-Health/PILOS/issues/704
 [#701]: https://github.com/THM-Health/PILOS/pull/701
