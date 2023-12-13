@@ -179,13 +179,13 @@
       </template>
       <div v-if="editMember">
         <b-form-group :label="$t('rooms.role')" v-if="editMember">
-          <b-form-radio v-model.number="editMember.role" name="some-radios" value="1">
+          <b-form-radio v-model.number="editMember.role" name="some-radios" :value="1">
             <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
           </b-form-radio>
-          <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
+          <b-form-radio v-model.number="editMember.role" name="some-radios" :value="2">
             <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
           </b-form-radio>
-          <b-form-radio v-model.number="editMember.role" name="some-radios" value="3">
+          <b-form-radio v-model.number="editMember.role" name="some-radios" :value="3">
             <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
         </b-form-group>
@@ -214,13 +214,13 @@
       </template>
       <div>
         <b-form-group :state="fieldState('role')" :label="$t('rooms.role')">
-          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="1">
+          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" :value="1">
             <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="2">
+          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" :value="2">
             <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="3">
+          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" :value="3">
             <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
 
@@ -335,13 +335,13 @@
       </b-form-group>
       <!-- select role -->
       <b-form-group :label="$t('rooms.role')" v-if="newMember" :state="newMemberRoleValid">
-        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="1">
+        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" :value="1">
           <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="2">
+        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" :value="2">
           <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="3">
+        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" :value="3">
           <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>

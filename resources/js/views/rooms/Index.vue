@@ -62,7 +62,7 @@
               <b-spinner v-if="isBusy" ></b-spinner>
               <b-button
                 v-else
-                @click="loadRooms"
+                @click="loadRooms()"
               >
                 <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
               </b-button>
@@ -91,7 +91,7 @@
             :total-rows='total'
             :per-page='perPage'
             aria-controls='rooms-table'
-            @input="loadRooms"
+            @change="loadRooms"
             align='center'
             :disabled='isBusy || loadingError'
           ></b-pagination>
@@ -139,12 +139,12 @@ export default {
     /**
      * Loads the listed rooms
      */
-    loadRooms () {
+    loadRooms (page = null) {
       this.isBusy = true;
 
       const config = {
         params: {
-          page: this.currentPage
+          page: page || this.currentPage
         }
       };
 

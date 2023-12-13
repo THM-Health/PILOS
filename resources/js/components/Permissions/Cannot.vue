@@ -109,7 +109,7 @@ export default {
    * @return undefined
    */
   mounted () {
-    EventBus.$on('currentUserChangedEvent', this.evaluatePermissions);
+    EventBus.on('currentUserChangedEvent', this.evaluatePermissions);
     this.evaluatePermissions();
   },
 
@@ -120,7 +120,7 @@ export default {
    * @return undefined
    */
   beforeDestroy () {
-    EventBus.$off('currentUserChangedEvent', this.evaluatePermissions);
+    EventBus.off('currentUserChangedEvent', this.evaluatePermissions);
   }
 };
 </script>

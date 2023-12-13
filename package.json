@@ -54,12 +54,13 @@
         "@tiptap/extension-underline": "^2.1.11",
         "@tiptap/starter-kit": "^2.1.11",
         "@tiptap/vue-2": "^2.1.12",
-        "awesome-mask": "^1.1.1",
         "bootstrap-vue": "^2.15.0",
         "chart.js": "^4.4.0",
         "chartjs-adapter-dayjs-4": "^1.0.4",
         "dayjs": "^1.11.10",
         "dompurify": "^3.0.6",
+        "maska": "^2.1.10",
+        "mitt": "^3.0.1",
         "pinia": "^2.1.7",
         "ua-parser-js": "^1.0.36",
         "vue-chartjs": "^5.2.0",
@@ -67,8 +68,7 @@
         "vue-frag": "^1.4.0",
         "vue-i18n": "^8.26.8",
         "vue-multiselect": "^2.1.8",
-        "vue-router": "^3.2.0",
-        "vue-swatches": "^2.1.0"
+        "vue-router": "^3.2.0"
     },
     "engines": {
         "node": "^10.12.0 || >=12.0.0"

@@ -50,7 +50,7 @@ class PermissionService {
      * @property {Object} currentUser The newly set current user
      */
     if (emit) {
-      EventBus.$emit('currentUserChangedEvent', currentUser);
+      EventBus.emit('currentUserChangedEvent', currentUser);
     }
   }
 

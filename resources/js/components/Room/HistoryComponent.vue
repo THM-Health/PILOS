@@ -117,7 +117,7 @@
         </template>
         <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.stats.no_breakout_support')}}</b-alert>
 
-        <line-chart v-if="statsMeeting" :style="{height: '200px', position: 'relative'}" :data="chartData" :options="chartOptions"></line-chart>
+        <line-chart v-if="statsMeeting" :data="chartData" :options="chartOptions"></line-chart>
       </b-modal>
       <!-- Attendance modal -->
       <b-modal :static="modalStatic" size="xl" hide-footer id="attendanceModal" title-tag="div" title-class="w-100">

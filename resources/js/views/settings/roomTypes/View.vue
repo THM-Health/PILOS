@@ -47,7 +47,12 @@
             label-for='color'
             :state='fieldState("color")'
           >
-            <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatches="swatches" v-model="model.color" inline></v-swatches>
+            <color-select
+              class="my-2"
+              :disabled='isBusy || modelLoadingError || viewOnly'
+              :colors="colors"
+              v-model="model.color"
+            />
             <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
             <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 
@@ -252,15 +257,14 @@
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
-import VSwatches from 'vue-swatches';
-import 'vue-swatches/dist/vue-swatches.css';
 import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
+import ColorSelect from '../../../components/Inputs/ColorSelect.vue';
 
 export default {
   mixins: [FieldErrors],
   components: {
-    VSwatches,
+    ColorSelect,
     Multiselect
   },
   props: {
@@ -300,7 +304,7 @@ export default {
       rolesLoadingError: false,
       currentRolePage: 1,
       hasNextRolePage: false,
-      swatches: env.ROOM_TYPE_COLORS,
+      colors: env.ROOM_TYPE_COLORS,
 
       serverPoolsLoading: false,
       serverPools: [],
