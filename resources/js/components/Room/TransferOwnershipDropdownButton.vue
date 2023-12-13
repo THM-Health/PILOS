@@ -52,23 +52,23 @@
           :showLabels="false"
           @search-change="asyncFind"
         >
-          <template slot="noResult">{{ $t('rooms.members.modals.add.no_result') }}</template>
-          <template slot="noOptions">{{ $t('rooms.members.modals.add.no_options') }}</template>
-          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small></template>
-          <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
+          <template #noResult>{{ $t('rooms.members.modals.add.no_result') }}</template>
+          <template #noOptions>{{ $t('rooms.members.modals.add.no_options') }}</template>
+          <template v-slot:option = "{ option }">{{ option.firstname }} {{ option.lastname }}<br><small>{{ option.email }}</small></template>
+          <template v-slot:singleLabel="{ option }">{{ option.firstname }} {{ option.lastname }}</template>
         </multiselect>
-        <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
+        <template #invalid-feedback><div v-html="userValidationError"></div></template>
       </b-form-group>
 
       <!--select new role with which the current owner should be added as a member of the room -->
       <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" :disabled="isLoadingAction" :state="newRoleInRoomValid" class=" mt-2">
-        <b-form-radio v-model.number="newRoleInRoom" value="1">
+        <b-form-radio v-model.number="newRoleInRoom" :value="1">
           <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newRoleInRoom" value="2">
+        <b-form-radio v-model.number="newRoleInRoom" :value="2">
           <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newRoleInRoom" value="3">
+        <b-form-radio v-model.number="newRoleInRoom" :value="3">
           <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
         </b-form-radio>
         <hr>
@@ -77,7 +77,7 @@
           <b-badge variant="secondary">{{$t('rooms.modals.transfer_ownership.no_role')}}</b-badge>
           <b-form-text>{{$t('rooms.modals.transfer_ownership.warning')}}</b-form-text>
         </b-form-radio>
-        <template slot='invalid-feedback'><div v-html="fieldError('role')"></div> </template>
+        <template #invalid-feedback><div v-html="fieldError('role')"></div> </template>
       </b-form-group>
     </b-modal>
 
