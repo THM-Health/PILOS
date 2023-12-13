@@ -21,7 +21,7 @@
                   :disabled='loading'
                 ></b-form-input>
 
-                <template slot='invalid-feedback'><div v-html="fieldError('password')"></div></template>
+                <template #invalid-feedback><div v-html="fieldError('password')"></div></template>
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
@@ -38,7 +38,7 @@
                   :disabled='loading'
                 ></b-form-input>
 
-                <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
+                <template #invalid-feedback><div v-html="fieldError('password_confirmation')"></div></template>
               </b-form-group>
 
               <b-form-invalid-feedback  v-if='fieldState("email") === false'>

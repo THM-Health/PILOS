@@ -29,7 +29,7 @@
             :state='fieldState("description")'
           >
             <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('description')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -38,7 +38,7 @@
             :state='fieldState("short")'
           >
             <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('short')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -56,7 +56,7 @@
             <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
             <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 
-            <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('color')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -74,7 +74,7 @@
             :state='fieldState("allow_listing")'
           >
             <b-form-checkbox switch id='allow_listing' v-model='model.allow_listing' :state='fieldState("allow_listing")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('allow_listing')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('allow_listing')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -105,8 +105,8 @@
                 :loading='serverPoolsLoading'
                 :allowEmpty='false'
                 :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.server_pools.no_data') }}</template>
-                <template slot='afterList'>
+                <template #noOptions>{{ $t('settings.server_pools.no_data') }}</template>
+                <template #afterList>
                   <b-button
                     :disabled='serverPoolsLoading || currentPage === 1'
                     variant='outline-secondary'
@@ -129,7 +129,7 @@
                 ><i class="fa-solid fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('server_pool')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('server_pool')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -140,7 +140,7 @@
             :state='fieldState("restrict")'
           >
             <b-form-checkbox switch id='restrict' v-model='model.restrict' :state='fieldState("restrict")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('restrict')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('restrict')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -169,9 +169,9 @@
                 :loading='rolesLoading'
                 :allowEmpty='!!model.restrict'
                 :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-                <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
-                <template slot='tag' slot-scope='{ option, remove }'>
+                <template #noOptions>{{ $t('settings.roles.nodata') }}</template>
+                <template v-slot:option="{ option }">{{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}</template>
+                <template v-slot:tag="{ option, remove }">
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='secondary'>
                       {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
@@ -179,7 +179,7 @@
                     </b-badge>
                   </h5>
                 </template>
-                <template slot='afterList'>
+                <template #afterList>
                   <b-button
                     :disabled='rolesLoading || currentRolePage === 1'
                     variant='outline-secondary'
@@ -203,7 +203,7 @@
                 ><i class="fa-solid fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('roles', true)"></div></template>
           </b-form-group>
 
           <hr>

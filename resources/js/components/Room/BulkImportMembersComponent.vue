@@ -39,7 +39,7 @@
 
         rows = "8"
       ></b-form-textarea>
-          <template slot='invalid-feedback'><div v-html="fieldError('user_emails')"></div>
+          <template #invalid-feedback><div v-html="fieldError('user_emails')"></div>
         </template>
       </b-form-group>
 
@@ -53,7 +53,7 @@
           <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" :value="3">
             <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
-          <template slot='invalid-feedback'><div v-html="fieldError('role')"></div> </template>
+          <template #invalid-feedback><div v-html="fieldError('role')"></div> </template>
         </b-form-group>
 
         <div class="modal-footer">

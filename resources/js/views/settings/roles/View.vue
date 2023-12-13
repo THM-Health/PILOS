@@ -30,7 +30,7 @@
             :state='fieldState("name")'
           >
             <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('name')"></div></template>
           </b-form-group>
 
           <b-modal id="modal-help-roomlimit" size="lg" :hide-footer="true">
@@ -102,7 +102,7 @@
             label-for='room-limit'
             :state='fieldState("room_limit")'
           >
-            <template slot='label'>{{ $t('app.room_limit') }}  <b-button variant="link" class="secondary" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
+            <template #label>{{ $t('app.room_limit') }}  <b-button variant="link" class="secondary" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
             <b-form-radio-group
               class='mb-2'
               v-model='roomLimitMode'
@@ -121,7 +121,7 @@
               :disabled='isBusy || modelLoadingError || viewOnly'
               v-if="roomLimitMode === 'custom'">
             </b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('room_limit')"></div></template>
           </b-form-group>
           <b-form-group
             :label="$t('settings.roles.permissions')"

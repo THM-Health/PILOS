@@ -107,7 +107,7 @@
                   <b-input-group>
                     <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholder_name')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
-                  <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+                  <template #invalid-feedback><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
               </b-col>
               <!-- Show room start or join button -->

@@ -31,7 +31,7 @@
             :state='fieldState("name")'
           >
             <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('name')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -40,7 +40,7 @@
             :state='fieldState("description")'
           >
             <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('description')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -56,7 +56,7 @@
             :state='fieldState("base_url")'
           >
             <b-form-input id='base_url' type='text' v-model='model.base_url' :state='fieldState("base_url")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('base_url')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('base_url')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -70,7 +70,7 @@
                 <b-button @click="hideSecret = !hideSecret" :disabled='isBusy || modelLoadingError' v-tooltip-hide-click v-b-tooltip.hover :title="hideSecret ? $t('settings.servers.show_secret') : $t('settings.servers.hide_secret')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSecret"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('secret')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('secret')"></div></template>
           </b-form-group>
           <b-form-group
             :description="$t('settings.servers.strength_description')"
@@ -81,7 +81,7 @@
           >
             <b-form-rating id='strength' stars="10" v-model='model.strength' :state='fieldState("strength")' :disabled='isBusy || modelLoadingError || viewOnly'>
             </b-form-rating>
-            <template slot='invalid-feedback'><div v-html="fieldError('strength')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('strength')"></div></template>
           </b-form-group>
 
           <b-form-group
@@ -93,7 +93,7 @@
           >
             <b-form-checkbox id="disabled" v-model="model.disabled" name="check-button" switch  class="align-items-center d-flex mb-3"  :disabled='isBusy || modelLoadingError || viewOnly'>
             </b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('disabled')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('disabled')"></div></template>
           </b-form-group>
 
           <b-form-group

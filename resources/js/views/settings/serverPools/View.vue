@@ -31,7 +31,7 @@
             :state='fieldState("name")'
           >
             <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('name')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -40,7 +40,7 @@
             :state='fieldState("description")'
           >
             <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('description')"></div></template>
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
@@ -68,9 +68,9 @@
                 :loading='serversLoading'
                 :allowEmpty='true'
                 :class="{ 'is-invalid': fieldState('servers', true), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.servers.no_data') }}</template>
-                <template slot='option' slot-scope="props">{{ props.option.name }}</template>
-                <template slot='tag' slot-scope='{ option, remove }'>
+                <template #noOptions>{{ $t('settings.servers.no_data') }}</template>
+                <template v-slot:option="{ option }">{{ option.name }}</template>
+                <template v-slot:tag="{ option, remove }">
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='secondary'>
                       {{ option.name }}
@@ -78,7 +78,7 @@
                     </b-badge>
                   </h5>
                 </template>
-                <template slot='afterList'>
+                <template #afterList>
                   <b-button
                     :disabled='serversLoading || currentPage === 1'
                     variant='outline-secondary'
@@ -101,7 +101,7 @@
                 ><i class="fa-solid fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('servers', true)"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('servers', true)"></div></template>
           </b-form-group>
 
           <hr>

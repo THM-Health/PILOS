@@ -224,7 +224,7 @@
             <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
 
-          <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
+          <template #invalid-feedback><div v-html="fieldError('role')"></div></template>
 
         </b-form-group>
 
@@ -326,12 +326,12 @@
                      :show-no-results="true"
                      :showLabels="false"
                      @search-change="asyncFind">
-          <template slot="noResult">{{ $t('rooms.members.modals.add.no_result') }}</template>
-          <template slot="noOptions">{{ $t('rooms.members.modals.add.no_options') }}</template>
-          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small></template>
-          <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
+          <template #noResult>{{ $t('rooms.members.modals.add.no_result') }}</template>
+          <template #noOptions>{{ $t('rooms.members.modals.add.no_options') }}</template>
+          <template v-slot:option="{ option }">{{ option.firstname }} {{ option.lastname }}<br><small>{{ option.email }}</small></template>
+          <template v-slot:singleLabel="{ option }">{{ option.firstname }} {{ option.lastname }}</template>
         </multiselect>
-        <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
+        <template #invalid-feedback><div v-html="userValidationError"></div></template>
       </b-form-group>
       <!-- select role -->
       <b-form-group :label="$t('rooms.role')" v-if="newMember" :state="newMemberRoleValid">
@@ -344,7 +344,7 @@
         <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" :value="3">
           <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
         </b-form-radio>
-        <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
+        <template #invalid-feedback><div v-html="roleValidationError"></div></template>
       </b-form-group>
     </b-modal>
 

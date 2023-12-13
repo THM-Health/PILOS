@@ -20,7 +20,7 @@
                   :disabled='loading'
                 ></b-form-input>
 
-                <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
+                <template #invalid-feedback><div v-html="fieldError('email')"></div></template>
               </b-form-group>
 
               <b-button type='submit' variant='primary' :disabled="loading" block>

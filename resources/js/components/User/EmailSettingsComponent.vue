@@ -18,7 +18,7 @@
             :state='fieldState("current_password")'
             :disabled="isBusy"
           ></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('current_password')"></div></template>
+          <template #invalid-feedback><div v-html="fieldError('current_password')"></div></template>
         </b-form-group>
       </can>
       <b-form-group
@@ -35,7 +35,7 @@
           :state='fieldState("email")'
           :disabled="isBusy || viewOnly || !canUpdateAttributes"
         ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('email')"></div></template>
 
         <div v-if="validationRequiredEmail">
           <b-alert variant="success" show dismissible class="mt-3">
