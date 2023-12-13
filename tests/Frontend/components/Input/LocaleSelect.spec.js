@@ -2,8 +2,8 @@ import { mount } from '@vue/test-utils';
 import { BFormSelect } from 'bootstrap-vue';
 import LocaleSelect from '../../../../resources/js/components/Inputs/LocaleSelect.vue';
 import { createContainer, createLocalVue } from '../../helper';
-import {PiniaVuePlugin} from 'pinia';
-import {createTestingPinia} from "@pinia/testing";
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);

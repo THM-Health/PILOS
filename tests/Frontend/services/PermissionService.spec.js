@@ -3,7 +3,6 @@ import ParameterMissingError from '../../../resources/js/errors/ParameterMissing
 import WrongTypeError from '../../../resources/js/errors/WrongTypeError';
 import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError';
 import EventBus from '../../../resources/js/services/EventBus';
-import { nextTick } from 'vue';
 
 describe('PermissionService', () => {
   describe('setCurrentUser', () => {
@@ -14,7 +13,6 @@ describe('PermissionService', () => {
 
       EventBus.on('currentUserChangedEvent', handleUserChanged);
       PermissionService.setCurrentUser(newUser);
-      await nextTick();
 
       expect(handleUserChanged).toBeCalledTimes(1);
       expect(handleUserChanged).toBeCalledWith(newUser);
@@ -24,7 +22,6 @@ describe('PermissionService', () => {
       const spy = vi.fn();
       EventBus.on('currentUserChangedEvent', spy);
       PermissionService.setCurrentUser(newUser, false);
-      await nextTick();
 
       expect(spy).toBeCalledTimes(0);
 
