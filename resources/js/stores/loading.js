@@ -32,6 +32,7 @@ export const useLoadingStore = defineStore('loading', {
       await settings.getSettings();
       await auth.getCurrentUser();
       await locale.setCurrentLocale(defaultLocale);
+      locale.loadAvailableLocales();
       this.initialized = true;
       this.setLoadingFinished();
     },

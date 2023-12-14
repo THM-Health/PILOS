@@ -7,7 +7,7 @@ export const useLocaleStore = defineStore('locale', {
   state: () => {
     return {
       currentLocale: null,
-      availableLocales: getLocaleList()
+      availableLocales: null
     };
   },
   actions: {
@@ -27,6 +27,10 @@ export const useLocaleStore = defineStore('locale', {
 
     async setTimezone (timezone) {
       await setTimeZone(timezone);
+    },
+
+    loadAvailableLocales () {
+      this.availableLocales = getLocaleList();
     }
   }
 });

@@ -24,7 +24,6 @@ describe('LocaleSelector', () => {
   });
 
   it('all locales loaded in i18n gets rendered', async () => {
-    vi.resetModules();
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
