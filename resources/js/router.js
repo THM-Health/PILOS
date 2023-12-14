@@ -445,43 +445,61 @@ export const routes = [
  * If the meta `guestsOnly` is set for a matched route but the user is logged in, he will
  * be redirected to the home route with a error messsage.
  */
-export function beforeEachRoute (router, to, from, next) {
+export async function beforeEachRoute (router, to, from, next) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
 
-  const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
-  const initializationPromise = !loading.initialized ? loading.initialize(locale) : Promise.resolve();
+  // Show loading screen overlay (not unmounting app)
+  loading.setOverlayLoading();
 
-  loading.setLoading();
-  initializationPromise.then(() => {
-    return Promise.all(to.matched.map((record) =>
-      record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
-    ));
-  }).then((recordsPermissions) => {
-    loading.setLoadingFinished();
+  // If app is not initialized yet, initialize it and unmout app until finished only showing loading screen
+  if (!loading.initialized) {
+    await loading.initialize();
+  }
 
-    if (to.matched.some((record) => {
-      if (record.meta.disabled !== undefined) {
-        return record.meta.disabled(to.params, to.query, router.app);
-      }
-      return false;
-    })) {
-      next({ name: '404' });
-    } else if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
-      next({
-        name: 'login',
-        query: { redirect: to.fullPath }
-      });
-    } else if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
-      router.app.$root.toastError(router.app.$t('app.flash.guests_only'));
-      next({ name: 'home' });
-    } else if (!recordsPermissions.every(permission => permission)) {
-      router.app.$root.toastError(router.app.$t('app.flash.unauthorized'));
-      next(from.matched.length !== 0 ? false : '/');
-    } else {
-      next();
+  // Resolve all permission promises for the current route
+  const recordsPermissions = await Promise.all(to.matched.map((record) =>
+    record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
+  ));
+
+  // Hide loading screen
+  loading.setOverlayLoadingFinished();
+
+  // Check if route is disabled
+  if (to.matched.some((record) => {
+    if (record.meta.disabled !== undefined) {
+      return record.meta.disabled(to.params, to.query, router.app);
     }
-  });
+    return false;
+  })) {
+    next({ name: '404' });
+    return;
+  }
+
+  // Check if unauthenticated user tries to access a route that requires authentication
+  if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
+    next({
+      name: 'login',
+      query: { redirect: to.fullPath }
+    });
+    return;
+  }
+
+  // Check if authenticated user tries to access a route that is only for guests
+  if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
+    router.app.$root.toastError(router.app.$t('app.flash.guests_only'));
+    next({ name: 'home' });
+    return;
+  }
+
+  // Check if user doesn't have permission to access a route
+  if (!recordsPermissions.every(permission => permission)) {
+    router.app.$root.toastError(router.app.$t('app.flash.unauthorized'));
+    next(from.matched.length !== 0 ? false : '/');
+    return;
+  }
+
+  next();
 }
 
 export default function () {

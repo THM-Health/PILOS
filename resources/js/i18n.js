@@ -3,7 +3,6 @@ import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import _, { forEach } from 'lodash';
 import Base from './api/base';
-const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE;
 
 Vue.use(VueI18n);
 class CustomFormatter {
@@ -95,8 +94,6 @@ export function importLanguage (lang, messages) {
 
 const i18n = new VueI18n({
   formatter: new CustomFormatter(),
-  locale: defaultLocale,
-  fallbackLocale: defaultLocale,
   dateTimeFormats
 });
 export default i18n;

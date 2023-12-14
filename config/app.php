@@ -99,7 +99,7 @@ return [
     |
     */
 
-    'locale' => env('VITE_DEFAULT_LOCALE', 'en'),
+    'locale' => env('DEFAULT_LOCALE', env('VITE_DEFAULT_LOCALE', 'en')),
 
     /*
     |--------------------------------------------------------------------------
