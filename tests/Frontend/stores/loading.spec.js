@@ -23,14 +23,12 @@ describe('Loading Store', () => {
 
     const loadSettingsSpy = vi.spyOn(settingsStore, 'getSettings').mockImplementation(() => {});
     const setLocaleSpy = vi.spyOn(localeStore, 'setCurrentLocale').mockImplementation(() => {});
-    const loadAvailableLocalesSpy = vi.spyOn(localeStore, 'loadAvailableLocales').mockImplementation(() => {});
     const loadCurrentUserSpy = vi.spyOn(authStore, 'getCurrentUser').mockImplementation(() => {});
 
     await loadingStore.initialize();
 
     expect(loadSettingsSpy).toHaveBeenCalled();
     expect(setLocaleSpy).toHaveBeenCalled();
-    expect(loadAvailableLocalesSpy).toHaveBeenCalled();
     expect(loadCurrentUserSpy).toHaveBeenCalled();
 
     expect(loadingStore.initialized).toBe(true);

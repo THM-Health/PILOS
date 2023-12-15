@@ -40,10 +40,12 @@ export function setTimeZone (timezone) {
  */
 export async function setLocale (locale) {
   // Load translations from backend if not already loaded
-  if (!i18n.availableLocales.includes(locale) && import.meta.env.MODE !== 'test') {
+  if (!i18n.availableLocales.includes(locale)) {
     await Base.call('locale/' + locale).then((response) => {
       i18n.setLocaleMessage(locale, response.data.data);
       i18n.setDateTimeFormat(locale, response.data.meta.dateTimeFormat);
+    }).catch((error) => {
+      console.error(error);
     });
   }
 

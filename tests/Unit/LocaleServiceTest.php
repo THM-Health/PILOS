@@ -101,8 +101,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJson()
     {
         config([
-            'app.locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.locale_custom_dir' => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);
@@ -115,8 +115,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJsonWithCustom()
     {
         config([
-            'app.locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.locale_custom_dir' => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);
@@ -129,8 +129,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJsonWithFallback()
     {
         config([
-            'app.locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.locale_custom_dir' => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);
@@ -143,8 +143,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJsonWithFallbackAndCustom()
     {
         config([
-            'app.locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.locale_custom_dir' => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);

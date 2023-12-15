@@ -37,8 +37,8 @@ class ExportLocalesTest extends TestCase
 
         // Set config values
         config([
-            'app.default_locales'            => ['en','fr'],
-            'app.locale_dir'                 => 'lang'
+            'app.default_locales'                    => ['en','fr'],
+            'app.default_locale_dir'                 => 'lang'
         ]);
         
         // Call command and check output

@@ -17,11 +17,6 @@ export const useAuthStore = defineStore('auth', {
     login: async function (credentials, method) {
       await auth.login(credentials, method);
       await this.getCurrentUser();
-
-      if (this.currentUser.user_locale !== null) {
-        const locale = useLocaleStore();
-        await locale.setCurrentLocale(this.currentUser.user_locale);
-      }
     },
 
     async getCurrentUser () {
@@ -32,6 +27,10 @@ export const useAuthStore = defineStore('auth', {
       // set timezone of i18n, if user not logged in use undefined to set timezone to local system timezone
       const locale = useLocaleStore();
       locale.setTimezone(currentUser == null ? undefined : currentUser.timezone);
+
+      if (currentUser.user_locale !== null) {
+        await locale.setCurrentLocale(currentUser.user_locale);
+      }
 
       this.setCurrentUser(currentUser);
     },

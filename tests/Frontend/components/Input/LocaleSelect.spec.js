@@ -8,12 +8,6 @@ import { createTestingPinia } from '@pinia/testing';
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
 
-const availableLocales = {
-  de: 'German',
-  en: 'English',
-  ru: 'Russian'
-};
-
 describe('LocaleSelect', () => {
   it('check v-model and props', async () => {
     const view = mount(LocaleSelect, {
@@ -29,7 +23,7 @@ describe('LocaleSelect', () => {
         id: 'locale'
       },
       attachTo: createContainer(),
-      pinia: createTestingPinia({ initialState: { locale: { availableLocales } } })
+      pinia: createTestingPinia({ initialState: { settings: { settings: { enabled_locales: { de: 'German', en: 'English', ru: 'Russian' } } } } })
     });
 
     // check default value
