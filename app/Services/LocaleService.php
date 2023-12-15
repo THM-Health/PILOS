@@ -38,7 +38,7 @@ class LocaleService
      */
     public function buildCache(): array
     {
-        $locales = config('app.enabled_locales');
+        $locales = array_keys(config('app.enabled_locales'));
         foreach ($locales as $locale) {
             Cache::forever('locale-'.$locale, $this->buildJsonLocale($locale));
         }
@@ -57,10 +57,10 @@ class LocaleService
     private function getLocaleData(string $locale, bool $withFallback = true, bool $withCustom = true): array
     {
         // Directories to search for locale files
-        $localeDirs = [ config('app.locale_dir') ];
+        $localeDirs = [ config('app.default_locale_dir') ];
         // If overwrite is enabled, add overwrite directory	to directory list
         if ($withCustom) {
-            $localeDirs[] = config('app.locale_custom_dir');
+            $localeDirs[] = config('app.custom_locale_dir');
         }
 
         // Locale / translation data

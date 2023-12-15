@@ -35,7 +35,6 @@ export const useLoadingStore = defineStore('loading', {
 
       await auth.getCurrentUser();
 
-      locale.loadAvailableLocales();
       this.initialized = true;
       this.setLoadingFinished();
     },

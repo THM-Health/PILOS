@@ -47,7 +47,10 @@ class ApplicationSettings extends JsonResource
             'pagination_page_size'           => intval(setting('pagination_page_size')),
             'own_rooms_pagination_page_size' => intval(setting('own_rooms_pagination_page_size')),
             'password_change_allowed'        => boolval(setting('password_change_allowed')),
-            'default_locale'                 => setting('app.locale'),
+            'default_locale'                 => config('app.locale'),
+            'enabled_locales'                => array_map(function ($locale) {
+                return $locale['name'];
+            }, config('app.enabled_locales')),
             'default_timezone'               => setting('default_timezone'),
             'bbb'                            => [
                 'file_mimes'            => config('bigbluebutton.allowed_file_mimes'),

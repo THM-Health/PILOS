@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Renamed env option VITE_DEFAULT_LOCALE to DEFAULT_LOCALE (VITE_DEFAULT_LOCALE deprecated) ([#747])
+- Renamed env option VITE_AVAILABLE_LOCALES to ENABLED_LOCALES (VITE_AVAILABLE_LOCALES deprecated) ([#747])
 
 ## [v2.3.4] - 2023-11-24
 ### Fixed

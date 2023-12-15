@@ -1,15 +1,72 @@
 <?php
 
-use App\Services\LocaleService;
 use Illuminate\Support\Facades\Facade;
 
-$localeDir = base_path('lang');
-$defaultLocales = array_diff(scandir($localeDir), array('..', '.'));
-$localesEnv = env('VITE_AVAILABLE_LOCALES','en,de');
-$enabledLocales = $localesEnv !== null ? preg_split('/,/', $localesEnv) : $defaultLocales;
+function getLocales($configFiles){
+    $locales = [];
+    foreach($configFiles as $file) {
+        $metadata = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
+        $locale = basename(dirname($file));
 
-$versionFile = base_path('version');
-$version = file_exists($versionFile) ? file_get_contents($versionFile) : null;
+        $locales[$locale] = $metadata;
+    }
+
+    return $locales;
+}
+
+function getEnabledLocales($defaultLocales, $customLocales){
+    $availableLocales = [];
+
+    $localesEnv = env('ENABLED_LOCALES', env('VITE_AVAILABLE_LOCALES'));
+    $localeWhitelist = $localesEnv !== null ? preg_split('/,/', $localesEnv) : null;
+    
+    foreach($defaultLocales as $locale => $metadata) {
+        $availableLocales[$locale] = $metadata;
+    }
+
+    foreach($customLocales as $locale => $metadata) {
+       
+        if(!isset($availableLocales[$locale])) {
+            $availableLocales[$locale] = $metadata;
+            continue;
+        }
+
+        $availableLocales[$locale] = array_replace_recursive($availableLocales[$locale], $metadata);
+    }
+
+    $enabledLocales = array_filter($availableLocales, function($metadata,$locale) use ($localeWhitelist){
+        if($localeWhitelist !== null && !in_array($locale, $localeWhitelist)) {
+            return false;
+        }
+
+        if(!isset($metadata['name'])){
+            return false;
+        }
+        
+        return true;
+    }, ARRAY_FILTER_USE_BOTH);
+
+    return $enabledLocales;
+}
+
+function getAppVersion() {
+    $versionFile = base_path('version');
+    $version = file_exists($versionFile) ? file_get_contents($versionFile) : null;
+
+    return $version;
+}
+
+
+$defaultLocaleDir = base_path('lang');
+$customLocaleDir = base_path('/resources/custom/lang');
+
+$defaultLocaleConfigFiles = glob($defaultLocaleDir.'/*/metadata.json');
+$customLocaleConfigFiles = glob($customLocaleDir.'/*/metadata.json');
+
+$defaultLocales = getLocales($defaultLocaleConfigFiles);
+$customLocales = getLocales($customLocaleConfigFiles);
+
+$enabledLocales = getEnabledLocales($defaultLocales, $customLocales);
 
 return [
 
@@ -30,7 +87,7 @@ return [
 
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
-    'version' => $version,
+    'version' => getAppVersion(),
 
     'whitelabel' => env('WHITELABEL', false),
 
@@ -127,11 +184,11 @@ return [
 
     'faker_locale' => 'en_US',
 
+    'default_locale_dir' => $defaultLocaleDir,
+    'custom_locale_dir' => $customLocaleDir,
+
     'enabled_locales' => $enabledLocales,
     'default_locales' => $defaultLocales,
-
-    'locale_dir' => $localeDir,
-    'locale_custom_dir' => base_path('/resources/custom/lang'),
 
     /*
     |--------------------------------------------------------------------------
