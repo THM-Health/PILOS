@@ -29,11 +29,8 @@ describe('NewUserView', () => {
     const router = new VueRouter();
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    // Set global defaults
-    import.meta.env.VITE_DEFAULT_LOCALE = 'en';
-
     const view = mount(New, {
-      pinia: createTestingPinia({ initialState: { settings: { settings: { default_timezone: 'Europe/Berlin' } } } }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { default_timezone: 'Europe/Berlin', default_locale: 'en' } } } }),
       localVue,
       router,
       mocks: {
@@ -159,13 +156,10 @@ describe('NewUserView', () => {
   });
 
   it('submit form errors', async () => {
-    // Set global defaults
-    import.meta.env.VITE_DEFAULT_LOCALE = 'en';
-
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(New, {
-      pinia: createTestingPinia({ initialState: { settings: { settings: { default_timezone: 'Europe/Berlin' } } } }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { default_timezone: 'Europe/Berlin', default_locale: 'en' } } } }),
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')

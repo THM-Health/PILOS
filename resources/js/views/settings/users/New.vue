@@ -251,7 +251,7 @@ export default {
    * of the current user gets changed.
    */
   mounted () {
-    this.model.user_locale = import.meta.env.VITE_DEFAULT_LOCALE;
+    this.model.user_locale = this.getSetting('default_locale');
     this.model.timezone = this.getSetting('default_timezone');
   },
 

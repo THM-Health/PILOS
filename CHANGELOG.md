@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Drag and Drop file uploading ([#747])
 
+### Changed
+- Renamed env option VITE_DEFAULT_LOCALE to DEFAULT_LOCALE (VITE_DEFAULT_LOCALE deprecated) ([#747])
+
 ## [v2.3.4] - 2023-11-24
 ### Fixed
 - Error copying personalized room link ([#700], [#701])

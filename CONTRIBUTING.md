@@ -323,7 +323,7 @@ If you want to change the translation of an existing string, please contribute t
 We will update the translation files with the next release.
 
 ### Available and default languages
-You can change the available languages and the default language in the `.env` file with the keys `VITE_AVAILABLE_LOCALES` and `VITE_DEFAULT_LOCALE`.
+You can change the available languages and the default language in the `.env` file with the keys `VITE_AVAILABLE_LOCALES` and `DEFAULT_LOCALE`.
 
 ### Customize locales
 Within the locale directory you can create files with the group name (part before the first dot in the translation string) as filename.
