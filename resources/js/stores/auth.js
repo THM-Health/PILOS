@@ -28,7 +28,8 @@ export const useAuthStore = defineStore('auth', {
       const locale = useLocaleStore();
       locale.setTimezone(currentUser == null ? undefined : currentUser.timezone);
 
-      if (currentUser.user_locale !== null) {
+      // if user is logged in and has a locale set, set the locale
+      if (currentUser != null && currentUser.user_locale != null) {
         await locale.setCurrentLocale(currentUser.user_locale);
       }
 
