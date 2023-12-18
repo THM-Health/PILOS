@@ -126,17 +126,19 @@ class LocaleService
     /**
      * Get all locales from config files
      *
-     * @param  array $configFiles Array of config files
-     * @return array Array of locales, keyed by locale name (e.g. 'en') value is metadata
+     * @param  string $localeDir Path to locale directory
+     * @return array  Array of locales, keyed by locale name (e.g. 'en') value is metadata
      */
-    public static function getLocalesFromConfigFiles(array $configFiles): array
+    public static function getLocalesFromConfigFiles(string $localeDir): array
     {
         $locales = [];
+
+        $configFiles = glob($localeDir.'/*/metadata.json');
 
         // Go through all config files
         foreach ($configFiles as $file) {
             // Get metadata from file
-            $metadata = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
+            $metadata = json_decode(file_get_contents($file), true);
             $locale   = basename(dirname($file));
 
             $locales[$locale] = $metadata;

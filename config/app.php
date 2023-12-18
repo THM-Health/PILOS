@@ -7,13 +7,9 @@ use App\Services\LocaleService;
 $defaultLocaleDir = base_path('lang');
 $customLocaleDir = base_path('/resources/custom/lang');
 
-// Get all locale config files
-$defaultLocaleConfigFiles = glob($defaultLocaleDir.'/*/metadata.json');
-$customLocaleConfigFiles = glob($customLocaleDir.'/*/metadata.json');
-
-// Get all locales with metadata from config files
-$defaultLocales = LocaleService::getLocalesFromConfigFiles($defaultLocaleConfigFiles);
-$customLocales = LocaleService::getLocalesFromConfigFiles($customLocaleConfigFiles);
+// Get all locales with metadata from the locale directories
+$defaultLocales = LocaleService::getLocalesFromConfigFiles($defaultLocaleDir);
+$customLocales = LocaleService::getLocalesFromConfigFiles($customLocaleDir);
 
 // Get locale whitelist from env
 $localesEnv = env('ENABLED_LOCALES', env('VITE_AVAILABLE_LOCALES'));
