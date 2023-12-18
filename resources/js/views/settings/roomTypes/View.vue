@@ -47,8 +47,12 @@
             label-for='color'
             :state='fieldState("color")'
           >
-
-            <color-select class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :colors="colors" v-model="model.color"/>
+            <color-select
+              class="my-2"
+              :disabled='isBusy || modelLoadingError || viewOnly'
+              :colors="colors"
+              v-model="model.color"
+            />
             <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
             <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 
@@ -260,8 +264,8 @@ import ColorSelect from '../../../components/Inputs/ColorSelect.vue';
 export default {
   mixins: [FieldErrors],
   components: {
-    Multiselect,
-    ColorSelect
+    ColorSelect,
+    Multiselect
   },
   props: {
     id: {

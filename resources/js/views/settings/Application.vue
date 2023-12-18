@@ -530,8 +530,12 @@
                 :state='fieldState("banner.color")'
                 :label="$t('settings.application.banner.color')"
               >
-                <color-select class="my-2" :disabled='isBusy || !loaded || viewOnly' :colors="textColors" v-model="settings.banner.color"></color-select>
-
+                <color-select
+                  class="my-2"
+                  :disabled='isBusy || !loaded || viewOnly'
+                  :colors="textColors"
+                  v-model="settings.banner.color"
+                />
                 <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                 <b-form-input
                   id='banner-color-input'
@@ -552,8 +556,12 @@
                 :state='fieldState("banner.background")'
                 :label="$t('settings.application.banner.background')"
               >
-              <color-select class="my-2" :disabled='isBusy || !loaded || viewOnly' :colors="backgroundColors" v-model="settings.banner.background"></color-select>
-
+                <color-select
+                  class="my-2"
+                  :disabled='isBusy || !loaded || viewOnly'
+                  :colors="backgroundColors"
+                  v-model="settings.banner.background"
+                />
                 <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                 <b-form-input
                   id='banner-background-input'
@@ -1059,7 +1067,7 @@
 
             </b-input-group-append>
           </b-input-group>
-          <template v-slot:invalid-feedback v-if="!viewOnly">
+          <template #invalid-feedback v-if="!viewOnly">
             <div v-html="fieldError('bbb.style')"></div>
           </template>
         </b-form-group>
@@ -1119,7 +1127,7 @@
               </b-input-group-append>
             </b-input-group>
             <b-form-text v-if="!viewOnly">{{ $t('rooms.files.formats', { formats: String(settings.bbb.file_mimes).split(",").join(', ') }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}</b-form-text>
-            <template v-slot:invalid-feedback v-if="!viewOnly">
+            <template #invalid-feedback v-if="!viewOnly">
               <div v-html="fieldError('default_presentation')"></div>
             </template>
           </b-form-group>

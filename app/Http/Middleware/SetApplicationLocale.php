@@ -22,7 +22,7 @@ class SetApplicationLocale
     {
         $locale = '';
         foreach ($request->getLanguages() as $language) {
-            if (in_array($language, config('app.enabled_locales'))) {
+            if (in_array($language, array_keys(config('app.enabled_locales')))) {
                 $locale = $language;
 
                 break;
@@ -36,7 +36,7 @@ class SetApplicationLocale
             $locale = session()->get('locale');
         }
 
-        if (!in_array($locale, config('app.enabled_locales'))) {
+        if (!in_array($locale, array_keys(config('app.enabled_locales')))) {
             $locale = config('app.fallback_locale');
         }
 

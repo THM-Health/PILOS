@@ -8,7 +8,7 @@ import BootstrapVue, {
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal
 } from 'bootstrap-vue';
-import VSwatches from 'vue-swatches';
+import ColorSelect from '../../../../../resources/js/components/Inputs/ColorSelect.vue';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
@@ -256,7 +256,7 @@ describe('RoomTypeView', () => {
 
     await mockAxios.wait();
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
-    expect(view.findAllComponents(VSwatches).wrappers.every(input => input.vm.disabled)).toBe(true);
+    expect(view.findAllComponents(ColorSelect).wrappers.every(input => input.vm.disabled)).toBe(true);
     expect(view.findComponent(Multiselect).props('disabled')).toBeTruthy();
     view.destroy();
   });

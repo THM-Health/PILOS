@@ -327,6 +327,7 @@ describe('Browser Notification', () => {
     const constructorSpy = vi.fn();
     const closeSpy = vi.fn();
     const focusSpy = vi.fn();
+    const playAudio = vi.fn();
     vi.useFakeTimers().setSystemTime(new Date('2017-01-01'));
 
     const NotificationFake = class {
@@ -349,7 +350,18 @@ describe('Browser Notification', () => {
       static permission = 'granted';
     };
 
+    const AudioFake = class {
+      constructor (src) {
+        this.src = src;
+      }
+
+      play () {
+        playAudio(this.src);
+      }
+    };
+
     window.Notification = global.Notification = NotificationFake;
+    window.Audio = global.Audio = AudioFake;
     window.focus = focusSpy;
 
     const view = mount(BrowserNotification, {
@@ -376,6 +388,9 @@ describe('Browser Notification', () => {
     expect(constructorSpy.mock.calls[0][0]).toEqual('test');
     expect(constructorSpy.mock.calls[0][1]).toEqual({ body: 'rooms.notification.body:{"time":"01/01/2017, 01:00"}', icon: 'favicon.ico' });
 
+    expect(playAudio).toBeCalledTimes(1);
+    expect(playAudio.mock.calls[0][0]).toContain('resources/audio/notification.mp3');
+
     await view.setProps({ running: false });
     expect(closeSpy).toBeCalledTimes(1);
 
@@ -389,6 +404,8 @@ describe('Browser Notification', () => {
     view.destroy();
     delete window.Notification;
     delete global.Notification;
+    delete window.Audio;
+    delete global.Audio;
     delete window.focus;
 
     vi.useRealTimers();

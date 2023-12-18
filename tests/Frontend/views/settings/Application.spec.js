@@ -12,7 +12,7 @@ import Base from '../../../../resources/js/api/base';
 import Application from '../../../../resources/js/views/settings/Application.vue';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import VSwatches from 'vue-swatches';
+import ColorSelect from '../../../../resources/js/components/Inputs/ColorSelect.vue';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -601,7 +601,7 @@ describe('Application', () => {
     expect([
       ...bannerFormGroup.findAllComponents(BFormInput).wrappers,
       ...bannerFormGroup.findAllComponents(BFormTextarea).wrappers,
-      ...bannerFormGroup.findAllComponents(VSwatches).wrappers
+      ...bannerFormGroup.findAllComponents(ColorSelect).wrappers
     ].every(input => input.props('disabled'))).toBe(true);
     expect(view.vm.settings.banner).toMatchObject({
       enabled: false,

@@ -2,26 +2,13 @@ import { mount } from '@vue/test-utils';
 import { BFormSelect } from 'bootstrap-vue';
 import LocaleSelect from '../../../../resources/js/components/Inputs/LocaleSelect.vue';
 import { createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
+localVue.use(PiniaVuePlugin);
 
 describe('LocaleSelect', () => {
-  beforeEach(() => {
-    vi.mock('../../../../resources/js/i18n.js', async () => {
-      const mod = await import('../../../../resources/js/i18n.js');
-      return {
-        ...mod,
-        getLocaleList: () => {
-          return {
-            de: 'German',
-            en: 'English',
-            ru: 'Russian'
-          };
-        }
-      };
-    });
-  });
-
   it('check v-model and props', async () => {
     const view = mount(LocaleSelect, {
       localVue,
@@ -35,7 +22,8 @@ describe('LocaleSelect', () => {
         required: false,
         id: 'locale'
       },
-      attachTo: createContainer()
+      attachTo: createContainer(),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { enabled_locales: { de: 'German', en: 'English', ru: 'Russian' } } } } })
     });
 
     // check default value

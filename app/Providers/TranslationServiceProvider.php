@@ -15,7 +15,7 @@ class TranslationServiceProvider extends BaseTranslationServiceProvider
     protected function registerLoader()
     {
         $this->app->singleton('translation.loader', function ($app) {
-            return new FileLoader($app['files'], [ config('app.locale_dir'), config('app.locale_overwrite_dir') ]);
+            return new FileLoader($app['files'], [ config('app.default_locale_dir'), config('app.custom_locale_dir') ]);
         });
     }
 }

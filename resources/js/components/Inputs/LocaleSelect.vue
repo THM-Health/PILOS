@@ -15,7 +15,8 @@
 </template>
 
 <script>
-import { getLocaleList } from '../../i18n';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   name: 'LocaleSelect',
@@ -42,12 +43,15 @@ export default {
     }
   },
   computed: {
+
+    ...mapState(useSettingsStore, ['getSetting']),
+
     /**
      * The available locales that the user can select from.
      */
     locales () {
       const locales = [];
-      for (const [locale, label] of Object.entries(getLocaleList())) {
+      for (const [locale, label] of Object.entries(this.getSetting('enabled_locales'))) {
         locales.push({
           value: locale,
           text: label

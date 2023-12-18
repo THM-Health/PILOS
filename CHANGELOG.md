@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Audio notification on room start ([#747])
+
+### Fixed
+- Drag and Drop file uploading ([#747])
+
+### Changed
+- Renamed env option VITE_DEFAULT_LOCALE to DEFAULT_LOCALE (VITE_DEFAULT_LOCALE deprecated) ([#747])
+- Renamed env option VITE_AVAILABLE_LOCALES to ENABLED_LOCALES (VITE_AVAILABLE_LOCALES deprecated) ([#747])
+
 ## [v2.3.4] - 2023-11-24
 ### Fixed
 - Error copying personalized room link ([#700], [#701])
@@ -690,6 +700,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#685]: https://github.com/THM-Health/PILOS/pull/685
 [#700]: https://github.com/THM-Health/PILOS/issues/700
 [#701]: https://github.com/THM-Health/PILOS/pull/701
+[#747]: https://github.com/THM-Health/PILOS/pull/747
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.4...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
