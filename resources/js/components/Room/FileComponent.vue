@@ -25,7 +25,7 @@
             :state="fieldState('file')"
             :browse-text="$t('app.browse')"
             :placeholder="$t('rooms.files.select_or_drag')"
-            v-on:change="uploadFile"
+            @input="uploadFile"
             v-model="fileUpload"
             v-bind:multiple="false"
           >
@@ -367,7 +367,11 @@ export default {
      * Handle file upload event on file select or drag'n'drop
      * @param event
      */
-    uploadFile: function (event) {
+    uploadFile: function (file) {
+      if (file == null) {
+        return;
+      }
+
       // Change table to busy state
       this.isBusy = true;
       // Reset errors
@@ -375,7 +379,7 @@ export default {
 
       // Build form data
       const formData = new FormData();
-      formData.append('file', event.target.files[0]);
+      formData.append('file', file);
 
       // Send new file to api
       Base.call('rooms/' + this.room.id + '/files', {

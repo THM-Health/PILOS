@@ -98,7 +98,7 @@ export default {
    * @return undefined
    */
   mounted () {
-    EventBus.$on('currentUserChangedEvent', this.toggleActionsColumn);
+    EventBus.on('currentUserChangedEvent', this.toggleActionsColumn);
     this.toggleActionsColumn();
   },
 
@@ -109,6 +109,6 @@ export default {
    * @return undefined
    */
   beforeDestroy () {
-    EventBus.$off('currentUserChangedEvent', this.toggleActionsColumn);
+    EventBus.off('currentUserChangedEvent', this.toggleActionsColumn);
   }
 };

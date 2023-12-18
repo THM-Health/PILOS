@@ -35,7 +35,7 @@
                 :state='fieldState("firstname")'
                 :disabled="isBusy"
               ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('firstname')"></div></template>
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
@@ -51,7 +51,7 @@
                 :state='fieldState("lastname")'
                 :disabled="isBusy"
               ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('lastname')"></div></template>
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
@@ -67,7 +67,7 @@
                 :state='fieldState("email")'
                 :disabled="isBusy"
               ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('email')"></div></template>
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
@@ -82,7 +82,7 @@
                 :state='fieldState("user_locale")'
                 :disabled="isBusy"
               ></locale-select>
-              <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('user_locale')"></div></template>
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
@@ -101,7 +101,7 @@
                 :placeholder="$t('settings.users.timezone')"
               >
               </timezone-select>
-              <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('timezone')"></div></template>
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
@@ -117,7 +117,7 @@
                 @loadingError="(value) => this.rolesLoadingError = value"
                 @busy="(value) => this.rolesLoading = value"
               ></role-select>
-              <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('roles', true)"></div></template>
             </b-form-group>
           </b-form-group>
           <hr>
@@ -143,7 +143,7 @@
                 :disabled="isBusy"
                 switch
               ></b-form-checkbox>
-              <template slot='invalid-feedback'><div v-html="fieldError('generate_password')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('generate_password')"></div></template>
             </b-form-group>
             <b-form-group
               v-if="!generate_password"
@@ -175,7 +175,7 @@
                 </template>
               </b-input-group>
 
-              <template slot='invalid-feedback'><div v-html="fieldError('new_password')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('new_password')"></div></template>
             </b-form-group>
             <b-form-group
               v-if="!generate_password"
@@ -192,7 +192,7 @@
                 :state='fieldState("new_password_confirmation")'
                 :disabled="isBusy"
               ></b-form-input>
-              <template slot='invalid-feedback'><div v-html="fieldError('new_password_confirmation')"></div></template>
+              <template #invalid-feedback><div v-html="fieldError('new_password_confirmation')"></div></template>
             </b-form-group>
           </b-form-group>
           <b-button
@@ -251,7 +251,7 @@ export default {
    * of the current user gets changed.
    */
   mounted () {
-    this.model.user_locale = import.meta.env.VITE_DEFAULT_LOCALE;
+    this.model.user_locale = this.getSetting('default_locale');
     this.model.timezone = this.getSetting('default_timezone');
   },
 

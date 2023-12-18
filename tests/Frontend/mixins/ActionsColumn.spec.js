@@ -1,7 +1,6 @@
 import ActionsColumn from '../../../resources/js/mixins/ActionsColumn';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../resources/js/services/PermissionService';
-import { nextTick } from 'vue';
 
 describe('ActionsColumn', () => {
   it('show and hides the actions column depending on the users `actionsPermissions`', async () => {
@@ -35,26 +34,26 @@ describe('ActionsColumn', () => {
     expect(view.vm.tableFields).toEqual([]);
 
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
-    await nextTick();
+    await view.vm.$nextTick();
 
     expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'action-column', thStyle: '', tdClass: 'action-button' }]);
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
-    await nextTick();
+    await view.vm.$nextTick();
 
     expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'action-column', thStyle: '', tdClass: 'action-button' }]);
     PermissionService.setCurrentUser({ permissions: [] });
-    await nextTick();
+    await view.vm.$nextTick();
 
     expect(view.vm.tableFields).toEqual([]);
     PermissionService.setCurrentUser({ permissions: [] });
-    await nextTick();
+    await view.vm.$nextTick();
 
     expect(view.vm.tableFields).toEqual([]);
     view.destroy();
-    await nextTick();
+    await view.vm.$nextTick();
 
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
-    await nextTick();
+    await view.vm.$nextTick();
 
     expect(view.vm.tableFields).toEqual([]);
     PermissionService.setCurrentUser(oldUser);
@@ -95,10 +94,10 @@ describe('ActionsColumn', () => {
     expect(view.vm.tableFields).toEqual([]);
 
     PermissionService.setCurrentUser({ permissions: ['test.perm'] });
-    await nextTick();
+    await view.vm.$nextTick();
 
     expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'testClass', thStyle: 'testStyle', tdClass: 'testClass2' }]);
-    await nextTick();
+    await view.vm.$nextTick();
     PermissionService.setCurrentUser(oldUser);
 
     view.destroy();

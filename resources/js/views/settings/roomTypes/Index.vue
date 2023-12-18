@@ -124,7 +124,7 @@
       <hr>
       <b-form-group v-if="roomTypeToDelete" label-for="replacement-room-type" :description="$t('settings.room_types.delete.replacement_info')" :state="fieldState('replacement_room_type')" :label="$t('settings.room_types.delete.replacement')">
         <b-form-select id="replacement-room-type" :disabled="isBusy" :state="fieldState('replacement_room_type')" v-model.number="replacement" :options="roomTypeSelect"></b-form-select>
-        <template slot='invalid-feedback'><div v-html="fieldError('replacement_room_type')"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('replacement_room_type')"></div></template>
       </b-form-group>
 
     </b-modal>

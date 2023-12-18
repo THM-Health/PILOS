@@ -27,7 +27,7 @@ export default {
      *
      * @example
      *    <b-form-group :state="fieldState('...')" ...>
-     *      <template slot='invalid-feedback'><div v-html="fieldError('...')"></div></template>
+     *      <template #invalid-feedback><div v-html="fieldError('...')"></div></template>
      *    </b-form-group>
      *
      *    <!-- or -->

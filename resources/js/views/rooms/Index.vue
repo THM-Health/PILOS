@@ -13,9 +13,9 @@
       </b-col>
       <b-col md="3">
         <b-input-group>
-          <b-form-input @change="loadRooms" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
+          <b-form-input @change="loadRooms()" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
           <b-input-group-append>
-            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+            <b-button @click="loadRooms()" :disabled="isBusy || loadingError" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -51,7 +51,7 @@
             ></b-form-checkbox-group>
           </b-overlay>
         </div>
-        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="primary" @click="loadRooms"><i class="fa-solid fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
+        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="primary" @click="loadRooms()"><i class="fa-solid fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
       </b-col>
       <b-col lg="9" order="1" order-lg="2">
 
@@ -62,7 +62,7 @@
               <b-spinner v-if="isBusy" ></b-spinner>
               <b-button
                 v-else
-                @click="loadRooms"
+                @click="loadRooms()"
               >
                 <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
               </b-button>
@@ -91,7 +91,7 @@
             :total-rows='total'
             :per-page='perPage'
             aria-controls='rooms-table'
-            @input="loadRooms"
+            @change="loadRooms"
             align='center'
             :disabled='isBusy || loadingError'
           ></b-pagination>
@@ -139,12 +139,12 @@ export default {
     /**
      * Loads the listed rooms
      */
-    loadRooms () {
+    loadRooms (page = null) {
       this.isBusy = true;
 
       const config = {
         params: {
-          page: this.currentPage
+          page: page || this.currentPage
         }
       };
 

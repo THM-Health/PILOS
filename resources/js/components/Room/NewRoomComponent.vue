@@ -30,7 +30,7 @@
           v-model="room.room_type"
           :state="fieldState('room_type')"
         ></room-type-select>
-        <template slot='invalid-feedback'><div v-html="fieldError('room_type')"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('room_type')"></div></template>
       </b-form-group>
       <!-- Room name -->
       <b-form-group :state="fieldState('name')" :label="$t('rooms.name')">
@@ -41,7 +41,7 @@
             v-model="room.name"
           ></b-form-input>
         </b-input-group>
-        <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+        <template #invalid-feedback><div v-html="fieldError('name')"></div></template>
       </b-form-group>
     </b-modal>
 

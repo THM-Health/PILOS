@@ -77,7 +77,7 @@ class ShibbolethTest extends TestCase
         ]
       }
     ';
-    
+
     /**
      * Setup resources for all tests
      */
@@ -86,7 +86,7 @@ class ShibbolethTest extends TestCase
         parent::setUp();
         Config::set('services.shibboleth.enabled', true);
         Config::set('services.shibboleth.mapping', json_decode($this->mapping));
-        Config::set('app.enabled_locales', ['de', 'en', 'fr']);
+        Config::set('app.enabled_locales', ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]]);
 
         Role::factory()->create(['name' => 'admin']);
         Role::factory()->create(['name' => 'user']);
@@ -153,13 +153,13 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test user creation and role mapping with all required attributes
-     * 
+     *
      * @return void
      */
     public function testCallbackRouteWithValidData()
     {
         setting()->set('default_timezone', 'Europe/Paris');
- 
+
         $header = [
             'Accept-Language'      => 'fr',
             'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
@@ -176,7 +176,7 @@ class ShibbolethTest extends TestCase
         $this->assertAuthenticated();
 
         $user = Auth::user();
-        
+
         $this->assertEquals('shibboleth', $user->authenticator);
         $this->assertEquals('johnd@university.org', $user->external_id);
         $this->assertEquals('John', $user->firstname);
@@ -190,10 +190,10 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test login with a user that has logged in before
-     * 
+     *
      * Check if some attributes have been overwritten and some have not
      * Check if role mapping is applied, but manually assigned roles are not overwritten
-     * 
+     *
      * @return void
      */
     public function testCallbackRouteExistingUser()
@@ -214,7 +214,7 @@ class ShibbolethTest extends TestCase
         $user->roles()->sync([$guestrole->id => ['automatic' => true], $adminRole->id]);
 
         setting()->set('default_timezone', 'Europe/Paris');
- 
+
         $header = [
             'Accept-Language'      => 'fr',
             'shib-session-id'      => '_855fe7fbe56c664a6fad794c65243ec6',
@@ -231,7 +231,7 @@ class ShibbolethTest extends TestCase
         $this->assertAuthenticated();
 
         $user = Auth::user();
-        
+
         // Check if user attributes have been overwritten
         $this->assertEquals('shibboleth', $user->authenticator);
         $this->assertEquals('johnd@university.org', $user->external_id);
@@ -249,7 +249,7 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test login with the same shibboleth session id (no other application session exists anymore)
-     * 
+     *
      * @return void
      */
     public function testLoginWithSameSessionId()
@@ -270,7 +270,7 @@ class ShibbolethTest extends TestCase
         $this->assertAuthenticated();
 
         $user = Auth::user();
-        
+
         Auth::logout();
 
         $response = $this->get(route('auth.shibboleth.callback'), $header);
@@ -280,7 +280,7 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test login trying to create two sessions with the same shibboleth session id
-     * 
+     *
      * @return void
      */
     public function testLoginSimultaneousSessionId()
@@ -299,16 +299,16 @@ class ShibbolethTest extends TestCase
         $this->assertCount(0, Session::all());
 
         $response = $this->get(route('auth.shibboleth.callback'), $header);
-     
+
         $this->assertAuthenticated();
 
         $this->assertCount(1, Session::all());
 
         $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
         $this->assertAuthenticated();
-        
+
         $user = Auth::user();
-        
+
         $session     = $user->sessions()->first();
         $sessionData = $session->sessionData()->where('key', 'shibboleth_session_id')->first();
         $this->assertNotNull($sessionData);
@@ -324,7 +324,7 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test changing shibboleth session id after login
-     * 
+     *
      * @return void
      */
     public function testChangingShibbSession()
@@ -369,7 +369,7 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test single logout
-     * 
+     *
      * @return void
      */
     public function testLogout()
@@ -398,7 +398,7 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test IDP initiated logout via front channel
-     * 
+     *
      * @return void
      */
     public function testFrontChannelLogout()
@@ -426,7 +426,7 @@ class ShibbolethTest extends TestCase
 
     /**
      * Test IDP initiated logout via back channel
-     * 
+     *
      * @return void
      */
     public function testBackChannelLogout()
@@ -462,13 +462,13 @@ class ShibbolethTest extends TestCase
         ];
         $message  = '<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><LogoutNotification xmlns="urn:mace:shibboleth:2.0:sp:notify" type="global"><SessionID>_855fe7fbe56c664a6fad794c65243ec6</SessionID></LogoutNotification></S:Body></S:Envelope>';
         $response = $this->call('POST', route('auth.shibboleth.logout'), [], [], [], $serverVariables, $message);
-        
+
         // Get SAP logout response
         $xml = simplexml_load_string($response->getContent());
 
         // Check if response is successful
         $this->assertArrayHasKey('OK', (array) $xml->children('SOAP-ENV', true)->Body->LogoutNotificationResponse->children());
-        
+
         // Check if session is terminated
         $this->assertCount(0, Session::all());
     }

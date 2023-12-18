@@ -107,7 +107,7 @@
                   <b-input-group>
                     <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholder_name')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
-                  <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+                  <template #invalid-feedback><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
               </b-col>
               <!-- Show room start or join button -->
@@ -182,7 +182,8 @@
           <b-form-input
             :state="accessCodeValid"
             :placeholder="$t('rooms.access_code')"
-            v-mask="'999-999-999'"
+            v-maska
+            data-maska="###-###-###"
             v-model="accessCodeInput"
             v-on:keyup.enter="login"
           ></b-form-input>
@@ -229,7 +230,6 @@
   </div>
 </template>
 <script>
-import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
 import AdminTabsComponent from '../../components/Room/AdminTabsComponent.vue';
 import TabsComponent from '../../components/Room/TabsComponent.vue';
@@ -244,10 +244,11 @@ import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
 import RoomInvitation from '../../components/Room/RoomInvitation.vue';
+import { vMaska } from 'maska';
 
 export default {
   directives: {
-    mask: AwesomeMask
+    maska: vMaska
   },
 
   props: {

@@ -772,7 +772,9 @@ describe('ProfileComponent', () => {
       },
       pinia: createTestingPinia(),
       stubs: {
-        VueCropper: cropperComponent
+        VueCropper: cropperComponent,
+        'timezone-select': true,
+        'locale-select': true
       }
     });
 

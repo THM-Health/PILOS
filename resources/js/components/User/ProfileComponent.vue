@@ -17,7 +17,7 @@
             :state='fieldState("firstname")'
             :disabled="isBusy || viewOnly || !canUpdateAttributes"
           ></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
+          <template #invalid-feedback><div v-html="fieldError('firstname')"></div></template>
         </b-form-group>
         <b-form-group
           label-cols-sm='3'
@@ -33,7 +33,7 @@
             :state='fieldState("lastname")'
             :disabled="isBusy || viewOnly || !canUpdateAttributes"
           ></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
+          <template #invalid-feedback><div v-html="fieldError('lastname')"></div></template>
         </b-form-group>
         <b-form-group
           label-cols-sm='3'
@@ -98,7 +98,7 @@
             </b-col>
           </b-row>
 
-          <template slot='invalid-feedback'>
+          <template #invalid-feedback>
             <div v-html="fieldError('image')"></div>
           </template>
 
@@ -133,7 +133,7 @@
             :state='fieldState("user_locale")'
             :disabled="isBusy || viewOnly"
           ></locale-select>
-          <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
+          <template #invalid-feedback><div v-html="fieldError('user_locale')"></div></template>
         </b-form-group>
         <b-form-group
           label-cols-sm='3'
@@ -152,7 +152,7 @@
             :placeholder="$t('settings.users.timezone')"
           >
           </timezone-select>
-          <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
+          <template #invalid-feedback><div v-html="fieldError('timezone')"></div></template>
         </b-form-group>
 
         <b-button
@@ -172,7 +172,6 @@ import FieldErrors from '../../mixins/FieldErrors';
 import PermissionService from '../../services/PermissionService';
 import Base from '../../api/base';
 import env from '../../env';
-import { loadLanguageAsync } from '../../i18n';
 import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
 import LocaleSelect from '../Inputs/LocaleSelect.vue';
@@ -333,8 +332,7 @@ export default {
         if (this.currentUser && this.model.id === this.currentUser.id) {
           return this.getCurrentUser().then(() => {
             if (localeChanged) {
-              return loadLanguageAsync(this.model.user_locale).then(() => {
-                this.setCurrentLocale(this.model.user_locale);
+              return this.setCurrentLocale(this.model.user_locale).then(() => {
                 return response;
               });
             }

@@ -1,8 +1,10 @@
+/* eslint-disable @intlify/vue-i18n/no-missing-keys */
 import i18n from '../../../resources/js/i18n';
 import { mockAxios } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '../../../resources/js/stores/auth';
 import PermissionService from '../../../resources/js/services/PermissionService';
+import { expect } from 'vitest';
 
 describe('Auth Store', () => {
   beforeEach(() => {
@@ -14,7 +16,7 @@ describe('Auth Store', () => {
 
   });
 
-  it('getCurrentUser and set i18n timezone', async () => {
+  it('getCurrentUser and set locale and timezone', async () => {
     const PermissionServiceSpy = vi.spyOn(PermissionService, 'setCurrentUser').mockImplementation(() => {});
 
     const user = {
@@ -38,16 +40,36 @@ describe('Auth Store', () => {
       }
     });
 
+    mockAxios.request('/api/v1/locale/en').respondWith({
+      status: 200,
+      data: {
+        data: {
+          app: {
+            demo: 'This is a test'
+          }
+        },
+        meta: {
+          dateTimeFormat: {
+            datetimeShort: {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }
+          },
+          name: 'English'
+        }
+      }
+    });
+
     const auth = useAuthStore();
     await auth.getCurrentUser();
 
     expect(auth.currentUser).toEqual(user);
     expect(PermissionServiceSpy).toBeCalledTimes(1);
     expect(PermissionServiceSpy).toBeCalledWith(user, true);
-
-    expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/13/2021, 05:09');
-
-    user.timezone = 'Europe/Berlin';
 
     mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
@@ -62,7 +84,8 @@ describe('Auth Store', () => {
     expect(PermissionServiceSpy).toBeCalledTimes(2);
     expect(PermissionServiceSpy).toBeCalledWith(user, true);
 
-    expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/12/2021, 19:09');
+    expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/13/2021, 05:09');
+    expect(i18n.t('app.demo', { value: 'test' })).toEqual('This is a test');
   });
 
   it('logout', async () => {

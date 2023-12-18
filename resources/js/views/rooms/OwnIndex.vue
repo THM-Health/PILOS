@@ -32,7 +32,7 @@
             v-model="ownRooms.meta.current_page"
             :total-rows="ownRooms.meta.total"
             :per-page="ownRooms.meta.per_page"
-            @input="loadOwnRooms()"
+            @change="loadOwnRooms"
           ></b-pagination>
         </div>
       </b-overlay>
@@ -53,7 +53,7 @@
             v-model="sharedRooms.meta.current_page"
             :total-rows="sharedRooms.meta.total"
             :per-page="sharedRooms.meta.per_page"
-            @input="loadSharedRooms()"
+            @change="loadSharedRooms"
           ></b-pagination>
         </div>
       </b-overlay>
@@ -111,13 +111,13 @@ export default {
       this.loadSharedRooms();
     },
     // Load the rooms shared with the current user
-    loadSharedRooms () {
+    loadSharedRooms (page = null) {
       this.loadingShared = true;
 
       const config = {
         params: {
           filter: 'shared',
-          page: this.sharedRooms !== null ? this.sharedRooms.meta.current_page : 1
+          page: page || (this.sharedRooms !== null ? this.sharedRooms.meta.current_page : 1)
         }
       };
 
@@ -134,13 +134,13 @@ export default {
       });
     },
     // Load the rooms of the current user
-    loadOwnRooms () {
+    loadOwnRooms (page = null) {
       this.loadingOwn = true;
 
       const config = {
         params: {
           filter: 'own',
-          page: this.ownRooms !== null ? this.ownRooms.meta.current_page : 1
+          page: page || (this.ownRooms !== null ? this.ownRooms.meta.current_page : 1)
         }
       };
 
