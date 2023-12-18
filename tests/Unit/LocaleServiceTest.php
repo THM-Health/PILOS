@@ -16,7 +16,7 @@ class LocaleServiceTest extends TestCase
     public function testBuildCache()
     {
         config([
-            'app.enabled_locales'   => ['de', 'en'],
+            'app.enabled_locales'   => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
 
         $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
@@ -45,7 +45,7 @@ class LocaleServiceTest extends TestCase
             ->with('locale-en', "{ 'key2': 'value2' }");
 
         $localeService = $this->app->make(LocaleService::class);
-        
+
         $response = $localeService->buildCache();
 
         $this->assertEquals(['de', 'en'], $response);
@@ -54,7 +54,7 @@ class LocaleServiceTest extends TestCase
     public function testJsonLocale()
     {
         config([
-            'app.enabled_locales'   => ['de', 'en'],
+            'app.enabled_locales'   => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
 
         // Mock the result of building the locale for the german locale
@@ -88,7 +88,7 @@ class LocaleServiceTest extends TestCase
             ->andReturn("{ 'key1': 'value_1' }");
 
         $localeService = $this->app->make(LocaleService::class);
-        
+
         // Test without cache
         $response = $localeService->getJsonLocale('de');
         $this->assertEquals("{ 'key1': 'wert_1' }", $response);

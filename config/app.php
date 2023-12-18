@@ -1,72 +1,32 @@
 <?php
 
 use Illuminate\Support\Facades\Facade;
+use App\Services\LocaleService;
 
-function getLocales($configFiles){
-    $locales = [];
-    foreach($configFiles as $file) {
-        $metadata = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
-        $locale = basename(dirname($file));
-
-        $locales[$locale] = $metadata;
-    }
-
-    return $locales;
-}
-
-function getEnabledLocales($defaultLocales, $customLocales){
-    $availableLocales = [];
-
-    $localesEnv = env('ENABLED_LOCALES', env('VITE_AVAILABLE_LOCALES'));
-    $localeWhitelist = $localesEnv !== null ? preg_split('/,/', $localesEnv) : null;
-    
-    foreach($defaultLocales as $locale => $metadata) {
-        $availableLocales[$locale] = $metadata;
-    }
-
-    foreach($customLocales as $locale => $metadata) {
-       
-        if(!isset($availableLocales[$locale])) {
-            $availableLocales[$locale] = $metadata;
-            continue;
-        }
-
-        $availableLocales[$locale] = array_replace_recursive($availableLocales[$locale], $metadata);
-    }
-
-    $enabledLocales = array_filter($availableLocales, function($metadata,$locale) use ($localeWhitelist){
-        if($localeWhitelist !== null && !in_array($locale, $localeWhitelist)) {
-            return false;
-        }
-
-        if(!isset($metadata['name'])){
-            return false;
-        }
-        
-        return true;
-    }, ARRAY_FILTER_USE_BOTH);
-
-    return $enabledLocales;
-}
-
-function getAppVersion() {
-    $versionFile = base_path('version');
-    $version = file_exists($versionFile) ? file_get_contents($versionFile) : null;
-
-    return $version;
-}
-
-
+// Directories to search for locale files
 $defaultLocaleDir = base_path('lang');
 $customLocaleDir = base_path('/resources/custom/lang');
 
+// Get all locale config files
 $defaultLocaleConfigFiles = glob($defaultLocaleDir.'/*/metadata.json');
 $customLocaleConfigFiles = glob($customLocaleDir.'/*/metadata.json');
 
-$defaultLocales = getLocales($defaultLocaleConfigFiles);
-$customLocales = getLocales($customLocaleConfigFiles);
+// Get all locales with metadata from config files
+$defaultLocales = LocaleService::getLocalesFromConfigFiles($defaultLocaleConfigFiles);
+$customLocales = LocaleService::getLocalesFromConfigFiles($customLocaleConfigFiles);
 
-$enabledLocales = getEnabledLocales($defaultLocales, $customLocales);
+// Get locale whitelist from env
+$localesEnv = env('ENABLED_LOCALES', env('VITE_AVAILABLE_LOCALES'));
+$localeWhitelist = $localesEnv !== null ? preg_split('/,/', $localesEnv) : null;
+
+// Get list of locales with metadata that should be enabled (default + custom)
+// merge custom locales with default locales, overwrite existing locales metadata
+// filter locales that are not whitelisted or have no name set in metadata
+$enabledLocales = LocaleService::getEnabledLocales($defaultLocales, $customLocales, $localeWhitelist);
+
+// If version file exists, read version from it and provide it as the app version
+$versionFile = base_path('version');
+$appVersion = file_exists($versionFile) ? file_get_contents($versionFile) : null;
 
 return [
 
@@ -87,7 +47,7 @@ return [
 
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
-    'version' => getAppVersion(),
+    'version' => $appVersion,
 
     'whitelabel' => env('WHITELABEL', false),
 

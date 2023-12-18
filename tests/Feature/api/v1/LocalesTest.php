@@ -41,7 +41,7 @@ class LocalesTest extends TestCase
         $this->withoutMix();
 
         config([
-            'app.enabled_locales'   => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.enabled_locales'   => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
             'app.fallback_locale'   => 'ru',
             'app.locale'            => 'en'
         ]);
@@ -255,6 +255,7 @@ class LocalesTest extends TestCase
             'locale' => 'de'
         ]));
 
-        $this->assertEquals($content, $response->json());
+        $this->assertEquals($content, $response->json('data'));
+        $this->assertEquals(['name' => 'Deutsch', 'dateTimeFormat' => []], $response->json('meta'));
     }
 }
