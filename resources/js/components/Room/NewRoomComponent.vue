@@ -37,7 +37,7 @@
           @loading-error="(value) => roomTypeSelectLoadingError = value"
           @busy="(value) => roomTypeSelectBusy = value"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('room_type')" />
         </template>
       </b-form-group>
@@ -53,7 +53,7 @@
             :state="fieldState('name')"
           />
         </b-input-group>
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('name')" />
         </template>
       </b-form-group>

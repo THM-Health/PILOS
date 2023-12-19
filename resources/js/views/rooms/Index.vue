@@ -366,6 +366,7 @@ export default {
       this.loadRooms();
     },
     /**
+     * Loads the listed rooms
      * Change sorting type to the type that was selected in the dropdown
      * @param newOption
      */

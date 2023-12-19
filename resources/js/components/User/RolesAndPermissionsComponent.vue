@@ -16,7 +16,7 @@
           @loading-error="(value) => rolesLoadingError = value"
           @busy="(value) => rolesLoading = value"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('roles', true)" />
         </template>
       </b-form-group>

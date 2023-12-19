@@ -16,7 +16,7 @@
           :state="fieldState('firstname')"
           :disabled="isBusy || viewOnly || !canUpdateAttributes"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('firstname')" />
         </template>
       </b-form-group>
@@ -34,7 +34,7 @@
           :state="fieldState('lastname')"
           :disabled="isBusy || viewOnly || !canUpdateAttributes"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('lastname')" />
         </template>
       </b-form-group>
@@ -144,7 +144,7 @@
           </b-col>
         </b-row>
 
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('image')" />
         </template>
 
@@ -187,7 +187,7 @@
           :state="fieldState('user_locale')"
           :disabled="isBusy || viewOnly"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('user_locale')" />
         </template>
       </b-form-group>
@@ -207,7 +207,7 @@
           @loading-error="(value) => timezonesLoadingError = value"
           @busy="(value) => timezonesLoading = value"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('timezone')" />
         </template>
       </b-form-group>
@@ -229,7 +229,6 @@ import FieldErrors from '@/mixins/FieldErrors';
 import PermissionService from '@/services/PermissionService';
 import Base from '@/api/base';
 import env from '@/env';
-import { loadLanguageAsync } from '@/i18n';
 import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
 import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
@@ -390,8 +389,7 @@ export default {
         if (this.currentUser && this.model.id === this.currentUser.id) {
           return this.getCurrentUser().then(() => {
             if (localeChanged) {
-              return loadLanguageAsync(this.model.user_locale).then(() => {
-                this.setCurrentLocale(this.model.user_locale);
+              return this.setCurrentLocale(this.model.user_locale).then(() => {
                 return response;
               });
             }

@@ -23,7 +23,7 @@
                   :disabled="loading"
                 />
 
-                <template slot="invalid-feedback">
+                <template #invalid-feedback>
                   <div v-html="fieldError('email')" />
                 </template>
               </b-form-group>

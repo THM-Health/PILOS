@@ -16,7 +16,7 @@
           :disabled="isBusy || viewOnly"
           switch
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('bbb_skip_check_audio')" />
         </template>
       </b-form-group>

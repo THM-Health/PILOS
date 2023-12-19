@@ -27,7 +27,7 @@ class LocaleService
         if (Cache::has('locale-'.$locale)) {
             return Cache::get('locale-'.$locale);
         }
-        
+
         return $this->buildJsonLocale($locale);
     }
 
@@ -38,7 +38,7 @@ class LocaleService
      */
     public function buildCache(): array
     {
-        $locales = config('app.enabled_locales');
+        $locales = array_keys(config('app.enabled_locales'));
         foreach ($locales as $locale) {
             Cache::forever('locale-'.$locale, $this->buildJsonLocale($locale));
         }
@@ -57,10 +57,10 @@ class LocaleService
     private function getLocaleData(string $locale, bool $withFallback = true, bool $withCustom = true): array
     {
         // Directories to search for locale files
-        $localeDirs = [ config('app.locale_dir') ];
+        $localeDirs = [ config('app.default_locale_dir') ];
         // If overwrite is enabled, add overwrite directory	to directory list
         if ($withCustom) {
-            $localeDirs[] = config('app.locale_custom_dir');
+            $localeDirs[] = config('app.custom_locale_dir');
         }
 
         // Locale / translation data
@@ -70,7 +70,7 @@ class LocaleService
         if ($withFallback && config('app.fallback_locale') != $locale) {
             $localeContents = $this->getLocaleData(config('app.fallback_locale'), false, false);
         }
-       
+
         // Go through all locale directories
         foreach ($localeDirs as $localeDir) {
             $disk = Storage::build([
@@ -95,7 +95,7 @@ class LocaleService
                 // Get locale data from file
                 $localeData = $this->filesystem->getRequire($disk->path($localeFile));
 
-                // Create to merge with existing locale data (ovewrite existing translations)
+                // Create to merge with existing locale data (overwrite existing translations)
                 if (!isset($localeContents[$group])) {
                     $localeContents[$group] = [];
                 }
@@ -119,5 +119,74 @@ class LocaleService
         $localeData = $this->getLocaleData($locale, $withFallback, $withCustom);
 
         return json_encode($localeData, JSON_UNESCAPED_UNICODE);
+    }
+
+    #
+
+    /**
+     * Get all locales from config files
+     *
+     * @param  string $localeDir Path to locale directory
+     * @return array  Array of locales, keyed by locale name (e.g. 'en') value is metadata
+     */
+    public static function getLocalesFromConfigFiles(string $localeDir): array
+    {
+        $locales = [];
+
+        $configFiles = glob($localeDir.'/*/metadata.json');
+
+        // Go through all config files
+        foreach ($configFiles as $file) {
+            // Get metadata from file
+            $metadata = json_decode(file_get_contents($file), true);
+            $locale   = basename(dirname($file));
+
+            $locales[$locale] = $metadata;
+        }
+
+        return $locales;
+    }
+
+    /**
+     * Get list of locales that should be enabled
+     * @param  array      $defaultLocales Array of default locales (provided by the app)
+     * @param  array      $customLocales  Array of custom locales (provided by the user)
+     * @param  array|null $whitelist      Array of locales that should be enabled (null = all locales)
+     * @return array      Array of locales, keyed by locale name (e.g. 'en') value is metadata
+     */
+    public static function getEnabledLocales(array $defaultLocales, array $customLocales, array|null $whitelist): array
+    {
+        $availableLocales = [];
+
+        // Add all default locales to list of available locales
+        foreach ($defaultLocales as $locale => $metadata) {
+            $availableLocales[$locale] = $metadata;
+        }
+
+        // Add all custom locales and overwrite existing locales metadata
+        foreach ($customLocales as $locale => $metadata) {
+            // If locale does not exist yet, add it
+            if (!isset($availableLocales[$locale])) {
+                $availableLocales[$locale] = $metadata;
+
+                continue;
+            }
+
+            // Overwrite existing locale metadata by merging existing metadata with custom metadata
+            $availableLocales[$locale] = array_replace_recursive($availableLocales[$locale], $metadata);
+        }
+
+        // Remove locales that are not whitelisted or have no name set in metadata
+        return array_filter($availableLocales, function ($metadata, $locale) use ($whitelist) {
+            if ($whitelist !== null && !in_array($locale, $whitelist)) {
+                return false;
+            }
+
+            if (!isset($metadata['name'])) {
+                return false;
+            }
+
+            return true;
+        }, ARRAY_FILTER_USE_BOTH);
     }
 }

@@ -24,7 +24,7 @@
                   :disabled="loading"
                 />
 
-                <template slot="invalid-feedback">
+                <template #invalid-feedback>
                   <div v-html="fieldError('password')" />
                 </template>
               </b-form-group>
@@ -43,7 +43,7 @@
                   :disabled="loading"
                 />
 
-                <template slot="invalid-feedback">
+                <template #invalid-feedback>
                   <div v-html="fieldError('password_confirmation')" />
                 </template>
               </b-form-group>
@@ -155,7 +155,6 @@ export default {
         await this.getCurrentUser();
 
         if (this.currentUser.user_locale !== null) {
-          await loadLanguageAsync(this.currentUser.user_locale);
           this.setCurrentLocale(this.currentUser.user_locale);
         }
 

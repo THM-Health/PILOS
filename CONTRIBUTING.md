@@ -322,8 +322,8 @@ Each locale file return a nested php array.
 If you want to change the translation of an existing string, please contribute to our [POEditor](https://poeditor.com/join/project/UGpZY4JAnz) project.
 We will update the translation files with the next release.
 
-### Available and default languages
-You can change the available languages and the default language in the `.env` file with the keys `VITE_AVAILABLE_LOCALES` and `VITE_DEFAULT_LOCALE`.
+### Available and default locales
+You can change the enabled locales and the default locales in the `.env` file with the keys `ENABLED_LOCALES` and `DEFAULT_LOCALE`.
 
 ### Customize locales
 Within the locale directory you can create files with the group name (part before the first dot in the translation string) as filename.
@@ -341,7 +341,7 @@ return [
 ];
 ```
 
-To customize the date time format and the display name of a locale create a json file `metadata.json` in the locales directory.
+To customize the date time format and the display name of a locale create a json file `metadata.json` in the locale's directory.
 ```json
 {
     "name": "German",
@@ -385,13 +385,13 @@ To customize the date time format and the display name of a locale create a json
 ### New locales
 To add custom locales that are not part of the core, add them to the resources/custom/lang directory as well.
 You need to create all php files and metadata.json file.
-To enable the new locale, you need to add it to the `VITE_AVAILABLE_LOCALES` .env option and rebuild the frontend.
+To enable the new locale, you need to add it to the `ENABLED_LOCALES` .env option and restart the container.
 
 ### Sync localisation data with POEditor 
 
 Before you can sync the locales, you have to set the .env variables `POEDITOR_TOKEN` and `POEDITOR_PROJECT`.
 
-To upload the locale to POEditor  run `php artisan locales:upload` or, if you use sail: `sail artisan locales:upload`.
+To upload the locale to POEditor run `php artisan locales:upload` or, if you use sail: `sail artisan locales:upload`.
 
 
 To import the locale to POEditor  run `php artisan locales:import` or, if you use sail: `sail artisan locales:import`.

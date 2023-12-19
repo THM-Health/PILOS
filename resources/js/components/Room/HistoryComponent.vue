@@ -136,7 +136,6 @@
 
         <line-chart
           v-if="statsMeeting"
-          :style="{height: '200px', position: 'relative'}"
           :data="chartData"
           :options="chartOptions"
         />

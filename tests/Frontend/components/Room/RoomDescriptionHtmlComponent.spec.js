@@ -17,8 +17,7 @@ describe('RoomDescriptionHtmlComponent', () => {
 
   it('Open external link modal', async () => {
     // Mock window.open
-    const windowOpenSpy = vi.fn();
-    window.open = windowOpenSpy;
+    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => {});
 
     const view = mount(RoomDescriptionHtmlComponent, {
       localVue,
@@ -67,14 +66,12 @@ describe('RoomDescriptionHtmlComponent', () => {
     expect(modal.vm.$data.isVisible).toBe(false);
     expect(windowOpenSpy).toHaveBeenCalledWith('https://example.org', '_blank');
 
-    delete window.open;
     view.destroy();
   });
 
   it('Cancel open external link modal', async () => {
     // Mock window.open
-    const windowOpenSpy = vi.fn();
-    window.open = windowOpenSpy;
+    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => {});
 
     const view = mount(RoomDescriptionHtmlComponent, {
       localVue,
@@ -115,14 +112,12 @@ describe('RoomDescriptionHtmlComponent', () => {
     expect(modal.vm.$data.isVisible).toBe(false);
     expect(windowOpenSpy).not.toHaveBeenCalled();
 
-    delete window.open;
     view.destroy();
   });
 
   it('Check if modal works on changed html code', async () => {
     // Mock window.open
-    const windowOpenSpy = vi.fn();
-    window.open = windowOpenSpy;
+    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => {});
 
     const view = mount(RoomDescriptionHtmlComponent, {
       localVue,
@@ -175,7 +170,6 @@ describe('RoomDescriptionHtmlComponent', () => {
     expect(modal.vm.$data.isVisible).toBe(false);
     expect(windowOpenSpy).toHaveBeenCalledWith('https://example.com', '_blank');
 
-    delete window.open;
     view.destroy();
   });
 });

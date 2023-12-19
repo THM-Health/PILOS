@@ -39,7 +39,7 @@
 
             rows="8"
           />
-          <template slot="invalid-feedback">
+          <template #invalid-feedback>
             <div v-html="fieldError('user_emails')" />
           </template>
         </b-form-group>
@@ -53,7 +53,7 @@
             :state="fieldState('role')"
             :disabled="loading"
             name="some-radios"
-            value="1"
+            :value="1"
           >
             <b-badge
               class="text-white"
@@ -67,7 +67,7 @@
             :state="fieldState('role')"
             :disabled="loading"
             name="some-radios"
-            value="2"
+            :value="2"
           >
             <b-badge variant="danger">
               {{ $t('rooms.roles.moderator') }}
@@ -78,13 +78,13 @@
             :state="fieldState('role')"
             :disabled="loading"
             name="some-radios"
-            value="3"
+            :value="3"
           >
             <b-badge variant="dark">
               {{ $t('rooms.roles.co_owner') }}
             </b-badge>
           </b-form-radio>
-          <template slot="invalid-feedback">
+          <template #invalid-feedback>
             <div v-html="fieldError('role')" />
           </template>
         </b-form-group>

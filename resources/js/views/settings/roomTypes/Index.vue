@@ -149,7 +149,7 @@
           :state="fieldState('replacement_room_type')"
           :options="roomTypeSelect"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('replacement_room_type')" />
         </template>
       </b-form-group>
