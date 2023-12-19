@@ -7,7 +7,7 @@
 
 <script>
 
-import { EditorContent } from '@tiptap/vue-2';
+import { EditorContent } from '@tiptap/vue-3';
 import TipTapEditor from './TipTapEditor.js';
 import TipTapMenu from './TipTapMenu.vue';
 
@@ -36,7 +36,7 @@ export default {
     });
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     this.editor.destroy();
   }
 };

@@ -39,7 +39,7 @@
             hover
             stacked='lg'
             :show-empty="!meetingsLoadingError"
-            :busy.sync='meetingsLoading'
+            v-model:busy='meetingsLoading'
             :fields='meetingsTableFields'
             :items='fetchMeetings'
             id='meetings-table'

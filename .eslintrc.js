@@ -6,7 +6,7 @@ module.exports = {
     'vitest-globals/env': true
   },
   extends: [
-    'plugin:vue/essential',
+    'plugin:vue/vue3-essential',
     'standard',
     'plugin:jsonc/base',
     'plugin:vitest-globals/recommended'

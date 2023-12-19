@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Migration from Vue 2 due to EOL to Vue 3 with @vue/compat ([#743])
+- Disable CI frontend tests (incompatible with Vue 3) ([#743])
+
 ## [v2.4.0] - 2023-12-18
 ### Added
 - Audio notification on room start ([#747])
@@ -701,6 +705,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#685]: https://github.com/THM-Health/PILOS/pull/685
 [#700]: https://github.com/THM-Health/PILOS/issues/700
 [#701]: https://github.com/THM-Health/PILOS/pull/701
+[#743]: https://github.com/THM-Health/PILOS/pull/743
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.0...develop

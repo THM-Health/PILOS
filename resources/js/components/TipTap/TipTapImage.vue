@@ -1,5 +1,4 @@
 <template>
-    <div v-frag>
         <b-button
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.image')"
@@ -67,15 +66,11 @@
 
       </template>
         </b-modal>
-    </div>
 </template>
 <script>
 
-import frag from 'vue-frag';
 export default {
-  directives: {
-    frag
-  },
+
   data () {
     return {
       src: null,

@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue2';
+import vue from '@vitejs/plugin-vue';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -24,9 +24,9 @@ export default ({ mode }) => {
     };
 
     if (!process.env.VITEST) {
-      alias.vue = 'vue/dist/vue.esm.js';
+      alias.vue = '@vue/compat';
     } else {
-      alias.vue$ = 'vue/dist/vue.esm.js';
+      alias.vue$ = '@vue/compat';
     }
     return alias;
   }
@@ -63,7 +63,15 @@ export default ({ mode }) => {
         'resources/js/app.js',
         'resources/sass/theme/' + THEME + '/app.scss'
       ]),
-      vue()
+      vue({
+        template: {
+          compilerOptions: {
+            compatConfig: {
+              MODE: 2
+            }
+          }
+        }
+      })
     ],
     server: {
       https: getSslConfig(),
@@ -76,6 +84,9 @@ export default ({ mode }) => {
     },
     resolve: {
       alias: getAlias()
+    },
+    optimizeDeps: {
+      include: ['axe-core']
     }
   });
 };

@@ -1,5 +1,4 @@
 <template>
-  <div v-frag>
     <!-- Add list of users from database -->
     <b-button
       variant="success"
@@ -91,13 +90,11 @@
         </div>
       </div>
     </b-modal>
-  </div>
 </template>
 
 <script>
 
 import _ from 'lodash';
-import frag from 'vue-frag';
 import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
@@ -117,10 +114,6 @@ export default {
       type: Boolean,
       default: false
     }
-  },
-
-  directives: {
-    frag
   },
 
   data () {

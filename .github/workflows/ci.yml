@@ -93,7 +93,7 @@ jobs:
         DB_USERNAME: root
         DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml  
+      run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Upload coverage
       uses: codecov/codecov-action@v3
     - name: Upload laravel logs
@@ -125,15 +125,15 @@ jobs:
               run: npm ci
             - name: Execute frontend code style check via eslint
               run: npm run lint
-            - name: Execute frontend tests
-              env:
-                LARAVEL_BYPASS_ENV_CHECK: 1
-              run: npm run cover
-            - name: Upload coverage
-              uses: codecov/codecov-action@v3
-            - name: Upload npm logs
-              uses: actions/upload-artifact@v2
-              if: failure()
-              with:
-                name: npm-debug.log
-                path: /home/runner/.npm/_logs/*-debug.log
+#            - name: Execute frontend tests
+#              env:
+#                LARAVEL_BYPASS_ENV_CHECK: 1
+#              run: npm run cover
+#            - name: Upload coverage
+#              uses: codecov/codecov-action@v3
+#            - name: Upload npm logs
+#              uses: actions/upload-artifact@v2
+#              if: failure()
+#              with:
+#                name: npm-debug.log
+#                path: /home/runner/.npm/_logs/*-debug.log

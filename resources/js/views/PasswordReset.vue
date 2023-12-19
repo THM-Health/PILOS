@@ -42,15 +42,11 @@
               </b-form-group>
 
               <b-form-invalid-feedback  v-if='fieldState("email") === false'>
-                <template>
                   {{ fieldError('email') }}
-                </template>
               </b-form-invalid-feedback>
 
               <b-form-invalid-feedback  v-if='fieldState("token") === false'>
-                <template>
                   {{ fieldError('token') }}
-                </template>
               </b-form-invalid-feedback>
 
               <b-button type='submit' variant='primary' :disabled="loading" block>
@@ -139,7 +135,7 @@ export default {
         await this.getCurrentUser();
 
         if (this.currentUser.user_locale !== null) {
-          this.setCurrentLocale(this.currentUser.user_locale);
+          await this.setCurrentLocale(this.currentUser.user_locale);
         }
 
         await this.$router.push({ name: 'home' });

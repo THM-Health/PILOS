@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
 // Hide tooltip on click
-const hideTooltip = (element, vnode) => {
-  vnode.context.$root.$emit('bv::hide::tooltip', element.getAttribute('id'));
+const hideTooltip = (element, binding) => {
+  binding.instance.$root.$emit('bv::hide::tooltip', element.getAttribute('id'));
 };
 
 // Directive to close tooltip on click
@@ -15,12 +15,12 @@ export default {
     }
 
     element.addEventListener('click', () => {
-      hideTooltip(element, vnode);
+      hideTooltip(element, binding);
     });
   },
   unbind (element, binding, vnode) {
     element.removeEventListener('click', () => {
-      hideTooltip(element, vnode);
+      hideTooltip(element, binding);
     });
   }
 };

@@ -1,5 +1,4 @@
 <template>
-    <div v-frag>
         <b-button
         variant="outline-dark"
         @click="openModal"
@@ -23,15 +22,10 @@
         >
           <b-form-textarea v-model="source" rows="5"></b-form-textarea>
         </b-modal>
-    </div>
 </template>
 <script>
 
-import frag from 'vue-frag';
 export default {
-  directives: {
-    frag
-  },
   data () {
     return {
       source: null

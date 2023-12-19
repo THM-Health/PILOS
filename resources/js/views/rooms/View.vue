@@ -247,9 +247,6 @@ import RoomInvitation from '../../components/Room/RoomInvitation.vue';
 import { vMaska } from 'maska';
 
 export default {
-  directives: {
-    maska: vMaska
-  },
 
   props: {
     modalStatic: {
@@ -268,6 +265,7 @@ export default {
     Cannot
   },
 
+  directives: { maska: vMaska },
   mixins: [FieldErrors],
 
   data () {
@@ -346,7 +344,7 @@ export default {
       }
     });
   },
-  destroyed () {
+  unmounted () {
     clearInterval(this.reloadInterval);
   },
   methods: {

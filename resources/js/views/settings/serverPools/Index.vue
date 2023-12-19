@@ -38,7 +38,7 @@
       hover
       stacked='xl'
       show-empty
-      :busy.sync='isBusy'
+      v-model:busy='isBusy'
       :fields='tableFields'
       :items='fetchServerPools'
       id='server-pools-table'

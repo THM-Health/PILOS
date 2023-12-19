@@ -63,7 +63,6 @@
               <template v-slot:option="{ option }">{{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}</template>
               <template v-slot:singleLabel="{ option }">
                     {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
-
               </template>
               <template #afterList>
                 <b-button
@@ -106,7 +105,7 @@
       hover
       show-empty
       stacked='lg'
-      :busy.sync='isBusy'
+      v-model:busy='isBusy'
       :fields='tableFields'
       :items='fetchUsers'
       id='users-table'

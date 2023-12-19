@@ -196,7 +196,7 @@
               {{ $t('settings.roles.no_options') }}
             </div>
 
-            <template slot="invalid-feedback"><div v-html="fieldError('permissions', true)"></div></template>
+            <template #invalid-feedback><div v-html="fieldError('permissions', true)"></div></template>
           </b-form-group>
           <hr>
           <b-row class='my-1 float-right'>
