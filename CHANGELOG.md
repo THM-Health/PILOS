@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.4.0] - 2023-12-18
 ### Added
 - Audio notification on room start ([#747])
 
@@ -702,7 +703,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#701]: https://github.com/THM-Health/PILOS/pull/701
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.3.4...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.0...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -738,3 +739,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.3.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.2
 [v2.3.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.3
 [v2.3.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.4
+[v2.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.0
