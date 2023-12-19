@@ -87,7 +87,7 @@ describe('Router', () => {
       expect(initializeSpy).toHaveBeenCalledTimes(1);
     });
 
-it('beforeEachRoute sets the application title', async () => {
+    it('beforeEachRoute sets the application title', async () => {
       const router = {};
 
       createTestingPinia({ initialState: { settings: { settings: { name: 'Appname' } } }, stubActions: false });
@@ -106,7 +106,6 @@ it('beforeEachRoute sets the application title', async () => {
 
       expect(document.title).toBe('Appname');
     });
-
 
     it('beforeEachRoute calls next if there is no permission checks or required authentication', async () => {
       const router = {};

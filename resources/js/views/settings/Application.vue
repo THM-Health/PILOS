@@ -417,8 +417,6 @@
                   <template #invalid-feedback>
                     <div v-html="fieldError('banner.title')" />
                   </template>
-                </b-form-select>
-
                 </b-form-group>
               </b-col>
               <b-col md="6">
@@ -580,7 +578,7 @@
                     :colors="textColors"
                     v-model="settings.banner.color"
                   />
-				  <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
+                  <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                   <b-form-input
                     id="banner-color-input"
                     v-model="settings.banner.color"

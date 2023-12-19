@@ -450,7 +450,6 @@ export async function beforeEachRoute (router, to, from, next) {
   const loading = useLoadingStore();
   const settings = useSettingsStore();
 
-
   // If app is not initialized yet, initialize it and unmout app until finished only showing loading screen
   if (!loading.initialized) {
     await loading.initialize();
