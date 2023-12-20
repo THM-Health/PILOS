@@ -35,6 +35,8 @@ export default {
     async changeLocale (locale) {
       this.setOverlayLoading();
       try {
+        await Base.setLocale(locale);
+
         await this.setLocale(locale);
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

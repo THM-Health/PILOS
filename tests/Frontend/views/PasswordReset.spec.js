@@ -129,6 +129,30 @@ describe('PasswordReset', () => {
     expect(toastSuccessSpy).toBeCalledTimes(1);
     expect(toastSuccessSpy).toBeCalledWith('Success!');
 
+    await mockAxios.request('/api/v1/locale/de').respondWith({
+      status: 200,
+      data: {
+        data: {
+          app: {
+            demo: 'Dies ist ein :value'
+          }
+        },
+        meta: {
+          dateTimeFormat: {
+            datetimeShort: {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }
+          },
+          name: 'Deutsch'
+        }
+      }
+    });
+
     await currentUserRequest.wait();
     await currentUserRequest.respondWith({
       status: 200,
