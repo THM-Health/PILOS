@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.0.0] - 2023-12-19
 ### Changed
 - Migration from Vue 2 due to EOL to Vue 3 with @vue/compat ([#743])
 - Disable CI frontend tests (incompatible with Vue 3) ([#743])
@@ -712,7 +713,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#743]: https://github.com/THM-Health/PILOS/pull/743
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.0...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -750,3 +751,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.3.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.4
 [v2.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.0
 [v2.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.1
+[v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
