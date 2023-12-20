@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { useAuthStore } from './auth';
 import { useSettingsStore } from './settings';
-import { useLocaleStore } from './locale';
 
 export const useLoadingStore = defineStore('loading', {
   state: () => {
@@ -26,12 +25,9 @@ export const useLoadingStore = defineStore('loading', {
     async initialize () {
       const auth = useAuthStore();
       const settings = useSettingsStore();
-      const locale = useLocaleStore();
 
       this.setLoading();
       await settings.getSettings();
-
-      await locale.setCurrentLocale(document.documentElement.lang);
 
       await auth.getCurrentUser();
 

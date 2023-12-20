@@ -147,6 +147,31 @@ describe('Login', () => {
     mockAxios.request('/api/v1/login/ldap').respondWith({
       status: 204
     });
+
+    mockAxios.request('/api/v1/locale/de').respondWith({
+      status: 200,
+      data: {
+        data: {
+          app: {
+            demo: 'Dies ist ein :value'
+          }
+        },
+        meta: {
+          dateTimeFormat: {
+            datetimeShort: {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }
+          },
+          name: 'Deutsch'
+        }
+      }
+    });
+
     mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
       data: {
@@ -204,6 +229,31 @@ describe('Login', () => {
     mockAxios.request('/api/v1/login/ldap').respondWith({
       status: 204
     });
+
+    mockAxios.request('/api/v1/locale/de').respondWith({
+      status: 200,
+      data: {
+        data: {
+          app: {
+            demo: 'Dies ist ein :value'
+          }
+        },
+        meta: {
+          dateTimeFormat: {
+            datetimeShort: {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }
+          },
+          name: 'Deutsch'
+        }
+      }
+    });
+
     mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
       data: {

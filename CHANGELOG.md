@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor user interface room details ([#681], [#724])
 - PHP 8.3 docker base image ([#704], [#735])
 
+## [v2.4.1] - 2023-12-19
+### Changed
+- Reduction of api calls when changing locale
+
 ## [v2.4.0] - 2023-12-18
 ### Added
 - Audio notification on room start ([#747])
@@ -722,7 +726,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#735]: https://github.com/THM-Health/PILOS/pull/735
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.1...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -759,3 +763,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.3.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.3
 [v2.3.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.4
 [v2.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.0
+[v2.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.1

@@ -233,7 +233,6 @@ import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
 import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
 import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
-import { useLocaleStore } from '@/stores/locale';
 import { useAuthStore } from '@/stores/auth';
 import { mapActions, mapState } from 'pinia';
 
@@ -291,7 +290,6 @@ export default {
 
   methods: {
 
-    ...mapActions(useLocaleStore, ['setCurrentLocale']),
     ...mapActions(useAuthStore, ['getCurrentUser']),
 
     /**
@@ -382,22 +380,12 @@ export default {
       Base.call('users/' + this.model.id, {
         method: 'POST',
         data: formData
-      }).then(response => {
-        const localeChanged = this.currentLocale !== this.model.user_locale;
-
+      }).then(async response => {
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
         if (this.currentUser && this.model.id === this.currentUser.id) {
-          return this.getCurrentUser().then(() => {
-            if (localeChanged) {
-              return this.setCurrentLocale(this.model.user_locale).then(() => {
-                return response;
-              });
-            }
-            return Promise.resolve(response);
-          });
+          await this.getCurrentUser();
         }
-        return Promise.resolve(response);
-      }).then(response => {
+
         this.$emit('update-user', response.data.data);
         this.resetFileUpload();
         this.image_deleted = false;
