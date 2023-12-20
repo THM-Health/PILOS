@@ -169,6 +169,30 @@ describe('LocaleSelector', () => {
     expect(activeItems.at(0).text()).toBe('Russian');
     expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
 
+    await mockAxios.request('/api/v1/locale/de').respondWith({
+      status: 200,
+      data: {
+        data: {
+          app: {
+            demo: 'Dies ist ein :value'
+          }
+        },
+        meta: {
+          dateTimeFormat: {
+            datetimeShort: {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }
+          },
+          name: 'Deutsch'
+        }
+      }
+    });
+
     await items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
     await mockAxios.wait();
