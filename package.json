@@ -56,7 +56,7 @@
         "@tiptap/vue-2": "^2.1.13",
         "bootstrap-vue": "^2.15.0",
         "chart.js": "^4.4.1",
-        "chartjs-adapter-dayjs-4": "^1.0.4",
+        "chartjs-adapter-dayjs-4": "^1.2.3",
         "dayjs": "^1.11.10",
         "dompurify": "^3.0.6",
         "maska": "^2.1.10",
