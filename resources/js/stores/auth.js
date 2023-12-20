@@ -24,14 +24,14 @@ export const useAuthStore = defineStore('auth', {
       if (_.isEmpty(currentUser)) {
         currentUser = null;
       }
-      // set timezone of i18n, if user not logged in use undefined to set timezone to local system timezone
-      const locale = useLocaleStore();
-      locale.setTimezone(currentUser == null ? undefined : currentUser.timezone);
 
-      // if user is logged in and has a locale set, set the locale
-      if (currentUser != null && currentUser.user_locale != null) {
-        await locale.setCurrentLocale(currentUser.user_locale);
-      }
+      const locale = useLocaleStore();
+
+      // set timezone of i18n, if user logged in use the timezone of the user, otherwise use local system timezone
+      locale.setTimezone(currentUser != null ? currentUser.timezone : undefined);
+
+      // set locale of i18n, if user is logged in and has a locale set use this locale, otherwise use the locale of the html tag
+      await locale.setLocale((currentUser != null && currentUser.user_locale != null) ? currentUser.user_locale : document.documentElement.lang);
 
       this.setCurrentUser(currentUser);
     },
