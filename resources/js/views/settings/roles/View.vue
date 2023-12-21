@@ -39,7 +39,7 @@
               :state="fieldState('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('name')" />
             </template>
           </b-form-group>
@@ -125,7 +125,7 @@
             label-for="room-limit"
             :state="fieldState('room_limit')"
           >
-            <template slot="label">
+            <template #label>
               {{ $t('app.room_limit') }}  <b-button
                 v-b-modal.modal-help-roomlimit
                 variant="link"
@@ -153,7 +153,7 @@
               min="0"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('room_limit')" />
             </template>
           </b-form-group>
@@ -233,7 +233,7 @@
               {{ $t('settings.roles.no_options') }}
             </div>
 
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('permissions', true)" />
             </template>
           </b-form-group>

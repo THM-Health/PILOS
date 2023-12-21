@@ -39,7 +39,7 @@
                 :state="fieldState('name')"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('name')" />
               </template>
             </b-form-group>
@@ -62,7 +62,7 @@
                 :state="fieldState('help_url')"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('help_url')" />
               </template>
             </b-form-group>
@@ -87,7 +87,7 @@
                 :state="fieldState('legal_notice_url')"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('legal_notice_url')" />
               </template>
             </b-form-group>
@@ -110,7 +110,7 @@
                 :state="fieldState('privacy_policy_url')"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('privacy_policy_url')" />
               </template>
             </b-form-group>
@@ -189,7 +189,7 @@
             </b-col>
           </b-row>
 
-          <template slot="invalid-feedback">
+          <template #invalid-feedback>
             <div v-html="fieldError('favicon')" />
             <div v-html="fieldError('favicon_file')" />
           </template>
@@ -269,7 +269,7 @@
             </b-col>
           </b-row>
 
-          <template slot="invalid-feedback">
+          <template #invalid-feedback>
             <div v-html="fieldError('logo')" />
             <div v-html="fieldError('logo_file')" />
           </template>
@@ -297,7 +297,7 @@
                 :state="fieldState('pagination_page_size')"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('pagination_page_size')" />
               </template>
             </b-form-group>
@@ -323,7 +323,7 @@
                 :disabled="isBusy || viewOnly || !loaded"
                 :state="fieldState('room_pagination_page_size')"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_pagination_page_size')" />
               </template>
             </b-form-group>
@@ -349,7 +349,7 @@
                 @loading-error="(value) => timezonesLoadingError = value"
                 @busy="(value) => timezonesLoading = value"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('default_timezone')" />
               </template>
             </b-form-group>
@@ -376,7 +376,7 @@
               {{ $t('settings.application.banner.enabled') }}
             </b-form-checkbox>
 
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('banner.enabled')" />
             </template>
           </b-form-group>
@@ -414,7 +414,7 @@
                     :state="fieldState('banner.title')"
                   />
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.title')" />
                   </template>
                 </b-form-group>
@@ -434,7 +434,7 @@
                     :state="fieldState('banner.icon')"
                   />
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.icon')" />
                   </template>
                 </b-form-group>
@@ -454,7 +454,7 @@
                 :state="fieldState('banner.message')"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('banner.message')" />
               </template>
             </b-form-group>
@@ -476,7 +476,7 @@
                     :state="fieldState('banner.link')"
                   />
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.link')" />
                   </template>
                 </b-form-group>
@@ -495,7 +495,7 @@
                     :state="fieldState('banner.link_text')"
                   />
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.link_text')" />
                   </template>
                 </b-form-group>
@@ -528,7 +528,7 @@
                     </template>
                   </b-form-select>
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.link_style')" />
                   </template>
                 </b-form-group>
@@ -556,7 +556,7 @@
                     </template>
                   </b-form-select>
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.link_target')" />
                   </template>
                 </b-form-group>
@@ -572,13 +572,11 @@
                   :state="fieldState('banner.color')"
                   :label="$t('settings.application.banner.color')"
                 >
-                  <v-swatches
-                    v-model="settings.banner.color"
+                  <color-select
                     class="my-2"
-                    :disabled="isBusy || !loaded || viewOnly"
-                    :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
-                    :swatches="colorSwatches"
-                    inline
+                    :disabled='isBusy || !loaded || viewOnly'
+                    :colors="textColors"
+                    v-model="settings.banner.color"
                   />
                   <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                   <b-form-input
@@ -589,7 +587,7 @@
                     :disabled="isBusy || !loaded || viewOnly"
                   />
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.color')" />
                   </template>
                 </b-form-group>
@@ -600,13 +598,11 @@
                   :state="fieldState('banner.background')"
                   :label="$t('settings.application.banner.background')"
                 >
-                  <v-swatches
-                    v-model="settings.banner.background"
+                  <color-select
                     class="my-2"
-                    :disabled="isBusy || !loaded || viewOnly"
-                    :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
-                    :swatches="backgroundSwatches"
-                    inline
+                    :disabled='isBusy || !loaded || viewOnly'
+                    :colors="backgroundColors"
+                    v-model="settings.banner.background"
                   />
                   <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                   <b-form-input
@@ -617,7 +613,7 @@
                     :disabled="isBusy || !loaded || viewOnly"
                   />
 
-                  <template slot="invalid-feedback">
+                  <template #invalid-feedback>
                     <div v-html="fieldError('banner.background')" />
                   </template>
                 </b-form-group>
@@ -625,7 +621,7 @@
             </b-row>
           </b-card>
 
-          <template slot="invalid-feedback">
+          <template #invalid-feedback>
             <div v-html="fieldError('banner')" />
           </template>
         </b-form-group>
@@ -667,7 +663,7 @@
                 :disabled="isBusy || viewOnly || !loaded"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_limit')" />
               </template>
             </b-form-group>
@@ -691,7 +687,7 @@
                 :state="fieldState('room_token_expiration')"
                 class="mb-2"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_token_expiration')" />
               </template>
             </b-form-group>
@@ -716,7 +712,7 @@
               >
                 {{ $t('app.enable') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_auto_delete.enabled')" />
               </template>
             </b-form-group>
@@ -740,7 +736,7 @@
                 :state="fieldState('room_auto_delete.deadline_period')"
                 class="mb-2"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_auto_delete.deadline_period')" />
               </template>
             </b-form-group>
@@ -766,7 +762,7 @@
                 :state="fieldState('room_auto_delete.inactive_period')"
                 class="mb-2"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_auto_delete.inactive_period')" />
               </template>
             </b-form-group>
@@ -790,7 +786,7 @@
                 :state="fieldState('room_auto_delete.never_used_period')"
                 class="mb-2"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_auto_delete.never_used_period')" />
               </template>
             </b-form-group>
@@ -817,7 +813,7 @@
                 {{ $t('settings.application.password_change_allowed') }}
               </b-form-checkbox>
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('password_change_allowed')" />
               </template>
             </b-form-group>
@@ -843,7 +839,7 @@
               >
                 {{ $t('app.enable') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('statistics.servers.enabled')" />
               </template>
             </b-form-group>
@@ -866,7 +862,7 @@
                 :disabled="isBusy || viewOnly || !loaded"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('statistics.servers.retention_period')" />
               </template>
             </b-form-group>
@@ -889,7 +885,7 @@
               >
                 {{ $t('app.enable') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('statistics.meetings.enabled')" />
               </template>
             </b-form-group>
@@ -912,7 +908,7 @@
                 :disabled="isBusy || viewOnly || !loaded"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('statistics.meetings.retention_period')" />
               </template>
             </b-form-group>
@@ -935,7 +931,7 @@
               >
                 {{ $t('app.enable') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('attendance.enabled')" />
               </template>
             </b-form-group>
@@ -958,7 +954,7 @@
                 :disabled="isBusy || viewOnly || !loaded"
               />
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('attendance.retention_period')" />
               </template>
             </b-form-group>
@@ -1068,7 +1064,7 @@
             </b-col>
           </b-row>
 
-          <template slot="invalid-feedback">
+          <template #invalid-feedback>
             <div v-html="fieldError('logo')" />
             <div v-html="fieldError('logo_file')" />
           </template>
@@ -1130,7 +1126,7 @@
           </b-input-group>
           <template
             v-if="!viewOnly"
-            slot="invalid-feedback"
+            #invalid-feedback
           >
             <div v-html="fieldError('bbb.style')" />
           </template>
@@ -1193,7 +1189,7 @@
           </b-form-text>
           <template
             v-if="!viewOnly"
-            slot="invalid-feedback"
+            #invalid-feedback
           >
             <div v-html="fieldError('default_presentation')" />
           </template>
@@ -1224,14 +1220,13 @@ import FieldErrors from '@/mixins/FieldErrors';
 import env from '@/env';
 import PermissionService from '@/services/PermissionService';
 import Banner from '@/components/Banner.vue';
-import VSwatches from 'vue-swatches';
-import 'vue-swatches/dist/vue-swatches.css';
 import { mapActions } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
+import ColorSelect from '@/components/Inputs/ColorSelect.vue';
 
 export default {
-  components: { Banner, TimezoneSelect, VSwatches },
+  components: { Banner, TimezoneSelect, ColorSelect },
   mixins: [FieldErrors],
 
   data () {
@@ -1267,8 +1262,8 @@ export default {
         room_auto_delete: {}
       },
       errors: {},
-      colorSwatches: env.BANNER_TEXT_COLORS,
-      backgroundSwatches: env.BANNER_BACKGROUND_COLORS,
+      textColors: env.BANNER_TEXT_COLORS,
+      backgroundColors: env.BANNER_BACKGROUND_COLORS,
       timezonesLoading: false,
       timezonesLoadingError: false
     };

@@ -75,7 +75,7 @@ describe('RoomFile', () => {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        accessCode: '396856824',
+        accessCode: 396856824,
         room: exampleRoom,
         showTitle: true
       },
@@ -390,7 +390,7 @@ describe('RoomFile', () => {
 
     const request = mockAxios.request('/api/v1/rooms/123-456-789/files');
 
-    view.vm.uploadFile({ target: { files: [file] } });
+    view.vm.uploadFile(file);
 
     await request.wait();
     expect(request.config.headers['Content-Type']).toBe('multipart/form-data');
@@ -1097,7 +1097,7 @@ describe('RoomFile', () => {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        accessCode: '396856824',
+        accessCode: 396856824,
         room: exampleRoom
       },
       pinia: createTestingPinia(),

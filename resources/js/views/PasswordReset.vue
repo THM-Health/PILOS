@@ -24,7 +24,7 @@
                   :disabled="loading"
                 />
 
-                <template slot="invalid-feedback">
+                <template #invalid-feedback>
                   <div v-html="fieldError('password')" />
                 </template>
               </b-form-group>
@@ -43,7 +43,7 @@
                   :disabled="loading"
                 />
 
-                <template slot="invalid-feedback">
+                <template #invalid-feedback>
                   <div v-html="fieldError('password_confirmation')" />
                 </template>
               </b-form-group>
@@ -84,10 +84,8 @@
 import FieldErrors from '@/mixins/FieldErrors';
 import Base from '@/api/base';
 import env from '@/env';
-import { loadLanguageAsync } from '@/i18n';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
-import { useLocaleStore } from '@/stores/locale';
 
 export default {
   mixins: [FieldErrors],
@@ -125,7 +123,6 @@ export default {
   methods: {
 
     ...mapActions(useAuthStore, ['getCurrentUser']),
-    ...mapActions(useLocaleStore, ['setCurrentLocale']),
 
     /**
      * Sends a request with a new password to set for the given email through the query parameters
@@ -153,11 +150,6 @@ export default {
         this.toastSuccess(response.data.message);
 
         await this.getCurrentUser();
-
-        if (this.currentUser.user_locale !== null) {
-          await loadLanguageAsync(this.currentUser.user_locale);
-          this.setCurrentLocale(this.currentUser.user_locale);
-        }
 
         await this.$router.push({ name: 'home' });
       } catch (error) {

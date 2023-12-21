@@ -28,8 +28,8 @@ class UploadLocales extends Command
     public function handle(LocaleService $localeService): void
     {
         $locales = config('app.default_locales');
-        foreach ($locales as $locale) {
-            $this->info('Processing locale ' . $locale);
+        foreach ($locales as $locale => $metadata) {
+            $this->info('Processing locale ' . $metadata['name'].' ('.$locale.')');
 
             $localeJson = $localeService->buildJsonLocale($locale, false, false);
 
@@ -37,7 +37,7 @@ class UploadLocales extends Command
             $this->info('Waiting '.$delay.' seconds before upload');
             sleep($delay);
 
-            $this->info('Uploading locale ' . $locale);
+            $this->info('Uploading locale '. $metadata['name'].' ('.$locale.')');
 
             $response = Http::attach(
                 'file',
@@ -55,9 +55,9 @@ class UploadLocales extends Command
 
             $apiResponse = $response->json('response');
             if ($apiResponse['status'] == 'success') {
-                $this->info('Locale ' . $locale . ' uploaded successfully');
+                $this->info('Locale ' .$metadata['name'].' ('.$locale.') uploaded successfully');
             } else {
-                $this->error('Error uploading locale ' . $locale);
+                $this->error('Error uploading locale '.$metadata['name'].' ('.$locale.')');
                 $this->error('Error code: ' . $apiResponse['code'].', message: '.$apiResponse['message']);
             }
         }

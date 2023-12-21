@@ -35,7 +35,7 @@
                 :state="fieldState('firstname')"
                 :disabled="isBusy"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('firstname')" />
               </template>
             </b-form-group>
@@ -53,7 +53,7 @@
                 :state="fieldState('lastname')"
                 :disabled="isBusy"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('lastname')" />
               </template>
             </b-form-group>
@@ -71,7 +71,7 @@
                 :state="fieldState('email')"
                 :disabled="isBusy"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('email')" />
               </template>
             </b-form-group>
@@ -88,7 +88,7 @@
                 :state="fieldState('user_locale')"
                 :disabled="isBusy"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('user_locale')" />
               </template>
             </b-form-group>
@@ -108,7 +108,7 @@
                 @loading-error="(value) => timezonesLoadingError = value"
                 @busy="(value) => timezonesLoading = value"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('timezone')" />
               </template>
             </b-form-group>
@@ -126,7 +126,7 @@
                 @loading-error="(value) => rolesLoadingError = value"
                 @busy="(value) => rolesLoading = value"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('roles', true)" />
               </template>
             </b-form-group>
@@ -154,7 +154,7 @@
                 :disabled="isBusy"
                 switch
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('generate_password')" />
               </template>
             </b-form-group>
@@ -194,7 +194,7 @@
                 </template>
               </b-input-group>
 
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('new_password')" />
               </template>
             </b-form-group>
@@ -213,7 +213,7 @@
                 :state="fieldState('new_password_confirmation')"
                 :disabled="isBusy"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('new_password_confirmation')" />
               </template>
             </b-form-group>
@@ -274,7 +274,7 @@ export default {
    * of the current user gets changed.
    */
   mounted () {
-    this.model.user_locale = import.meta.env.VITE_DEFAULT_LOCALE;
+    this.model.user_locale = this.getSetting('default_locale');
     this.model.timezone = this.getSetting('default_timezone');
   },
 

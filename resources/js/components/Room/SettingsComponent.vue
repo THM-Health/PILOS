@@ -38,7 +38,7 @@
                 @loading-error="(value) => roomTypeSelectLoadingError = value"
                 @busy="(value) => roomTypeSelectBusy = value"
               />
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('room_type')" />
               </template>
             </b-form-group>
@@ -54,7 +54,7 @@
                   :state="fieldState('name')"
                 />
               </b-input-group>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('name')" />
               </template>
             </b-form-group>
@@ -75,7 +75,7 @@
               </b-input-group>
               <small class="text-muted">
                 {{ $t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage}) }}</small>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('welcome')" />
               </template>
             </b-form-group>
@@ -97,7 +97,7 @@
               </b-input-group>
               <small class="text-muted">
                 {{ $t('rooms.settings.general.chars', {chars: charactersLeftShortDescription}) }}</small>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('short_description')" />
               </template>
             </b-form-group>
@@ -131,7 +131,7 @@
                   </b-button>
                 </b-input-group-append>
               </b-input-group>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('duration')" />
               </template>
             </b-form-group>
@@ -189,7 +189,7 @@
               <small class="text-muted">
                 {{ $t('rooms.settings.security.access_code_note') }}
               </small>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('access_code')" />
               </template>
             </b-form-group>
@@ -204,7 +204,7 @@
               >
                 {{ $t('rooms.settings.security.allow_guests') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('allow_guests')" />
               </template>
             </b-form-group>
@@ -219,7 +219,7 @@
               >
                 {{ $t('rooms.settings.security.allow_new_members') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('allow_membership')" />
               </template>
             </b-form-group>
@@ -237,7 +237,7 @@
               >
                 {{ $t('rooms.settings.security.listed') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('listed')" />
               </template>
             </b-form-group>
@@ -278,7 +278,7 @@
                   </b-button>
                 </b-input-group-append>
               </b-input-group>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('max_participants')" />
               </template>
             </b-form-group>
@@ -296,7 +296,7 @@
                 :disabled="disabled"
                 name="setting-defaultRole"
                 :state="fieldState('default_role')"
-                value="1"
+                :value="1"
               >
                 {{ $t('rooms.roles.participant') }}
               </b-form-radio>
@@ -305,11 +305,11 @@
                 name="setting-defaultRole"
                 :disabled="disabled"
                 :state="fieldState('default_role')"
-                value="2"
+                :value="2"
               >
                 {{ $t('rooms.roles.moderator') }}
               </b-form-radio>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('default_role')" />
               </template>
             </b-form-group>
@@ -325,7 +325,7 @@
                 :disabled="disabled"
                 name="setting-lobby"
                 :state="fieldState('lobby')"
-                value="0"
+                :value="0"
               >
                 {{ $t('app.disabled') }}
               </b-form-radio>
@@ -334,7 +334,7 @@
                 :disabled="disabled"
                 name="setting-lobby"
                 :state="fieldState('lobby')"
-                value="1"
+                :value="1"
               >
                 {{ $t('app.enabled') }}
               </b-form-radio>
@@ -343,11 +343,11 @@
                 :disabled="disabled"
                 name="setting-lobby"
                 :state="fieldState('lobby')"
-                value="2"
+                :value="2"
               >
                 {{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}
               </b-form-radio>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('lobby')" />
               </template>
             </b-form-group>
@@ -375,7 +375,7 @@
               >
                 {{ $t('rooms.settings.participants.record_attendance') }}
               </b-form-checkbox>
-              <template slot="invalid-feedback">
+              <template #invalid-feedback>
                 <div v-html="fieldError('record_attendance')" />
               </template>
             </b-form-group>

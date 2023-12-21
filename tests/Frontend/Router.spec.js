@@ -37,6 +37,56 @@ describe('Router', () => {
   });
 
   describe('beforeEachRoute', () => {
+    it('beforeEachRoute calls initialize if loading store is not initialized', async () => {
+      const router = {};
+
+      createTestingPinia();
+      const loading = useLoadingStore();
+
+      const initializeSpy = vi.spyOn(loading, 'initialize').mockImplementation(() => {});
+
+      const to = {
+        matched: [{ path: '/', meta: {} }]
+      };
+
+      let nextCalled = false;
+
+      await new Promise((resolve) => {
+        beforeEachRoute(router, to, undefined, () => {
+          nextCalled = true;
+          resolve();
+        });
+      });
+
+      expect(nextCalled).toBe(true);
+      expect(initializeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('beforeEachRoute dosn`t initialize if loading store is already initialized', async () => {
+      const router = {};
+
+      createTestingPinia();
+      const loading = useLoadingStore();
+
+      const initializeSpy = vi.spyOn(loading, 'initialize').mockImplementation(() => {});
+
+      const to = {
+        matched: [{ path: '/', meta: {} }]
+      };
+
+      let nextCalled = false;
+
+      await new Promise((resolve) => {
+        beforeEachRoute(router, to, undefined, () => {
+          nextCalled = true;
+          resolve();
+        });
+      });
+
+      expect(nextCalled).toBe(true);
+      expect(initializeSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('beforeEachRoute sets the application title', async () => {
       const router = {};
 

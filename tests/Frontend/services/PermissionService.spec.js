@@ -4,7 +4,6 @@ import WrongTypeError from '@/errors/WrongTypeError';
 import PolicyDoesNotExistsError from '@/errors/PolicyDoesNotExistsError';
 import EventBus from '@/services/EventBus';
 import { EVENT_CURRENT_USER_CHANGED } from '@/constants/events';
-import { nextTick } from 'vue';
 
 describe('PermissionService', () => {
   describe('setCurrentUser', () => {
@@ -15,7 +14,6 @@ describe('PermissionService', () => {
 
       EventBus.on(EVENT_CURRENT_USER_CHANGED, handleUserChanged);
       PermissionService.setCurrentUser(newUser);
-      await nextTick();
 
       expect(handleUserChanged).toBeCalledTimes(1);
       expect(handleUserChanged).toBeCalledWith(newUser);
@@ -25,7 +23,6 @@ describe('PermissionService', () => {
       const spy = vi.fn();
       EventBus.on(EVENT_CURRENT_USER_CHANGED, spy);
       PermissionService.setCurrentUser(newUser, false);
-      await nextTick();
 
       expect(spy).toBeCalledTimes(0);
 

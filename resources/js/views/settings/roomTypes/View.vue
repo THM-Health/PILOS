@@ -35,7 +35,7 @@
               :state="fieldState('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('description')" />
             </template>
           </b-form-group>
@@ -46,12 +46,11 @@
             label-for="color"
             :state="fieldState('color')"
           >
-            <v-swatches
-              v-model="model.color"
+            <color-select
               class="my-2"
-              :disabled="isBusy || modelLoadingError || viewOnly"
-              :swatches="swatches"
-              inline
+              :disabled='isBusy || modelLoadingError || viewOnly'
+              :colors="colors"
+              v-model="model.color"
             />
             <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
             <b-form-input
@@ -62,7 +61,7 @@
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
 
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('color')" />
             </template>
           </b-form-group>
@@ -94,7 +93,7 @@
               :state="fieldState('allow_listing')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('allow_listing')" />
             </template>
           </b-form-group>
@@ -128,10 +127,10 @@
                 :allow-empty="false"
                 :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }"
               >
-                <template slot="noOptions">
+                <template #noOptions>
                   {{ $t('settings.server_pools.no_data') }}
                 </template>
-                <template slot="afterList">
+                <template #afterList>
                   <b-button
                     :disabled="serverPoolsLoading || currentPage === 1"
                     variant="outline-secondary"
@@ -158,7 +157,7 @@
                 </b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('server_pool')" />
             </template>
           </b-form-group>
@@ -177,7 +176,7 @@
               :state="fieldState('restrict')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('restrict')" />
             </template>
           </b-form-group>
@@ -209,19 +208,13 @@
                 :allow-empty="!!model.restrict"
                 :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }"
               >
-                <template slot="noOptions">
+                <template #noOptions>
                   {{ $t('settings.roles.nodata') }}
                 </template>
-                <template
-                  slot="option"
-                  slot-scope="props"
-                >
-                  {{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}
+                <template v-slot:option="{ option }">
+                  {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
                 </template>
-                <template
-                  slot="tag"
-                  slot-scope="{ option, remove }"
-                >
+                <template v-slot:tag="{ option, remove }">
                   <h5 class="d-inline mr-1 mb-1">
                     <b-badge variant="secondary">
                       {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
@@ -232,7 +225,7 @@
                     </b-badge>
                   </h5>
                 </template>
-                <template slot="afterList">
+                <template #afterList>
                   <b-button
                     :disabled="rolesLoading || currentRolePage === 1"
                     variant="outline-secondary"
@@ -260,7 +253,7 @@
                 </b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('roles', true)" />
             </template>
           </b-form-group>
@@ -325,14 +318,13 @@
 import Base from '@/api/base';
 import FieldErrors from '@/mixins/FieldErrors';
 import env from '@/env';
-import VSwatches from 'vue-swatches';
-import 'vue-swatches/dist/vue-swatches.css';
 import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
+import ColorSelect from '../../../components/Inputs/ColorSelect.vue';
 
 export default {
   components: {
-    VSwatches,
+    ColorSelect,
     Multiselect
   },
   mixins: [FieldErrors],
@@ -372,7 +364,7 @@ export default {
       rolesLoadingError: false,
       currentRolePage: 1,
       hasNextRolePage: false,
-      swatches: env.ROOM_TYPE_COLORS,
+      colors: env.ROOM_TYPE_COLORS,
 
       serverPoolsLoading: false,
       serverPools: [],
