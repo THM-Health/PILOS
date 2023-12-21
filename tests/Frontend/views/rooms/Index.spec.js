@@ -202,12 +202,7 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  it('test missing newRoom component', async () => {
-    const oldUser = PermissionService.currentUser;
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.permissions.pop('rooms.create');
-    PermissionService.setCurrentUser(newUser);
-
+  it('test newRoom component shown', async () => {
     mockAxios.request('/api/v1/rooms', { filter_own: 1, filter_shared: 1, filter_public: 0, filter_all: 0, only_favorites: 0, sort_by: 'last_started' }).respondWith({
       status: 200,
       data: exampleRoomResponse
@@ -236,8 +231,36 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
+    const authStore = useAuthStore();
+
+    // check if new room component is shown
     const missingNewRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
-    expect(missingNewRoomComponent.exists()).toBeFalsy();
+    expect(missingNewRoomComponent.exists()).toBeTruthy();
+
+    // check if enabled user has no room limit
+    authStore.currentUser.room_limit = -1;
+    await view.vm.$nextTick();
+    expect(missingNewRoomComponent.props('disabled')).toBeFalsy();
+
+    // check if enabled user has room limit but not reached
+    authStore.currentUser.room_limit = 2;
+    await view.vm.$nextTick();
+    expect(missingNewRoomComponent.props('disabled')).toBeFalsy();
+
+    // check if enabled user has room limit and reached
+    authStore.currentUser.room_limit = 1;
+    await view.vm.$nextTick();
+    expect(missingNewRoomComponent.props('disabled')).toBeTruthy();
+
+    // remove permission to create rooms
+    const oldUser = PermissionService.currentUser;
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions.pop('rooms.create');
+    PermissionService.setCurrentUser(newUser);
+    await view.vm.$nextTick();
+
+    // check if new room component is not shown
+    expect(view.findComponent({ name: 'NewRoomComponent' }).exists()).toBeFalsy();
 
     PermissionService.setCurrentUser(oldUser);
     view.destroy();
@@ -288,7 +311,7 @@ describe('Room Index', () => {
     await roomRequest.wait();
     expect(roomRequest.config.params.page).toBe(1);
 
-    // respond with 4 rooms on 2 different pages
+    // respond with 3 rooms on 2 different pages
     await roomRequest.respondWith({
       status: 200,
       data: {
@@ -334,15 +357,15 @@ describe('Room Index', () => {
           last_page: 2,
           per_page: 2,
           to: 2,
-          total: 4,
-          total_no_filter: 4,
+          total: 3,
+          total_no_filter: 3,
           total_own: 2
         }
       }
     });
     await view.vm.$nextTick();
 
-    // check if now four rooms are displayed
+    // check if now two rooms are displayed
     rooms = view.findAllComponents({ name: 'RoomCardComponent' });
     expect(rooms.length).toBe(2);
 
@@ -363,7 +386,7 @@ describe('Room Index', () => {
     expect(roomRequest.config.params.page).toBe(2);
     expect(newRoomComponent.props('disabled')).toBeTruthy();
 
-    // respond with 2 rooms on the second page
+    // respond with 1 room on the second page
     await roomRequest.respondWith({
       status: 200,
       data: {
@@ -384,42 +407,26 @@ describe('Room Index', () => {
             },
             is_favorite: false,
             short_description: 'Own room'
-          },
-          {
-            id: 'def-abc-456',
-            name: 'Meeting Four',
-            owner: {
-              id: 1,
-              name: 'John Doe'
-            },
-            last_meeting: {
-              start: '2023-08-21 08:18:28:00',
-              end: '2023-08-21 08:20:28:00'
-            },
-            type: {
-              id: 2,
-              description: 'Meeting',
-              color: '#4a5c66',
-              default: false
-            },
-            is_favorite: false,
-            short_description: null
-          }],
+          }
+        ],
         meta: {
           current_page: 2,
           from: 3,
           last_page: 3,
           per_page: 2,
-          to: 4,
-          total: 4,
-          total_no_filter: 4,
+          to: 3,
+          total: 3,
+          total_no_filter: 3,
           total_own: 2
         }
       }
     });
 
-    // find new room component and fire event again
+    // find new room component, check if still disabled even is fewer rooms than the limit are displayed
     newRoomComponent = view.findComponent({ name: 'NewRoomComponent' });
+    expect(newRoomComponent.props('disabled')).toBeTruthy();
+
+    // re-trigger limit reached event
     roomRequest = mockAxios.request('/api/v1/rooms');
     newRoomComponent.vm.$emit('limit-reached');
 
