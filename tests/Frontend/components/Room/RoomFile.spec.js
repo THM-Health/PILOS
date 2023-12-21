@@ -75,7 +75,7 @@ describe('RoomFile', () => {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        accessCode: '396856824',
+        accessCode: 396856824,
         room: exampleRoom,
         showTitle: true
       },
@@ -1097,7 +1097,7 @@ describe('RoomFile', () => {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        accessCode: '396856824',
+        accessCode: 396856824,
         room: exampleRoom
       },
       pinia: createTestingPinia(),

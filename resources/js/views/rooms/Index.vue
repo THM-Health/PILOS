@@ -7,24 +7,28 @@
           {{ $t('rooms.index.rooms') }}
         </h2>
       </b-col>
-      <b-col
-        v-if="userCanCreateRooms"
-        cols="6"
-        md="6"
-        xl="3"
+      <can
+        method="create"
+        policy="RoomPolicy"
       >
-        <new-room-component
-          :disabled="limitReached"
-          @limit-reached="onReachLimit"
-        />
-        <b-badge
-          v-if="showLimit"
-          ref="room-limit"
-          class="float-right w-100"
+        <b-col
+          cols="6"
+          md="6"
+          xl="3"
         >
-          {{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}
-        </b-badge>
-      </b-col>
+          <new-room-component
+            :disabled="limitReached"
+            @limit-reached="onReachLimit"
+          />
+          <b-badge
+            v-if="showLimit"
+            ref="room-limit"
+            class="float-right w-100"
+          >
+            {{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}
+          </b-badge>
+        </b-col>
+      </can>
     </b-row>
     <hr>
     <!--  search, sorting, favorite-->
@@ -158,15 +162,19 @@
             {{ $t('rooms.index.show_public') }}
           </b-form-checkbox>
 
-          <b-form-checkbox
-            v-if="userCanViewAll"
-            v-model="filter.all"
-            inline
-            switch
-            @change="toggleCheckboxAll"
+          <can
+            method="viewAll"
+            policy="RoomPolicy"
           >
-            {{ $t('rooms.index.show_all') }}
-          </b-form-checkbox>
+            <b-form-checkbox
+              v-model="filter.all"
+              inline
+              switch
+              @change="toggleCheckboxAll"
+            >
+              {{ $t('rooms.index.show_all') }}
+            </b-form-checkbox>
+          </can>
         </b-form-group>
       </b-col>
       <b-col
@@ -329,14 +337,15 @@ import NewRoomComponent from '@/components/Room/NewRoomComponent.vue';
 import Base from '@/api/base';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
-import PermissionService from '@/services/PermissionService';
 import RoomSkeletonComponent from '@/components/Room/RoomSkeletonComponent.vue';
+import Can from '@/components/Permissions/Can.vue';
 
 export default {
   components: {
     RoomSkeletonComponent,
     RoomCardComponent,
-    NewRoomComponent
+    NewRoomComponent,
+    Can
   },
   computed: {
 
@@ -350,8 +359,6 @@ export default {
     }
   },
   mounted: function () {
-    this.userCanCreateRooms = PermissionService.can('create', 'RoomPolicy');
-    this.userCanViewAll = PermissionService.can('viewAll', 'RoomPolicy');
     this.reload();
   },
   methods: {
@@ -496,9 +503,7 @@ export default {
       selectedSortingType: 'last_started',
       roomTypes: [],
       roomTypesBusy: false,
-      roomTypesLoadingError: false,
-      userCanCreateRooms: false,
-      userCanViewAll: false
+      roomTypesLoadingError: false
     };
   },
   watch: {
