@@ -15,7 +15,7 @@ class ChangeLocaleRequest extends FormRequest
     public function rules()
     {
         return [
-            'locale' => ['required', 'string', Rule::in(config('app.enabled_locales'))]
+            'locale' => ['required', 'string', Rule::in(array_keys(config('app.enabled_locales')))]
         ];
     }
 }

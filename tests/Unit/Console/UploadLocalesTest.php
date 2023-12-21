@@ -50,7 +50,7 @@ class UploadLocalesTest extends TestCase
         ]);
 
         config([
-            'app.default_locales'            => ['de','en'],
+            'app.default_locales'            => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
             'services.poeditor.token'        => 'token123',
             'services.poeditor.project'      => 'project123',
             'services.poeditor.upload_delay' => 0,
@@ -58,7 +58,7 @@ class UploadLocalesTest extends TestCase
 
         $mock = $this
             ->mock(LocaleService::class);
-        
+
         $mock->shouldReceive('buildJsonLocale')
         ->once()
         ->with('de', false, false)
@@ -70,14 +70,14 @@ class UploadLocalesTest extends TestCase
         ->andReturn('{"key_1":"value_1"}');
 
         $this->artisan('locales:upload')
-        ->expectsOutput('Processing locale de')
+        ->expectsOutput('Processing locale Deutsch (de)')
         ->expectsOutput('Waiting 0 seconds before upload')
-        ->expectsOutput('Uploading locale de')
-        ->expectsOutput('Locale de uploaded successfully')
-        ->expectsOutput('Processing locale en')
+        ->expectsOutput('Uploading locale Deutsch (de)')
+        ->expectsOutput('Locale Deutsch (de) uploaded successfully')
+        ->expectsOutput('Processing locale English (en)')
         ->expectsOutput('Waiting 0 seconds before upload')
-        ->expectsOutput('Uploading locale en')
-        ->expectsOutput('Error uploading locale en')
+        ->expectsOutput('Uploading locale English (en)')
+        ->expectsOutput('Error uploading locale English (en)')
         ->expectsOutput('Error code: 4048, message: Too many upload requests in a short period of time');
 
         Http::assertSent(function (Request $request) {

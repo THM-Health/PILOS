@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
-import { loadLanguageAsync } from '../i18n';
 import { useAuthStore } from './auth';
 import { useSettingsStore } from './settings';
-import { useLocaleStore } from './locale';
 
 export const useLoadingStore = defineStore('loading', {
   state: () => {
@@ -24,16 +22,15 @@ export const useLoadingStore = defineStore('loading', {
     };
   },
   actions: {
-    async initialize (defaultLocale) {
+    async initialize () {
       const auth = useAuthStore();
       const settings = useSettingsStore();
-      const locale = useLocaleStore();
 
       this.setLoading();
       await settings.getSettings();
-      await loadLanguageAsync(defaultLocale);
+
       await auth.getCurrentUser();
-      await locale.setCurrentLocale(defaultLocale);
+
       this.initialized = true;
       this.setLoadingFinished();
     },

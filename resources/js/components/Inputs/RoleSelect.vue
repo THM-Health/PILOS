@@ -5,35 +5,29 @@
       ref="roles-multiselect"
       :placeholder="$t('settings.roles.select_roles')"
       :value="selectedRoles"
-      track-by="id"
-      open-direction="bottom"
-      :multiple="true"
-      :searchable="false"
-      :internal-search="false"
-      :clear-on-select="false"
-      :close-on-select="false"
-      :show-no-results="false"
-      :show-labels="false"
-      :options="roles"
+      @input="input"
+      track-by='id'
+      open-direction='bottom'
+      :multiple='true'
+      :searchable='false'
+      :internal-search='false'
+      :clear-on-select='false'
+      :close-on-select='false'
+      :show-no-results='false'
+      :showLabels='false'
+      :options='roles'
       :disabled="disabled || loading || loadingError"
       :loading="loading"
       :allow-empty="false"
       :class="{ 'is-invalid': invalid, 'multiselect-form-control': true }"
-      @input="input"
     >
-      <template slot="noOptions">
+      <template #noOptions>
         {{ $t('settings.roles.nodata') }}
       </template>
-      <template
-        slot="option"
-        slot-scope="props"
-      >
-        {{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}
+      <template v-slot:option="{ option }">
+        {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
       </template>
-      <template
-        slot="tag"
-        slot-scope="{ option, remove }"
-      >
+      <template v-slot:tag="{ option, remove }" >
         <h5 class="d-inline mr-1 mb-1">
           <b-badge variant="secondary">
             {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
@@ -47,7 +41,7 @@
           </b-badge>
         </h5>
       </template>
-      <template slot="afterList">
+      <template #afterList>
         <b-button
           :disabled="loading || currentPage === 1"
           variant="outline-secondary"

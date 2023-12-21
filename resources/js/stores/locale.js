@@ -1,25 +1,23 @@
 import { defineStore } from 'pinia';
-import base from '@/api/base';
-import { useAuthStore } from './auth';
+import { setTimeZone, setLocale } from '../i18n';
 
 export const useLocaleStore = defineStore('locale', {
   state: () => {
     return {
-      currentLocale: null
+      currentLocale: null,
+      timezone: null
     };
   },
   actions: {
-    async setLocale (locale) {
-      await base.setLocale(locale);
-
-      const auth = useAuthStore();
-      await auth.getCurrentUser();
-
-      this.setCurrentLocale(locale);
+    async setLocale (currentLocale) {
+      this.currentLocale = currentLocale;
+      await setLocale(currentLocale);
+      setTimeZone(this.timezone);
     },
 
-    setCurrentLocale (currentLocale) {
-      this.currentLocale = currentLocale;
+    async setTimezone (timezone) {
+      this.timezone = timezone;
+      setTimeZone(timezone);
     }
   }
 });

@@ -642,7 +642,7 @@ describe('ProfileComponent', () => {
 
     await inputs.at(0).setValue('Max');
     await inputs.at(1).setValue('Mustermann');
-    wrapper.vm.$data.model.user_locale = 'ru';
+    wrapper.vm.$data.model.user_locale = 'fr';
 
     // Check buttons
     const buttons = wrapper.findAllComponents(BButton);
@@ -653,7 +653,7 @@ describe('ProfileComponent', () => {
     expect(request.config.method).toBe('post');
     expect(request.config.data.get('firstname')).toBe('Max');
     expect(request.config.data.get('lastname')).toBe('Mustermann');
-    expect(request.config.data.get('user_locale')).toBe('ru');
+    expect(request.config.data.get('user_locale')).toBe('fr');
     expect(request.config.data.get('_method')).toBe('PUT');
 
     // Check button and input disabled during request
@@ -661,7 +661,7 @@ describe('ProfileComponent', () => {
     expect(inputs.at(0).props('disabled')).toBeTruthy();
     expect(inputs.at(1).props('disabled')).toBeTruthy();
 
-    const userAfterChanges = { ...user, firstname: 'Max', lastname: 'Mustermann' };
+    const userAfterChanges = { ...user, firstname: 'Max', lastname: 'Mustermann', user_locale: 'fr' };
 
     const reloadUserRequest = mockAxios.request('/api/v1/currentUser');
 
@@ -669,6 +669,30 @@ describe('ProfileComponent', () => {
       status: 200,
       data: {
         data: userAfterChanges
+      }
+    });
+
+    await mockAxios.request('/api/v1/locale/fr').respondWith({
+      status: 200,
+      data: {
+        data: {
+          app: {
+            demo: 'Il s\'agit d\'une :value'
+          }
+        },
+        meta: {
+          dateTimeFormat: {
+            datetimeShort: {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }
+          },
+          name: 'English'
+        }
       }
     });
 
@@ -685,8 +709,8 @@ describe('ProfileComponent', () => {
 
     // Check global state and locale change
     expect(authStore.currentUser).toEqual(userAfterChanges);
-    expect(localeStore.currentLocale).toEqual('ru');
-    expect(i18n.locale).toEqual('ru');
+    expect(localeStore.currentLocale).toEqual('fr');
+    expect(i18n.locale).toEqual('fr');
 
     // Check button and input enabled after request and have correct values
     expect(buttons.at(1).attributes('disabled')).toBeFalsy();
@@ -772,7 +796,9 @@ describe('ProfileComponent', () => {
       },
       pinia: createTestingPinia(),
       stubs: {
-        VueCropper: cropperComponent
+        VueCropper: cropperComponent,
+        'timezone-select': true,
+        'locale-select': true
       }
     });
 

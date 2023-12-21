@@ -233,7 +233,7 @@
       >
         <b-form-radio
           v-model.number="model.role"
-          value="1"
+          :value="1"
         >
           <b-badge variant="success">
             {{ $t('rooms.roles.participant') }}
@@ -241,7 +241,7 @@
         </b-form-radio>
         <b-form-radio
           v-model.number="model.role"
-          value="2"
+          :value="2"
         >
           <b-badge variant="danger">
             {{ $t('rooms.roles.moderator') }}

@@ -11,13 +11,15 @@ class LocaleController extends Controller
 {
     public function show($locale, LocaleService $localeService)
     {
-        if (!in_array($locale, config('app.enabled_locales'))) {
+        if (!in_array($locale, array_keys(config('app.enabled_locales')))) {
             abort(404);
         }
 
         $localeJson = $localeService->getJsonLocale($locale);
-        
-        return response($localeJson, 200)->header('Content-Type', 'application/json');
+
+        $localeMetadata = config('app.enabled_locales')[$locale];
+
+        return response(['data' =>  json_decode($localeJson), 'meta' => $localeMetadata], 200)->header('Content-Type', 'application/json');
     }
 
     public function update(ChangeLocaleRequest $request)

@@ -31,7 +31,7 @@ class ImportLocales extends Command
     {
         $disk = Storage::build([
             'driver' => 'local',
-            'root'   => config('app.locale_dir'),
+            'root'   => config('app.default_locale_dir'),
         ]);
 
         $this->info('Importing locales from POEditor');
@@ -99,7 +99,7 @@ class ImportLocales extends Command
         }
 
         $this->info('Apply coding standards');
-        Process::run('composer run fix-cs '.config('app.locale_dir'));
+        Process::run('composer run fix-cs '.config('app.default_locale_dir'));
     }
 
     /**
