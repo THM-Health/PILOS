@@ -61,7 +61,7 @@
       </b-form-group>
 
       <!--select new role with which the current owner should be added as a member of the room -->
-      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" :disabled="isLoadingAction" :state="newRoleInRoomValid" class=" mt-2">
+      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_role')" :disabled="isLoadingAction" :state="fieldState('role')" class=" mt-2">
         <b-form-radio v-model.number="newRoleInRoom" :value="1">
           <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
         </b-form-radio>
@@ -199,11 +199,6 @@ export default {
     // check if new owner input field is valid
     newOwnerValid () {
       if (this.newOwner == null || this.newOwner.id == null || this.fieldState('user') === false) { return false; }
-      return null;
-    },
-    // check if new role input field is valid
-    newRoleInRoomValid () {
-      if ((this.stayInRoom && this.newRoleInRoom == null) || this.fieldState('role') === false) { return false; }
       return null;
     },
     // return error message for user, local or server-side

@@ -931,7 +931,7 @@ export default {
   },
 
   /**
-   * Sets the event listener for current room change to reload the file list.
+   * Sets the event listener for current room change to reload the member list.
    *
    * @method mounted
    * @return undefined
