@@ -227,7 +227,7 @@ import env from '@/env';
 import { mapState } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 import { Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale } from 'chart.js';
-import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
+import 'chartjs-adapter-date-fns';
 
 ChartJS.register(Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale);
 
@@ -411,7 +411,11 @@ export default {
           x: {
             type: 'time',
             time: {
-              unit: 'minute'
+              round: true,
+              unit: 'minute',
+              displayFormats: {
+                second: 'MMM YYYY'
+              }
             },
             display: true,
             title: {
@@ -459,8 +463,8 @@ export default {
                * @return {string} Localised human-readable string with the timezone of the user
                */
               title: (data) => {
-                // get label of the first dataset (all have the same label) that is a ISO 8601 datetime string
-                return this.$d(new Date(data[0].label), 'datetimeShort');
+                // get x-coordinate of the first dataset (all have the same label) that is the unix timestamp
+                return this.$d(data[0].parsed.x, 'datetimeShort');
               }
             }
           }
