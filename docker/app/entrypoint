@@ -16,21 +16,21 @@ function changePermissions() {
 
 function buildFrontend() {
     echo "Building frontend"
-	gosu www-data /usr/local/etc/frontend/run.sh
+	su-exec www-data /usr/local/etc/frontend/run.sh
 }
 
 function migrateDatabase() {
     echo "Migrating database and seed with example data"
 
-    while ! gosu www-data php artisan db:check; do
+    while ! su-exec www-data php artisan db:check; do
         echo "Waiting before trying again..."
         sleep 5
     done
-    gosu www-data php artisan migrate --force --seed
+    su-exec www-data php artisan migrate --force --seed
 }
 
 function linkStorage() {
-    gosu www-data php artisan storage:link
+    su-exec www-data php artisan storage:link
 }
 
 function enableSSL() {
@@ -44,11 +44,11 @@ function enableSSL() {
 }
 
 function optimize() {
-    gosu www-data composer dump-autoload -o
-    gosu www-data php artisan config:cache
-    gosu www-data php artisan route:cache
-    gosu www-data php artisan view:cache
-    gosu www-data php artisan locales:cache
+    su-exec www-data composer dump-autoload -o
+    su-exec www-data php artisan config:cache
+    su-exec www-data php artisan route:cache
+    su-exec www-data php artisan view:cache
+    su-exec www-data php artisan locales:cache
 }
 
 function enableOPCacheTimestamps() {
@@ -62,7 +62,7 @@ if [ "$ENABLE_XDEBUG" == "yes" ]; then
 fi
 
 if [ $# -gt 0 ]; then
-    exec gosu www-data "$@"
+    exec su-exec www-data "$@"
 else
     if [ "$APP_ENV" == "production" ]; then
         changePermissions
