@@ -1,18 +1,18 @@
 FROM php:8.3-fpm-alpine
 
 LABEL maintainer="Samuel Weirich"
-LABEL description="Development container for PILOS, compatible with laravel sail; heavily inspired by offical image"
+LABEL description="Development and production container for PILOS, compatible with laravel sail; heavily inspired by offical image"
 
 ARG WWWGROUP=33
 ARG WWWUSER=33
 
 WORKDIR /var/www/html
 
-ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Add system dependencies
 RUN apk --no-cache add \
     shadow \
     bash su-exec \
@@ -20,20 +20,20 @@ RUN apk --no-cache add \
     supervisor \
     nginx \
     mysql-client postgresql-client \
-    nodejs npm \
-    && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+    nodejs npm
 
 # Add PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions \
     && install-php-extensions bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap xdebug gd @composer
 
-RUN usermod -d /var/www www-data
-RUN chown www-data:www-data /var/www/
-
-
-RUN usermod -u $WWWUSER www-data
-RUN groupmod -o -g $WWWGROUP www-data
+# Change www-data user and group id
+RUN apk add --no-cache --virtual .mod-deps shadow \
+  && usermod -d /var/www www-data \
+  && chown www-data:www-data /var/www/ \
+  && usermod -u $WWWUSER www-data \
+  && groupmod -o -g $WWWGROUP www-data \
+  && apk del .mod-deps
 
 # Copy start script
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
@@ -58,10 +58,6 @@ COPY ./docker/app/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/app/nginx/snippets-available /etc/nginx/snippets-available
 RUN ls -la /etc/nginx/
 RUN mkdir -p /etc/nginx/snippets
-
-# Increase limits
-RUN echo 'www-data soft nofile 65535' >> /etc/security/limits.conf
-RUN echo 'www-data hard nofile 65535' >> /etc/security/limits.conf
 
 # Copy php config files
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
