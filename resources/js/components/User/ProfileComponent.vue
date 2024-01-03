@@ -309,22 +309,14 @@ export default {
     saveImage (event) {
       event.preventDefault();
       this.imageToBlobLoading = true;
-      setTimeout(() => {
-        const oc = document.createElement('canvas');
-        oc.width = 100;
-        oc.height = 100;
-        const octx = oc.getContext('2d');
-        octx.fillStyle = 'white';
-        octx.fillRect(0, 0, oc.width, oc.height);
-        octx.drawImage(this.$refs.cropper.getCroppedCanvas(), 0, 0, oc.width, oc.height);
+      const oc = this.$refs.cropper.getCroppedCanvas({ width: 100, height: 100, fillColor: '#ffff' });
 
-        this.croppedImage = oc.toDataURL('image/jpeg');
-        oc.toBlob((blob) => {
-          this.croppedImageBlob = blob;
-          this.imageToBlobLoading = false;
-          this.$bvModal.hide('modal-image-upload');
-        }, 'image/jpeg');
-      }, 100);
+      this.croppedImage = oc.toDataURL('image/jpeg');
+      oc.toBlob((blob) => {
+        this.croppedImageBlob = blob;
+        this.imageToBlobLoading = false;
+        this.$bvModal.hide('modal-image-upload');
+      }, 'image/jpeg');
     },
 
     /**

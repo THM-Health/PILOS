@@ -55,7 +55,6 @@ export default ({ mode }) => {
       environment: 'jsdom',
       include: ['tests/Frontend/**/*.spec.js'],
       environmentOptions: { url: 'http://localhost' },
-      pool: 'forks',
       setupFiles: './tests/Frontend/setup.js'
     },
     plugins: [

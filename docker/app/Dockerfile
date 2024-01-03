@@ -19,19 +19,14 @@ RUN apk --no-cache add \
     pv \
     supervisor \
     nginx \
-    mysql-client postgresql-client postgresql-dev openldap-dev \
-    libzip-dev libxml2-dev \
+    mysql-client postgresql-client \
     nodejs npm \
-    composer \
-    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-    && docker-php-ext-install -j$(nproc) bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
-# Add xdebug
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers \
-    && pecl install xdebug-3.3.1 \
-    && docker-php-ext-enable xdebug \
-    && apk del -f .build-deps
+# Add PHP extensions
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions \
+    && install-php-extensions bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap xdebug gd @composer
 
 RUN usermod -d /var/www www-data
 RUN chown www-data:www-data /var/www/
@@ -82,8 +77,8 @@ COPY --chown=www-data:www-data ./ /var/www/html
 
 USER www-data
 # Run npm and composer install as www-data user
-RUN npm install
-RUN composer install
+RUN npm install --production
+RUN composer install --no-dev
 
 USER root
 
