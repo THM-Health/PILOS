@@ -51,6 +51,21 @@ function optimize() {
     su-exec www-data php artisan locales:cache
 }
 
+function setNginxLimits() {
+    NPROC=$(nproc)
+    ULIMIT=$(ulimit -Hn)
+
+    NO_FILE_LIMIT=$(($ULIMIT))
+
+    # Available file descriptors divided by 2 (files descriptors per connection, send/receive during proxying)
+    WORKER_CONNECTIONS=$(($ULIMIT / 2))
+    
+    echo "Dectected $NPROC cores and a limit of $ULIMIT files, setting worker_connections to $WORKER_CONNECTIONS and worker_rlimit_nofile to $NO_FILE_LIMIT";
+
+    sed -i "s/worker_connections.*/worker_connections $WORKER_CONNECTIONS;/" /etc/nginx/nginx.conf
+    sed -i "s/worker_rlimit_nofile.*/worker_rlimit_nofile $NO_FILE_LIMIT;/" /etc/nginx/nginx.conf
+}
+
 function enableOPCacheTimestamps() {
     echo "Enabling opcache timestamps"
     sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
@@ -70,6 +85,7 @@ else
         migrateDatabase
         linkStorage
         optimize
+        setNginxLimits
     else
         enableSSL
         enableOPCacheTimestamps
