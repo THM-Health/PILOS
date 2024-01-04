@@ -8,14 +8,18 @@ ARG WWWUSER=82
 
 WORKDIR /var/www/html
 
-ENV TZ=UTC
+ENV TZ=UTC \
+    PHP_FPM_PM_MAX_CHILDREN=10 \
+    NGINX_WORKER_PROCESSES=auto \
+    NGINX_WORKER_CONNECTIONS=auto \
+    NGINX_WORKER_RLIMIT_NOFILE=auto
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Add system dependencies
 RUN apk --no-cache add \
     shadow \
-    bash su-exec \
+    bash su-exec gettext libintl \
     pv \
     supervisor \
     nginx \
@@ -54,7 +58,7 @@ COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
 
 # Enable nginx site
 COPY ./docker/app/nginx/sites-enabled /etc/nginx/sites-enabled
-COPY ./docker/app/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/app/nginx/templates /etc/nginx/templates
 COPY ./docker/app/nginx/snippets-available /etc/nginx/snippets-available
 RUN ls -la /etc/nginx/
 RUN mkdir -p /etc/nginx/snippets

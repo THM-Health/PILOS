@@ -42,27 +42,47 @@ function enableSSL() {
     fi
 }
 
+function setNginxLimits() {
+    ULIMIT=$(ulimit -n)
+
+    # If ulimit is low show a warning
+    if [ $ULIMIT -lt 4096 ]; then
+        echo "WARNING: ulimit is currently set to $ULIMIT. This may cause NGINX issues, please increase the limit to at least 4096."
+    fi
+
+    # If NGINX_WORKER_RLIMIT_NOFILE is set to auto
+    # set it to the ulimit value
+    # using an upper bound limited to 16384 as a measure to protect against excess memory use,
+    # and the lower bound of 1024
+    if [ "$NGINX_WORKER_RLIMIT_NOFILE" == "auto" ]; then
+        NGINX_WORKER_RLIMIT_NOFILE=$ULIMIT
+        if [ $NGINX_WORKER_RLIMIT_NOFILE -gt 16384 ]; then
+            NGINX_WORKER_RLIMIT_NOFILE=16384
+        elif [ $NGINX_WORKER_RLIMIT_NOFILE -lt 1024 ]; then
+            NGINX_WORKER_RLIMIT_NOFILE=1024
+        fi
+    fi
+
+    # If NGINX_WORKER_CONNECTIONS is set to auto
+    # use a quarter of the NGINX_WORKER_RLIMIT_NOFILE value
+    if [ "$NGINX_WORKER_CONNECTIONS" == "auto" ]; then
+        NGINX_WORKER_CONNECTIONS=$(($NGINX_WORKER_RLIMIT_NOFILE / 4))
+    fi
+
+    # Set environment variables
+    export NGINX_WORKER_RLIMIT_NOFILE=$NGINX_WORKER_RLIMIT_NOFILE
+    export NGINX_WORKER_CONNECTIONS=$NGINX_WORKER_CONNECTIONS
+
+    # Set environment variables in nginx config
+    envsubst '${NGINX_WORKER_RLIMIT_NOFILE} ${NGINX_WORKER_CONNECTIONS} ${NGINX_WORKER_PROCESSES}' < /etc/nginx/templates/nginx.template > /etc/nginx/nginx.conf
+}
+
 function optimize() {
     su-exec www-data composer dump-autoload -o
     su-exec www-data php artisan config:cache
     su-exec www-data php artisan route:cache
     su-exec www-data php artisan view:cache
     su-exec www-data php artisan locales:cache
-}
-
-function setNginxLimits() {
-    NPROC=$(nproc)
-    ULIMIT=$(ulimit -Hn)
-
-    NO_FILE_LIMIT=$(($ULIMIT))
-
-    # Available file descriptors divided by 2 (files descriptors per connection, send/receive during proxying)
-    WORKER_CONNECTIONS=$(($ULIMIT / 2))
-    
-    echo "Dectected $NPROC cores and a limit of $ULIMIT files, setting worker_connections to $WORKER_CONNECTIONS and worker_rlimit_nofile to $NO_FILE_LIMIT";
-
-    sed -i "s/worker_connections.*/worker_connections $WORKER_CONNECTIONS;/" /etc/nginx/nginx.conf
-    sed -i "s/worker_rlimit_nofile.*/worker_rlimit_nofile $NO_FILE_LIMIT;/" /etc/nginx/nginx.conf
 }
 
 function enableOPCacheTimestamps() {
@@ -78,13 +98,14 @@ fi
 if [ $# -gt 0 ]; then
     exec su-exec www-data "$@"
 else
+    setNginxLimits
+
     if [ "$APP_ENV" == "production" ]; then
         changePermissions
         buildFrontend
         migrateDatabase
         linkStorage
         optimize
-        setNginxLimits
     else
         enableSSL
         enableOPCacheTimestamps
