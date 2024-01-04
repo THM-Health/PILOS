@@ -3,8 +3,8 @@ FROM php:8.3-fpm-alpine
 LABEL maintainer="Samuel Weirich"
 LABEL description="Development and production container for PILOS, compatible with laravel sail; heavily inspired by offical image"
 
-ARG WWWGROUP=33
-ARG WWWUSER=33
+ARG WWWGROUP=82
+ARG WWWUSER=82
 
 WORKDIR /var/www/html
 

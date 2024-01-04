@@ -2,8 +2,7 @@
 
 function changePermissions() {
     echo "Changing permissions"
-    chown -R :www-data /var/www/html/storage/app
-    chown -R :www-data /var/www/html/storage/logs
+    chown -R :www-data /var/www/html/storage/
     chown -R :www-data /var/www/html/resources/custom
     chown -R :www-data /var/www/html/resources/sass/theme/custom
     find /var/www/html/storage/ -type f -exec chmod 664 {} \;
