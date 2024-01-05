@@ -28,7 +28,7 @@ services:
           db:
             condition: service_healthy
           redis:
-            condition: service_healthy  
+            condition: service_healthy
     db:
       image: 'mariadb:10'
       environment:
@@ -54,8 +54,8 @@ services:
       healthcheck:
         test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
         interval: 5s
-        retries: 12  
-        timeout: 5s  
+        retries: 12
+        timeout: 5s
     mailhog:
       image: 'mailhog/mailhog:latest'
       ports:
@@ -92,4 +92,4 @@ volumes:
   mariadb:
     driver: local
   redis:
-    driver: local  
+    driver: local
