@@ -69,6 +69,8 @@ case $CONTAINER_ROLE in
   web)
     echo "Web container"
 
+    pilos-cli storage:link
+
     setupNginx
 
     addSupervisorConfig 'nginx'
@@ -104,6 +106,7 @@ case $CONTAINER_ROLE in
     echo "All-in-one container"
 
     pilos-cli init
+    pilos-cli storage:link
 
     setupNginx
 

@@ -42,7 +42,6 @@ case $ACTION in
     pilos-cli change-permissions
     pilos-cli build-frontend
     pilos-cli migrate --force --isolated --seed
-    pilos-cli storage:link
     pilos-cli optimize
     ;;
 
