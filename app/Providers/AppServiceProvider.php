@@ -30,9 +30,7 @@ class AppServiceProvider extends ServiceProvider
             return new RoomAuthService();
         });
 
-
         $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
         $this->app->register(TelescopeServiceProvider::class);
-
     }
 }
