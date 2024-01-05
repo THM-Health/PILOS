@@ -18,7 +18,7 @@ class TrustHosts extends Middleware
     {
         $except = 'health';
 
-        if ($request->fullUrlIs($except) || $request->is($except)) {
+        if ($request->is($except)) {
             return $next($request);
         }
 
