@@ -137,6 +137,10 @@ return [
             'manage' => 'Einstellungen verwalten',
             'title'  => 'Einstellungen',
         ],
+        'system' => [
+            'monitor' => 'Überwachung',
+            'title'   => 'System',
+        ],
         'users' => [
             'create'                => 'Benutzer erstellen',
             'delete'                => 'Benutzer löschen',

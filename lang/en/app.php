@@ -137,6 +137,10 @@ return [
             'manage' => 'Manage settings',
             'title'  => 'Settings',
         ],
+        'system' => [
+            'monitor' => 'Monitoring',
+            'title'   => 'System',
+        ],
         'users' => [
             'create'                => 'Create users',
             'delete'                => 'Delete users',
