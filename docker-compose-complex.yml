@@ -11,7 +11,7 @@ services:
         environment:
           CONTAINER_ROLE: 'web'
         volumes:
-          - './storage/app:/var/www/html/storage/app'
+          - './storage/:/var/www/html/storage/'
           - './resources/custom:/var/www/html/resources/custom'
           - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
           - './app/Auth/config:/var/www/html/app/Auth/config'
@@ -36,7 +36,7 @@ services:
           - .env
         entrypoint: ['pilos-cli', 'init']
         volumes:
-          - './storage/app:/var/www/html/storage/app'
+          - './storage/:/var/www/html/storage/'
           - './resources/custom:/var/www/html/resources/custom'
           - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
           - './app/Auth/config:/var/www/html/app/Auth/config'
