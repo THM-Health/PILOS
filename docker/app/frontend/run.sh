@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
 # Setup vars
-MD5FILE=/usr/local/etc/frontend/hash
+MD5FILE=/var/www/html/public/build/hash
 PREVIOUSMD5=""
 
 # If there was a previous hash get it if not create the file for later
 if [ -f "$MD5FILE" ]; then
   PREVIOUSMD5="$(<"$MD5FILE")"
+  echo "Hash file exists, hash is: $PREVIOUSMD5"
 else
   "touch" "$MD5FILE"
+  echo "Hash file created"
 fi
 
 # Get hash of the build relevant VITE_ env variables
@@ -28,7 +30,7 @@ if [ "$MD5" != "$PREVIOUSMD5" ]; then
   npm run build
   # Put new hash in the file for next time
   echo "$MD5" > "$MD5FILE"
-  echo "Saved new hash"
+  echo "Saved new hash, hash is: $MD5"
 else
   echo "Frontend hash unchanged, don't rebuild frontend"
 fi
