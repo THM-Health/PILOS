@@ -52,7 +52,7 @@ services:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
         env_file:
           - .env
-        entrypoint: ['cron','-f']
+        entrypoint: ['/usr/sbin/crond','-f']
         depends_on:
           init:
             condition: service_completed_successfully
