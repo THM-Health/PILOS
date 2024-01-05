@@ -13,9 +13,10 @@ services:
         volumes:
           - './storage/:/var/www/html/storage/'
           - './resources/custom:/var/www/html/resources/custom'
+          - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
           - './app/Auth/config:/var/www/html/app/Auth/config'
           - './public/images/custom:/var/www/html/public/images/custom'
-          - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
+          - './public/build:/var/www/html/public/build'
         sysctls:
           net.core.somaxconn: 65536
           net.ipv4.ip_local_port_range: "2000 65535"
