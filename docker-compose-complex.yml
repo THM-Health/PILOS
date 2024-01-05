@@ -9,7 +9,6 @@ services:
         env_file:
           - .env
         environment:
-          TRUSTED_PROXIES: "*"
           CONTAINER_ROLE: 'web'
         volumes:
           - './storage/app:/var/www/html/storage/app'
