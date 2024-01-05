@@ -16,7 +16,7 @@
           :state="fieldState('firstname')"
           :disabled="isBusy || viewOnly || !canUpdateAttributes"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('firstname')" />
         </template>
       </b-form-group>
@@ -34,7 +34,7 @@
           :state="fieldState('lastname')"
           :disabled="isBusy || viewOnly || !canUpdateAttributes"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('lastname')" />
         </template>
       </b-form-group>
@@ -144,7 +144,7 @@
           </b-col>
         </b-row>
 
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('image')" />
         </template>
 
@@ -187,7 +187,7 @@
           :state="fieldState('user_locale')"
           :disabled="isBusy || viewOnly"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('user_locale')" />
         </template>
       </b-form-group>
@@ -207,7 +207,7 @@
           @loading-error="(value) => timezonesLoadingError = value"
           @busy="(value) => timezonesLoading = value"
         />
-        <template slot="invalid-feedback">
+        <template #invalid-feedback>
           <div v-html="fieldError('timezone')" />
         </template>
       </b-form-group>
@@ -229,12 +229,10 @@ import FieldErrors from '@/mixins/FieldErrors';
 import PermissionService from '@/services/PermissionService';
 import Base from '@/api/base';
 import env from '@/env';
-import { loadLanguageAsync } from '@/i18n';
 import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
 import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
 import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
-import { useLocaleStore } from '@/stores/locale';
 import { useAuthStore } from '@/stores/auth';
 import { mapActions, mapState } from 'pinia';
 
@@ -292,7 +290,6 @@ export default {
 
   methods: {
 
-    ...mapActions(useLocaleStore, ['setCurrentLocale']),
     ...mapActions(useAuthStore, ['getCurrentUser']),
 
     /**
@@ -312,22 +309,14 @@ export default {
     saveImage (event) {
       event.preventDefault();
       this.imageToBlobLoading = true;
-      setTimeout(() => {
-        const oc = document.createElement('canvas');
-        oc.width = 100;
-        oc.height = 100;
-        const octx = oc.getContext('2d');
-        octx.fillStyle = 'white';
-        octx.fillRect(0, 0, oc.width, oc.height);
-        octx.drawImage(this.$refs.cropper.getCroppedCanvas(), 0, 0, oc.width, oc.height);
+      const oc = this.$refs.cropper.getCroppedCanvas({ width: 100, height: 100, fillColor: '#ffff' });
 
-        this.croppedImage = oc.toDataURL('image/jpeg');
-        oc.toBlob((blob) => {
-          this.croppedImageBlob = blob;
-          this.imageToBlobLoading = false;
-          this.$bvModal.hide('modal-image-upload');
-        }, 'image/jpeg');
-      }, 100);
+      this.croppedImage = oc.toDataURL('image/jpeg');
+      oc.toBlob((blob) => {
+        this.croppedImageBlob = blob;
+        this.imageToBlobLoading = false;
+        this.$bvModal.hide('modal-image-upload');
+      }, 'image/jpeg');
     },
 
     /**
@@ -383,23 +372,12 @@ export default {
       Base.call('users/' + this.model.id, {
         method: 'POST',
         data: formData
-      }).then(response => {
-        const localeChanged = this.currentLocale !== this.model.user_locale;
-
+      }).then(async response => {
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
         if (this.currentUser && this.model.id === this.currentUser.id) {
-          return this.getCurrentUser().then(() => {
-            if (localeChanged) {
-              return loadLanguageAsync(this.model.user_locale).then(() => {
-                this.setCurrentLocale(this.model.user_locale);
-                return response;
-              });
-            }
-            return Promise.resolve(response);
-          });
+          await this.getCurrentUser();
         }
-        return Promise.resolve(response);
-      }).then(response => {
+
         this.$emit('update-user', response.data.data);
         this.resetFileUpload();
         this.image_deleted = false;

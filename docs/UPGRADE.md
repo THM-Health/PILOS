@@ -133,7 +133,7 @@ To customize the date time format and the display name of a locale create a json
 ### New locales
 To add custom locales that are not part of the core, add them to the resources/custom/lang directory as well.
 You need to create all php files and metadata.json file.
-To enable the new locale, you need to add it to the `VITE_AVAILABLE_LOCALES` .env option and rebuild the frontend.
+To enable the new locale, you need to add it to the `ENABLED_LOCALES` .env option and restart the container.
 
 ### Locale caching
 For better performance, locales should be cached with `php artisan locales:cache` or, if you use sail: `sail artisan locales:cache`.

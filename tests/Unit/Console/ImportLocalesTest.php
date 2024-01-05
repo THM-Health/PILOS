@@ -113,10 +113,10 @@ class ImportLocalesTest extends TestCase
 
         // Set config values
         config([
-            'app.default_locales'            => ['de','en'],
-            'app.locale_dir'                 => 'lang',
-            'services.poeditor.token'        => 'token123',
-            'services.poeditor.project'      => 'project123'
+            'app.default_locales'                    => ['de','en'],
+            'app.default_locale_dir'                 => 'lang',
+            'services.poeditor.token'                => 'token123',
+            'services.poeditor.project'              => 'project123'
         ]);
         
         // Call command and check output
@@ -224,10 +224,10 @@ class ImportLocalesTest extends TestCase
 
         // Set config values
         config([
-            'app.default_locales'            => ['de','en'],
-            'app.locale_dir'                 => 'lang',
-            'services.poeditor.token'        => 'token123',
-            'services.poeditor.project'      => 'project123'
+            'app.default_locales'                    => ['de','en'],
+            'app.default_locale_dir'                 => 'lang',
+            'services.poeditor.token'                => 'token123',
+            'services.poeditor.project'              => 'project123'
         ]);
         
         // Call command and check output
@@ -315,10 +315,10 @@ class ImportLocalesTest extends TestCase
 
         // Set config values
         config([
-            'app.default_locales'            => ['de','en'],
-            'app.locale_dir'                 => 'lang',
-            'services.poeditor.token'        => 'token123',
-            'services.poeditor.project'      => 'project123'
+            'app.default_locales'                    => ['de','en'],
+            'app.default_locale_dir'                 => 'lang',
+            'services.poeditor.token'                => 'token123',
+            'services.poeditor.project'              => 'project123'
         ]);
         
         // Call command and check output

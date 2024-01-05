@@ -2,11 +2,12 @@
 
 # If there is a command line argument, run it as the www-data user
 if [ $# -gt 0 ]; then
-    exec gosu www-data "$@"
+    exec su-exec www-data "$@"
 fi
 
 # Helper functions
-function enableSSL() {
+function setupNginx() {
+    # Enable SSL if the files are present
     echo "Checking SSL files"
     if [ -e /local/certs/fullchain.pem -a -e /local/certs/privkey.pem ]; then
         echo "Files found, enabling SSL"
@@ -14,8 +15,41 @@ function enableSSL() {
     else
         echo "Files not found, skipping SSL"
     fi
-}
 
+    # Set NGINX_WORKER_RLIMIT_NOFILE and NGINX_WORKER_CONNECTIONS
+    ULIMIT=$(ulimit -n)
+
+    # If ulimit is low show a warning
+    if [ $ULIMIT -lt 4096 ]; then
+        echo "WARNING: ulimit is currently set to $ULIMIT. This may cause NGINX issues, please increase the limit to at least 4096."
+    fi
+
+    # If NGINX_WORKER_RLIMIT_NOFILE is set to auto
+    # set it to the ulimit value
+    # using an upper bound limited to 16384 as a measure to protect against excess memory use,
+    # and the lower bound of 1024
+    if [ "$NGINX_WORKER_RLIMIT_NOFILE" == "auto" ]; then
+        NGINX_WORKER_RLIMIT_NOFILE=$ULIMIT
+        if [ $NGINX_WORKER_RLIMIT_NOFILE -gt 16384 ]; then
+            NGINX_WORKER_RLIMIT_NOFILE=16384
+        elif [ $NGINX_WORKER_RLIMIT_NOFILE -lt 1024 ]; then
+            NGINX_WORKER_RLIMIT_NOFILE=1024
+        fi
+    fi
+
+    # If NGINX_WORKER_CONNECTIONS is set to auto
+    # use a quarter of the NGINX_WORKER_RLIMIT_NOFILE value
+    if [ "$NGINX_WORKER_CONNECTIONS" == "auto" ]; then
+        NGINX_WORKER_CONNECTIONS=$(($NGINX_WORKER_RLIMIT_NOFILE / 4))
+    fi
+
+    # Set environment variables
+    export NGINX_WORKER_RLIMIT_NOFILE=$NGINX_WORKER_RLIMIT_NOFILE
+    export NGINX_WORKER_CONNECTIONS=$NGINX_WORKER_CONNECTIONS
+
+    # Set environment variables in nginx config
+    envsubst '${NGINX_WORKER_RLIMIT_NOFILE} ${NGINX_WORKER_CONNECTIONS} ${NGINX_WORKER_PROCESSES}' < /etc/nginx/templates/nginx.template > /etc/nginx/nginx.conf
+}
 
 function addSupervisorConfig() {
     CONFIG_DIR="/etc/supervisor/conf.d"
@@ -28,17 +62,14 @@ function addSupervisorConfig() {
     cat "$CONFIG" >> "$SUPERVISORD_CONFIG"
 }
 
-
 # Set the container role, use 'all' as fallback
-CONTAINER_ROLE="${CONTAINER_ROLE:-all}" 
+CONTAINER_ROLE="${CONTAINER_ROLE:-all}"
 
 case $CONTAINER_ROLE in
   web)
     echo "Web container"
 
-    export PHP_PM_MAX_CHILDREN="${PHP_PM_MAX_CHILDREN:-100}"
-
-    enableSSL
+    setupNginx
 
     addSupervisorConfig 'nginx'
     addSupervisorConfig 'php-fpm'
@@ -49,14 +80,14 @@ case $CONTAINER_ROLE in
   dev)
     echo "Dev container"
 
-    export PHP_PM_MAX_CHILDREN="${PHP_PM_MAX_CHILDREN:-5}"
+    pilos-cli optimize:clear
 
     if [ "$ENABLE_XDEBUG" == "yes" ]; then
         echo "Enabling xdebug"
         docker-php-ext-enable xdebug
     fi
 
-    enableSSL
+    setupNginx
 
     echo "Enabling opcache timestamps"
     sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
@@ -72,11 +103,9 @@ case $CONTAINER_ROLE in
   all)
     echo "All-in-one container"
 
-    export PHP_PM_MAX_CHILDREN="${PHP_PM_MAX_CHILDREN:-100}"
-
     pilos-cli init
 
-    enableSSL
+    setupNginx
 
     addSupervisorConfig 'nginx'
     addSupervisorConfig 'php-fpm'
@@ -84,7 +113,7 @@ case $CONTAINER_ROLE in
     addSupervisorConfig 'horizon'
 
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-    ;;  
+    ;;
   *)
     echo "Invalid container role '$CONTAINER_ROLE' use one of: web, dev, all"
     exit 1

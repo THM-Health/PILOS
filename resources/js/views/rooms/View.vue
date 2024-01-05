@@ -193,7 +193,7 @@
                         :state="fieldState('name')"
                       />
                     </b-input-group>
-                    <template slot="invalid-feedback">
+                    <template #invalid-feedback>
                       <div v-html="fieldError('name')" />
                     </template>
                   </b-form-group>
@@ -309,7 +309,8 @@
           <b-input-group>
             <b-form-input
               v-model="accessCodeInput"
-              v-mask="'999-999-999'"
+              v-maska
+              data-maska="###-###-###"
               :state="accessCodeValid"
               :placeholder="$t('rooms.access_code')"
               @keyup.enter="login"
@@ -336,7 +337,6 @@
   </div>
 </template>
 <script>
-import AwesomeMask from 'awesome-mask';
 import Base from '@/api/base';
 import AdminTabsComponent from '@/components/Room/AdminTabsComponent.vue';
 import TabsComponent from '@/components/Room/TabsComponent.vue';
@@ -355,12 +355,13 @@ import RoomMembershipDropdownButton from '@/components/Room/RoomMembershipDropdo
 import DeleteRoomDropdownButton from '@/components/Room/DeleteRoomDropdownButton.vue';
 import RoomDetailsComponent from '@/components/Room/RoomDetailsComponent.vue';
 import RoomTypeBadge from '@/components/Room/RoomTypeBadge.vue';
+import { vMaska } from 'maska';
 import EventBus from '@/services/EventBus';
 import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 
 export default {
   directives: {
-    mask: AwesomeMask
+    maska: vMaska
   },
 
   components: {

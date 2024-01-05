@@ -4,8 +4,8 @@ services:
     app:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
         ports:
-          - '80:80'
-          - '443:443'
+          - '127.0.0.1:5000:80'
+          - '127.0.0.1:9000:81'
         env_file:
           - .env
         environment:
@@ -18,7 +18,6 @@ services:
           - './app/Auth/config:/var/www/html/app/Auth/config'
           - './public/images/custom:/var/www/html/public/images/custom'
           - './public/build:/var/www/html/public/build'
-          - './ssl:/local/certs/'
         sysctls:
           net.core.somaxconn: 65536
           net.ipv4.ip_local_port_range: "2000 65535"
@@ -27,7 +26,7 @@ services:
         healthcheck:
           test: curl --fail http://localhost/health || exit 1
           interval: 10s
-          retries: 6  
+          retries: 6
           timeout: 5s
         depends_on:
           init:
@@ -87,6 +86,6 @@ services:
       healthcheck:
         test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
         interval: 5s
-        retries: 12  
+        retries: 12
         timeout: 5s
-    
+

@@ -72,22 +72,16 @@
             :allow-empty="true"
             class="multiselect-form-control"
           >
-            <template slot="noOptions">
+            <template #noOptions>
               {{ $t('settings.roles.nodata') }}
             </template>
-            <template
-              slot="option"
-              slot-scope="props"
-            >
-              {{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}
-            </template>
-            <template
-              slot="singleLabel"
-              slot-scope="{ option }"
-            >
+            <template v-slot:option="{ option }">
               {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
             </template>
-            <template slot="afterList">
+            <template v-slot:singleLabel="{ option }">
+              {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+            </template>
+            <template #afterList>
               <b-button
                 :disabled="rolesLoading || rolesCurrentPage === 1"
                 variant="outline-secondary"

@@ -20,7 +20,7 @@ class ExportLocales extends Command
      *
      * @var string
      */
-    protected $description = 'Explort locales to json files for eslint';
+    protected $description = 'Export locales to json files for eslint';
 
     /**
      * Execute the console command.
@@ -33,8 +33,9 @@ class ExportLocales extends Command
         ]);
 
         $locales = config('app.default_locales');
-        foreach ($locales as $locale) {
-            $this->info('Processing locale ' . $locale);
+
+        foreach ($locales as $locale => $metadata) {
+            $this->info('Processing locale ' . $metadata['name'].' ('.$locale.')');
 
             $localeJson = $localeService->buildJsonLocale($locale, false, false);
 

@@ -1,15 +1,28 @@
 <?php
 
-use App\Services\LocaleService;
 use Illuminate\Support\Facades\Facade;
+use App\Services\LocaleService;
 
-$localeDir = base_path('lang');
-$defaultLocales = array_diff(scandir($localeDir), array('..', '.'));
-$localesEnv = env('VITE_AVAILABLE_LOCALES','en,de');
-$enabledLocales = $localesEnv !== null ? preg_split('/,/', $localesEnv) : $defaultLocales;
+// Directories to search for locale files
+$defaultLocaleDir = base_path('lang');
+$customLocaleDir = base_path('/resources/custom/lang');
 
+// Get all locales with metadata from the locale directories
+$defaultLocales = LocaleService::getLocalesFromConfigFiles($defaultLocaleDir);
+$customLocales = LocaleService::getLocalesFromConfigFiles($customLocaleDir);
+
+// Get locale whitelist from env
+$localesEnv = env('ENABLED_LOCALES', env('VITE_AVAILABLE_LOCALES'));
+$localeWhitelist = $localesEnv !== null ? preg_split('/,/', $localesEnv) : null;
+
+// Get list of locales with metadata that should be enabled (default + custom)
+// merge custom locales with default locales, overwrite existing locales metadata
+// filter locales that are not whitelisted or have no name set in metadata
+$enabledLocales = LocaleService::getEnabledLocales($defaultLocales, $customLocales, $localeWhitelist);
+
+// If version file exists, read version from it and provide it as the app version
 $versionFile = base_path('version');
-$version = file_exists($versionFile) ? file_get_contents($versionFile) : null;
+$appVersion = file_exists($versionFile) ? file_get_contents($versionFile) : null;
 
 return [
 
@@ -30,7 +43,7 @@ return [
 
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
-    'version' => $version,
+    'version' => $appVersion,
 
     'whitelabel' => env('WHITELABEL', false),
 
@@ -99,7 +112,7 @@ return [
     |
     */
 
-    'locale' => env('VITE_DEFAULT_LOCALE', 'en'),
+    'locale' => env('DEFAULT_LOCALE', env('VITE_DEFAULT_LOCALE', 'en')),
 
     /*
     |--------------------------------------------------------------------------
@@ -127,11 +140,11 @@ return [
 
     'faker_locale' => 'en_US',
 
+    'default_locale_dir' => $defaultLocaleDir,
+    'custom_locale_dir' => $customLocaleDir,
+
     'enabled_locales' => $enabledLocales,
     'default_locales' => $defaultLocales,
-
-    'locale_dir' => $localeDir,
-    'locale_custom_dir' => base_path('/resources/custom/lang'),
 
     /*
     |--------------------------------------------------------------------------
@@ -220,9 +233,6 @@ return [
 
         App\Auth\LDAP\LDAPServiceProvider::class,
         App\Auth\Shibboleth\ShibbolethServiceProvider::class,
-
-        // Laravel IDE helper
-        \Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 
         App\Providers\TranslationServiceProvider::class,
     ],

@@ -8,6 +8,8 @@ import _ from 'lodash';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
+import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
+import EventBus from '@/services/EventBus';
 
 const localVue = createLocalVue();
 
@@ -73,7 +75,7 @@ describe('RoomFile', () => {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        accessCode: '396856824',
+        accessCode: 396856824,
         room: exampleRoom,
         showTitle: true
       },
@@ -109,6 +111,34 @@ describe('RoomFile', () => {
     await request.wait();
     expect(request.config.headers['Access-Code']).toBeUndefined();
     expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    view.destroy();
+  });
+
+  it('reload on EventBus message', async () => {
+    const reloadSpy = vi.spyOn(FileComponent.methods, 'reload').mockImplementation(() => {});
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: exampleRoom,
+        showTitle: true
+      },
+      pinia: createTestingPinia(),
+      attachTo: createContainer()
+    });
+    await view.vm.$nextTick();
+
+    // check for initial reload
+    expect(reloadSpy).toBeCalledTimes(1);
+    EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, this.room);
+
+    // check for reload triggered by EventBus
+    expect(reloadSpy).toBeCalledTimes(2);
+
     view.destroy();
   });
 
@@ -360,7 +390,7 @@ describe('RoomFile', () => {
 
     const request = mockAxios.request('/api/v1/rooms/123-456-789/files');
 
-    view.vm.uploadFile({ target: { files: [file] } });
+    view.vm.uploadFile(file);
 
     await request.wait();
     expect(request.config.headers['Content-Type']).toBe('multipart/form-data');
@@ -1067,7 +1097,7 @@ describe('RoomFile', () => {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        accessCode: '396856824',
+        accessCode: 396856824,
         room: exampleRoom
       },
       pinia: createTestingPinia(),

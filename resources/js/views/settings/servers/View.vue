@@ -40,7 +40,7 @@
               :state="fieldState('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('name')" />
             </template>
           </b-form-group>
@@ -57,7 +57,7 @@
               :state="fieldState('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('description')" />
             </template>
           </b-form-group>
@@ -86,7 +86,7 @@
               :state="fieldState('base_url')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('base_url')" />
             </template>
           </b-form-group>
@@ -123,7 +123,7 @@
                 </b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('secret')" />
             </template>
           </b-form-group>
@@ -141,7 +141,7 @@
               :state="fieldState('strength')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('strength')" />
             </template>
           </b-form-group>
@@ -161,7 +161,7 @@
               class="align-items-center d-flex mb-3"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('disabled')" />
             </template>
           </b-form-group>

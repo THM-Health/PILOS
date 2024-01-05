@@ -24,6 +24,7 @@
 
 import { mapState } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
+import notificationSound from '../../../audio/notification.mp3';
 
 export default {
   name: 'BrowserNotification',
@@ -126,6 +127,9 @@ export default {
           window.focus();
           this.clearNotification();
         });
+
+        const audio = new Audio(notificationSound);
+        audio.play();
       } catch (e) {
         // missing full notification api support, e.g. Android
         if (e.name === 'TypeError') {

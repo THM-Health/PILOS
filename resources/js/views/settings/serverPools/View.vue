@@ -40,7 +40,7 @@
               :state="fieldState('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('name')" />
             </template>
           </b-form-group>
@@ -57,7 +57,7 @@
               :state="fieldState('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('description')" />
             </template>
           </b-form-group>
@@ -88,19 +88,13 @@
                 :allow-empty="true"
                 :class="{ 'is-invalid': fieldState('servers', true), 'multiselect-form-control': true }"
               >
-                <template slot="noOptions">
+                <template #noOptions>
                   {{ $t('settings.servers.no_data') }}
                 </template>
-                <template
-                  slot="option"
-                  slot-scope="props"
-                >
-                  {{ props.option.name }}
+                <template v-slot:option="{ option }">
+                  {{ option.name }}
                 </template>
-                <template
-                  slot="tag"
-                  slot-scope="{ option, remove }"
-                >
+                <template v-slot:tag="{ option, remove }">
                   <h5 class="d-inline mr-1 mb-1">
                     <b-badge variant="secondary">
                       {{ option.name }}
@@ -111,7 +105,7 @@
                     </b-badge>
                   </h5>
                 </template>
-                <template slot="afterList">
+                <template #afterList>
                   <b-button
                     :disabled="serversLoading || currentPage === 1"
                     variant="outline-secondary"
@@ -138,7 +132,7 @@
                 </b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot="invalid-feedback">
+            <template #invalid-feedback>
               <div v-html="fieldError('servers', true)" />
             </template>
           </b-form-group>
