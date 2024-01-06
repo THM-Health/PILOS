@@ -47,6 +47,7 @@
         <b-form-group
           :label="$t('rooms.role')"
           :state="fieldState('role')"
+          data-cy="roleSelection"
         >
           <b-form-radio
             v-model.number="newUsersRole"
@@ -54,6 +55,7 @@
             :disabled="loading"
             name="some-radios"
             value="1"
+            data-cy="roleSelect"
           >
             <b-badge
               class="text-white"
@@ -68,6 +70,7 @@
             :disabled="loading"
             name="some-radios"
             value="2"
+            data-cy="roleSelect"
           >
             <b-badge variant="danger">
               {{ $t('rooms.roles.moderator') }}
@@ -79,6 +82,7 @@
             :disabled="loading"
             name="some-radios"
             value="3"
+            data-cy="roleSelect"
           >
             <b-badge variant="dark">
               {{ $t('rooms.roles.co_owner') }}
