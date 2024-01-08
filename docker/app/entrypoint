@@ -51,77 +51,31 @@ function setupNginx() {
     envsubst '${NGINX_WORKER_RLIMIT_NOFILE} ${NGINX_WORKER_CONNECTIONS} ${NGINX_WORKER_PROCESSES}' < /etc/nginx/templates/nginx.template > /etc/nginx/nginx.conf
 }
 
-function addSupervisorConfig() {
-    CONFIG_DIR="/etc/supervisor/conf.d"
-    SUPERVISORD_CONFIG="$CONFIG_DIR/supervisord.conf"
-    CONFIG="$CONFIG_DIR/$1.conf"
+# Run init script if environment variable SKIP_INIT is not set to 'yes'
+if [ "$SKIP_INIT" != "yes" ]; then
+    echo "Running init script"
+    pilos-cli init
+fi
 
-    echo "Adding $CONFIG supervisor config $SUPERVISORD_CONFIG"
-    echo >> "$SUPERVISORD_CONFIG"
-    echo >> "$SUPERVISORD_CONFIG"
-    cat "$CONFIG" >> "$SUPERVISORD_CONFIG"
-}
-
-# Set the container role, use 'all' as fallback
-CONTAINER_ROLE="${CONTAINER_ROLE:-all}"
-
-case $CONTAINER_ROLE in
-  web)
-    echo "Web container"
-
-    pilos-cli storage:link
-
-    setupNginx
-
-    addSupervisorConfig 'nginx'
-    addSupervisorConfig 'php-fpm'
-    addSupervisorConfig 'pulse'
-
-    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-    ;;
-
-  dev)
-    echo "Dev container"
-
-    pilos-cli optimize:clear
-
-    if [ "$ENABLE_XDEBUG" == "yes" ]; then
-        echo "Enabling xdebug"
-        docker-php-ext-enable xdebug
-    fi
-
-    setupNginx
+# Development mode
+if [ "$DEV_MODE" == "yes" ]; then
+    echo "** DEVELOPMENT MODE ENABLED **"
 
     echo "Enabling opcache timestamps"
     sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
 
-    addSupervisorConfig 'nginx'
-    addSupervisorConfig 'php-fpm'
-    addSupervisorConfig 'pulse'
-    addSupervisorConfig 'cron'
-    addSupervisorConfig 'horizon'
+    echo "Clearing all caches"
+    pilos-cli optimize:clear
 
-    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-    ;;
+    # Enable xdebug if environment variable ENABLE_XDEBUG is set to 'yes'
+    if [ "$ENABLE_XDEBUG" == "yes" ]; then
+        echo "Enabling xdebug"
+        docker-php-ext-enable xdebug
+    fi
+fi
 
-  all)
-    echo "All-in-one container"
+pilos-cli storage:link
 
-    pilos-cli init
-    pilos-cli storage:link
+setupNginx
 
-    setupNginx
-
-    addSupervisorConfig 'nginx'
-    addSupervisorConfig 'php-fpm'
-    addSupervisorConfig 'pulse'
-    addSupervisorConfig 'cron'
-    addSupervisorConfig 'horizon'
-
-    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-    ;;
-  *)
-    echo "Invalid container role '$CONTAINER_ROLE' use one of: web, dev, all"
-    exit 1
-    ;;
-esac
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

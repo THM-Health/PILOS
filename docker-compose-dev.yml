@@ -1,26 +1,33 @@
 # For more information: https://laravel.com/docs/sail
 version: '3'
+
+x-docker-build-data: &app-image
+  image: 'pilos/pilos:local-dev'
+  build:
+    context: ./
+    dockerfile: docker/app/Dockerfile
+    args:
+      WWWGROUP: '${WWWGROUP}'
+      WWWUSER: '${WWWUSER}'
 services:
     app:
-        build:
-            context: ./
-            dockerfile: docker/app/Dockerfile
-            tags:
-              - 'pilos/pilos:local-dev'
-            args:
-              WWWGROUP: '${WWWGROUP}'
-              WWWUSER: '${WWWUSER}'
+        <<: *app-image
         ports:
           - '${APP_PORT:-80}:80'
           - '${APP_SSL_PORT:-443}:443'
           - '${VITE_PORT:-1073}:${VITE_PORT:-1073}'
           - '${VITEST_UI_PORT:-1074}:${VITEST_UI_PORT:-1074}'
         environment:
+          DEV_MODE: 'yes'
           ENABLE_XDEBUG: '${ENABLE_XDEBUG:-no}'
           PHP_FPM_PM_MAX_CHILDREN: '${PHP_FPM_PM_MAX_CHILDREN:-100}'
           NGINX_WORKER_PROCESSES: '${NGINX_WORKER_PROCESSES:-auto}'
           TRUSTED_PROXIES: "*"
-          CONTAINER_ROLE: 'dev'
+        healthcheck:
+          test: curl --fail http://localhost/ping || exit 1
+          interval: 10s
+          retries: 6
+          timeout: 5s
         volumes:
           - './:/var/www/html/'
           - './ssl:/local/certs/'
@@ -29,6 +36,22 @@ services:
             condition: service_healthy
           redis:
             condition: service_healthy
+    cron:
+      <<: *app-image
+      env_file:
+        - .env
+      entrypoint: [ '/usr/sbin/crond','-f' ]
+      depends_on:
+        app:
+          condition: service_healthy
+    horizon:
+      <<: *app-image
+      env_file:
+        - .env
+      entrypoint: [ 'pilos-cli', 'horizon' ]
+      depends_on:
+        app:
+          condition: service_healthy
     db:
       image: 'mariadb:10'
       environment:

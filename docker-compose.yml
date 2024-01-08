@@ -30,6 +30,22 @@ services:
             condition: service_healthy
           redis:
             condition: service_healthy
+    cron:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        env_file:
+          - .env
+        entrypoint: ['/usr/sbin/crond','-f']
+        depends_on:
+          app:
+            condition: service_healthy
+    horizon:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        env_file:
+          - .env
+        entrypoint: ['pilos-cli', 'horizon']
+        depends_on:
+          app:
+            condition: service_healthy
     db:
       image: 'mariadb:10'
       environment:
