@@ -5,5 +5,6 @@ return [
         'title'     => 'System Überwachung',
         'horizon'   => 'Horizon',
         'telescope' => 'Telescope',
+        'pulse'     => 'Pulse',
     ]
 ];

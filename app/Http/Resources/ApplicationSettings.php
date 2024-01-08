@@ -64,6 +64,7 @@ class ApplicationSettings extends JsonResource
             ],
             'monitor' => [
                 'horizon'   => true,
+                'pulse'     => true,
                 'telescope' => config('telescope.enabled'),
             ],
             'banner' => [

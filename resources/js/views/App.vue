@@ -74,6 +74,12 @@
               >
                 <b-nav-item-dropdown :text="$t('system.monitor.title')">
                   <b-dropdown-item
+                    href="/pulse"
+                    target="_blank"
+                  >
+                    {{ $t('system.monitor.pulse') }}
+                  </b-dropdown-item>
+                  <b-dropdown-item
                     href="/horizon"
                     target="_blank"
                   >

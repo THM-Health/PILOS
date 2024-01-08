@@ -75,6 +75,7 @@ case $CONTAINER_ROLE in
 
     addSupervisorConfig 'nginx'
     addSupervisorConfig 'php-fpm'
+    addSupervisorConfig 'pulse'
 
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
     ;;
@@ -96,6 +97,7 @@ case $CONTAINER_ROLE in
 
     addSupervisorConfig 'nginx'
     addSupervisorConfig 'php-fpm'
+    addSupervisorConfig 'pulse'
     addSupervisorConfig 'cron'
     addSupervisorConfig 'horizon'
 
@@ -112,6 +114,7 @@ case $CONTAINER_ROLE in
 
     addSupervisorConfig 'nginx'
     addSupervisorConfig 'php-fpm'
+    addSupervisorConfig 'pulse'
     addSupervisorConfig 'cron'
     addSupervisorConfig 'horizon'
 

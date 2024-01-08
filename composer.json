@@ -16,8 +16,9 @@
         "goldspecdigital/laravel-eloquent-uuid": "^10",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^10.0",
-        "laravel/prompts": "^0.1.13",
         "laravel/horizon": "^5.21",
+        "laravel/prompts": "^0.1.13",
+        "laravel/pulse": "^1.0@beta",
         "laravel/sanctum": "^v3.2",
         "laravel/telescope": "^4.15",
         "laravel/tinker": "^2.0",
@@ -70,7 +71,7 @@
             "Tests\\": "tests/"
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "beta",
     "prefer-stable": true,
     "scripts": {
         "post-autoload-dump": [

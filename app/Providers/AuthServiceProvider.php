@@ -47,5 +47,9 @@ class AuthServiceProvider extends ServiceProvider
         $this->app->auth->provider('ldap', function ($app, array $config) {
             return new LDAPProvider($app['hash'], $config['model']);
         });
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->can('system.monitor');
+        });
     }
 }

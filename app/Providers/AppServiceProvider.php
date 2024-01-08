@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Pulse\Users;
 use App\Services\LocaleService;
 use App\Services\RoomAuthService;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pulse\Contracts\ResolvesUsers;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LocaleService::class, function () {
             return new LocaleService(new Filesystem());
         });
+
+        $this->app->singleton(ResolvesUsers::class, Users::class);
 
         $this->app->singleton(RoomAuthService::class, function () {
             return new RoomAuthService();
