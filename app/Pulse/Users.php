@@ -27,7 +27,7 @@ class Users implements ResolvesUsers
     /**
      * Eager load the users with the given keys.
      *
-     * @param  Collection<int, int|string|null>  $keys
+     * @param Collection<int, int|string|null> $keys
      */
     public function load(Collection $keys): ResolvesUsers
     {
