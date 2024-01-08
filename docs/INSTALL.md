@@ -226,3 +226,6 @@ app:
     - './storage/logs:/var/www/html/storage/logs'
     [...]
 ```
+
+## Scaling
+If you are looking for ways to scale PILOS, have a look at our [documentation](SCALING.md).
