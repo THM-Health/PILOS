@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # If there is a command line argument, run it as the www-data user
 if [ $# -gt 0 ]; then
@@ -51,10 +51,16 @@ function setupNginx() {
     envsubst '${NGINX_WORKER_RLIMIT_NOFILE} ${NGINX_WORKER_CONNECTIONS} ${NGINX_WORKER_PROCESSES}' < /etc/nginx/templates/nginx.template > /etc/nginx/nginx.conf
 }
 
-# Run init script if environment variable SKIP_INIT is not set to 'yes'
-if [ "$SKIP_INIT" != "yes" ]; then
+# Run init script if environment variable RUN_INIT is not set to 'false'
+if [ "$RUN_INIT" != "false" ]; then
     echo "Running init script"
     pilos-cli init
+fi
+
+# Automatically run migrations if environment variable RUN_MIGRATIONS is not set to 'false'
+if [ "$RUN_MIGRATIONS" != "false" ]; then
+    echo "Running migrations"
+    pilos-cli migrate --force --isolated --seed
 fi
 
 # Development mode

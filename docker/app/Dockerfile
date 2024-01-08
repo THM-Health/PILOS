@@ -81,7 +81,7 @@ COPY ./docker/app/ldap/ /etc/ldap
 COPY --chown=www-data:www-data ./ /var/www/html
 
 # Run npm and composer install as www-data user
-RUN su-exec www-data npm install --production
+RUN su-exec www-data npm install --omit=dev
 RUN su-exec www-data composer install --no-dev
 
 EXPOSE 80

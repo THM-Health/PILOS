@@ -1,0 +1,128 @@
+# Scaling PILOS
+
+**Before continuing, make sure you have read the [installation instructions](INSTALL.md), as this document will only cover some additional scaling related topics.**
+
+## Vertical Scaling
+
+You can try to scale the PILOS docker container vertically by increasing the PHP and nginx worker processes.
+
+### PHP
+To increase the number of PHP-FPM worker processes you can set the environment variable `PHP_FPM_PM_MAX_CHILDREN` to the desired value.
+```dotenv
+PHP_FPM_PM_MAX_CHILDREN=100
+```
+
+### Nginx
+To increase the number of nginx worker processes you can set the environment variable `NGINX_WORKER_PROCESSES` to the desired value.
+Usually you should set this to the number of CPU cores available, using `auto` as the value will do this automatically.
+```dotenv
+NGINX_WORKER_PROCESSES=auto
+```
+
+Each nginx worker process can handle multiple connections.
+The maximum amount of connections is defined by the `NGINX_WORKER_CONNECTIONS` environment variable.
+```dotenv
+NGINX_WORKER_CONNECTIONS=1024
+```
+
+During each connection nginx will need up to two file descriptors.
+If you increase the number of worker connections you should also increase the maximum number of open files to at least twice the amount.
+```dotenv 
+NGINX_WORKER_RLIMIT_NOFILE=2048
+```
+
+## Horizontal Scaling
+
+In addition to vertical scaling you can also scale PILOS horizontally by running multiple instances of the PILOS docker container.
+However, you need a use a shared database, redis and storage as shown in the following diagram:
+
+![PILOS Scaling](https://github.com/THM-Health/PILOS/assets/4281791/869ddf56-5371-4807-8b63-ffb1682e0676)
+
+### Load Balancing
+The PILOS docker container has a build in nginx webserver to serve static files and proxy all other requests to PHP-FPM.
+
+You should always use another webserver in front of the PILOS docker container to handle the SSL encryption.
+Have a look at our [install instructions](INSTALL.md#webserver) how to set up apache or nginx as a reverse proxy.
+
+The shibboleth authentication is *only* available if the reverse proxy is apache with mod_shib. ([How to configure](EXTERNAL_AUTHENTICATION.md#shibboleth))
+
+### Database
+
+You need a dedicated MySQL/MariaDB or PostgreSQL database for PILOS.
+The database credentials are stored in the `.env` file.
+
+**MySQL Example:**
+```.dotenv
+# Database config
+DB_CONNECTION=mysql
+DB_HOST=db.example.com
+DB_PORT=3306
+DB_DATABASE=test
+DB_USERNAME=user
+DB_PASSWORD=password
+```
+
+**PostgreSQL Example:**
+```.dotenv
+# Database config
+DB_CONNECTION=pgsql
+DB_HOST=db.example.com
+DB_PORT=5432
+DB_DATABASE=test
+DB_USERNAME=user
+DB_PASSWORD=password
+```
+
+### Redis
+
+For caching and queueing PILOS uses a Redis server.
+The Redis credentials are stored in the `.env` file.
+
+**Example:**
+```.dotenv
+# Redis config
+#REDIS_URL=
+REDIS_HOST=redis
+#REDIS_USERNAME=null
+#REDIS_PASSWORD=null
+#REDIS_PORT=6379
+#REDIS_DB=0
+#REDIS_CACHE_DB=1
+```
+
+## Container initialization
+
+### Initialization script
+During startup of the container an initialization script is executed.
+This script can also be executed manually by running `pilos-cli init`.
+You can also disable the initialization by setting the environment variable `RUN_INIT=false`.
+
+The following steps are executed during the initialization:
+- Fixing file and folder permissions
+- Build frontend
+- Optimize application by caching config, routes, views, locales, etc.
+
+### Database migration
+After the initialization the database migration is executed.
+To disable the automatic database migration set the environment variable `RUN_MIGRATIONS=yes`.
+
+### Reduce downtime / container startup time
+
+The most time-consuming part of the initialization is the frontend build.
+You can spin up a container of the new image and pre-build the frontend.
+
+**Example:**
+```bash
+# Set image to be used
+IMAGE=pilos/pilos:local-dev
+# Pull latest version of the image
+docker pull $IMAGE
+# Pre-build frontend for this image
+docker run -it --rm \
+-v "$PWD/resources/custom:/var/www/html/resources/custom" \
+-v "$PWD/resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom" \
+-v "$PWD/public/build:/var/www/html/public/build" \
+--entrypoint=pilos-cli \
+$IMAGE \
+frontend:pre-build
+```

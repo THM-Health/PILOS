@@ -137,10 +137,10 @@ To enable the new locale, you need to add it to the `ENABLED_LOCALES` .env optio
 
 ### Locale caching
 For better performance, locales should be cached with `php artisan locales:cache` or, if you use sail: `sail artisan locales:cache`.
-If you use the Docker Contrainer, the locales are automatically cached in production when the container is started.
+If you use the Docker Container, the locales are automatically cached in production when the container is started.
 
 ## Images
 The path for custom images changed from `resources/custom/images` to `public/images/custom`.
 To customize the images of the applications (logo and favicon) put the custom images under the path `public/images/custom` and adjust your .env file to the the new path, e.g. `DEFAULT_LOGO=/images/custom/logo.svg`.
 
-Note: If you have already startet the application (no fresh database), the logo and favicon path must be changed in the admin UI.
+Note: If you have already started the application (no fresh database), the logo and favicon path must be changed in the admin UI.

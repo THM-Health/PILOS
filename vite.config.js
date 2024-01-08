@@ -13,6 +13,7 @@ export default ({ mode }) => {
   const VITE_PORT = parseInt(process.env.VITE_PORT || 1073);
   const VITEST_UI_PORT = parseInt(process.env.VITEST_UI_PORT || 1074);
   const THEME = process.env.VITE_THEME || 'default';
+  const BUILD_DIR = process.env.VITE_BUILD_DIR || 'build';
 
   /**
    * Create aliases for the paths we use in our app
@@ -58,10 +59,13 @@ export default ({ mode }) => {
       setupFiles: './tests/Frontend/setup.js'
     },
     plugins: [
-      laravel([
-        'resources/js/app.js',
-        'resources/sass/theme/' + THEME + '/app.scss'
-      ]),
+      laravel({
+        input: [
+          'resources/js/app.js',
+          'resources/sass/theme/' + THEME + '/app.scss'
+        ],
+        buildDirectory: BUILD_DIR
+      }),
       vue()
     ],
     server: {
