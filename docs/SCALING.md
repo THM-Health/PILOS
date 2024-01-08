@@ -104,7 +104,7 @@ The following steps are executed during the initialization:
 
 ### Database migration
 After the initialization the database migration is executed.
-To disable the automatic database migration set the environment variable `RUN_MIGRATIONS=yes`.
+To disable the automatic database migration set the environment variable `RUN_MIGRATIONS=false`.
 
 ### Reduce downtime / container startup time
 

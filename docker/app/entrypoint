@@ -62,7 +62,7 @@ if [ "$RUN_MIGRATIONS" != "false" ]; then
 fi
 
 # Development mode
-if [ "$DEV_MODE" == "yes" ]; then
+if [ "$DEV_MODE" == "true" ]; then
     echo "** DEVELOPMENT MODE ENABLED **"
 
     echo "Enabling opcache timestamps"
