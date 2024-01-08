@@ -11,8 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show current room name in the page title  ([#649], [#650])
 - Show amount of users in a room ([#681])
 - Env option PHP_FPM_PM_MAX_CHILDREN, NGINX_WORKER_PROCESSES, NGINX_WORKER_CONNECTIONS and NGINX_WORKER_RLIMIT_NOFILE to customize nginx and php-fpm ([#792])
+- Redis docker service as default caching and queuing driver ([#617])
+- Laravel Pulse for system monitoring ([#617])
+- Laravel Horizon for queue management ([#617])
+- PILOS CLI for common tasks ([#617])
+- Option to pre-build frontend assets for quicker startup ([#617])
+- Docker container healthcheck ([#617])
+- Documentation for scaling PILOS ([#617])
 
 ### Changed
+- **Breaking:** Split container into separate containers for the application, cronjobs and queue workers ([#617])
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
 - Refactor user interface room details ([#681], [#724])
@@ -20,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
+
+### Removed
+- Documentation for running PILOS without docker ([#617])
 
 ## [v2.4.1] - 2023-12-19
 ### Changed
@@ -714,6 +725,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#576]: https://github.com/THM-Health/PILOS/pull/576
 [#577]: https://github.com/THM-Health/PILOS/issues/577
 [#586]: https://github.com/THM-Health/PILOS/pull/586
+[#617]: https://github.com/THM-Health/PILOS/pull/617
 [#620]: https://github.com/THM-Health/PILOS/issues/620
 [#621]: https://github.com/THM-Health/PILOS/pull/621
 [#649]: https://github.com/THM-Health/PILOS/issues/649
