@@ -58,7 +58,7 @@
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.69.7",
         "ua-parser-js": "^1.0.37",
-        "vite": "^5.0.0",
+        "vite": "^5.0.11",
         "vue": "^2.7.16",
         "vue-axe": "^2.4.4",
         "vue-chartjs": "^5.3.0",
