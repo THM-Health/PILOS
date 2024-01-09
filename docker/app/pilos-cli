@@ -14,7 +14,7 @@ case $ACTION in
           # Copy the pre-build frontend to the build folder
           cp -r /var/www/html/public/build/next/assets /var/www/html/public/build/assets
           cp /var/www/html/public/build/next/manifest.json /var/www/html/public/build/manifest.json
-            cp /var/www/html/public/build/next/hash /var/www/html/public/build/hash
+          cp /var/www/html/public/build/next/hash /var/www/html/public/build/hash
       else
           pilos-cli frontend:build
       fi
