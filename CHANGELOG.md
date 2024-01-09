@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.4.2] - 2024-01-09
+### Fixed
+- Docker compose volume mapping framework folder
+
 ## [v2.4.1] - 2023-12-19
 ### Changed
 - Reduction of api calls when changing locale
@@ -707,7 +711,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#701]: https://github.com/THM-Health/PILOS/pull/701
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.2...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -745,3 +749,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.3.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.4
 [v2.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.0
 [v2.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.1
+[v2.4.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.2
