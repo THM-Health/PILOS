@@ -1,115 +1,81 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-function changePermissions() {
-    echo "Changing permissions"
-    chown -R :www-data /var/www/html/storage/
-    chown -R :www-data /var/www/html/resources/custom
-    chown -R :www-data /var/www/html/resources/sass/theme/custom
-    find /var/www/html/storage/ -type f -exec chmod 664 {} \;
-    find /var/www/html/storage/ -type d -exec chmod 775 {} \;
-    find /var/www/html/resources/custom/ -type f -exec chmod 664 {} \;
-    find /var/www/html/resources/custom/ -type d -exec chmod 775 {} \;
-    find /var/www/html/resources/sass/theme/custom/ -type f -exec chmod 664 {} \;
-    find /var/www/html/resources/sass/theme/custom/ -type d -exec chmod 775 {} \;
-}
-
-function buildFrontend() {
-    echo "Building frontend"
-	su-exec www-data /usr/local/etc/frontend/run.sh
-}
-
-function migrateDatabase() {
-    echo "Migrating database and seed with example data"
-
-    while ! su-exec www-data php artisan db:check; do
-        echo "Waiting before trying again..."
-        sleep 5
-    done
-    su-exec www-data php artisan migrate --force --seed
-}
-
-function linkStorage() {
-    su-exec www-data php artisan storage:link
-}
-
-function enableSSL() {
-    echo "Checking SSL files"
-    if [ -e /local/certs/fullchain.pem -a -e /local/certs/privkey.pem ]; then
-        echo "Files found, enabling SSL"
-        ln -s /etc/nginx/snippets-available/ssl /etc/nginx/snippets/ssl
-    else
-        echo "Files not found, skipping SSL"
-    fi
-}
-
-function setNginxLimits() {
-    ULIMIT=$(ulimit -n)
-
-    # If ulimit is low show a warning
-    if [ $ULIMIT -lt 4096 ]; then
-        echo "WARNING: ulimit is currently set to $ULIMIT. This may cause NGINX issues, please increase the limit to at least 4096."
-    fi
-
-    # If NGINX_WORKER_RLIMIT_NOFILE is set to auto
-    # set it to the ulimit value
-    # using an upper bound limited to 16384 as a measure to protect against excess memory use,
-    # and the lower bound of 1024
-    if [ "$NGINX_WORKER_RLIMIT_NOFILE" == "auto" ]; then
-        NGINX_WORKER_RLIMIT_NOFILE=$ULIMIT
-        if [ $NGINX_WORKER_RLIMIT_NOFILE -gt 16384 ]; then
-            NGINX_WORKER_RLIMIT_NOFILE=16384
-        elif [ $NGINX_WORKER_RLIMIT_NOFILE -lt 1024 ]; then
-            NGINX_WORKER_RLIMIT_NOFILE=1024
-        fi
-    fi
-
-    # If NGINX_WORKER_CONNECTIONS is set to auto
-    # use a quarter of the NGINX_WORKER_RLIMIT_NOFILE value
-    if [ "$NGINX_WORKER_CONNECTIONS" == "auto" ]; then
-        NGINX_WORKER_CONNECTIONS=$(($NGINX_WORKER_RLIMIT_NOFILE / 4))
-    fi
-
-    # Set environment variables
-    export NGINX_WORKER_RLIMIT_NOFILE=$NGINX_WORKER_RLIMIT_NOFILE
-    export NGINX_WORKER_CONNECTIONS=$NGINX_WORKER_CONNECTIONS
-
-    # Set environment variables in nginx config
-    envsubst '${NGINX_WORKER_RLIMIT_NOFILE} ${NGINX_WORKER_CONNECTIONS} ${NGINX_WORKER_PROCESSES}' < /etc/nginx/templates/nginx.template > /etc/nginx/nginx.conf
-}
-
-function optimize() {
-    su-exec www-data composer dump-autoload -o
-    su-exec www-data php artisan config:cache
-    su-exec www-data php artisan route:cache
-    su-exec www-data php artisan view:cache
-    su-exec www-data php artisan locales:cache
-}
-
-function enableOPCacheTimestamps() {
-    echo "Enabling opcache timestamps"
-    sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
-}
-
-if [ "$ENABLE_XDEBUG" == "yes" ]; then
-    echo "Enabling xdebug"
-    docker-php-ext-enable xdebug
-fi
-
+# If there is a command line argument, run it as the www-data user
 if [ $# -gt 0 ]; then
     exec su-exec www-data "$@"
-else
-    setNginxLimits
-
-    if [ "$APP_ENV" == "production" ]; then
-        changePermissions
-        buildFrontend
-        migrateDatabase
-        linkStorage
-        optimize
-    else
-        enableSSL
-        enableOPCacheTimestamps
-    fi
-
-    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 fi
+
+
+# Enable SSL if the files are present
+echo "Checking SSL files"
+if [ -e /local/certs/fullchain.pem -a -e /local/certs/privkey.pem ]; then
+    echo "Files found, enabling SSL"
+    ln -s /etc/nginx/snippets-available/ssl /etc/nginx/snippets/ssl
+else
+    echo "Files not found, skipping SSL"
+fi
+
+# Set NGINX_WORKER_RLIMIT_NOFILE and NGINX_WORKER_CONNECTIONS
+ULIMIT=$(ulimit -n)
+
+# If ulimit is low show a warning
+if [ $ULIMIT -lt 4096 ]; then
+    echo "WARNING: ulimit is currently set to $ULIMIT. This may cause NGINX issues, please increase the limit to at least 4096."
+fi
+
+# If NGINX_WORKER_RLIMIT_NOFILE is set to auto
+# set it to the ulimit value
+# using an upper bound limited to 16384 as a measure to protect against excess memory use,
+# and the lower bound of 1024
+if [ "$NGINX_WORKER_RLIMIT_NOFILE" == "auto" ]; then
+    NGINX_WORKER_RLIMIT_NOFILE=$ULIMIT
+    if [ $NGINX_WORKER_RLIMIT_NOFILE -gt 16384 ]; then
+        NGINX_WORKER_RLIMIT_NOFILE=16384
+    elif [ $NGINX_WORKER_RLIMIT_NOFILE -lt 1024 ]; then
+        NGINX_WORKER_RLIMIT_NOFILE=1024
+    fi
+fi
+
+# If NGINX_WORKER_CONNECTIONS is set to auto
+# use a quarter of the NGINX_WORKER_RLIMIT_NOFILE value
+if [ "$NGINX_WORKER_CONNECTIONS" == "auto" ]; then
+    NGINX_WORKER_CONNECTIONS=$(($NGINX_WORKER_RLIMIT_NOFILE / 4))
+fi
+
+# Set environment variables
+export NGINX_WORKER_RLIMIT_NOFILE=$NGINX_WORKER_RLIMIT_NOFILE
+export NGINX_WORKER_CONNECTIONS=$NGINX_WORKER_CONNECTIONS
+
+# Set environment variables in nginx config
+envsubst '${NGINX_WORKER_RLIMIT_NOFILE} ${NGINX_WORKER_CONNECTIONS} ${NGINX_WORKER_PROCESSES}' < /etc/nginx/templates/nginx.template > /etc/nginx/nginx.conf
+
+# Run init script if environment variable RUN_INIT is not set to 'false'
+if [ "$RUN_INIT" != "false" ]; then
+    echo "Running init script"
+    pilos-cli init
+fi
+
+# Automatically run migrations if environment variable RUN_MIGRATIONS is not set to 'false'
+if [ "$RUN_MIGRATIONS" != "false" ]; then
+    echo "Running migrations"
+    pilos-cli migrate --force --isolated --seed
+fi
+
+# Development mode
+if [ "$DEV_MODE" == "true" ]; then
+    echo "** DEVELOPMENT MODE ENABLED **"
+
+    echo "Enabling opcache timestamps"
+    sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
+
+    echo "Clearing all caches"
+    pilos-cli optimize:clear
+
+    # Enable xdebug if environment variable ENABLE_XDEBUG is set to 'yes'
+    if [ "$ENABLE_XDEBUG" == "yes" ]; then
+        echo "Enabling xdebug"
+        docker-php-ext-enable xdebug
+    fi
+fi
+
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

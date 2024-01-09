@@ -29,7 +29,7 @@ RUN apk --no-cache add \
 # Add PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions \
-    && install-php-extensions bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap xdebug gd @composer
+    && install-php-extensions redis pcntl bcmath pdo_mysql pdo_pgsql pgsql ldap zip opcache soap xdebug gd @composer
 
 # Change www-data user and group id
 RUN apk add --no-cache --virtual .mod-deps shadow \
@@ -39,13 +39,18 @@ RUN apk add --no-cache --virtual .mod-deps shadow \
   && groupmod -o -g $WWWGROUP www-data \
   && apk del .mod-deps
 
-# Copy start script
+# Copy entrypoint
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
 
-# Copy scheduler script
-COPY ./docker/app/scheduler /usr/local/etc/scheduler
-RUN chmod +x /usr/local/etc/scheduler/run.sh
+# Copy pilos-cli
+COPY ./docker/app/pilos-cli /usr/local/bin/pilos-cli
+RUN chmod +x /usr/local/bin/pilos-cli
+
+# Copy cron config
+COPY ./docker/app/cron/scheduler /etc/cron.d/scheduler
+RUN chmod 644 /etc/cron.d/scheduler
+RUN crontab /etc/cron.d/scheduler
 
 # Copy frontend wrapper script
 COPY ./docker/app/frontend /usr/local/etc/frontend
@@ -75,12 +80,12 @@ COPY ./docker/app/ldap/ /etc/ldap
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
-USER www-data
 # Run npm and composer install as www-data user
-RUN npm install --production
-RUN composer install --no-dev
+RUN su-exec www-data npm install --omit=dev
+RUN su-exec www-data composer install --no-dev
 
-USER root
+# Optimize composer autoloader for production
+RUN su-exec www-data composer dump-autoload -o
 
 EXPOSE 80
 EXPOSE 443

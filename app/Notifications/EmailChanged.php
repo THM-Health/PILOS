@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Notification;
  *
  * @package App\Notifications
  */
-class EmailChanged extends Notification
+class EmailChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 

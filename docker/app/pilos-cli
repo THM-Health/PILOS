@@ -1,0 +1,75 @@
+#!/bin/sh
+
+ACTION=$1
+
+case $ACTION in
+
+  frontend:load)
+      echo "Loading frontend..."
+      # If a pre-build frontend exists, use it to speed up the startup
+      if [ -f "/var/www/html/public/build/next/manifest.json" ]; then
+          echo "Pre-build frontend found, use it to speed up the startup"
+          # Clean up the assets directory
+          rm -r /var/www/html/public/build/assets
+          # Copy the pre-build frontend to the build folder
+          cp -r /var/www/html/public/build/next/assets /var/www/html/public/build/assets
+          cp /var/www/html/public/build/next/manifest.json /var/www/html/public/build/manifest.json
+          cp /var/www/html/public/build/next/hash /var/www/html/public/build/hash
+      else
+          pilos-cli frontend:build
+      fi
+      ;;
+
+  frontend:build)
+    su-exec www-data /usr/local/etc/frontend/run.sh
+    ;;
+
+  frontend:pre-build)
+    su-exec www-data /usr/local/etc/frontend/run.sh --pre-build
+    ;;
+
+  change-permissions)
+    echo "Change permissions"
+    chown -R :www-data /var/www/html/resources/custom
+    chown -R :www-data /var/www/html/resources/sass/theme/custom
+    chown -R :www-data /var/www/html/storage/app
+    chown -R :www-data /var/www/html/storage/logs
+    chown -R :www-data /var/www/html/public/build
+    find /var/www/html/resources/custom/ -type f -exec chmod 664 {} \;
+    find /var/www/html/resources/custom/ -type d -exec chmod 775 {} \;
+    find /var/www/html/resources/sass/theme/custom/ -type f -exec chmod 664 {} \;
+    find /var/www/html/resources/sass/theme/custom/ -type d -exec chmod 775 {} \;
+    find /var/www/html/storage/ -type f -exec chmod 664 {} \;
+    find /var/www/html/storage/ -type d -exec chmod 775 {} \;
+    find /var/www/html/public/build/ -type f -exec chmod 664 {} \;
+    find /var/www/html/public/build/ -type d -exec chmod 775 {} \;
+    ;;
+
+  optimize)
+      pilos-cli config:cache
+      pilos-cli route:cache
+      pilos-cli view:cache
+      pilos-cli event:cache
+      pilos-cli locales:cache
+    ;;
+
+  optimize:clear)
+      su-exec www-data composer dump-autoload
+      pilos-cli config:clear
+      pilos-cli route:clear
+      pilos-cli view:clear
+      pilos-cli event:clear
+      pilos-cli cache:clear
+    ;;
+
+  init)
+    pilos-cli change-permissions
+    pilos-cli frontend:load
+    pilos-cli optimize
+    ;;
+
+  *)
+    ARGS=${@}
+    su-exec www-data php artisan $ARGS
+    ;;
+esac

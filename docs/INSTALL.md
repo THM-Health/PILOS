@@ -1,30 +1,29 @@
 # Installing PILOS
 
-## Docker
 To make installing PILOS easy, we provide a Docker image.
 The application will be installed with some default settings, but you can customize it later via the UI, config files and overriding some files.
 
-### Docker Tags
+## Docker Tags
 We use [Semantic Versioning](https://semver.org/spec/v2.0.0.html) for our releases and tag the images accordingly.
 
 It is **recommended** to use the image with the latest major version e.g. `v1.9.5` -> `v1` to always get the latest features and bugfixes.
 
 **[All Tags](https://hub.docker.com/r/pilos/pilos/tags)**
 
-#### Development Images
+### Development Images
 Additionally, we provide images for the latest commit on the `master` and the release branches, e.g. `dev-v1`.
 
-#### Latest
+### Latest
 We **don't** recommend using the `latest` tag for production, as breaking changes can cause you some trouble.
 **Always** check the changelog before changing the major version!
 
-### Requirements
+## Requirements
 - fully qualified hostname
 - valid SSL certificate (HTTPS)
 - reverse proxy, e.g. apache or nginx
 - Docker and [Compose plugin](https://docs.docker.com/compose/install/linux/)
 
-### Installing PILOS
+## Installing PILOS
 Create a directory for the data and config of PILOS
 ```bash
 mkdir ~/pilos && cd ~/pilos
@@ -44,13 +43,13 @@ docker run --rm $IMAGE cat ./docker-compose.yml > docker-compose.yml
 
 If you used a different docker image tag, you need to adjust the image tag in the `docker-compose.yml` file.
 
-### Configuring PILOS
+## Configuring PILOS
 In the .env file all application settings can be found, some of them can be changed with the UI.
 We need to set the `APP_KEY` option in the `.env` file, as this is used to encrypt sessions, cookies, urls, etc.
 
 Using the following command a secure key is generated:
 ```bash
-docker run --rm $IMAGE php artisan key:generate --show
+docker run --rm  --entrypoint pilos-cli $IMAGE key:generate --show
 ```
 Copy the output and edit the `APP_KEY` option in the `.env` file.
 
@@ -60,7 +59,7 @@ You also need to edit the `APP_URL` option in the `.env` file to match the domai
 
 **Warning**: Ensure that `APP_ENV=production` and `APP_DEBUG=false` are used on a production server for performance and security reasons.
 
-### Database
+## Database
 The docker-compose.yml provides a mariadb.
 
 To create a secure default database password, run the following command:
@@ -72,7 +71,7 @@ Copy the output and edit the `DB_PASSWORD` option in the `.env` file.
 **Example**: `DB_PASSWORD=44cefe1bc30ddf6bd2013a97f58353acb5e9000e7ec3bb90`
 
 
-#### Using PostgreSQL
+### Using PostgreSQL
 You can also use PostgreSQL as an alternative database since v2.
 
 Please note: We do NOT support migrating from v1.
@@ -104,7 +103,7 @@ DB_HOST=db
 DB_PORT=5432
 ```
 
-### Webserver
+## Webserver
 PILOS has a build in nginx webserver. However, it is **highly** recommended to not expose the container port.
 You will need to set up a reverse proxy that routes the traffic to this application (default: 127.0.0.1:5000)
 
@@ -152,7 +151,7 @@ RequestHeader set X-Forwarded-Port "443"
 
 You may need to adjust the X-Forwarded-Proto and X-Forwarded-Port settings, depending on your environment.
 
-#### Trusted proxies
+### Trusted proxies
 You have to add your proxy to the list of trusted proxies in the `.env` file.
 ```
 # Trusted proxies for reverse proxy setups
@@ -161,7 +160,7 @@ You have to add your proxy to the list of trusted proxies in the `.env` file.
 TRUSTED_PROXIES=
 ```
 
-### Starting
+## Starting
 To start the application and database run:
 ```bash
 docker compose up -d
@@ -174,18 +173,18 @@ docker compose logs -f
 
 **Notice:** If you modify the `.env` file you need to restart the container.
 
-### Admin user
+## Admin user
 The first admin user can be created by running the following command:
 ```bash
-docker compose exec --user www-data app php artisan users:create:admin
+docker compose exec app pilos-cli users:create:admin
 ```
 
-### External authentication
+## External authentication
 PILOS can be connected to the following external authentication systems: LDAP and Shibboleth.
 Please have a look at our [documentation](EXTERNAL_AUTHENTICATION.md) on how to setup external authenticators.
 
-### Customization
-#### Theming
+## Customization
+### Theming
 You can customize the theme by copying the default theme.
 ```bash
 docker compose cp app:/var/www/html/resources/sass/theme/default/. ./resources/sass/theme/custom
@@ -195,10 +194,10 @@ You can edit the theme in the folder `resources/sass/theme/custom`.
 Next you need to change set the `VITE_THEME` option in the `.env` file to `custom`.
 You can either restart the container or recompile the frontend with:
 ```bash
-docker compose exec --user www-data app npm run build
+docker compose exec app pilos-cli frontend:build
 ```
 
-#### Start page
+### Start page
 You can customize the start page by copying the default content
 ```bash
 mkdir -p resources/custom/js/views
@@ -206,17 +205,17 @@ docker compose cp app:/var/www/html/resources/js/views/Home.vue ./resources/cust
 ```
 You can edit the vue component in `resources/custom/js/views/Home.vue` and either restart the container or recompile the frontend with:
 ```bash
-docker compose exec --user www-data app npm run build
+docker compose exec app pilos-cli frontend:build
 ```
 
-#### Language files, footer and more
+### Language files, footer and more
 To customize other files have a look at https://github.com/THM-Health/PILOS/wiki/Customization
 
-### Logging
+## Logging
 
 By default all nginx and php-fpm errors are written to stderr and shown in the docker logs. The application messages and errors are also written to stderr.
 
-#### File based logging
+### File based logging
 To use a more persistent logging exclusive for the application, change the `LOG_CHANNEL` in the `.env` file to `stack` (a single file) or `daily` (log rotation)
 and mount the directory `storage/logs` to the host:
 
@@ -228,61 +227,5 @@ app:
     [...]
 ```
 
-## Native
-
-[Laravel](https://laravel.com/) is the main backend framework that used to develop PILOS.
-Follow the documentation [here](https://laravel.com/docs/9.x/deployment#server-requirements) to install the necessary libs on your server.
-
-For bundling the javascript frontend nodejs is necessary. Currently, all versions above `12.0.0` are supported.
-
-After installing the necessary packages either download a zip or clone the application into the desired path by using the following git command:
-```bash
-git clone https://github.com/THM-Health/PILOS.git custom-path
-```
-
-Install the necessary requirements for the backend by running the following command:
-```bash
-composer install
-```
-
-Afterwards copy the `.env.example` to `.env` and make your necessary adjustments.
-At least the database and email must be configured.
-
-Also, it is necessary to generate a new application key with the following command:
-```bash
-php artisan key:generate
-```
-
-Next it is necessary to initialize the database with the following commands:
-
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-If you want to adjust the frontend, please checkout this [page](https://github.com/THM-Health/PILOS/wiki/Customization).
-
-Finally, build the frontend using the following npm command:
-```bash
-npm install
-npm run build
-```
-
-**Note:** If you have issues installing node-canvas, your architecture is not supported and you have to compile it yourself. Please have a look at https://github.com/Automattic/node-canvas#compiling
-
-The first admin user can be created by running the following command:
-```bash
-php artisan users:create:admin
-```
-
-After successfully executing all the steps above, application is successfully installed and ready to be used.
-
-To log the status of all meetings and servers and to keep the database up to date, setup a cronjob on your server.
-
-```
-* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
-```
-
-### External authentication
-PILOS can be connected to the following external authentication systems: LDAP and Shibboleth.
-Please have a look at our [documentation](EXTERNAL_AUTHENTICATION.md) on how to setup external authenticators.
+## Scaling
+If you are looking for ways to scale PILOS, have a look at our [documentation](SCALING.md).

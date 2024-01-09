@@ -14,8 +14,8 @@ tests
 .php-cs-fixer.php
 .phpunit.result.cache
 .styleci.yml
+phpunit.xml
 docs
 ssl
 db
-phpunit.xml
-db
+redis

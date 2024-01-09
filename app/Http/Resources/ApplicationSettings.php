@@ -62,6 +62,11 @@ class ApplicationSettings extends JsonResource
                     'logo'  => setting('bbb_logo'),
                 ])
             ],
+            'monitor' => [
+                'horizon'   => true,
+                'pulse'     => true,
+                'telescope' => config('telescope.enabled'),
+            ],
             'banner' => [
                 'enabled'    => boolval(setting('banner.enabled')),
                 $this->mergeWhen(boolval(setting('banner.enabled')) || $this->allSettings, [

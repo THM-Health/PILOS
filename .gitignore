@@ -17,5 +17,5 @@ yarn-error.log
 coverage
 coverage.xml
 /db
-/ssl
+/redis
 version
