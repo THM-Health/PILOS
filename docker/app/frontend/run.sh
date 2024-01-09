@@ -10,7 +10,7 @@ HASH_FILE="public/$VITE_BUILD_DIR/hash"
 
 # Function to set the hash of previous runs from the file or create the hash file if it doesn't exist
 function getPreviousHash() {
-    if [ -f "HASH_FILE" ]; then
+    if [ -f "$HASH_FILE" ]; then
         PREVIOUS_HASH="$(<"$HASH_FILE")"
         echo "Hash file exists, hash is: $PREVIOUS_HASH"
     else
