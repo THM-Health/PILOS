@@ -1,9 +1,12 @@
 #!/usr/bin/env sh
 
+cd /var/www/html
+
 # Setup vars
-HASH_FILE="/var/www/html/public/$VITE_BUILD_DIR/hash"
-PREVIOUS_HASH=""
 export VITE_BUILD_DIR="build"
+PREVIOUS_HASH=""
+NEW_HASH=""
+HASH_FILE="public/$VITE_BUILD_DIR/hash"
 
 # Function to set the hash of previous runs from the file or create the hash file if it doesn't exist
 function getPreviousHash() {
@@ -23,7 +26,7 @@ function getNewHash() {
     # Get hash for every frontend file in the "resources" directory
     for DIR in "/var/www/html/resources"
     do
-        NEW_HASH+=$(find "$DIR" -type f -exec md5sum {} \; | md5sum | awk '{ print $1 }')
+        NEW_HASH="$NEW_HASH$(find "$DIR" -type f -exec md5sum {} \; | md5sum | awk '{ print $1 }')"
     done
 }
 
