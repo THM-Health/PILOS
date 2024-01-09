@@ -1,13 +1,5 @@
 #!/usr/bin/env sh
 
-cd /var/www/html
-
-# Setup vars
-export VITE_BUILD_DIR="build"
-PREVIOUS_HASH=""
-NEW_HASH=""
-HASH_FILE="public/$VITE_BUILD_DIR/hash"
-
 # Function to set the hash of previous runs from the file or create the hash file if it doesn't exist
 function getPreviousHash() {
     if [ -f "$HASH_FILE" ]; then
@@ -40,11 +32,18 @@ function buildFrontend() {
     echo "Saved new hash, hash is: $NEW_HASH"
 }
 
+cd /var/www/html
+
+export VITE_BUILD_DIR="build"
 # If --pre-build is passed, set the env variable VITE_BUILD_DIR to 'pre-build'
 if [ "$1" = "--pre-build" ]; then
     echo "Pre-building frontend"
     export VITE_BUILD_DIR=build/next
 fi
+
+PREVIOUS_HASH=""
+NEW_HASH=""
+HASH_FILE="public/$VITE_BUILD_DIR/hash"
 
 # Retrieve the previous hash
 getPreviousHash
