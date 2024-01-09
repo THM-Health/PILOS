@@ -31,7 +31,7 @@
       </template>
 
       <!--select new owner-->
-      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_owner')" :state="newOwnerValid">
+      <b-form-group :label="$t('rooms.modals.transfer_ownership.new_owner')" :state="fieldState('user')">
         <multiselect
           v-model="newOwner"
           track-by="id"
@@ -57,7 +57,10 @@
           <template v-slot:option = "{ option }">{{ option.firstname }} {{ option.lastname }}<br><small>{{ option.email }}</small></template>
           <template v-slot:singleLabel="{ option }">{{ option.firstname }} {{ option.lastname }}</template>
         </multiselect>
-        <template #invalid-feedback><div v-html="userValidationError"></div></template>
+        <b-form-text v-if="!newOwner" text-variant="danger">
+          {{ $t('rooms.modals.transfer_ownership.select_user') }}
+        </b-form-text>
+        <template #invalid-feedback><div v-html="fieldError('user')"></div></template>
       </b-form-group>
 
       <!--select new role with which the current owner should be added as a member of the room -->
@@ -115,7 +118,7 @@ export default {
   },
   methods: {
     /**
-     * transfer thr room ownership to another user
+     * transfer the room ownership to another user
      * @param bvModalEvt
      */
     transferOwnership (bvModalEvt) {
@@ -162,7 +165,6 @@ export default {
       this.newOwner = null;
       this.users = [];
       this.newRoleInRoom = 3;
-      this.stayInRoom = true;
       this.errors = [];
       this.$bvModal.show('transfer-ownership-modal');
     },
@@ -194,17 +196,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(useAuthStore, ['currentUser']),
-
-    // check if new owner input field is valid
-    newOwnerValid () {
-      if (this.newOwner == null || this.newOwner.id == null || this.fieldState('user') === false) { return false; }
-      return null;
-    },
-    // return error message for user, local or server-side
-    userValidationError: function () {
-      return this.fieldState('user') === false ? this.fieldError('user') : this.$t('rooms.modals.transfer_ownership.select_user');
-    }
+    ...mapState(useAuthStore, ['currentUser'])
   },
 
   watch: {
