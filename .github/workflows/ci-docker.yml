@@ -1,6 +1,7 @@
 name: CI Docker build
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
   push:

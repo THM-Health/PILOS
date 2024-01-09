@@ -401,7 +401,7 @@ describe('History', () => {
     const chartOptions = view.vm.chartOptions;
 
     const ticksCallback = chartOptions.scales.x.ticks.callback('10:35 am', 0, [{ value: 1623746102000, major: false }]);
-    const tooltipTitleCallback = chartOptions.plugins.tooltip.callbacks.title([{ xLabel: '2021-06-15T08:35:02.000000Z', yLabel: 0, label: '2021-06-15T08:35:02.000000Z', value: '0', index: 1, datasetIndex: 1, x: 1103, y: 638.44 }, { xLabel: '2021-06-15T08:35:02.000000Z', yLabel: 0, label: '2021-06-15T08:35:02.000000Z', value: '0', index: 1, datasetIndex: 2, x: 1103, y: 638.44 }]);
+    const tooltipTitleCallback = chartOptions.plugins.tooltip.callbacks.title([{ label: 'Jun 15, 2021, 08:35:02 a.m.', parsed: { x: 1623746102000, y: 6 } }]);
 
     expect(ticksCallback).toBe('06/15/2021, 10:35');
     expect(tooltipTitleCallback).toBe('06/15/2021, 10:35');
