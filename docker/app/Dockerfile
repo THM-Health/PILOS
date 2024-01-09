@@ -84,6 +84,9 @@ COPY --chown=www-data:www-data ./ /var/www/html
 RUN su-exec www-data npm install --omit=dev
 RUN su-exec www-data composer install --no-dev
 
+# Optimize composer autoloader for production
+RUN su-exec www-data composer dump-autoload -o
+
 EXPOSE 80
 EXPOSE 443
 

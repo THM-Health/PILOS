@@ -46,7 +46,6 @@ case $ACTION in
     ;;
 
   optimize)
-      su-exec www-data composer dump-autoload -o
       pilos-cli config:cache
       pilos-cli route:cache
       pilos-cli view:cache
