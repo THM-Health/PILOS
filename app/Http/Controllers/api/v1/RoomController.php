@@ -348,6 +348,7 @@ class RoomController extends Controller
      */
     public function transferOwnership(Room $room, TransferOwnershipRequest $request)
     {
+        $oldOwner = $room->owner;
         $newOwner = User::findOrFail($request->user);
 
         DB::beginTransaction();
@@ -357,8 +358,7 @@ class RoomController extends Controller
             if ($room->members->contains($newOwner)) {
                 $room->members()->detach($newOwner);
             }
-            $oldOwner = $room->owner;
-
+            
             $room->owner()->associate($newOwner);
             $room->save();
 
