@@ -20,8 +20,8 @@ function getPreviousHash() {
 function getNewHash() {
     NEW_HASH=$(printenv | grep VITE_ | md5sum | awk '{ print $1 }')
 
-    # Get hash for every frontend file in the "./resources" directory
-    for DIR in "./resources"
+    # Get hash for every frontend file in the "resources" directory
+    for DIR in "/var/www/html/resources"
     do
         NEW_HASH+=$(find "$DIR" -type f -exec md5sum {} \; | md5sum | awk '{ print $1 }')
     done
