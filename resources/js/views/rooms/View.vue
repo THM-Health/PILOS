@@ -113,6 +113,16 @@
                   :room="room"
                   @favorites-changed="reload()"
                 />
+                <!-- transfer room ownership to another user-->
+                <can
+                  method="transfer"
+                  :policy="room"
+                >
+                  <transfer-ownership-dropdown-button
+                    @transferred-ownership="reload"
+                    :room="room">
+                  </transfer-ownership-dropdown-button>
+                </can>
                 <can
                   method="delete"
                   :policy="room"
@@ -351,6 +361,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useSettingsStore } from '@/stores/settings';
 import RoomInvitation from '@/components/Room/RoomInvitation.vue';
 import RoomFavoriteDropdownButton from '@/components/Room/RoomFavoriteDropdownButton.vue';
+import TransferOwnershipDropdownButton from '@/components/Room/TransferOwnershipDropdownButton.vue';
 import RoomMembershipDropdownButton from '@/components/Room/RoomMembershipDropdownButton.vue';
 import DeleteRoomDropdownButton from '@/components/Room/DeleteRoomDropdownButton.vue';
 import RoomDetailsComponent from '@/components/Room/RoomDetailsComponent.vue';
@@ -371,6 +382,7 @@ export default {
     TabsComponent,
     AdminTabsComponent,
     RoomFavoriteDropdownButton,
+    TransferOwnershipDropdownButton,
     RoomMembershipDropdownButton,
     DeleteRoomDropdownButton,
     RoomTypeBadge,

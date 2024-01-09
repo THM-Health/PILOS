@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to pre-build frontend assets for quicker startup ([#617])
 - Docker container healthcheck ([#617])
 - Documentation for scaling PILOS ([#617])
+- Transfer room ownership ([#532], [#686])
 
 ### Changed
 - **Breaking:** Split container into separate containers for the application, cronjobs and queue workers ([#617])
@@ -31,6 +32,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Documentation for running PILOS without docker ([#617])
+
+## [v3.0.1] - 2024-01-09
+### Fixed
+- Docker compose volume mapping framework folder
+
+## [v2.4.2] - 2024-01-09
+### Fixed
+- Docker compose volume mapping framework folder
+
+## [v3.0.0] - 2023-12-19
+### Changed
+- Migration from Vue 2 due to EOL to Vue 3 with @vue/compat ([#743])
+- Disable CI frontend tests (incompatible with Vue 3) ([#743])
 
 ## [v2.4.1] - 2023-12-19
 ### Changed
@@ -719,6 +733,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#505]: https://github.com/THM-Health/PILOS/issues/505
 [#506]: https://github.com/THM-Health/PILOS/pull/506
 [#509]: https://github.com/THM-Health/PILOS/pull/509
+[#532]: https://github.com/THM-Health/PILOS/issues/532
 [#535]: https://github.com/THM-Health/PILOS/issues/535
 [#536]: https://github.com/THM-Health/PILOS/pull/536
 [#545]: https://github.com/THM-Health/PILOS/pull/545
@@ -735,6 +750,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#681]: https://github.com/THM-Health/PILOS/pull/681
 [#684]: https://github.com/THM-Health/PILOS/issues/684
 [#685]: https://github.com/THM-Health/PILOS/pull/685
+[#686]: https://github.com/THM-Health/PILOS/pull/686
 [#700]: https://github.com/THM-Health/PILOS/issues/700
 [#704]: https://github.com/THM-Health/PILOS/issues/704
 [#701]: https://github.com/THM-Health/PILOS/pull/701
@@ -743,7 +759,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.1...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -781,3 +797,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.3.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.3.4
 [v2.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.0
 [v2.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.1
+[v2.4.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.2
+[v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
+[v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1

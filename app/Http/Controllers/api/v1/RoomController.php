@@ -4,18 +4,22 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomSortingType;
+use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartJoinMeeting;
+use App\Http\Requests\TransferOwnershipRequest;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Models\Room;
 use App\Models\RoomType;
+use App\Models\User;
 use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use Auth;
+use DB;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -145,7 +149,7 @@ class RoomController extends Controller
      */
     public function store(CreateRoom $request)
     {
-        if (Auth::user()->room_limit !== -1 && Auth::user()->myRooms()->count() >= Auth::user()->room_limit) {
+        if (Auth::user()->hasRoomLimitExceeded()) {
             abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED, __('app.errors.room_limit_exceeded'));
         }
 
@@ -333,5 +337,48 @@ class RoomController extends Controller
         Auth::user()->roomFavorites()->detach($room);
 
         return response()->noContent();
+    }
+
+    /**
+     * transfer the room ownership to another user
+     *
+     * @param  Room                      $room
+     * @param  TransferOwnershipRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function transferOwnership(Room $room, TransferOwnershipRequest $request)
+    {
+        $oldOwner = $room->owner;
+        $newOwner = User::findOrFail($request->user);
+
+        DB::beginTransaction();
+
+        try {
+            //delete the new owner from the members if he is a member of the room
+            if ($room->members->contains($newOwner)) {
+                $room->members()->detach($newOwner);
+            }
+            
+            $room->owner()->associate($newOwner);
+            $room->save();
+
+            //add old owner to the members
+            if ($request->role) {
+                $room->members()->attach($oldOwner, ['role' => $request->role]);
+            }
+
+            DB::commit();
+            Log::info('Transferred room ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
+            if ($request->role) {
+                Log::info('Changed role of previous owner {oldOwner} of the room {room} to the role {role}', ['oldOwner' => $oldOwner->getLogLabel(), 'room'=> $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role)]);
+            }
+
+            return response()->noContent();
+        } catch(\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to transfer ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
+
+            return abort(500);
+        }
     }
 }

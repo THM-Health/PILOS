@@ -151,6 +151,12 @@ return [
                 'exists'   => 'Der Server mit der ID :input konnte nicht gefunden werden.',
             ],
         ],
+        'transfer_ownership' => [
+            'can_not_own_rooms'   => 'Der ausgewählte Benutzer darf keine Räume besitzen.',
+            'invalid_room_type'   => 'Der ausgewählte Benutzer darf keine Räume mit der Raumart dieses Raumes besitzen.',
+            'is_owner'            => 'Der ausgewählte Benutzer ist bereits der Eigentümer des Raumes.',
+            'room_limit_exceeded' => 'Der ausgewählte Benutzer hat seine max. Anzahl an Räumen erreicht.',
+        ],
         'user' => [
             'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.',
         ],
