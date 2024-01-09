@@ -41,7 +41,7 @@
         "@tiptap/vue-2": "^2.1.15",
         "@vitejs/plugin-vue2": "^2.3.1",
         "axe-core": "^4.8.3",
-        "axios": "^1.6.4",
+        "axios": "^1.6.5",
         "axios-mock-adapter": "^1.22.0",
         "bootstrap": "^4.6.1",
         "bootstrap-vue": "^2.15.0",
