@@ -145,6 +145,18 @@ class RoomPolicy
     }
 
     /**
+     * Determine whether the user can transfer the room ownership
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function transfer(User $user, Room $room)
+    {
+        return $room->owner->is($user) || $user->can('rooms.manage');
+    }
+
+    /**
      * Determine whether the user can delete the room.
      *
      * @param  User $user

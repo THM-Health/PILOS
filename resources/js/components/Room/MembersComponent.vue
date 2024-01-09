@@ -511,6 +511,8 @@ import { mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useSettingsStore } from '@/stores/settings';
 import BulkImportMembersComponent from './BulkImportMembersComponent.vue';
+import EventBus from '@/services/EventBus';
+import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 
 export default {
 
@@ -927,9 +929,26 @@ export default {
       this.errors = {};
     }
   },
-  created () {
-    // initial member fetch
+
+  /**
+   * Sets the event listener for current room change to reload the member list.
+   *
+   * @method mounted
+   * @return undefined
+   */
+  mounted () {
+    EventBus.on(EVENT_CURRENT_ROOM_CHANGED, this.reload);
     this.reload();
+  },
+
+  /**
+   * Removes the listener for current room change
+   *
+   * @method beforeDestroy
+   * @return undefined
+   */
+  beforeDestroy () {
+    EventBus.off(EVENT_CURRENT_ROOM_CHANGED, this.reload);
   }
 };
 </script>

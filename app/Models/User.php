@@ -144,6 +144,17 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
+     * Check if the users room limit has exceeded
+     * @return bool
+     */
+    public function hasRoomLimitExceeded()
+    {
+        $roomLimit = $this->room_limit;
+
+        return $roomLimit !== -1 && $this->myRooms()->count() >= $roomLimit;
+    }
+
+    /**
      * Rooms the user is member of
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

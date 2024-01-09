@@ -203,6 +203,16 @@ return [
             'confirm' => 'Should the room ":name" be deleted?',
             'title'   => 'Delete room',
         ],
+        'transfer_ownership' => [
+            'new_owner'            => 'New owner',
+            'new_role'             => 'New role of the current owner',
+            'no_role'              => 'No role',
+            'select_user'          => 'Please select the new owner',
+            'title'                => 'Transfer ownership',
+            'transfer'             => 'Transfer',
+            'warning'              => 'Caution: This may result in the current owner losing access to this room',
+
+        ],
     ],
     'name'                      => 'Room name',
     'no_rooms_available'        => 'No rooms available',

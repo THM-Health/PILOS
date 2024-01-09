@@ -8,6 +8,8 @@ import _ from 'lodash';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
+import EventBus from '@/services/EventBus';
+import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 
 const localVue = createLocalVue();
 
@@ -265,6 +267,38 @@ describe('RoomMembers', () => {
     await view.vm.$nextTick();
 
     expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('reload on EventBus message', async () => {
+    const reloadSpy = vi.spyOn(MembersComponent.methods, 'reload').mockImplementation(() => {});
+
+    const view = mount(MembersComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: ownerRoom,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+    await view.vm.$nextTick();
+
+    // check for initial reload
+    expect(reloadSpy).toBeCalledTimes(1);
+
+    EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, this.room);
+
+    // check for reload triggered by EventBus
+    expect(reloadSpy).toBeCalledTimes(2);
 
     view.destroy();
   });

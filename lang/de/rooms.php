@@ -79,7 +79,7 @@ return [
     ],
     'end_membership' => [
         'button'  => 'Mitgliedschaft beenden',
-        'message' => 'Sie verlieren die Rolle, die mit Ihrer Mitgliedschaft verbunden ist. Um wieder Mitglied zu werden, müssen Sie eventuell den Raumbesitzer fragen. Wenn der Raum einen Zugangscode hat, müssen Sie diesen kennen, um weiterhin Zugang zu dem Raum zu haben.',
+        'message' => 'Sie verlieren die Rolle, die mit Ihrer Mitgliedschaft verbunden ist. Um wieder Mitglied zu werden, müssen Sie eventuell den Raumeigentümer fragen. Wenn der Raum einen Zugangscode hat, müssen Sie diesen kennen, um weiterhin Zugang zu dem Raum zu haben.',
         'no'      => 'Nein, Mitgliedschaft beibehalten',
         'title'   => 'Sind Sie sicher, dass Sie die Mitgliedschaft beenden wollen?',
         'yes'     => 'Ja, Mitgliedschaft beenden',
@@ -203,6 +203,15 @@ return [
             'confirm' => 'Soll der Raum ":name" gelöscht werden?',
             'title'   => 'Raum löschen',
         ],
+        'transfer_ownership' => [
+            'new_owner'            => 'Neuer Eigentümer',
+            'new_role'             => 'Neue Rolle des aktuellen Eigentümers',
+            'no_role'              => 'Keine Rolle',
+            'select_user'          => 'Bitte wählen Sie den neuen Eigentümer aus',
+            'title'                => 'Eigentümer ändern',
+            'transfer'             => 'Übertragen',
+            'warning'              => 'Achtung: Kann dazu führen, dass der aktuelle Eigentümer den  Zugriff auf diesen Raum verliert',
+        ],
     ],
     'name'                      => 'Raumname',
     'no_rooms_available'        => 'Keine Räume vorhanden',
@@ -222,7 +231,7 @@ return [
     'require_access_code'              => 'Für diesen Raum ist ein Zugangscode erforderlich',
     'role'                             => 'Rolle',
     'roles'                            => [
-        'co_owner'    => 'Mitbesitzer',
+        'co_owner'    => 'Miteigentümer',
         'guest'       => 'Gast',
         'moderator'   => 'Moderator',
         'participant' => 'Teilnehmer',
