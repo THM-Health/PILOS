@@ -46,6 +46,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migration from Vue 2 due to EOL to Vue 3 with @vue/compat ([#743])
 - Disable CI frontend tests (incompatible with Vue 3) ([#743])
 
+## [v3.0.1] - 2024-01-09
+### Fixed
+- Docker compose volume mapping framework folder
+
+## [v2.4.2] - 2024-01-09
+### Fixed
+- Docker compose volume mapping framework folder
+
+## [v3.0.0] - 2023-12-19
+### Changed
+- Migration from Vue 2 due to EOL to Vue 3 with @vue/compat ([#743])
+- Disable CI frontend tests (incompatible with Vue 3) ([#743])
+
 ## [v2.4.1] - 2023-12-19
 ### Changed
 - Reduction of api calls when changing locale
@@ -756,6 +769,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#701]: https://github.com/THM-Health/PILOS/pull/701
 [#724]: https://github.com/THM-Health/PILOS/pull/724
 [#735]: https://github.com/THM-Health/PILOS/pull/735
+[#743]: https://github.com/THM-Health/PILOS/pull/743
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 

@@ -9,6 +9,7 @@ on:
       - master
       - develop
       - '[0-9].x'
+      - vue-3
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
