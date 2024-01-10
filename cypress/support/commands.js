@@ -23,3 +23,20 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('bypassLogin', (name, password)=>{
+  cy.session([name,password], () =>{
+    cy.visit('/login');
+    cy.get('#__BVID__33___BV_tab_button__').click();
+    cy.get('#localEmail').type(name);
+    cy.get('#localPassword').type(password);
+    cy.get('button').eq(2).contains('Login').click();
+    //check if redirected to /rooms
+    cy.url().should('include', '/room');
+  },
+    {
+      cacheAcrossSpecs:true
+    }
+  )
+
+})

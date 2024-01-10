@@ -1,0 +1,956 @@
+{
+  "cypress.factory": {
+    "name": "cypress.factory",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@factory",
+    "uri": "__cypress__/factory",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.login": {
+    "name": "cypress.login",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@login",
+    "uri": "__cypress__/login",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.logout": {
+    "name": "cypress.logout",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@logout",
+    "uri": "__cypress__/logout",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.artisan": {
+    "name": "cypress.artisan",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@artisan",
+    "uri": "__cypress__/artisan",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.run-php": {
+    "name": "cypress.run-php",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@runPhp",
+    "uri": "__cypress__/run-php",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.csrf-token": {
+    "name": "cypress.csrf-token",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@csrfToken",
+    "uri": "__cypress__/csrf_token",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "cypress.routes": {
+    "name": "cypress.routes",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@routes",
+    "uri": "__cypress__/routes",
+    "method": [
+      "POST"
+    ]
+  },
+  "cypress.current-user": {
+    "name": "cypress.current-user",
+    "domain": null,
+    "action": "Laracasts\\Cypress\\Controllers\\CypressController@currentUser",
+    "uri": "__cypress__/current-user",
+    "method": [
+      "POST"
+    ]
+  },
+  "sanctum.csrf-cookie": {
+    "name": "sanctum.csrf-cookie",
+    "domain": null,
+    "action": "Laravel\\Sanctum\\Http\\Controllers\\CsrfCookieController@show",
+    "uri": "sanctum/csrf-cookie",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "ignition.healthCheck": {
+    "name": "ignition.healthCheck",
+    "domain": null,
+    "action": "Spatie\\LaravelIgnition\\Http\\Controllers\\HealthCheckController",
+    "uri": "_ignition/health-check",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "ignition.executeSolution": {
+    "name": "ignition.executeSolution",
+    "domain": null,
+    "action": "Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController",
+    "uri": "_ignition/execute-solution",
+    "method": [
+      "POST"
+    ]
+  },
+  "ignition.updateConfig": {
+    "name": "ignition.updateConfig",
+    "domain": null,
+    "action": "Spatie\\LaravelIgnition\\Http\\Controllers\\UpdateConfigController",
+    "uri": "_ignition/update-config",
+    "method": [
+      "POST"
+    ]
+  },
+  "": {
+    "name": null,
+    "domain": null,
+    "action": "App\\Http\\Controllers\\ApplicationController@index",
+    "uri": "{any}",
+    "method": [
+      "GET",
+      "HEAD",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS"
+    ]
+  },
+  "telescope": {
+    "name": "telescope",
+    "domain": null,
+    "action": "Laravel\\Telescope\\Http\\Controllers\\HomeController@index",
+    "uri": "telescope/{view?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.locale.get": {
+    "name": "api.v1.locale.get",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\LocaleController@show",
+    "uri": "api/v1/locale/{locale}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.locale.update": {
+    "name": "api.v1.locale.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\LocaleController@update",
+    "uri": "api/v1/locale",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.application": {
+    "name": "api.v1.application",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ApplicationController@settings",
+    "uri": "api/v1/settings",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.currentUser": {
+    "name": "api.v1.currentUser",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ApplicationController@currentUser",
+    "uri": "api/v1/currentUser",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.login.local": {
+    "name": "api.v1.login.local",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\auth\\LoginController@login",
+    "uri": "api/v1/login/local",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.login.ldap": {
+    "name": "api.v1.login.ldap",
+    "domain": null,
+    "action": "App\\Auth\\LDAP\\LDAPController@login",
+    "uri": "api/v1/login/ldap",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.logout": {
+    "name": "api.v1.logout",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\auth\\LoginController@logout",
+    "uri": "api/v1/logout",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.password.reset": {
+    "name": "api.v1.password.reset",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\auth\\ResetPasswordController@reset",
+    "uri": "api/v1/password/reset",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.password.email": {
+    "name": "api.v1.password.email",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\auth\\ForgotPasswordController@sendResetLinkEmail",
+    "uri": "api/v1/password/email",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.application.complete": {
+    "name": "api.v1.application.complete",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ApplicationController@allSettings",
+    "uri": "api/v1/settings/all",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.application.update": {
+    "name": "api.v1.application.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ApplicationController@updateSettings",
+    "uri": "api/v1/settings",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.roles.index": {
+    "name": "api.v1.roles.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoleController@index",
+    "uri": "api/v1/roles",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.roles.store": {
+    "name": "api.v1.roles.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoleController@store",
+    "uri": "api/v1/roles",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.roles.show": {
+    "name": "api.v1.roles.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoleController@show",
+    "uri": "api/v1/roles/{role}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.roles.update": {
+    "name": "api.v1.roles.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoleController@update",
+    "uri": "api/v1/roles/{role}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.v1.roles.destroy": {
+    "name": "api.v1.roles.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoleController@destroy",
+    "uri": "api/v1/roles/{role}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.roomTypes.index": {
+    "name": "api.v1.roomTypes.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTypeController@index",
+    "uri": "api/v1/roomTypes",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.roomTypes.store": {
+    "name": "api.v1.roomTypes.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTypeController@store",
+    "uri": "api/v1/roomTypes",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.roomTypes.show": {
+    "name": "api.v1.roomTypes.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTypeController@show",
+    "uri": "api/v1/roomTypes/{roomType}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.roomTypes.update": {
+    "name": "api.v1.roomTypes.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTypeController@update",
+    "uri": "api/v1/roomTypes/{roomType}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.v1.roomTypes.destroy": {
+    "name": "api.v1.roomTypes.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTypeController@destroy",
+    "uri": "api/v1/roomTypes/{roomType}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.permissions.index": {
+    "name": "api.v1.permissions.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\PermissionController@index",
+    "uri": "api/v1/permissions",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.index": {
+    "name": "api.v1.rooms.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@index",
+    "uri": "api/v1/rooms",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.store": {
+    "name": "api.v1.rooms.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@store",
+    "uri": "api/v1/rooms",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.rooms.favorites.add": {
+    "name": "api.v1.rooms.favorites.add",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@addToFavorites",
+    "uri": "api/v1/rooms/{room}/favorites",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.rooms.favorites.delete": {
+    "name": "api.v1.rooms.favorites.delete",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@deleteFromFavorites",
+    "uri": "api/v1/rooms/{room}/favorites",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.rooms.update": {
+    "name": "api.v1.rooms.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@update",
+    "uri": "api/v1/rooms/{room}",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.rooms.destroy": {
+    "name": "api.v1.rooms.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@destroy",
+    "uri": "api/v1/rooms/{room}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.rooms.settings": {
+    "name": "api.v1.rooms.settings",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@getSettings",
+    "uri": "api/v1/rooms/{room}/settings",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.description.update": {
+    "name": "api.v1.rooms.description.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@updateDescription",
+    "uri": "api/v1/rooms/{room}/description",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.rooms.membership.join": {
+    "name": "api.v1.rooms.membership.join",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@join",
+    "uri": "api/v1/rooms/{room}/membership",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.rooms.membership.leave": {
+    "name": "api.v1.rooms.membership.leave",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@leave",
+    "uri": "api/v1/rooms/{room}/membership",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.rooms.member.bulkImport": {
+    "name": "api.v1.rooms.member.bulkImport",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@bulkImport",
+    "uri": "api/v1/rooms/{room}/member/bulk",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.rooms.member.bulkUpdate": {
+    "name": "api.v1.rooms.member.bulkUpdate",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@bulkUpdate",
+    "uri": "api/v1/rooms/{room}/member/bulk",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.rooms.member.bulkDestroy": {
+    "name": "api.v1.rooms.member.bulkDestroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@bulkDestroy",
+    "uri": "api/v1/rooms/{room}/member/bulk",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.rooms.member.get": {
+    "name": "api.v1.rooms.member.get",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@index",
+    "uri": "api/v1/rooms/{room}/member",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.member.add": {
+    "name": "api.v1.rooms.member.add",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@store",
+    "uri": "api/v1/rooms/{room}/member",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.rooms.member.update": {
+    "name": "api.v1.rooms.member.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@update",
+    "uri": "api/v1/rooms/{room}/member/{user}",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.rooms.member.destroy": {
+    "name": "api.v1.rooms.member.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomMemberController@destroy",
+    "uri": "api/v1/rooms/{room}/member/{user}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.rooms.tokens.get": {
+    "name": "api.v1.rooms.tokens.get",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTokenController@index",
+    "uri": "api/v1/rooms/{room}/tokens",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.tokens.add": {
+    "name": "api.v1.rooms.tokens.add",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTokenController@store",
+    "uri": "api/v1/rooms/{room}/tokens",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.rooms.tokens.update": {
+    "name": "api.v1.rooms.tokens.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTokenController@update",
+    "uri": "api/v1/rooms/{room}/tokens/{token}",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.rooms.tokens.destroy": {
+    "name": "api.v1.rooms.tokens.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomTokenController@destroy",
+    "uri": "api/v1/rooms/{room}/tokens/{token}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.rooms.files.add": {
+    "name": "api.v1.rooms.files.add",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomFileController@store",
+    "uri": "api/v1/rooms/{room}/files",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.rooms.files.update": {
+    "name": "api.v1.rooms.files.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomFileController@update",
+    "uri": "api/v1/rooms/{room}/files/{file}",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.rooms.files.destroy": {
+    "name": "api.v1.rooms.files.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomFileController@destroy",
+    "uri": "api/v1/rooms/{room}/files/{file}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.users.search": {
+    "name": "api.v1.users.search",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@search",
+    "uri": "api/v1/users/search",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.users.index": {
+    "name": "api.v1.users.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@index",
+    "uri": "api/v1/users",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.users.store": {
+    "name": "api.v1.users.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@store",
+    "uri": "api/v1/users",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.users.show": {
+    "name": "api.v1.users.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@show",
+    "uri": "api/v1/users/{user}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.users.update": {
+    "name": "api.v1.users.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@update",
+    "uri": "api/v1/users/{user}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.v1.users.destroy": {
+    "name": "api.v1.users.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@destroy",
+    "uri": "api/v1/users/{user}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.users.email.change": {
+    "name": "api.v1.users.email.change",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@changeEmail",
+    "uri": "api/v1/users/{user}/email",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.users.password.change": {
+    "name": "api.v1.users.password.change",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@changePassword",
+    "uri": "api/v1/users/{user}/password",
+    "method": [
+      "PUT"
+    ]
+  },
+  "api.v1.email.verify": {
+    "name": "api.v1.email.verify",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\auth\\VerificationController@verify",
+    "uri": "api/v1/email/verify",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.users.password.reset": {
+    "name": "api.v1.users.password.reset",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\UserController@resetPassword",
+    "uri": "api/v1/users/{user}/resetPassword",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.sessions.index": {
+    "name": "api.v1.sessions.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\SessionController@index",
+    "uri": "api/v1/sessions",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.sessions.destroy": {
+    "name": "api.v1.sessions.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\SessionController@destroy",
+    "uri": "api/v1/sessions",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.servers.check": {
+    "name": "api.v1.servers.check",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerController@check",
+    "uri": "api/v1/servers/check",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.servers.panic": {
+    "name": "api.v1.servers.panic",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerController@panic",
+    "uri": "api/v1/servers/{server}/panic",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.servers.index": {
+    "name": "api.v1.servers.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerController@index",
+    "uri": "api/v1/servers",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.servers.store": {
+    "name": "api.v1.servers.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerController@store",
+    "uri": "api/v1/servers",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.servers.show": {
+    "name": "api.v1.servers.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerController@show",
+    "uri": "api/v1/servers/{server}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.servers.update": {
+    "name": "api.v1.servers.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerController@update",
+    "uri": "api/v1/servers/{server}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.v1.servers.destroy": {
+    "name": "api.v1.servers.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerController@destroy",
+    "uri": "api/v1/servers/{server}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.serverPools.index": {
+    "name": "api.v1.serverPools.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerPoolController@index",
+    "uri": "api/v1/serverPools",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.serverPools.store": {
+    "name": "api.v1.serverPools.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerPoolController@store",
+    "uri": "api/v1/serverPools",
+    "method": [
+      "POST"
+    ]
+  },
+  "api.v1.serverPools.show": {
+    "name": "api.v1.serverPools.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerPoolController@show",
+    "uri": "api/v1/serverPools/{serverPool}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.serverPools.update": {
+    "name": "api.v1.serverPools.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerPoolController@update",
+    "uri": "api/v1/serverPools/{serverPool}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "api.v1.serverPools.destroy": {
+    "name": "api.v1.serverPools.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\ServerPoolController@destroy",
+    "uri": "api/v1/serverPools/{serverPool}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "api.v1.meetings.attendance": {
+    "name": "api.v1.meetings.attendance",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\MeetingController@attendance",
+    "uri": "api/v1/meetings/{meeting}/attendance",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.meetings.stats": {
+    "name": "api.v1.meetings.stats",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\MeetingController@stats",
+    "uri": "api/v1/meetings/{meeting}/stats",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.meetings.index": {
+    "name": "api.v1.meetings.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\MeetingController@index",
+    "uri": "api/v1/meetings",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.meetings": {
+    "name": "api.v1.rooms.meetings",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@meetings",
+    "uri": "api/v1/rooms/{room}/meetings",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.": {
+    "name": "api.v1.",
+    "domain": null,
+    "action": "Closure",
+    "uri": "api/v1/getTimezones",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.show": {
+    "name": "api.v1.rooms.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@show",
+    "uri": "api/v1/rooms/{room}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.start": {
+    "name": "api.v1.rooms.start",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@start",
+    "uri": "api/v1/rooms/{room}/start",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.join": {
+    "name": "api.v1.rooms.join",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomController@join",
+    "uri": "api/v1/rooms/{room}/join",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.files.get": {
+    "name": "api.v1.rooms.files.get",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomFileController@index",
+    "uri": "api/v1/rooms/{room}/files",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.rooms.files.show": {
+    "name": "api.v1.rooms.files.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\RoomFileController@show",
+    "uri": "api/v1/rooms/{room}/files/{file}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "api.v1.meetings.endcallback": {
+    "name": "api.v1.meetings.endcallback",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\api\\v1\\MeetingController@endMeetingCallback",
+    "uri": "api/v1/meetings/{meeting}/endCallback",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "download.file": {
+    "name": "download.file",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\FileController@show",
+    "uri": "download/file/{roomFile}/{filename?}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "download.attendance": {
+    "name": "download.attendance",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\MeetingController@attendance",
+    "uri": "download/attendance/{meeting}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "auth.shibboleth.redirect": {
+    "name": "auth.shibboleth.redirect",
+    "domain": null,
+    "action": "App\\Auth\\Shibboleth\\ShibbolethController@redirect",
+    "uri": "auth/shibboleth/redirect",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "auth.shibboleth.callback": {
+    "name": "auth.shibboleth.callback",
+    "domain": null,
+    "action": "App\\Auth\\Shibboleth\\ShibbolethController@callback",
+    "uri": "auth/shibboleth/callback",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "auth.shibboleth.logout": {
+    "name": "auth.shibboleth.logout",
+    "domain": null,
+    "action": "App\\Auth\\Shibboleth\\ShibbolethController@logout",
+    "uri": "auth/shibboleth/logout",
+    "method": [
+      "GET",
+      "POST",
+      "HEAD"
+    ]
+  }
+}
