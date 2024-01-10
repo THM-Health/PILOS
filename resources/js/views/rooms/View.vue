@@ -435,7 +435,7 @@ export default {
 
     this.load();
   },
-  destroyed () {
+  unmounted () {
     clearInterval(this.reloadInterval);
   },
   methods: {

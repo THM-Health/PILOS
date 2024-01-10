@@ -4,8 +4,8 @@
       :id="id"
       ref="roles-multiselect"
       :placeholder="$t('settings.roles.select_roles')"
-      :value="selectedRoles"
-      @input="input"
+      :model-value="selectedRoles"
+      @update:model-value="input"
       track-by='id'
       open-direction='bottom'
       :multiple='true'

@@ -129,7 +129,7 @@
       hover
       show-empty
       stacked="lg"
-      :busy.sync="isBusy"
+      v-model:busy="isBusy"
       :fields="tableFields"
       :items="fetchUsers"
       :current-page="meta.current_page"

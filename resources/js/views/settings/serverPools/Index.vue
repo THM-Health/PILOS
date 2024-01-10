@@ -50,7 +50,7 @@
       hover
       stacked="xl"
       show-empty
-      :busy.sync="isBusy"
+      v-model:busy="isBusy"
       :fields="tableFields"
       :items="fetchServerPools"
       :filter="filter"

@@ -1,39 +1,33 @@
 <template>
-  <div v-frag>
-    <b-button
-      v-b-tooltip.hover
-      v-tooltip-hide-click
-      variant="outline-dark"
-      :title="$t('rooms.description.tooltips.source_code')"
-      @click="openModal"
-    >
-      <i class="fa-solid fa-code" />
-    </b-button>
-    <b-modal
-      id="code-modal"
-      :static="modalStatic"
-      size="xl"
-      :title="$t('rooms.description.modals.source_code.title')"
-      :cancel-title="$t('app.cancel')"
-      cancel-variant="dark"
-      :ok-title="$t('app.save')"
-      ok-variant="success"
-      @ok="save"
-    >
-      <b-form-textarea
-        v-model="source"
-        rows="5"
-      />
-    </b-modal>
-  </div>
+  <b-button
+    v-b-tooltip.hover
+    v-tooltip-hide-click
+    variant="outline-dark"
+    :title="$t('rooms.description.tooltips.source_code')"
+    @click="openModal"
+  >
+    <i class="fa-solid fa-code" />
+  </b-button>
+  <b-modal
+    id="code-modal"
+    :static="modalStatic"
+    size="xl"
+    :title="$t('rooms.description.modals.source_code.title')"
+    :cancel-title="$t('app.cancel')"
+    cancel-variant="dark"
+    :ok-title="$t('app.save')"
+    ok-variant="success"
+    @ok="save"
+  >
+    <b-form-textarea
+      v-model="source"
+      rows="5"
+    />
+  </b-modal>
 </template>
 <script>
 
-import frag from 'vue-frag';
 export default {
-  directives: {
-    frag
-  },
   props: {
     editor: Object,
     modalStatic: {

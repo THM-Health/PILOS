@@ -27,7 +27,7 @@
       hover
       stacked="lg"
       show-empty
-      :busy.sync="isBusy"
+      v-model:busy="isBusy"
       :fields="tableFields"
       :items="fetchRoles"
       :current-page="currentPage"

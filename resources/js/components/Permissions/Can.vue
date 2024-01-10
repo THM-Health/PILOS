@@ -1,18 +1,11 @@
 <template>
-  <div
-    v-if="slotVisible"
-    v-frag
-  >
-    <!-- @slot Content that should be only visible if necessary permissions are given. -->
-    <slot />
-  </div>
+  <slot v-if="slotVisible"></slot>
 </template>
 
 <script>
 import EventBus from '@/services/EventBus';
 import { EVENT_CURRENT_USER_CHANGED } from '@/constants/events';
 import PermissionService from '@/services/PermissionService';
-import frag from 'vue-frag';
 
 /**
  * Checks whether the passed permissions are given and depending
@@ -31,9 +24,6 @@ import frag from 'vue-frag';
  *   ```
  */
 export default {
-  directives: {
-    frag
-  },
 
   props: {
     /**
@@ -108,10 +98,10 @@ export default {
   /**
    * Removes the listener for current user change on destroy of this component.
    *
-   * @method beforeDestroy
+   * @method beforeUnmount
    * @return undefined
    */
-  beforeDestroy () {
+  beforeUnmount () {
     EventBus.off(EVENT_CURRENT_USER_CHANGED, this.evaluatePermissions);
   },
 

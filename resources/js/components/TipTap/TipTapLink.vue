@@ -1,73 +1,67 @@
 <template>
-  <div v-frag>
-    <b-button
-      v-b-tooltip.hover
-      v-tooltip-hide-click
-      variant="outline-dark"
-      :title="$t('rooms.description.tooltips.link')"
-      :pressed="editor.isActive('link')"
-      @click="openModal"
+  <b-button
+    v-b-tooltip.hover
+    v-tooltip-hide-click
+    variant="outline-dark"
+    :title="$t('rooms.description.tooltips.link')"
+    :pressed="editor.isActive('link')"
+    @click="openModal"
+  >
+    <i class="fa-solid fa-link" />
+  </b-button>
+  <b-modal
+    id="link-modal"
+    :static="modalStatic"
+    :title="newLink ? $t('rooms.description.modals.link.new') : $t('rooms.description.modals.link.edit')"
+  >
+    <b-form-group
+      :label="$t('rooms.description.modals.link.url')"
+      :invalid-feedback="$t('rooms.description.modals.link.invalid_url')"
+      :state="urlState"
     >
-      <i class="fa-solid fa-link" />
-    </b-button>
-    <b-modal
-      id="link-modal"
-      :static="modalStatic"
-      :title="newLink ? $t('rooms.description.modals.link.new') : $t('rooms.description.modals.link.edit')"
-    >
-      <b-form-group
-        :label="$t('rooms.description.modals.link.url')"
-        :invalid-feedback="$t('rooms.description.modals.link.invalid_url')"
+      <b-form-input
+        v-model="link"
+        trim
+        type="text"
         :state="urlState"
-      >
-        <b-form-input
-          v-model="link"
-          trim
-          type="text"
-          :state="urlState"
-        />
-      </b-form-group>
+      />
+    </b-form-group>
 
-      <template #modal-footer="{ cancel }">
-        <div class="w-100 d-flex justify-content-between">
-          <div>
-            <b-button
-              v-if="!newLink"
-              variant="danger"
-              class="mr-2"
-              @click="deleteLink"
-            >
-              {{ $t('app.delete') }}
-            </b-button>
-          </div>
-          <div>
-            <b-button
-              variant="secondary"
-              @click="cancel"
-            >
-              {{ $t('app.cancel') }}
-            </b-button>
-            <b-button
-              variant="success"
-              class="ml-2"
-              :disabled="urlState !== true"
-              @click="save"
-            >
-              {{ $t('app.save') }}
-            </b-button>
-          </div>
+    <template #modal-footer="{ cancel }">
+      <div class="w-100 d-flex justify-content-between">
+        <div>
+          <b-button
+            v-if="!newLink"
+            variant="danger"
+            class="mr-2"
+            @click="deleteLink"
+          >
+            {{ $t('app.delete') }}
+          </b-button>
         </div>
-      </template>
-    </b-modal>
-  </div>
+        <div>
+          <b-button
+            variant="secondary"
+            @click="cancel"
+          >
+            {{ $t('app.cancel') }}
+          </b-button>
+          <b-button
+            variant="success"
+            class="ml-2"
+            :disabled="urlState !== true"
+            @click="save"
+          >
+            {{ $t('app.save') }}
+          </b-button>
+        </div>
+      </div>
+    </template>
+  </b-modal>
 </template>
 <script>
 
-import frag from 'vue-frag';
 export default {
-  directives: {
-    frag
-  },
   props: {
     editor: Object,
     modalStatic: {

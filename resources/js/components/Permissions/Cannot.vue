@@ -1,11 +1,5 @@
 <template>
-  <div
-    v-if="slotVisible"
-    v-frag
-  >
-    <!-- @slot Content that should be only visible if permissions aren't given. -->
-    <slot />
-  </div>
+  <slot v-if="slotVisible"></slot>
 </template>
 
 <script>
@@ -31,9 +25,6 @@ import frag from 'vue-frag';
  *   ```
  */
 export default {
-  directives: {
-    frag
-  },
 
   props: {
     /**
@@ -111,7 +102,7 @@ export default {
    * @method beforeDestroy
    * @return undefined
    */
-  beforeDestroy () {
+  beforeUnmount () {
     EventBus.off(EVENT_CURRENT_USER_CHANGED, this.evaluatePermissions);
   },
 

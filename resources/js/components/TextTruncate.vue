@@ -2,7 +2,7 @@
   <div
     ref="overflow"
     v-b-tooltip.hover
-    :title="!disabled ? $slots.default[0].text : null"
+    :title="!disabled ? $slots.default()[0].text : null"
     class="text-ellipsis"
     :disabled="disabled"
   >
@@ -24,7 +24,7 @@ export default {
     });
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     window.removeEventListener('resize', this.checkOverflow);
   },
 

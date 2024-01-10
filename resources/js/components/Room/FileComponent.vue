@@ -583,7 +583,7 @@ export default {
    * @method beforeDestroy
    * @return undefined
    */
-  beforeDestroy () {
+  beforeUnmount () {
     EventBus.off(EVENT_CURRENT_ROOM_CHANGED, this.reload);
   }
 };

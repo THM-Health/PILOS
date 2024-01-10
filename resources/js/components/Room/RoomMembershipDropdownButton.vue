@@ -1,52 +1,49 @@
 <template>
-  <div v-frag>
-    <!-- If membership is enabled, allow user to become member -->
-    <can
-      method="becomeMember"
-      :policy="room"
-    >
-      <b-dropdown-item-button
-        id="join-membership-button"
-        :disabled="loading || disabled"
-        @click="joinMembership"
-      >
-        <div class="d-flex align-items-baseline">
-          <i class="fa-solid fa-user" />
-          <span>{{ $t('rooms.become_member') }}</span>
-        </div>
-      </b-dropdown-item-button>
-    </can>
-    <!-- If user is member, allow user to end the membership -->
+  <!-- If membership is enabled, allow user to become member -->
+  <can
+    method="becomeMember"
+    :policy="room"
+  >
     <b-dropdown-item-button
-      v-if="room.is_member"
-      v-b-modal.leave-membership-modal
+      id="join-membership-button"
       :disabled="loading || disabled"
+      @click="joinMembership"
     >
       <div class="d-flex align-items-baseline">
         <i class="fa-solid fa-user" />
-        <span>{{ $t('rooms.end_membership.button') }}</span>
+        <span>{{ $t('rooms.become_member') }}</span>
       </div>
     </b-dropdown-item-button>
+  </can>
+  <!-- If user is member, allow user to end the membership -->
+  <b-dropdown-item-button
+    v-if="room.is_member"
+    v-b-modal.leave-membership-modal
+    :disabled="loading || disabled"
+  >
+    <div class="d-flex align-items-baseline">
+      <i class="fa-solid fa-user" />
+      <span>{{ $t('rooms.end_membership.button') }}</span>
+    </div>
+  </b-dropdown-item-button>
 
-    <b-modal
-      v-if="room.is_member"
-      id="leave-membership-modal"
-      ref="leave-membership-modal"
-      :static="modalStatic"
-      :title="$t('rooms.end_membership.title')"
-      ok-variant="danger"
-      cancel-variant="secondary"
-      :ok-title="$t('rooms.end_membership.yes')"
-      :cancel-title="$t('rooms.end_membership.no')"
-      @ok="leaveMembership"
-    >
-      {{ $t('rooms.end_membership.message') }}
-    </b-modal>
-  </div>
+  <b-modal
+    v-if="room.is_member"
+    id="leave-membership-modal"
+    ref="leave-membership-modal"
+    :static="modalStatic"
+    :title="$t('rooms.end_membership.title')"
+    ok-variant="danger"
+    cancel-variant="secondary"
+    :ok-title="$t('rooms.end_membership.yes')"
+    :cancel-title="$t('rooms.end_membership.no')"
+    @ok="leaveMembership"
+  >
+    {{ $t('rooms.end_membership.message') }}
+  </b-modal>
 </template>
 <script>
 import Base from '@/api/base';
-import frag from 'vue-frag';
 import Can from '@/components/Permissions/Can.vue';
 import env from '@/env';
 
@@ -54,9 +51,6 @@ export default {
   name: 'RoomMembershipDropdownButton',
   components: {
     Can
-  },
-  directives: {
-    frag
   },
   props: {
     room: {

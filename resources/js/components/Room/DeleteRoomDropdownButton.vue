@@ -1,51 +1,45 @@
 <template>
-  <div v-frag>
-    <!-- Remove room -->
-    <b-dropdown-item-button
-      ref="deleteButton"
-      :disabled="disabled"
-      @click="$bvModal.show('remove-modal')"
-    >
-      <div class="d-flex align-items-baseline">
-        <i class="fa-solid fa-trash" />
-        <span>{{ $t('rooms.modals.delete.title') }}</span>
-      </div>
-    </b-dropdown-item-button>
+  <!-- Remove room -->
+  <b-dropdown-item-button
+    ref="deleteButton"
+    :disabled="disabled"
+    @click="$bvModal.show('remove-modal')"
+  >
+    <div class="d-flex align-items-baseline">
+      <i class="fa-solid fa-trash" />
+      <span>{{ $t('rooms.modals.delete.title') }}</span>
+    </div>
+  </b-dropdown-item-button>
 
-    <!-- Remove room modal -->
-    <b-modal
-      id="remove-modal"
-      :busy="isDeleting"
-      :no-close-on-backdrop="isDeleting"
-      :no-close-on-esc="isDeleting"
-      :hide-header-close="isDeleting"
-      ok-variant="danger"
-      cancel-variant="secondary"
-      :cancel-title="$t('app.no')"
-      @ok="deleteRoom"
-    >
-      <template #modal-title>
-        {{ $t('rooms.modals.delete.title') }}
-      </template>
-      <template #modal-ok>
-        <b-spinner
-          v-if="isDeleting"
-          small
-        />  {{ $t('app.yes') }}
-      </template>
-      {{ $t('rooms.modals.delete.confirm',{name: room.name}) }}
-    </b-modal>
-  </div>
+  <!-- Remove room modal -->
+  <b-modal
+    id="remove-modal"
+    :busy="isDeleting"
+    :no-close-on-backdrop="isDeleting"
+    :no-close-on-esc="isDeleting"
+    :hide-header-close="isDeleting"
+    ok-variant="danger"
+    cancel-variant="secondary"
+    :cancel-title="$t('app.no')"
+    @ok="deleteRoom"
+  >
+    <template #modal-title>
+      {{ $t('rooms.modals.delete.title') }}
+    </template>
+    <template #modal-ok>
+      <b-spinner
+        v-if="isDeleting"
+        small
+      />  {{ $t('app.yes') }}
+    </template>
+    {{ $t('rooms.modals.delete.confirm',{name: room.name}) }}
+  </b-modal>
 </template>
 
 <script>
 import Base from '@/api/base';
-import frag from 'vue-frag';
 
 export default {
-  directives: {
-    frag
-  },
   props: {
     room: {
       type: Object,
