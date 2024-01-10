@@ -6,7 +6,6 @@
 import EventBus from '@/services/EventBus';
 import { EVENT_CURRENT_USER_CHANGED } from '@/constants/events';
 import PermissionService from '@/services/PermissionService';
-import frag from 'vue-frag';
 
 /**
  * Checks whether the passed permissions aren't given and depending
