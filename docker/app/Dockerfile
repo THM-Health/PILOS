@@ -19,7 +19,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Add system dependencies
 RUN apk --no-cache add \
     shadow \
-    bash su-exec gettext libintl \
+    bash su-exec gettext libintl git \
     pv \
     supervisor \
     nginx \

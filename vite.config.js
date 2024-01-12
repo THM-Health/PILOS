@@ -3,6 +3,10 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import * as fs from 'fs';
 import * as path from 'path';
+import Components from 'unplugin-vue-components/vite';
+import {
+  PrimeVueResolver
+} from 'unplugin-vue-components/resolvers';
 
 export default ({ mode }) => {
   const ENV_PREFIX = ['VITE_', 'VITEST_'];
@@ -23,12 +27,7 @@ export default ({ mode }) => {
     const alias = {
       '@': path.resolve(__dirname, './resources/js')
     };
-
-    if (!process.env.VITEST) {
-      alias.vue = '@vue/compat';
-    } else {
-      alias.vue$ = '@vue/compat';
-    }
+    
     return alias;
   }
 
@@ -66,14 +65,11 @@ export default ({ mode }) => {
         ],
         buildDirectory: BUILD_DIR
       }),
-      vue({
-        template: {
-          compilerOptions: {
-            compatConfig: {
-              MODE: 2
-            }
-          }
-        }
+      vue(),
+      Components({
+        resolvers: [
+          PrimeVueResolver()
+        ]
       })
     ],
     server: {

@@ -1,3 +1,151 @@
 // To customize the colors, edit _variables.scss
-@import 'variables';
-@import '../../base';
+//@import 'variables';
+//@import '../../base';
+
+// The contrast ratio to reach against white, to determine if color changes from "light" to "dark". Acceptable values for WCAG 2.0 are 3, 4.5 and 7.
+// See https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast
+
+$white:    #fff !default;
+$black:    #000 !default;
+
+$min-contrast-ratio:   2.5 !default;
+
+// Customize the light and dark text colors for use in our color contrast function.
+$color-contrast-dark:      $black !default;
+$color-contrast-light:     $white !default;
+
+// Body background
+$bodyBg: #f8fafc;
+
+// Colors
+$blue: #2980b9;
+$red: #c0392b;
+$orange: #d35400;
+$green: #27ae60;
+$purple: #8e44ad;
+
+// Branding color
+$primary: #1abc9c;
+$link-color: $primary;
+
+// Recommended to use a black/grey, color is used for some buttons and most text
+$secondary: #2c3e50;
+$body-color: $secondary;
+
+// Semantic colors
+$success: $green;
+$info: $blue;
+$warning: $orange;
+$danger: $red;
+$help: $purple;
+
+@import 'functions';
+
+$primaryColor: $primary !default;
+$primaryLightColor: #a7f3d0 !default;
+$primaryDarkColor: #059669 !default;
+$primaryDarkerColor: #047857 !default;
+$primaryTextColor: #ffffff !default;
+
+$highlightBg: #F0FDFA !default;
+$highlightTextColor: $primaryDarkerColor !default;
+$highlightFocusBg: rgba($primaryColor, .24) !default;
+
+@import './_variables';
+@import 'primevue-sass-theme/theme-base/_components';
+@import './_extensions';
+@import 'primeflex/primeflex.css';
+
+// Font Awesome
+$fa-font-path: "@fortawesome/fontawesome-free/webfonts";
+@import "@fortawesome/fontawesome-free/scss/fontawesome";
+@import "@fortawesome/fontawesome-free/scss/solid";
+
+
+// Height of footer
+$footer-height: 25px !default;
+
+body {
+    background-color: var(--surface-ground);
+}
+
+
+html, body, #app {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+header {
+    flex-shrink: 0;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto
+}
+
+@media (min-width: 576px) {
+    .container {
+        max-width:540px
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width:720px
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        max-width:960px
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width:1140px
+    }
+}
+
+.p-menubar .p-button {
+    padding: 0.75rem 0.75rem;
+}
+
+.p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-content .p-menuitem-link {
+    padding: 0.75rem 0.75rem;
+}
+
+.overlay-spinner {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1102; /* this seems to work for me but may need to be higher*/
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,61 +1,68 @@
 <template>
-  <b-nav-item-dropdown
-    right
-    toggle-class="text-primary nav-icon-item"
-  >
-    <template #button-content>
-      <i class="fa-solid fa-language" /><span class="sr-only">{{ $t('app.select_locale') }}</span>
-    </template>
-    <b-dropdown-item
-      v-for="(label, locale) in getSetting('enabled_locales')"
-      :key="locale"
-      :active="locale === currentLocale"
-      @click="changeLocale(locale)"
-    >
-      {{ label }}
-    </b-dropdown-item>
-  </b-nav-item-dropdown>
+  <Button  text type="button" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu">
+    <i class="fa-solid fa-language text-xl" /><span class="sr-only">{{ $t('app.select_locale') }}</span>
+    <span class="fa-solid fa-caret-down ml-2" />
+  </Button>
+  <Menu
+    ref="localeMenu"
+    class="w-auto"
+    :model="locales"
+    :popup="true"
+    @focus="() => nextTick(() => { localeMenu.focusedOptionIndex = -1; } )"
+  />
 </template>
 
-<script>
+<script setup>
 import env from '@/env.js';
 import Base from '@/api/base';
-import { mapActions, mapState } from 'pinia';
+import {computed, nextTick, ref, watch} from 'vue';
 import { useLocaleStore } from '@/stores/locale';
 import { useLoadingStore } from '@/stores/loading';
 import { useSettingsStore } from '../stores/settings';
 
-export default {
+const localeStore = useLocaleStore();
+const loadingStore = useLoadingStore();
+const settingsStore = useSettingsStore();
 
-  computed: {
-    ...mapState(useLocaleStore, ['currentLocale']),
-    ...mapState(useSettingsStore, ['getSetting'])
-  },
-  methods: {
-    ...mapActions(useLocaleStore, ['setLocale']),
-    ...mapActions(useLoadingStore, ['setOverlayLoading', 'setOverlayLoadingFinished']),
+const localeMenu = ref();
 
-    async changeLocale (locale) {
-      this.setOverlayLoading();
-      try {
-        await Base.setLocale(locale);
-
-        await this.setLocale(locale);
-      } catch (error) {
-        if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.toastError(error.response.data.errors.locale.join(' '));
-        } else {
-          this.setOverlayLoadingFinished();
-          Base.error(error, this.$root, error.message);
-        }
-      } finally {
-        this.setOverlayLoadingFinished();
-      }
-    }
-  }
+const toggle = (event) => {
+  localeMenu.value.toggle(event);
 };
+
+const locales = computed(() => {
+  const locales = settingsStore.getSetting('enabled_locales');
+  if (!locales) {
+    console.log('no locales');
+    return [];
+  }
+
+  console.log('locales', locales);
+
+  return Object.entries(locales).map(([locale, label]) => {
+    return {
+      label,
+      command: () => changeLocale(locale),
+      class: localeStore.currentLocale === locale ? 'p-highlight' : ''
+    };
+  });
+});
+
+async function changeLocale (locale) {
+  loadingStore.setOverlayLoading();
+  try {
+    await Base.setLocale(locale);
+
+    await localeStore.setLocale(locale);
+  } catch (error) {
+    if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      this.toastError(error.response.data.errors.locale.join(' '));
+    } else {
+      loadingStore.setOverlayLoadingFinished();
+      Base.error(error, this.$root, error.message);
+    }
+  } finally {
+    loadingStore.setOverlayLoadingFinished();
+  }
+}
 </script>
-
-<style scoped>
-
-</style>

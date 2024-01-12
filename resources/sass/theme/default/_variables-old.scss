@@ -1,0 +1,34 @@
+// Overrides variables of app/variables and bootstrap
+
+// Body background
+$body-bg: #f8fafc;
+
+// Colors
+$blue: #2980b9;
+$red: #c0392b;
+$orange: #d35400;
+$green: #27ae60;
+
+// Branding color
+$primary: #1abc9c;
+$link-color: $primary;
+
+// Recommended to use a black/grey, color is used for some buttons and most text
+$secondary: #2c3e50;
+$body-color: $secondary;
+
+// Semantic colors
+$success: $green;
+$info: $blue;
+$warning: $orange;
+$danger: $red;
+
+// Overwrite button, badge and background text color, by default automatically set to a light or dark color
+// depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
+$text-color: ("primary": #FFF, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
+
+// Elements to have rounded edges
+$enable-rounded: true;
+
+// Show red indicator if room is closed/not running
+$showRoomClosedIndicator: false;

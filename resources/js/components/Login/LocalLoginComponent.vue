@@ -1,111 +1,97 @@
 <template>
   <div>
-    <h5>{{ title }}</h5>
-    <b-form @submit.prevent="submit">
-      <b-form-group
-        :label="emailLabel"
-        :label-for="`${id}Email`"
-      >
-        <b-form-input
-          :id="`${id}Email`"
+    <h3>{{ props.title }}</h3>
+    <form @submit.prevent="submit">
+      <div class="flex flex-column gap-2">
+        <label :for="`${props.id}-email`">{{ props.emailLabel }}</label>
+        <InputText
+          :id="`${props.id}-email`"
+          type="text"
           v-model="email"
-          type="email"
+          :placeholder="props.emailLabel"
+          aria-describedby="email-help-block"
+          :class="{'p-invalid': props.errors !== null && props.errors.email && props.errors.email.length > 0}"
           required
-          :placeholder="emailLabel"
-          :state="errors !== null && errors.email && errors.email.length > 0 ? false: null"
         />
-
-        <b-form-invalid-feedback v-if="errors !== null && errors.email.length > 0">
-          <template v-for="error in errors.email">
+        <small v-if="props.errors !== null && props.errors.email.length > 0" class="text-red-500">
+          <template v-for="error in props.errors.email">
             {{ error }}
           </template>
-        </b-form-invalid-feedback>
-      </b-form-group>
+        </small>
+      </div>
 
-      <b-form-group
-        :label="passwordLabel"
-        :label-for="`${id}Password`"
-      >
-        <b-form-input
-          :id="`${id}Password`"
+      <div class="flex flex-column gap-2 mt-4">
+        <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
+        <InputText
+          :id="`${props.id}-password`"
           v-model="password"
           type="password"
           required
-          :placeholder="passwordLabel"
-          :state="errors !== null && errors.password && errors.password.length > 0 ? false: null"
-          aria-describedby="passwordHelpBlock"
+          :placeholder="props.passwordLabel"
+          aria-describedby="password-help-block"
+          :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-
-        <b-form-text id="passwordHelpBlock">
+        <small id="password-help-block">
           <router-link
-            v-if="getSetting('password_change_allowed')"
+            v-if="settingsStore.getSetting('password_change_allowed')"
+            class="text-primary no-underline"
             to="/forgot_password"
           >
             {{ $t('auth.forgot_password') }}
           </router-link>
-        </b-form-text>
-
-        <b-form-invalid-feedback v-if="errors !== null && errors.password && errors.password.length > 0">
-          <template v-for="error in errors.password">
+        </small>
+        <small v-if="props.errors !== null && props.errors.password && props.errors.password.length > 0" class="text-red-500">
+          <template v-for="error in props.errors.password">
             {{ error }}
           </template>
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-      <b-button
+        </small>
+      </div>
+      <Button
         type="submit"
-        variant="primary"
-        :disabled="loading"
-        block
+        class="w-full justify-content-center mt-4"
+        :disabled="props.loading"
       >
-        <b-spinner
-          v-if="loading"
-          small
+        <ProgressSpinner
+          v-if="props.loading"
+          class="w-1rem h-1rem mr-2 ml-0 my-0"
+          stroke-width="6px"
+          :pt="{circle: { style: { stroke: '#FFF !important'} } }"
         />
-        {{ submitLabel }}
-      </b-button>
-    </b-form>
+        <span>
+          {{ props.submitLabel }}
+        </span>
+      </Button>
+    </form>
   </div>
 </template>
 
-<script>
-
-import { mapState } from 'pinia';
+<script setup>
+import { ref } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
 
-export default {
-  props: [
-    'errors',
-    'id',
-    'loading',
-    'passwordLabel',
-    'submitLabel',
-    'title',
-    'emailLabel'
-  ],
-  computed: {
-    ...mapState(useSettingsStore, ['getSetting'])
-  },
-  data () {
-    return {
-      email: '',
-      password: ''
-    };
-  },
-  methods: {
-    submit () {
-      this.$emit('submit', {
-        id: this.id,
-        data: {
-          email: this.email,
-          password: this.password
-        }
-      });
+const settingsStore = useSettingsStore();
+
+const emit = defineEmits(['submit']);
+const props = defineProps([
+  'errors',
+  'id',
+  'loading',
+  'passwordLabel',
+  'submitLabel',
+  'title',
+  'emailLabel'
+]);
+
+const email = ref('');
+const password = ref('');
+
+function submit () {
+  emit('submit', {
+    id: props.id,
+    data: {
+      email: email.value,
+      password: password.value
     }
-  }
-};
+  });
+}
 </script>
-
-<style scoped>
-
-</style>

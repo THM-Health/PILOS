@@ -1,99 +1,85 @@
 <template>
   <div>
-    <h5>{{ title }}</h5>
-    <b-form @submit.prevent="submit">
-      <b-form-group
-        :label="usernameLabel"
-        :label-for="`${id}Username`"
-      >
-        <b-form-input
-          :id="`${id}Username`"
-          v-model="username"
+    <h3>{{ props.title }}</h3>
+    <form @submit.prevent="submit">
+      <div class="flex flex-column gap-2">
+        <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>
+        <InputText
+          :id="`${props.id}-username`"
           type="text"
+          v-model="username"
+          :placeholder="props.usernameLabel"
+          aria-describedby="username-help-block"
+          :class="{'p-invalid': props.errors !== null && props.errors.username && props.errors.username.length > 0}"
           required
-          :placeholder="usernameLabel"
-          :state="errors !== null && errors.username && errors.username.length > 0 ? false: null"
-          aria-describedby="usernameHelpBlock"
         />
-
-        <b-form-text id="usernameHelpBlock">
-          {{ $t('auth.ldap.username_help') }}
-        </b-form-text>
-
-        <b-form-invalid-feedback v-if="errors !== null && errors.username.length > 0">
-          <template v-for="error in errors.username">
+        <small id="username-help-block">{{ $t('auth.ldap.username_help') }}</small>
+        <small v-if="props.errors !== null && props.errors.username.length > 0" class="text-red-500">
+          <template v-for="error in props.errors.username">
             {{ error }}
           </template>
-        </b-form-invalid-feedback>
-      </b-form-group>
+        </small>
+      </div>
 
-      <b-form-group
-        :label="passwordLabel"
-        :label-for="`${id}Password`"
-      >
-        <b-form-input
-          :id="`${id}Password`"
+      <div class="flex flex-column gap-2 mt-4">
+        <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
+        <InputText
+          :id="`${props.id}-password`"
           v-model="password"
           type="password"
           required
-          :placeholder="passwordLabel"
-          :state="errors !== null && errors.password && errors.password.length > 0 ? false: null"
+          :placeholder="props.passwordLabel"
+          :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-
-        <b-form-invalid-feedback v-if="errors !== null && errors.password && errors.password.length > 0">
-          <template v-for="error in errors.password">
+        <small v-if="props.errors !== null && props.errors.password && props.errors.password.length > 0" class="text-red-500">
+          <template v-for="error in props.errors.password">
             {{ error }}
           </template>
-        </b-form-invalid-feedback>
-      </b-form-group>
-
-      <b-button
+        </small>
+      </div>
+      <Button
         type="submit"
-        variant="primary"
-        :disabled="loading"
-        block
+        class="w-full justify-content-center mt-4"
+        :disabled="props.loading"
       >
-        <b-spinner
-          v-if="loading"
-          small
+        <ProgressSpinner
+          v-if="props.loading"
+          class="w-1rem h-1rem mr-2 ml-0 my-0"
+          stroke-width="6px"
+          :pt="{circle: { style: { stroke: '#FFF !important'} } }"
         />
-        {{ submitLabel }}
-      </b-button>
-    </b-form>
+        <span>
+          {{ props.submitLabel }}
+        </span>
+      </Button>
+    </form>
   </div>
 </template>
 
-<script>
-export default {
-  props: [
-    'errors',
-    'id',
-    'loading',
-    'passwordLabel',
-    'submitLabel',
-    'title',
-    'usernameLabel'
-  ],
-  data () {
-    return {
-      username: '',
-      password: ''
-    };
-  },
-  methods: {
-    submit () {
-      this.$emit('submit', {
-        id: this.id,
-        data: {
-          username: this.username,
-          password: this.password
-        }
-      });
+<script setup>
+import { ref } from 'vue';
+
+const emit = defineEmits(['submit']);
+const props = defineProps([
+  'errors',
+  'id',
+  'loading',
+  'passwordLabel',
+  'submitLabel',
+  'title',
+  'usernameLabel'
+]);
+
+const username = ref('');
+const password = ref('');
+
+function submit () {
+  emit('submit', {
+    id: props.id,
+    data: {
+      username: username.value,
+      password: password.value
     }
-  }
-};
+  });
+}
 </script>
-
-<style scoped>
-
-</style>
