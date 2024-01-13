@@ -1,5 +1,5 @@
 import '../support/commands.js'
-describe('general without plugin', () => {
+describe('General example test', () => {
   beforeEach(()=>{
     cy.bypassLogin("admin@test.de", "AdminPassword");
   });

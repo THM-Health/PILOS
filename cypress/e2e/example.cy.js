@@ -1,5 +1,5 @@
 
-describe('With laravel plugin', () => {
+describe('example test with laracasts/cypress', () => {
 
   beforeEach(()=>{
     //Using login to log in an existing user or create a new user and log in this user

@@ -20,6 +20,7 @@ export default defineConfig({
     supportFile: 'cypress/support/index.js',
   },
   component: {
+    specPattern: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}',
     devServer: {
       framework: "vue",
       bundler: "vite",

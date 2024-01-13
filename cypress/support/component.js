@@ -21,8 +21,28 @@ import '../../resources/sass/theme/thm/app.scss'
 // require('./commands')
 
 import { mount } from 'cypress/vue2'
+import {createPinia} from "pinia";
+import BootstrapVue from "bootstrap-vue";
 
-Cypress.Commands.add('mount', mount)
+Cypress.Commands.add('mount', (component, options ={})=>{
+  // Setup options object
+  options.extensions = options.extensions || {};
+  options.extensions.components = options.extensions.components || {};
+  options.extensions.plugins = options.extensions.plugins || [];
+
+  /* Add any global plugins */
+  options.extensions.plugins.push({
+      install(app) {
+        app.use(createPinia());
+        app.use(BootstrapVue);
+      },
+    });
+
+  /* Add any global components */
+  // options.extensions.components['Button'] = Button;
+
+  return mount(component, options);
+});
 
 // Example use:
 // cy.mount(MyComponent)
