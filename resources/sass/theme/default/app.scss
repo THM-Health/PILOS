@@ -129,11 +129,9 @@ footer {
     }
 }
 
-.p-menubar .p-button {
-    padding: 0.75rem 0.75rem;
-}
-
+.p-menubar .p-button,
 .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-content .p-menuitem-link {
+    color: #4b5563;
     padding: 0.75rem 0.75rem;
 }
 
@@ -148,4 +146,9 @@ footer {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+a:-webkit-any-link,
+a:any-link {
+    text-decoration: none;
 }

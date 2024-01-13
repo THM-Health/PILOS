@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>{{ props.title }}</h3>
+    <p class="p-card-title">{{ props.title }}</p>
     <form @submit.prevent="submit">
       <div class="flex flex-column gap-2">
         <label :for="`${props.id}-email`">{{ props.emailLabel }}</label>
@@ -13,11 +13,9 @@
           :class="{'p-invalid': props.errors !== null && props.errors.email && props.errors.email.length > 0}"
           required
         />
-        <small v-if="props.errors !== null && props.errors.email.length > 0" class="text-red-500">
-          <template v-for="error in props.errors.email">
-            {{ error }}
-          </template>
-        </small>
+        <InlineMessage v-for="(error, index) in props.errors?.email" :key="index">
+          {{ error }}
+        </InlineMessage>
       </div>
 
       <div class="flex flex-column gap-2 mt-4">
@@ -34,17 +32,15 @@
         <small id="password-help-block">
           <router-link
             v-if="settingsStore.getSetting('password_change_allowed')"
-            class="text-primary no-underline"
+            class="text-primary"
             to="/forgot_password"
           >
             {{ $t('auth.forgot_password') }}
           </router-link>
         </small>
-        <small v-if="props.errors !== null && props.errors.password && props.errors.password.length > 0" class="text-red-500">
-          <template v-for="error in props.errors.password">
-            {{ error }}
-          </template>
-        </small>
+        <InlineMessage v-for="(error, index) in props.errors?.password" :key="index">
+          {{ error }}
+        </InlineMessage>
       </div>
       <Button
         type="submit"

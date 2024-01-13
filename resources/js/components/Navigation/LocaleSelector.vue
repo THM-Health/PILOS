@@ -18,7 +18,7 @@ import Base from '@/api/base';
 import {computed, nextTick, ref, watch} from 'vue';
 import { useLocaleStore } from '@/stores/locale';
 import { useLoadingStore } from '@/stores/loading';
-import { useSettingsStore } from '../stores/settings';
+import { useSettingsStore } from '../../stores/settings.js';
 
 const localeStore = useLocaleStore();
 const loadingStore = useLoadingStore();

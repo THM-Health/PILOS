@@ -39,7 +39,7 @@
 
 <script setup>
 import Banner from '@/components/Banner.vue';
-import MainNav from '@/components/MainNav.vue';
+import MainNav from '@/components/Navigation/MainNav.vue';
 import {computed, onMounted} from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useSettingsStore } from '@/stores/settings';

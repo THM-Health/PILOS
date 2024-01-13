@@ -11,7 +11,7 @@
             <a
               v-if="getSetting('legal_notice_url')"
               :href="getSetting('legal_notice_url')"
-              class="text-primary no-underline"
+              class="text-primary"
             >
               <small>{{ $t('app.footer.legal_notice') }}</small>
             </a>
@@ -25,7 +25,7 @@
             <a
               v-if="getSetting('privacy_policy_url')"
               :href="getSetting('privacy_policy_url')"
-              class="text-primary no-underline"
+              class="text-primary"
             >
               <small>{{ $t('app.footer.privacy_policy') }}</small>
             </a>
@@ -33,7 +33,7 @@
           <div>
             <small v-if="!getSetting('whitelabel')">
               <a
-                class="text-primary no-underline"
+                class="text-primary"
                 href="https://github.com/THM-Health/PILOS"
                 target="_blank"
               ><raw-text>PILOS</raw-text></a>

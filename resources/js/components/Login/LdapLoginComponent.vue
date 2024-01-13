@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>{{ props.title }}</h3>
+    <p class="p-card-title">{{ props.title }}</p>
     <form @submit.prevent="submit">
       <div class="flex flex-column gap-2">
         <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>
@@ -14,11 +14,9 @@
           required
         />
         <small id="username-help-block">{{ $t('auth.ldap.username_help') }}</small>
-        <small v-if="props.errors !== null && props.errors.username.length > 0" class="text-red-500">
-          <template v-for="error in props.errors.username">
-            {{ error }}
-          </template>
-        </small>
+        <InlineMessage v-for="(error, index) in props.errors?.username" :key="index">
+          {{ error }}
+        </InlineMessage>
       </div>
 
       <div class="flex flex-column gap-2 mt-4">
@@ -31,11 +29,9 @@
           :placeholder="props.passwordLabel"
           :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-        <small v-if="props.errors !== null && props.errors.password && props.errors.password.length > 0" class="text-red-500">
-          <template v-for="error in props.errors.password">
-            {{ error }}
-          </template>
-        </small>
+        <InlineMessage v-for="(error, index) in props.errors?.password" :key="index">
+          {{ error }}
+        </InlineMessage>
       </div>
       <Button
         type="submit"
