@@ -9,7 +9,7 @@ export default defineConfig({
   watchForFileChanges: false,
   videosFolder: 'cypress/videos',
   screenshotsFolder: 'cypress/screenshots',
-  fixturesFolder: 'cypress/fixture',
+  fixturesFolder: 'cypress/fixtures',
   e2e: {
     setupNodeEvents(on, config) {
       return index(on, config)

@@ -25,6 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('bypassLogin', (name, password)=>{
+  //ToDo should normally be done with request not with ui
   cy.session([name,password], () =>{
     cy.visit('/login');
     cy.get('#__BVID__33___BV_tab_button__').click();

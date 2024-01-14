@@ -46,6 +46,7 @@
               :disabled="loadingRooms"
               variant="primary"
               :title="$t('app.search')"
+              data-cy="searchButton"
               @click="loadRooms(1)"
             >
               <i class="fa-solid fa-magnifying-glass" />
