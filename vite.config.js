@@ -27,7 +27,7 @@ export default ({ mode }) => {
     const alias = {
       '@': path.resolve(__dirname, './resources/js')
     };
-    
+
     return alias;
   }
 

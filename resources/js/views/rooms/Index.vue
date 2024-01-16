@@ -78,7 +78,7 @@
           id="select_sorting_menu"
           :model="sortingTypes"
           :popup="true"
-          @focus="() => nextTick(() => { $refs.sortingMenu.focusedOptionIndex = -1; } )"
+          @focus="() => $nextTick(() => { $refs.sortingMenu.focusedOptionIndex = -1; } )"
         />
 
         <div class="flex justify-content-start mb-2">
@@ -308,7 +308,6 @@ import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import RoomSkeletonComponent from '@/components/Room/RoomSkeletonComponent.vue';
 import Can from '@/components/Permissions/Can.vue';
-import { nextTick } from 'vue';
 
 export default {
   components: {
@@ -369,7 +368,6 @@ export default {
     this.reload();
   },
   methods: {
-
     ...mapActions(useAuthStore, ['getCurrentUser']),
 
     /**
