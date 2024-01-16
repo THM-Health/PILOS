@@ -67,8 +67,17 @@ export default ({ mode }) => {
       }),
       vue(),
       Components({
+        dirs: ['resources/js', 'resources/custom/js'],
+        allowOverrides: true,
+        extensions: ['vue'],
+        deep: true,
+        dts: true,
         resolvers: [
-          PrimeVueResolver()
+          PrimeVueResolver(),
+          (componentName) => {
+            if (componentName === 'InputGroup') { return { from: 'primevue/inputgroup' }; }
+            if (componentName === 'InputGroupAddon') { return { from: 'primevue/inputgroupaddon' }; }
+          }
         ]
       })
     ],
