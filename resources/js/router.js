@@ -29,6 +29,8 @@ import Profile from './views/Profile.vue';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
 import { useSettingsStore } from './stores/settings';
+import { useToast } from '@/composables/useToast';
+import i18n from '@/i18n';
 
 const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue'], { eager: true }))[0].default;
 
@@ -293,7 +295,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (params, query) => {
             const id = params.id;
             const view = query.view;
 
@@ -340,7 +342,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (params, query) => {
             const id = params.id;
             const view = query.view;
 
@@ -386,7 +388,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (params, query) => {
             const id = params.id;
             const view = query.view;
 
@@ -449,6 +451,8 @@ export async function beforeEachRoute (router, to, from, next) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
   const settings = useSettingsStore();
+  const toast = useToast();
+  const { t } = i18n.global;
 
   // If app is not initialized yet, initialize it and unmout app until finished only showing loading screen
   if (!loading.initialized) {
@@ -460,7 +464,7 @@ export async function beforeEachRoute (router, to, from, next) {
 
   // Resolve all permission promises for the current route
   const recordsPermissions = await Promise.all(to.matched.map((record) =>
-    record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
+    record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query) : Promise.resolve(true)
   ));
 
   // Hide loading screen
@@ -469,7 +473,7 @@ export async function beforeEachRoute (router, to, from, next) {
   // Check if route is disabled
   if (to.matched.some((record) => {
     if (record.meta.disabled !== undefined) {
-      return record.meta.disabled(to.params, to.query, router.app);
+      return record.meta.disabled(to.params, to.query);
     }
     return false;
   })) {
@@ -488,14 +492,14 @@ export async function beforeEachRoute (router, to, from, next) {
 
   // Check if authenticated user tries to access a route that is only for guests
   if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
-    router.app.$root.toastError(router.app.$t('app.flash.guests_only'));
+    toast.error(t('app.flash.guests_only'));
     next({ name: 'home' });
     return;
   }
 
   // Check if user doesn't have permission to access a route
   if (!recordsPermissions.every(permission => permission)) {
-    router.app.$root.toastError(router.app.$t('app.flash.unauthorized'));
+    toast.error(t('app.flash.unauthorized'));
     next(from.matched.length !== 0 ? false : '/');
     return;
   }
@@ -512,7 +516,7 @@ export default function () {
   router.beforeEach((to, from, next) => beforeEachRoute(router, to, from, next));
 
   router.onError(error => {
-    Base.error(error, router.app.$root);
+    Base.error(error);
   });
 
   return router;

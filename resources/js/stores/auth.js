@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia';
-import auth from '@/api/auth';
 import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
+import { useApi } from '@/composables/useApi';
+
+const api = useApi();
 
 export const useAuthStore = defineStore('auth', {
   state: () => {
@@ -15,12 +17,18 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     login: async function (credentials, method) {
-      await auth.login(credentials, method);
+      await api.call('login/' + method, {
+        method: 'post',
+        data: credentials
+      }, true);
+
       await this.getCurrentUser();
     },
 
     async getCurrentUser () {
-      let currentUser = await auth.getCurrentUser();
+      let currentUser = await api.call('currentUser').then(response => {
+        return response.data.data;
+      });
       if (_.isEmpty(currentUser)) {
         currentUser = null;
       }
@@ -37,7 +45,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout () {
-      const response = await auth.logout();
+      const response = await api.call('logout', {
+        method: 'post'
+      });
 
       // logout successfull, clear current user
       this.setCurrentUser(null, false);

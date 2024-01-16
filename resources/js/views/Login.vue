@@ -94,17 +94,22 @@
 import LocalLoginComponent from '@/components/Login/LocalLoginComponent.vue';
 import LdapLoginComponent from '@/components/Login/LdapLoginComponent.vue';
 import env from '@/env';
-import Base from '@/api/base';
-import { mapState, mapActions } from 'pinia';
+
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthStore } from '@/stores/auth';
 import ExternalLoginComponent from '@/components/Login/ExternalLoginComponent.vue';
 import { computed, ref, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
-
+import { useApi } from '@/composables/useApi';
+import { useToast } from '@/composables/useToast.js';
 const settingsStore = useSettingsStore();
+const router = useRouter();
+const authStore = useAuthStore();
+const route = useRoute();
+const { t } = useI18n();
+const toast = useToast();
+const api = useApi();
 
 const loading = ref(false);
 const errors = reactive({
@@ -112,14 +117,10 @@ const errors = reactive({
   ldap: null
 });
 
-const route = useRoute();
 const shibbolethRedirectUrl = computed(() => {
   const url = '/auth/shibboleth/redirect';
   return route.query.redirect ? url + '?redirect=' + encodeURIComponent(route.query.redirect) : url;
 });
-
-const authStore = useAuthStore();
-const router = useRouter();
 
 const panelClass = (context) => {
   return [
@@ -140,13 +141,11 @@ const panelClass = (context) => {
 * @return {Promise<void>}
 */
 async function handleLogin ({ data, id }) {
-  console.log('handleLogin', data, id);
   try {
     errors[id] = null;
     loading.value = true;
     await authStore.login(data, id);
-    // @TODO: fix toast
-    // this.toastSuccess(t('auth.flash.login'));
+    toast.success(t('auth.flash.login'));
     // check if user should be redirected back after login
     if (route.query.redirect !== undefined) {
       await router.push(route.query.redirect);
@@ -160,8 +159,7 @@ async function handleLogin ({ data, id }) {
       if (error.response !== undefined && error.response.status === env.HTTP_TOO_MANY_REQUESTS) {
         errors[id] = error.response.data.errors;
       } else {
-        // @TODO: fix base error
-      // Base.error(error, this.$root, error.message);
+        api.error(error);
       }
     }
   } finally {

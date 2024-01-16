@@ -1,14 +1,13 @@
-//import { BootstrapVue } from 'bootstrap-vue';
 import { createApp, h, Fragment } from 'vue';
 import { createPinia } from 'pinia';
-import App from './views/App.vue';
+import App from './components/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
-import Toast from './mixins/Toast';
-import Base from './api/base';
-import HideTooltip from './directives/hide-tooltip';
 import axios from 'axios';
 import PrimeVue from 'primevue/config';
+import Tooltip from 'primevue/tooltip';
+import Toast from './plugins/toast';
+import { useToast } from './composables/useToast';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -19,18 +18,10 @@ window.axios = axios;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-// Install BootstrapVue
-//Vue.use(BootstrapVue);
-
-//Vue.mixin(Toast);
-
-//Vue.config.errorHandler = Base.error;
-
-//Vue.directive('tooltip-hide-click', HideTooltip);
-
 const pinia = createPinia();
-
 const router = createRouter();
+const toast = useToast();
+const { t } = i18n.global;
 
 let app = null;
 
@@ -39,6 +30,13 @@ const setupApp = (app) => {
   app.use(router);
   app.use(i18n);
   app.use(PrimeVue);
+  app.directive('tooltip', Tooltip);
+  app.use(Toast);
+
+  app.config.errorHandler = (err, vm, info) => {
+    toast.error(t('app.flash.client_error'));
+    console.error(err);
+  };
 
   app.provide('$router', app.config.globalProperties.$router);
   app.provide('$route', app.config.globalProperties.$route);
