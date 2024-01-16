@@ -25,11 +25,11 @@ $green: #27ae60;
 $purple: #8e44ad;
 
 // Branding color
-$primary: #1abc9c;
+$primary: #3BBC9C;
 $link-color: $primary;
 
 // Recommended to use a black/grey, color is used for some buttons and most text
-$secondary: #2c3e50;
+$secondary: #2C3E50;
 $body-color: $secondary;
 
 // Semantic colors
@@ -51,6 +51,8 @@ $highlightBg: #F0FDFA !default;
 $highlightTextColor: $primaryDarkerColor !default;
 $highlightFocusBg: rgba($primaryColor, .24) !default;
 
+//$borderRadius: 0px;
+
 @import './_variables';
 @import 'primevue-sass-theme/theme-base/_components';
 @import './_extensions';
@@ -70,7 +72,7 @@ body {
 }
 
 
-html, body, #app {
+html, body, #app, #app > .overlay-wrap {
     height: 100%;
 }
 
@@ -151,4 +153,23 @@ footer {
 a:-webkit-any-link,
 a:any-link {
     text-decoration: none;
+}
+
+.p-inputswitch, .p-inputswitch-slider {
+    width: 1.75rem;
+    height: 1rem;
+}
+.p-inputswitch .p-inputswitch-slider {
+    border-radius: 30px;
+}
+.p-inputswitch .p-inputswitch-slider:before {
+    width: calc(1rem - 4px);
+    height: calc(1rem - 4px);
+    left: 2px;
+    margin-top: calc(-0.5rem + 2px);
+    border-radius: 50%;
+    transition-duration: 0.2s;
+}
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
+    transform: translateX(calc(1rem - 4px - 2px));
 }

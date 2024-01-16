@@ -143,16 +143,16 @@ $plainButtonTextColor:$textSecondaryColor !default;
 $plainButtonHoverBgColor:$shade200 !default;
 $plainButtonActiveBgColor:$shade300 !default;
 
-$secondaryButtonBg:#64748B !default;
-$secondaryButtonTextColor:#ffffff !default;
-$secondaryButtonBorder:1px solid #64748B !default;
-$secondaryButtonHoverBg:#475569 !default;
-$secondaryButtonTextHoverColor:$secondaryButtonTextColor !default;
-$secondaryButtonHoverBorderColor:#475569 !default;
-$secondaryButtonActiveBg:#334155 !default;
-$secondaryButtonTextActiveColor:$secondaryButtonTextColor !default;
-$secondaryButtonActiveBorderColor:#334155 !default;
-$secondaryButtonFocusShadow:0 0 0 0.2rem #E2E8F0 !default;
+$secondaryButtonBg: $secondary !default;
+$secondaryButtonTextColor: color-contrast($secondaryButtonBg) !default;
+$secondaryButtonBorder:1px solid $secondary !default;
+$secondaryButtonHoverBg: shade-color($secondary, 20%) !default;
+$secondaryButtonTextHoverColor: color-contrast($secondaryButtonHoverBg) !default;
+$secondaryButtonHoverBorderColor: shade-color($secondary, 20%) !default;
+$secondaryButtonActiveBg: shade-color($secondary, 40%) !default;
+$secondaryButtonTextActiveColor: color-contrast($secondaryButtonActiveBg) !default;
+$secondaryButtonActiveBorderColor: shade-color($secondary, 40%) !default;
+$secondaryButtonFocusShadow:0 0 0 0.2rem tint-color($secondary, 90%) !default;
 
 $infoButtonBg: $info !default;
 $infoButtonTextColor: color-contrast($infoButtonBg) !default;
@@ -776,7 +776,7 @@ $avatarTextColor:$textColor !default;
 //chip
 $chipBg:$shade300 !default;
 $chipTextColor:$textColor !default;
-$chipBorderRadius: 16px !default;
+$chipBorderRadius: $borderRadius !default;
 $chipFocusBg:$shade400 !default;
 $chipFocusTextColor:$textColor !default;
 

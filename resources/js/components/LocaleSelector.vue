@@ -15,14 +15,16 @@
 <script setup>
 import env from '@/env.js';
 import Base from '@/api/base';
-import {computed, nextTick, ref, watch} from 'vue';
+import { useApi } from '@/composables/useApi';
+import { computed, nextTick, ref } from 'vue';
 import { useLocaleStore } from '@/stores/locale';
 import { useLoadingStore } from '@/stores/loading';
-import { useSettingsStore } from '../../stores/settings.js';
+import { useSettingsStore } from '@/stores/settings.js';
 
 const localeStore = useLocaleStore();
 const loadingStore = useLoadingStore();
 const settingsStore = useSettingsStore();
+const api = useApi();
 
 const localeMenu = ref();
 
@@ -51,7 +53,10 @@ const locales = computed(() => {
 async function changeLocale (locale) {
   loadingStore.setOverlayLoading();
   try {
-    await Base.setLocale(locale);
+    await api.call('locale', {
+      data: { locale },
+      method: 'post'
+    });
 
     await localeStore.setLocale(locale);
   } catch (error) {

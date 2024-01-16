@@ -382,7 +382,7 @@
           </b-form-group>
 
           <b-card v-if="settings.banner.enabled">
-            <banner
+            <AppBanner
               class="mt-4"
               :background="settings.banner.background"
               :color="settings.banner.color"
@@ -1219,14 +1219,13 @@ import Base from '@/api/base';
 import FieldErrors from '@/mixins/FieldErrors';
 import env from '@/env';
 import PermissionService from '@/services/PermissionService';
-import Banner from '@/components/Banner.vue';
 import { mapActions } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
 import ColorSelect from '@/components/Inputs/ColorSelect.vue';
 
 export default {
-  components: { Banner, TimezoneSelect, ColorSelect },
+  components: { TimezoneSelect, ColorSelect },
   mixins: [FieldErrors],
 
   data () {

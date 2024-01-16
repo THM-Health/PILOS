@@ -38,12 +38,7 @@
         class="w-full justify-content-center mt-4"
         :disabled="props.loading"
       >
-        <ProgressSpinner
-          v-if="props.loading"
-          class="w-1rem h-1rem mr-2 ml-0 my-0"
-          stroke-width="6px"
-          :pt="{circle: { style: { stroke: '#FFF !important'} } }"
-        />
+        <i v-if="props.loading" class="fa-solid fa-circle-notch fa-spin mr-2" />
         <span>
           {{ props.submitLabel }}
         </span>

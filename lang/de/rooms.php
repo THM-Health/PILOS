@@ -129,7 +129,7 @@ return [
         'show_public'       => 'Öffentliche Räume',
         'show_shared'       => 'Geteilte Räume',
         'sorting'           => [
-            'select_sorting'  => '-- Sortierung auswählen --',
+            'select_sorting'  => 'Sortierung',
             'alpha'           => 'Alphabetisch',
             'last_started'    => 'Zuletzt gestartet',
             'room_type'       => 'Nach Raumart',
