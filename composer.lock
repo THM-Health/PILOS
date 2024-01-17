@@ -1073,16 +1073,16 @@
         },
         {
             "name": "doctrine/inflector",
-            "version": "2.0.8",
+            "version": "2.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/inflector.git",
-                "reference": "f9301a5b2fb1216b2b08f02ba04dc45423db6bff"
+                "reference": "2930cd5ef353871c821d5c43ed030d39ac8cfe65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/inflector/zipball/f9301a5b2fb1216b2b08f02ba04dc45423db6bff",
-                "reference": "f9301a5b2fb1216b2b08f02ba04dc45423db6bff",
+                "url": "https://api.github.com/repos/doctrine/inflector/zipball/2930cd5ef353871c821d5c43ed030d39ac8cfe65",
+                "reference": "2930cd5ef353871c821d5c43ed030d39ac8cfe65",
                 "shasum": ""
             },
             "require": {
@@ -1144,7 +1144,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/inflector/issues",
-                "source": "https://github.com/doctrine/inflector/tree/2.0.8"
+                "source": "https://github.com/doctrine/inflector/tree/2.0.9"
             },
             "funding": [
                 {
@@ -1160,7 +1160,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-06-16T13:40:37+00:00"
+            "time": "2024-01-15T18:05:13+00:00"
         },
         {
             "name": "doctrine/lexer",
@@ -2220,16 +2220,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v10.40.0",
+            "version": "v10.41.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "7a9470071dac9579ebf29ad1b9d73e4b8eb586fc"
+                "reference": "da31969bd35e6ee0bbcd9e876f88952dc754b012"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/7a9470071dac9579ebf29ad1b9d73e4b8eb586fc",
-                "reference": "7a9470071dac9579ebf29ad1b9d73e4b8eb586fc",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/da31969bd35e6ee0bbcd9e876f88952dc754b012",
+                "reference": "da31969bd35e6ee0bbcd9e876f88952dc754b012",
                 "shasum": ""
             },
             "require": {
@@ -2421,7 +2421,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-01-09T11:46:47+00:00"
+            "time": "2024-01-16T15:23:58+00:00"
         },
         {
             "name": "laravel/horizon",
@@ -2560,34 +2560,34 @@
         },
         {
             "name": "laravel/pulse",
-            "version": "v1.0.0-beta8",
+            "version": "v1.0.0-beta10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/pulse.git",
-                "reference": "32fb030ebf9679a30c373cada2905568d3cf818e"
+                "reference": "4ff1e970262e0b844f3dfe5c215d5c25e4aab0e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/pulse/zipball/32fb030ebf9679a30c373cada2905568d3cf818e",
-                "reference": "32fb030ebf9679a30c373cada2905568d3cf818e",
+                "url": "https://api.github.com/repos/laravel/pulse/zipball/4ff1e970262e0b844f3dfe5c215d5c25e4aab0e2",
+                "reference": "4ff1e970262e0b844f3dfe5c215d5c25e4aab0e2",
                 "shasum": ""
             },
             "require": {
                 "doctrine/sql-formatter": "^1.1",
-                "guzzlehttp/promises": "^1.0 || ^2.0",
-                "illuminate/auth": "^10.34",
-                "illuminate/cache": "^10.34",
-                "illuminate/config": "^10.34",
-                "illuminate/console": "^10.34",
-                "illuminate/contracts": "^10.34",
-                "illuminate/database": "^10.34",
-                "illuminate/events": "^10.34",
-                "illuminate/http": "^10.34",
-                "illuminate/queue": "^10.34",
-                "illuminate/redis": "^10.34",
-                "illuminate/routing": "^10.34",
-                "illuminate/support": "^10.34",
-                "illuminate/view": "^10.34",
+                "guzzlehttp/promises": "^1.0|^2.0",
+                "illuminate/auth": "^10.34|^11.0",
+                "illuminate/cache": "^10.34|^11.0",
+                "illuminate/config": "^10.34|^11.0",
+                "illuminate/console": "^10.34|^11.0",
+                "illuminate/contracts": "^10.34|^11.0",
+                "illuminate/database": "^10.34|^11.0",
+                "illuminate/events": "^10.34|^11.0",
+                "illuminate/http": "^10.34|^11.0",
+                "illuminate/queue": "^10.34|^11.0",
+                "illuminate/redis": "^10.34|^11.0",
+                "illuminate/routing": "^10.34|^11.0",
+                "illuminate/support": "^10.34|^11.0",
+                "illuminate/view": "^10.34|^11.0",
                 "livewire/livewire": "^3.2",
                 "nesbot/carbon": "^2.67",
                 "php": "^8.1"
@@ -2598,11 +2598,11 @@
             "require-dev": {
                 "guzzlehttp/guzzle": "^7.7",
                 "mockery/mockery": "^1.0",
-                "orchestra/testbench": "^8.16",
+                "orchestra/testbench": "^8.16|^9.0",
                 "pestphp/pest": "^2.0",
                 "pestphp/pest-plugin-laravel": "^2.2",
                 "phpstan/phpstan": "^1.11",
-                "predis/predis": "^1.0 || ^2.0"
+                "predis/predis": "^1.0|^2.0"
             },
             "type": "library",
             "extra": {
@@ -2642,7 +2642,7 @@
                 "issues": "https://github.com/laravel/pulse/issues",
                 "source": "https://github.com/laravel/pulse"
             },
-            "time": "2023-12-27T14:15:20+00:00"
+            "time": "2024-01-16T23:14:53+00:00"
         },
         {
             "name": "laravel/sanctum",
@@ -9304,16 +9304,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.7.3",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419"
+                "reference": "fad452781b3d774e3337b0c0b245dd8e5a4455fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419",
-                "reference": "3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/fad452781b3d774e3337b0c0b245dd8e5a4455fc",
+                "reference": "fad452781b3d774e3337b0c0b245dd8e5a4455fc",
                 "shasum": ""
             },
             "require": {
@@ -9356,9 +9356,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.3"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.8.0"
             },
-            "time": "2023-08-12T11:01:26+00:00"
+            "time": "2024-01-11T11:49:22+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
