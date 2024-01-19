@@ -94,12 +94,12 @@ export default {
         .catch((error) => {
           // Access code invalid
           if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-            return this.$emit('invalid-code');
+            return this.$emit('invalidCode');
           }
 
           // Membership is disabled
           if (error.response.status === env.HTTP_FORBIDDEN) {
-            this.$emit('membership-disabled');
+            this.$emit('membershipDisabled');
           }
 
           Base.error(error, this.$root);

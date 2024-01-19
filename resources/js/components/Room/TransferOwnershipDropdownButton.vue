@@ -142,7 +142,7 @@ export default {
         data
       }).then(response => {
         // operation successful, emit "transferred-ownership" to reload room view and close modal
-        this.$emit('transferred-ownership');
+        this.$emit('transferredOwnership');
         this.$bvModal.hide('transfer-ownership-modal');
       }).catch(error => {
         // transferring failed

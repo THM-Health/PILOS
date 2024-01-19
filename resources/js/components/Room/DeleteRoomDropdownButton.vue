@@ -70,7 +70,7 @@ export default {
         method: 'delete'
       }).then(response => {
         // delete successful
-        this.$emit('room-deleted');
+        this.$emit('roomDeleted');
       }).catch((error) => {
         this.isDeleting = false;
         this.$bvModal.hide('remove-modal');

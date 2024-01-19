@@ -378,18 +378,18 @@ export default {
           await this.getCurrentUser();
         }
 
-        this.$emit('update-user', response.data.data);
+        this.$emit('updateUser', response.data.data);
         this.resetFileUpload();
         this.image_deleted = false;
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$emit('not-found-error', error);
+          this.$emit('notFoundError', error);
         } else if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           // Validation error
           this.errors = error.response.data.errors;
         } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
           // Stale error
-          this.$emit('stale-error', error.response.data);
+          this.$emit('staleError', error.response.data);
         } else {
           Base.error(error, this.$root, error.message);
         }

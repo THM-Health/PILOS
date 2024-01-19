@@ -32,9 +32,9 @@
 
                 :require-agreement="true"
                 :hide-reload="true"
-                @invalid-code="$emit('invalid-code')"
-                @invalid-token="$emit('invalid-token')"
-                @guests-not-allowed="$emit('guests-not-allowed')"
+                @invalid-code="$emit('invalidCode')"
+                @invalid-token="$emit('invalidToken')"
+                @guests-not-allowed="$emit('guestsNotAllowed')"
               />
             </b-tab>
           </b-tabs>

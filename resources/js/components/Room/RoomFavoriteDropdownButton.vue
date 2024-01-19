@@ -35,7 +35,7 @@ export default {
       // add or delete room
       Base.call('rooms/' + this.room.id + '/favorites', config)
         .then(response => {
-          this.$emit('favorites-changed');
+          this.$emit('favoritesChanged');
         }).catch(error => {
           Base.error(error, this);
         });

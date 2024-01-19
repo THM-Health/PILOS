@@ -147,7 +147,7 @@ export default {
 
     updateUser (user) {
       this.user = user;
-      this.$emit('update-user', this.user);
+      this.$emit('updateUser', this.user);
     },
 
     /**
@@ -158,7 +158,7 @@ export default {
       this.user.roles.forEach(role => {
         role.$isDisabled = role.automatic;
       });
-      this.$emit('update-user', this.staleError.new_model);
+      this.$emit('updateUser', this.staleError.new_model);
       this.staleError = {};
       this.$refs['stale-user-modal'].hide();
     },
@@ -175,7 +175,7 @@ export default {
         this.user.roles.forEach(role => {
           role.$isDisabled = role.automatic;
         });
-        this.$emit('update-user', this.user);
+        this.$emit('updateUser', this.user);
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
           this.$router.push({ name: 'settings.users' });

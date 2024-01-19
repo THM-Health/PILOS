@@ -112,15 +112,15 @@ export default {
           updated_at: this.model.updated_at
         }
       }).then(response => {
-        this.$emit('update-user', response.data.data);
+        this.$emit('updateUser', response.data.data);
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$emit('not-found-error', error);
+          this.$emit('notFoundError', error);
         } else if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
         } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
           // Stale error
-          this.$emit('stale-error', error.response.data);
+          this.$emit('staleError', error.response.data);
         } else {
           Base.error(error, this.$root, error.message);
         }

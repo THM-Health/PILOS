@@ -601,7 +601,7 @@ export default {
         // update the settings to the response from the server, feedback the changed were applied correctly
         this.settings = response.data.data;
         // inform parent component about changed settings
-        this.$emit('settings-changed');
+        this.$emit('settingsChanged');
         this.errors = {};
       }).catch((error) => {
         // Settings couldn't be saved

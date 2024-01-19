@@ -147,7 +147,7 @@ export default {
       }).then(() => {
         // Description successfully saved
         // inform parent component about changed description
-        this.$emit('settings-changed');
+        this.$emit('settingsChanged');
         this.errors = {};
         this.editorOpen = false;
       }).catch((error) => {

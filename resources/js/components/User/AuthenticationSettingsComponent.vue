@@ -69,13 +69,13 @@ export default {
   },
   methods: {
     handleStaleError (error) {
-      this.$emit('stale-error', error);
+      this.$emit('staleError', error);
     },
     updateUser (user) {
-      this.$emit('update-user', user);
+      this.$emit('updateUser', user);
     },
     handleNotFoundError (error) {
-      this.$emit('not-found-error', error);
+      this.$emit('notFoundError', error);
     }
   }
 };

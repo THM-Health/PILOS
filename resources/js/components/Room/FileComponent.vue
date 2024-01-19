@@ -308,17 +308,17 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.$emit('invalid-code');
+              return this.$emit('invalidCode');
             }
 
             // Room token is invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-              return this.$emit('invalid-token');
+              return this.$emit('invalidToken');
             }
 
             // Forbidden, require access code
             if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-              return this.$emit('invalid-code');
+              return this.$emit('invalidCode');
             }
 
             // Forbidden, not allowed to download this file
@@ -449,17 +449,17 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.$emit('invalid-code');
+              return this.$emit('invalidCode');
             }
 
             // Room token is invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-              return this.$emit('invalid-token');
+              return this.$emit('invalidToken');
             }
 
             // Forbidden, require access code
             if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-              return this.$emit('invalid-code');
+              return this.$emit('invalidCode');
             }
           }
           Base.error(error, this.$root);

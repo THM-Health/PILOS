@@ -74,7 +74,7 @@ export default {
   watch: {
     // detect changes of the model loading error
     loadingError: function () {
-      this.$emit('loading-error', this.loadingError);
+      this.$emit('loadingError', this.loadingError);
     },
 
     // detect busy status while data fetching and notify parent

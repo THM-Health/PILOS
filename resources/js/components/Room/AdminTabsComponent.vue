@@ -15,7 +15,7 @@
               </template>
               <room-description-component
                 :room="room"
-                @settings-changed="$emit('settings-changed')"
+                @settings-changed="$emit('settingsChanged')"
               />
             </b-tab>
             <!-- Membership tab -->
@@ -61,7 +61,7 @@
               </template>
               <settings-component
                 :room="room"
-                @settings-changed="$emit('settings-changed')"
+                @settings-changed="$emit('settingsChanged')"
               />
             </b-tab>
           </b-tabs>

@@ -123,12 +123,12 @@ export default {
         data
       })
         .then(response => {
-          this.$emit('update-user', response.data.data);
+          this.$emit('updateUser', response.data.data);
           this.toastSuccess(this.$t('auth.flash.password_changed'));
         })
         .catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-            this.$emit('not-found-error', error);
+            this.$emit('notFoundError', error);
           } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
           } else {
