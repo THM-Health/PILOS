@@ -2,7 +2,7 @@
   <b-dropdown-item-button
     @click.stop="toggleFavorite"
   >
-    <div class="d-flex align-items-baseline">
+    <div class="flex align-items-baseline">
       <i class="fa-solid fa-star" />
       <span v-if="room.is_favorite">{{ $t('rooms.favorites.remove') }}</span>
       <span v-else>{{ $t('rooms.favorites.add') }}</span>

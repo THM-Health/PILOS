@@ -7,7 +7,7 @@
         :label="$t('settings.users.skip_check_audio')"
         label-for="bbb_skip_check_audio"
         :state="fieldState('bbb_skip_check_audio')"
-        class="align-items-center d-flex"
+        class="align-items-center flex"
       >
         <b-form-checkbox
           id="bbb_skip_check_audio"

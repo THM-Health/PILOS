@@ -1,6 +1,6 @@
 <template>
   <div class="jumbotron p-4">
-    <div class="d-flex justify-content-between align-items-start">
+    <div class="flex justify-content-between align-items-start">
       <h5 class="flex-shrink-1 text-break">
         {{ $t('rooms.access_for_participants') }}
       </h5>

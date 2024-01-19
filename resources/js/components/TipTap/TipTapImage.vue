@@ -52,7 +52,7 @@
     </b-form-group>
 
     <template #modal-footer="{ cancel }">
-      <div class="w-100 d-flex justify-content-between">
+      <div class="w-full flex justify-content-between">
         <div>
           <b-button
             v-if="!newImage"

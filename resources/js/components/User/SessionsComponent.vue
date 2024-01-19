@@ -19,7 +19,7 @@
           :key="session.id"
           class="flex-column align-items-start"
         >
-          <div class="d-flex w-100 justify-content-between align-items-start">
+          <div class="flex w-full justify-content-between align-items-start">
             <h5 class="mb-1">
               <i
                 v-if="session.user_agent.device.type === 'mobile'"

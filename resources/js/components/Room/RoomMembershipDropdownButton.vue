@@ -9,7 +9,7 @@
       :disabled="loading || disabled"
       @click="joinMembership"
     >
-      <div class="d-flex align-items-baseline">
+      <div class="flex align-items-baseline">
         <i class="fa-solid fa-user" />
         <span>{{ $t('rooms.become_member') }}</span>
       </div>
@@ -21,7 +21,7 @@
     v-b-modal.leave-membership-modal
     :disabled="loading || disabled"
   >
-    <div class="d-flex align-items-baseline">
+    <div class="flex align-items-baseline">
       <i class="fa-solid fa-user" />
       <span>{{ $t('rooms.end_membership.button') }}</span>
     </div>

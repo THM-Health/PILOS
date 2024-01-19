@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="notificationSupport && !running"
-    class="w-100 text-center my-2"
+    class="w-full text-center my-2"
   >
     <b-button
       v-if="!notificationEnabled"

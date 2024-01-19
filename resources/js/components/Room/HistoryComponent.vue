@@ -144,10 +144,10 @@
         size="xl"
         hide-footer
         title-tag="div"
-        title-class="w-100"
+        title-class="w-full"
       >
         <template #modal-title>
-          <div class="d-flex justify-content-between align-items-center">
+          <div class="flex justify-content-between align-items-center">
             <h5 v-if="attendanceMeeting">
               {{ $t('meetings.attendance.modal_title',{room: room.name}) }}
               <br><small>{{ $d(new Date(attendanceMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(attendanceMeeting.end),'datetimeShort') }}</small>

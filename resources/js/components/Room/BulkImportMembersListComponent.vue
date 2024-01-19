@@ -15,7 +15,7 @@
           :key="user.email"
           :variant="variant"
         >
-          <div class="d-flex justify-content-between">
+          <div class="flex justify-content-between">
             <span> {{ user.email }}</span>
             <b-button
               v-if="user.error"

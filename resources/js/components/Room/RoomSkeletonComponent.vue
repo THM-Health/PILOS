@@ -7,14 +7,14 @@
       class="room-card h-100"
     >
       <b-card-body class="p-3 h-100">
-        <div class="d-flex flex-column h-100">
+        <div class="flex flex-column h-100">
           <div class="flex-grow-1">
             <b-row>
               <b-col>
                 <b-skeleton />
               </b-col>
               <b-col>
-                <div class="d-flex justify-content-end">
+                <div class="flex justify-content-end">
                   <b-skeleton
                     type="button"
                     size="25px"
@@ -35,7 +35,7 @@
             </h5>
           </div>
           <div>
-            <div class="d-flex">
+            <div class="flex">
               <div class="room-card-info-icon">
                 <i class="fa-solid fa-user" />
               </div>
@@ -43,7 +43,7 @@
                 <small><b-skeleton class="mt-1" /></small>
               </div>
             </div>
-            <div class="d-flex">
+            <div class="flex">
               <div class="room-card-info-icon">
                 <i class="fa-solid fa-clock" />
               </div>

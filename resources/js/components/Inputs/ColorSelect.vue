@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex">
+    <div class="flex">
         <div
             role="button"
             v-for="color in colors"

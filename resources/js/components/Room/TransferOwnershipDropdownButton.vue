@@ -3,7 +3,7 @@
     <b-dropdown-item-button
       @click="showTransferOwnershipModal"
     >
-      <div class="d-flex align-items-baseline">
+      <div class="flex align-items-baseline">
         <i class="fa-solid fa-user-gear" />
         <span>{{ $t('rooms.modals.transfer_ownership.title') }}</span>
       </div>
