@@ -88,7 +88,7 @@
 <script setup>
 
 import { useRouter } from 'vue-router';
-import { computed, defineProps, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const router = useRouter();
 
