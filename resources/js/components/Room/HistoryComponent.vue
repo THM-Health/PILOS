@@ -19,7 +19,6 @@
           <!-- Reload meetings list -->
           <b-button
             v-b-tooltip.hover
-            v-tooltip-hide-click
             class="float-right"
             variant="secondary"
             :disabled="meetingsLoading"
@@ -71,7 +70,6 @@
               <b-button
                 v-if="data.item.statistical"
                 v-b-tooltip.hover
-                v-tooltip-hide-click
                 :title="$t('meetings.view_meeting_stats')"
                 :disabled="meetingsLoading || statsLoading || attendanceLoading"
                 variant="info"
@@ -82,7 +80,6 @@
               <b-button
                 v-if="data.item.attendance && data.item.end != null"
                 v-b-tooltip.hover
-                v-tooltip-hide-click
                 :title="$t('meetings.attendance.view')"
                 :disabled="meetingsLoading || statsLoading || attendanceLoading"
                 variant="info"

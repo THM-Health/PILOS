@@ -106,7 +106,6 @@
               />
               <b-input-group-append>
                 <b-button
-                  v-tooltip-hide-click
                   v-b-tooltip.hover
                   :disabled="isBusy || modelLoadingError"
                   :title="hideSecret ? $t('settings.servers.show_secret') : $t('settings.servers.hide_secret')"

@@ -32,7 +32,6 @@
             <!-- Reload members list -->
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               variant="secondary"
               :disabled="isBusy"
               :title="$t('app.reload')"
@@ -93,7 +92,6 @@
                 <!-- edit membership role -->
                 <b-button
                   v-b-tooltip.hover
-                  v-tooltip-hide-click
                   :disabled="isBusy"
                   variant="secondary"
                   :title="$t('rooms.members.edit_user')"
@@ -104,7 +102,6 @@
                 <!-- remove member -->
                 <b-button
                   v-b-tooltip.hover
-                  v-tooltip-hide-click
                   :disabled="isBusy"
                   variant="danger"
                   :title="$t('rooms.members.remove_user')"

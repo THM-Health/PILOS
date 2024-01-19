@@ -155,7 +155,6 @@
         <template #cell(actions)="data">
           <b-button
             v-b-tooltip.hover
-            v-tooltip-hide-click
             :title="$t('meetings.view_room', { name: data.item.room.name })"
             :disabled="isBusy"
             variant="info"

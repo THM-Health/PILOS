@@ -176,7 +176,6 @@
                 />
                 <template #append>
                   <b-button
-                    v-tooltip-hide-click
                     v-b-tooltip.hover
                     :disabled="isBusy"
                     :title="!showPassword ? $t('settings.users.show_password') : $t('settings.users.hide_password')"

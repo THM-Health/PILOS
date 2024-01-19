@@ -15,7 +15,6 @@
             v-if="getSetting('auth.local')"
             ref="new-user-button"
             v-b-tooltip.hover
-            v-tooltip-hide-click
             class="float-right"
             variant="success"
             :title="$t('settings.users.new')"
@@ -176,7 +175,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.users.view', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled="isBusy"
               variant="info"
@@ -192,7 +190,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.users.edit', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled="isBusy"
               variant="secondary"
@@ -210,7 +207,6 @@
               v-if="getSetting('auth.local')"
               :id="'resetPassword' + data.item.id"
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.users.reset_password.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled="isBusy"
               variant="warning"
@@ -226,7 +222,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.users.delete.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled="isBusy"
               variant="danger"

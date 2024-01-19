@@ -121,7 +121,6 @@
                   <!-- Reset the duration -->
                   <b-button
                     v-b-tooltip.hover
-                    v-tooltip-hide-click
                     :disabled="disabled"
                     variant="outline-secondary"
                     :title="$t('rooms.settings.general.reset_duration')"
@@ -154,7 +153,6 @@
                   <!-- Generate random access code -->
                   <b-button
                     v-b-tooltip.hover
-                    v-tooltip-hide-click
                     :disabled="disabled"
                     variant="outline-secondary"
                     :title="$t('rooms.settings.security.generate_access_code')"
@@ -176,7 +174,6 @@
                   <!-- Clear access code -->
                   <b-button
                     v-b-tooltip.hover
-                    v-tooltip-hide-click
                     :disabled="disabled"
                     variant="outline-secondary"
                     :title="$t('rooms.settings.security.delete_access_code')"
@@ -268,7 +265,6 @@
                   <!-- Clear participants limit -->
                   <b-button
                     v-b-tooltip.hover
-                    v-tooltip-hide-click
                     :disabled="disabled"
                     variant="outline-secondary"
                     :title="$t('rooms.settings.participants.clear_max_participants')"

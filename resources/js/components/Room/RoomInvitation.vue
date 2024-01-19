@@ -6,7 +6,6 @@
       </h5>
       <b-button
         v-b-tooltip.hover
-        v-tooltip-hide-click
         class="float-right flex-shrink-0"
         :aria-label="$t('rooms.copy_access_for_participants')"
         :title="$t('rooms.copy_access_for_participants')"

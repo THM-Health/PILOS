@@ -38,7 +38,6 @@
             <small
               v-if="!session.current"
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('auth.sessions.last_active')"
             >
               <i class="fa-solid fa-clock" /> {{ $d(new Date( session.last_activity),'datetimeShort') }}

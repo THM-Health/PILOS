@@ -8,7 +8,6 @@
       >
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           class="float-right"
           variant="success"
           :title="$t('settings.roles.new')"
@@ -60,7 +59,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.roles.view', { name: data.item.id })"
               :disabled="isBusy"
               variant="info"
@@ -75,7 +73,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.roles.edit', { name: data.item.id })"
               :disabled="isBusy"
               variant="secondary"
@@ -90,7 +87,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.roles.delete.item', { id: data.item.id })"
               :disabled="isBusy"
               variant="danger"

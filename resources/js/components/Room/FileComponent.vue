@@ -46,7 +46,6 @@
           <b-button
             v-if="!hideReload"
             v-b-tooltip.hover
-            v-tooltip-hide-click
             class="float-right"
             variant="secondary"
             :disabled="isBusy"
@@ -92,7 +91,6 @@
               <!-- Delete file -->
               <b-button
                 v-b-tooltip.hover
-                v-tooltip-hide-click
                 variant="danger"
                 :disabled="loadingDownload===data.item.id"
                 :title="$t('rooms.files.delete')"
@@ -104,7 +102,6 @@
             <!-- View file -->
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               variant="secondary"
               :disabled="disableDownload"
               target="_blank"

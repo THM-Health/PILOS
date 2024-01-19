@@ -23,7 +23,6 @@
 
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               variant="secondary"
               :disabled="isBusy"
               :title="$t('app.reload')"
@@ -76,7 +75,6 @@
               >
                 <b-button
                   v-b-tooltip.hover
-                  v-tooltip-hide-click
                   :disabled="isBusy"
                   variant="primary"
                   :title="$t('rooms.tokens.copy')"
@@ -90,7 +88,6 @@
                 >
                   <b-button
                     v-b-tooltip.hover
-                    v-tooltip-hide-click
                     :disabled="isBusy"
                     variant="secondary"
                     :title="$t('rooms.tokens.edit')"
@@ -100,7 +97,6 @@
                   </b-button>
                   <b-button
                     v-b-tooltip.hover
-                    v-tooltip-hide-click
                     :disabled="isBusy"
                     variant="danger"
                     :title="$t('rooms.tokens.delete')"

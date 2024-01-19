@@ -12,7 +12,6 @@
             <b-button
               ref="newServerPool"
               v-b-tooltip.hover
-              v-tooltip-hide-click
               class="ml-2 float-right"
               variant="success"
               :title="$t('settings.server_pools.new')"
@@ -78,7 +77,6 @@
           >
             <b-button
               v-b-tooltip.hover.bottom
-              v-tooltip-hide-click
               :title="$t('settings.server_pools.view', { name: data.item.name })"
               :disabled="isBusy"
               variant="info"
@@ -93,7 +91,6 @@
           >
             <b-button
               v-b-tooltip.hover.bottom
-              v-tooltip-hide-click
               :title="$t('settings.server_pools.edit', { name: data.item.name })"
               :disabled="isBusy"
               variant="secondary"
@@ -108,7 +105,6 @@
           >
             <b-button
               v-b-tooltip.hover.bottom
-              v-tooltip-hide-click
               :title="$t('settings.server_pools.delete.item', { name: data.item.name })"
               :disabled="isBusy"
               variant="danger"

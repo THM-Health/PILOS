@@ -1,7 +1,6 @@
 <template>
   <b-button
     v-b-tooltip.hover
-    v-tooltip-hide-click
     variant="outline-dark"
     :title="$t('rooms.description.tooltips.image')"
     :pressed="editor.isActive('image')"

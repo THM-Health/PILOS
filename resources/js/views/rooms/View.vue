@@ -76,7 +76,6 @@
               <b-button
                 ref="reloadButton"
                 v-b-tooltip.hover
-                v-tooltip-hide-click
                 variant="secondary"
                 :title="$t('app.reload')"
                 :disabled="loading"

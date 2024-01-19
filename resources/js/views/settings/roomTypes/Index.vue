@@ -8,7 +8,6 @@
       >
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           class="float-right"
           variant="success"
           :title="$t('settings.room_types.new')"
@@ -56,7 +55,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.room_types.view', { name: data.item.description })"
               :disabled="isBusy"
               variant="info"
@@ -71,7 +69,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.room_types.edit', { name: data.item.description })"
               :disabled="isBusy"
               variant="secondary"
@@ -86,7 +83,6 @@
           >
             <b-button
               v-b-tooltip.hover
-              v-tooltip-hide-click
               :title="$t('settings.room_types.delete.item', { id: data.item.description })"
               :disabled="isBusy"
               variant="danger"

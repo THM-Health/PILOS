@@ -9,7 +9,6 @@
         <!-- Text type -->
         <b-dropdown
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.text_type')"
         >
@@ -46,7 +45,6 @@
         <!-- Text font styling -->
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.bold')"
           :pressed="editor.isActive('bold')"
@@ -56,7 +54,6 @@
         </b-button>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.italic')"
           :pressed="editor.isActive('italic')"
@@ -66,7 +63,6 @@
         </b-button>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.underline')"
           :pressed="editor.isActive('underline')"
@@ -76,7 +72,6 @@
         </b-button>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.strikethrough')"
           :pressed="editor.isActive('strike')"
@@ -88,7 +83,6 @@
         <!-- Text color -->
         <b-dropdown
           v-b-tooltip.hover
-          v-tooltip-hide-click
           :title="$t('rooms.description.tooltips.color')"
           variant="outline-dark"
         >
@@ -121,7 +115,6 @@
         <!-- Highlight -->
         <b-dropdown
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.highlight')"
         >
@@ -143,7 +136,6 @@
 
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.clear')"
           @click="editor.chain().focus().unsetAllMarks().run()"
@@ -156,7 +148,6 @@
       <b-button-group>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.left')"
           :pressed="editor.isActive({ textAlign: 'left' })"
@@ -166,7 +157,6 @@
         </b-button>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.center')"
           :pressed="editor.isActive({ textAlign: 'center' })"
@@ -176,7 +166,6 @@
         </b-button>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.right')"
           :pressed="editor.isActive({ textAlign: 'right' })"
@@ -191,7 +180,6 @@
         <!-- Unordered list -->
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.list')"
           :pressed="editor.isActive('bulletList')"
@@ -202,7 +190,6 @@
         <!-- Ordered list -->
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.numbered_list')"
           :pressed="editor.isActive('orderedList')"
@@ -213,7 +200,6 @@
         <!-- Quote -->
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.quote')"
           :pressed="editor.isActive('blockquote')"
@@ -231,7 +217,6 @@
       <b-button-group>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.undo')"
           :disabled="!editor.can().undo()"
@@ -241,7 +226,6 @@
         </b-button>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="outline-dark"
           :title="$t('rooms.description.tooltips.redo')"
           :disabled="!editor.can().redo()"
@@ -251,7 +235,6 @@
         </b-button>
         <b-button
           v-b-tooltip.hover
-          v-tooltip-hide-click
           variant="danger"
           :title="$t('rooms.description.tooltips.delete')"
           @click="editor.commands.clearContent(true)"
