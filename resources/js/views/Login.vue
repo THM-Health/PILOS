@@ -6,7 +6,6 @@
         <Card
           :pt="{ body: { class: 'p-0' }, content: { class : 'p-0'} }"
         >
-
           <template #content>
             <TabView
               :lazy="true"
@@ -91,18 +90,15 @@
 </template>
 
 <script setup>
-import LocalLoginComponent from '@/components/Login/LocalLoginComponent.vue';
-import LdapLoginComponent from '@/components/Login/LdapLoginComponent.vue';
 import env from '@/env';
-
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthStore } from '@/stores/auth';
-import ExternalLoginComponent from '@/components/Login/ExternalLoginComponent.vue';
 import { computed, ref, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useApi } from '@/composables/useApi';
 import { useToast } from '@/composables/useToast.js';
+
 const settingsStore = useSettingsStore();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -128,7 +124,7 @@ const panelClass = (context) => {
       'w-full': true,
       'border-noround': true,
       'justify-content-center': true,
-      'p-3': true,
+      'p-tabview-header-action-button': true,
       'bg-primary': context.active
     }
   ];
