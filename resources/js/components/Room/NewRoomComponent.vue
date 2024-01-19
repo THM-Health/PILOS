@@ -27,7 +27,7 @@
           ref="roomTypeSelect"
           v-model="room.room_type"
           :disabled="isLoadingAction"
-          :state="formErrors.fieldState('room_type')"
+          :invalid="formErrors.fieldInvalid('name')"
           @loading-error="(value) => roomTypeSelectLoadingError = value"
           @busy="(value) => roomTypeSelectBusy = value"
         />
@@ -40,7 +40,7 @@
         <InputText
             v-model="room.name"
             :disabled="isLoadingAction"
-            :state="formErrors.fieldState('name')"
+            :class="{'p-invalid': formErrors.fieldInvalid('name')}"
           />
         <p class="p-error" v-html="formErrors.fieldError('name')" />
       </div>

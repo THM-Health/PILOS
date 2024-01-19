@@ -21,12 +21,12 @@ class FormError {
    * @return {null|boolean} null if there is no errors object or there is no error
    *    for the passed field and otherwise false.
    */
-  fieldState (field, wildcard = false) {
+  fieldInvalid (field, wildcard = false) {
     if (wildcard && this.errors) {
-      return Object.keys(this.errors).some(error => error === field || error.startsWith(`${field}.`)) ? false : null;
+      return Object.keys(this.errors).some(error => error === field || error.startsWith(`${field}.`));
     }
 
-    return !this.errors || this.errors[field] === undefined ? null : false;
+    return !(!this.errors || this.errors[field] === undefined);
   }
 
   /**
@@ -49,7 +49,7 @@ class FormError {
    *    that contains a list of the messages for the passed field.
    */
   fieldError (field, wildcard = false) {
-    if (this.fieldState(field, wildcard) !== false) { return ''; }
+    if (!this.fieldInvalid(field, wildcard)) { return ''; }
 
     let errors = this.errors[field];
 

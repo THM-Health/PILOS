@@ -22,6 +22,7 @@
       :options="roomTypes"
       optionLabel="description"
       optionValue="id"
+      :class="{'p-invalid': props.invalid}"
     />
     <!-- reload the room types -->
     <Button
@@ -50,7 +51,8 @@ const props = defineProps({
   modelValue: Object,
   state: Boolean,
   disabled: Boolean,
-  roomId: String
+  roomId: String,
+  invalid: Boolean
 });
 
 const emit = defineEmits(['update:modelValue', 'loadingError']);
