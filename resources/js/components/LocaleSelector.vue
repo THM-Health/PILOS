@@ -1,22 +1,24 @@
 <template>
-  <Button  text type="button" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu">
-    <i class="fa-solid fa-language text-xl" /><span class="sr-only">{{ $t('app.select_locale') }}</span>
-    <span class="fa-solid fa-caret-down ml-2" />
-  </Button>
-  <Menu
-    ref="localeMenu"
-    class="w-auto"
-    :model="locales"
-    :popup="true"
-    @focus="() => nextTick(() => { localeMenu.focusedOptionIndex = -1; } )"
-  />
+
+  <NavbarDropdownButton>
+    <template v-slot:button-content>
+      <i class="fa-solid fa-language text-xl hidden lg:block" />
+      <span class="block lg:hidden">{{ $t('app.select_locale') }}</span>
+    </template>
+    <NavbarDropdownItem
+      v-for="locale in locales"
+      :key="locale.locale"
+      @click="changeLocale(locale.locale)"
+      :text="locale.label"
+    />
+  </NavbarDropdownButton>
 </template>
 
 <script setup>
 import env from '@/env.js';
 import Base from '@/api/base';
 import { useApi } from '@/composables/useApi';
-import { computed, nextTick, ref } from 'vue';
+import { computed } from 'vue';
 import { useLocaleStore } from '@/stores/locale';
 import { useLoadingStore } from '@/stores/loading';
 import { useSettingsStore } from '@/stores/settings.js';
@@ -26,12 +28,6 @@ const loadingStore = useLoadingStore();
 const settingsStore = useSettingsStore();
 const api = useApi();
 
-const localeMenu = ref();
-
-const toggle = (event) => {
-  localeMenu.value.toggle(event);
-};
-
 const locales = computed(() => {
   const locales = settingsStore.getSetting('enabled_locales');
   if (!locales) {
@@ -39,13 +35,10 @@ const locales = computed(() => {
     return [];
   }
 
-  console.log('locales', locales);
-
   return Object.entries(locales).map(([locale, label]) => {
     return {
       label,
-      command: () => changeLocale(locale),
-      class: localeStore.currentLocale === locale ? 'p-highlight' : ''
+      locale
     };
   });
 });

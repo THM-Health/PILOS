@@ -1,114 +1,84 @@
 <template>
 
-  <div class="border-bottom-1 border-200 bg-white">
-    <Menubar
-      :model="menuItems"
-      :pt="{ root: { class: 'container border-none' } }"
-      breakpoint="1200px"
-    >
-      <template #start  >
-        <RouterLink :to="{ name: 'home' }" class="mr-5">
+  <div class="border-bottom-1 border-200 bg-white py-3 relative">
+    <div class="container flex lg:flex-row flex-column justify-content-between">
+      <div class="flex align-items-center justify-content-between">
+        <RouterLink v-if="settingsStore.getSetting('logo')" :to="{ name: 'home' }" class="mr-6">
           <img
-            v-if="settingsStore.getSetting('logo')"
             style="height: 2rem;"
             :src="settingsStore.getSetting('logo')"
             alt="Logo"
           />
         </RouterLink>
-      </template>
-
-      <template #item="{ item, props, hasSubmenu }">
-        <RouterLink v-if="item.route" :to="item.route" v-bind="props.action">
-         <span>{{ item.label }}</span>
-        </RouterLink>
-        <a v-else :href="item.url" :target="item.target" v-bind="props.action">
-          <span>{{ item.label }}</span>
-          <span v-if="hasSubmenu" class="fa-solid fa-caret-down ml-2" />
+        <a class="lg:hidden flex p-3 align-items-center text-600 hover:text-900 hover:surface-100 font-medium border-round cursor-pointer transition-colors transition-duration-150"
+           v-styleclass="{ selector: '#mainNavDropdown', enterClass: 'hidden', leaveToClass: 'hidden', hideOnOutsideClick: true }">
+          <i class="fa-solid fa-bars"></i>
         </a>
-      </template>
+      </div>
 
-      <template #end>
-        <div class="flex align-items-center gap-2">
-          <UserMenu />
+      <div id="mainNavDropdown" class="align-items-center flex-grow-1 justify-content-between hidden lg:flex">
+      <ul class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row">
+        <NavbarButton v-if="authStore.isAuthenticated" :to="{ name: 'rooms.index' }" :text="$t('app.rooms')" />
+        <can
+          method="viewAny"
+          policy="MeetingPolicy"
+        >
+          <NavbarButton :to="{ name: 'meetings.index' }" :text="$t('meetings.currently_running')" />
+        </can>
+        <can
+          method="manage"
+          policy="SettingPolicy"
+        >
+          <NavbarButton :to="{ name: 'settings' }" :text="$t('settings.title')" />
+        </can>
+        <can
+          method="monitor"
+          policy="SystemPolicy"
+        >
+          <NavbarDropdownButton :text="$t('system.monitor.title')">
+            <NavbarDropdownItem
+              href="/pulse"
+              target="_blank"
+              :text="$t('system.monitor.pulse')"
+            />
+            <NavbarDropdownItem
+              href="/horizon"
+              target="_blank"
+              :text="$t('system.monitor.horizon')"
+            />
+            <NavbarDropdownItem
+              v-if="settingsStore.getSetting('monitor.telescope')"
+              href="/telescope"
+              target="_blank"
+              :text="$t('system.monitor.telescope')"
+            />
+          </NavbarDropdownButton>
+        </can>
+      </ul>
+      <ul class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row border-top-1 mt-2 lg:mt-0 pt-2 lg:pt-0 surface-border lg:border-top-none">
+        <NavbarUserDropdown />
 
-          <a
-            target="_blank"
-            :href="settingsStore.getSetting('help_url')"
-            class="p-button p-button-icon-only p-button-rounded p-button-text"
-            v-if="!!settingsStore.getSetting('help_url')"
-            v-tooltip="$t('app.help')"
-          >
-            <i class="fa-solid fa-circle-question text-xl"></i>
-          </a>
+        <NavbarButton
+          target="_blank"
+          :href="settingsStore.getSetting('help_url')"
+          v-if="!!settingsStore.getSetting('help_url')"
+        >
+          <i class="fa-solid fa-circle-question text-xl hidden lg:block" v-tooltip="$t('app.help')"></i>
+          <span class="block lg:hidden">{{ $t('app.help') }}</span>
+        </NavbarButton>
 
-          <LocaleSelector />
-
-        </div>
-      </template>
-    </Menubar>
+        <LocaleSelector />
+      </ul>
+    </div>
+    </div>
   </div>
 </template>
 <script setup>
 
-import { computed } from 'vue';
 import { useAuthStore } from '@/stores/auth.js';
 import { useSettingsStore } from '@/stores/settings.js';
-import PermissionService from '@/services/PermissionService';
-
-import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
-
-const menuItems = computed(() => {
-  if (!authStore.isAuthenticated) { return []; }
-
-  const items = [
-    {
-      label: t('app.rooms'),
-      route: { name: 'rooms.index' }
-    }
-  ];
-
-  if (PermissionService.can('viewAny', 'MeetingPolicy')) {
-    items.push({
-      label: t('meetings.currently_running'),
-      route: { name: 'meetings.index' }
-    });
-  }
-
-  if (PermissionService.can('manage', 'SettingPolicy')) {
-    items.push({
-      label: t('settings.title'),
-      route: { name: 'settings' }
-    });
-  }
-
-  if (PermissionService.can('monitor', 'SystemPolicy')) {
-    items.push({
-      label: t('system.monitor.title'),
-      items: [
-        {
-          label: t('system.monitor.pulse'),
-          url: '/pulse',
-          target: '_blank'
-        },
-        {
-          label: t('system.monitor.horizon'),
-          url: '/horizon',
-          target: '_blank'
-        },
-        {
-          label: t('system.monitor.telescope'),
-          url: '/telescope',
-          target: '_blank'
-        }
-      ]
-    });
-  }
-
-  return items;
-});
 
 </script>

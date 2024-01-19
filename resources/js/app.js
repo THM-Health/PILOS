@@ -6,6 +6,7 @@ import i18n from './i18n';
 import axios from 'axios';
 import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
+import StyleClass from 'primevue/styleclass';
 import Toast from './plugins/toast';
 import { useToast } from './composables/useToast';
 
@@ -31,6 +32,7 @@ const setupApp = (app) => {
   app.use(i18n);
   app.use(PrimeVue);
   app.directive('tooltip', Tooltip);
+  app.directive('styleclass', StyleClass);
   app.use(Toast);
 
   app.config.errorHandler = (err, vm, info) => {
