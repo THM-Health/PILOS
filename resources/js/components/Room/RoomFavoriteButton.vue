@@ -1,45 +1,42 @@
 <template>
-  <b-button
-    v-b-tooltip.hover
-    v-tooltip-hide-click
-    :variant="room.is_favorite ? 'primary' : 'secondary'"
-    :title="room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
-    :aria-label="room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
-    class="fa-solid fa-star"
+  <Button
+    :severity="props.room.is_favorite ? 'primary' : 'secondary'"
+    v-tooltip="props.room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
+    :aria-label="props.room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
+    icon="fa-solid fa-star"
+    size="small"
     @click.stop="toggleFavorite"
   />
 </template>
 
-<script>
-import Base from '@/api/base';
+<script setup>
+import { useApi } from '@/composables/useApi.js';
 
-export default {
-  name: 'RoomFavoriteButton',
+const api = useApi();
 
-  props: {
-    room: Object
-  },
-  methods: {
-    /**
-     * Add a room to the favorites or delete it from the favorites
-     */
-    toggleFavorite: function () {
-      let config;
-      // check if the room must be added or deleted
-      if (this.room.is_favorite) {
-        config = { method: 'delete' };
-      } else {
-        config = { method: 'post' };
-      }
-      // add or delete room
-      Base.call('rooms/' + this.room.id + '/favorites', config)
-        .catch(error => {
-          Base.error(error, this);
-        }).finally(() => {
-          this.$emit('favorites-changed');
-        });
-    }
+const props = defineProps({
+  room: Object
+});
+
+const emit = defineEmits(['favoritesChanged']);
+
+/**
+ * Add a room to the favorites or delete it from the favorites
+ */
+function toggleFavorite () {
+  let config;
+  // check if the room must be added or deleted
+  if (props.room.is_favorite) {
+    config = { method: 'delete' };
+  } else {
+    config = { method: 'post' };
   }
-
-};
+  // add or delete room
+  api.call('rooms/' + props.room.id + '/favorites', config)
+    .catch(error => {
+      api.error(error);
+    }).finally(() => {
+      emit('favoritesChanged');
+    });
+}
 </script>

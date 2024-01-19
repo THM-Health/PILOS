@@ -1,146 +1,114 @@
 <template>
-  <b-input-group>
-    <b-input-group-prepend
+
+  <InputGroup>
+    <InputGroupAddon
       v-if="modelLoadingError"
-      class="flex-grow-1"
+      class="flex-grow-1 p-0"
       style="width: 1%"
     >
-      <b-alert
-        class="mb-0 w-100"
-        show
-        variant="danger"
+      <InlineMessage
+        severity="error"
+        class="w-full"
       >
         {{ $t('rooms.room_types.loading_error') }}
-      </b-alert>
-    </b-input-group-prepend>
-    <b-form-select
+      </InlineMessage>
+    </InputGroupAddon>
+    <Dropdown
       v-else
-      v-model="roomType"
+      v-model="roomTypeId"
       :disabled="disabled || isLoadingAction"
-      :state="state"
-      :options="roomTypeSelect"
       @change="changeRoomType"
+      :placeholder="$t('rooms.room_types.select_type')"
+      :options="roomTypes"
+      optionLabel="description"
+      optionValue="id"
+    />
+    <!-- reload the room types -->
+    <Button
+      v-tooltip="$t('rooms.room_types.reload')"
+      :disabled="disabled || isLoadingAction"
+      severity="secondary"
+      outlined
+      @click="reloadRoomTypes"
     >
-      <template #first>
-        <b-form-select-option
-          :value="null"
-          disabled
-        >
-          {{ $t('rooms.room_types.select_type') }}
-        </b-form-select-option>
-      </template>
-    </b-form-select>
-    <b-input-group-append>
-      <!-- Reload the room types -->
-      <b-button
-        v-b-tooltip.hover
-        v-tooltip-hide-click
-        :disabled="disabled || isLoadingAction"
-        variant="outline-secondary"
-        :title="$t('rooms.room_types.reload')"
-        @click="reloadRoomTypes"
-      >
-        <i
-          class="fa-solid fa-sync"
-          :class="{ 'fa-spin': isLoadingAction }"
-        />
-      </b-button>
-    </b-input-group-append>
-  </b-input-group>
+      <i
+        class="fa-solid fa-sync"
+        :class="{ 'fa-spin': isLoadingAction }"
+      />
+    </Button>
+  </InputGroup>
 </template>
 
-<script>
-import Base from '@/api/base';
-export default {
-  name: 'RoomTypeSelect',
-  props: {
-    value: Object,
-    state: Boolean,
-    disabled: Boolean,
-    roomId: String
-  },
+<script setup>
 
-  data () {
-    return {
-      roomType: this.value?.id ?? null,
-      roomTypes: [],
-      modelLoadingError: false,
-      isLoadingAction: false
-    };
-  },
+import { useApi } from '../../composables/useApi.js';
+import { onMounted, ref, watch } from 'vue';
 
-  computed: {
-    /**
-     * Calculate the room type selection options
-     * @returns {null|*}
-     */
-    roomTypeSelect () {
-      if (this.roomTypes) {
-        return this.roomTypes.map(roomtype => {
-          const entry = {};
-          entry.value = roomtype.id;
-          entry.text = roomtype.description;
-          return entry;
-        });
-      }
-      return null;
+const api = useApi();
+
+const props = defineProps({
+  modelValue: Object,
+  state: Boolean,
+  disabled: Boolean,
+  roomId: String
+});
+
+const emit = defineEmits(['update:modelValue', 'loadingError']);
+
+const roomTypeId = ref(props.modelValue?.id ?? null);
+const roomTypes = ref([]);
+const modelLoadingError = ref(false);
+const isLoadingAction = ref(false);
+
+// detect changes from the parent component and update select
+watch(() => props.modelValue, (value) => {
+  roomTypeId.value = value?.id ?? null;
+});
+
+// detect changes from the parent component and update select
+watch(modelLoadingError, (value) => {
+  emit('loadingError', value);
+});
+
+// detect busy status while data fetching and notify parent
+watch(isLoadingAction, (busy) => {
+  emit('busy', busy);
+});
+
+onMounted(() => {
+  reloadRoomTypes();
+});
+
+// Load the room types
+function reloadRoomTypes () {
+  isLoadingAction.value = true;
+  const config = {
+    params: {
+      filter: props.roomId === undefined ? 'own' : props.roomId
     }
-  },
+  };
 
-  watch: {
-    // detect changes from the parent component and update select
-    value: function () {
-      this.roomType = this.value?.id ?? null;
-    },
-
-    // detect changes of the model loading error
-    modelLoadingError: function () {
-      this.$emit('loading-error', this.modelLoadingError);
-    },
-
-    // detect busy status while data fetching and notify parent
-    isLoadingAction: function () {
-      this.$emit('busy', this.isLoadingAction);
+  api.call('roomTypes', config).then(response => {
+    roomTypes.value = response.data.data;
+    // check if roomType select value is not included in available room type list
+    // if so, unset roomType field
+    if (roomTypeId.value && !roomTypes.value.map(type => type.id).includes(roomTypeId.value)) {
+      roomTypeId.value = null;
+      emit('update:modelValue', null);
     }
-  },
+    modelLoadingError.value = false;
+  }).catch(error => {
+    modelLoadingError.value = true;
+    api.error(error);
+  }).finally(() => {
+    isLoadingAction.value = false;
+  });
+}
 
-  mounted () {
-    this.reloadRoomTypes();
-  },
+// detect changes of the select and notify parent
+function changeRoomType () {
+  const newRoomType = roomTypes.value.find((entry) => entry.id === roomTypeId.value) ?? null;
+  emit('update:modelValue', newRoomType);
+}
 
-  methods: {
-
-    // detect changes of the select and notify parent
-    changeRoomType: function () {
-      const roomType = this.roomTypes.find((roomType) => roomType.id === this.roomType) ?? null;
-      this.$emit('input', roomType);
-    },
-
-    // Load the room types
-    reloadRoomTypes () {
-      this.isLoadingAction = true;
-      const config = {
-        params: {
-          filter: this.roomId === undefined ? 'own' : this.roomId
-        }
-      };
-
-      Base.call('roomTypes', config).then(response => {
-        this.roomTypes = response.data.data;
-        // check if roomType select value is not included in available room type list
-        // if so, unset roomType field
-        if (this.roomType && !this.roomTypes.map(type => type.id).includes(this.roomType)) {
-          this.roomType = null;
-          this.$emit('input', null);
-        }
-        this.modelLoadingError = false;
-      }).catch(error => {
-        this.modelLoadingError = true;
-        Base.error(error, this);
-      }).finally(() => {
-        this.isLoadingAction = false;
-      });
-    }
-  }
-};
 </script>

@@ -1,155 +1,146 @@
 <template>
   <div>
-    <b-button
-      class="w-100"
-      :disabled="disabled"
-      variant="primary"
-      @click="$bvModal.show('new-room')"
+    <Button
+      class="w-full flex justify-content-center"
+      :disabled="props.disabled"
+      @click="modalVisible = true"
     >
-      <i class="fa-solid fa-plus" /> {{ $t('rooms.create.title') }}
-    </b-button>
+      <i class="fa-solid fa-plus mr-2" /> {{ $t('rooms.create.title') }}
+    </Button>
 
     <!-- new room modal-->
-    <b-modal
-      id="new-room"
-      :title="$t('rooms.create.title')"
-      :busy="isLoadingAction || roomTypeSelectBusy"
-      ok-variant="success"
-      :ok-title="$t('rooms.create.ok')"
-      :cancel-title="$t('app.cancel')"
-      :static="modalStatic"
-      :ok-disabled="roomTypeSelectLoadingError"
-      :no-close-on-esc="isLoadingAction || roomTypeSelectBusy"
-      :no-close-on-backdrop="isLoadingAction || roomTypeSelectBusy"
-      :hide-header-close="isLoadingAction || roomTypeSelectBusy"
-      @ok="handleOk"
-      @hidden="handleCancel"
+    <Dialog
+      v-model:visible="modalVisible"
+      modal
+      :header="$t('rooms.create.title')"
+      :style="{ width: '500px' }"
+      :breakpoints="{ '575px': '90vw' }"
+      :closeOnEscape="!isLoadingAction && !roomTypeSelectBusy"
+      :dismissableMask="!isLoadingAction && !roomTypeSelectBusy"
+      :closable="!isLoadingAction && !roomTypeSelectBusy"
+      :draggable="false"
+      @hide="clearModal"
     >
-      <b-form-group
-        :state="fieldState('room_type')"
-        :label="$t('rooms.settings.general.type')"
-      >
-        <room-type-select
+      <div class="flex flex-column gap-2">
+        <label for="firstname1">{{ $t('rooms.settings.general.type') }}</label>
+        <RoomTypeSelect
           ref="roomTypeSelect"
           v-model="room.room_type"
           :disabled="isLoadingAction"
-          :state="fieldState('room_type')"
+          :state="formErrors.fieldState('room_type')"
           @loading-error="(value) => roomTypeSelectLoadingError = value"
           @busy="(value) => roomTypeSelectBusy = value"
         />
-        <template #invalid-feedback>
-          <div v-html="fieldError('room_type')" />
-        </template>
-      </b-form-group>
+        <p class="p-error" v-html="formErrors.fieldError('room_type')" />
+      </div>
+
       <!-- Room name -->
-      <b-form-group
-        :state="fieldState('name')"
-        :label="$t('rooms.name')"
-      >
-        <b-input-group>
-          <b-form-input
+      <div class="flex flex-column gap-2 mt-4">
+        <label for="firstname1">{{ $t('rooms.name') }}</label>
+        <InputText
             v-model="room.name"
             :disabled="isLoadingAction"
-            :state="fieldState('name')"
+            :state="formErrors.fieldState('name')"
           />
-        </b-input-group>
-        <template #invalid-feedback>
-          <div v-html="fieldError('name')" />
-        </template>
-      </b-form-group>
-    </b-modal>
+        <p class="p-error" v-html="formErrors.fieldError('name')" />
+      </div>
+      <template #footer>
+        <Button :label="$t('app.cancel')" outlined :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
+        <Button :label="$t('rooms.create.ok')" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
+
+      </template>
+    </Dialog>
   </div>
 </template>
-<script>
-import Base from '@/api/base';
-import FieldErrors from '@/mixins/FieldErrors';
+<script setup>
 import env from '@/env.js';
-import RoomTypeSelect from '@/components/Inputs/RoomTypeSelect.vue';
 import _ from 'lodash';
-import { mapActions } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
+import { reactive, ref } from 'vue';
+import { useFormErrors } from '@/composables/useFormErrors.js';
+import { useApi } from '@/composables/useApi.js';
+import { useRouter } from 'vue-router';
+import { useToast } from '@/composables/useToast.js';
+import { useI18n } from 'vue-i18n';
 
-export default {
-  name: 'NewRoomComponent',
+const authStore = useAuthStore();
+const formErrors = useFormErrors();
+const api = useApi();
+const router = useRouter();
+const toast = useToast();
+const { t } = useI18n();
 
-  components: { RoomTypeSelect },
-  mixins: [FieldErrors],
-
-  props: {
-    modalStatic: {
-      type: Boolean,
-      default: false
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data () {
-    return {
-      roomTypeSelectBusy: false,
-      roomTypeSelectLoadingError: false,
-      isLoadingAction: false,
-      room: {
-        room_type: null
-      },
-      errors: {}
-    };
-  },
-  methods: {
-    handleOk: function (bvModalEvt) {
-      bvModalEvt.preventDefault();
-      this.handleSubmit();
-    },
-
-    handleCancel: function () {
-      this.room = { room_type: null };
-    },
-
-    ...mapActions(useAuthStore, ['getCurrentUser']),
-
-    handleSubmit () {
-      this.isLoadingAction = true;
-
-      const newRoom = _.clone(this.room);
-      newRoom.room_type = newRoom.room_type ? newRoom.room_type.id : null;
-
-      Base.call('rooms', {
-        method: 'post',
-        data: newRoom
-      }).then(response => {
-        this.errors = {};
-        this.$router.push({ name: 'rooms.view', params: { id: response.data.data.id } });
-      }).catch((error) => {
-        this.isLoadingAction = false;
-        if (error.response) {
-          // failed due to form validation errors
-          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-            if (error.response.data.errors.room_type !== undefined) {
-              this.$refs.roomTypeSelect.reloadRoomTypes();
-            }
-
-            this.errors = error.response.data.errors;
-            return;
-          }
-          // permission denied
-          if (error.response.status === env.HTTP_FORBIDDEN) {
-            this.toastError(this.$t('rooms.flash.no_new_room'));
-            this.$bvModal.hide('new-room');
-            this.getCurrentUser();
-            return;
-          }
-          // room limit exceeded
-          if (error.response.status === env.HTTP_ROOM_LIMIT_EXCEEDED) {
-            this.$emit('limit-reached');
-          }
-        }
-        this.$bvModal.hide('new-room');
-        Base.error(error, this.$root);
-      });
-    }
-
+const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
   }
+});
 
-};
+const emit = defineEmits(['limitReached']);
+
+const modalVisible = ref(false);
+const roomTypeSelectBusy = ref(false);
+const roomTypeSelectLoadingError = ref(false);
+const isLoadingAction = ref(false);
+const roomTypeSelect = ref(null);
+
+const room = reactive({
+  room_type: null,
+  name: null
+});
+
+function handleCancel () {
+  modalVisible.value = false;
+}
+
+function clearModal () {
+  room.room_type = null;
+  room.name = null;
+  roomTypeSelectBusy.value = false;
+  roomTypeSelectLoadingError.value = false;
+  isLoadingAction.value = false;
+  formErrors.clear();
+}
+
+function handleOk () {
+  isLoadingAction.value = true;
+
+  const newRoom = _.clone(room);
+  newRoom.room_type = newRoom.room_type ? newRoom.room_type.id : null;
+
+  api.call('rooms', {
+    method: 'post',
+    data: newRoom
+  }).then(response => {
+    formErrors.clear();
+    router.push({ name: 'rooms.view', params: { id: response.data.data.id } });
+  }).catch((error) => {
+    isLoadingAction.value = false;
+    if (error.response) {
+      // failed due to form validation errors
+      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response.data.errors.room_type !== undefined) {
+          // roomTypeSelect.value.reloadRoomTypes();
+        }
+
+        formErrors.set(error.response.data.errors);
+        return;
+      }
+      // permission denied
+      if (error.response.status === env.HTTP_FORBIDDEN) {
+        toast.success(t('rooms.flash.no_new_room'));
+        modalVisible.value = false;
+        authStore.getCurrentUser();
+        return;
+      }
+      // room limit exceeded
+      if (error.response.status === env.HTTP_ROOM_LIMIT_EXCEEDED) {
+        emit('limitReached');
+      }
+    }
+    modalVisible.value = false;
+    api.error(error);
+  });
+}
 </script>

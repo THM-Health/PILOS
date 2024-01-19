@@ -53,10 +53,17 @@ $highlightFocusBg: rgba($primaryColor, .24) !default;
 
 //$borderRadius: 0px;
 
+// Typography
+@import './_fonts';
+
+$fontFamily: SourceSansPro, sans-serif;
+
 @import './_variables';
 @import 'primevue-sass-theme/theme-base/_components';
 @import './_extensions';
+@import "streched-link";
 @import 'primeflex/primeflex.css';
+@import '../../app/_room';
 
 // Font Awesome
 $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
@@ -131,12 +138,6 @@ footer {
     }
 }
 
-.p-menubar .p-button,
-.p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-content .p-menuitem-link {
-    color: #4b5563;
-    padding: 0.75rem 0.75rem;
-}
-
 .overlay-spinner {
     position: fixed !important;
     top: 0;
@@ -172,4 +173,12 @@ a:any-link {
 }
 .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
     transform: translateX(calc(1rem - 4px - 2px));
+}
+
+.p-error {
+    margin: 0;
+}
+
+.p-tabview-header-action-button {
+    padding: $buttonPadding;
 }

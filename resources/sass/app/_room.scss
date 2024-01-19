@@ -5,7 +5,7 @@
         flex-shrink: 0;
         text-align: center
     }
-    
+
     &__text{
         flex-grow: 1;
     }
@@ -14,7 +14,10 @@
 .room-card{
     pointer-events: auto;
     cursor: pointer;
-    
+    background: #ffffff;
+    box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+    border-radius: $borderRadius;
+
     &--running{
         border-color: $green;
         border-width: 2.5px;
@@ -23,8 +26,8 @@
     &__buttons {
         z-index: 2;
         position: relative;
-    
-        .btn{
+
+        .p-button{
             margin-left: 0.25rem;
             padding: 0;
             height: 25px;
@@ -59,7 +62,7 @@
     padding: 10px;
     outline: none;
     border: 1px solid;
-    @include border-radius($thumbnail-border-radius);
+    border-radius: $borderRadius;
 
     > * + * {
         margin-top: 0.75em;

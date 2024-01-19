@@ -66,7 +66,7 @@ $actionIconHoverColor:$shade800 !default;
 $actionIconBorderRadius:50% !default;
 
 //input field (e.g. inputtext, spinner, inputmask)
-$inputPadding:.75rem .75rem !default;
+$inputPadding:.55rem .75rem !default;
 $inputTextFontSize:1rem !default;
 
 $inputBg:$shade000 !default;
@@ -121,9 +121,9 @@ $passwordMediumBg: $warning !default;
 $passwordStrongBg: $success !default;
 
 //button
-$buttonPadding:.75rem 1.25rem !default;
+$buttonPadding:.55rem 0.75rem !default;
 $buttonIconOnlyWidth:3rem !default;
-$buttonIconOnlyPadding:.75rem 0 !default;
+$buttonIconOnlyPadding:.375rem 0 !default;
 $buttonBg:$primaryColor !default;
 $buttonTextColor:$primaryTextColor !default;
 $buttonBorder:1px solid $primaryColor !default;
@@ -836,10 +836,10 @@ $imagePreviewActionIconFontSize:1.5rem !default;
 $imagePreviewActionIconBorderRadius:50% !default;
 
 :root {
-    font-family:'Inter var', sans-serif;
+    font-family: #{$fontFamily};
     font-feature-settings: "cv02","cv03","cv04","cv11";
     font-variation-settings: normal;
-    --font-family:'Inter var', sans-serif;
+    --font-family: #{$fontFamily};
     --font-feature-settings: "cv02","cv03","cv04","cv11";
     --surface-a:#{$shade000};
     --surface-b:#{$shade100};

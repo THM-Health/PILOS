@@ -1,11 +1,13 @@
 <template>
-  <b-badge
+  <Tag
     class="flex-shrink-1 text-break"
     style="white-space: normal"
-    :style="{ 'background-color': roomType.color }"
+    :pt="{
+        root: { style: { background: roomType.color } }
+    }"
   >
     {{ roomType.description }}
-  </b-badge>
+  </Tag>
 </template>
 
 <script>
