@@ -1,6 +1,6 @@
 <template>
   <Toast />
-  <OverlayComponent :show="loadingStore.loadingCounter > 0 || loadingStore.overlayLoadingCounter > 0">
+  <OverlayComponent :show="loadingStore.loadingCounter > 0 || loadingStore.overlayLoadingCounter > 0" z-index="10000">
     <div v-if="loadingStore.loadingCounter == 0" class="app">
       <header>
         <AppBanner
