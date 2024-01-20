@@ -10,7 +10,6 @@
         "test:watch": "vitest watch",
         "test:ui": "vitest --ui",
         "cover": "vitest run --coverage",
-        "cypress:open": "cypress open"
     },
     "devDependencies": {
         "@intlify/eslint-plugin-vue-i18n": "^2.0.0",
