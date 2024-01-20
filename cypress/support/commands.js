@@ -24,6 +24,13 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+Cypress.Commands.add('init', ()=>{
+  //Todo? settings
+  cy.intercept('GET','api/v1/currentUser', {fixture: 'exampleUser.json'});
+  cy.intercept('GET', 'api/v1/locale/en', {});
+});
+
+// bypass Login can be used to log in a user (has to exist in database / only works with database)
 Cypress.Commands.add('bypassLogin', (name, password)=>{
   //ToDo should normally be done with request not with ui
   cy.session([name,password], () =>{
@@ -39,5 +46,5 @@ Cypress.Commands.add('bypassLogin', (name, password)=>{
       cacheAcrossSpecs:true
     }
   )
-
 })
+

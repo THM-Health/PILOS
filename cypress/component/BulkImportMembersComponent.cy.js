@@ -36,15 +36,18 @@ describe('<BulkImportMembersComponent />', () => {
     cy.get('.modal').should('be.visible');
 
     //Check role selection
-    //Check if texts are shown
-    cy.get('[data-cy="roleSelection"]').get('.badge').should('have.length', 3).eq(0).contains('rooms.roles.participant');
-    cy.get('[data-cy="roleSelection"]').get('.badge').eq(1).contains('rooms.roles.moderator');
-    cy.get('[data-cy="roleSelection"]').get('.badge').eq(2).contains('rooms.roles.co_owner');
+    cy.get('[data-cy="roleSelection"]').within(()=>{
 
-    //check if checkboxes exist and if the first one is checked
-    cy.get('[data-cy="roleSelection"]').get('input').should('have.length', 3).eq(0).should('have.value', 1).and('be.checked');
-    cy.get('[data-cy="roleSelection"]').get('input').eq(1).should('have.value', 2).and('not.be.checked');
-    cy.get('[data-cy="roleSelection"]').get('input').eq(2).should('have.value', 3).and('not.be.checked');
+      //Check if texts are shown
+      cy.get('.badge').should('have.length', 3).eq(0).contains('rooms.roles.participant');
+      cy.get('.badge').eq(1).contains('rooms.roles.moderator');
+      cy.get('.badge').eq(2).contains('rooms.roles.co_owner');
+
+      //check if checkboxes exist and if the first one is checked
+      cy.get('input').should('have.length', 3).eq(0).should('have.value', 1).and('be.checked');
+      cy.get('input').eq(1).should('have.value', 2).and('not.be.checked');
+      cy.get('input').eq(2).should('have.value', 3).and('not.be.checked');
+    });
 
     cy.get('button').eq(2).as('firstStepButton');
     cy.get('@firstStepButton').should('contain.text', 'rooms.members.modals.add.add').should('be.disabled');

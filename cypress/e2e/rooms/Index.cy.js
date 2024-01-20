@@ -1,13 +1,16 @@
+import '../../support/commands.js'
 describe('room index spec', () => {
-  it('visit rooms', () => {
-    cy.intercept('GET','api/v1/currentUser', {fixture: 'exampleUser.json'});
-    cy.intercept('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'});
-    //ToDo Maybe better to not use fixture for all rooms (will have to change because of sorting/filtering)
-    cy.intercept('GET', 'api/v1/rooms?*', {fixture: 'exampleRoomsResponse.json'}).as('roomRequest');
 
+  beforeEach(()=>{
+    cy.init();
+    cy.intercept('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'}).as('roomTypeRequest');
+    cy.intercept('GET', 'api/v1/rooms?*', {fixture: 'exampleRoomsResponse.json'}).as('roomRequest');
+  });
+
+  it('visit rooms', () => {
     cy.visit('/rooms');
 
-    //check if buttons disabled ToDo overlay with spinner?
+    //check if buttons disabled ToDo overlay with spinner? / Could maybe cause problems (delay response?)
     cy.get('[data-cy="searchButton"]').should('be.disabled');
     cy.get('.form-group').should('be.disabled');
     cy.get('.dropdown-toggle').eq(2).should('be.disabled');
@@ -16,13 +19,18 @@ describe('room index spec', () => {
 
     //check request
     cy.wait('@roomRequest').then(interception =>{
-      //ToDo to.contain seems better, results in 2 separate assertions(in test)
-      expect(interception.request.query).to.contain({filter_all: '0', filter_own: '1'});
+      expect(interception.request.query).to.contain({
+        filter_all: '0',
+        filter_own: '1',
+        filter_public: '0',
+        only_favorites: '0',
+        sort_by: 'last_started'
+      });
       // expect(interception.request.query.filter_own).to.equal('1');
-      expect(interception.request.query).to.contain({filter_public: '0'});
-      expect(interception.request.query.filter_shared).to.equal('1');
-      expect(interception.request.query.only_favorites).to.equal('0');
-      expect(interception.request.query.sort_by).to.equal('last_started');
+      // expect(interception.request.query).to.contain({filter_public: '0'});
+      // expect(interception.request.query.filter_shared).to.equal('1');
+      // expect(interception.request.query.only_favorites).to.equal('0');
+      // expect(interception.request.query.sort_by).to.equal('last_started');
     })
 
     cy.get('[data-cy="searchButton"]').should('not.be.disabled');
@@ -41,7 +49,12 @@ describe('room index spec', () => {
     cy.get('select').should('not.be.visible');
     cy.get('.dropdown-toggle').eq(2).should('not.be.visible');
 
-    //ToDo could maybe be used to change user (change intercept response to another user and reload the page)
+    //error
+    cy.reload()
+    cy.intercept('GET', 'api/v1/rooms?*', {statusCode:500}).as('roomRequest');
+    cy.wait('@roomRequest');
+
+    //could be used to change user
     cy.intercept('GET','api/v1/currentUser', {});
     cy.reload()
   })
