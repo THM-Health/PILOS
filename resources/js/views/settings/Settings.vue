@@ -1,28 +1,23 @@
 <template>
-  <b-container class="mt-3 mb-5">
-    <h2>
-      <b-button
+  <div class="container mt-3 mb-5">
+    <h1>
+<!--  ToDo improve button-->
+      <Button
         v-if="$route.name!=='settings'"
-        v-b-tooltip
+        v-tooltip="$t('settings.home_button')"
         class="mr-3"
-        variant="secondary"
-        :title="$t('settings.home_button')"
-        :to="{ name: 'settings'}"
+        severity="secondary"
       >
-        <i class="fa-solid fa-arrow-left" />
-      </b-button> {{ $t('settings.title') }}
-    </h2>
+        <AppLink :to="{ name: 'settings'}" class="text-white"><i class="fa-solid fa-arrow-left" /></AppLink>
+      </Button>
+      {{ $t('settings.title') }}
+    </h1>
     <hr>
-    <b-card class="p-3 border bg-white">
-      <router-view />
-    </b-card>
-  </b-container>
+<!--ToDo fix style-->
+    <Card class="border bg-white">
+      <template #content>
+        <router-view />
+      </template>
+    </Card>
+  </div>
 </template>
-
-<script>
-export default {
-
-};
-</script>
-<style scoped>
-</style>
