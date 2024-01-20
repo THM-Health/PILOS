@@ -8,11 +8,12 @@ describe('Bulk import spec', () => {
   beforeEach(()=>{
     cy.init();
     //Todo decide what could be moved to a command and what should happen inside the tests
-    cy.intercept('/api/v1/rooms/123-456-789/member',{"data":[{"id":4,"firstname":"Benutzer","lastname":"Nachname","email":"test4@test.de","role":3,"image":null}]})
-    cy.intercept('/api/v1/rooms/123-456-789/tokens',{"data":[]})
-    cy.intercept('/api/v1/rooms/123-456-789/settings',{"data":{"name":"aws","room_type":{"id":1,"description":"Lecture","color":"#16a085","allow_listing":false,"model_name":"RoomType","updated_at":"2023-12-19T06:35:18.000000Z","restrict":false},"access_code":490173384,"mute_on_start":false,"lock_settings_disable_cam":false,"webcams_only_for_moderator":false,"lock_settings_disable_mic":false,"lock_settings_disable_private_chat":false,"lock_settings_disable_public_chat":false,"lock_settings_disable_note":false,"lock_settings_lock_on_join":true,"lock_settings_hide_user_list":false,"everyone_can_start":false,"allow_guests":false,"allow_membership":false,"welcome":null,"short_description":null,"max_participants":null,"duration":null,"default_role":1,"lobby":0,"listed":false,"record_attendance":false}})
-    cy.intercept('/api/v1/rooms/123-456-789/files',{"data":{"files":[],"default":null}})
-    cy.intercept('/api/v1/rooms/123-456-789/meetings?*', {"data":[],"links":{"first":"http:\/\/localhost\/api\/v1\/rooms\/uov-k8g-vul\/meetings?page=1","last":"http:\/\/localhost\/api\/v1\/rooms\/uov-k8g-vul\/meetings?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":null,"last_page":1,"links":[{"url":null,"label":"&laquo; Zur\u00fcck","active":false},{"url":"http:\/\/localhost\/api\/v1\/rooms\/uov-k8g-vul\/meetings?page=1","label":"1","active":true},{"url":null,"label":"Weiter &raquo;","active":false}],"path":"http:\/\/localhost\/api\/v1\/rooms\/uov-k8g-vul\/meetings","per_page":15,"to":null,"total":0}})
+    cy.intercept('/api/v1/rooms/123-456-789/member',{"data":[]});
+    cy.intercept('/api/v1/rooms/123-456-789/tokens',{"data":[]});
+    cy.intercept('/api/v1/rooms/123-456-789/settings',{"data":{}});
+    cy.intercept('/api/v1/rooms/123-456-789/files',{"data":{}});
+    cy.intercept('/api/v1/rooms/123-456-789/meetings?*', {
+      "data":[],"meta":{"current_page":1,"from":null,"last_page":1}})
     cy.intercept('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'}).as('roomTypeRequest');
 
     cy.intercept('/api/v1/rooms/123-456-789', {data: ownerRoom}).as('roomRequest');
