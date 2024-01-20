@@ -14,8 +14,8 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
-import '../../resources/sass/theme/thm/app.scss'
+import './commands.js'
+import '../../../resources/sass/theme/thm/app.scss'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

@@ -1,5 +1,5 @@
 import BulkImportMembersComponent from "@/components/Room/BulkImportMembersComponent.vue";
-import Base from "../../resources/js/api/base.js";
+import Base from "../../../resources/js/api/base.js";
 
 const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 

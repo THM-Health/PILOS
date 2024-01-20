@@ -1,5 +1,3 @@
-import '../../support/commands.js'
-
 //could maybe be moved to a fixture
 const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: true, running: false};
 

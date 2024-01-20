@@ -1,4 +1,3 @@
-import '../../support/commands.js'
 describe('room index spec', () => {
 
   beforeEach(()=>{
