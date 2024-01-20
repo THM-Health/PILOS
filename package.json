@@ -9,7 +9,7 @@
         "test": "vitest run",
         "test:watch": "vitest watch",
         "test:ui": "vitest --ui",
-        "cover": "vitest run --coverage",
+        "cover": "vitest run --coverage"
     },
     "devDependencies": {
         "@intlify/eslint-plugin-vue-i18n": "^2.0.0",

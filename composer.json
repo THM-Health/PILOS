@@ -28,7 +28,6 @@
         "brianium/paratest": "^7.0",
         "fakerphp/faker": "^1.9.1",
         "friendsofphp/php-cs-fixer": "3.*",
-        "laracasts/cypress": "^3.0",
         "laravel/telescope": "^4.15",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^7.0",

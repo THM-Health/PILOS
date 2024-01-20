@@ -1,24 +1,13 @@
-import { defineConfig } from 'cypress';
-import  index from './cypress/plugins/index.js';
+import { defineConfig } from "cypress";
 
 export default defineConfig({
-  port: 9998, //ToDo find port that works with component testing
-  chromeWebSecurity: false,
-  retries: 0,
-  defaultCommandTimeout: 5000,
-  watchForFileChanges: false,
-  videosFolder: 'cypress/videos',
-  screenshotsFolder: 'cypress/screenshots',
-  fixturesFolder: 'cypress/fixtures',
+  port: 5176, //ToDo find port that works with component testing
   e2e: {
-    setupNodeEvents(on, config) {
-      return index(on, config)
-    },
-    baseUrl: 'http://localhost',
+    setupNodeEvents(on, config) {},
+    baseUrl: "http://localhost",
     experimentalStudio: true,
-    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
-    supportFile: 'cypress/support/index.js',
   },
+
   component: {
     specPattern: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}',
     devServer: {
