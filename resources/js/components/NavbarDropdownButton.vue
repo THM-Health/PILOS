@@ -36,7 +36,7 @@ const onClickOutsideHandler = [
 
 <template>
   <li class="py-2 lg:py-0">
-    <button ref="dropdownButton" class="bg-transparent border-none text-base block flex align-items-center text-500 hover:text-900 focus:text-900 w-full p-0 lg:px-2 lg:py-3"
+    <button ref="dropdownButton" class="bg-transparent border-none block flex align-items-center text-500 hover:text-900 focus:text-900 w-full p-0 lg:px-2 lg:py-3"
        @click="dropdown = !dropdown"
     >
       <slot name="button-content">{{ props.text }}</slot>
