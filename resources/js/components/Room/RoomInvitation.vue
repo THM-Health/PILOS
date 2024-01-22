@@ -2,6 +2,7 @@
   <Fieldset
     :legend="$t('rooms.access_for_participants')"
     :pt="{
+        root: { class: 'm-0' },
         content: { class: 'p-0' },
         legend: { class: 'p-2 bg-primary' }
     }"
