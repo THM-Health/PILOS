@@ -196,3 +196,17 @@ a:any-link {
 .p-toast .p-toast-message .p-toast-message-content {
     padding: 0.5rem 1rem;
 }
+
+.room-tabs {
+    .p-tabview-nav {
+        display: flex;
+        flex-wrap: wrap;
+
+        .p-tabview-header-action {
+            border-radius: 0;
+            padding: 0.5rem 1rem;
+            margin-top:10px;
+        }
+    }
+}
+

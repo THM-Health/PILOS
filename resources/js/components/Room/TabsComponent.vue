@@ -1,63 +1,47 @@
 <template>
-  <div>
-    <div class="row">
-      <div class="col-12">
-        <b-card no-body>
-          <b-tabs
-            content-class="p-3"
-            fill
-            active-nav-item-class="bg-primary"
-          >
-            <!-- Room description tab -->
-            <b-tab
-              v-if="room.description"
-              active
-            >
-              <template #title>
-                <i class="fa-solid fa-file-lines" /> {{ $t('rooms.description.title') }}
-              </template>
-              <room-description-component
-                :room="room"
-              />
-            </b-tab>
-            <!-- File management tab -->
-            <b-tab>
-              <template #title>
-                <i class="fa-solid fa-folder-open" /> {{ $t('rooms.files.title') }}
-              </template>
-              <file-component
-                :access-code="accessCode"
-                :token="token"
-                :room="room"
+  <div class="p-card overflow-hidden">
+    <TabView
+      content-class="p-3"
+      fill
+      active-nav-item-class="bg-primary"
+      :lazy="true"
+      :pt="{
+            root: { class: 'room-tabs' },
+          }"
+    >
+      <!-- Room description tab -->
+      <TabPanel v-if="room.description" >
+        <template #header>
+          <i class="fa-solid fa-file-lines mr-2" /> <span>{{ $t('rooms.description.title') }}</span>
+        </template>
+        <room-description-component
+          :room="props.room"
+        />
+      </TabPanel>
+      <!-- File management tab -->
+      <TabPanel>
+        <template #header>
+          <i class="fa-solid fa-folder-open mr-2" /> <span>{{ $t('rooms.files.title') }}</span>
+        </template>
+        <file-component
+          :access-code="props.accessCode"
+          :token="props.token"
+          :room="props.room"
 
-                :require-agreement="true"
-                :hide-reload="true"
-                @invalid-code="$emit('invalidCode')"
-                @invalid-token="$emit('invalidToken')"
-                @guests-not-allowed="$emit('guestsNotAllowed')"
-              />
-            </b-tab>
-          </b-tabs>
-        </b-card>
-      </div>
-    </div>
+          :require-agreement="true"
+          :hide-reload="true"
+          @invalid-code="$emit('invalidCode')"
+          @invalid-token="$emit('invalidToken')"
+          @guests-not-allowed="$emit('guestsNotAllowed')"
+        />
+      </TabPanel>
+    </TabView>
   </div>
 </template>
-<script>
-import FileComponent from './FileComponent.vue';
-import RoomDescriptionComponent from './RoomDescriptionComponent.vue';
-
-export default {
-
-  name: 'TabsComponent',
-  components: {
-    RoomDescriptionComponent,
-    FileComponent
-  },
-  props: {
-    room: Object,
-    accessCode: Number,
-    token: String
-  }
-};
+<script setup>
+const props = defineProps({
+  room: Object,
+  accessCode: Number,
+  token: String
+});
 </script>
