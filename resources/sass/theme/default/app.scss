@@ -182,3 +182,17 @@ a:any-link {
 .p-tabview-header-action-button {
     padding: $buttonPadding;
 }
+
+.p-button-block{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    .p-button-label {
+        flex: none;
+    }
+}
+
+.p-toast .p-toast-message .p-toast-message-content {
+    padding: 0.5rem 1rem;
+}
