@@ -35,14 +35,11 @@
       </div>
       <Button
         type="submit"
-        class="w-full justify-content-center mt-4"
+        class="mt-4"
         :disabled="props.loading"
-      >
-        <i v-if="props.loading" class="fa-solid fa-circle-notch fa-spin mr-2" />
-        <span>
-          {{ props.submitLabel }}
-        </span>
-      </Button>
+        :loading="props.loading"
+        :label="props.submitLabel"
+      />
     </form>
   </div>
 </template>

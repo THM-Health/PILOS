@@ -1,12 +1,12 @@
 <template>
   <div>
     <Button
-      class="w-full flex justify-content-center"
+      class="p-button-block"
       :disabled="props.disabled"
       @click="modalVisible = true"
-    >
-      <i class="fa-solid fa-plus mr-2" /> {{ $t('rooms.create.title') }}
-    </Button>
+      icon="fa-solid fa-plus"
+      :label="$t('rooms.create.title')"
+    />
 
     <!-- new room modal-->
     <Dialog

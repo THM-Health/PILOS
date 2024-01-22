@@ -11,7 +11,7 @@
           <template #footer>
             <router-link
               :to="{ name: 'home'}"
-              class="p-button w-full justify-content-center"
+              class="p-button"
             >
               {{ $t('app.home') }}
             </router-link>

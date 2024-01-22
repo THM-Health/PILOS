@@ -31,12 +31,9 @@
       severity="secondary"
       outlined
       @click="reloadRoomTypes"
-    >
-      <i
-        class="fa-solid fa-sync"
-        :class="{ 'fa-spin': isLoadingAction }"
-      />
-    </Button>
+      icon="fa-solid fa-sync"
+      :loading="isLoadingAction"
+    />
   </InputGroup>
 </template>
 
