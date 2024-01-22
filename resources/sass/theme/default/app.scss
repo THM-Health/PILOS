@@ -177,6 +177,11 @@ a:any-link {
 
 .p-error {
     margin: 0;
+
+    ul{
+        margin: 0;
+        padding: 0 1.5rem;
+    }
 }
 
 .p-tabview-header-action-button {

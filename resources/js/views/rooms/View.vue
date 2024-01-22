@@ -105,21 +105,21 @@
               <div class="grid">
                 <!-- Ask guests for their first and lastname -->
                 <div class="col-12 md:col-6"
-                  v-if="!isAuthenticated"
+                  v-if="!authStore.isAuthenticated"
                 >
-                  <div class="flex flex-column gap-2 mt-4">
+                  <div class="flex flex-column gap-2">
                     <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
                     <InputText
                       v-model="name"
                       :placeholder="$t('rooms.placeholder_name')"
                       :disabled="!!token"
-                      :class="{'p-invalid': fieldState('name')}"
+                      :class="{'p-invalid': formErrors.fieldInvalid('name')}"
                     />
-                    <p class="p-error" v-html="fieldError('name')" />
+                    <p class="p-error" v-html="formErrors.fieldError('name')" />
                   </div>
                 </div>
                 <!-- Show room start or join button -->
-                <div class="col-12" :class="{ 'md:col-12': isAuthenticated, 'md:col-6': !isAuthenticated}">
+                <div class="col-12" :class="{ 'md:col-12': authStore.isAuthenticated, 'md:col-6': !authStore.isAuthenticated}">
                   <InlineMessage
                     v-if="room.record_attendance"
                     ref="recordingAttendanceInfo"
@@ -138,7 +138,7 @@
                     <Button
                       ref="joinMeeting"
                       class="p-button-block"
-                      :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
+                      :disabled="(!authStore.isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
                       @click="join"
                       :loading="loadingJoinStart"
                       icon="fa-solid fa-door-open"
@@ -151,7 +151,7 @@
                       v-if="room.can_start"
                       ref="startMeeting"
                       class="p-button-block"
-                      :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
+                      :disabled="(!authStore.isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
                       @click="start"
                       :loading="loadingJoinStart"
                       icon="fa-solid fa-door-open"
@@ -175,7 +175,7 @@
             method="viewSettings"
             :policy="room"
           >
-            <hr>
+            <Divider />
             <tabs-component
               ref="tabs"
               :access-code="accessCode"
@@ -224,481 +224,442 @@
     </div>
   </div>
 </template>
-<script>
-import Base from '@/api/base';
-import AdminTabsComponent from '@/components/Room/AdminTabsComponent.vue';
-import TabsComponent from '@/components/Room/TabsComponent.vue';
+<script setup>
 import env from '@/env.js';
-import Can from '@/components/Permissions/Can.vue';
-import Cannot from '@/components/Permissions/Cannot.vue';
 import PermissionService from '@/services/PermissionService';
-import FieldErrors from '@/mixins/FieldErrors';
-import BrowserNotification from '@/components/Room/BrowserNotification.vue';
-import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useSettingsStore } from '@/stores/settings';
-import RoomInvitation from '@/components/Room/RoomInvitation.vue';
-import RoomFavoriteDropdownButton from '@/components/Room/RoomFavoriteDropdownButton.vue';
-import TransferOwnershipDropdownButton from '@/components/Room/TransferOwnershipDropdownButton.vue';
-import RoomMembershipDropdownButton from '@/components/Room/RoomMembershipDropdownButton.vue';
-import DeleteRoomDropdownButton from '@/components/Room/DeleteRoomDropdownButton.vue';
-import RoomDetailsComponent from '@/components/Room/RoomDetailsComponent.vue';
-import RoomTypeBadge from '@/components/Room/RoomTypeBadge.vue';
 import EventBus from '@/services/EventBus';
 import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
-import RoomDropdownButton from "../../components/Room/RoomDropdownButton.vue";
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useToast } from '../../composables/useToast.js';
+import { useRouter } from 'vue-router';
+import { useFormErrors } from '../../composables/useFormErrors.js';
+import { useApi } from '../../composables/useApi.js';
 
-export default {
-
-  components: {
-    RoomDropdownButton,
-    RoomDetailsComponent,
-    RoomInvitation,
-    BrowserNotification,
-    TabsComponent,
-    AdminTabsComponent,
-    RoomFavoriteDropdownButton,
-    TransferOwnershipDropdownButton,
-    RoomMembershipDropdownButton,
-    DeleteRoomDropdownButton,
-    RoomTypeBadge,
-    Can,
-    Cannot
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
   },
-
-  mixins: [FieldErrors],
-
-  props: {
-    modalStatic: {
-      type: Boolean,
-      default: false
-    },
-    id: {
-      type: String,
-      default: null
-    },
-    token: {
-      type: String,
-      default: null
-    }
-  },
-
-  data () {
-    return {
-      reloadInterval: null,
-      loading: false, // Room settings/details loading
-      loadingJoinStart: false, // Loading indicator on joining/starting a room
-      name: '', // Name of guest
-      room: null, // Room object
-      accessCode: null, // Access code to use for requests
-      accessCodeInput: '', // Access code input modal
-      accessCodeValid: null, // Is access code valid
-      recordAttendanceAgreement: false,
-      errors: [],
-      roomLoading: false, // Room loading indicator for initial load
-
-      tokenInvalid: false, // Room token is invalid
-      guestsNotAllowed: false // Access to room was forbidden
-    };
-  },
-  mounted () {
-    // Prevent authenticated users from using a room token
-    if (this.token && this.isAuthenticated) {
-      this.toastInfo(this.$t('app.flash.guests_only'));
-      this.$router.replace({ name: 'home' });
-      return;
-    }
-
-    this.load();
-  },
-  unmounted () {
-    clearInterval(this.reloadInterval);
-  },
-  methods: {
-
-    /**
-     * Get a random refresh interval for polling to prevent
-     * simultaneous request from multiple clients
-     * @returns {number} random refresh internal in seconds
-     */
-    getRandomRefreshInterval: function () {
-      const base = Math.abs(this.getSetting('room_refresh_rate'));
-      // 15% range to scatter the values around the base refresh rate
-      const percentageRange = 0.15;
-      const absoluteRange = base * percentageRange;
-      // Calculate a random refresh internal between (base-range and base+range)
-      return (base - absoluteRange) + (Math.random() * absoluteRange * 2);
-    },
-
-    /**
-     * Reload room details in a set interval, change in the .env
-     */
-    startAutoRefresh: function () {
-      this.reloadInterval = setInterval(this.reload, this.getRandomRefreshInterval() * 1000);
-    },
-
-    ...mapActions(useAuthStore, ['setCurrentUser']),
-
-    /**
-     * Reset room access code and details
-     */
-    handleGuestsNotAllowed: function () {
-      this.guestsNotAllowed = true;
-
-      // Remove a potential access code
-      this.accessCode = null;
-
-      // Set current user to null, as the user is not logged in
-      this.setCurrentUser(null);
-    },
-
-    /**
-     * Reset access code due to errors, show error and reload room details
-     */
-    handleInvalidCode: function () {
-      // Show access code is valid
-      this.accessCodeValid = false;
-      // Reset access code (not the form input) to load the general room details again
-      this.accessCode = null;
-      // Show error message
-      this.toastError(this.$t('rooms.flash.access_code_invalid'));
-      this.reload();
-    },
-
-    /**
-     * Reset room due to token error
-     */
-    handleInvalidToken: function () {
-      // Show error message
-      this.tokenInvalid = true;
-      //this.toastError(this.$t('rooms.flash.token_invalid'));
-      // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
-      clearInterval(this.reloadInterval);
-    },
-
-    /**
-     * Initial loading of the room
-     */
-    load: function () {
-      // Enable loading indicator
-      this.roomLoading = true;
-
-      // Build room api url, include access code if set
-      const config = {};
-
-      if (this.token) {
-        config.headers = { Token: this.token };
-      } else if (this.accessCode != null) {
-        config.headers = { 'Access-Code': this.accessCode };
-      }
-
-      const url = 'rooms/' + this.id;
-
-      // Load data
-      Base.call(url, config)
-        .then(response => {
-          this.room = response.data.data;
-
-          if (this.room.username) {
-            this.name = this.room.username;
-          }
-
-          this.setPageTitle(this.room.name);
-
-          this.startAutoRefresh();
-        })
-        .catch((error) => {
-          if (error.response) {
-            // Room not found
-            if (error.response.status === env.HTTP_NOT_FOUND) {
-              this.$router.push({ name: '404' });
-              return;
-            }
-
-            // Room token is invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-              this.tokenInvalid = true;
-              return;
-            }
-
-            // Forbidden, guests not allowed
-            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
-              this.guestsNotAllowed = true;
-              this.startAutoRefresh();
-              return;
-            }
-          }
-          Base.error(error, this.$root);
-        }).finally(() => {
-          // Disable loading indicator
-          this.roomLoading = false;
-        });
-    },
-
-    /**
-     * Reload the room details/settings
-     */
-    reload: function () {
-      // Enable loading indicator
-      this.loading = true;
-      // Build room api url, include access code if set
-      const config = {};
-
-      if (this.token) {
-        config.headers = { Token: this.token };
-      } else if (this.accessCode != null) {
-        config.headers = { 'Access-Code': this.accessCode };
-      }
-
-      const url = 'rooms/' + this.id;
-
-      // Load data
-      Base.call(url, config)
-        .then(response => {
-          this.room = response.data.data;
-          // If logged in, reset the access code valid
-          if (this.room.authenticated) {
-            this.accessCodeValid = null;
-          }
-
-          EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, this.room);
-
-          if (this.room.username) {
-            this.name = this.room.username;
-          }
-
-          this.setPageTitle(this.room.name);
-
-          // Update current user, if logged in/out in another tab or session expired
-          // to have the can/cannot component use the correct state
-          this.setCurrentUser(this.room.current_user);
-
-          this.guestsNotAllowed = false;
-        })
-        .catch((error) => {
-          if (error.response) {
-            // Room not found
-            if (error.response.status === env.HTTP_NOT_FOUND) {
-              return;
-            }
-
-            // Access code invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.handleInvalidCode();
-            }
-
-            // Room token is invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-              return this.handleInvalidToken();
-            }
-
-            // Forbidden, guests not allowed
-            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
-              return this.handleGuestsNotAllowed();
-            }
-          }
-          Base.error(error, this.$root);
-        }).finally(() => {
-          // Disable loading indicator
-          this.loading = false;
-
-          this.modelLoading = false;
-        });
-    },
-
-    /**
-     * Start a new meeting
-     */
-    start: function () {
-      // Enable start/join meeting indicator/spinner
-      this.loadingJoinStart = true;
-      // Reset errors
-      this.errors = [];
-      // Build url, add accessCode and token if needed
-      const config = {
-        params: {
-          name: this.token ? null : this.name,
-          record_attendance: this.recordAttendanceAgreement ? 1 : 0
-        }
-      };
-
-      if (this.token) {
-        config.headers = { Token: this.token };
-      } else if (this.accessCode != null) {
-        config.headers = { 'Access-Code': this.accessCode };
-      }
-
-      const url = 'rooms/' + this.id + '/start';
-
-      Base.call(url, config)
-        .then(response => {
-          // Check if response has a join url, if yes redirect
-          if (response.data.url !== undefined) {
-            window.location = response.data.url;
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            // Access code invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.handleInvalidCode();
-            }
-
-            // Access code invalid
-            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-              return this.handleInvalidCode();
-            }
-
-            // Room token is invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-              return this.handleInvalidToken();
-            }
-
-            // Forbidden, guests not allowed
-            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
-              return this.handleGuestsNotAllowed();
-            }
-
-            // Forbidden, use can't start the room
-            if (error.response.status === env.HTTP_FORBIDDEN) {
-              // Show error message
-              this.toastError(this.$t('rooms.flash.start_forbidden'));
-              // Disable room start button and reload the room settings, as there was obviously
-              // a different understanding of the users permission in this room
-              this.room.can_start = false;
-              this.reload();
-              return;
-            }
-
-            // Form validation error
-            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-              this.errors = error.response.data.errors;
-              return;
-            }
-
-            // Attendance logging agreement required but not accepted
-            if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
-              this.room.record_attendance = true;
-            }
-          }
-          Base.error(error, this.$root);
-        }).finally(() => {
-          // Disable loading indicator
-          this.loadingJoinStart = false;
-        });
-    },
-
-    /**
-     * Show room name in title
-     * @param {string} roomName Name of the room
-     */
-    setPageTitle: function (roomName) {
-      document.title = roomName + ' - ' + this.getSetting('name');
-    },
-
-    /**
-     * Join a running meeting
-     */
-    join: function () {
-      // Enable start/join meeting indicator/spinner
-      this.loadingJoinStart = true;
-      // Reset errors
-      this.errors = [];
-
-      // Build url, add accessCode and token if needed
-      const config = {
-        params: {
-          name: this.token ? null : this.name,
-          record_attendance: this.recordAttendanceAgreement ? 1 : 0
-        }
-      };
-
-      if (this.token) {
-        config.headers = { Token: this.token };
-      } else if (this.accessCode != null) {
-        config.headers = { 'Access-Code': this.accessCode };
-      }
-
-      const url = 'rooms/' + this.id + '/join';
-
-      // Join meeting request
-      Base.call(url, config)
-        .then(response => {
-          // Check if response has a join url, if yes redirect
-          if (response.data.url !== undefined) {
-            window.location = response.data.url;
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            // Access code invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              return this.handleInvalidCode();
-            }
-
-            // Access code invalid
-            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-              return this.handleInvalidCode();
-            }
-
-            // Room token is invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-              return this.handleInvalidToken();
-            }
-
-            // Forbidden, guests not allowed
-            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
-              return this.handleGuestsNotAllowed();
-            }
-
-            // Room is not running, update running status
-            if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
-              this.reload();
-            }
-
-            // Form validation error
-            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-              this.errors = error.response.data.errors;
-              return;
-            }
-
-            // Attendance logging agreement required but not accepted
-            if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
-              this.room.record_attendance = true;
-            }
-          }
-          Base.error(error, this.$root);
-        }).finally(() => {
-          // Disable loading indicator
-          this.loadingJoinStart = false;
-        });
-    },
-    /**
-     * Handle login with access code
-     */
-    login: function () {
-      // Remove all non-numeric or dash chars
-      this.accessCodeInput = this.accessCodeInput.replace(/[^0-9-]/g, '');
-      // Remove the dashes for storing the access code
-      this.accessCode = parseInt(this.accessCodeInput.replace(/[-]/g, '')) || '';
-      // Reload the room with an access code
-      this.reload();
-    }
-  },
-  computed: {
-
-    running: function () {
-      return this.room.last_meeting != null && this.room.last_meeting.end == null;
-    },
-    ...mapState(useAuthStore, ['isAuthenticated']),
-    ...mapState(useSettingsStore, ['getSetting']),
-
-    /**
-     * Show invitation section only to users with the required permission
-     */
-    viewInvitation () {
-      return PermissionService.can('viewInvitation', this.room);
-    }
+  token: {
+    type: String,
+    default: null
   }
-};
+});
+
+const reloadInterval = ref(null);
+const loading = ref(false); // Room settings/details loading
+const loadingJoinStart = ref(false); // Loading indicator on joining/starting a room
+const name = ref(''); // Name of guest
+const room = ref(null); // Room object
+const accessCode = ref(null); // Access code to use for requests
+const accessCodeInput = ref(''); // Access code input modal
+const accessCodeValid = ref(null); // Is access code valid
+const recordAttendanceAgreement = ref(false);
+const roomLoading = ref(false); // Room loading indicator for initial load
+const tokenInvalid = ref(false); // Room token is invalid
+const guestsNotAllowed = ref(false); // Access to room was forbidden
+
+const authStore = useAuthStore();
+const settingsStore = useSettingsStore();
+const { t } = useI18n();
+const toast = useToast();
+const router = useRouter();
+const formErrors = useFormErrors();
+const api = useApi();
+
+onMounted(() => {
+  // Prevent authenticated users from using a room token
+  if (props.token && authStore.isAuthenticated) {
+    toast.info(t('app.flash.guests_only'));
+    router.replace({ name: 'home' });
+    return;
+  }
+
+  load();
+});
+
+onUnmounted(() => {
+  clearInterval(reloadInterval.value);
+});
+
+/**
+ * Reload room details in a set interval, change in the .env
+ */
+function startAutoRefresh () {
+  reloadInterval.value = setInterval(reload, getRandomRefreshInterval() * 1000);
+}
+
+/**
+ * Get a random refresh interval for polling to prevent
+ * simultaneous request from multiple clients
+ * @returns {number} random refresh internal in seconds
+ */
+function getRandomRefreshInterval () {
+  const base = Math.abs(settingsStore.getSetting('room_refresh_rate'));
+  // 15% range to scatter the values around the base refresh rate
+  const percentageRange = 0.15;
+  const absoluteRange = base * percentageRange;
+  // Calculate a random refresh internal between (base-range and base+range)
+  return (base - absoluteRange) + (Math.random() * absoluteRange * 2);
+}
+
+/**
+ * Reset room access code and details
+ */
+function handleGuestsNotAllowed () {
+  guestsNotAllowed.value = true;
+
+  // Remove a potential access code
+  accessCode.value = null;
+
+  // Set current user to null, as the user is not logged in
+  authStore.setCurrentUser(null);
+}
+
+/**
+ * Reset access code due to errors, show error and reload room details
+ */
+function handleInvalidCode () {
+  // Show access code is valid
+  accessCodeValid.value = false;
+  // Reset access code (not the form input) to load the general room details again
+  accessCode.value = null;
+  // Show error message
+  toast.error(t('rooms.flash.access_code_invalid'));
+  reload();
+}
+
+/**
+ * Reset room due to token error
+ */
+function handleInvalidToken () {
+  // Show error message
+  tokenInvalid.value = true;
+  toast.error(t('rooms.flash.token_invalid'));
+  // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
+  clearInterval(reloadInterval.value);
+}
+
+/**
+ * Initial loading of the room
+ */
+function load () {
+  // Enable loading indicator
+  roomLoading.value = true;
+
+  // Build room api url, include access code if set
+  const config = {};
+
+  if (props.token) {
+    config.headers = { Token: props.token };
+  } else if (accessCode.value != null) {
+    config.headers = { 'Access-Code': accessCode.value };
+  }
+
+  const url = 'rooms/' + props.id;
+
+  // Load data
+  api.call(url, config)
+    .then(response => {
+      room.value = response.data.data;
+
+      if (room.value.username) {
+        name.value = room.value.username;
+      }
+
+      setPageTitle(room.value.name);
+
+      startAutoRefresh();
+    })
+    .catch((error) => {
+      if (error.response) {
+        // Room not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          router.push({ name: '404' });
+          return;
+        }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          tokenInvalid.value = true;
+          return;
+        }
+
+        // Forbidden, guests not allowed
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+          guestsNotAllowed.value = true;
+          startAutoRefresh();
+          return;
+        }
+      }
+
+      api.error(error);
+    }).finally(() => {
+      // Disable loading indicator
+      roomLoading.value = false;
+    });
+}
+
+/**
+ * Reload the room details/settings
+ */
+function reload () {
+  // Enable loading indicator
+  loading.value = true;
+  // Build room api url, include access code if set
+  const config = {};
+
+  if (props.token) {
+    config.headers = { Token: props.token };
+  } else if (accessCode.value != null) {
+    config.headers = { 'Access-Code': accessCode.value };
+  }
+
+  const url = 'rooms/' + props.id;
+
+  // Load data
+  api.call(url, config)
+    .then(response => {
+      room.value = response.data.data;
+      // If logged in, reset the access code valid
+      if (room.value.authenticated) {
+        accessCodeValid.value = null;
+      }
+
+      EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, room.value);
+
+      if (room.value.username) {
+        name.value = room.value.username;
+      }
+
+      setPageTitle(room.value.name);
+
+      // Update current user, if logged in/out in another tab or session expired
+      // to have the can/cannot component use the correct state
+      authStore.setCurrentUser(room.value.current_user);
+
+      guestsNotAllowed.value = false;
+    })
+    .catch((error) => {
+      if (error.response) {
+        // Room not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          return;
+        }
+
+        // Access code invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+          return handleInvalidCode();
+        }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return handleInvalidToken();
+        }
+
+        // Forbidden, guests not allowed
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+          return handleGuestsNotAllowed();
+        }
+      }
+      api.error(error);
+    }).finally(() => {
+      // Disable loading indicator
+      loading.value = false;
+    });
+}
+
+/**
+ * Start a new meeting
+ */
+function start () {
+  // Enable start/join meeting indicator/spinner
+  loadingJoinStart.value = true;
+  // Reset errors
+  formErrors.clear();
+  // Build url, add accessCode and token if needed
+  const config = {
+    params: {
+      name: props.token ? null : name.value,
+      record_attendance: recordAttendanceAgreement.value ? 1 : 0
+    }
+  };
+
+  if (props.token) {
+    config.headers = { Token: props.token };
+  } else if (accessCode.value != null) {
+    config.headers = { 'Access-Code': accessCode.value };
+  }
+
+  const url = 'rooms/' + props.id + '/start';
+
+  api.call(url, config)
+    .then(response => {
+      // Check if response has a join url, if yes redirect
+      if (response.data.url !== undefined) {
+        window.location = response.data.url;
+      }
+    })
+    .catch((error) => {
+      if (error.response) {
+        // Access code invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+          return handleInvalidCode();
+        }
+
+        // Access code invalid
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+          return handleInvalidCode();
+        }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return handleInvalidToken();
+        }
+
+        // Forbidden, guests not allowed
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+          return handleGuestsNotAllowed();
+        }
+
+        // Forbidden, use can't start the room
+        if (error.response.status === env.HTTP_FORBIDDEN) {
+          // Show error message
+          toast.error(t('rooms.flash.start_forbidden'));
+          // Disable room start button and reload the room settings, as there was obviously
+          // a different understanding of the users permission in this room
+          room.value.can_start = false;
+          reload();
+          return;
+        }
+
+        // Form validation error
+        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          formErrors.set(error.response.data.errors);
+          return;
+        }
+
+        // Attendance logging agreement required but not accepted
+        if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
+          room.value.record_attendance = true;
+        }
+      }
+      api.error(error);
+    }).finally(() => {
+      // Disable loading indicator
+      loadingJoinStart.value = false;
+    });
+}
+
+/**
+  * Show room name in title
+  * @param {string} roomName Name of the room
+  */
+function setPageTitle (roomName) {
+  document.title = roomName + ' - ' + settingsStore.getSetting('name');
+}
+
+/**
+ * Join a running meeting
+ */
+function join () {
+  // Enable start/join meeting indicator/spinner
+  loadingJoinStart.value = true;
+  // Reset errors
+  formErrors.clear();
+
+  // Build url, add accessCode and token if needed
+  const config = {
+    params: {
+      name: props.token ? null : name.value,
+      record_attendance: recordAttendanceAgreement.value ? 1 : 0
+    }
+  };
+
+  if (props.token) {
+    config.headers = { Token: props.token };
+  } else if (accessCode.value != null) {
+    config.headers = { 'Access-Code': accessCode.value };
+  }
+
+  const url = 'rooms/' + props.id + '/join';
+
+  // Join meeting request
+  api.call(url, config)
+    .then(response => {
+      // Check if response has a join url, if yes redirect
+      if (response.data.url !== undefined) {
+        window.location = response.data.url;
+      }
+    })
+    .catch((error) => {
+      if (error.response) {
+        // Access code invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+          return handleInvalidCode();
+        }
+
+        // Access code invalid
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+          return handleInvalidCode();
+        }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return handleInvalidToken();
+        }
+
+        // Forbidden, guests not allowed
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+          return handleGuestsNotAllowed();
+        }
+
+        // Room is not running, update running status
+        if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
+          reload();
+        }
+
+        // Form validation error
+        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          formErrors.set(error.response.data.errors);
+          return;
+        }
+
+        // Attendance logging agreement required but not accepted
+        if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
+          room.value.record_attendance = true;
+        }
+      }
+      api.error(error);
+    }).finally(() => {
+      // Disable loading indicator
+      loadingJoinStart.value = false;
+    });
+}
+/**
+ * Handle login with access code
+ */
+function login () {
+  // Remove all non-numeric or dash chars
+  accessCodeInput.value = accessCodeInput.value.replace(/[^0-9-]/g, '');
+  // Remove the dashes for storing the access code
+  accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, '')) || '';
+  // Reload the room with an access code
+  reload();
+}
+
+const running = computed(() => {
+  return room.value.last_meeting != null && room.value.last_meeting.end == null;
+});
+
+/**
+ * Show invitation section only to users with the required permission
+ */
+const viewInvitation = computed(() => {
+  return PermissionService.can('viewInvitation', room.value);
+});
+
 </script>
