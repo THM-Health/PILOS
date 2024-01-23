@@ -32,12 +32,10 @@
         <div class="text-center my-2">
           <i
             v-if="roomLoading"
-            ref="room-loading-spinner"
             class="fa-solid fa-circle-notch fa-spin text-3xl"
           />
           <Button
             v-else
-            ref="reload"
             @click="load()"
             icon="fa-solid fa-sync"
             :label="$t('app.reload')"
@@ -62,7 +60,6 @@
             <span class="p-buttonset">
               <!-- Reload general room settings/details -->
               <Button
-                ref="reloadButton"
                 v-tooltip="$t('app.reload')"
                 severity="secondary"
                 :disabled="loading"
@@ -79,7 +76,7 @@
           class="row pt-2"
         >
           <div class="col-lg-12 col-12">
-            <Message ref="roomTypeInvalidAlert" severity="warn" icon="fa-solid fa-unlink" :closable="false">
+            <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">
               {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
             </Message>
           </div>
@@ -96,10 +93,7 @@
             <div class="col-12 md:col-8 lg:col-6 flex-order-2 md:flex-order-1"
               v-if="viewInvitation"
             >
-              <room-invitation
-                ref="room-invitation"
-                :room="room"
-              />
+              <room-invitation :room="room" />
             </div>
             <div class="col-12 flex-order-1 md:flex-order-2" :class="{ 'md:col-4 lg:col-6': viewInvitation, 'md:col-6 lg:col-12': !viewInvitation}">
               <div class="grid">
@@ -122,7 +116,6 @@
                 <div class="col-12" :class="{ 'md:col-12': authStore.isAuthenticated, 'md:col-6': !authStore.isAuthenticated}">
                   <InlineMessage
                     v-if="room.record_attendance"
-                    ref="recordingAttendanceInfo"
                     severity="info"
                   >
                     {{ $t('rooms.recording_attendance_info') }}
@@ -136,7 +129,6 @@
                   <template v-if="running">
                     <!-- If user is guest, join is only possible if a name is provided -->
                     <Button
-                      ref="joinMeeting"
                       class="p-button-block"
                       :disabled="(!authStore.isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
                       @click="join"
@@ -149,7 +141,6 @@
                   <template v-else>
                     <Button
                       v-if="room.can_start"
-                      ref="startMeeting"
                       class="p-button-block"
                       :disabled="(!authStore.isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
                       @click="start"
@@ -177,7 +168,6 @@
           >
             <Divider />
             <tabs-component
-              ref="tabs"
               :access-code="accessCode"
               :token="token"
               :room="room"

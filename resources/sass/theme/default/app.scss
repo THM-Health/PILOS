@@ -221,3 +221,11 @@ a:any-link {
     height: 2rem;
 }
 
+a[data-target="safeLink"] {
+    color: $primaryColor;
+    text-decoration: underline;
+    cursor: pointer;
+    &:hover {
+        color: $primaryDarkColor;
+    }
+}

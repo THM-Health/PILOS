@@ -2,67 +2,64 @@
   <div>
     <div
       class="px-2 room-description"
-      v-html="html"
+      v-html="props.html"
+      ref="roomDescription"
     />
-    <b-modal
-      id="linkModal"
-      :static="modalStatic"
-      :title="$t('rooms.description.external_link_warning.title')"
-      :ok-title="$t('app.continue')"
-      :cancel-title="$t('app.cancel')"
-      @ok="onConfirm"
-    >
-      {{ $t('rooms.description.external_link_warning.description', {link: link}) }}
-    </b-modal>
+    <ConfirmDialog />
   </div>
 </template>
-<script>
-export default {
-  props: {
-    html: String,
-    modalStatic: {
-      type: Boolean,
-      default: false,
-      required: false
-    }
-  },
-  data () {
-    return {
-      link: null
-    };
-  },
-  updated () {
-    // Call addSafeLinkListeners on update to make sure all links
-    // are covered even after the description was updated
-    this.addSafeLinkListeners();
-  },
-  mounted () {
-    // Call addSafeLinkListeners on mount to make sure all links
-    // are covered on first render
-    this.addSafeLinkListeners();
-  },
-  methods: {
-    /**
-     * Add listeners to all links with target safeLink to open a modal before opening the link
-     */
-    addSafeLinkListeners () {
-      const safeLinks = document.querySelectorAll('[data-target="safeLink"]');
-      safeLinks.forEach((link) => {
-        link.addEventListener('click', (event) => {
-          event.preventDefault();
-          this.link = link.getAttribute('data-href');
-          this.$bvModal.show('linkModal');
-        });
-      });
-    },
+<script setup>
 
-    /**
-     * Handle confirm button click on link modal, open link in new tab
-     */
-    onConfirm () {
-      window.open(this.link, '_blank');
-      this.$bvModal.hide('linkModal');
+import { useConfirm } from 'primevue/useconfirm';
+import { useI18n } from 'vue-i18n';
+import { onMounted, onUpdated, ref } from 'vue';
+import ConfirmDialog from 'primevue/confirmdialog';
+
+const props = defineProps({
+  html: String
+});
+
+const confirm = useConfirm();
+const { t } = useI18n();
+const roomDescription = ref(null);
+
+function confirmOpenLink (link) {
+  console.log('confirmOpenLink', link);
+  confirm.require({
+    message: t('rooms.description.external_link_warning.description', { link }),
+    header: t('rooms.description.external_link_warning.title'),
+    icon: 'fa-solid fa-triangle-exclamation',
+    rejectLabel: t('app.cancel'),
+    acceptLabel: t('app.continue'),
+    accept: () => {
+      window.open(link, '_blank');
     }
-  }
-};
+  });
+}
+
+onUpdated(() => {
+  // Call addSafeLinkListeners on update to make sure all links
+  // are covered even after the description was updated
+  addSafeLinkListeners();
+});
+
+onMounted(() => {
+  // Call addSafeLinkListeners on mount to make sure all links
+  // are covered on first render
+  addSafeLinkListeners();
+});
+
+/**
+ * Add listeners to all links in the room description
+ */
+function addSafeLinkListeners () {
+  const safeLinks = roomDescription.value.querySelectorAll('[href]');
+  console.log('safeLinks', safeLinks);
+  safeLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      confirmOpenLink(link.getAttribute('href'));
+    });
+  });
+}
 </script>

@@ -1,61 +1,66 @@
 <template>
-  <b-button
-    v-b-tooltip.hover
-    variant="outline-dark"
-    :title="$t('rooms.description.tooltips.source_code')"
+  <Button
+    v-tooltip="$t('rooms.description.tooltips.source_code')"
+    severity="secondary"
     @click="openModal"
+    icon="fa-solid fa-code"
+  />
+  <Dialog
+    v-model:visible="modalVisible"
+    modal
+    :header="$t('rooms.description.modals.source_code.title')"
+    :style="{ width: '500px' }"
+    :breakpoints="{ '575px': '90vw' }"
+    :draggable="false"
   >
-    <i class="fa-solid fa-code" />
-  </b-button>
-  <b-modal
-    id="code-modal"
-    :static="modalStatic"
-    size="xl"
-    :title="$t('rooms.description.modals.source_code.title')"
-    :cancel-title="$t('app.cancel')"
-    cancel-variant="dark"
-    :ok-title="$t('app.save')"
-    ok-variant="success"
-    @ok="save"
-  >
-    <b-form-textarea
+
+    <Textarea
       v-model="source"
+      class="w-full mt-2"
       rows="5"
     />
-  </b-modal>
+
+    <template #footer>
+      <div class="w-full flex justify-content-end">
+          <Button
+            severity="secondary"
+            @click="modalVisible = false"
+            :label="$t('app.cancel')"
+          />
+          <Button
+            severity="success"
+            class="ml-2"
+            @click="save"
+            :label="$t('app.save')"
+          />
+        </div>
+    </template>
+  </Dialog>
 </template>
-<script>
+<script setup>
 
-export default {
-  props: {
-    editor: Object,
-    modalStatic: {
-      type: Boolean,
-      default: false,
-      required: false
-    }
-  },
-  data () {
-    return {
-      source: null
-    };
-  },
-  methods: {
-    /**
-     * Open modal with current source code
-     */
-    openModal () {
-      this.source = this.editor.getHTML();
-      this.$bvModal.show('code-modal');
-    },
+import { ref } from 'vue';
 
-    /**
-     * Apply changes to the editor
-     */
-    save () {
-      this.editor.commands.setContent(this.source, true);
-      this.$bvModal.hide('code-modal');
-    }
-  }
-};
+const props = defineProps([
+  'editor'
+]);
+
+const source = ref(null);
+const modalVisible = ref(false);
+
+/**
+ * Open modal with current source code
+ */
+function openModal () {
+  source.value = props.editor.getHTML();
+  modalVisible.value = true;
+}
+
+/**
+ * Apply changes to the editor
+ */
+function save () {
+  props.editor.commands.setContent(source.value, true);
+  modalVisible.value = false;
+}
 </script>

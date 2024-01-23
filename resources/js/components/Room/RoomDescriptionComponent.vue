@@ -5,43 +5,37 @@
       :policy="room"
     >
       <div class="row mb-3">
-        <div class="col-12">
-          <b-button-group class="float-lg-right">
-            <b-button
+        <div class="col-12 text-right">
+          <span class="p-buttonset">
+            <Button
               v-if="!editorOpen"
-              ref="edit"
-              variant="secondary"
+              severity="secondary"
               :disabled="isBusy"
               @click="edit"
-            >
-              <i class="fa-solid fa-pen-square" /> {{ $t('rooms.description.edit') }}
-            </b-button>
-            <b-button
+              icon="fa-solid fa-pen-square"
+              :label="$t('rooms.description.edit')"
+            />
+            <Button
               v-if="editorOpen"
-              ref="save-edit"
-              variant="success"
+              severity="success"
               :disabled="isBusy"
               @click="save"
-            >
-              <i class="fa-solid fa-save" /> {{ $t('rooms.description.save') }}
-            </b-button>
-            <b-button
+              icon="fa-solid fa-save"
+              :label="$t('rooms.description.save')"
+            />
+            <Button
               v-if="editorOpen"
-              ref="cancel-edit"
-              variant="dark"
+              severity="secondary"
               :disabled="isBusy"
               @click="cancel"
-            >
-              <i class="fa-solid fa-times" /> {{ $t('rooms.description.cancel') }}
-            </b-button>
-          </b-button-group>
+              icon="fa-solid fa-times"
+              :label="$t('rooms.description.cancel')"
+            />
+          </span>
         </div>
       </div>
     </can>
-    <b-overlay :show="isBusy">
-      <template #overlay>
-        <b-spinner />
-      </template>
+    <OverlayComponent :show="isBusy">
       <div
         v-if="!editorOpen"
       >
@@ -57,119 +51,94 @@
       <div v-else>
         <tip-tap-editor
           v-model="newContent"
-          :class="{'is-invalid': fieldState('description') === false}"
+          :class="{'is-invalid': formErrors.fieldInvalid('description') === false}"
           :disabled="isBusy"
         />
-        <b-form-invalid-feedback
-          :state="fieldState('description')"
-          v-html="fieldError('description')"
+        <p class="p-error" v-if="formErrors.fieldInvalid('description')"
+          v-html="formErrors.fieldError('description')"
         />
       </div>
-    </b-overlay>
+    </OverlayComponent>
   </div>
 </template>
 
-<script>
+<script setup>
 import TipTapEditor from '@/components/TipTap/TipTapEditor.vue';
 import Can from '@/components/Permissions/Can.vue';
-import Base from '@/api/base';
 import env from '@/env';
 import createDOMPurify from 'dompurify';
 import RoomDescriptionHtmlComponent from './RoomDescriptionHtmlComponent.vue';
-import FieldErrors from '@/mixins/FieldErrors';
+import { ref, computed } from 'vue';
+import { useFormErrors } from '../../composables/useFormErrors.js';
+import { useApi } from '../../composables/useApi.js';
 
-export default {
-  name: 'RoomDescriptionComponent',
-  components: {
-    TipTapEditor,
-    Can,
-    RoomDescriptionHtmlComponent
-  },
-  mixins: [FieldErrors],
-  props: {
-    room: Object
-  },
+const props = defineProps({
+  room: Object
+});
 
-  data () {
-    return {
-      editorOpen: false,
-      newContent: '',
-      isBusy: false,
-      domPurify: null
-    };
-  },
-  computed: {
-    sanitizedHtml () {
-      return this.domPurify.sanitize(this.room.description, { USE_PROFILES: { html: true } });
+const emit = defineEmits(['settingsChanged']);
+
+const editorOpen = ref(false);
+const newContent = ref('');
+const isBusy = ref(false);
+
+const api = useApi();
+const formErrors = useFormErrors();
+
+// Create a new DOMPurify instance
+const domPurify = createDOMPurify();
+
+const sanitizedHtml = computed(() => {
+  return domPurify.sanitize(props.room.description, { USE_PROFILES: { html: true } });
+});
+
+/**
+ * Open the editor
+ */
+function edit () {
+  editorOpen.value = true;
+  newContent.value = props.room.description;
+}
+
+/**
+ * Save the new description and close the editor
+ */
+function save () {
+  // Set saving indicator
+  isBusy.value = true;
+
+  const data = {
+    description: newContent.value
+  };
+
+  // Send new description to the server
+  api.call('rooms/' + props.room.id + '/description', {
+    method: 'put',
+    data
+  }).then(() => {
+    // Description successfully saved
+    // inform parent component about changed description
+    emit('settingsChanged');
+    formErrors.clear();
+    editorOpen.value = false;
+  }).catch((error) => {
+    // Description couldn't be saved due to validation errors
+    if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      formErrors.set(error.response.data.errors);
+      return;
     }
-  },
-  created () {
-    // Create a new DOMPurify instance
-    this.domPurify = createDOMPurify();
+    // Handle other errors
+    api.error(error);
+  }).finally(() => {
+    // Disable saving indicator
+    isBusy.value = false;
+  });
+}
 
-    // Add a hook to move all links hrefs to data-href and add data-target to safeLink
-    // this will be used to open a modal before opening the link
-    this.domPurify.addHook('afterSanitizeAttributes', function (node) {
-      // set non-HTML/MathML links to xlink:show=new
-      if (node.hasAttribute('href')) {
-        node.setAttribute('data-href', node.getAttribute('href'));
-        node.setAttribute('data-target', 'safeLink');
-        node.setAttribute('href', '');
-      }
-    });
-  },
-
-  methods: {
-
-    /**
-     * Open the editor
-     */
-    edit () {
-      this.editorOpen = true;
-      this.newContent = this.room.description;
-    },
-
-    /**
-     * Save the new description and close the editor
-     */
-    save () {
-      // Set saving indicator
-      this.isBusy = true;
-
-      const data = {
-        description: this.newContent
-      };
-
-      // Send new description to the server
-      Base.call('rooms/' + this.room.id + '/description', {
-        method: 'put',
-        data
-      }).then(() => {
-        // Description successfully saved
-        // inform parent component about changed description
-        this.$emit('settingsChanged');
-        this.errors = {};
-        this.editorOpen = false;
-      }).catch((error) => {
-        // Description couldn't be saved due to validation errors
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.errors = error.response.data.errors;
-          return;
-        }
-        // Handle other errors
-        Base.error(error, this.$root);
-      }).finally(() => {
-        // Disable saving indicator
-        this.isBusy = false;
-      });
-    },
-
-    /**
+/**
      * Cancel editing / close the editor
      */
-    cancel () {
-      this.editorOpen = false;
-    }
-  }
-};
+function cancel () {
+  editorOpen.value = false;
+}
 </script>

@@ -7,6 +7,7 @@ import axios from 'axios';
 import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
 import StyleClass from 'primevue/styleclass';
+import ConfirmationService from 'primevue/confirmationservice';
 import Toast from './plugins/toast';
 import { useToast } from './composables/useToast';
 
@@ -33,6 +34,7 @@ const setupApp = (app) => {
   app.use(PrimeVue);
   app.directive('tooltip', Tooltip);
   app.directive('styleclass', StyleClass);
+  app.use(ConfirmationService);
   app.use(Toast);
 
   app.config.errorHandler = (err, vm, info) => {

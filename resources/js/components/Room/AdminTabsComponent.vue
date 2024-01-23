@@ -1,5 +1,5 @@
 <template>
-      <div class="p-card overflow-hidden">
+      <div class="p-card">
         <TabView
           content-class="p-3"
           fill
@@ -7,6 +7,7 @@
           :lazy="true"
           :pt="{
             root: { class: 'room-tabs' },
+            navContent: { class: 'border-round-top' }
           }"
         >
           <!-- Room description tab -->

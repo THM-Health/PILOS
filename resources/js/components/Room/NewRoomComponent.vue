@@ -36,8 +36,9 @@
 
       <!-- Room name -->
       <div class="flex flex-column gap-2 mt-4">
-        <label for="firstname1">{{ $t('rooms.name') }}</label>
+        <label for="room-name">{{ $t('rooms.name') }}</label>
         <InputText
+            id="room-name"
             v-model="room.name"
             :disabled="isLoadingAction"
             :class="{'p-invalid': formErrors.fieldInvalid('name')}"
