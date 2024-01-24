@@ -5,39 +5,25 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
 import { EditorContent } from '@tiptap/vue-3';
+import { onMounted, onUnmounted, ref } from 'vue';
 import TipTapEditor from './TipTapEditor.js';
-import TipTapMenu from './TipTapMenu.vue';
 
-export default {
-  components: {
-    TipTapMenu,
-    EditorContent
-  },
+const props = defineProps(['modelValue']);
+const emit = defineEmits(['update:modelValue']);
 
-  props: {
-    value: {
-      type: String,
-      default: ''
-    }
-  },
+const editor = ref(null);
 
-  data () {
-    return {
-      editor: null
-    };
-  },
+onMounted(() => {
+  console.log('mounted', props.modelValue);
+  editor.value = TipTapEditor(props.modelValue, () => {
+    emit('update:modelValue', editor.value.getHTML());
+  });
+});
 
-  mounted () {
-    this.editor = TipTapEditor(this.value, () => {
-      this.$emit('input', this.editor.getHTML());
-    });
-  },
-
-  beforeUnmount () {
-    this.editor.destroy();
-  }
-};
+onUnmounted(() => {
+  editor.value.destroy();
+});
 </script>

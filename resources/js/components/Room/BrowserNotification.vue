@@ -3,20 +3,21 @@
     v-if="notificationSupport && !running"
     class="w-full text-center my-2"
   >
-    <b-button
+    <Button
       v-if="!notificationEnabled"
-      block
+      class="p-button-block"
+      severity="secondary"
       @click="enableNotification"
-    >
-      <i class="fa-solid fa-bell" /> {{ $t('rooms.notification.enable') }}
-    </b-button>
-    <b-alert
+      icon="fa-solid fa-bell"
+      :label="$t('rooms.notification.enable')"
+    />
+    <InlineMessage
       v-else
-      variant="success"
-      show
-    >
-      <i class="fa-solid fa-bell" /> {{ $t('rooms.notification.enabled') }}
-    </b-alert>
+      severity="info">
+      <template v-slot:icon>
+        <i class="fa-solid fa-bell" />
+      </template>
+      {{ $t('rooms.notification.enabled') }}</InlineMessage>
   </div>
 </template>
 

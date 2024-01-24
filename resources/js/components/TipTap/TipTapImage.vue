@@ -1,158 +1,134 @@
 <template>
-  <b-button
-    v-b-tooltip.hover
-    variant="outline-dark"
-    :title="$t('rooms.description.tooltips.image')"
-    :pressed="editor.isActive('image')"
+  <Button
+    v-tooltip="$t('rooms.description.tooltips.image')"
+    :severity="props.editor.isActive('image') ? 'primary' : 'secondary'"
     @click="openModal"
+    icon="fa-solid fa-image"
+  />
+  <Dialog
+    v-model:visible="modalVisible"
+    modal
+    :header="newImage ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
+    :style="{ width: '500px' }"
+    :breakpoints="{ '575px': '90vw' }"
+    :draggable="false"
   >
-    <i class="fa-solid fa-image" />
-  </b-button>
-  <b-modal
-    id="image-modal"
-    :static="modalStatic"
-    :title="newImage ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
-  >
-    <b-form-group
-      :label="$t('rooms.description.modals.image.src')"
-      label-for="src"
-      :invalid-feedback="$t('rooms.description.modals.image.invalid_src')"
-      :state="srcState"
-    >
-      <b-form-input
+    <div class="flex flex-column gap-2 mt-4">
+      <label for="src">{{ $t('rooms.description.modals.image.src') }}</label>
+      <InputText
         id="src"
-        v-model="src"
-        type="text"
-        :state="srcState"
-        trim
+        v-model.trim="src"
+        :class="{ 'p-invalid': srcInvalid }"
       />
-    </b-form-group>
+      <p v-if="srcInvalid" class="p-error">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
+    </div>
 
-    <b-form-group
-      :label="$t('rooms.description.modals.image.width')"
-      label-for="width"
-      :description="$t('rooms.description.modals.image.width_description')"
-    >
-      <b-form-input
+    <div class="flex flex-column gap-2 mt-4">
+      <label for="width">{{ $t('rooms.description.modals.image.width') }}</label>
+      <InputText
         id="width"
         v-model="width"
-        type="text"
+        aria-describedby="width-help"
       />
-    </b-form-group>
+      <small id="width-help">{{ $t('rooms.description.modals.image.width_description') }}</small>
+    </div>
 
-    <b-form-group
-      :label="$t('rooms.description.modals.image.alt')"
-      label-for="alt"
-    >
-      <b-form-input
+    <div class="flex flex-column gap-2 mt-4">
+      <label for="alt">{{ $t('rooms.description.modals.image.alt') }}</label>
+      <InputText
         id="alt"
         v-model="alt"
-        type="text"
       />
-    </b-form-group>
+    </div>
 
-    <template #modal-footer="{ cancel }">
+    <template #footer>
       <div class="w-full flex justify-content-between">
         <div>
-          <b-button
+          <Button
             v-if="!newImage"
-            variant="danger"
+            severity="danger"
             class="mr-2"
             @click="deleteImage"
-          >
-            {{ $t('app.delete') }}
-          </b-button>
+            :label="$t('app.delete')"
+          />
         </div>
         <div>
-          <b-button
-            variant="secondary"
-            @click="cancel"
-          >
-            {{ $t('app.cancel') }}
-          </b-button>
-          <b-button
-            variant="success"
+          <Button
+            severity="secondary"
+            @click="modalVisible = false"
+            :label="$t('app.cancel')"
+          />
+          <Button
+            severity="success"
             class="ml-2"
-            :disabled="srcState !== true"
+            :disabled="srcInvalid !== false"
             @click="save"
-          >
-            {{ $t('app.save') }}
-          </b-button>
+            :label="$t('app.save')"
+          />
         </div>
       </div>
     </template>
-  </b-modal>
+  </Dialog>
 </template>
-<script>
+<script setup>
+import { computed, ref } from 'vue';
 
-export default {
-  props: {
-    editor: Object,
-    modalStatic: {
-      type: Boolean,
-      default: false,
-      required: false
-    }
-  },
-  data () {
-    return {
-      src: null,
-      width: null,
-      alt: null,
-      newImage: true
-    };
-  },
-  computed: {
-    srcState () {
-      if (this.src === null || this.src === '') {
-        return null;
-      }
-      const regex = /^(https|http):\/\//;
-      return regex.exec(this.src) !== null;
-    }
-  },
-  methods: {
+const props = defineProps([
+  'editor'
+]);
 
-    /**
-     * Delete the image and close modal
-     */
-    deleteImage () {
-      this.editor.commands.deleteSelection();
-      this.$bvModal.hide('image-modal');
-    },
+const src = ref(null);
+const width = ref(null);
+const alt = ref(null);
+const newImage = ref(true);
+const modalVisible = ref(false);
 
-    /**
-     * Open modal and fill fields with current image attributes if image is selected
-     */
-    openModal () {
-      if (this.editor.isActive('image')) {
-        this.src = this.editor.getAttributes('image').src;
-        this.width = this.editor.getAttributes('image').width;
-        this.alt = this.editor.getAttributes('image').alt;
-        this.newImage = false;
-      } else {
-        this.src = null;
-        this.width = null;
-        this.alt = null;
-        this.newImage = true;
-      }
-      this.$bvModal.show('image-modal');
-    },
-
-    /**
-     * Save changes to the image and close modal
-     */
-    save () {
-      this.editor.chain().insertContent({
-        type: 'image',
-        attrs: {
-          src: this.src,
-          width: this.width,
-          alt: this.alt
-        }
-      }).run();
-      this.$bvModal.hide('image-modal');
-    }
+const srcInvalid = computed(() => {
+  if (src.value === null || src.value === '') {
+    return null;
   }
-};
+  const regex = /^(https|http):\/\//;
+  return regex.exec(src.value) == null;
+});
+
+/**
+ * Delete the image and close modal
+ */
+function deleteImage () {
+  props.editor.commands.deleteSelection();
+  modalVisible.value = false;
+}
+
+/**
+ * Open modal and fill fields with current image attributes if image is selected
+ */
+function openModal () {
+  if (props.editor.isActive('image')) {
+    src.value = props.editor.getAttributes('image').src;
+    width.value = props.editor.getAttributes('image').width;
+    alt.value = props.editor.getAttributes('image').alt;
+    newImage.value = false;
+  } else {
+    src.value = null;
+    width.value = null;
+    alt.value = null;
+    newImage.value = true;
+  }
+  modalVisible.value = true;
+}
+
+/**
+ * Save changes to the image and close modal
+ */
+function save () {
+  props.editor.chain().insertContent({
+    type: 'image',
+    attrs: {
+      src: src.value,
+      width: width.value,
+      alt: alt.value
+    }
+  }).run();
+  modalVisible.value = false;
+}
 </script>

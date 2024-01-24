@@ -88,9 +88,9 @@
             class="block md:hidden"
             :severity="toggleMobileMenu?'primary':'secondary'"
             @click="toggleMobileMenu=!toggleMobileMenu"
-          >
-            <small class="fa-solid fa-filter mr-2" /> {{ $t('rooms.index.filter') }}
-          </Button>
+            icon="fa-solid fa-filter"
+            :label="$t('rooms.index.filter')"
+          />
 
           <!--only favorites button-->
           <Button
@@ -98,9 +98,9 @@
             :disabled="loadingRooms"
             class="ml-1"
             @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);"
-          >
-            <small class="fa-solid fa-star mr-2" /> <span>{{ $t('rooms.index.only_favorites') }}</span>
-          </Button>
+            icon="fa-solid fa-star"
+            :label="$t('rooms.index.only_favorites')"
+          />
         </div>
       </div>
     </div>
@@ -187,12 +187,12 @@
           <Button
             v-if="selectedRoomType"
             severity="secondary"
+            class="border-right-none"
             outlined
             @click="selectedRoomType = null;
             loadRooms(1)"
-          >
-            <i class="fa-solid fa-times" />
-          </Button>
+            icon="fa-solid fa-times"
+          />
           <!-- reload the room types -->
           <Button
               v-tooltip="$t('rooms.room_types.reload')"
@@ -200,12 +200,9 @@
               severity="secondary"
               outlined
               @click="loadRoomTypes"
-            >
-              <i
-                class="fa-solid fa-sync"
-                :class="{ 'fa-spin': roomTypesBusy }"
-              />
-          </Button>
+              icon="fa-solid fa-sync"
+              :loading="roomTypesBusy"
+          />
         </InputGroup>
       </div>
     </div>

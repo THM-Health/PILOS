@@ -1,124 +1,105 @@
 <template>
-  <b-button
-    v-b-tooltip.hover
-    variant="outline-dark"
-    :title="$t('rooms.description.tooltips.link')"
-    :pressed="editor.isActive('link')"
+  <Button
+    v-tooltip="$t('rooms.description.tooltips.link')"
+    :severity="props.editor.isActive('link') ? 'primary' : 'secondary'"
     @click="openModal"
+    icon="fa-solid fa-link"
+  />
+  <Dialog
+    v-model:visible="modalVisible"
+    modal
+    :header="newLink ? $t('rooms.description.modals.link.new') : $t('rooms.description.modals.link.edit')"
+    :style="{ width: '500px' }"
+    :breakpoints="{ '575px': '90vw' }"
+    :draggable="false"
   >
-    <i class="fa-solid fa-link" />
-  </b-button>
-  <b-modal
-    id="link-modal"
-    :static="modalStatic"
-    :title="newLink ? $t('rooms.description.modals.link.new') : $t('rooms.description.modals.link.edit')"
-  >
-    <b-form-group
-      :label="$t('rooms.description.modals.link.url')"
-      :invalid-feedback="$t('rooms.description.modals.link.invalid_url')"
-      :state="urlState"
-    >
-      <b-form-input
-        v-model="link"
-        trim
-        type="text"
-        :state="urlState"
+    <div class="flex flex-column gap-2 mt-4">
+      <label for="url">{{ $t('rooms.description.modals.link.url') }}</label>
+      <InputText
+        id="url"
+        v-model.trim="link"
+        :class="{ 'p-invalid': urlInvalid }"
       />
-    </b-form-group>
+      <p v-if="urlInvalid" class="p-error">{{ $t('rooms.description.modals.link.invalid_url') }}</p>
+    </div>
 
-    <template #modal-footer="{ cancel }">
+    <template #footer>
       <div class="w-full flex justify-content-between">
         <div>
-          <b-button
+          <Button
             v-if="!newLink"
-            variant="danger"
+            severity="danger"
             class="mr-2"
             @click="deleteLink"
-          >
-            {{ $t('app.delete') }}
-          </b-button>
+            :label="$t('app.delete')"
+          />
         </div>
         <div>
-          <b-button
-            variant="secondary"
-            @click="cancel"
-          >
-            {{ $t('app.cancel') }}
-          </b-button>
-          <b-button
-            variant="success"
+          <Button
+            severity="secondary"
+            @click="modalVisible = false"
+            :label="$t('app.cancel')"
+          />
+          <Button
+            severity="success"
             class="ml-2"
-            :disabled="urlState !== true"
+            :disabled="urlInvalid !== false"
             @click="save"
-          >
-            {{ $t('app.save') }}
-          </b-button>
+            :label="$t('app.save')"
+          />
         </div>
       </div>
     </template>
-  </b-modal>
+  </Dialog>
 </template>
-<script>
+<script setup>
+import { computed, ref } from 'vue';
 
-export default {
-  props: {
-    editor: Object,
-    modalStatic: {
-      type: Boolean,
-      default: false,
-      required: false
-    }
-  },
-  data () {
-    return {
-      link: null,
-      newLink: true
-    };
-  },
-  computed: {
-    /**
-     * Check if the link url is valid
-     */
-    urlState () {
-      // Only return state if link is not empty
-      if (this.link === null || this.link === '') {
-        return null;
-      }
-      // regex checks if url starts with http://, https:// or mailto:
-      const regex = /^(https|http|mailto):\/\//;
-      return regex.exec(this.link) !== null;
-    }
-  },
-  methods: {
-    /**
-     * Open modal to edit or create a link
-     */
-    openModal () {
-      if (this.editor.isActive('link')) {
-        this.link = this.editor.getAttributes('link').href;
-        this.newLink = false;
-      } else {
-        this.link = null;
-        this.newLink = true;
-      }
-      this.$bvModal.show('link-modal');
-    },
+const props = defineProps([
+  'editor'
+]);
 
-    /**
-     * Delete link and close modal
-     */
-    deleteLink () {
-      this.editor.chain().focus().unsetLink().run();
-      this.$bvModal.hide('link-modal');
-    },
+const link = ref(null);
+const newLink = ref(true);
+const modalVisible = ref(false);
 
-    /**
-     * Save changes to the link and close modal
-     */
-    save () {
-      this.editor.chain().focus().setLink({ href: this.link }).run();
-      this.$bvModal.hide('link-modal');
-    }
+const urlInvalid = computed(() => {
+  // Only return state if link is not empty
+  if (link.value === null || link.value === '') {
+    return null;
   }
-};
+  // regex checks if url starts with http://, https:// or mailto:
+  const regex = /^(https|http|mailto):\/\//;
+  return regex.exec(link.value) == null;
+});
+
+/**
+ * Delete link and close modal
+ */
+function deleteLink () {
+  props.editor.chain().focus().unsetLink().run();
+  modalVisible.value = false;
+}
+
+/**
+ * Open modal to edit or create a link
+ */
+function openModal () {
+  if (props.editor.isActive('link')) {
+    link.value = props.editor.getAttributes('link').href;
+    newLink.value = false;
+  } else {
+    link.value = null;
+    newLink.value = true;
+  }
+  modalVisible.value = true;
+}
+
+/**
+ * Save changes to the link and close modal
+ */
+function save () {
+  props.editor.chain().focus().setLink({ href: link.value }).run();
+  modalVisible.value = false;
+}
 </script>

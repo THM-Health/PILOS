@@ -1,12 +1,12 @@
 <template>
   <div>
     <Button
-      class="w-full flex justify-content-center"
+      class="p-button-block"
       :disabled="props.disabled"
       @click="modalVisible = true"
-    >
-      <i class="fa-solid fa-plus mr-2" /> {{ $t('rooms.create.title') }}
-    </Button>
+      icon="fa-solid fa-plus"
+      :label="$t('rooms.create.title')"
+    />
 
     <!-- new room modal-->
     <Dialog
@@ -36,8 +36,9 @@
 
       <!-- Room name -->
       <div class="flex flex-column gap-2 mt-4">
-        <label for="firstname1">{{ $t('rooms.name') }}</label>
+        <label for="room-name">{{ $t('rooms.name') }}</label>
         <InputText
+            id="room-name"
             v-model="room.name"
             :disabled="isLoadingAction"
             :class="{'p-invalid': formErrors.fieldInvalid('name')}"
