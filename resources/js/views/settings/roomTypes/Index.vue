@@ -36,6 +36,7 @@
       <Column field="description" key="description" :header="$t('app.description')" :sortable="true"></Column>
       <Column field="actions" :header="$t('app.actions')" class="text-right">
         <template #body="{data}">
+          <span class="p-buttongroup">
             <can
               method="view"
               :policy="data"
@@ -67,14 +68,15 @@
               :policy="data"
             >
               <Button
-                icon="fa-solid fa-trash"
                 v-tooltip="$t('settings.room_types.delete.item', { id: data.description })"
                 :disabled="isBusy"
                 severity="danger"
                 @click="showDeleteModal(data)"
               >
+                <i class="fa-solid fa-trash" />
               </Button>
             </can>
+            </span>
         </template>
       </Column>
       <template #empty>
@@ -195,7 +197,6 @@
   const roomTypeToDelete = ref(undefined);
   const replacement = ref(null);
   const roomTypes= ref([]);
-  //ToDo data currentPage?
 
   /**
    * Loads the roles from the backend and calls on finish the callback function.
