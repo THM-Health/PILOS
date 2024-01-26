@@ -10,7 +10,7 @@
       cols-lg="3"
       align-v="stretch"
     >
-      <can
+      <Can
         method="viewAny"
         policy="ApplicationSettingPolicy"
       >
@@ -33,7 +33,7 @@
           </b-card>
         </b-col>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="UserPolicy"
       >
@@ -56,7 +56,7 @@
           </b-card>
         </b-col>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="RolePolicy"
       >
@@ -79,7 +79,7 @@
           </b-card>
         </b-col>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="RoomTypePolicy"
       >
@@ -102,7 +102,7 @@
           </b-card>
         </b-col>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="ServerPolicy"
       >
@@ -125,7 +125,7 @@
           </b-card>
         </b-col>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="ServerPoolPolicy"
       >
@@ -153,10 +153,7 @@
 </template>
 
 <script>
-import Can from '@/components/Permissions/Can.vue';
-export default {
-  components: { Can }
-};
+
 </script>
 
 <style scoped>

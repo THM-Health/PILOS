@@ -2,7 +2,7 @@
   <div>
     <h3>
       {{ $t('app.room_types') }}
-      <can
+      <Can
         method="create"
         policy="RoomTypePolicy"
       >
@@ -49,7 +49,7 @@
 
       <template #cell(actions)="data">
         <b-button-group>
-          <can
+          <Can
             method="view"
             :policy="data.item"
           >
@@ -63,7 +63,7 @@
               <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can
+          <Can
             method="update"
             :policy="data.item"
           >
@@ -77,7 +77,7 @@
               <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can
+          <Can
             method="delete"
             :policy="data.item"
           >
@@ -155,7 +155,6 @@
 
 <script>
 import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
 import FieldErrors from '@/mixins/FieldErrors';
 import env from '@/env';
 import ActionsColumn from '@/mixins/ActionsColumn';
@@ -164,7 +163,7 @@ import { mapState } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 
 export default {
-  components: { TextTruncate, Can },
+  components: { TextTruncate },
   mixins: [FieldErrors, ActionsColumn],
 
   props: {

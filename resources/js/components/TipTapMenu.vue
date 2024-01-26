@@ -5,37 +5,37 @@
         <!-- Text styling -->
         <span class="p-buttonset">
           <!-- Text type -->
-          <DropdownButton
+          <TipTapMenuDropdownButton
             severity="secondary"
           >
             <template v-slot:button-content>
               <i class="fa-solid fa-heading" />
             </template>
-            <DropdownItem
+            <TipTapMenuDropdownItem
               :active="props.editor.isActive('heading', { level: 1 })"
               @click="props.editor.chain().focus().toggleHeading({ level: 1 }).run()"
             >
               {{ $t('rooms.description.heading1') }}
-            </DropdownItem>
-            <DropdownItem
+            </TipTapMenuDropdownItem>
+            <TipTapMenuDropdownItem
               :active="props.editor.isActive('heading', { level: 2 })"
               @click="props.editor.chain().focus().toggleHeading({ level: 2 }).run()"
             >
               {{ $t('rooms.description.heading2') }}
-            </DropdownItem>
-            <DropdownItem
+            </TipTapMenuDropdownItem>
+            <TipTapMenuDropdownItem
               :active="props.editor.isActive('heading', { level: 3 })"
               @click="props.editor.chain().focus().toggleHeading({ level: 3 }).run()"
             >
               {{ $t('rooms.description.heading3') }}
-            </DropdownItem>
-            <DropdownItem
+            </TipTapMenuDropdownItem>
+            <TipTapMenuDropdownItem
               :active="props.editor.isActive('paragraph')"
               @click="props.editor.chain().focus().setParagraph().run()"
             >
               {{ $t('rooms.description.paragraph') }}
-            </DropdownItem>
-          </DropdownButton>
+            </TipTapMenuDropdownItem>
+          </TipTapMenuDropdownButton>
           <!-- Text font styling -->
           <Button
             v-tooltip="$t('rooms.description.tooltips.bold')"
@@ -63,7 +63,7 @@
           />
 
           <!-- Text color -->
-          <DropdownButton
+          <TipTapMenuDropdownButton
             severity="secondary"
             v-tooltip="$t('rooms.description.tooltips.color')"
           >
@@ -71,7 +71,7 @@
               <i class="fa-solid fa-palette" />
             </template>
             <!-- Clear color -->
-            <DropdownItem
+            <TipTapMenuDropdownItem
               :active="!props.editor.isActive('textStyle')"
               @click="props.editor.chain().focus().unsetColor().run()"
             >
@@ -79,8 +79,8 @@
                 class="color-picker-block"
                 :style="{background: '#000'}"
               /> {{ $t('rooms.description.color.black') }}
-            </DropdownItem>
-            <DropdownItem
+            </TipTapMenuDropdownItem>
+            <TipTapMenuDropdownItem
               v-for="color in textColors"
               :key="color.color"
               :active="props.editor.isActive('textStyle', { color: color.color })"
@@ -90,18 +90,18 @@
                 class="color-picker-block"
                 :style="{background: color.color}"
               /> {{ color.name }}
-            </DropdownItem>
-          </DropdownButton>
+            </TipTapMenuDropdownItem>
+          </TipTapMenuDropdownButton>
 
           <!-- Highlight -->
-          <DropdownButton
+          <TipTapMenuDropdownButton
             severity="secondary"
             v-tooltip="$t('rooms.description.tooltips.highlight')"
           >
             <template v-slot:button-content>
               <i class="fa-solid fa-highlighter" />
             </template>
-            <DropdownItem
+            <TipTapMenuDropdownItem
               v-for="color in highlightColors"
               :key="color.color"
               :active="props.editor.isActive('highlight', { color: color.color })"
@@ -111,8 +111,8 @@
                 class="color-picker-block"
                 :style="{background: color.color}"
               /> {{ color.name }}
-            </DropdownItem>
-          </DropdownButton>
+            </TipTapMenuDropdownItem>
+          </TipTapMenuDropdownButton>
 
           <Button
             v-tooltip="$t('rooms.description.tooltips.clear')"
@@ -172,9 +172,9 @@
           icon="fa-solid fa-quote-right"
         />
           <!-- Link -->
-        <tip-tap-link :editor="props.editor" />
+        <TipTapLink :editor="props.editor" />
           <!-- Image -->
-        <tip-tap-image :editor="props.editor" />
+        <TipTapImage :editor="props.editor" />
         </span>
       </div>
 
@@ -201,7 +201,7 @@
             @click="props.editor.commands.clearContent(true)"
             icon="fa-solid fa-trash"
           />
-          <tip-tap-source :editor="props.editor" />
+          <TipTapSource :editor="props.editor" />
         </span>
       </div>
     </div>

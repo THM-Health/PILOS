@@ -5,50 +5,50 @@ export default {
   /**
    * Returns a boolean that indicates whether the user can view all room types or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  viewAny (permissionService) {
-    return !!permissionService.currentUser;
+  viewAny (user) {
+    return !!user;
   },
 
   /**
    * Returns a boolean that indicates whether the user can create room types or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  create (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.create');
+  create (user) {
+    return !user ? false : user.permissions.includes('roomTypes.create');
   },
 
   /**
    * Returns a boolean that indicates whether the user can view room types or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  view (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.view');
+  view (user) {
+    return !user ? false : user.permissions.includes('roomTypes.view');
   },
 
   /**
    * Returns a boolean that indicates whether the user can update the passed room type or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  update (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.update');
+  update (user) {
+    return !user ? false : user.permissions.includes('roomTypes.update');
   },
 
   /**
    * Returns a boolean that indicates whether the user can delete the passed room type or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  delete (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.delete');
+  delete (user) {
+    return !user ? false : user.permissions.includes('roomTypes.delete');
   }
 };

@@ -24,7 +24,7 @@
       @favorites-changed="$emit('reload')"
     />
     <!-- transfer room ownership to another user-->
-    <can
+    <Can
       method="transfer"
       :policy="props.room"
     >
@@ -33,7 +33,7 @@
         :room="props.room">
       </transfer-ownership-dropdown-button>
     </can>
-    <can
+    <Can
       method="delete"
       :policy="props.room"
     >

@@ -1,6 +1,6 @@
 .action-column{
     // width of the default three action buttons (view, edit, delete) + cell padding
-    width: calc(3 * #{$action-column-button-width} + 2 * #{$table-cell-padding});
+    width: calc(3 * #{$action-column-button-width}); //TODO + 2 * #{$table-cell-padding});
 }
 .action-button{
     button, a {

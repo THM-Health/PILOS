@@ -5,78 +5,78 @@ export default {
 
   /**
    * Is user allowed to create new rooms
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  create (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('rooms.create');
+  create (user) {
+    return !user ? false : user.permissions.includes('rooms.create');
   },
 
   /**
    * Is user allowed to see all rooms
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  viewAll (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('rooms.viewAll');
+  viewAll (user) {
+    return !user ? false : user.permissions.includes('rooms.viewAll');
   },
 
   /**
    * Is user allowed to see the invitation text (includes access code)
-   * @param permissionService
+   * @param user
    * @param model
    * @return {boolean}
    */
-  viewInvitation (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.is_moderator || model.is_co_owner || permissionService.currentUser.permissions.includes('rooms.viewAll');
+  viewInvitation (user, model) {
+    return !user ? false : model.owner.id === user.id || model.is_moderator || model.is_co_owner || user.permissions.includes('rooms.viewAll');
   },
 
   /**
    * Is user allowed to delete this room
-   * @param permissionService
+   * @param user
    * @param model
    * @return {boolean}
    */
-  delete (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || permissionService.currentUser.permissions.includes('rooms.manage');
+  delete (user, model) {
+    return !user ? false : model.owner.id === user.id || user.permissions.includes('rooms.manage');
   },
   /**
    * Is user allowed to transfer this room to a different user
-   * @param permissionService
+   * @param user
    * @param model
    * @return {boolean}
    */
-  transfer (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || permissionService.currentUser.permissions.includes('rooms.manage');
+  transfer (user, model) {
+    return !user ? false : model.owner.id === user.id || user.permissions.includes('rooms.manage');
   },
 
   /**
    * Is user allowed to see all room settings (including files and members)
-   * @param permissionService
+   * @param user
    * @param model
    * @return {boolean}
    */
-  viewSettings (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.is_co_owner || permissionService.currentUser.permissions.includes('rooms.viewAll');
+  viewSettings (user, model) {
+    return !user ? false : model.owner.id === user.id || model.is_co_owner || user.permissions.includes('rooms.viewAll');
   },
 
   /**
    * Is user allowed to change all room settings (including files and members)
-   * @param permissionService
+   * @param user
    * @param model
    * @return {boolean}
    */
-  manageSettings (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.is_co_owner || permissionService.currentUser.permissions.includes('rooms.manage');
+  manageSettings (user, model) {
+    return !user ? false : model.owner.id === user.id || model.is_co_owner || user.permissions.includes('rooms.manage');
   },
 
   /**
    * Is user allowed to become member of this room
-   * @param permissionService
+   * @param user
    * @param model
    */
-  becomeMember (permissionService, model) {
-    return !permissionService.currentUser ? false : model.allow_membership && !model.is_member && model.owner.id !== permissionService.currentUser.id;
+  becomeMember (user, model) {
+    return !user ? false : model.allow_membership && !model.is_member && model.owner.id !== user.id;
   }
 
 };

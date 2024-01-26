@@ -12,7 +12,7 @@
         <div class="flex flex-column h-100">
           <div class="flex-grow-1">
             <div class="flex justify-content-between align-items-start">
-              <room-type-badge
+              <RoomTypeBadge
                 :room-type="props.room.type"
               />
               <div class="room-card__buttons flex-shrink-0">
@@ -35,7 +35,7 @@
               {{ props.room.name }}
             </p>
           </div>
-          <room-details-component
+          <RoomDetailsList
             :room="props.room"
           />
         </div>
@@ -59,7 +59,7 @@
     >
 
       <div class="flex justify-content-between align-items-start mt-2">
-        <room-type-badge :room-type="props.room.type" />
+        <RoomTypeBadge :room-type="props.room.type" />
         <div class="room-card-buttons flex-shrink-0">
           <room-favorite-button
             :room="props.room"
@@ -73,14 +73,15 @@
       >
         {{ props.room.name }}
       </h5>
-      <room-details-component
+      <RoomDetailsList
         :room="props.room"
         :show-description="true"
       />
       <template #footer>
-        <Button :label="$t('app.close')" outlined @click="handleCancel" />
-        <Button :label="$t('rooms.index.room_component.open')" @click="handleOk" />
-
+        <div class="flex justify-content-end gap-2">
+          <Button :label="$t('app.close')" outlined @click="handleCancel" />
+          <Button :label="$t('rooms.index.room_component.open')" @click="handleOk" />
+        </div>
       </template>
     </Dialog>
   </div>

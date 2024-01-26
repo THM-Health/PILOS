@@ -7,14 +7,11 @@
           {{ $t('rooms.index.rooms') }}
         </h1>
       </div>
-      <can
-        method="create"
-        policy="RoomPolicy"
-      >
-        <div
+      <div
+          v-if="userPermissions.can('create', 'RoomPolicy')"
           class="col-6 xl:col-3"
         >
-          <NewRoomComponent
+          <RoomCreateComponent
             :disabled="limitReached"
             @limit-reached="onReachLimit"
             class="mb-2"
@@ -23,7 +20,6 @@
             {{ $t('rooms.room_limit',{has:rooms.meta.total_own,max: authStore.currentUser.room_limit}) }}
           </Tag>
         </div>
-      </can>
     </div>
     <Divider />
 
@@ -48,12 +44,11 @@
         </InputGroup>
       </div>
       <div
-        class="col-12 md:col-8 flex justify-content-end flex-column-reverse md:flex-row"
+        class="col-12 md:col-8 flex justify-content-end flex-column-reverse md:flex-row gap-2"
       >
         <!--dropdown for sorting type (on small devices only shown, when filter menu is open)-->
         <Button
           severity="secondary"
-          class="mb-2"
           :class="toggleMobileMenu?'':'hidden md:flex'"
           style="width: 14rem"
           type="button"
@@ -70,7 +65,7 @@
               <span v-if="selectedSortingType==='room_type'">  {{ $t('rooms.index.sorting.room_type') }}</span>
             </div>
             <div>
-              <small class="fa-solid fa-caret-down ml-2" />
+              <small class="fa-solid fa-caret-down" />
             </div>
           </div>
         </Button>
@@ -82,7 +77,7 @@
           @focus="() => $nextTick(() => { $refs.sortingMenu.focusedOptionIndex = -1; } )"
         />
 
-        <div class="flex justify-content-start mb-2">
+        <div class="flex justify-content-start gap-2">
           <!--button to open filter menu on small devices-->
           <Button
             class="block md:hidden"
@@ -96,7 +91,6 @@
           <Button
             :severity="onlyShowFavorites?'primary':'secondary'"
             :disabled="loadingRooms"
-            class="ml-1"
             @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);"
             icon="fa-solid fa-star"
             :label="$t('rooms.index.only_favorites')"
@@ -141,12 +135,7 @@
             />
           <label for="show-public" class="ml-2">{{ $t('rooms.index.show_public') }}</label>
         </div>
-
-          <can
-            method="viewAll"
-            policy="RoomPolicy"
-          >
-            <div class="flex align-items-center">
+        <div v-if="userPermissions.can('viewAll', 'RoomPolicy')" class="flex align-items-center">
               <InputSwitch
                 v-model="filter.all"
                 @input="toggleCheckboxAll"
@@ -155,7 +144,6 @@
               />
               <label for="show-all" class="ml-2">{{ $t('rooms.index.show_all') }}</label>
             </div>
-          </can>
       </div>
       <div
         class="col-12 md:col-4 h-100"
@@ -235,7 +223,7 @@
             v-for="i in 3"
             :key="i"
           >
-            <RoomSkeletonComponent />
+            <RoomCardSkeleton />
           </div>
         </div>
       </div>
@@ -256,7 +244,7 @@
             v-for="room in rooms.data"
             :key="room.id"
           >
-            <room-card-component
+            <RoomCard
               :room="room"
               @favorites-changed="loadRooms()"
             />
@@ -306,10 +294,12 @@ import { useAuthStore } from '@/stores/auth';
 import { onMounted, ref, reactive, computed } from 'vue';
 import { useApi } from '@/composables/useApi.js';
 import { useI18n } from 'vue-i18n';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 
 const authStore = useAuthStore();
 const api = useApi();
 const { t } = useI18n();
+const userPermissions = useUserPermissions();
 
 const toggleMobileMenu = ref(false);
 const loadingRooms = ref(false);

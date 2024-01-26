@@ -25,7 +25,7 @@
 
 import { mapState } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
-import notificationSound from '../../../audio/notification.mp3';
+import notificationSound from '../../audio/notification.mp3';
 
 export default {
   name: 'BrowserNotification',

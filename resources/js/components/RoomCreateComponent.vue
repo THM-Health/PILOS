@@ -46,9 +46,10 @@
         <p class="p-error" v-html="formErrors.fieldError('name')" />
       </div>
       <template #footer>
-        <Button :label="$t('app.cancel')" outlined :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
-        <Button :label="$t('rooms.create.ok')" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
-
+        <div class="flex justify-content-end gap-2">
+          <Button :label="$t('app.cancel')" outlined :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
+          <Button :label="$t('rooms.create.ok')" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
+        </div>
       </template>
     </Dialog>
   </div>

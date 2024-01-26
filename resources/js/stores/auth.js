@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
 import { useApi } from '@/composables/useApi';
@@ -60,7 +59,6 @@ export const useAuthStore = defineStore('auth', {
 
     setCurrentUser (currentUser, emit = true) {
       this.currentUser = currentUser;
-      PermissionService.setCurrentUser(this.currentUser, emit);
     }
   }
 });

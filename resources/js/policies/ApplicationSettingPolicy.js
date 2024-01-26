@@ -5,20 +5,20 @@ export default {
   /**
    * Returns a boolean that indicates whether the user can view all application settings or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('applicationSettings.viewAny');
+  viewAny (user) {
+    return !user ? false : user.permissions.includes('applicationSettings.viewAny');
   },
 
   /**
    * Returns a boolean that indicates whether the user can update the application settings or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  update (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('applicationSettings.update');
+  update (user) {
+    return !user ? false : user.permissions.includes('applicationSettings.update');
   }
 };

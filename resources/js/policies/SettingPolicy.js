@@ -5,10 +5,10 @@ export default {
   /**
    * Returns a boolean that indicates whether the user can manage settings or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  manage (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('settings.manage');
+  manage (user) {
+    return !user ? false : user.permissions.includes('settings.manage');
   }
 };

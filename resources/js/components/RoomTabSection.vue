@@ -15,28 +15,31 @@
             <template #header>
               <i class="fa-solid fa-file-lines mr-2" /> <span>{{ $t('rooms.description.title') }}</span>
             </template>
-            <room-description-component
+            <RoomTabDescription
               :room="props.room"
               @settings-changed="$emit('settingsChanged')"
             />
           </TabPanel>
           <!-- Membership tab -->
-          <TabPanel>
+          <TabPanel v-if="userPermissions.can('viewSettings', room)">
             <template #header>
               <i class="fa-solid fa-users mr-2" /> <span>{{ $t('rooms.members.title') }}</span>
             </template>
-            <members-component
+            <RoomTabMembers
               :room="props.room"
             />
           </TabPanel>
           <!-- Personal room links tab -->
-          <TabPanel :pt="{
+          <TabPanel
+            v-if="userPermissions.can('viewSettings', room)"
+            :pt="{
             headerAction: { class: 'white-space-nowrap' }
-          }">
+            }"
+          >
             <template #header>
               <i class="fa-solid fa-link mr-2" /> <span>{{ $t('rooms.tokens.title') }}</span>
             </template>
-            <tokens-component
+            <RoomTabPersonalizedLinks
               :room="props.room"
             />
           </TabPanel>
@@ -45,25 +48,31 @@
             <template #header>
               <i class="fa-solid fa-folder-open mr-2" /> <span>{{ $t('rooms.files.title') }}</span>
             </template>
-            <file-component
+            <RoomTabFiles
               :room="props.room"
+              :access-code="props.accessCode"
+              :token="props.token"
+
+              @invalid-code="$emit('invalidCode')"
+              @invalid-token="$emit('invalidToken')"
+              @guests-not-allowed="$emit('guestsNotAllowed')"
             />
           </TabPanel>
           <!-- Statistics tab -->
-          <TabPanel>
+          <TabPanel v-if="userPermissions.can('viewSettings', room)">
             <template #header>
               <i class="fa-solid fa-history mr-2" /> <span>{{ $t('rooms.meeting_history.title') }}</span>
             </template>
-            <history-component
+            <RoomTabHistory
               :room="props.room"
             />
           </TabPanel>
           <!-- Room settings tab -->
-          <TabPanel>
+          <TabPanel v-if="userPermissions.can('viewSettings', room)">
             <template #header>
               <i class="fa-solid fa-cog mr-2" /> <span>{{ $t('rooms.settings.title') }}</span>
             </template>
-            <settings-component
+            <RoomTabSettings
               :room="props.room"
               @settings-changed="$emit('settingsChanged')"
             />
@@ -72,7 +81,13 @@
       </div>
 </template>
 <script setup>
+import { useUserPermissions } from '@/composables/useUserPermission.js';
+
 const props = defineProps({
-  room: Object
+  room: Object,
+  accessCode: Number,
+  token: String
 });
+
+const userPermissions = useUserPermissions();
 </script>
