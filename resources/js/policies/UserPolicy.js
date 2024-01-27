@@ -5,78 +5,78 @@ export default {
   /**
    * Returns a boolean that indicates whether the user can view all users or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.viewAny');
+  viewAny (user) {
+    return !user ? false : user.permissions.includes('users.viewAny');
   },
 
   /**
    * Returns a boolean that indicates whether the user can view the passed user or not.
    *
-   * @param permissionService
    * @param user
+   * @param model
    * @return {boolean}
    */
-  view (permissionService, user) {
-    if (!permissionService.currentUser) {
+  view (user, model) {
+    if (!user) {
       return false;
-    } else if (user.id === permissionService.currentUser.id) {
+    } else if (model.id === user.id) {
       return true;
     }
 
-    return permissionService.currentUser.permissions.includes('users.view');
+    return user.permissions.includes('users.view');
   },
 
   /**
    * Returns a boolean that indicates whether the user can create users or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  create (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.create');
+  create (user) {
+    return !user ? false : user.permissions.includes('users.create');
   },
 
   /**
    * Returns a boolean that indicates whether the user can update the passed user or not.
    *
-   * @param permissionService
    * @param user
+   * @param model
    * @return {boolean}
    */
-  update (permissionService, user) {
-    if (!permissionService.currentUser) {
+  update (user, model) {
+    if (!user) {
       return false;
-    } else if (user.id === permissionService.currentUser.id) {
+    } else if (model.id === user.id) {
       return true;
     }
 
-    return permissionService.currentUser.permissions.includes('users.update');
+    return user.permissions.includes('users.update');
   },
 
   /**
    * Returns a boolean that indicates whether the user can delete the passed user or not.
    *
-   * @param permissionService
    * @param user
+   * @param model
    * @return {boolean}
    */
-  delete (permissionService, user) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.delete') && user.id !== permissionService.currentUser.id;
+  delete (user, model) {
+    return !user ? false : user.permissions.includes('users.delete') && model.id !== user.id;
   },
 
   /**
    * Returns true if the user has permission to update users and the user model is not the
    * current users model.
    *
-   * @param permissionService
    * @param user
+   * @param model
    * @return {boolean}
    */
-  editUserRole (permissionService, user) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.update') && user.id !== permissionService.currentUser.id;
+  editUserRole (user, model) {
+    return !user ? false : user.permissions.includes('users.update') && model.id !== user.id;
   },
 
   /**
@@ -84,18 +84,18 @@ export default {
    * email). Either the user to update is not the current user or the user has the permission to change his own
    * attributes.
    *
-   * @param permissionService
    * @param user
+   * @param model
    * @return {boolean|boolean|*}
    */
-  updateAttributes (permissionService, user) {
-    if (!permissionService.currentUser || user.authenticator !== 'local') {
+  updateAttributes (user, model) {
+    if (!user || model.authenticator !== 'local') {
       return false;
     }
 
-    return this.update(permissionService, user) &&
-      (permissionService.currentUser.permissions.includes('users.updateOwnAttributes') ||
-        user.id !== permissionService.currentUser.id);
+    return this.update(user, model) &&
+      (user.permissions.includes('users.updateOwnAttributes') ||
+        model.id !== user.id);
   },
 
   /**
@@ -103,17 +103,17 @@ export default {
    * of not newly created users with generated passwords can be reset. Also the user can not reset his own
    * password.
    *
-   * @param permissionService
    * @param user
+   * @param model
    * @return {boolean}
    */
-  resetPassword (permissionService, user) {
-    if (!permissionService.currentUser || user.authenticator !== 'local') {
+  resetPassword (user, model) {
+    if (!user || model.authenticator !== 'local') {
       return false;
     }
 
-    return this.update(permissionService, user) &&
-      permissionService.currentUser.id !== user.id &&
-      !user.initial_password_set;
+    return this.update(user, model) &&
+      user.id !== model.id &&
+      !model.initial_password_set;
   }
 };

@@ -24,17 +24,16 @@
     </div>
 
     <template #footer>
-      <div class="w-full flex justify-content-between">
+      <div class="w-full flex justify-content-between gap-2">
         <div>
           <Button
             v-if="!newLink"
             severity="danger"
-            class="mr-2"
             @click="deleteLink"
             :label="$t('app.delete')"
           />
         </div>
-        <div>
+        <div class="flex gap-2">
           <Button
             severity="secondary"
             @click="modalVisible = false"
@@ -42,7 +41,6 @@
           />
           <Button
             severity="success"
-            class="ml-2"
             :disabled="urlInvalid !== false"
             @click="save"
             :label="$t('app.save')"

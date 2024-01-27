@@ -2,7 +2,7 @@
   <div>
     <h4>{{ $t('app.email') }}</h4>
     <b-form @submit="save">
-      <can
+      <Can
         method="updateAttributes"
         :policy="user"
       >
@@ -55,7 +55,7 @@
           </b-alert>
         </div>
       </b-form-group>
-      <can
+      <Can
         method="updateAttributes"
         :policy="user"
       >
@@ -79,11 +79,9 @@ import env from '@/env';
 import PermissionService from '@/services/PermissionService';
 import { mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
-import Can from '@/components/Permissions/Can.vue';
 
 export default {
   name: 'EmailSettingsComponent',
-  components: { Can },
   mixins: [FieldErrors],
   props: {
     user: {

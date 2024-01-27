@@ -54,7 +54,6 @@ onMounted(() => {
  */
 function addSafeLinkListeners () {
   const safeLinks = roomDescription.value.querySelectorAll('[href]');
-  console.log('safeLinks', safeLinks);
   safeLinks.forEach((link) => {
     link.addEventListener('click', (event) => {
       event.preventDefault();

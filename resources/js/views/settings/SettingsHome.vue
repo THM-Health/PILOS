@@ -4,7 +4,7 @@
     <p>{{ $t('settings.overview_description') }}</p>
     <hr>
     <div class="grid mt-1">
-      <can
+      <Can
         method="viewAny"
         policy="ApplicationSettingPolicy"
       >
@@ -32,7 +32,7 @@
           </Card>
         </div>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="UserPolicy"
       >
@@ -60,7 +60,7 @@
           </Card>
         </div>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="RolePolicy"
       >
@@ -88,7 +88,7 @@
           </Card>
         </div>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="RoomTypePolicy"
       >
@@ -116,7 +116,7 @@
           </Card>
         </div>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="ServerPolicy"
       >
@@ -144,7 +144,7 @@
           </Card>
         </div>
       </can>
-      <can
+      <Can
         method="viewAny"
         policy="ServerPoolPolicy"
       >

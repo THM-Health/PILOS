@@ -7,7 +7,7 @@
         </h2>
       </div>
     <div class="col flex justify-content-end align-items-center">
-      <can
+      <Can
         method="create"
         policy="RoomTypePolicy"
       >
@@ -37,7 +37,7 @@
       <Column field="actions" :header="$t('app.actions')" class="text-right">
         <template #body="{data}">
           <span class="p-buttongroup">
-            <can
+            <Can
               method="view"
               :policy="data"
             >
@@ -50,7 +50,7 @@
                 <i class="fa-solid fa-eye" />
               </router-link>
             </can>
-            <can
+            <Can
               method="update"
               :policy="data"
             >
@@ -63,7 +63,7 @@
                 <i class="fa-solid fa-edit" />
               </router-link>
             </can>
-            <can
+            <Can
               method="delete"
               :policy="data"
             >

@@ -5,7 +5,7 @@
         <h3>
           {{ $t('app.server_pools') }}
 
-          <can
+          <Can
             method="create"
             policy="ServerPoolPolicy"
           >
@@ -71,7 +71,7 @@
 
       <template #cell(actions)="data">
         <b-button-group>
-          <can
+          <Can
             method="view"
             :policy="data.item"
           >
@@ -85,7 +85,7 @@
               <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can
+          <Can
             method="update"
             :policy="data.item"
           >
@@ -99,7 +99,7 @@
               <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can
+          <Can
             method="delete"
             :policy="data.item"
           >
@@ -177,12 +177,10 @@
 
 <script>
 import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
 import ActionsColumn from '@/mixins/ActionsColumn';
 import env from '@/env';
 
 export default {
-  components: { Can },
   mixins: [ActionsColumn],
 
   props: {

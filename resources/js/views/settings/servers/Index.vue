@@ -5,7 +5,7 @@
         <h3>
           {{ $t('app.servers') }}
 
-          <can
+          <Can
             method="create"
             policy="ServerPolicy"
           >
@@ -135,7 +135,7 @@
 
       <template #cell(actions)="data">
         <b-button-group>
-          <can
+          <Can
             method="view"
             :policy="data.item"
           >
@@ -149,7 +149,7 @@
               <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can
+          <Can
             method="update"
             :policy="data.item"
           >
@@ -163,7 +163,7 @@
               <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can
+          <Can
             method="delete"
             :policy="data.item"
           >
@@ -239,13 +239,12 @@
 
 <script>
 import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
 import ActionsColumn from '@/mixins/ActionsColumn';
 import RawText from '@/components/RawText.vue';
 import TextTruncate from '@/components/TextTruncate.vue';
 
 export default {
-  components: { TextTruncate, Can, RawText },
+  components: { TextTruncate, RawText },
   mixins: [ActionsColumn],
 
   props: {

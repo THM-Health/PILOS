@@ -46,18 +46,18 @@
         <div class="grid">
           <div class="col-12 md:col-10">
             <!-- Display room type, name and owner  -->
-            <room-type-badge :room-type="room.type" />
+            <RoomTypeBadge :room-type="room.type" />
             <h2 class="h2 mt-2 roomname">
               {{ room.name }}
             </h2>
 
-            <room-details-component
+            <RoomDetailsList
               :room="room"
               :show-description="true"
             />
           </div>
           <div class="col-12 md:col-2 flex justify-content-end align-items-start">
-            <span class="p-buttonset">
+            <div class="flex gap-2">
               <!-- Reload general room settings/details -->
               <Button
                 v-tooltip="$t('app.reload')"
@@ -67,8 +67,8 @@
                 icon="fa-solid fa-sync"
                 :loading="loading"
               />
-              <RoomDropdownButton :room="room" @reload="reload()" @invalidCode="handleInvalidCode" />
-            </span>
+              <RoomOptionsDropdownButton :room="room" @reload="reload()" @invalidCode="handleInvalidCode" />
+            </div>
           </div>
         </div>
         <div
@@ -93,7 +93,7 @@
             <div class="col-12 md:col-8 lg:col-6 flex-order-2 md:flex-order-1"
               v-if="viewInvitation"
             >
-              <room-invitation :room="room" />
+              <RoomAccessWidget :room="room" />
             </div>
             <div class="col-12 flex-order-1 md:flex-order-2" :class="{ 'md:col-4 lg:col-6': viewInvitation, 'md:col-6 lg:col-12': !viewInvitation}">
               <div class="grid">
@@ -152,7 +152,7 @@
                     <Tag v-else severity="info" icon="fa-solid fa-circle-notch fa-spin text-base mr-2" class="w-full text-base" :value="$t('rooms.not_running')"></Tag>
                   </template>
 
-                  <browser-notification
+                  <RoomBrowserNotification
                     :running="running"
                     :name="room.name"
                   />
@@ -161,33 +161,17 @@
             </div>
           </div>
 
-          <!-- Show limited file list for guests, users, members and moderators-->
-          <cannot
-            method="viewSettings"
-            :policy="room"
-          >
-            <Divider />
-            <tabs-component
-              :access-code="accessCode"
-              :token="token"
-              :room="room"
+          <!-- Show room tabs -->
+          <RoomTabSection
+            :access-code="accessCode"
+            :token="token"
+            :room="room"
 
-              @invalid-code="handleInvalidCode"
-              @invalid-token="handleInvalidToken"
-              @guests-not-allowed="handleGuestsNotAllowed"
-            />
-          </cannot>
-
-          <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
-          <can
-            method="viewSettings"
-            :policy="room"
-          >
-            <admin-tabs-component
-              :room="room"
-              @settings-changed="reload"
-            />
-          </can>
+            @invalid-code="handleInvalidCode"
+            @invalid-token="handleInvalidToken"
+            @guests-not-allowed="handleGuestsNotAllowed"
+            @settings-changed="reload"
+          />
         </template>
         <!-- Ask for room access code -->
         <div v-else>
@@ -216,17 +200,15 @@
 </template>
 <script setup>
 import env from '@/env.js';
-import PermissionService from '@/services/PermissionService';
 import { useAuthStore } from '@/stores/auth';
 import { useSettingsStore } from '@/stores/settings';
-import EventBus from '@/services/EventBus';
-import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useToast } from '../../composables/useToast.js';
+import { useToast } from '@/composables/useToast.js';
 import { useRouter } from 'vue-router';
-import { useFormErrors } from '../../composables/useFormErrors.js';
-import { useApi } from '../../composables/useApi.js';
+import { useFormErrors } from '@/composables/useFormErrors.js';
+import { useApi } from '@/composables/useApi.js';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 
 const props = defineProps({
   id: {
@@ -254,6 +236,7 @@ const guestsNotAllowed = ref(false); // Access to room was forbidden
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
+const userPermissions = useUserPermissions();
 const { t } = useI18n();
 const toast = useToast();
 const router = useRouter();
@@ -419,7 +402,8 @@ function reload () {
         accessCodeValid.value = null;
       }
 
-      EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, room.value);
+      // @TODO Fix bug
+      // EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, room.value);
 
       if (room.value.username) {
         name.value = room.value.username;
@@ -649,7 +633,7 @@ const running = computed(() => {
  * Show invitation section only to users with the required permission
  */
 const viewInvitation = computed(() => {
-  return PermissionService.can('viewInvitation', room.value);
+  return userPermissions.can('viewInvitation', room.value);
 });
 
 </script>

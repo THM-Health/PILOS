@@ -7,7 +7,7 @@
         </h3>
       </b-col>
       <b-col>
-        <can
+        <Can
           method="create"
           policy="UserPolicy"
         >
@@ -169,7 +169,7 @@
 
       <template #cell(actions)="data">
         <b-button-group>
-          <can
+          <Can
             method="view"
             :policy="data.item"
           >
@@ -184,7 +184,7 @@
               <i class="fa-solid fa-eye" />
             </b-button>
           </can>
-          <can
+          <Can
             method="update"
             :policy="data.item"
           >
@@ -199,7 +199,7 @@
               <i class="fa-solid fa-edit" />
             </b-button>
           </can>
-          <can
+          <Can
             method="resetPassword"
             :policy="data.item"
           >
@@ -216,7 +216,7 @@
               <i class="fa-solid fa-key" />
             </b-button>
           </can>
-          <can
+          <Can
             method="delete"
             :policy="data.item"
           >
@@ -305,7 +305,6 @@
 
 <script>
 import ActionsColumn from '@/mixins/ActionsColumn';
-import Can from '@/components/Permissions/Can.vue';
 import Base from '@/api/base';
 import TextTruncate from '@/components/TextTruncate.vue';
 import { Multiselect } from 'vue-multiselect';
@@ -313,7 +312,7 @@ import { mapState } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 
 export default {
-  components: { TextTruncate, Can, Multiselect },
+  components: { TextTruncate, Multiselect },
   mixins: [ActionsColumn],
 
   props: {

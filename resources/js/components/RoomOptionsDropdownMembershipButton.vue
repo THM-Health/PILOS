@@ -1,6 +1,6 @@
 <template>
   <!-- If membership is enabled, allow user to become member -->
-  <can
+  <Can
     method="becomeMember"
     :policy="room"
   >
@@ -44,14 +44,10 @@
 </template>
 <script>
 import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
 import env from '@/env';
 
 export default {
   name: 'RoomMembershipDropdownButton',
-  components: {
-    Can
-  },
   props: {
     room: {
       type: Object,

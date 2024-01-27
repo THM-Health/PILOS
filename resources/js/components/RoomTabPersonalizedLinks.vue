@@ -7,7 +7,7 @@
       <div class="row">
         <div class="col-12">
           <b-button-group class="float-lg-right">
-            <can
+            <Can
               method="manageSettings"
               :policy="room"
             >
@@ -82,7 +82,7 @@
                 >
                   <i class="fa-solid fa-link" />
                 </b-button>
-                <can
+                <Can
                   method="manageSettings"
                   :policy="room"
                 >
@@ -250,7 +250,6 @@
 
 <script>
 import Base from '@/api/base';
-import Can from '../Permissions/Can.vue';
 import FieldErrors from '@/mixins/FieldErrors';
 import env from '@/env';
 import _ from 'lodash';
@@ -259,7 +258,7 @@ import { mapState } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 
 export default {
-  components: { Can, RawText },
+  components: { RawText },
   mixins: [FieldErrors],
 
   props: {

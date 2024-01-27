@@ -64,12 +64,20 @@ $fontFamily: SourceSansPro, sans-serif;
 @import './_extensions';
 @import "streched-link";
 @import 'primeflex/primeflex.css';
+
+@import '../../app/_variables';
 @import '../../app/_room';
+@import '../../app/_profile-image';
+@import '../../app/_action-column';
 
 // Font Awesome
 $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
 @import "@fortawesome/fontawesome-free/scss/fontawesome";
 @import "@fortawesome/fontawesome-free/scss/solid";
+
+// Vue Multi-Select
+@import "vue-multiselect/dist/vue-multiselect.css";
+//@import "../../override/multiselect";
 
 
 // Height of footer
@@ -227,6 +235,35 @@ a[data-target="safeLink"] {
     cursor: pointer;
     &:hover {
         color: $primaryDarkColor;
+    }
+}
+
+.room-role-guest {
+    background-color: $info;
+}
+
+.room-role-participant {
+    background-color: $success;
+}
+
+.room-role-moderator {
+    background-color: $danger;
+}
+
+.room-role-co-owner {
+    background-color: $secondary;
+}
+
+.p-dialog-content {
+    overflow-y: visible;
+}
+
+.p-dialog-mask {
+    overflow-y: scroll;
+}
+.room-bulk-import-preview {
+    .p-disabled {
+        opacity: 1;
     }
 }
 .p-buttongroup{

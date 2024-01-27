@@ -1,45 +1,37 @@
 <template>
   <div>
-    <can
-      method="manageSettings"
-      :policy="room"
-    >
-      <div class="row mb-3">
-        <div class="col-12 text-right">
-          <span class="p-buttonset">
-            <Button
-              v-if="!editorOpen"
-              severity="secondary"
-              :disabled="isBusy"
-              @click="edit"
-              icon="fa-solid fa-pen-square"
-              :label="$t('rooms.description.edit')"
-            />
-            <Button
-              v-if="editorOpen"
-              severity="success"
-              :disabled="isBusy"
-              @click="save"
-              icon="fa-solid fa-save"
-              :label="$t('rooms.description.save')"
-            />
-            <Button
-              v-if="editorOpen"
-              severity="secondary"
-              :disabled="isBusy"
-              @click="cancel"
-              icon="fa-solid fa-times"
-              :label="$t('rooms.description.cancel')"
-            />
-          </span>
-        </div>
-      </div>
-    </can>
+    <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-content-end mb-3">
+      <Button
+        v-if="!editorOpen"
+        severity="secondary"
+        :disabled="isBusy"
+        @click="edit"
+        icon="fa-solid fa-pen-square"
+        :label="$t('rooms.description.edit')"
+      />
+      <Button
+        v-if="editorOpen"
+        severity="success"
+        :disabled="isBusy"
+        @click="save"
+        icon="fa-solid fa-save"
+        :label="$t('rooms.description.save')"
+      />
+      <Button
+        v-if="editorOpen"
+        severity="secondary"
+        :disabled="isBusy"
+        @click="cancel"
+        icon="fa-solid fa-times"
+        :label="$t('rooms.description.cancel')"
+      />
+    </div>
+
     <OverlayComponent :show="isBusy">
       <div
         v-if="!editorOpen"
       >
-        <room-description-html-component
+        <RoomTabDescriptionViewer
           v-if="room.description !== null"
           :html="sanitizedHtml"
         />
@@ -49,7 +41,7 @@
       </div>
 
       <div v-else>
-        <tip-tap-editor
+        <TipTapEditor
           v-model="newContent"
           :class="{'is-invalid': formErrors.fieldInvalid('description') === false}"
           :disabled="isBusy"
@@ -63,14 +55,12 @@
 </template>
 
 <script setup>
-import TipTapEditor from '@/components/TipTap/TipTapEditor.vue';
-import Can from '@/components/Permissions/Can.vue';
 import env from '@/env';
 import createDOMPurify from 'dompurify';
-import RoomDescriptionHtmlComponent from './RoomDescriptionHtmlComponent.vue';
 import { ref, computed } from 'vue';
-import { useFormErrors } from '../../composables/useFormErrors.js';
-import { useApi } from '../../composables/useApi.js';
+import { useFormErrors } from '@/composables/useFormErrors.js';
+import { useApi } from '@/composables/useApi.js';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 
 const props = defineProps({
   room: Object
@@ -84,6 +74,7 @@ const isBusy = ref(false);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const userPermissions = useUserPermissions();
 
 // Create a new DOMPurify instance
 const domPurify = createDOMPurify();

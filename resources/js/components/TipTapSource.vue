@@ -21,7 +21,7 @@
     />
 
     <template #footer>
-      <div class="w-full flex justify-content-end">
+      <div class="w-full flex justify-content-end gap-2">
           <Button
             severity="secondary"
             @click="modalVisible = false"
@@ -29,7 +29,6 @@
           />
           <Button
             severity="success"
-            class="ml-2"
             @click="save"
             :label="$t('app.save')"
           />

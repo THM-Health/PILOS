@@ -3,8 +3,8 @@
  */
 export default {
 
-  viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('meetings.viewAny');
+  viewAny (user) {
+    return !user ? false : user.permissions.includes('meetings.viewAny');
   }
 
 };

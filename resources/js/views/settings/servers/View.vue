@@ -281,7 +281,7 @@
           />
         </b-form-group>
 
-        <can
+        <Can
           method="update"
           :policy="model"
         >
@@ -340,10 +340,8 @@
 import Base from '@/api/base';
 import FieldErrors from '@/mixins/FieldErrors';
 import env from '@/env';
-import Can from '@/components/Permissions/Can.vue';
 
 export default {
-  components: { Can },
   mixins: [FieldErrors],
   props: {
     id: {

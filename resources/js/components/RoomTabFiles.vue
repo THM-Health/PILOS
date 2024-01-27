@@ -19,7 +19,7 @@
 
       <div class="row mb-3">
         <div class="col-10">
-          <can
+          <Can
             method="manageSettings"
             :policy="room"
           >
@@ -84,7 +84,7 @@
         <!-- Render action column -->
         <template #cell(actions)="data">
           <b-button-group class="float-md-right">
-            <can
+            <Can
               method="manageSettings"
               :policy="room"
             >
@@ -204,7 +204,6 @@
 </template>
 <script>
 import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
 import PermissionService from '@/services/PermissionService';
 import FieldErrors from '@/mixins/FieldErrors';
 import env from '@/env.js';
@@ -217,9 +216,6 @@ export default {
 
   name: 'FileComponent',
 
-  components: {
-    Can
-  },
   mixins: [FieldErrors],
   props: {
     room: Object,
