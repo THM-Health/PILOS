@@ -1,12 +1,13 @@
 <template>
   <div>
-    <h3>
+    <h2>
       {{ id === 'new' ? $t('settings.room_types.new') : (
         viewOnly ? $t('settings.room_types.view', { name: model.description })
         : $t('settings.room_types.edit', { name: model.description })
       ) }}
-    </h3>
+    </h2>
     <hr>
+<!--    ToDo Overlay-->
     <b-overlay :show="isBusy || modelLoadingError">
       <template #overlay>
         <div class="text-center">
@@ -20,92 +21,82 @@
           </b-button>
         </div>
       </template>
-      <b-form @submit="saveRoomType">
-        <b-container fluid>
-          <b-form-group
-            label-cols-sm="4"
-            :label="$t('app.description')"
-            label-for="description"
-            :state="fieldState('description')"
-          >
-            <b-form-input
+      <form @submit="saveRoomType">
+        <div class="field grid">
+          <label for="description" class="col-12 md:col-4 md:mb-0">{{$t('app.description')}}</label>
+          <div class="col-12 md:col-8">
+            <InputText
+              class="w-full"
               id="description"
               v-model="model.description"
               type="text"
               :state="fieldState('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <template #invalid-feedback>
-              <div v-html="fieldError('description')" />
-            </template>
-          </b-form-group>
+<!--                <template #invalid-feedback>&ndash;&gt;-->
+                  <!--              <div v-html="fieldError('description')" />-->
+                  <!--            </template>-->
+          </div>
+        </div>
 
-          <b-form-group
-            label-cols-sm="4"
-            :label="$t('settings.room_types.color')"
-            label-for="color"
-            :state="fieldState('color')"
-          >
+        <div class="field grid">
+          <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
+          <div class="col-12 md:col-8">
+<!--        ToDo Color Select-->
             <color-select
-              class="my-2"
+              id="color"
+              class="mb-2"
               :disabled='isBusy || modelLoadingError || viewOnly'
               :colors="colors"
               v-model="model.color"
             />
-            <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
-            <b-form-input
+            <label for="color">{{ $t('settings.room_types.custom_color') }}</label>
+            <InputText
+              class="w-full"
               id="color"
               v-model="model.color"
               type="text"
               :state="fieldState('color')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
+          </div>
+        </div>
 
-            <template #invalid-feedback>
-              <div v-html="fieldError('color')" />
-            </template>
-          </b-form-group>
-
-          <b-form-group
-            label-cols-sm="4"
-            :label="$t('settings.room_types.preview')"
-          >
-            <b-badge
-              class="flex-shrink-1 text-break"
+        <div class="field grid">
+          <label class="col-12 md:col-4 md:mb-0">{{$t('settings.room_types.preview')}}</label>
+          <div class="col-12 md:col-8 flex align-items-center">
+            <Tag
+              :value="model.description"
+              class="flex-shrink-1 text-break "
               style="white-space: normal"
               :style="{ 'background-color': model.color}"
             >
-              {{ model.description }}
-            </b-badge>
-          </b-form-group>
+            </Tag>
+          </div>
+        </div>
+        <div class="field grid">
+          <label for="allow_listing" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_listing')}}</label>
+          <div class="col-12 md:col-8">
+            <div>
+              <InputSwitch
+                id="allow_listing"
+                v-model="model.allow_listing"
+                :state="fieldState('allow_listing')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                aria-describedby="allow_listing-help"
+              />
+<!--              <template #invalid-feedback>-->
+<!--                <div v-html="fieldError('allow_listing')" />-->
+<!--              </template>-->
+            </div>
+            <small id="allow_listing-help">{{$t('settings.room_types.allow_listing_description')}}</small>
+          </div>
+        </div>
 
-          <b-form-group
-            label-cols-sm="4"
-            :label="$t('settings.room_types.allow_listing')"
-            :description="$t('settings.room_types.allow_listing_description')"
-            label-for="allow_listing"
-            :state="fieldState('allow_listing')"
-          >
-            <b-form-checkbox
-              id="allow_listing"
-              v-model="model.allow_listing"
-              switch
-              :state="fieldState('allow_listing')"
-              :disabled="isBusy || modelLoadingError || viewOnly"
-            />
-            <template #invalid-feedback>
-              <div v-html="fieldError('allow_listing')" />
-            </template>
-          </b-form-group>
-
-          <b-form-group
-            label-cols-sm="4"
-            :label="$t('app.server_pool')"
-            label-for="server_pool"
-            :state="fieldState('server_pool')"
-            :description="$t('settings.room_types.server_pool_description')"
-          >
-            <b-input-group>
+        <div class="field grid">
+          <label for="server_pool" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.server_pool_description')}}</label>
+          <div class="col-12 md:col-8">
+            <InputGroup>
               <multiselect
                 id="server_pool"
                 ref="server-pool-multiselect"
@@ -126,68 +117,69 @@
                 :loading="serverPoolsLoading"
                 :allow-empty="false"
                 :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }"
+                aria-describedby="server_pool-help"
               >
                 <template #noOptions>
                   {{ $t('settings.server_pools.no_data') }}
                 </template>
                 <template #afterList>
-                  <b-button
+                  <Button
                     :disabled="serverPoolsLoading || currentPage === 1"
-                    variant="outline-secondary"
+                    severity="secondary"
+                    outlined
                     @click="loadServerPools(Math.max(1, currentPage - 1))"
                   >
                     <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
-                  </b-button>
-                  <b-button
+                  </Button>
+                  <Button
                     :disabled="serverPoolsLoading || !hasNextPage"
-                    variant="outline-secondary"
+                    severity="secondary"
+                    outlined
                     @click="loadServerPools(currentPage + 1)"
                   >
                     <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
-                  </b-button>
+                  </Button>
                 </template>
               </multiselect>
-              <b-input-group-append>
-                <b-button
-                  v-if="serverPoolsLoadingError"
-                  variant="outline-secondary"
-                  @click="loadServerPools(currentPage)"
-                >
-                  <i class="fa-solid fa-sync" />
-                </b-button>
-              </b-input-group-append>
-            </b-input-group>
-            <template #invalid-feedback>
-              <div v-html="fieldError('server_pool')" />
-            </template>
-          </b-form-group>
+              <Button
+                v-if="serverPoolsLoadingError"
+                severity="secondary"
+                outlined
+                @click="loadServerPools(currentPage)"
+              >
+                <i class="fa-solid fa-sync" />
+              </Button>
+            </InputGroup>
+<!--            <template #invalid-feedback>-->
+<!--              <div v-html="fieldError('server_pool')" />-->
+<!--            </template>-->
+            <small id="server_pool-help">{{$t('settings.room_types.allow_listing_description')}}</small>
+          </div>
+        </div>
 
-          <b-form-group
-            label-cols-sm="4"
-            :label="$t('settings.room_types.restrict')"
-            :description="$t('settings.room_types.restrict_description')"
-            label-for="restrict"
-            :state="fieldState('restrict')"
-          >
-            <b-form-checkbox
-              id="restrict"
-              v-model="model.restrict"
-              switch
-              :state="fieldState('restrict')"
-              :disabled="isBusy || modelLoadingError || viewOnly"
-            />
-            <template #invalid-feedback>
-              <div v-html="fieldError('restrict')" />
-            </template>
-          </b-form-group>
-          <b-form-group
-            v-if="model.restrict"
-            label-cols-sm="4"
-            :label="$t('app.roles')"
-            label-for="roles"
-            :state="fieldState('roles', true)"
-          >
-            <b-input-group>
+        <div class="field grid">
+          <label for="restrict" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.restrict')}}</label>
+          <div class="col-12 md:col-8">
+            <div>
+              <InputSwitch
+                id="restrict"
+                v-model="model.restrict"
+                :state="fieldState('restrict')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                aria-describedby="restrict-help"
+              />
+            </div>
+            <small id="restrict-help">{{$t('settings.room_types.restrict_description')}}</small>
+            <!--            <template #invalid-feedback>-->
+<!--              <div v-html="fieldError('restrict')" />-->
+<!--            </template>-->
+          </div>
+        </div>
+
+        <div class="field grid" v-if="model.restrict">
+          <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
+          <div class="col-12 md:col-8">
+            <InputGroup>
               <multiselect
                 id="roles"
                 ref="roles-multiselect"
@@ -215,73 +207,77 @@
                   {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
                 </template>
                 <template v-slot:tag="{ option, remove }">
-                  <h5 class="d-inline mr-1 mb-1">
-                    <b-badge variant="secondary">
+                  <h5 class="inline mr-1 mb-1">
+<!--                    ToDo no severity secondary (other options?)-->
+                    <Tag severity="warning">
                       {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
                       <span @click="remove(option)"><i
                         class="fa-solid fa-xmark"
                         :aria-label="$t('settings.users.remove_role')"
                       /></span>
-                    </b-badge>
+                    </Tag>
                   </h5>
                 </template>
                 <template #afterList>
-                  <b-button
+                  <Button
                     :disabled="rolesLoading || currentRolePage === 1"
-                    variant="outline-secondary"
+                    severity="secondary"
+                    outlined
                     @click="loadRoles(Math.max(1, currentRolePage - 1))"
                   >
                     <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
-                  </b-button>
-                  <b-button
+                  </Button>
+                  <Button
                     :disabled="rolesLoading || !hasNextRolePage"
-                    variant="outline-secondary"
+                    severity="secondary"
+                    outlined
                     @click="loadRoles(currentRolePage + 1)"
                   >
                     <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
-                  </b-button>
+                  </Button>
                 </template>
               </multiselect>
-              <b-input-group-append>
-                <b-button
+                <Button
                   v-if="rolesLoadingError"
                   ref="reloadRolesButton"
-                  variant="outline-secondary"
+                  severity="secondary"
+                  outlined
                   @click="loadRoles(currentRolePage)"
                 >
                   <i class="fa-solid fa-sync" />
-                </b-button>
-              </b-input-group-append>
-            </b-input-group>
-            <template #invalid-feedback>
-              <div v-html="fieldError('roles', true)" />
-            </template>
-          </b-form-group>
+                </Button>
+            </InputGroup>
+<!--              <template #invalid-feedback>-->
+<!--                <div v-html="fieldError('roles', true)" />-->
+<!--              </template>-->
+          </div>
+        </div>
 
           <hr>
-          <b-row class="my-1 float-right">
-            <b-col sm="12">
-              <b-button
+          <div class="grid my-1" >
+            <div class="col sm:col-12 flex justify-content-end">
+              <Button
                 :disabled="isBusy"
-                variant="secondary"
+                severity="secondary"
                 @click="$router.push({ name: 'settings.room_types' })"
               >
                 <i class="fa-solid fa-arrow-left" /> {{ $t('app.back') }}
-              </b-button>
-              <b-button
+              </Button>
+              <Button
                 v-if="!viewOnly"
                 :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
-                variant="success"
+                severity="success"
                 type="submit"
                 class="ml-1"
               >
                 <i class="fa-solid fa-save" /> {{ $t('app.save') }}
-              </b-button>
-            </b-col>
-          </b-row>
-        </b-container>
-      </b-form>
+              </Button>
+            </div>
+          </div>
+      </form>
     </b-overlay>
+
+<!--    ToDo-->
     <b-modal
       ref="stale-roomType-modal"
       :static="modalStatic"
@@ -314,6 +310,7 @@
   </div>
 </template>
 
+<!--ToDo script setup, error messages-->
 <script>
 import Base from '@/api/base';
 import FieldErrors from '@/mixins/FieldErrors';
