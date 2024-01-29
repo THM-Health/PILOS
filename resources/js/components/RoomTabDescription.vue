@@ -6,7 +6,7 @@
         severity="secondary"
         :disabled="isBusy"
         @click="edit"
-        icon="fa-solid fa-pen-square"
+        icon="fa-solid fa-edit"
         :label="$t('rooms.description.edit')"
       />
       <Button

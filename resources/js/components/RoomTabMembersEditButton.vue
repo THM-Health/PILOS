@@ -4,7 +4,7 @@
     :disabled="isBusy"
     severity="secondary"
     @click="showEditMemberModal"
-    icon="fa-solid fa-user-edit"
+    icon="fa-solid fa-edit"
   />
 
   <!-- edit user role modal -->
