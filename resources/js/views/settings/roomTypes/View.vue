@@ -30,12 +30,10 @@
               id="description"
               v-model="model.description"
               type="text"
-              :state="fieldState('description')"
+              :class="{'p-invalid': formErrors.fieldInvalid('description')}"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-<!--                <template #invalid-feedback>&ndash;&gt;-->
-                  <!--              <div v-html="fieldError('description')" />-->
-                  <!--            </template>-->
+            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
           </div>
         </div>
 
@@ -56,9 +54,10 @@
               id="color"
               v-model="model.color"
               type="text"
-              :state="fieldState('color')"
+              :class="{'p-invalid': formErrors.fieldInvalid('color')}"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
+            <p class="p-error" v-html="formErrors.fieldError('color')"></p>
           </div>
         </div>
 
@@ -81,20 +80,18 @@
               <InputSwitch
                 id="allow_listing"
                 v-model="model.allow_listing"
-                :state="fieldState('allow_listing')"
+                :class="{'p-invalid': formErrors.fieldInvalid('allow_listing')}"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 aria-describedby="allow_listing-help"
               />
-<!--              <template #invalid-feedback>-->
-<!--                <div v-html="fieldError('allow_listing')" />-->
-<!--              </template>-->
             </div>
+            <p class="p-error" v-html="formErrors.fieldError('allow_listing')"></p>
             <small id="allow_listing-help">{{$t('settings.room_types.allow_listing_description')}}</small>
           </div>
         </div>
 
         <div class="field grid">
-          <label for="server_pool" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.server_pool_description')}}</label>
+          <label for="server_pool" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('app.server_pool')}}</label>
           <div class="col-12 md:col-8">
             <InputGroup>
               <multiselect
@@ -116,7 +113,7 @@
                 :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || viewOnly"
                 :loading="serverPoolsLoading"
                 :allow-empty="false"
-                :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }"
+                :class="{ 'is-invalid': formErrors.fieldInvalid('server_pool'), 'multiselect-form-control': true }"
                 aria-describedby="server_pool-help"
               >
                 <template #noOptions>
@@ -150,10 +147,8 @@
                 <i class="fa-solid fa-sync" />
               </Button>
             </InputGroup>
-<!--            <template #invalid-feedback>-->
-<!--              <div v-html="fieldError('server_pool')" />-->
-<!--            </template>-->
-            <small id="server_pool-help">{{$t('settings.room_types.allow_listing_description')}}</small>
+            <p class="p-error" v-html="formErrors.fieldError('server_pool')"></p>
+            <small id="server_pool-help">{{$t('settings.room_types.server_pool_description')}}</small>
           </div>
         </div>
 
@@ -164,15 +159,13 @@
               <InputSwitch
                 id="restrict"
                 v-model="model.restrict"
-                :state="fieldState('restrict')"
+                :class="{'p-invalid': formErrors.fieldInvalid('restrict')}"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 aria-describedby="restrict-help"
               />
             </div>
+            <p class="p-error" v-html="formErrors.fieldError('restrict')"></p>
             <small id="restrict-help">{{$t('settings.room_types.restrict_description')}}</small>
-            <!--            <template #invalid-feedback>-->
-<!--              <div v-html="fieldError('restrict')" />-->
-<!--            </template>-->
           </div>
         </div>
 
@@ -198,7 +191,8 @@
                 :disabled="isBusy || modelLoadingError || viewOnly || rolesLoadingError"
                 :loading="rolesLoading"
                 :allow-empty="!!model.restrict"
-                :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }"
+                :class="{ 'is-invalid': formErrors.fieldError('roles'), 'multiselect-form-control': true }"
+
               >
                 <template #noOptions>
                   {{ $t('settings.roles.nodata') }}
@@ -247,9 +241,7 @@
                   <i class="fa-solid fa-sync" />
                 </Button>
             </InputGroup>
-<!--              <template #invalid-feedback>-->
-<!--                <div v-html="fieldError('roles', true)" />-->
-<!--              </template>-->
+            <p class="p-error" v-html="formErrors.fieldError('roles')"></p>
           </div>
         </div>
 
@@ -310,220 +302,211 @@
   </div>
 </template>
 
-<!--ToDo script setup, error messages-->
-<script>
-import Base from '@/api/base';
-import FieldErrors from '@/mixins/FieldErrors';
+<script setup>
 import env from '@/env';
+import { useFormErrors } from '@/composables/useFormErrors.js';
+import { useApi } from '@/composables/useApi.js';
+import {onMounted, ref} from "vue";
+import { useRouter } from 'vue-router';
+import _ from "lodash";
 import { Multiselect } from 'vue-multiselect';
-import _ from 'lodash';
-import ColorSelect from '../../../components/Inputs/ColorSelect.vue';
 
-export default {
-  components: {
-    ColorSelect,
-    Multiselect
-  },
-  mixins: [FieldErrors],
-  props: {
-    id: {
-      type: [String, Number],
+const formErrors = useFormErrors();
+const api = useApi();
+const router = useRouter();
+
+const props = defineProps({
+  id: {
+    type: [String, Number],
       required: true
-    },
+  },
 
-    viewOnly: {
-      type: Boolean,
+  viewOnly: {
+    type: Boolean,
       required: true
-    },
-
-    modalStatic: {
-      type: Boolean,
-      default: false
-    }
   },
 
-  data () {
-    return {
-      isBusy: false,
-      modelLoadingError: false,
-      errors: {},
-      staleError: {},
-      model: {
-        description: null,
-        color: env.ROOM_TYPE_COLORS[0],
-        server_pool: null,
-        allow_listing: false,
-        restrict: false,
-        roles: []
-      },
-      roles: [],
-      rolesLoading: false,
-      rolesLoadingError: false,
-      currentRolePage: 1,
-      hasNextRolePage: false,
-      colors: env.ROOM_TYPE_COLORS,
-
-      serverPoolsLoading: false,
-      serverPools: [],
-      currentPage: 1,
-      hasNextPage: false,
-      serverPoolsLoadingError: false
-    };
-  },
-
-  /**
-   * Loads the role from the backend and also a part of permissions that can be selected.
-   */
-  mounted () {
-    this.loadRoomType();
-    this.loadRoles();
-    this.loadServerPools();
-  },
-
-  methods: {
-
-    /**
-     * Load the room type from the server api
-     *
-     */
-    loadRoomType () {
-      if (this.id !== 'new') {
-        this.isBusy = true;
-
-        Base.call(`roomTypes/${this.id}`).then(response => {
-          this.model = response.data.data;
-          this.modelLoadingError = false;
-        }).catch(error => {
-          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-            this.$router.push({ name: 'settings.room_types' });
-          } else {
-            this.modelLoadingError = true;
-          }
-          Base.error(error, this.$root, error.message);
-        }).finally(() => {
-          this.isBusy = false;
-        });
-      }
-    },
-
-    /**
-     * Loads the roles for the passed page, that can be selected through the multiselect.
-     *
-     * @param [page=1] The page to load the roles for.
-     */
-    loadServerPools (page = 1) {
-      this.serverPoolsLoading = true;
-
-      const config = {
-        params: {
-          page
-        }
-      };
-
-      Base.call('serverPools', config).then(response => {
-        this.serverPoolsLoadingError = false;
-        this.serverPools = response.data.data;
-        this.currentPage = page;
-        this.hasNextPage = page < response.data.meta.last_page;
-      }).catch(error => {
-        this.$refs['server-pool-multiselect'].deactivate();
-        this.serverPoolsLoadingError = true;
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        this.serverPoolsLoading = false;
-      });
-    },
-
-    /**
-     * Saves the changes of the room type to the database by making a api call.
-     *
-     * @param evt
-     */
-    saveRoomType (evt) {
-      if (evt) {
-        evt.preventDefault();
-      }
-      this.isBusy = true;
-
-      const config = {
-        method: this.id === 'new' ? 'post' : 'put',
-        data: _.cloneDeep(this.model)
-      };
-
-      config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
-      config.data.roles = config.data.roles.map(role => role.id);
-
-      Base.call(this.id === 'new' ? 'roomTypes' : `roomTypes/${this.id}`, config).then(() => {
-        this.errors = {};
-        this.$router.push({ name: 'settings.room_types' });
-      }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.errors = error.response.data.errors;
-        } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-          // handle stale errors
-          this.staleError = error.response.data;
-          this.$refs['stale-roomType-modal'].show();
-        } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          Base.error(error, this.$root, error.message);
-          this.$router.push({ name: 'settings.room_types' });
-        } else {
-          Base.error(error, this.$root, error.message);
-        }
-      }).finally(() => {
-        this.isBusy = false;
-      });
-    },
-
-    /**
-     * Force a overwrite of the user in the database by setting the `updated_at` field to the new one.
-     */
-    forceOverwrite () {
-      this.model.updated_at = this.staleError.new_model.updated_at;
-      this.staleError = {};
-      this.$refs['stale-roomType-modal'].hide();
-      this.saveRoomType();
-    },
-
-    /**
-     * Refreshes the current model with the new passed from the stale error response.
-     */
-    refreshRoomType () {
-      this.model = this.staleError.new_model;
-      this.staleError = {};
-      this.$refs['stale-roomType-modal'].hide();
-    },
-
-    /**
-     * Loads the roles for the passed page, that can be selected through the multiselect.
-     *
-     * @param [page=1] The page to load the roles for.
-     */
-    loadRoles (page = 1) {
-      this.rolesLoading = true;
-
-      const config = {
-        params: {
-          page
-        }
-      };
-
-      Base.call('roles', config).then(response => {
-        this.rolesLoadingError = false;
-        this.roles = response.data.data;
-        this.currentRolePage = page;
-        this.hasNextRolePage = page < response.data.meta.last_page;
-      }).catch(error => {
-        this.$refs['roles-multiselect'].deactivate();
-        this.rolesLoadingError = true;
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        this.rolesLoading = false;
-      });
-    }
+  modalStatic: {
+    type: Boolean,
+  default: false
   }
-};
+});
+
+const isBusy = ref(false);
+const model = ref({
+  description:null,
+  color:env.ROOM_TYPE_COLORS[0],
+  server_pool: null,
+  allow_listing: false,
+  restrict: false,
+  roles: []
+});
+const roles = ref([]);
+const rolesLoading = ref(false);
+const currentRolePage = ref(1);
+const hasNextRolePage = ref(false);
+const colors = env.ROOM_TYPE_COLORS;
+
+const serverPoolsLoading = ref(false);
+const serverPools = ref([]);
+const currentPage = ref(1);
+const hasNextPage = ref(false);
+
+const rolesLoadingError = ref(false);
+const modelLoadingError = ref(false);
+const staleError = ref({});
+const serverPoolsLoadingError = ref(false);
+const errors = ref({});
+
+//Todo
+const serverPoolMultiselect = ref(null);
+const rolesMultiselect = ref(null);
+
+/**
+ * Loads the role from the backend and also a part of permissions that can be selected.
+ */
+onMounted(() =>{
+  loadRoomType();
+  loadRoles();
+  loadServerPools();
+});
+
+/**
+ * Load the room type from the server api
+ *
+ */
+function loadRoomType(){
+  if (props.id !== 'new') {
+    isBusy.value = true;
+
+    api.call(`roomTypes/${props.id}`).then(response => {
+      model.value = response.data.data;
+      modelLoadingError.value = false;
+    }).catch(error => {
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        router.push({ name: 'settings.room_types' });
+      } else {
+        modelLoadingError.value = true;
+      }
+      api.error(error);
+    }).finally(() => {
+      isBusy.value = false;
+    });
+  }
+}
+
+/**
+ * Loads the roles for the passed page, that can be selected through the multiselect.
+ *
+ * @param [page=1] The page to load the roles for.
+ */
+function loadServerPools (page = 1){
+  serverPoolsLoading.value = true;
+
+  const config = {
+    params: {
+      page
+    }
+  };
+
+  api.call('serverPools', config).then(response => {
+    serverPoolsLoadingError.value = false;
+    serverPools.value = response.data.data;
+    currentPage.value = page;
+    hasNextPage.value = page < response.data.meta.last_page;
+  }).catch(error => {
+    serverPoolMultiselect.value.deactivate();
+    serverPoolsLoadingError.value = true;
+    api.error(error);
+  }).finally(() => {
+    serverPoolsLoading.value = false;
+  });
+}
+
+/**
+ * Saves the changes of the room type to the database by making a api call.
+ *
+ * @param evt
+ */
+function saveRoomType(evt){
+  if (evt) {
+    evt.preventDefault();
+  }
+  isBusy.value = true;
+
+  const config = {
+    method: props.id === 'new' ? 'post' : 'put',
+    data: _.cloneDeep(model.value)
+  };
+
+  config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
+  config.data.roles = config.data.roles.map(role => role.id);
+
+  api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then(() => {
+    formErrors.clear();
+    router.push({ name: 'settings.room_types' });
+  }).catch(error => {
+    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      formErrors.set(error.response.data.errors);
+    } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+      // handle stale errors
+      staleError.value = error.response.data;
+      this.$refs['stale-roomType-modal'].show();
+    } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+      api.error(error);
+      router.push({ name: 'settings.room_types' });
+    } else {
+      api.error(error);
+    }
+  }).finally(() => {
+    isBusy.value = false;
+  });
+}
+
+/**
+ * Force a overwrite of the user in the database by setting the `updated_at` field to the new one.
+ */
+function forceOverwrite(){
+  model.value.updated_at = staleError.value.new_model.updated_at;
+  staleError.value = {};
+  this.$refs['stale-roomType-modal'].hide();
+  saveRoomType();
+}
+
+/**
+ * Refreshes the current model with the new passed from the stale error response.
+ */
+function refreshRoomType(){
+  model.value = staleError.value.new_model;
+  staleError.value = {};
+  this.$refs['stale-roomType-modal'].hide();
+}
+
+/**
+ * Loads the roles for the passed page, that can be selected through the multiselect.
+ *
+ * @param [page=1] The page to load the roles for.
+ */
+function loadRoles (page=1){
+  rolesLoading.value = true;
+
+  const config = {
+    params: {
+      page
+    }
+  };
+
+  api.call('roles', config).then(response => {
+    rolesLoadingError.value = false;
+    roles.value = response.data.data;
+    currentRolePage.value = page;
+    hasNextRolePage.value = page < response.data.meta.last_page;
+  }).catch(error => {
+    rolesMultiselect.value.deactivate();
+    rolesLoadingError.value = true;
+    api.error(error);
+  }).finally(() => {
+    rolesLoading.value = false;
+  });
+}
 </script>
-
-<style scoped>
-
-</style>
