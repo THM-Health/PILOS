@@ -28,93 +28,89 @@
             icon="fa-solid fa-sync"
           />
         </div>
-        </div>
-      <div class="grid pt-4">
-        <div class="col-12">
-          <!-- table with all room members -->
-          <DataTable
-            ref="membersTable"
-            :totalRecords="meta.total"
-            :rows="meta.per_page"
-            :value="members"
-            lazy
-            v-model:selection="selectedMembers"
-            dataKey="id"
-            paginator
-            :loading="isBusy"
-            rowHover
-            v-model:sortField="sortField"
-            v-model:sortOrder="sortOrder"
-            @page="onPage"
-            @sort="onSort"
-            :select-all="selectableMembers === selectedMembers.length && selectableMembers > 0"
-            @select-all-change="toggleSelectAll"
-          >
-            <template #empty>
-              <i>{{ $t('rooms.members.nodata') }}</i>
-            </template>
-
-            <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">
-              <template #body="slotProps">
-                <Checkbox
-                  v-if="authStore.currentUser && authStore.currentUser.id !== slotProps.data.id"
-                  :model-value="isRowSelected(slotProps.data)"
-                  @input="(selected) => onRowSelected(slotProps.data, selected)"
-                  :binary="true"
-                />
-              </template>
-            </Column>
-            <Column field="image" :header="$t('rooms.members.image')">
-              <!-- render user profile image -->
-              <template #body="slotProps">
-                <img
-                  :src="slotProps.data.image ? slotProps.data.image : '/images/default_profile.png'"
-                  class="profile-image"
-                >
-              </template>
-            </Column>
-            <Column field="firstname" sortable :header="$t('app.firstname')"></Column>
-            <Column field="lastname" sortable :header="$t('app.lastname')"></Column>
-            <Column field="email" sortable :header="$t('app.email')"></Column>
-            <Column field="role" sortable :header="$t('rooms.role')">
-              <!-- render user role -->
-              <template #body="slotProps">
-                <RoomRoleBadge
-                  :role="slotProps.data.role"
-                />
-              </template>
-            </Column>
-            <Column :header="$t('app.actions')" v-if="userPermissions.can('manageSettings', props.room)">
-              <template #body="slotProps">
-                <span
-                  v-if="authStore.currentUser?.id !== slotProps.data.id"
-                  class="flex gap-2"
-                >
-                  <!-- edit membership role -->
-                  <RoomTabMembersEditButton
-                    :room-id="props.room.id"
-                    :firstname="slotProps.data.firstname"
-                    :lastname="slotProps.data.lastname"
-                    :role="slotProps.data.role"
-                    :user-id="slotProps.data.id"
-                    :disabled="isBusy"
-                    @edited="loadData"
-                  />
-                  <!-- remove member -->
-                  <RoomTabMembersDeleteButton
-                    :room-id="props.room.id"
-                    :firstname="slotProps.data.firstname"
-                    :lastname="slotProps.data.lastname"
-                    :user-id="slotProps.data.id"
-                    :disabled="isBusy"
-                    @deleted="loadData"
-                  />
-                </span>
-              </template>
-            </Column>
-          </DataTable>
-        </div>
       </div>
+      <!-- table with room members -->
+      <DataTable
+        class="mt-4"
+        :totalRecords="meta.total"
+        :rows="meta.per_page"
+        :value="members"
+        lazy
+        v-model:selection="selectedMembers"
+        dataKey="id"
+        paginator
+        :loading="isBusy"
+        rowHover
+        v-model:sortField="sortField"
+        v-model:sortOrder="sortOrder"
+        @page="onPage"
+        @sort="onSort"
+        :select-all="selectableMembers === selectedMembers.length && selectableMembers > 0"
+        @select-all-change="toggleSelectAll"
+      >
+        <template #empty>
+          <i>{{ $t('rooms.members.nodata') }}</i>
+        </template>
+
+        <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">
+          <template #body="slotProps">
+            <Checkbox
+              v-if="authStore.currentUser && authStore.currentUser.id !== slotProps.data.id"
+              :model-value="isRowSelected(slotProps.data)"
+              @input="(selected) => onRowSelected(slotProps.data, selected)"
+              :binary="true"
+            />
+          </template>
+        </Column>
+        <Column field="image" :header="$t('rooms.members.image')">
+          <!-- render user profile image -->
+          <template #body="slotProps">
+            <img
+              :src="slotProps.data.image ? slotProps.data.image : '/images/default_profile.png'"
+              class="profile-image"
+            >
+          </template>
+        </Column>
+        <Column field="firstname" sortable :header="$t('app.firstname')"></Column>
+        <Column field="lastname" sortable :header="$t('app.lastname')"></Column>
+        <Column field="email" sortable :header="$t('app.email')"></Column>
+        <Column field="role" sortable :header="$t('rooms.role')">
+          <!-- render user role -->
+          <template #body="slotProps">
+            <RoomRoleBadge
+              :role="slotProps.data.role"
+            />
+          </template>
+        </Column>
+        <Column :header="$t('app.actions')" v-if="userPermissions.can('manageSettings', props.room)">
+          <template #body="slotProps">
+            <div
+              v-if="authStore.currentUser?.id !== slotProps.data.id"
+              class="flex gap-2"
+            >
+              <!-- edit membership role -->
+              <RoomTabMembersEditButton
+                :room-id="props.room.id"
+                :firstname="slotProps.data.firstname"
+                :lastname="slotProps.data.lastname"
+                :role="slotProps.data.role"
+                :user-id="slotProps.data.id"
+                :disabled="isBusy"
+                @edited="loadData"
+              />
+              <!-- remove member -->
+              <RoomTabMembersDeleteButton
+                :room-id="props.room.id"
+                :firstname="slotProps.data.firstname"
+                :lastname="slotProps.data.lastname"
+                :user-id="slotProps.data.id"
+                :disabled="isBusy"
+                @deleted="loadData"
+              />
+            </div>
+          </template>
+        </Column>
+      </DataTable>
       <!-- selected rows action buttons -->
       <div class="flex gap-2" v-if="selectedMembers.length > 0">
         <!-- bulk edit membership role -->

@@ -1,17 +1,18 @@
 <template>
+  <!-- button -->
   <Button
-    v-tooltip="$t('rooms.members.edit_user')"
-    :disabled="isBusy"
     severity="secondary"
-    @click="showEditMemberModal"
+    :disabled="disabled"
+    @click="showEditModal"
     icon="fa-solid fa-edit"
+    v-tooltip="$t('rooms.tokens.edit')"
   />
 
-  <!-- edit user role modal -->
+  <!-- modal -->
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('rooms.members.modals.edit.title',{firstname: props.firstname,lastname: props.lastname})"
+    :header="$t('rooms.tokens.edit')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -24,8 +25,30 @@
       <div class="flex justify-content-end gap-2">
         <Button :label="$t('app.cancel')" outlined @click="showModal = false" :disabled="isLoadingAction" />
         <Button :label="$t('app.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
-        </div>
+      </div>
     </template>
+
+    <!-- first name -->
+    <div class="flex flex-column gap-2 mt-4">
+      <label for="firstname">{{ $t('app.firstname') }}</label>
+      <InputText
+        id="firstname"
+        v-model.trim="newFirstname"
+        :class="{ 'p-invalid': formErrors.fieldInvalid('firstname') }"
+      />
+      <p class="p-error" v-html="formErrors.fieldError('firstname')" />
+    </div>
+
+    <!-- last name -->
+    <div class="flex flex-column gap-2 mt-4">
+      <label for="lastname">{{ $t('app.lastname') }}</label>
+      <InputText
+        id="lastname"
+        v-model.trim="newLastname"
+        :class="{ 'p-invalid': formErrors.fieldInvalid('lastname') }"
+      />
+      <p class="p-error" v-html="formErrors.fieldError('lastname')" />
+    </div>
 
     <!-- select role -->
     <div class="flex flex-column gap-2 mt-4">
@@ -41,83 +64,78 @@
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
-      <div class="flex align-items-center">
-        <RadioButton v-model="newRole" inputId="participant-co_owner" name="role" :value="3" />
-        <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
-      </div>
-
       <p class="p-error" v-html="formErrors.fieldError('role')" />
     </div>
   </Dialog>
 </template>
+
 <script setup>
-import env from '@/env';
+
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';
+import env from '../env.js';
 
 const props = defineProps([
   'roomId',
-  'userId',
+  'token',
   'firstname',
   'lastname',
   'role',
-  'isBusy'
+  'disabled'
 ]);
 
-const emit = defineEmits(['edited']);
+const emit = defineEmits(['added']);
 
 const api = useApi();
 const formErrors = useFormErrors();
 
 const showModal = ref(false);
+const newFirstname = ref(null);
+const newLastname = ref(null);
 const newRole = ref(null);
 const isLoadingAction = ref(false);
 
 /**
- * show modal to edit user role
+ * show modal
  */
-function showEditMemberModal () {
+function showEditModal () {
+  newFirstname.value = props.firstname;
+  newLastname.value = props.lastname;
   newRole.value = props.role;
   formErrors.clear();
   showModal.value = true;
 }
 
 /**
- * Save new user role
+ * Sends a request to the server to create a new token or edit a existing.
  */
 function save () {
   isLoadingAction.value = true;
-
-  // reset previous error messages
   formErrors.clear();
 
-  api.call('rooms/' + props.roomId + '/member/' + props.userId, {
+  const config = {
     method: 'put',
-    data: { role: newRole.value }
-  }).then(response => {
+    data: {
+      firstname: newFirstname.value,
+      lastname: newLastname.value,
+      role: newRole.value
+    }
+  };
+
+  api.call(`rooms/${props.roomId}/tokens/${props.token}`, config).then(response => {
     // operation successful, close modal and reload list
     showModal.value = false;
     emit('edited');
-  }).catch((error) => {
-    // editing failed
-    if (error.response) {
-      // user not found
-      if (error.response.status === env.HTTP_GONE) {
-        showModal.value = false;
-        emit('edited');
-        return;
-      }
-      // failed due to form validation errors
-      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-        formErrors.set(error.response.data.errors);
-        return;
-      }
+  }).catch(error => {
+    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      formErrors.set(error.response.data.errors);
+    } else {
+      api.error(error);
     }
-    showModal.value = false;
-    api.error(error);
   }).finally(() => {
     isLoadingAction.value = false;
   });
 }
+
 </script>
