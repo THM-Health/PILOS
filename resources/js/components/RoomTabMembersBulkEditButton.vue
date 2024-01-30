@@ -1,7 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('rooms.members.bulk_edit_user',{numberOfSelectedUsers: props.userIds.length})"
-    :disabled="isBusy"
+    :disabled="disabled"
     severity="secondary"
     @click="showBulkEditMembersModal"
     icon="fa-solid fa-users-cog"
@@ -59,7 +59,7 @@ import { ref } from 'vue';
 const props = defineProps([
   'roomId',
   'userIds',
-  'isBusy'
+  'disabled'
 ]);
 
 const emit = defineEmits(['edited']);

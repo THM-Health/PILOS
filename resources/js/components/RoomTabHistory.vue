@@ -1,505 +1,140 @@
 <template>
   <div>
-    <b-overlay :show="meetingsLoadingError">
-      <!-- Overlay on loading and errors -->
-      <template #overlay>
-        <div class="text-center my-2">
-          <b-spinner v-if="meetingsLoading" />
-          <b-button
-            v-else
-            @click="$root.$emit('bv::refresh::table', 'meetings-table')"
-          >
-            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
-          </b-button>
-        </div>
+
+    <div class="flex flex-wrap gap-2 justify-content-end flex-row">
+      <!-- Reload list -->
+      <div class="flex justify-content-end">
+        <Button
+          v-tooltip="$t('app.reload')"
+          severity="secondary"
+          :disabled="isBusy"
+          @click="loadData"
+          icon="fa-solid fa-sync"
+        />
+      </div>
+    </div>
+
+    <!-- List of all meetings -->
+    <DataTable
+      class="mt-4"
+      :totalRecords="meta.total"
+      :rows="meta.per_page"
+      :value="meetings"
+      dataKey="id"
+      paginator
+      :loading="isBusy"
+      rowHover
+      scrollable
+      lazy
+      @page="onPage"
+    >
+      <template #empty>
+        <i>{{ $t('meetings.no_historical_data') }}</i>
       </template>
 
-      <div class="row">
-        <div class="col-12">
-          <!-- Reload meetings list -->
-          <b-button
-            v-b-tooltip.hover
-            class="float-right"
-            variant="secondary"
-            :disabled="meetingsLoading"
-            :title="$t('app.reload')"
-            @click="$root.$emit('bv::refresh::table', 'meetings-table')"
-          >
-            <i class="fa-solid fa-sync" />
-          </b-button>
-        </div>
-      </div>
-
-      <!-- List of all meetings -->
-      <div class="row pt-4">
-        <div class="col-12">
-          <b-table
-            id="meetings-table"
-            ref="meetings"
-            fixed
-            hover
-            stacked="lg"
-            :show-empty="!meetingsLoadingError"
-            v-model:busy="meetingsLoading"
-            :fields="meetingsTableFields"
-            :items="fetchMeetings"
-            :current-page="meetingsMeta.current_page"
-          >
-            <template #empty>
-              <i>{{ $t('meetings.no_historical_data') }}</i>
-            </template>
-
-            <template #table-busy>
-              <div
-                v-if="!meetingsLoadingError"
-                class="text-center my-2"
-              >
-                <b-spinner class-name="align-middle" />
-              </div>
-            </template>
-
-            <template #cell(start)="data">
-              {{ $d(new Date(data.item.start),'datetimeShort') }}
-            </template>
-
-            <template #cell(end)="data">
-              {{ data.item.end == null ? $t('meetings.now') : $d(new Date(data.item.end),'datetimeShort') }}
-            </template>
-
-            <template #cell(actions)="data">
-              <b-button
-                v-if="data.item.statistical"
-                v-b-tooltip.hover
-                :title="$t('meetings.view_meeting_stats')"
-                :disabled="meetingsLoading || statsLoading || attendanceLoading"
-                variant="info"
-                @click="loadMeetingStats(data.item)"
-              >
-                <i class="fa-solid fa-chart-line" />
-              </b-button>
-              <b-button
-                v-if="data.item.attendance && data.item.end != null"
-                v-b-tooltip.hover
-                :title="$t('meetings.attendance.view')"
-                :disabled="meetingsLoading || statsLoading || attendanceLoading"
-                variant="info"
-                @click="loadMeetingAttendance(data.item)"
-              >
-                <i class="fa-solid fa-user-clock" />
-              </b-button>
-            </template>
-          </b-table>
-          <b-pagination
-            v-model="meetingsMeta.current_page"
-            :total-rows="meetingsMeta.total"
-            :per-page="meetingsMeta.per_page"
-            aria-controls="meetings-table"
-            align="center"
-            :disabled="meetingsLoading || meetingsLoadingError"
-            @input="$root.$emit('bv::refresh::table', 'meetings-table')"
-          />
-
-          <div
-            v-if="getSetting('attendance.enabled') || getSetting('statistics.meetings.enabled')"
-            id="retentionPeriodInfo"
-          >
-            <hr>
-            <b>{{ $t('meetings.retention_period') }}</b><br>
-            <span v-if="getSetting('statistics.meetings.enabled')">{{ $t('meetings.stats.retention_period', {'days': getSetting('statistics.meetings.retention_period')}) }}</span><br>
-            <span v-if="getSetting('attendance.enabled')">{{ $t('meetings.attendance.retention_period', {'days': getSetting('attendance.retention_period')}) }}</span><br>
-          </div>
-        </div>
-      </div>
-
-      <!-- Statistics modal -->
-      <b-modal
-        id="statsModal"
-        :static="modalStatic"
-        size="xl"
-        hide-footer
-      >
-        <template #modal-title>
-          <h5 v-if="statsMeeting">
-            {{ $t('meetings.stats.modal_title',{room: room.name }) }}
-            <br><small>{{ $d(new Date(statsMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d(new Date(statsMeeting.end),'datetimeShort') }}</small>
-          </h5>
+      <Column field="start" :header="$t('meetings.start')">
+        <template #body="slotProps">
+          {{ $d(new Date(slotProps.data.start),'datetimeShort') }}
         </template>
-        <b-alert
-          show
-          variant="info"
-        >
-          <i class="fa-solid fa-info-circle" /> {{ $t('meetings.stats.no_breakout_support') }}
-        </b-alert>
+      </Column>
 
-        <line-chart
-          v-if="statsMeeting"
-          :data="chartData"
-          :options="chartOptions"
-        />
-      </b-modal>
-      <!-- Attendance modal -->
-      <b-modal
-        id="attendanceModal"
-        :static="modalStatic"
-        size="xl"
-        hide-footer
-        title-tag="div"
-        title-class="w-full"
+      <Column field="end" :header="$t('meetings.end')">
+        <template #body="slotProps">
+          {{ slotProps.data.end == null ? $t('meetings.now') : $d(new Date(slotProps.data.end),'datetimeShort') }}
+        </template>
+      </Column>
+      <Column
+        :header="$t('app.actions')"
+        class="action-column"
+        v-if="settingsStore.getSetting('attendance.enabled') || settingsStore.getSetting('statistics.meetings.enabled')"
       >
-        <template #modal-title>
-          <div class="flex justify-content-between align-items-center">
-            <h5 v-if="attendanceMeeting">
-              {{ $t('meetings.attendance.modal_title',{room: room.name}) }}
-              <br><small>{{ $d(new Date(attendanceMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(attendanceMeeting.end),'datetimeShort') }}</small>
-            </h5>
-            <div v-if="attendanceMeeting">
-              <b-button
-                target="_blank"
-                :href="'/download/attendance/'+attendanceMeeting.id"
-              >
-                <i class="fa-solid fa-file-excel" /> {{ $t('meetings.attendance.download') }}
-              </b-button>
-            </div>
+        <template #body="slotProps">
+          <div class="flex flex-row gap-2">
+            <RoomTabHistoryStatisticButton
+              v-if="slotProps.data.statistical"
+              :room-id="props.room.id"
+              :meeting-id="slotProps.data.id"
+              :start="slotProps.data.start"
+              :end="slotProps.data.end"
+              :room-name="props.room.name"
+            />
+            <RoomTabHistoryAttendanceButton
+              v-if="slotProps.data.attendance && slotProps.data.end != null"
+              :room-id="props.room.id"
+              :meeting-id="slotProps.data.id"
+              :start="slotProps.data.start"
+              :end="slotProps.data.end"
+              :room-name="props.room.name"
+            />
           </div>
         </template>
-        <b-alert
-          show
-          variant="info"
-        >
-          <i class="fa-solid fa-info-circle" /> {{ $t('meetings.attendance.no_breakout_support') }}
-        </b-alert>
-
-        <b-table
-          v-if="attendance"
-          id="attendance-table"
-          :current-page="attendanceCurrentPage"
-          :per-page="getSetting('pagination_page_size')"
-          :fields="attendanceTableFields"
-          sort-by="name"
-          :items="attendance"
-          hover
-          stacked="md"
-          show-empty
-        >
-          <!-- Show message on empty attendance list -->
-          <template #empty>
-            <i>{{ $t('meetings.attendance.nodata') }}</i>
-          </template>
-
-          <template #cell(email)="data">
-            {{ data.item.email || "---" }}
-          </template>
-
-          <template #cell(duration)="data">
-            {{ $t('meetings.attendance.duration_minute',{duration: data.item.duration}) }}
-          </template>
-
-          <template #cell(sessions)="data">
-            <p
-              v-for="session in data.item.sessions"
-              :key="session.id"
-            >
-              {{ $d(new Date(session.join),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(session.leave),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.duration_minute',{duration: session.duration}) }}<raw-text>)</raw-text>
-            </p>
-          </template>
-        </b-table>
-        <b-pagination
-          v-if="attendance.length>getSetting('pagination_page_size')"
-          v-model="attendanceCurrentPage"
-          :total-rows="attendance.length"
-          :per-page="getSetting('pagination_page_size')"
-          aria-controls="attendance-table"
-          align="center"
-        />
-      </b-modal>
-    </b-overlay>
+      </Column>
+    </DataTable>
+    <div
+      v-if="settingsStore.getSetting('attendance.enabled') || settingsStore.getSetting('statistics.meetings.enabled')"
+      id="retentionPeriodInfo"
+    >
+      <Divider/>
+      <b>{{ $t('meetings.retention_period') }}</b><br>
+      <span v-if="settingsStore.getSetting('statistics.meetings.enabled')">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('statistics.meetings.retention_period')}) }}</span><br>
+      <span v-if="settingsStore.getSetting('attendance.enabled')">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('attendance.retention_period')}) }}</span><br>
+    </div>
   </div>
 </template>
 
-<script>
-import Base from '@/api/base';
-import { Line } from 'vue-chartjs';
-import RawText from '@/components/RawText.vue';
-import env from '@/env';
-import { mapState } from 'pinia';
+<script setup>
 import { useSettingsStore } from '@/stores/settings';
-import { Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale } from 'chart.js';
-import 'chartjs-adapter-date-fns';
+import { useApi } from '../composables/useApi.js';
+import { onMounted, ref } from 'vue';
 
-ChartJS.register(Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale);
+const props = defineProps({
+  room: Object
+});
 
-export default {
-  name: 'HistoryComponent',
+const api = useApi();
+const settingsStore = useSettingsStore();
 
-  components: { RawText, LineChart: Line },
-  props: {
-    room: Object,
-    modalStatic: {
-      type: Boolean,
-      default: false
+const meetings = ref([]);
+const isBusy = ref(false);
+const currentPage = ref(1);
+const meta = ref({
+  current_page: 0,
+  from: 0,
+  last_page: 0,
+  per_page: 0,
+  to: 0,
+  total: 0
+});
+
+/**
+ * Loads the current and previous meetings of a given room
+ */
+function loadData () {
+  isBusy.value = true;
+
+  const config = {
+    params: {
+      page: currentPage.value
     }
-  },
+  };
 
-  data () {
-    return {
-      // list of meetings
-      meetingsLoading: false,
-      meetingsLoadingError: false,
-      meetingsMeta: {
-        current_page: undefined,
-        total: undefined,
-        per_page: undefined
-      },
+  api.call('rooms/' + props.room.id + '/meetings', config).then(response => {
+    meetings.value = response.data.data;
+    meta.value = response.data.meta;
+  }).catch(error => {
+    api.error(error);
+  }).finally(() => {
+    isBusy.value = false;
+  });
+}
 
-      // statistics of meeting
-      statsLoading: false,
-      statsMeeting: null,
-      chartDataRows: {
-        participants: [],
-        voices: [],
-        videos: []
-      },
+function onPage (event) {
+  currentPage.value = event.page + 1;
+  loadData();
+}
 
-      // attendance of meeting
-      attendanceLoading: false,
-      attendanceMeeting: null,
-      attendance: [],
-      attendanceCurrentPage: 1
-    };
-  },
-  methods: {
-    /**
-     * Loads the current and previous meetings of a given room and calls on finish the callback function.
-     *
-     * @param ctx Context information e.g. the current the page.
-     * @param callback
-     * @return {null}
-     */
-    fetchMeetings (ctx, callback) {
-      let data = [];
-
-      const config = {
-        params: {
-          page: ctx.currentPage
-        }
-      };
-
-      Base.call('rooms/' + this.room.id + '/meetings', config).then(response => {
-        this.meetingsMeta = response.data.meta;
-        data = response.data.data;
-        this.meetingsLoadingError = false;
-      }).catch(error => {
-        this.meetingsLoadingError = true;
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        callback(data);
-      });
-
-      return null;
-    },
-
-    /**
-     * Load statistics for given meeting
-     * @param meeting
-     */
-    loadMeetingStats (meeting) {
-      // enable loading indicator
-      this.statsLoading = true;
-      Base.call('meetings/' + meeting.id + '/stats')
-        .then(response => {
-          // set currentMeeting to the fetched meeting to show meeting start and end in modal
-          this.statsMeeting = meeting;
-
-          // parse statistical data to format that can be used by the computed property chartData
-          this.chartDataRows = {
-            participants: [],
-            voices: [],
-            videos: []
-          };
-          response.data.data.forEach(stat => {
-            const datetime = stat.created_at;
-            this.chartDataRows.participants.push({ x: datetime, y: stat.participant_count });
-            this.chartDataRows.voices.push({ x: datetime, y: stat.voice_participant_count });
-            this.chartDataRows.videos.push({ x: datetime, y: stat.video_count });
-          });
-
-          // show modal
-          this.$bvModal.show('statsModal');
-        }).catch((error) => {
-          // error during stats loading
-          Base.error(error, this.$root);
-        }).finally(() => {
-          // disable loading indicator
-          this.statsLoading = false;
-        });
-    },
-
-    /**
-     * Load attendance for given meeting
-     * @param meeting
-     */
-    loadMeetingAttendance (meeting) {
-      this.attendanceLoading = true;
-      Base.call('meetings/' + meeting.id + '/attendance')
-        .then(response => {
-          // set currentMeeting to the fetched meeting to show meeting start and end in modal
-          this.attendanceMeeting = meeting;
-          // set attendance data
-          this.attendance = response.data.data;
-          // show modal
-          this.$bvModal.show('attendanceModal');
-        }).catch((error) => {
-          Base.error(error, this.$root);
-        }).finally(() => {
-          this.attendanceLoading = false;
-        });
-    }
-  },
-  computed: {
-
-    ...mapState(useSettingsStore, ['getSetting']),
-
-    // table fields of meetings table
-    meetingsTableFields () {
-      const table = [
-        { key: 'start', label: this.$t('meetings.start'), sortable: false },
-        { key: 'end', label: this.$t('meetings.end'), sortable: false }
-      ];
-
-      if (this.getSetting('attendance.enabled') || this.getSetting('statistics.meetings.enabled')) {
-        table.push({ key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'action-column' });
-      }
-
-      return table;
-    },
-
-    // table fields of attendance table
-    attendanceTableFields () {
-      return [
-        {
-          key: 'name',
-          label: this.$t('app.user_name'),
-          sortable: true
-        },
-        {
-          key: 'email',
-          label: this.$t('app.email'),
-          sortable: true
-        },
-        {
-          key: 'duration',
-          label: this.$t('meetings.attendance.duration'),
-          sortable: true
-        },
-        {
-          key: 'sessions',
-          label: this.$t('meetings.attendance.sessions'),
-          sortable: false
-        }
-      ];
-    },
-
-    // chart options for chart.js display of meeting statistics
-    chartOptions () {
-      return {
-        responsive: true,
-        animation: false,
-        scales: {
-          x: {
-            type: 'time',
-            time: {
-              round: true,
-              unit: 'minute',
-              displayFormats: {
-                second: 'MMM YYYY'
-              }
-            },
-            display: true,
-            title: {
-              display: true,
-              text: this.$t('meetings.stats.time')
-            },
-            ticks: {
-              major: {
-                enabled: true
-              },
-              color: (context) => context.tick && context.tick.major && '#FF0000',
-              font: function (context) {
-                if (context.tick && context.tick.major) {
-                  return {
-                    weight: 'bold'
-                  };
-                }
-              },
-              /**
-               * Callback to set the ticks label of the x-axes
-               * @param label the tick value in the internal data format of the associated scale
-               * @param index the tick index in the ticks array
-               * @param ticks the array containing all the tick objects
-               * @return {string} Localised human-readable string with the timezone of the user
-               */
-              callback: (label, index, ticks) => {
-                // get value of the current tick that is the unix timestamp chart-js parsed from the ISO 8601 datetime string
-                return this.$d(ticks[index].value, 'time');
-              }
-            }
-          },
-          y: {
-            title: {
-              display: true,
-              text: this.$t('meetings.stats.amount')
-            }
-          }
-        },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              /**
-               * Callback to set the title of the tooltip (hover on datapoint)
-               * @param data Array with charts x-y data of this datapoint
-               * @return {string} Localised human-readable string with the timezone of the user
-               */
-              title: (data) => {
-                // get x-coordinate of the first dataset (all have the same label) that is the unix timestamp
-                return this.$d(data[0].parsed.x, 'datetimeShort');
-              }
-            }
-          }
-        }
-      };
-    },
-
-    // chart datasets for chart.js display of meeting statistics
-    chartData () {
-      return {
-        datasets: [{
-          label: this.$t('meetings.stats.participants'),
-          backgroundColor: env.HISTORY_PARTICIPANT_COLOR,
-          borderColor: env.HISTORY_PARTICIPANT_COLOR,
-          fill: false,
-          cubicInterpolationMode: 'monotone',
-          data: this.chartDataRows.participants
-        },
-        {
-          label: this.$t('meetings.stats.voices'),
-          backgroundColor: env.HISTORY_VOICES_COLOR,
-          borderColor: env.HISTORY_VOICES_COLOR,
-          fill: false,
-          cubicInterpolationMode: 'monotone',
-          data: this.chartDataRows.voices
-        },
-        {
-          label: this.$t('meetings.stats.videos'),
-          backgroundColor: env.HISTORY_VIDEOS_COLOR,
-          borderColor: env.HISTORY_VIDEOS_COLOR,
-          fill: false,
-          cubicInterpolationMode: 'monotone',
-          data: this.chartDataRows.videos
-        }]
-      };
-    }
-
-  }
-};
+onMounted(() => {
+  loadData();
+});
 </script>
 <style scoped></style>

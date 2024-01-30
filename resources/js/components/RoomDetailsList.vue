@@ -1,5 +1,8 @@
 <template>
-  <div class="room-details">
+  <div
+    class="flex flex-column gap-2"
+    :class="{ 'md:flex-row': props.inline }"
+  >
     <!--owner name-->
     <div class="flex">
       <div class="room-details__icon">
@@ -12,7 +15,7 @@
     <!--short description-->
     <div
       v-if="props.room.short_description && props.showDescription"
-      class="flex mt-2"
+      class="flex"
     >
       <div class="room-details__icon">
         <i class="fa-solid fa-info-circle" />
@@ -22,7 +25,7 @@
       </div>
     </div>
     <!--last meeting info (never started, last ran till, running since)-->
-    <div class="flex mt-2">
+    <div class="flex">
       <div class="room-details__icon">
         <i class="fa-solid fa-clock" />
       </div>
@@ -35,7 +38,7 @@
     <!--participant count -->
     <div
       v-if="props.room.last_meeting && props.room.last_meeting.usage"
-      class="flex justify-content-start mt-2"
+      class="flex justify-content-start"
     >
       <div class="room-details__icon">
         <i class="fa-solid fa-users" />
@@ -50,6 +53,10 @@
 
 const props = defineProps({
   room: Object,
+  inline: {
+    type: Boolean,
+    default: false
+  },
   showDescription: {
     type: Boolean,
     default: false

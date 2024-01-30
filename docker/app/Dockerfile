@@ -34,9 +34,10 @@ RUN chmod +x /usr/local/bin/install-php-extensions \
 # Change www-data user and group id
 RUN apk add --no-cache --virtual .mod-deps shadow \
   && usermod -d /var/www www-data \
-  && chown www-data:www-data /var/www/ \
   && usermod -u $WWWUSER www-data \
   && groupmod -o -g $WWWGROUP www-data \
+  && chown www-data:www-data /var/www/ \
+  && chown www-data:www-data -R /var/lib/nginx/ \
   && apk del .mod-deps
 
 # Copy entrypoint

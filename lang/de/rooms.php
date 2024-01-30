@@ -89,6 +89,7 @@ return [
         'remove' => 'Aus Favoriten entfernen'
     ],
     'files' => [
+        'browse'         => 'Durchsuchen',
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
         'default'        => 'Standard',
         'delete'         => 'Datei löschen',

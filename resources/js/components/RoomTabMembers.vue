@@ -48,8 +48,9 @@
         :select-all="selectableMembers === selectedMembers.length && selectableMembers > 0"
         @select-all-change="toggleSelectAll"
       >
+        <!-- Show message on empty attendance list -->
         <template #empty>
-          <i>{{ $t('rooms.members.nodata') }}</i>
+          <i>{{ $t('meetings.attendance.nodata') }}</i>
         </template>
 
         <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">
@@ -82,7 +83,7 @@
             />
           </template>
         </Column>
-        <Column :header="$t('app.actions')" v-if="userPermissions.can('manageSettings', props.room)">
+        <Column :header="$t('app.actions')" class="action-column" v-if="userPermissions.can('manageSettings', props.room)">
           <template #body="slotProps">
             <div
               v-if="authStore.currentUser?.id !== slotProps.data.id"

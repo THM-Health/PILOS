@@ -1,7 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('rooms.members.edit_user')"
-    :disabled="isBusy"
+    :disabled="disabled"
     severity="secondary"
     @click="showEditMemberModal"
     icon="fa-solid fa-edit"
@@ -62,7 +62,7 @@ const props = defineProps([
   'firstname',
   'lastname',
   'role',
-  'isBusy'
+  'disabled'
 ]);
 
 const emit = defineEmits(['edited']);

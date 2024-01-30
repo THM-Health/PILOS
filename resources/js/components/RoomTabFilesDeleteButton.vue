@@ -1,7 +1,7 @@
 <template>
   <!-- button -->
   <Button
-    v-tooltip="$t('rooms.members.remove_user')"
+    v-tooltip="$t('rooms.files.delete')"
     :disabled="disabled"
     severity="danger"
     @click="showModal = true"
@@ -12,7 +12,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('rooms.members.modals.remove.title')"
+    :header="$t('rooms.files.delete')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -24,12 +24,12 @@
     <template #footer>
       <div class="flex justify-content-end gap-2">
         <Button :label="$t('app.no')" severity="secondary" outlined @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteMember" />
+        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteFile" />
         </div>
     </template>
 
-    <span>
-      {{ $t('rooms.members.modals.remove.confirm',{firstname: firstname,lastname: lastname}) }}
+    <span style="overflow-wrap: break-word;">
+      {{ $t('rooms.files.confirm_delete', { filename: filename }) }}
     </span>
   </Dialog>
 </template>
@@ -37,29 +37,32 @@
 import env from '@/env';
 import { useApi } from '../composables/useApi.js';
 import { ref } from 'vue';
+import { useToast } from '../composables/useToast.js';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps([
   'roomId',
-  'userId',
-  'firstname',
-  'lastname',
+  'fileId',
+  'filename',
   'disabled'
 ]);
 
 const emit = defineEmits(['deleted']);
 
 const api = useApi();
+const toast = useToast();
+const { t } = useI18n();
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);
 
 /*
- * Save new user role
+ * Delete file
  */
-function deleteMember () {
+function deleteFile () {
   isLoadingAction.value = true;
 
-  api.call('rooms/' + props.roomId + '/member/' + props.userId, {
+  api.call('rooms/' + props.roomId + '/files/' + props.fileId, {
     method: 'delete'
   }).then(response => {
     // operation successful, close modal and reload list
@@ -70,6 +73,7 @@ function deleteMember () {
     if (error.response) {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
+        toast.errror(t('rooms.flash.file_gone'));
         emit('deleted');
         return;
       }
