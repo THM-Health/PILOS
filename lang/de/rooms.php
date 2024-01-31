@@ -226,7 +226,7 @@ return [
         'participants'     => [
             'clear_max_participants' => 'Max. Teilnehmeranzahl zurücksetzen',
             'default_role'           => [
-                'only_logged_in' => '(nur für angemeldete Beutzer)',
+                'only_logged_in' => '(nur für angemeldete Benutzer)',
                 'title'          => 'Standardrolle',
             ],
             'max_participants'  => 'Max. Teilnehmeranzahl',
