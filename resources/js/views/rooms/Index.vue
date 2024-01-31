@@ -44,7 +44,7 @@
         </InputGroup>
       </div>
       <div
-        class="col-12 md:col-8 flex justify-content-end flex-column-reverse md:flex-row gap-2"
+        class="col-12 md:col-8 flex justify-content-end flex-column-reverse md:flex-row align-items-start gap-2"
       >
         <!--dropdown for sorting type (on small devices only shown, when filter menu is open)-->
         <Button
@@ -109,7 +109,7 @@
           <div class="flex align-items-center">
             <InputSwitch
               v-model="filter.own"
-              @input="toggleCheckbox"
+              @change="toggleCheckbox"
               :disabled="loadingRooms || onlyShowFavorites"
               inputId="show-own"
             />
@@ -119,7 +119,7 @@
           <div class="flex align-items-center">
             <InputSwitch
               v-model="filter.shared"
-              @input="toggleCheckbox"
+              @change="toggleCheckbox"
               :disabled="loadingRooms || onlyShowFavorites"
               inputId="show-shared"
             />
@@ -129,7 +129,7 @@
         <div class="flex align-items-center">
             <InputSwitch
               v-model="filter.public"
-              @input="toggleCheckbox"
+              @change="toggleCheckbox"
               :disabled="loadingRooms || onlyShowFavorites"
               inputId="show-public"
             />
@@ -138,7 +138,7 @@
         <div v-if="userPermissions.can('viewAll', 'RoomPolicy')" class="flex align-items-center">
               <InputSwitch
                 v-model="filter.all"
-                @input="toggleCheckboxAll"
+                @change="toggleCheckboxAll"
                 :disabled="loadingRooms || onlyShowFavorites"
                 inputId="show-all"
               />
@@ -278,12 +278,12 @@
     >
       <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
       <br>
-      <b-button
+      <Button
+        class="mt-2"
         ref="reset"
         @click="resetRoomFilter"
-      >
-        {{ $t('rooms.index.reset_filter') }}
-      </b-button>
+        :label="$t('rooms.index.reset_filter')"
+      />
     </div>
   </div>
 </template>
@@ -378,8 +378,8 @@ function toggleSortingMenu (event) {
 }
 
 /**
-     * Check all checkboxes if the checkbox for all rooms is checked
-     */
+ * Check all checkboxes if the checkbox for all rooms is checked
+ */
 function toggleCheckboxAll () {
   if (filter.all) {
     filter.own = true;
