@@ -16,33 +16,39 @@
         </a>
       </div>
 
-      <div id="mainNavDropdown" class="align-items-center flex-grow-1 justify-content-between hidden lg:flex">
-      <ul class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row">
-        <NavbarButton v-if="authStore.isAuthenticated" :to="{ name: 'rooms.index' }" :text="$t('app.rooms')" />
-        <NavbarButton v-if="userPermissions.can('viewAny','MeetingPolicy')" :to="{ name: 'meetings.index' }" :text="$t('meetings.currently_running')" />
-        <NavbarButton v-if="userPermissions.can('manage','SettingPolicy')" :to="{ name: 'settings' }" :text="$t('settings.title')" />
+      <div ref="mainNavDropdownRef" id="mainNavDropdown" class="align-items-center flex-grow-1 justify-content-between hidden lg:flex">
+      <ul class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row gap-3">
+        <NavbarButton @item-clicked="closeMainMenu" v-if="authStore.isAuthenticated" :to="{ name: 'rooms.index' }" :text="$t('app.rooms')" />
+        <NavbarButton @item-clicked="closeMainMenu" v-if="userPermissions.can('viewAny','MeetingPolicy')" :to="{ name: 'meetings.index' }" :text="$t('meetings.currently_running')" />
+        <NavbarButton @item-clicked="closeMainMenu" v-if="userPermissions.can('manage','SettingPolicy')" :to="{ name: 'settings' }" :text="$t('settings.title')" />
         <NavbarDropdownButton v-if="userPermissions.can('monitor','SystemPolicy')" :text="$t('system.monitor.title')">
+          <template v-slot="slotProps">
             <NavbarDropdownItem
+              @item-clicked="slotProps.closeCallback(); closeMainMenu()"
               href="/pulse"
               target="_blank"
               :text="$t('system.monitor.pulse')"
             />
             <NavbarDropdownItem
+              @item-clicked="slotProps.closeCallback(); closeMainMenu()"
               href="/horizon"
               target="_blank"
               :text="$t('system.monitor.horizon')"
             />
             <NavbarDropdownItem
+              @item-clicked="slotProps.closeCallback(); closeMainMenu()"
               v-if="settingsStore.getSetting('monitor.telescope')"
               href="/telescope"
               target="_blank"
               :text="$t('system.monitor.telescope')"
             />
-          </NavbarDropdownButton>
+          </template>
+        </NavbarDropdownButton>
       </ul>
-      <ul class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row border-top-1 mt-2 lg:mt-0 pt-2 lg:pt-0 surface-border lg:border-top-none">
-        <NavbarUserDropdown />
+      <ul class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row border-top-1 mt-2 lg:mt-0 pt-2 lg:pt-0 surface-border lg:border-top-none gap-3">
+        <NavbarUserDropdown @item-clicked="closeMainMenu" />
         <NavbarButton
+          @item-clicked="closeMainMenu"
           target="_blank"
           :href="settingsStore.getSetting('help_url')"
           v-if="!!settingsStore.getSetting('help_url')"
@@ -50,8 +56,7 @@
           <i class="fa-solid fa-circle-question text-xl hidden lg:block" v-tooltip="$t('app.help')"></i>
           <span class="block lg:hidden">{{ $t('app.help') }}</span>
         </NavbarButton>
-
-        <LocaleSelector />
+        <NavbarLocaleDropdown @item-clicked="closeMainMenu" />
       </ul>
     </div>
     </div>
@@ -62,9 +67,18 @@
 import { useAuthStore } from '@/stores/auth.js';
 import { useSettingsStore } from '@/stores/settings.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { ref } from 'vue';
+import NavbarLocaleDropdown from "./NavbarLocaleDropdown.vue";
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
+
+const mainNavDropdownRef = ref();
+
+function closeMainMenu () {
+  console.log('closeMainMenu');
+  mainNavDropdownRef.value.classList.add('hidden');
+}
 
 </script>

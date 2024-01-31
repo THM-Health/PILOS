@@ -3,14 +3,17 @@
   <div v-else>
 
     <NavbarDropdownButton :text="authStore.currentUser.firstname+' '+authStore.currentUser.lastname">
-      <NavbarDropdownItem
-        :to="{ name: 'profile' }"
-        :text="$t('app.profile')"
-      />
-      <NavbarDropdownItem
-        :text="$t('auth.logout')"
-        @click="logout"
-      />
+      <template v-slot="slotProps">
+        <NavbarDropdownItem
+          @click="slotProps.closeCallback(); $emit('itemClicked');"
+          :to="{ name: 'profile' }"
+          :text="$t('app.profile')"
+        />
+        <NavbarDropdownItem
+          @click="slotProps.closeCallback(); $emit('itemClicked'); logout()"
+          :text="$t('auth.logout')"
+        />
+      </template>
     </NavbarDropdownButton>
   </div>
 </template>

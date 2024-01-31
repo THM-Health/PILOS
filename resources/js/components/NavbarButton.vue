@@ -4,13 +4,14 @@ const props = defineProps([
   'text',
   'to',
   'href',
-  'target'
+  'target',
+  'closeMainMenu'
 ]);
 
 </script>
 
 <template>
-  <li class="py-2 lg:py-0">
+  <li @click="$emit('itemClicked')">
     <button v-if="!to && !href" class="bg-transparent border-none w-full text-500 hover:text-900 focus:text-900 block lg:px-2 lg:py-3">
       <slot>{{ props.text }}</slot>
     </button>

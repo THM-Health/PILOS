@@ -5,12 +5,14 @@
       <i class="fa-solid fa-language text-xl hidden lg:block" />
       <span class="block lg:hidden">{{ $t('app.select_locale') }}</span>
     </template>
-    <NavbarDropdownItem
-      v-for="locale in locales"
-      :key="locale.locale"
-      @click="changeLocale(locale.locale)"
-      :text="locale.label"
-    />
+    <template v-slot="slotProps">
+      <NavbarDropdownItem
+        v-for="locale in locales"
+        :key="locale.locale"
+        @click="slotProps.closeCallback(); $emit('itemClicked'); changeLocale(locale.locale)"
+        :text="locale.label"
+      />
+    </template>
   </NavbarDropdownButton>
 </template>
 
