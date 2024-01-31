@@ -180,7 +180,7 @@ a:any-link {
     border-radius: 50%;
     transition-duration: 0.2s;
 }
-.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
+.p-inputswitch.p-highlight .p-inputswitch-slider:before {
     transform: translateX(calc(1rem - 4px - 2px));
 }
 
