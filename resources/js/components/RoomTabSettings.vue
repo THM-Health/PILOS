@@ -1,681 +1,546 @@
 <template>
   <div>
-    <b-overlay :show="isBusy || modelLoadingError">
-      <template #overlay>
-        <div class="text-center">
-          <b-spinner v-if="isBusy" />
-          <b-button
-            v-else
-            ref="reload"
-            @click="load()"
-          >
-            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
-          </b-button>
-        </div>
-      </template>
-      <b-form
+    <form
         :aria-hidden="modelLoadingError"
         @submit="save"
       >
-        <b-row>
+        <div class="grid">
           <!-- General settings tab -->
-          <b-col
-            lg="3"
-            md="6"
-            cols="12"
-          >
-            <h5>{{ $t('rooms.settings.general.title') }}</h5>
-            <b-form-group
-              :state="fieldState('room_type')"
-              :label="$t('rooms.settings.general.type')"
-            >
+          <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
+            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.general.title') }}</p>
+            <div class="flex flex-column gap-2">
+              <label for="room-type">{{ $t('rooms.settings.general.type') }}</label>
               <room-type-select
-                ref="roomTypeSelect"
+                ref="roomTypeSelectRef"
                 v-model="settings.room_type"
                 :disabled="disabled"
                 :room-id="room.id"
-                :state="fieldState('room_type')"
+                :invalid="formErrors.fieldInvalid('room_type')"
                 @loading-error="(value) => roomTypeSelectLoadingError = value"
                 @busy="(value) => roomTypeSelectBusy = value"
               />
-              <template #invalid-feedback>
-                <div v-html="fieldError('room_type')" />
-              </template>
-            </b-form-group>
+              <p class="p-error" v-html="formErrors.fieldError('room_type')" />
+            </div>
+
             <!-- Room name -->
-            <b-form-group
-              :state="fieldState('name')"
-              :label="$t('rooms.name')"
-            >
-              <b-input-group>
-                <b-form-input
-                  v-model="settings.name"
-                  :disabled="disabled"
-                  :state="fieldState('name')"
-                />
-              </b-input-group>
-              <template #invalid-feedback>
-                <div v-html="fieldError('name')" />
-              </template>
-            </b-form-group>
+            <div class="flex flex-column gap-2">
+              <label for="room-name">{{ $t('rooms.name') }}</label>
+              <InputText
+                id="room-name"
+                v-model="settings.name"
+                :disabled="disabled"
+                :class="{'p-invalid': formErrors.fieldInvalid('name')}"
+              />
+              <p class="p-error" v-html="formErrors.fieldError('name')" />
+            </div>
+
             <!-- Welcome message -->
-            <b-form-group
-              :state="fieldState('welcome')"
-              :label="$t('rooms.settings.general.welcome_message')"
-            >
-              <b-input-group>
-                <b-form-textarea
-                  id="welcome"
-                  v-model="settings.welcome"
-                  :disabled="disabled"
-                  :placeholder="$t('rooms.settings.none_placeholder')"
-                  rows="3"
-                  :state="fieldState('welcome')"
-                />
-              </b-input-group>
-              <small class="text-muted">
-                {{ $t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage}) }}</small>
-              <template #invalid-feedback>
-                <div v-html="fieldError('welcome')" />
-              </template>
-            </b-form-group>
+            <div class="flex flex-column gap-2">
+              <label for="welcome-message">{{ $t('rooms.settings.general.welcome_message') }}</label>
+              <Textarea
+                id="welcome-message"
+                v-model="settings.welcome"
+                :disabled="disabled"
+                :class="{'p-invalid': formErrors.fieldInvalid('welcome')}"
+                :placeholder="$t('rooms.settings.none_placeholder')"
+                rows="3"
+              />
+              <small>
+                {{ $t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage}) }}
+              </small>
+              <p class="p-error" v-html="formErrors.fieldError('welcome')" />
+            </div>
 
             <!-- Short description-->
-            <b-form-group
-              :state="fieldState('short_description')"
-              :label="$t('rooms.settings.general.short_description')"
-            >
-              <b-input-group>
-                <b-form-textarea
-                  id="short_description"
-                  v-model="settings.short_description"
-                  :disabled="disabled"
-                  :placeholder="$t('rooms.settings.none_placeholder')"
-                  rows="3"
-                  :state="fieldState('short_description')"
-                />
-              </b-input-group>
-              <small class="text-muted">
-                {{ $t('rooms.settings.general.chars', {chars: charactersLeftShortDescription}) }}</small>
-              <template #invalid-feedback>
-                <div v-html="fieldError('short_description')" />
-              </template>
-            </b-form-group>
-
-            <!-- Max duration -->
-            <b-form-group
-              :state="fieldState('duration')"
-              :label="$t('rooms.settings.general.max_duration')"
-            >
-              <b-input-group>
-                <b-form-input
-                  v-model.number="settings.duration"
-                  :disabled="disabled"
-                  min="1"
-                  :placeholder="$t('rooms.settings.none_placeholder')"
-                  type="number"
-                  :state="fieldState('duration')"
-                />
-                <b-input-group-append>
-                  <b-input-group-text>{{ $t('rooms.settings.general.minutes') }}</b-input-group-text>
-                  <!-- Reset the duration -->
-                  <b-button
-                    v-b-tooltip.hover
-                    :disabled="disabled"
-                    variant="outline-secondary"
-                    :title="$t('rooms.settings.general.reset_duration')"
-                    @click="settings.duration = null"
-                  >
-                    <i class="fa-solid fa-trash" />
-                  </b-button>
-                </b-input-group-append>
-              </b-input-group>
-              <template #invalid-feedback>
-                <div v-html="fieldError('duration')" />
-              </template>
-            </b-form-group>
-          </b-col>
+            <div class="flex flex-column gap-2">
+              <label for="short-description">{{ $t('rooms.settings.general.short_description') }}</label>
+              <Textarea
+                id="short-description"
+                v-model="settings.short_description"
+                :disabled="disabled"
+                :placeholder="$t('rooms.settings.none_placeholder')"
+                rows="3"
+                :class="{'p-invalid': formErrors.fieldInvalid('short_description')}"
+              />
+              <small>
+                {{ $t('rooms.settings.general.chars', {chars: charactersLeftShortDescription}) }}
+              </small>
+              <p class="p-error" v-html="formErrors.fieldError('short_description')" />
+            </div>
+          </div>
 
           <!-- Security settings tab -->
-          <b-col
-            lg="3"
-            md="6"
-            cols="12"
-          >
-            <h5>{{ $t('app.security') }}</h5>
+          <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
+            <p class="text-lg font-semibold m-0">{{ $t('app.security') }}</p>
             <!-- Access code -->
-            <b-form-group
-              :state="fieldState('access_code')"
-              :label="$t('rooms.access_code')"
-            >
-              <b-input-group>
-                <b-input-group-prepend>
-                  <!-- Generate random access code -->
-                  <b-button
-                    v-b-tooltip.hover
-                    :disabled="disabled"
-                    variant="outline-secondary"
-                    :title="$t('rooms.settings.security.generate_access_code')"
-                    @click="settings.access_code = (Math.floor(Math.random() * (999999999 - 111111112)) + 111111111)"
-                  >
-                    <i class="fa-solid fa-dice" />
-                  </b-button>
-                </b-input-group-prepend>
-                <b-form-input
-                  id="settings-accessCode"
+            <div class="flex flex-column gap-2">
+              <label for="access-code">{{ $t('rooms.access_code') }}</label>
+              <InputGroup>
+                <!-- Generate random access code -->
+                <Button
+                  v-tooltip="$t('rooms.settings.security.generate_access_code')"
+                  :disabled="disabled"
+                  @click="createAccessCode"
+                  icon="fa-solid fa-dice"
+                />
+                <InputText
+                  id="access-code"
                   v-model.number="settings.access_code"
                   :placeholder="$t('rooms.settings.security.unprotected_placeholder')"
-                  :disabled="disabled"
                   readonly="readonly"
-                  :state="fieldState('access_code')"
+                  :disabled="disabled"
+                  :class="{'p-invalid': formErrors.fieldInvalid('access_code')}"
                   type="number"
+                  />
+                <!-- Clear access code -->
+                <Button
+                  v-if="settings.room_type && !settings.room_type.require_access_code"
+                  v-tooltip="$t('rooms.settings.security.delete_access_code')"
+                  :disabled="disabled"
+                  @click="settings.access_code = null"
+                  icon="fa-solid fa-trash"
                 />
-                <b-input-group-append>
-                  <!-- Clear access code -->
-                  <b-button
-                    v-b-tooltip.hover
-                    :disabled="disabled"
-                    variant="outline-secondary"
-                    :title="$t('rooms.settings.security.delete_access_code')"
-                    @click="settings.access_code = null"
-                  >
-                    <i class="fa-solid fa-trash" />
-                  </b-button>
-                </b-input-group-append>
-              </b-input-group>
-              <small class="text-muted">
+              </InputGroup>
+              <small>
                 {{ $t('rooms.settings.security.access_code_note') }}
               </small>
-              <template #invalid-feedback>
-                <div v-html="fieldError('access_code')" />
-              </template>
-            </b-form-group>
+              <p class="p-error" v-html="formErrors.fieldError('access_code')" />
+            </div>
 
             <!-- Checkbox allow guests to access the room -->
-            <b-form-group :state="fieldState('allow_guests')">
-              <b-form-checkbox
-                v-model="settings.allow_guests"
-                :disabled="disabled"
-                :state="fieldState('allow_guests')"
-                switch
-              >
-                {{ $t('rooms.settings.security.allow_guests') }}
-              </b-form-checkbox>
-              <template #invalid-feedback>
-                <div v-html="fieldError('allow_guests')" />
-              </template>
-            </b-form-group>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="allow-guests"
+                  v-model="settings.allow_guests"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('allow_guests')}"
+                />
+                <label for="allow-guests">{{ $t('rooms.settings.security.allow_guests') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('allow_guests')" />
+            </div>
 
             <!-- Checkbox allow users to become room members -->
-            <b-form-group :state="fieldState('allow_membership')">
-              <b-form-checkbox
-                v-model="settings.allow_membership"
-                :disabled="disabled"
-                :state="fieldState('allow_membership')"
-                switch
-              >
-                {{ $t('rooms.settings.security.allow_new_members') }}
-              </b-form-checkbox>
-              <template #invalid-feedback>
-                <div v-html="fieldError('allow_membership')" />
-              </template>
-            </b-form-group>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="allow-membership"
+                  v-model="settings.allow_membership"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('allow_membership')}"
+                />
+                <label for="allow-membership">{{ $t('rooms.settings.security.allow_new_members') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('allow_membership')" />
+            </div>
 
             <!-- Checkbox publicly list this room -->
-            <b-form-group
-              v-if="settings.room_type && settings.room_type.allow_listing && !settings.access_code"
-              :state="fieldState('listed')"
-            >
-              <b-form-checkbox
-                v-model="settings.listed"
-                :disabled="disabled"
-                :state="fieldState('listed')"
-                switch
-              >
-                {{ $t('rooms.settings.security.listed') }}
-              </b-form-checkbox>
-              <template #invalid-feedback>
-                <div v-html="fieldError('listed')" />
-              </template>
-            </b-form-group>
-          </b-col>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="listed"
+                  v-model="settings.listed"
+                  :disabled="disabled || (settings.room_type && !settings.room_type.allow_listing && settings.access_code)"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('listed')}"
+                />
+                <label for="listed">{{ $t('rooms.settings.security.listed') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('listed')" />
+            </div>
+          </div>
 
           <!-- Participants settings tab -->
-          <b-col
-            lg="3"
-            md="6"
-            cols="12"
-          >
-            <h5>{{ $t('rooms.settings.participants.title') }}</h5>
-            <!-- Max amount of participants -->
-            <b-form-group
-              :state="fieldState('max_participants')"
-              :label="$t('rooms.settings.participants.max_participants')"
-            >
-              <b-input-group>
-                <b-form-input
-                  v-model.number="settings.max_participants"
-                  min="1"
-                  :disabled="disabled"
-                  :placeholder="$t('rooms.settings.none_placeholder')"
-                  type="number"
-                  :state="fieldState('max_participants')"
-                />
-                <b-input-group-append>
-                  <!-- Clear participants limit -->
-                  <b-button
-                    v-b-tooltip.hover
-                    :disabled="disabled"
-                    variant="outline-secondary"
-                    :title="$t('rooms.settings.participants.clear_max_participants')"
-                    @click="settings.max_participants = null"
-                  >
-                    <i class="fa-solid fa-trash" />
-                  </b-button>
-                </b-input-group-append>
-              </b-input-group>
-              <template #invalid-feedback>
-                <div v-html="fieldError('max_participants')" />
-              </template>
-            </b-form-group>
+          <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
+            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.participants.title') }}</p>
 
             <!-- Radio default user role for logged in users only -->
-            <b-form-group
-              ref="defaultRole-group"
-              :state="fieldState('default_role')"
-            >
-              <template #label>
-                {{ $t('rooms.settings.participants.default_role.title') }}<br><small>{{ $t('rooms.settings.participants.default_role.only_logged_in') }}</small>
-              </template>
-              <b-form-radio
-                v-model.number="settings.default_role"
+            <div class="flex flex-column gap-2">
+              <label for="default-role">{{ $t('rooms.settings.participants.default_role.title') }}</label>
+              <small>
+                {{ $t('rooms.settings.participants.default_role.only_logged_in') }}
+              </small>
+              <SelectButton
+                input-id="default-role"
+                v-model="settings.default_role"
+                optionLabel="label"
+                dataKey="role"
+                optionValue="role"
+                :options="[
+                  { role: 1, label: $t('rooms.roles.participant')},
+                  { role: 2, label: $t('rooms.roles.moderator')}
+                ]"
                 :disabled="disabled"
-                name="setting-defaultRole"
-                :state="fieldState('default_role')"
-                :value="1"
-              >
-                {{ $t('rooms.roles.participant') }}
-              </b-form-radio>
-              <b-form-radio
-                v-model.number="settings.default_role"
-                name="setting-defaultRole"
-                :disabled="disabled"
-                :state="fieldState('default_role')"
-                :value="2"
-              >
-                {{ $t('rooms.roles.moderator') }}
-              </b-form-radio>
-              <template #invalid-feedback>
-                <div v-html="fieldError('default_role')" />
-              </template>
-            </b-form-group>
+                class="flex-shrink-0"
+                :class="{'p-invalid': formErrors.fieldInvalid('default_role')}"
+              />
+
+              <p class="p-error" v-html="formErrors.fieldError('default_role')" />
+            </div>
 
             <!-- Radio usage of the waiting room/guest lobby -->
-            <b-form-group
-              ref="waitingRoom-group"
-              :state="fieldState('lobby')"
-              :label="$t('rooms.settings.participants.waiting_room.title')"
-            >
-              <b-form-radio
-                v-model.number="settings.lobby"
-                :disabled="disabled"
-                name="setting-lobby"
-                :state="fieldState('lobby')"
-                :value="0"
-              >
-                {{ $t('app.disabled') }}
-              </b-form-radio>
-              <b-form-radio
-                v-model.number="settings.lobby"
-                :disabled="disabled"
-                name="setting-lobby"
-                :state="fieldState('lobby')"
-                :value="1"
-              >
-                {{ $t('app.enabled') }}
-              </b-form-radio>
-              <b-form-radio
-                v-model.number="settings.lobby"
-                :disabled="disabled"
-                name="setting-lobby"
-                :state="fieldState('lobby')"
-                :value="2"
-              >
-                {{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}
-              </b-form-radio>
-              <template #invalid-feedback>
-                <div v-html="fieldError('lobby')" />
-              </template>
-            </b-form-group>
+            <div class="flex flex-column gap-2">
+              <label>{{ $t('rooms.settings.participants.waiting_room.title') }}</label>
+              <div class="flex align-items-center gap-2">
+                <RadioButton
+                  v-model.number="settings.lobby"
+                  :disabled="disabled"
+                  name="lobby"
+                  :value="0"
+                />
+                <label>{{ $t('app.disabled') }}</label>
+              </div>
+              <div class="flex align-items-center gap-2">
+                <RadioButton
+                  v-model.number="settings.lobby"
+                  :disabled="disabled"
+                  name="lobby"
+                  :value="1"
+                />
+                <label>{{ $t('app.enabled') }}</label>
+              </div>
+              <div class="flex align-items-center gap-2">
+                <RadioButton
+                  v-model.number="settings.lobby"
+                  :disabled="disabled"
+                  name="lobby"
+                  :value="2"
+                />
+                <label>{{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lobby')" />
+            </div>
 
             <!-- Alert shown when default role is moderator and waiting room is active -->
-            <b-alert
+            <InlineMessage
               v-if="showLobbyAlert"
-              ref="waiting-room-alert"
-              show
-              variant="warning"
+              severity="warn"
             >
               {{ $t('rooms.settings.participants.waiting_room_alert') }}
-            </b-alert>
+            </InlineMessage>
 
             <!-- Checkbox record attendance of users and guests -->
-            <b-form-group
-              v-if="getGlobalSetting('attendance.enabled')"
-              :state="fieldState('record_attendance')"
-            >
-              <b-form-checkbox
-                v-model="settings.record_attendance"
-                :disabled="disabled"
-                :state="fieldState('record_attendance')"
-                switch
-              >
-                {{ $t('rooms.settings.participants.record_attendance') }}
-              </b-form-checkbox>
-              <template #invalid-feedback>
-                <div v-html="fieldError('record_attendance')" />
-              </template>
-            </b-form-group>
-          </b-col>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="record-attendance"
+                  v-model="settings.record_attendance"
+                  :disabled="disabled || !settingsStore.getSetting('attendance.enabled')"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('default_role')}"
+                />
+                <label for="record-attendance">{{ $t('rooms.settings.participants.record_attendance') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
+            </div>
+          </div>
 
           <!-- Permissions & Restrictions tab -->
-          <b-col
-            lg="3"
-            md="6"
-            cols="12"
-          >
-            <h5>{{ $t('rooms.settings.permissions.title') }}</h5>
+          <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
+            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.permissions.title') }}</p>
             <!-- Everyone can start a new meeting, not only the moderator -->
-            <b-form-checkbox
-              v-model="settings.everyone_can_start"
-              :disabled="disabled"
-              :state="fieldState('everyone_can_start')"
-              switch
-            >
-              {{ $t('rooms.settings.permissions.everyone_start') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('everyone_can_start')"
-              v-html="fieldError('everyone_can_start')"
-            />
-            <!-- Mute everyones microphone on meeting join -->
-            <b-form-checkbox
-              v-model="settings.mute_on_start"
-              :disabled="disabled"
-              :state="fieldState('mute_on_start')"
-              switch
-            >
-              {{ $t('rooms.settings.permissions.mute_mic') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('mute_on_start')"
-              v-html="fieldError('mute_on_start')"
-            />
-            <hr>
-            <h5>{{ $t('rooms.settings.restrictions.title') }}</h5>
-            <!-- Enable the restrictions, otherwise just send the settings, can be activated during the meeting -->
-            <b-form-checkbox
-              v-model="settings.lock_settings_lock_on_join"
-              :disabled="disabled"
-              :state="fieldState('lock_settings_lock_on_join')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.enabled') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('Y')"
-              v-html="fieldError('lock_settings_lock_on_join')"
-            />
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="everyone-can-start"
+                  v-model="settings.everyone_can_start"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('everyone_can_start')}"
+                />
+                <label for="everyone-can-start">{{ $t('rooms.settings.permissions.everyone_start') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('everyone_can_start')" />
+            </div>
+
+            <!-- Mute everyone's microphone on meeting join -->
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="mute-on-start"
+                  v-model="settings.mute_on_start"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('mute_on_start')}"
+                />
+                <label for="mute-on-start">{{ $t('rooms.settings.permissions.mute_mic') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('mute_on_start')" />
+            </div>
+            <Divider class="my-0"/>
+            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.restrictions.title') }}</p>
+
             <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
-            <b-form-checkbox
-              v-model="settings.lock_settings_disable_cam"
-              :disabled="disabled"
-              :state="fieldState('lock_settings_disable_cam')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.disable_cam') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('lock_settings_disable_cam')"
-              v-html="fieldError('lock_settings_disable_cam')"
-            />
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="mute-on-start"
+                  v-model="settings.lock_settings_disable_cam"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_cam')}"
+                />
+                <label for="mute-on-start">{{ $t('rooms.settings.restrictions.disable_cam') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam')" />
+            </div>
+
             <!--
             Disable the ability to see the webcam of non moderator-uses,
             moderators can see all webcams,
             can be changed during the meeting
             -->
-            <b-form-checkbox
-              v-model="settings.webcams_only_for_moderator"
-              :disabled="disabled"
-              :state="fieldState('webcams_only_for_moderator')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.only_mod_see_cam') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('webcams_only_for_moderator')"
-              v-html="fieldError('webcams_only_for_moderator')"
-            />
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="webcams-only-for-moderator"
+                  v-model="settings.webcams_only_for_moderator"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('webcams_only_for_moderator')}"
+                />
+                <label for="webcams-only-for-moderator">{{ $t('rooms.settings.restrictions.only_mod_see_cam') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('webcams_only_for_moderator')" />
+            </div>
             <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
-            <b-form-checkbox
-              v-model="settings.lock_settings_disable_mic"
-              :disabled="disabled"
-              :state="fieldState('lock_settings_disable_mic')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.disable_mic') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('lock_settings_disable_mic')"
-              v-html="fieldError('Y')"
-            />
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="disable-mic"
+                  v-model="settings.lock_settings_disable_mic"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_mic')}"
+                />
+                <label for="disable-mic">{{ $t('rooms.settings.restrictions.disable_mic') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic')" />
+            </div>
+
             <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
-            <b-form-checkbox
-              v-model="settings.lock_settings_disable_public_chat"
-              :disabled="disabled"
-              :state="fieldState('lock_settings_disable_public_chat')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.disable_public_chat') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('lock_settings_disable_public_chat')"
-              v-html="fieldError('lock_settings_disable_public_chat')"
-            />
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="disable-public-chat"
+                  v-model="settings.lock_settings_disable_public_chat"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_public_chat')}"
+                />
+                <label for="disable-public-chat">{{ $t('rooms.settings.restrictions.disable_public_chat') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat')" />
+            </div>
+
             <!--
             Disable the ability to send messages via the private chat for non moderator-uses,
             private chats with the moderators is still possible
             can be changed during the meeting
             -->
-            <b-form-checkbox
-              v-model="settings.lock_settings_disable_private_chat"
-              :disabled="disabled"
-              :state="fieldState('lock_settings_disable_private_chat')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.disable_private_chat') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('Y')"
-              v-html="fieldError('lock_settings_disable_private_chat')"
-            />
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="disable-private-chat"
+                  v-model="settings.lock_settings_disable_private_chat"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_private_chat')}"
+                />
+                <label for="disable-private-chat">{{ $t('rooms.settings.restrictions.disable_private_chat') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat')" />
+            </div>
+
             <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
-            <b-form-checkbox
-              v-model="settings.lock_settings_disable_note"
-              :disabled="disabled"
-              :state="fieldState('lock_settings_disable_note')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.disable_note_edit') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('lock_settings_disable_note')"
-              v-html="fieldError('lock_settings_disable_note')"
-            />
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="disable-note-edit"
+                  v-model="settings.lock_settings_disable_note"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_note')}"
+                />
+                <label for="disable-note-edit">{{ $t('rooms.settings.restrictions.disable_note_edit') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note')" />
+            </div>
+
             <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
-            <b-form-checkbox
-              v-model="settings.lock_settings_hide_user_list"
-              :disabled="disabled"
-              :state="fieldState('lock_settings_hide_user_list')"
-              switch
-            >
-              {{ $t('rooms.settings.restrictions.hide_participants_list') }}
-            </b-form-checkbox>
-            <b-form-invalid-feedback
-              :state="fieldState('lock_settings_hide_user_list')"
-              v-html="fieldError('lock_settings_hide_user_list')"
-            />
-          </b-col>
-        </b-row>
-        <hr>
-        <b-row class="mt-1 mb-3 float-right">
-          <b-col sm="12">
-            <b-button
-              :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
-              variant="success"
-              type="submit"
-            >
-              <i class="fa-solid fa-save" /> {{ $t('app.save') }}
-            </b-button>
-          </b-col>
-        </b-row>
-      </b-form>
-    </b-overlay>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="disable-user-list"
+                  v-model="settings.lock_settings_hide_user_list"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_hide_user_list')}"
+                />
+                <label for="disable-user-list">{{ $t('rooms.settings.restrictions.hide_participants_list') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list')" />
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-content-end">
+          <Button
+            :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
+            variant="success"
+            type="submit"
+            icon="fa-solid fa-save"
+            :label="$t('app.save')"
+            :loading="isBusy"
+          />
+        </div>
+      </form>
   </div>
 </template>
 
-<script>
-import Base from '@/api/base';
+<script setup>
 import env from '@/env.js';
-import FieldErrors from '@/mixins/FieldErrors';
-import RoomTypeSelect from '@/components/Inputs/RoomTypeSelect.vue';
 import _ from 'lodash';
-import PermissionService from '@/services/PermissionService';
-import { mapState } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
+import { useApi } from '../composables/useApi.js';
+import { useFormErrors } from '../composables/useFormErrors.js';
+import { onMounted, ref, computed, watch } from 'vue';
+import { useUserPermissions } from '../composables/useUserPermission.js';
 
-export default {
-  components: { RoomTypeSelect },
-  mixins: [FieldErrors],
+const props = defineProps({
+  room: {
+    type: Object,
+    required: true
+  }
+});
 
-  props: {
-    room: Object
-  },
+const emit = defineEmits(['settingsChanged']);
 
-  data () {
-    return {
-      settings: Object, // Room settings
-      isBusy: false, // Settings are currently saved, display spinner
-      roomTypeSelectBusy: false,
-      roomTypeSelectLoadingError: false,
-      modelLoadingError: false,
-      errors: {}
-    };
-  },
-  methods: {
-    /**
-     * Save room settings
-     *
-     *  @param evt
-     */
-    save (evt) {
-      if (evt) {
-        evt.preventDefault();
+const settings = ref({});
+const roomTypeSelectRef = ref();
+const isBusy = ref(false);
+const roomTypeSelectBusy = ref(false);
+const roomTypeSelectLoadingError = ref(false);
+
+const api = useApi();
+const formErrors = useFormErrors();
+const settingsStore = useSettingsStore();
+const userPermissions = useUserPermissions();
+
+/**
+ * Save room settings
+ *
+ *  @param event
+ */
+function save (event) {
+  // Prevent default form submit
+  event.preventDefault();
+
+  // Set saving indicator
+  isBusy.value = true;
+
+  const newSettings = _.clone(settings.value);
+  newSettings.room_type = newSettings.room_type ? newSettings.room_type.id : null;
+
+  formErrors.clear();
+
+  // Send new settings to the server
+  api.call('rooms/' + props.room.id, {
+    method: 'put',
+    data: newSettings
+  }).then(response => {
+    // Settings successfully saved
+    // update the settings to the response from the server, feedback the changed were applied correctly
+    settings.value = response.data.data;
+    // inform parent component about changed settings
+    emit('settingsChanged');
+  }).catch((error) => {
+    // Settings couldn't be saved
+    if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      if (error.response.data.errors.room_type !== undefined) {
+        roomTypeSelectRef.value.reloadRoomTypes();
       }
 
-      // Set saving indicator
-      this.isBusy = true;
-
-      const newSettings = _.clone(this.settings);
-      newSettings.room_type = newSettings.room_type ? newSettings.room_type.id : null;
-
-      // Send new settings to the server
-      Base.call('rooms/' + this.room.id, {
-        method: 'put',
-        data: newSettings
-      }).then(response => {
-        // Settings successfully saved
-        // update the settings to the response from the server, feedback the changed were applied correctly
-        this.settings = response.data.data;
-        // inform parent component about changed settings
-        this.$emit('settingsChanged');
-        this.errors = {};
-      }).catch((error) => {
-        // Settings couldn't be saved
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          if (error.response.data.errors.room_type !== undefined) {
-            this.$refs.roomTypeSelect.reloadRoomTypes();
-          }
-          this.errors = error.response.data.errors;
-          return;
-        }
-        Base.error(error, this.$root);
-      }).finally(() => {
-        // Disable saving indicator
-        this.isBusy = false;
-      });
-    },
-
-    load () {
-      this.modelLoadingError = false;
-      this.isBusy = true;
-      // Load all room settings
-      Base.call('rooms/' + this.room.id + '/settings')
-        .then(response => {
-          // fetch successful
-          this.settings = response.data.data;
-        }).catch((error) => {
-          this.modelLoadingError = true;
-          Base.error(error, this.$root);
-        }).finally(() => {
-          this.isBusy = false;
-        });
+      formErrors.set(error.response.data.errors);
+      return;
     }
-  },
-  computed: {
+    api.error(error);
+  }).finally(() => {
+    // Disable saving indicator
+    isBusy.value = false;
+  });
+}
 
-    ...mapState(useSettingsStore, {
-      getGlobalSetting: 'getSetting'
-    }),
+function load () {
+  isBusy.value = true;
+  // Load all room settings
+  api.call('rooms/' + props.room.id + '/settings')
+    .then(response => {
+      // fetch successful
+      settings.value = response.data.data;
+    }).catch((error) => {
+      api.error(error);
+    }).finally(() => {
+      isBusy.value = false;
+    });
+}
 
-    /**
-     * Input fields are disabled: due to limited permissions, loading of settings or errors
-     */
-    disabled () {
-      return PermissionService.cannot('manageSettings', this.room) || this.isBusy || this.modelLoadingError;
-    },
+function createAccessCode () {
+  settings.value.access_code = (Math.floor(Math.random() * (999999999 - 111111112)) + 111111111);
+}
 
-    /**
-     * Count the chars of the welcome message
-     * @returns {string} amount of chars in comparison to the limit
-     */
-    charactersLeftWelcomeMessage () {
-      const char = this.settings.welcome
-        ? this.settings.welcome.length
-        : 0;
-      return char + ' / ' + this.getGlobalSetting('bbb.welcome_message_limit');
-    },
-    /**
-     * Count the chars of the short description
-     * @returns {string} amount of chars in comparison to the limit
-     */
-    charactersLeftShortDescription () {
-      const char = this.settings.short_description
-        ? this.settings.short_description.length
-        : 0;
-      return char + ' / ' + 300;
-    },
+/**
+ * Input fields are disabled: due to limited permissions, loading of settings or errors
+ */
+const disabled = computed(() => {
+  return !userPermissions.can('manageSettings', props.room) || isBusy.value;
+});
 
-    /**
-     * Show alert if simulatinously default role is moderator and waiting room is active
-     */
-    showLobbyAlert () {
-      return this.settings.default_role === 2 && this.settings.lobby === 1;
-    }
+/**
+ * Count the chars of the welcome message
+ * @returns {string} amount of chars in comparison to the limit
+ */
+const charactersLeftWelcomeMessage = computed(() => {
+  const char = settings.value.welcome
+    ? settings.value.welcome.length
+    : 0;
+  return char + ' / ' + settingsStore.getSetting('bbb.welcome_message_limit');
+});
 
-  },
-  created () {
-    this.load();
+/**
+ * Count the chars of the short description
+ * @returns {string} amount of chars in comparison to the limit
+ */
+const charactersLeftShortDescription = computed(() => {
+  const char = settings.value.short_description
+    ? settings.value.short_description.length
+    : 0;
+  return char + ' / ' + 300;
+});
+
+/**
+ * Show alert if simultaneously default role is moderator and waiting room is active
+ */
+const showLobbyAlert = computed(() => {
+  return settings.value.default_role === 2 && settings.value.lobby === 1;
+});
+
+watch(settings, () => {
+  if (!settings.value) { return; }
+
+  if (settings.value.room_type && !settings.value.room_type.allow_listing && settings.value.access_code) {
+    settings.value.listed = false;
   }
-};
+
+  if (settings.value.room_type && settings.value.room_type.require_access_code && !settings.value.access_code) {
+    createAccessCode();
+  }
+}, { deep: true });
+
+onMounted(() => {
+  // Load all room settings
+  load();
+});
 </script>
-<style scoped></style>

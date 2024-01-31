@@ -93,15 +93,15 @@
             <!-- Show invitation text/link to moderators and room owners -->
             <div
               v-if="viewInvitation"
-              class="col-12 lg:col-6 flex-order-2 md:flex-order-1"
+              class="col-12 lg:col-6 flex-order-2 lg:flex-order-1"
             >
               <RoomAccessWidget :room="room" />
             </div>
             <div
-              class="col-12 flex-order-1 md:flex-order-2 flex flex-column gap-2 justify-content-between"
-              :class="{ 'lg:col-6': viewInvitation, 'lg:col-12': !viewInvitation, 'md:flex-row': !viewInvitation }"
+              class="col-12 flex-order-1 lg:flex-order-2 flex flex-column gap-2"
+              :class="viewInvitation ? 'lg:col-6' : 'lg:col-12 lg:flex-row justify-content-between'"
             >
-              <div class="flex-shrink-0 flex-grow-1 xl:flex-grow-0">
+              <div class="flex-1" :class="viewInvitation ? 'flex-none' : 'xl:flex-none'">
                 <RoomJoinButton
                   :roomId="room.id"
                   :running="running"
@@ -112,7 +112,7 @@
                   :access-code="accessCode"
                 />
               </div>
-              <div class="flex-shrink-0 flex-grow-1 xl:flex-grow-0">
+              <div class="flex-1" :class="viewInvitation ? 'flex-none' : 'xl:flex-none'">
                 <RoomBrowserNotification
                     :running="running"
                     :name="room.name"
