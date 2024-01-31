@@ -64,12 +64,14 @@ class MeetingService
     {
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
+        // Use errorRedirectUrl to redirect back
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
         $meetingParams->setModeratorPW($this->meeting->moderator_pw)
             ->setAttendeePW($this->meeting->attendee_pw)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
             ->setEndCallbackUrl($this->getCallbackUrl())
-            ->setDuration($this->meeting->room->duration)
+            ->setDuration($this->meeting->room->roomType->duration)
+            ->setMaxParticipants($this->meeting->room->roomType->max_participants)
             ->setWelcome($this->meeting->room->welcome)
             ->setModeratorOnlyMessage($this->meeting->room->getModeratorOnlyMessage())
             ->setLockSettingsDisableMic($this->meeting->room->lock_settings_disable_mic)
@@ -79,6 +81,7 @@ class MeetingService
             ->setLockSettingsDisablePublicChat($this->meeting->room->lock_settings_disable_public_chat)
             ->setLockSettingsDisableNote($this->meeting->room->lock_settings_disable_note)
             ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
+            // @TODO refactor: maybe always true or if any of the restrictions is enabled
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->mute_on_start)
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)

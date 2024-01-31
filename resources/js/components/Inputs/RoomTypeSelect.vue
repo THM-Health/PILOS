@@ -78,6 +78,10 @@ onMounted(() => {
   reloadRoomTypes();
 });
 
+defineExpose({
+  reloadRoomTypes
+});
+
 // Load the room types
 function reloadRoomTypes () {
   isLoadingAction.value = true;

@@ -43,8 +43,8 @@
         </div>
       </div>
       <div v-else>
-        <div class="grid">
-          <div class="col-12 md:col-10">
+        <div class="flex flex-row gap-2">
+          <div class="flex-grow-1">
             <!-- Display room type, name and owner  -->
             <RoomTypeBadge :room-type="room.type" />
             <h2 class="h2 mt-2 roomname">
@@ -54,9 +54,10 @@
             <RoomDetailsList
               :room="room"
               :show-description="true"
+              :inline="true"
             />
           </div>
-          <div class="col-12 md:col-2 flex justify-content-end align-items-start">
+          <div class="flex-shrink-0 flex justify-content-end align-items-start">
             <div class="flex gap-2">
               <!-- Reload general room settings/details -->
               <Button
@@ -88,75 +89,34 @@
         <template v-if="room.authenticated">
           <!-- Room join/start -->
 
-          <div class="grid">
+          <div class="grid mb-2">
             <!-- Show invitation text/link to moderators and room owners -->
-            <div class="col-12 md:col-8 lg:col-6 flex-order-2 md:flex-order-1"
+            <div
               v-if="viewInvitation"
+              class="col-12 lg:col-6 flex-order-2 lg:flex-order-1"
             >
               <RoomAccessWidget :room="room" />
             </div>
-            <div class="col-12 flex-order-1 md:flex-order-2" :class="{ 'md:col-4 lg:col-6': viewInvitation, 'md:col-6 lg:col-12': !viewInvitation}">
-              <div class="grid">
-                <!-- Ask guests for their first and lastname -->
-                <div class="col-12 md:col-6"
-                  v-if="!authStore.isAuthenticated"
-                >
-                  <div class="flex flex-column gap-2">
-                    <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
-                    <InputText
-                      v-model="name"
-                      :placeholder="$t('rooms.placeholder_name')"
-                      :disabled="!!token"
-                      :class="{'p-invalid': formErrors.fieldInvalid('name')}"
-                    />
-                    <p class="p-error" v-html="formErrors.fieldError('name')" />
-                  </div>
-                </div>
-                <!-- Show room start or join button -->
-                <div class="col-12" :class="{ 'md:col-12': authStore.isAuthenticated, 'md:col-6': !authStore.isAuthenticated}">
-                  <InlineMessage
-                    v-if="room.record_attendance"
-                    severity="info"
-                  >
-                    {{ $t('rooms.recording_attendance_info') }}
-                    <div class="flex align-items-center gap-2">
-                      <Checkbox inputId="record-attendance-agreement" v-model="recordAttendanceAgreement" binary />
-                      <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
-                    </div>
-                  </InlineMessage>
-
-                  <!-- If room is running, show join button -->
-                  <template v-if="running">
-                    <!-- If user is guest, join is only possible if a name is provided -->
-                    <Button
-                      class="p-button-block"
-                      :disabled="(!authStore.isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
-                      @click="join"
-                      :loading="loadingJoinStart"
-                      icon="fa-solid fa-door-open"
-                      :label="$t('rooms.join')"
-                    />
-                  </template>
-                  <!-- If room is not running -->
-                  <template v-else>
-                    <Button
-                      v-if="room.can_start"
-                      class="p-button-block"
-                      :disabled="(!authStore.isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
-                      @click="start"
-                      :loading="loadingJoinStart"
-                      icon="fa-solid fa-door-open"
-                      :label="$t('rooms.start')"
-                    />
-                    <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-                    <Tag v-else severity="info" icon="fa-solid fa-circle-notch fa-spin text-base mr-2" class="w-full text-base" :value="$t('rooms.not_running')"></Tag>
-                  </template>
-
-                  <RoomBrowserNotification
+            <div
+              class="col-12 flex-order-1 lg:flex-order-2 flex flex-column gap-2"
+              :class="viewInvitation ? 'lg:col-6' : 'lg:col-12 lg:flex-row justify-content-between'"
+            >
+              <div class="flex-1" :class="viewInvitation ? 'flex-none' : 'xl:flex-none'">
+                <RoomJoinButton
+                  :roomId="room.id"
+                  :running="running"
+                  :disabled="room.room_type_invalid"
+                  :record-attendance="room.record_attendance"
+                  :can-start="room.can_start"
+                  :token="props.token"
+                  :access-code="accessCode"
+                />
+              </div>
+              <div class="flex-1" :class="viewInvitation ? 'flex-none' : 'xl:flex-none'">
+                <RoomBrowserNotification
                     :running="running"
                     :name="room.name"
                   />
-                </div>
               </div>
             </div>
           </div>
@@ -206,7 +166,6 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/composables/useToast.js';
 import { useRouter } from 'vue-router';
-import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 
@@ -223,13 +182,10 @@ const props = defineProps({
 
 const reloadInterval = ref(null);
 const loading = ref(false); // Room settings/details loading
-const loadingJoinStart = ref(false); // Loading indicator on joining/starting a room
-const name = ref(''); // Name of guest
 const room = ref(null); // Room object
 const accessCode = ref(null); // Access code to use for requests
 const accessCodeInput = ref(''); // Access code input modal
 const accessCodeValid = ref(null); // Is access code valid
-const recordAttendanceAgreement = ref(false);
 const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
@@ -240,7 +196,6 @@ const userPermissions = useUserPermissions();
 const { t } = useI18n();
 const toast = useToast();
 const router = useRouter();
-const formErrors = useFormErrors();
 const api = useApi();
 
 onMounted(() => {
@@ -339,10 +294,6 @@ function load () {
     .then(response => {
       room.value = response.data.data;
 
-      if (room.value.username) {
-        name.value = room.value.username;
-      }
-
       setPageTitle(room.value.name);
 
       startAutoRefresh();
@@ -405,10 +356,6 @@ function reload () {
       // @TODO Fix bug
       // EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, room.value);
 
-      if (room.value.username) {
-        name.value = room.value.username;
-      }
-
       setPageTitle(room.value.name);
 
       // Update current user, if logged in/out in another tab or session expired
@@ -447,88 +394,6 @@ function reload () {
 }
 
 /**
- * Start a new meeting
- */
-function start () {
-  // Enable start/join meeting indicator/spinner
-  loadingJoinStart.value = true;
-  // Reset errors
-  formErrors.clear();
-  // Build url, add accessCode and token if needed
-  const config = {
-    params: {
-      name: props.token ? null : name.value,
-      record_attendance: recordAttendanceAgreement.value ? 1 : 0
-    }
-  };
-
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { 'Access-Code': accessCode.value };
-  }
-
-  const url = 'rooms/' + props.id + '/start';
-
-  api.call(url, config)
-    .then(response => {
-      // Check if response has a join url, if yes redirect
-      if (response.data.url !== undefined) {
-        window.location = response.data.url;
-      }
-    })
-    .catch((error) => {
-      if (error.response) {
-        // Access code invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-          return handleInvalidCode();
-        }
-
-        // Access code invalid
-        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-          return handleInvalidCode();
-        }
-
-        // Room token is invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-          return handleInvalidToken();
-        }
-
-        // Forbidden, guests not allowed
-        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
-          return handleGuestsNotAllowed();
-        }
-
-        // Forbidden, use can't start the room
-        if (error.response.status === env.HTTP_FORBIDDEN) {
-          // Show error message
-          toast.error(t('rooms.flash.start_forbidden'));
-          // Disable room start button and reload the room settings, as there was obviously
-          // a different understanding of the users permission in this room
-          room.value.can_start = false;
-          reload();
-          return;
-        }
-
-        // Form validation error
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          formErrors.set(error.response.data.errors);
-          return;
-        }
-
-        // Attendance logging agreement required but not accepted
-        if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
-          room.value.record_attendance = true;
-        }
-      }
-      api.error(error);
-    }).finally(() => {
-      // Disable loading indicator
-      loadingJoinStart.value = false;
-    });
-}
-
-/**
   * Show room name in title
   * @param {string} roomName Name of the room
   */
@@ -536,83 +401,6 @@ function setPageTitle (roomName) {
   document.title = roomName + ' - ' + settingsStore.getSetting('name');
 }
 
-/**
- * Join a running meeting
- */
-function join () {
-  // Enable start/join meeting indicator/spinner
-  loadingJoinStart.value = true;
-  // Reset errors
-  formErrors.clear();
-
-  // Build url, add accessCode and token if needed
-  const config = {
-    params: {
-      name: props.token ? null : name.value,
-      record_attendance: recordAttendanceAgreement.value ? 1 : 0
-    }
-  };
-
-  if (props.token) {
-    config.headers = { Token: props.token };
-  } else if (accessCode.value != null) {
-    config.headers = { 'Access-Code': accessCode.value };
-  }
-
-  const url = 'rooms/' + props.id + '/join';
-
-  // Join meeting request
-  api.call(url, config)
-    .then(response => {
-      // Check if response has a join url, if yes redirect
-      if (response.data.url !== undefined) {
-        window.location = response.data.url;
-      }
-    })
-    .catch((error) => {
-      if (error.response) {
-        // Access code invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-          return handleInvalidCode();
-        }
-
-        // Access code invalid
-        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-          return handleInvalidCode();
-        }
-
-        // Room token is invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-          return handleInvalidToken();
-        }
-
-        // Forbidden, guests not allowed
-        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
-          return handleGuestsNotAllowed();
-        }
-
-        // Room is not running, update running status
-        if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
-          reload();
-        }
-
-        // Form validation error
-        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          formErrors.set(error.response.data.errors);
-          return;
-        }
-
-        // Attendance logging agreement required but not accepted
-        if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
-          room.value.record_attendance = true;
-        }
-      }
-      api.error(error);
-    }).finally(() => {
-      // Disable loading indicator
-      loadingJoinStart.value = false;
-    });
-}
 /**
  * Handle login with access code
  */

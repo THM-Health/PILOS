@@ -30,8 +30,6 @@ class UpdateRoomSettings extends FormRequest
             'allow_guests'                       => 'required|boolean',
             'lobby'                              => ['required',new EnumValue(RoomLobby::class)],
             'room_type'                          => ['bail','required', 'exists:App\Models\RoomType,id', new ValidRoomType($this->room->owner)],
-            'duration'                           => 'nullable|numeric|min:1',
-            'max_participants'                   => 'nullable|numeric|min:1',
             'name'                               => 'required|string|min:2|max:'.config('bigbluebutton.room_name_limit'),
             'welcome'                            => 'nullable|string|max:'.config('bigbluebutton.welcome_message_limit'),
             'short_description'                  => 'nullable|string|max:300',

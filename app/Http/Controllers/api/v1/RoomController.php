@@ -230,8 +230,6 @@ class RoomController extends Controller
         $room->name             = $request->name;
         $room->welcome          = $request->welcome;
         $room->short_description= $request->short_description;
-        $room->max_participants = $request->max_participants;
-        $room->duration         = $request->duration;
         $room->access_code      = $request->access_code;
         $room->listed           = $request->listed;
 

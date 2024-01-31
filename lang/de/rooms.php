@@ -89,6 +89,7 @@ return [
         'remove' => 'Aus Favoriten entfernen'
     ],
     'files' => [
+        'browse'         => 'Durchsuchen',
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
         'default'        => 'Standard',
         'delete'         => 'Datei löschen',
@@ -150,7 +151,8 @@ return [
         'link'   => 'Link',
         'room'   => 'An ":roomname" mit :platform teilnehmen',
     ],
-    'join'            => 'Teilnehmen',
+    'join'            => 'Beitreten',
+    'join_room' => 'Raum betreten',
     'login'           => 'Anmelden',
     'meeting_history' => [
         'title' => 'Historie',
@@ -260,7 +262,7 @@ return [
         'participants'     => [
             'clear_max_participants' => 'Max. Teilnehmeranzahl zurücksetzen',
             'default_role'           => [
-                'only_logged_in' => '(nur für angemeldete Beutzer)',
+                'only_logged_in' => '(nur für angemeldete Benutzer)',
                 'title'          => 'Standardrolle',
             ],
             'max_participants'  => 'Max. Teilnehmeranzahl',
@@ -300,6 +302,7 @@ return [
         'title' => 'Einstellungen',
     ],
     'start'        => 'Starten',
+    'start_room' => 'Raum starten',
     'tokens'       => [
         'add'              => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete'   => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',

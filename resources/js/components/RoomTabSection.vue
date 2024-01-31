@@ -11,7 +11,7 @@
           }"
         >
           <!-- Room description tab -->
-          <TabPanel >
+          <TabPanel v-if="userPermissions.can('viewSettings', room) || room.description" >
             <template #header>
               <i class="fa-solid fa-file-lines mr-2" /> <span>{{ $t('rooms.description.title') }}</span>
             </template>
@@ -52,6 +52,7 @@
               :room="props.room"
               :access-code="props.accessCode"
               :token="props.token"
+              :require-agreement="!userPermissions.can('viewSettings', room)"
 
               @invalid-code="$emit('invalidCode')"
               @invalid-token="$emit('invalidToken')"

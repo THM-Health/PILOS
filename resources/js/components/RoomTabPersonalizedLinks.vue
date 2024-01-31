@@ -58,7 +58,7 @@
         </template>
       </Column>
 
-      <Column :header="$t('app.actions')">
+      <Column :header="$t('app.actions')" class="action-column">
         <template #body="slotProps">
           <div class="flex gap-2">
             <!-- copy -->

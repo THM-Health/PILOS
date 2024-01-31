@@ -1,7 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('rooms.members.bulk_remove_user',{numberOfSelectedUsers: props.userIds.length})"
-    :disabled="isBusy"
+    :disabled="disabled"
     severity="danger"
     @click="showBulkDeleteMembersModal"
     icon="fa-solid fa-users-slash"
@@ -39,7 +39,7 @@ import { ref } from 'vue';
 const props = defineProps([
   'roomId',
   'userIds',
-  'isBusy'
+  'disabled'
 ]);
 
 const emit = defineEmits(['deleted']);
