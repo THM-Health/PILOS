@@ -66,10 +66,7 @@
         <Column field="image" :header="$t('rooms.members.image')">
           <!-- render user profile image -->
           <template #body="slotProps">
-            <img
-              :src="slotProps.data.image ? slotProps.data.image : '/images/default_profile.png'"
-              class="profile-image"
-            >
+            <UserAvatar :firstname="slotProps.data.firstname" :lastname="slotProps.data.lastname" :image="slotProps.data.image" size="large"/>
           </template>
         </Column>
         <Column field="firstname" sortable :header="$t('app.firstname')"></Column>
@@ -139,6 +136,7 @@ import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import UserAvatar from "./UserAvatar.vue";
 
 const props = defineProps({
   room: {

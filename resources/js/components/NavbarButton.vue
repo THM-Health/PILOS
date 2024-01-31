@@ -5,17 +5,18 @@ const props = defineProps([
   'to',
   'href',
   'target',
-  'closeMainMenu'
+  'closeMainMenu',
+  'buttonClass'
 ]);
 
 </script>
 
 <template>
   <li @click="$emit('itemClicked')">
-    <button v-if="!to && !href" class="bg-transparent border-none w-full text-500 hover:text-900 focus:text-900 block lg:px-2 lg:py-3">
+    <button v-if="!to && !href" :class="props.buttonClass" class="bg-transparent border-none w-full text-500 hover:text-900 focus:text-900 block lg:px-2 lg:py-3">
       <slot>{{ props.text }}</slot>
     </button>
-    <AppLink v-else :to="to" :href="href" :target="target" class="text-500 hover:text-900 focus:text-900 block lg:px-2 lg:py-3">
+    <AppLink v-else :to="to" :href="href" :target="target" :class="buttonClass" class="text-500 hover:text-900 focus:text-900 block lg:px-2 lg:py-3">
       <slot>{{ props.text }}</slot>
     </AppLink>
   </li>

@@ -4,7 +4,8 @@ import { vOnClickOutside } from '@vueuse/components';
 import { autoPlacement, autoUpdate, useFloating } from '@floating-ui/vue';
 
 const props = defineProps([
-  'text'
+  'text',
+  'buttonClass'
 ]);
 
 const dropdownButton = ref();
@@ -43,7 +44,7 @@ const onClickOutsideHandler = [
 
 <template>
   <li>
-    <button ref="dropdownButton" class="bg-transparent border-none block flex align-items-center text-500 hover:text-900 focus:text-900 w-full p-0 lg:px-2 lg:py-3 cursor-pointer"
+    <button ref="dropdownButton" :class="props.buttonClass" class="bg-transparent border-none block flex align-items-center text-500 hover:text-900 focus:text-900 w-full p-0 lg:px-2 lg:py-3 cursor-pointer"
        @click.stop="dropdown = !dropdown; dropdownMobile = !dropdownMobile"
     >
       <slot name="button-content">{{ props.text }}</slot>

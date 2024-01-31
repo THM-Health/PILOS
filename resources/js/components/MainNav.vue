@@ -1,6 +1,6 @@
 <template>
 
-  <div class="border-bottom-1 border-200 bg-white py-3 relative">
+  <div class="border-bottom-1 border-200 bg-white py-1 relative">
     <div class="container flex lg:flex-row flex-column justify-content-between">
       <div class="flex align-items-center justify-content-between">
         <RouterLink v-if="settingsStore.getSetting('logo')" :to="{ name: 'home' }" class="mr-6">

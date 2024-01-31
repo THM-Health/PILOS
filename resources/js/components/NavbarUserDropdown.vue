@@ -2,7 +2,10 @@
   <NavbarButton v-if="!authStore.isAuthenticated" :to="loginRoute" :text="$t('auth.login')" />
   <div v-else>
 
-    <NavbarDropdownButton :text="authStore.currentUser.firstname+' '+authStore.currentUser.lastname">
+    <NavbarDropdownButton>
+      <template #button-content>
+        <UserAvatar :firstname="authStore.currentUser.firstname" :lastname="authStore.currentUser.lastname" :image="authStore.currentUser.image" class="bg-primary" />
+      </template>
       <template v-slot="slotProps">
         <NavbarDropdownItem
           @click="slotProps.closeCallback(); $emit('itemClicked');"
@@ -24,6 +27,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useLoadingStore } from '@/stores/loading';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import UserAvatar from "./UserAvatar.vue";
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
