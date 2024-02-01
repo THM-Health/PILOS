@@ -10,7 +10,7 @@
             <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.general.title') }}</p>
             <div class="flex flex-column gap-2">
               <label for="room-type">{{ $t('rooms.settings.general.type') }}</label>
-              <room-type-select
+              <RoomTypeSelect
                 ref="roomTypeSelectRef"
                 v-model="settings.room_type"
                 :disabled="disabled"
