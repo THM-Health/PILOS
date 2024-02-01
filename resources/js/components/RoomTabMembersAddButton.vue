@@ -52,7 +52,7 @@
         :class="{'p-invalid': formErrors.fieldInvalid('user')}"
       >
         <template #noResult>
-          <span v-if="tooManyResults">
+          <span v-if="tooManyResults" class="white-space-normal">
             {{ $t('rooms.members.modals.add.too_many_results') }}
           </span>
           <span v-else>
