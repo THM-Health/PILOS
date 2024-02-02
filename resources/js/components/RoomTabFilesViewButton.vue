@@ -11,7 +11,7 @@
   />
 </template>
 <script setup>
-import env from '@/env.js';
+import env from '../env.js';
 import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useToast } from '../composables/useToast.js';

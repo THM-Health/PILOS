@@ -34,7 +34,7 @@
   </Dialog>
 </template>
 <script setup>
-import env from '@/env';
+import env from '../env';
 import { useApi } from '../composables/useApi.js';
 import { ref } from 'vue';
 import { useToast } from '../composables/useToast.js';

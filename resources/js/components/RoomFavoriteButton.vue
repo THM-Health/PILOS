@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { useApi } from '@/composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 
 const api = useApi();
 

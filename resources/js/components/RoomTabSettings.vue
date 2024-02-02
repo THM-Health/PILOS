@@ -417,9 +417,9 @@
 </template>
 
 <script setup>
-import env from '@/env.js';
+import env from '../env.js';
 import _ from 'lodash';
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { onMounted, ref, computed, watch } from 'vue';

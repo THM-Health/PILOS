@@ -130,12 +130,12 @@
 </template>
 <script setup>
 import _ from 'lodash';
-import { useAuthStore } from '@/stores/auth';
-import EventBus from '@/services/EventBus';
-import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
+import { useAuthStore } from '../stores/auth';
+import EventBus from '../services/EventBus';
+import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useApi } from '@/composables/useApi.js';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useApi } from '../composables/useApi.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
 import UserAvatar from './UserAvatar.vue';
 
 const props = defineProps({

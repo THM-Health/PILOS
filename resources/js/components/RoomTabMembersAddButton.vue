@@ -98,7 +98,7 @@
 </template>
 <script setup>
 import Multiselect from 'vue-multiselect';
-import env from '@/env';
+import env from '../env';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';

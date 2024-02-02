@@ -51,7 +51,7 @@
   </Dialog>
 </template>
 <script setup>
-import env from '@/env';
+import env from '../env';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';

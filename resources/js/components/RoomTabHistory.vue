@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../composables/useApi.js';
 import { onMounted, ref } from 'vue';
 

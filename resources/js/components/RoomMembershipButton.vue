@@ -42,7 +42,7 @@
   </Dialog>
 </template>
 <script setup>
-import env from '@/env';
+import env from '../env';
 import { ref } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useApi } from '../composables/useApi.js';

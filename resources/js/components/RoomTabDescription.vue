@@ -55,12 +55,12 @@
 </template>
 
 <script setup>
-import env from '@/env';
+import env from '../env';
 import createDOMPurify from 'dompurify';
 import { ref, computed } from 'vue';
-import { useFormErrors } from '@/composables/useFormErrors.js';
-import { useApi } from '@/composables/useApi.js';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useFormErrors } from '../composables/useFormErrors.js';
+import { useApi } from '../composables/useApi.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
 
 const props = defineProps({
   room: Object

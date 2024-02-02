@@ -24,7 +24,7 @@
 <script>
 
 import { mapState } from 'pinia';
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore } from '../stores/settings';
 import notificationSound from '../../audio/notification.mp3';
 
 export default {

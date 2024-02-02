@@ -55,14 +55,14 @@
   </div>
 </template>
 <script setup>
-import env from '@/env.js';
+import env from '../env.js';
 import _ from 'lodash';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '../stores/auth';
 import { reactive, ref } from 'vue';
-import { useFormErrors } from '@/composables/useFormErrors.js';
-import { useApi } from '@/composables/useApi.js';
+import { useFormErrors } from '../composables/useFormErrors.js';
+import { useApi } from '../composables/useApi.js';
 import { useRouter } from 'vue-router';
-import { useToast } from '@/composables/useToast.js';
+import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
 
 const authStore = useAuthStore();

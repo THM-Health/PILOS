@@ -50,11 +50,11 @@
   </Fieldset>
 </template>
 <script setup>
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore } from '../stores/settings';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useToast } from '@/composables/useToast.js';
+import { useToast } from '../composables/useToast.js';
 
 const settingsStore = useSettingsStore();
 const router = useRouter();

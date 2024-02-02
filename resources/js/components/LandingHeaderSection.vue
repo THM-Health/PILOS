@@ -27,7 +27,7 @@
   </div>
 </template>
 <script setup>
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore } from '../stores/settings';
 const settingsStore = useSettingsStore();
 </script>
 <style scoped>

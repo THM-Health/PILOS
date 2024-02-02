@@ -82,7 +82,7 @@
       </div>
 </template>
 <script setup>
-import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
 
 const props = defineProps({
   room: Object,

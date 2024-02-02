@@ -135,7 +135,7 @@
 <script setup>
 
 import _ from 'lodash';
-import env from '@/env';
+import env from '../env';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';

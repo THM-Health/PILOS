@@ -136,9 +136,9 @@
   </div>
 </template>
 <script setup>
-import env from '@/env.js';
-import EventBus from '@/services/EventBus';
-import { EVENT_CURRENT_ROOM_CHANGED } from '@/constants/events';
+import env from '../env.js';
+import EventBus from '../services/EventBus';
+import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useSettingsStore } from '../stores/settings.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
