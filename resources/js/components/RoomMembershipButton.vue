@@ -12,7 +12,7 @@
   />
   <!-- If user is member, allow user to end the membership -->
   <Button
-    v-if="room.is_member"
+    v-if="room.is_member && authStore.isAuthenticated"
     :disabled="isLoadingAction || disabled"
     @click="showModal = true"
     icon="fa-solid fa-user"
@@ -46,6 +46,7 @@ import env from '../env';
 import { ref } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useApi } from '../composables/useApi.js';
+import {useAuthStore} from "../stores/auth.js";
 
 const props = defineProps({
   room: {
@@ -70,6 +71,7 @@ const showModal = ref(false);
 
 const userPermissions = useUserPermissions();
 const api = useApi();
+const authStore = useAuthStore();
 
 /**
  * Become a room member
