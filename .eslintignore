@@ -2,7 +2,7 @@
 /public/hot
 /public/storage
 /resources/custom
-/storage/*.key
+/storage
 /vendor
 /coverage
 .env
@@ -19,3 +19,4 @@ package.json
 /ssl
 /storage
 /tests
+/bbb-playback

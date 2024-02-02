@@ -2,6 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "bbb-playback": "cd bbb-playback && npm install && REACT_APP_MEDIA_ROOT_URL=/recording/presentation npm run build",
         "dev": "vite --host",
         "build": "vite build",
         "lint": "eslint --ext .js,.vue,.json .",

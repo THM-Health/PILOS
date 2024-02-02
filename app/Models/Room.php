@@ -71,8 +71,18 @@ class Room extends Model
         'access_code'                        => 'integer',
         'listed'                             => 'boolean',
         'record_attendance'                  => 'boolean',
-        'delete_inactive'                    => 'datetime',
+        'record'                             => 'boolean',
+        'delete_inactive'                    => 'datetime'
     ];
+
+    /**
+     * Meeting
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function recordings()
+    {
+        return $this->hasMany(Recording::class);
+    }
 
     /**
      * Room owner

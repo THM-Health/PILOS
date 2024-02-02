@@ -40,6 +40,10 @@ RUN apk add --no-cache --virtual .mod-deps shadow \
   && chown www-data:www-data -R /var/lib/nginx/ \
   && apk del .mod-deps
 
+# Add spool user for recording import
+RUN addgroup pilos-spool --gid 2000 && \
+    addgroup www-data pilos-spool
+
 # Copy entrypoint
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
@@ -81,11 +85,14 @@ COPY ./docker/app/ldap/ /etc/ldap
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
-# Run npm and composer install as www-data user
+# Run npm instal command
 RUN su-exec www-data npm install --omit=dev
-RUN su-exec www-data composer install --no-dev
+# Build bbb recording player
+RUN su-exec www-data npm run bbb-playback
 
-# Optimize composer autoloader for production
+
+# Run and optimize composer for production
+RUN su-exec www-data composer install --no-dev
 RUN su-exec www-data composer dump-autoload -o
 
 EXPOSE 80

@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Enums\RecordingAccess;
+use App\Models\RecordingFormat;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Models\RoomToken;
@@ -259,5 +261,44 @@ class RoomPolicy
         }
 
         return $user->can('viewAllFiles', $room);
+    }
+
+    public function viewAllRecordings(User $user, Room $room)
+    {
+        return $user->can('manageRecordings', $room) || $user->can('rooms.viewAll');
+    }
+
+    public function manageRecordings(User $user, Room $room)
+    {
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
+    }
+
+    public function downloadRecordingFormat(?User $user, Room $room, RecordingFormat $recordingFormat)
+    {
+        if ($user->can('viewAllRecordings', $room)) {
+            return true;
+        }
+
+        if ($recordingFormat->disabled) {
+            return false;
+        }
+
+        if ($recordingFormat->recording->access == RecordingAccess::EVERYONE) {
+            return true;
+        }
+
+        if ($user == null) {
+            return false;
+        }
+
+        if ($recordingFormat->recording->access == RecordingAccess::PARTICIPANT) {
+            return $room->isMember($user);
+        }
+
+        if ($recordingFormat->recording->access == RecordingAccess::MODERATOR) {
+            return $room->isModerator($user);
+        }
+
+        return false;
     }
 }

@@ -34,7 +34,8 @@ class Meeting extends Model
     protected $casts = [
         'start'              => 'datetime',
         'end'                => 'datetime',
-        'record_attendance'  => 'boolean'
+        'record_attendance'  => 'boolean',
+        'record'             => 'boolean'
     ];
 
     /**

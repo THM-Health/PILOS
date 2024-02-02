@@ -200,7 +200,7 @@ class RoomController extends Controller
         $this->authorize('start', [$room, $roomAuthService->getRoomToken($room)]);
 
         $roomService = new RoomService($room);
-        $url         = $roomService->start($request->record_attendance)->getJoinUrl($request);
+        $url         = $roomService->start($request->record_attendance, $request->record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
@@ -214,7 +214,7 @@ class RoomController extends Controller
     public function join(Room $room, StartJoinMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url         = $roomService->join($request->record_attendance)->getJoinUrl($request);
+        $url         = $roomService->join($request->record_attendance, $request->record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
@@ -247,6 +247,7 @@ class RoomController extends Controller
         $room->allow_guests                       = $request->allow_guests;
 
         $room->record_attendance              = $request->record_attendance;
+        $room->record                         = $request->record;
 
         $room->default_role = $request->default_role;
         $room->lobby        = $request->lobby;

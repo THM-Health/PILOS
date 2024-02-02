@@ -45,4 +45,20 @@ server {
     location ~ /\.(?!well-known).* {
         deny all;
     }
+
+
+    location /playback/presentation/playback.html {
+        return 301 /playback/presentation/0.81/playback.html?$query_string;
+    }
+
+    location /playback/presentation/2.0/playback.html {
+        return 301 /playback/presentation/2.3/$arg_meetingId?$query_string;
+    }
+
+    location /playback/presentation/2.3/ {
+            alias /var/www/html/bbb-playback/build/;
+            index index.html;
+            try_files $uri $uri/ /playback/presentation/2.3/index.html;
+    }
+
 }

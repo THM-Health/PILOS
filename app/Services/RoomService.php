@@ -27,7 +27,7 @@ class RoomService
      * @return MeetingService
      * @throws \Exception
      */
-    public function start(bool $agreedToAttendance = false)
+    public function start(bool $agreedToAttendance = false, bool $agreedToRecord = false)
     {
         Log::info('Starting room {room}', ['room' => $this->room->id, 'room-name' => $this->room->name ]);
 
@@ -57,6 +57,13 @@ class RoomService
                     abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
                 }
 
+                // Check if user didn't see the recording note, but the meeting is recorded
+                if ($this->room->record && !$agreedToRecord) {
+                    $lock->release();
+                    Log::warning('Failed to create meeting for room {room}; record agreement missing', ['room' => $this->room->getLogLabel() ]);
+                    abort(CustomStatusCodes::RECORD_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+                }
+
                 Log::info('Finding server with lowest usage for room {room}', ['room' => $this->room->getLogLabel() ]);
 
                 // Basic load balancing: get server with the lowest usage
@@ -77,6 +84,7 @@ class RoomService
                 $meeting->attendee_pw        = bin2hex(random_bytes(5));
                 $meeting->moderator_pw       = bin2hex(random_bytes(5));
                 $meeting->record_attendance  = setting('attendance.enabled') && $this->room->record_attendance;
+                $meeting->record             = $this->room->record;
                 $meeting->server()->associate($server);
                 $meeting->room()->associate($this->room);
                 $meeting->save();
@@ -84,7 +92,8 @@ class RoomService
                 $meetingService = new MeetingService($meeting);
 
                 Log::info('Starting new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel() ]);
-                if (!$meetingService->start()) {
+                $result = $meetingService->start();
+                if ($result == null) {
                     $lock->release();
                     Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()  ]);
                     abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
@@ -93,7 +102,7 @@ class RoomService
                 Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel() ]);
 
                 // Set start time after successful api call, prevents user from tying to join this meeting before it is ready
-                $meeting->start = date('Y-m-d H:i:s');
+                $meeting->start               = date('Y-m-d H:i:s');
                 $meeting->save();
 
                 $this->room->latestMeeting()->associate($meeting);
@@ -140,7 +149,7 @@ class RoomService
      * @param  bool           $agreedToAttendance
      * @return MeetingService
      */
-    public function join(bool $agreedToAttendance = false)
+    public function join(bool $agreedToAttendance = false, bool $agreedToRecord = false)
     {
         Log::info('Joining room {room}', ['room' => $this->room->getLogLabel() ]);
 
@@ -170,6 +179,12 @@ class RoomService
         if (setting('attendance.enabled') && $meeting->record_attendance && !$agreedToAttendance) {
             Log::warning('Failed to join meeting for room {room}; attendance agreement missing', ['room' => $this->room->getLogLabel() ]);
             abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+        }
+
+        // Check if user didn't see the recording note, but the meeting is recorded
+        if ($meeting->record && !$agreedToRecord) {
+            Log::warning('Failed to join meeting for room {room}; record agreement missing', ['room' => $this->room->getLogLabel() ]);
+            abort(CustomStatusCodes::RECORD_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
         }
 
         return $meetingService;
