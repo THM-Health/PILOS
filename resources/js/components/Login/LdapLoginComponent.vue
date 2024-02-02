@@ -38,6 +38,7 @@
         class="mt-4"
         :disabled="props.loading"
         :loading="props.loading"
+        icon="fa-solid fa-right-to-bracket"
         :label="props.submitLabel"
       />
     </form>

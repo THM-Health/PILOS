@@ -48,6 +48,7 @@
         :disabled="props.loading"
         :loading="props.loading"
         :label="props.submitLabel"
+        icon="fa-solid fa-right-to-bracket"
       />
     </form>
   </div>
