@@ -4,7 +4,7 @@
       <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
 
         <Card
-          :pt="{ root: { class: 'shadow-2' },body: { class: 'p-0' }, content: { class : 'p-0'} }"
+          :pt="{ body: { class: 'p-0' }, content: { class : 'p-0'} }"
         >
           <template #content>
             <TabView
