@@ -39,6 +39,7 @@
             @click="load()"
             icon="fa-solid fa-sync"
             :label="$t('app.reload')"
+            :aria-label="$t('app.reload')"
           />
         </div>
       </div>
@@ -62,13 +63,15 @@
               <!-- Reload general room settings/details -->
               <Button
                 v-tooltip="$t('app.reload')"
+                :aria-label="$t('app.reload')"
                 severity="secondary"
                 :disabled="loading"
                 @click="reload"
                 icon="fa-solid fa-sync"
                 :loading="loading"
               />
-              <RoomOptionsDropdownButton :room="room" @reload="reload()" @invalidCode="handleInvalidCode" />
+              <RoomFavoriteButton :room="room" @favorites-changed="reload()" />
+              <RoomMembershipButton :room="room" @added="reload()" @removed="reload()" />
             </div>
           </div>
         </div>

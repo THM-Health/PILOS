@@ -239,6 +239,7 @@ return [
         'guest'       => 'Gast',
         'moderator'   => 'Moderator',
         'participant' => 'Teilnehmer',
+        'no_role'     => 'Keine Rolle',
     ],
     'room_limit'              => 'Maximale Anzahl an Räumen: :has/:max',
     'room_type_invalid_alert' => 'Die Nutzung der Raumart :roomTypeName ist nur für bestimmte Benutzergruppen genehmigt. Wenn Sie der Eigentümer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum wieder gestartet werden kann.',

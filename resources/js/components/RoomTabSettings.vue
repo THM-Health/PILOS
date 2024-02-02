@@ -386,15 +386,31 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-content-end">
-          <Button
-            :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
-            variant="success"
-            type="submit"
-            icon="fa-solid fa-save"
-            :label="$t('app.save')"
-            :loading="isBusy"
-          />
+        <Divider/>
+        <div class="flex flex-column-reverse md:flex-row md:justify-content-between gap-2 align-items-start ">
+          <div class="flex flex-shrink-0 flex-column md:flex-row align-items-start gap-2">
+            <RoomDeleteButton
+              :room="room"
+              :disabled="disabled"
+              @room-deleted="$router.push({ name: 'rooms.index' })"
+            />
+            <RoomTransferOwnershipButton
+              :room="room"
+              :disabled="disabled"
+              @transferredOwnership="emit('settingsChanged');"
+            />
+          </div>
+          <div class="flex">
+            <Button
+              :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
+              variant="success"
+              type="submit"
+              icon="fa-solid fa-save"
+              :label="$t('app.save')"
+              :loading="isBusy"
+            />
+          </div>
+
         </div>
       </form>
   </div>
