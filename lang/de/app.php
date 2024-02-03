@@ -60,6 +60,7 @@ return [
         'too_many_requests' => 'Zu viele Anfragen. Bitte versuchen Sie es später noch einmal.',
         'unauthenticated'   => 'Sie müssen angemeldet sein, um die Anfrage durchführen zu können!',
         'unauthorized'      => 'Sie haben für die aufgerufene Route nicht die notwendigen Rechte!',
+        'popup_blocked'     => 'Ihr Browser hat das Öffnen eines neuen Fensters blockiert. Bitte erlauben Sie das Öffnen von Popups für diese Seite und versuchen Sie es erneut.',
     ],
     'footer' => [
         'legal_notice'   => 'Impressum',

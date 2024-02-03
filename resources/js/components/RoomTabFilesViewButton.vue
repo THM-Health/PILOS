@@ -71,7 +71,10 @@ function downloadFile () {
   api.call(url, config)
     .then(response => {
       if (response.data.url !== undefined) {
-        window.open(response.data.url, '_blank');
+        const downloadWindow = window.open(response.data.url, '_blank');
+        if (!downloadWindow) {
+          toast.error(t('app.flash.popup_blocked'));
+        }
       }
     }).catch((error) => {
       if (error.response) {
