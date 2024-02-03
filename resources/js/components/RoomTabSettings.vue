@@ -151,6 +151,40 @@
               </div>
               <p class="p-error" v-html="formErrors.fieldError('listed')" />
             </div>
+
+            <Divider class="my-0"/>
+            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.recordings.title') }}</p>
+
+            <!-- Checkbox record attendance of users and guests -->
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="record-attendance"
+                  v-model="settings.record_attendance"
+                  :disabled="disabled || !settingsStore.getSetting('attendance.enabled')"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('default_role')}"
+                />
+                <label for="record-attendance">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
+            </div>
+
+            <!-- Checkbox record video conference -->
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="record-video-conference"
+                  v-model="settings.record"
+                  :disabled="disabled"
+                  class="flex-shrink-0"
+                  :class="{'p-invalid': formErrors.fieldInvalid('record')}"
+                />
+                <label for="video-conference">{{ $t('rooms.settings.recordings.record_video_conference') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('record')" />
+            </div>
+
           </div>
 
           <!-- Participants settings tab -->
@@ -221,21 +255,6 @@
             >
               {{ $t('rooms.settings.participants.waiting_room_alert') }}
             </InlineMessage>
-
-            <!-- Checkbox record attendance of users and guests -->
-            <div class="flex flex-column gap-2">
-              <div class="flex align-items-center gap-2">
-                <InputSwitch
-                  input-id="record-attendance"
-                  v-model="settings.record_attendance"
-                  :disabled="disabled || !settingsStore.getSetting('attendance.enabled')"
-                  class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('default_role')}"
-                />
-                <label for="record-attendance">{{ $t('rooms.settings.participants.record_attendance') }}</label>
-              </div>
-              <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
-            </div>
           </div>
 
           <!-- Permissions & Restrictions tab -->

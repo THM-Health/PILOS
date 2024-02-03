@@ -310,13 +310,17 @@ return [
                 'title'          => 'Standardrolle',
             ],
             'max_participants'  => 'Max. Teilnehmeranzahl',
-            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
             'title'             => 'Teilnehmer',
             'waiting_room'      => [
                 'only_for_guests_enabled' => 'Aktiviert für Gäste',
                 'title'                   => 'Warteraum',
             ],
             'waiting_room_alert' => 'Standardrolle ist auf Moderator gesetzt: Warteraum ist nur für Gäste und bereits bestehende Mitglieder mit Teilnehmerrolle aktiv!',
+        ],
+        'recordings' => [
+            'title' => 'Aufzeichnungen',
+            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
+            'record_video_conference' => 'Video-Konferenz aufzeichnen',
         ],
         'permissions' => [
             'everyone_start' => 'Jeder darf das Meeting starten',
