@@ -56,7 +56,7 @@ server {
     }
 
     location /playback/presentation/2.3/ {
-            alias /var/www/html/bbb-playback/build/;
+            alias /var/www/html/public/playback-player/;
             index index.html;
             try_files $uri $uri/ /playback/presentation/2.3/index.html;
     }

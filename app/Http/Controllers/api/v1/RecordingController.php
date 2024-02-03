@@ -15,22 +15,24 @@ class RecordingController extends Controller
 {
     public function index(Room $room)
     {
-        if (\Gate::allows('viewAllRecordings', $room)) {
-            return RecordingResource::collection($room->recordings()->with('formats')->get());
+        $resource = $room->recordings()->with('formats');
+
+        if (!\Gate::allows('viewAllRecordings', $room)) {
+            $allowedAccess = [RecordingAccess::EVERYONE];
+
+            if ($room->isModerator(\Auth::user())) {
+                $allowedAccess[] = RecordingAccess::MODERATOR;
+                $allowedAccess[] = RecordingAccess::PARTICIPANT;
+            } elseif ($room->isMember(\Auth::user())) {
+                $allowedAccess[] = RecordingAccess::PARTICIPANT;
+            }
+
+            $resource = $resource->whereIn('access', $allowedAccess)->whereHas('formats', function (Builder $query) {
+                $query->where('disabled', false);
+            });
         }
 
-        $allowedAccess = [RecordingAccess::EVERYONE];
-
-        if ($room->isModerator(\Auth::user())) {
-            $allowedAccess[] = RecordingAccess::MODERATOR;
-            $allowedAccess[] = RecordingAccess::PARTICIPANT;
-        } elseif ($room->isMember(\Auth::user())) {
-            $allowedAccess[] = RecordingAccess::PARTICIPANT;
-        }
-
-        return RecordingResource::collection($room->recordings()->whereIn('access', $allowedAccess)->with('formats')->whereHas('formats', function (Builder $query) {
-            $query->where('disabled', false);
-        })->get());
+        return RecordingResource::collection($resource->paginate(setting('pagination_page_size')));
     }
 
     public function show(Room $room, RecordingFormat $format)
@@ -58,6 +60,10 @@ class RecordingController extends Controller
 
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)
     {
+        if (!$recording->room->is($room)) {
+            abort(404, __('app.errors.recording_not_found'));
+        }
+
         $recording->description = $request->description;
         $recording->access      = $request->access;
         $recording->save();
@@ -73,7 +79,12 @@ class RecordingController extends Controller
         return $recording;
     }
 
-    public function destroy(Recording $recording)
+    public function destroy(Room $room, Recording $recording)
     {
+        if (!$recording->room->is($room)) {
+            abort(404, __('app.errors.recording_not_found'));
+        }
+
+        $recording->delete();
     }
 }

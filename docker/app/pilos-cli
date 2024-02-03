@@ -28,6 +28,10 @@ case $ACTION in
     su-exec www-data /usr/local/etc/frontend/run.sh --pre-build
     ;;
 
+  playback-player:build)
+    su-exec www-data /usr/local/etc/playback-player/build.sh $2
+    ;;
+
   change-permissions)
     echo "Change permissions"
     chown -R :www-data /var/www/html/resources/custom

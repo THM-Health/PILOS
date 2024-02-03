@@ -238,6 +238,7 @@ a[data-target="safeLink"] {
     }
 }
 
+// Room role badges
 .room-role-guest {
     background-color: $info;
 }
@@ -253,6 +254,25 @@ a[data-target="safeLink"] {
 .room-role-co-owner {
     background-color: $secondary;
 }
+
+
+// Room recording access badges
+.room-recording-access-guest {
+    background-color: $info;
+}
+
+.room-recording-access-participant {
+    background-color: $success;
+}
+
+.room-recording-access-moderator {
+    background-color: $danger;
+}
+
+.room-recording-access-owner {
+    background-color: $secondary;
+}
+
 
 .p-dialog-content {
     overflow-y: visible;

@@ -188,7 +188,7 @@ import { useToast } from '@/composables/useToast.js';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
-import RoomHeader from "../../components/RoomHeader.vue";
+import RoomHeader from '../../components/RoomHeader.vue';
 
 const props = defineProps({
   id: {

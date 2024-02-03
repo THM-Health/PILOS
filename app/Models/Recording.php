@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Storage;
 
 class Recording extends Model
 {
@@ -53,5 +54,21 @@ class Recording extends Model
     public function formats()
     {
         return $this->hasMany(RecordingFormat::class);
+    }
+
+    /**
+     * Delete recording from database and storage
+     * @return bool|null
+     * @throws \Exception
+     */
+    public function delete()
+    {
+        $response = parent::delete();
+        // if delete successfully
+        if ($response) {
+            Storage::disk('recordings')->deleteDirectory($this->id);
+        }
+
+        return $response;
     }
 }

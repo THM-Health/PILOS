@@ -5,6 +5,7 @@ LABEL description="Development and production container for PILOS, compatible wi
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
+ARG PLAYBACK_PLAYER_VERSION=5.0.2
 
 WORKDIR /var/www/html
 
@@ -62,6 +63,11 @@ COPY ./docker/app/frontend /usr/local/etc/frontend
 RUN chmod +x /usr/local/etc/frontend/run.sh
 RUN chown www-data:www-data /usr/local/etc/frontend/
 
+# Copy bbb-player script
+COPY ./docker/app/playback-player /usr/local/etc/playback-player
+RUN chmod +x /usr/local/etc/playback-player/build.sh
+RUN chown www-data:www-data /usr/local/etc/playback-player/
+
 # Copy supervisor config
 RUN mkdir -p /var/log/supervisor
 COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
@@ -85,15 +91,15 @@ COPY ./docker/app/ldap/ /etc/ldap
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
-# Run npm instal command
+# Run npm install command
 RUN su-exec www-data npm install --omit=dev
-# Build bbb recording player
-RUN su-exec www-data npm run bbb-playback
-
 
 # Run and optimize composer for production
 RUN su-exec www-data composer install --no-dev
 RUN su-exec www-data composer dump-autoload -o
+
+# Install BBB Recording Player
+RUN pilos-cli playback-player:build $PLAYBACK_PLAYER_VERSION
 
 EXPOSE 80
 EXPOSE 443

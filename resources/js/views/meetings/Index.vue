@@ -192,20 +192,13 @@
 </template>
 
 <script setup>
-import Base from '@/api/base';
 import RawText from '@/components/RawText.vue';
 import TextTruncate from '@/components/TextTruncate.vue';
 
-import { ref, onMounted, watch } from 'vue';
-import { useAuthStore } from '../../stores/auth.js';
+import { ref, onMounted } from 'vue';
 import { useApi } from '../../composables/useApi.js';
-import { useUserPermissions } from '../../composables/useUserPermission.js';
-import EventBus from '../../services/EventBus.js';
-import { EVENT_CURRENT_ROOM_CHANGED } from '../../constants/events.js';
 
-const authStore = useAuthStore();
 const api = useApi();
-const userPermissions = useUserPermissions();
 
 const isBusy = ref(false);
 const meetings = ref([]);

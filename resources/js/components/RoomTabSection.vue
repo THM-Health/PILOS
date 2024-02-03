@@ -59,6 +59,21 @@
               @guests-not-allowed="$emit('guestsNotAllowed')"
             />
           </TabPanel>
+          <!-- Recordings tab -->
+          <TabPanel>
+            <template #header>
+              <i class="fa-solid fa-circle-play mr-2" /> <span>{{ $t('rooms.recordings.title') }}</span>
+            </template>
+            <RoomTabRecordings
+              :room="props.room"
+              :access-code="props.accessCode"
+              :token="props.token"
+
+              @invalid-code="$emit('invalidCode')"
+              @invalid-token="$emit('invalidToken')"
+              @guests-not-allowed="$emit('guestsNotAllowed')"
+            />
+          </TabPanel>
           <!-- Statistics tab -->
           <TabPanel v-if="userPermissions.can('viewSettings', room)">
             <template #header>

@@ -62,6 +62,34 @@
       <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
     </div>
 
+    <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="record">
+      <span class="font-semibold">{{ $t('rooms.recording_info') }}</span>
+      <span>{{ $t('rooms.recording_hint') }}</span>
+      <div class="flex align-items-center gap-2">
+        <Checkbox
+          inputId="record-agreement"
+          v-model="recordAgreement"
+          binary
+          :class="{'p-invalid': formErrors.fieldInvalid('record')}"
+        />
+        <label for="record-agreement">{{ $t('rooms.recording_accept') }}</label>
+      </div>
+      <p class="p-error" v-html="formErrors.fieldError('record')" />
+    </div>
+
+    <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="record">
+      <div class="flex align-items-center gap-2">
+        <Checkbox
+          inputId="record-video-agreement"
+          v-model="recordVideoAgreement"
+          binary
+          :class="{'p-invalid': formErrors.fieldInvalid('record_video')}"
+        />
+        <label for="record-video-agreement">{{ $t('rooms.recording_video_accept') }}</label>
+      </div>
+      <p class="p-error" v-html="formErrors.fieldError('record_video')" />
+    </div>
+
     <div class="flex align-items-center justify-content-end mt-4 gap-2">
       <Button :label="$t('app.cancel')" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"></Button>
       <Button :label="$t('app.continue')" :disabled="isLoadingAction" :loading="isLoadingAction" @click="getJoinUrl" size="small"></Button>
@@ -86,7 +114,8 @@ const props = defineProps([
   'disabled',
   'token',
   'accessCode',
-  'recordAttendance'
+  'recordAttendance',
+  'record'
 ]);
 
 const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed']);
@@ -96,6 +125,8 @@ const authStore = useAuthStore();
 const showModal = ref(false);
 const isLoadingAction = ref(false);
 const recordAttendanceAgreement = ref(false);
+const recordAgreement = ref(false);
+const recordVideoAgreement = ref(false);
 const name = ref(''); // Name of guest
 
 const api = useApi();
@@ -122,6 +153,10 @@ const showPopup = computed(() => {
     return true;
   }
 
+  if (props.record) {
+    return true;
+  }
+
   return false;
 });
 
@@ -139,7 +174,9 @@ function getJoinUrl () {
   const config = {
     params: {
       name: props.token ? null : name.value,
-      record_attendance: recordAttendanceAgreement.value ? 1 : 0
+      record_attendance: recordAttendanceAgreement.value ? 1 : 0,
+      record: recordAgreement.value ? 1 : 0,
+      record_video: recordVideoAgreement.value ? 1 : 0
     }
   };
 

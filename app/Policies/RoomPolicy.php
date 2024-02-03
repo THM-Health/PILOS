@@ -275,7 +275,7 @@ class RoomPolicy
 
     public function downloadRecordingFormat(?User $user, Room $room, RecordingFormat $recordingFormat)
     {
-        if ($user->can('viewAllRecordings', $room)) {
+        if ($user && $user->can('viewAllRecordings', $room)) {
             return true;
         }
 

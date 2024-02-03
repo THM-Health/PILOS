@@ -7,14 +7,16 @@ use DateTime;
 use Exception;
 use File;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use PharData;
 use Storage;
 
-class ProcessRecording implements ShouldQueue
+class ProcessRecording implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -33,9 +35,38 @@ class ProcessRecording implements ShouldQueue
      */
     public function __construct(string $file)
     {
+        $this->onQueue('recordings');
         $this->file     = $file;
         $filename       = pathinfo($this->file, PATHINFO_FILENAME);
         $this->tempPath = 'temp/'.$filename;
+    }
+
+    /**
+     * Get the tags that should be assigned to the job.
+     *
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return ['importRecording', 'file:'.$this->file];
+    }
+
+    /**
+     * Get the unique ID for the job.
+     */
+    public function uniqueId(): string
+    {
+        return $this->file;
+    }
+
+    /**
+     * Get the middleware the job should pass through.
+     *
+     * @return array<int, object>
+     */
+    public function middleware(): array
+    {
+        return [(new WithoutOverlapping($this->file))->expireAfter(5*60)];
     }
 
     /**
@@ -59,6 +90,7 @@ class ProcessRecording implements ShouldQueue
             // If the extraction failed, retry the job later (.tar file might be incomplete yet)
             // Cleanup any files that might have been extracted
             if (!$result) {
+                \Log::error('Extraction failed for '.$this->file);
                 $this->release($this->attempts() * 30);
                 $this->cleanup();
 
@@ -87,6 +119,7 @@ class ProcessRecording implements ShouldQueue
             }
         } catch (Exception $e) {
             // Extraction failed, retry the job later (.tar file might be incomplete yet)
+            \Log::error('Extraction failed for '.$this->file, ['exception' => $e]);
             $this->release($this->attempts() * 30);
             $this->cleanup();
 

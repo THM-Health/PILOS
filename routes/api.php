@@ -92,9 +92,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class,'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
 
         // Recording operations by room owner
-        Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class,'update'])->name('rooms.recordings.update');
-        Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class,'destroy'])->name('rooms.recordings.remove');
-
+        Route::middleware('can:manageRecordings,room')->group(function () {
+            Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class,'update'])->name('rooms.recordings.update');
+            Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class,'destroy'])->name('rooms.recordings.remove');
+        });
 
         // Personalized room tokens
         Route::get('rooms/{room}/tokens', [RoomTokenController::class, 'index'])->name('rooms.tokens.get')->middleware('can:viewTokens,room');
@@ -150,7 +151,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('rooms/{room}/files', [RoomFileController::class,'index'])->name('rooms.files.get')->middleware('room.authenticate');
     Route::get('rooms/{room}/files/{file}', [RoomFileController::class,'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
 
-    Route::get('rooms/{room}/recordings', [RecordingController::class,'index'])->name('rooms.recordings.get')->middleware('room.authenticate');
+    Route::get('rooms/{room}/recordings', [RecordingController::class,'index'])->name('rooms.recordings.index')->middleware('room.authenticate');
     Route::get('rooms/{room}/recordings/{format}', [RecordingController::class,'show'])->name('rooms.recordings.get')->middleware(['can:downloadRecordingFormat,room,format', 'room.authenticate']);
 
 

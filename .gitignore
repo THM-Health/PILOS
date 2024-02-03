@@ -20,3 +20,4 @@ coverage.xml
 /redis
 version
 components.d.ts
+public/playback-player
