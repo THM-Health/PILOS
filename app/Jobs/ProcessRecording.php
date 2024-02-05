@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Models\RecordingFormat;
 use DateTime;
 use Exception;
-use File;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -84,7 +83,7 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
     {
         try {
             // Extract the tar file to a temp directory
-            $phar     = new PharData(Storage::disk('recordings')->path($this->file));
+            $phar     = new PharData(Storage::disk('recordings-spool')->path($this->file));
             $result   = $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
 
             // If the extraction failed, retry the job later (.tar file might be incomplete yet)

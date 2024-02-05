@@ -15,7 +15,7 @@ class ImportRecordingsCommand extends Command
 
     public function handle()
     {
-        $files = Storage::disk('recordings')->files('import');
+        $files = Storage::disk('recordings-spool')->files();
         foreach ($files as $file) {
             if (!Str::endsWith($file, '.tar')) {
                 continue;

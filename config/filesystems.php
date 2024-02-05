@@ -42,6 +42,12 @@ return [
             'throw' => false,
         ],
 
+        'recordings-spool' => [
+            'driver' => 'local',
+            'root' => storage_path('recordings-spool'),
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
