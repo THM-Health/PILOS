@@ -61,7 +61,7 @@ class RoomService
                 if ($this->room->record && !$agreedToRecord) {
                     $lock->release();
                     Log::warning('Failed to create meeting for room {room}; record agreement missing', ['room' => $this->room->getLogLabel() ]);
-                    abort(CustomStatusCodes::RECORD_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+                    abort(CustomStatusCodes::RECORD_AGREEMENT_MISSING, __('app.errors.record_agreement_missing'));
                 }
 
                 Log::info('Finding server with lowest usage for room {room}', ['room' => $this->room->getLogLabel() ]);

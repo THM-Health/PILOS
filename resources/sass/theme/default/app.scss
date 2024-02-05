@@ -305,3 +305,9 @@ a[data-target="safeLink"] {
         height: 100%;
     }
 }
+
+label.required::after {
+    content: "*";
+    color: $danger;
+    margin-left: 0.25rem;
+}

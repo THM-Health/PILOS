@@ -57,14 +57,14 @@
           binary
           :class="{'p-invalid': formErrors.fieldInvalid('record_attendance')}"
         />
-        <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
+        <label for="record-attendance-agreement"  class="required">{{ $t('rooms.recording_attendance_accept') }}</label>
       </div>
       <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
     </div>
 
     <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="record">
       <span class="font-semibold">{{ $t('rooms.recording_info') }}</span>
-      <span>{{ $t('rooms.recording_hint') }}</span>
+      <i>{{ $t('rooms.recording_hint') }}</i>
       <div class="flex align-items-center gap-2">
         <Checkbox
           inputId="record-agreement"
@@ -72,12 +72,9 @@
           binary
           :class="{'p-invalid': formErrors.fieldInvalid('record')}"
         />
-        <label for="record-agreement">{{ $t('rooms.recording_accept') }}</label>
+        <label for="record-agreement" class="required">{{ $t('rooms.recording_accept') }}</label>
       </div>
       <p class="p-error" v-html="formErrors.fieldError('record')" />
-    </div>
-
-    <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="record">
       <div class="flex align-items-center gap-2">
         <Checkbox
           inputId="record-video-agreement"
@@ -245,6 +242,12 @@ function getJoinUrl () {
         // Attendance logging agreement required but not accepted
         if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
           formErrors.set({ record_attendance: [error.response.data.message] });
+          return;
+        }
+
+        // Record agreement required but not accepted
+        if (error.response.status === env.HTTP_RECORD_AGREEMENT_MISSING) {
+          formErrors.set({ record: [error.response.data.message] });
           return;
         }
 

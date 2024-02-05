@@ -272,7 +272,7 @@ return [
     'recording_accept'                 => 'Ich bin mit der Aufzeichnung einverstanden.',
     'recording_hint'                   => ' Wenn Sie nicht möchten, dass Ihre Stimme aufgezeichnet wird, stellen Sie sicher, dass Ihr Mikrofon stumm geschaltet ist. Verwenden Sie stattdessen den Chat, um sich zu beteiligen.',
     'recording_info'                   => 'Dieser Raum wird möglicherweise aufgezeichnet.',
-    'recording_video_accept'           => '(Optional) Mein Videobild darf aufgezeichnet werden.',
+    'recording_video_accept'           => 'Mein Videobild darf aufgezeichnet werden.',
     'require_access_code'              => 'Für diesen Raum ist ein Zugangscode erforderlich',
     'role'                             => 'Rolle',
     'roles'                            => [
