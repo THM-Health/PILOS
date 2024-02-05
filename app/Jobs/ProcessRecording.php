@@ -47,8 +47,15 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
      */
     public function tags(): array
     {
-        return ['importRecording', 'file:'.$this->file];
+        return ['importRecording'];
     }
+
+    /**
+     * The number of seconds after which the job's unique lock will be released.
+     *
+     * @var int
+     */
+    public $uniqueFor = 3600;
 
     /**
      * Get the unique ID for the job.
@@ -59,14 +66,11 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * Get the middleware the job should pass through.
+     * The number of times the job may be attempted.
      *
-     * @return array<int, object>
+     * @var int
      */
-    public function middleware(): array
-    {
-        return [(new WithoutOverlapping($this->file))->expireAfter(5*60)];
-    }
+    public $tries = 0;
 
     /**
      * Determine the time at which the job should timeout.
@@ -75,6 +79,13 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
     {
         return now()->addHour();
     }
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var int
+     */
+    public $tryAgainAfter = 30;
 
     /**
      * Execute the job.
@@ -90,7 +101,7 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
             // Cleanup any files that might have been extracted
             if (!$result) {
                 \Log::error('Extraction failed for '.$this->file);
-                $this->release($this->attempts() * 30);
+                $this->release($this->attempts() * $this->tryAgainAfter);
                 $this->cleanup();
 
                 return;
@@ -119,14 +130,14 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
         } catch (Exception $e) {
             // Extraction failed, retry the job later (.tar file might be incomplete yet)
             \Log::error('Extraction failed for '.$this->file, ['exception' => $e]);
-            $this->release($this->attempts() * 30);
+            $this->release($this->attempts() * $this->tryAgainAfter);
             $this->cleanup();
 
             return;
         }
 
         // Remove .tar file as extraction was successful
-        Storage::disk('recordings')->delete($this->file);
+        Storage::disk('recordings-spool')->delete($this->file);
 
         $this->cleanup();
     }
