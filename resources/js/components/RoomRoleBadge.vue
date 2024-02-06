@@ -45,8 +45,8 @@ const role = computed(() => {
       };
     default:
       return {
-        description: '',
-        class: ''
+        description: t('rooms.roles.no_role'),
+        class: 'room-role-ro-role'
       };
   }
 });

@@ -171,6 +171,7 @@ return [
                 'no_result'   => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
                 'select_role' => 'Bitte wählen Sie eine Rolle aus',
                 'select_user' => 'Bitte wählen Sie einen Benutzer aus',
+                'too_many_results' => 'Es wurden zu viele Benutzer gefunden. Bitte geben Sie einen genaueren Suchbegriff ein.',
             ],
             'bulk_import' => [
                 'can_import_users'           => 'Benutzer, die hinzugefügt werden können',
@@ -238,6 +239,7 @@ return [
         'guest'       => 'Gast',
         'moderator'   => 'Moderator',
         'participant' => 'Teilnehmer',
+        'no_role'     => 'Keine Rolle',
     ],
     'room_limit'              => 'Maximale Anzahl an Räumen: :has/:max',
     'room_type_invalid_alert' => 'Die Nutzung der Raumart :roomTypeName ist nur für bestimmte Benutzergruppen genehmigt. Wenn Sie der Eigentümer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum wieder gestartet werden kann.',

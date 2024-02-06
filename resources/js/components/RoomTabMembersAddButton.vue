@@ -52,7 +52,7 @@
         :class="{'p-invalid': formErrors.fieldInvalid('user')}"
       >
         <template #noResult>
-          <span v-if="tooManyResults">
+          <span v-if="tooManyResults" class="white-space-normal">
             {{ $t('rooms.members.modals.add.too_many_results') }}
           </span>
           <span v-else>
@@ -98,7 +98,7 @@
 </template>
 <script setup>
 import Multiselect from 'vue-multiselect';
-import env from '@/env';
+import env from '../env';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';

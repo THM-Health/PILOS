@@ -29,8 +29,8 @@
 </template>
 
 <script setup>
-import { useLoadingStore } from '@/stores/loading';
-import { useSettingsStore } from '@/stores/settings';
+import { useLoadingStore } from '../stores/loading';
+import { useSettingsStore } from '../stores/settings';
 import Toast from 'primevue/toast';
 
 const loadingStore = useLoadingStore();

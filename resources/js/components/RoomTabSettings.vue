@@ -10,7 +10,7 @@
             <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.general.title') }}</p>
             <div class="flex flex-column gap-2">
               <label for="room-type">{{ $t('rooms.settings.general.type') }}</label>
-              <room-type-select
+              <RoomTypeSelect
                 ref="roomTypeSelectRef"
                 v-model="settings.room_type"
                 :disabled="disabled"
@@ -386,24 +386,40 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-content-end">
-          <Button
-            :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
-            variant="success"
-            type="submit"
-            icon="fa-solid fa-save"
-            :label="$t('app.save')"
-            :loading="isBusy"
-          />
+        <Divider/>
+        <div class="flex flex-column-reverse md:flex-row md:justify-content-between gap-2 align-items-start ">
+          <div class="flex flex-shrink-0 flex-column md:flex-row align-items-start gap-2">
+            <RoomDeleteButton
+              :room="room"
+              :disabled="disabled"
+              @room-deleted="$router.push({ name: 'rooms.index' })"
+            />
+            <RoomTransferOwnershipButton
+              :room="room"
+              :disabled="disabled"
+              @transferredOwnership="emit('settingsChanged');"
+            />
+          </div>
+          <div class="flex">
+            <Button
+              :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
+              variant="success"
+              type="submit"
+              icon="fa-solid fa-save"
+              :label="$t('app.save')"
+              :loading="isBusy"
+            />
+          </div>
+
         </div>
       </form>
   </div>
 </template>
 
 <script setup>
-import env from '@/env.js';
+import env from '../env.js';
 import _ from 'lodash';
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { onMounted, ref, computed, watch } from 'vue';

@@ -26,6 +26,7 @@
     />
     <!-- reload the room types -->
     <Button
+      v-if="modelLoadingError"
       v-tooltip="$t('rooms.room_types.reload')"
       :disabled="disabled || isLoadingAction"
       severity="secondary"

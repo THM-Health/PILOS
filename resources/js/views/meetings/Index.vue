@@ -1,260 +1,272 @@
 <template>
-  <b-container class="mt-3 mb-5">
-    <b-row class="mb-3">
-      <b-col>
-        <h2>
-          {{ $t('meetings.currently_running') }}
-        </h2>
-      </b-col>
-      <b-col
-        sm="12"
-        md="3"
-      >
-        <b-input-group>
-          <b-form-input
-            ref="search"
-            v-model="filter"
-            :disabled="isBusy || loadingError"
-            :placeholder="$t('app.search')"
-            lazy
-          />
-          <b-input-group-append>
-            <b-button
-              :disabled="isBusy || loadingError"
-              variant="primary"
-              @click="$root.$emit('bv::refresh::table', 'meetings-table')"
-            >
-              <i class="fa-solid fa-magnifying-glass" />
-            </b-button>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
-    </b-row>
-    <hr>
+  <div class="container mt-5 mb-5">
+    <Card>
+      <template #title>{{ $t('meetings.currently_running') }}</template>
 
-    <b-overlay :show="loadingError">
-      <template #overlay>
-        <div class="text-center my-2">
-          <b-spinner v-if="isBusy" />
-          <b-button
-            v-else
-            @click="$root.$emit('bv::refresh::table', 'meetings-table')"
-          >
-            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
-          </b-button>
-        </div>
-      </template>
+      <template #content>
 
-      <b-table
-        id="meetings-table"
-        ref="meetings"
-        fixed
-        hover
-        stacked="lg"
-        show-empty
-        v-model:busy="isBusy"
-        :fields="tableFields"
-        :items="fetchMeetings"
-        :filter="filter"
-        :current-page="currentPage"
-      >
-        <template #empty>
-          <i>{{ $t('meetings.no_data') }}</i>
-        </template>
-
-        <template #emptyfiltered>
-          <i>{{ $t('meetings.no_data_filtered') }}</i>
-        </template>
-
-        <template #table-busy>
-          <div
-            v-if="!loadingError"
-            class="text-center my-2"
-          >
-            <b-spinner class-name="align-middle" />
+        <div class="flex justify-content-between">
+          <div>
+            <InputGroup>
+              <InputText
+                v-model="search"
+                :disabled="isBusy"
+                :placeholder="$t('app.search')"
+                @keyup.enter="loadData()"
+              />
+                <Button
+                  :disabled="isBusy "
+                  variant="primary"
+                  @click="loadData()"
+                  icon="fa-solid fa-magnifying-glass"
+                />
+            </InputGroup>
           </div>
-        </template>
+          <div>
+            <Button
+              v-tooltip="$t('app.reload')"
+              :aria-label="$t('app.reload')"
+              severity="secondary"
+              :disabled="isBusy"
+              @click="loadData()"
+              icon="fa-solid fa-sync"
+              :loading="isBusy"
+            />
+          </div>
+        </div>
 
-        <!-- A custom formatted header cell for field 'name' -->
-        <template #head(room.listener_count)>
-          <i
-            v-b-tooltip.hover
-            :title="$t('meetings.listener_count')"
-            class="fa-solid fa-headphones"
-          />
-        </template>
-        <template #head(room.voice_participant_count)>
-          <i
-            v-b-tooltip.hover
-            :title="$t('meetings.voice_participant_count')"
-            class="fa-solid fa-microphone"
-          />
-        </template>
-        <template #head(room.video_count)>
-          <i
-            v-b-tooltip.hover
-            :title="$t('meetings.video_count')"
-            class="fa-solid fa-video"
-          />
-        </template>
-        <template #head(room.participant_count)>
-          <i
-            v-b-tooltip.hover
-            :title="$t('meetings.participant_count')"
-            class="fa-solid fa-users"
-          />
-        </template>
+        <!-- table with room members -->
+        <DataTable
+          class="mt-4"
+          :totalRecords="meta.total"
+          :rows="meta.per_page"
+          :value="meetings"
+          lazy
+          dataKey="id"
+          paginator
+          :loading="isBusy"
+          rowHover
+          v-model:sortField="sortField"
+          v-model:sortOrder="sortOrder"
+          @page="onPage"
+          @sort="onSort"
+        >
+          <!-- Show message on empty attendance list -->
+          <template #empty>
+            <i v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</i>
+            <i v-else>{{ $t('meetings.no_data_filtered') }}</i>
+          </template>
 
-        <template #cell(start)="data">
-          {{ $d(new Date(data.item.start),'datetimeShort') }}
-        </template>
-
-        <template #cell(room.name)="data">
-          <text-truncate>
-            {{ data.item.room.name }}
-          </text-truncate>
-        </template>
-
-        <template #cell(room.owner)="data">
-          <text-truncate>
-            {{ data.item.room.owner }}
-          </text-truncate>
-        </template>
-
-        <template #cell(server.name)="data">
-          <text-truncate>
-            {{ data.item.server.name }}
-          </text-truncate>
-        </template>
-
-        <template #cell(room.listener_count)="data">
-          <span v-if="data.item.room.listener_count !== null">{{ data.item.room.listener_count }}</span>
-          <raw-text v-else>
-            ---
-          </raw-text>
-        </template>
-        <template #cell(room.voice_participant_count)="data">
-          <span v-if="data.item.room.voice_participant_count !== null">{{ data.item.room.voice_participant_count }}</span>
-          <raw-text v-else>
-            ---
-          </raw-text>
-        </template>
-        <template #cell(room.video_count)="data">
-          <span v-if="data.item.room.video_count !== null">{{ data.item.room.video_count }}</span>
-          <raw-text v-else>
-            ---
-          </raw-text>
-        </template>
-        <template #cell(room.participant_count)="data">
-          <span v-if="data.item.room.participant_count !== null">{{ data.item.room.participant_count }}</span>
-          <raw-text v-else>
-            ---
-          </raw-text>
-        </template>
-
-        <template #cell(actions)="data">
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('meetings.view_room', { name: data.item.room.name })"
-            :disabled="isBusy"
-            variant="info"
-            :to="{ name: 'rooms.view', params: { id: data.item.room.id } }"
+          <Column
+            field="start"
+            :header="$t('meetings.start')"
+            :sortable="true"
+            :style="{ width: '120px' }"
           >
-            <i class="fa-solid fa-eye" />
-          </b-button>
-        </template>
-      </b-table>
+            <template #body="slotProps">
+              {{ $d(new Date(slotProps.data.start),'datetimeShort') }}
+            </template>
+          </Column>
+          <Column
+            field="room.name"
+            :header="$t('rooms.name')"
+            :sortable="false"
+          >
+            <template #body="slotProps">
+              <text-truncate>
+                {{ slotProps.data.room.name }}
+              </text-truncate>
+            </template>
+          </Column>
+          <Column
+            field="room.owner"
+            :header="$t('meetings.owner')"
+            :sortable="false"
+          >
+            <template #body="slotProps">
+              <text-truncate>
+                {{ slotProps.data.room.owner }}
+              </text-truncate>
+            </template>
+          </Column>
+          <Column
+            field="server.name"
+            :header="$t('app.server')"
+            :sortable="false"
+          >
+            <template #body="slotProps">
+              <text-truncate>
+                {{ slotProps.data.server.name }}
+              </text-truncate>
+            </template>
+          </Column>
+          <Column
+            field="room.participant_count"
+            :sortable="true"
+            :style="{ width: '64px' }"
+          >
+            <template #header>
+              <i v-tooltip="$t('meetings.voice_participant_count')" class="fa-solid fa-microphone" />
+            </template>
+            <template #body="slotProps">
+              <span v-if="slotProps.data.room.participant_count !== null">{{ slotProps.data.room.participant_count }}</span>
+              <raw-text v-else>
+                ---
+              </raw-text>
+            </template>
+          </Column>
+          <Column
+            field="room.listener_count"
+            :sortable="true"
+            :style="{ width: '64px' }"
+          >
+            <template #header>
+              <i v-tooltip="$t('meetings.listener_count')" class="fa-solid fa-headphones" />
+            </template>
+            <template #body="slotProps">
+              <span v-if="slotProps.data.room.listener_count !== null">{{ slotProps.data.room.listener_count }}</span>
+              <raw-text v-else>
+                ---
+              </raw-text>
+            </template>
+          </Column>
 
-      <b-pagination
-        v-model="currentPage"
-        :total-rows="total"
-        :per-page="perPage"
-        aria-controls="meetings-table"
-        align="center"
-        :disabled="isBusy || loadingError"
-        @input="$root.$emit('bv::refresh::table', 'meetings-table')"
-      />
-    </b-overlay>
-  </b-container>
+          <Column
+            field="room.voice_participant_count"
+            :sortable="true"
+            :style="{ width: '64px' }"
+          >
+            <template #header>
+              <i v-tooltip="$t('meetings.voice_participant_count')" class="fa-solid fa-microphone" />
+            </template>
+            <template #body="slotProps">
+              <span v-if="slotProps.data.room.voice_participant_count !== null">{{ slotProps.data.room.voice_participant_count }}</span>
+              <raw-text v-else>
+                ---
+              </raw-text>
+            </template>
+          </Column>
+
+          <Column
+            field="room.video_count"
+            :sortable="true"
+            :style="{ width: '64px' }"
+          >
+            <template #header>
+              <i v-tooltip="$t('meetings.video_count')" class="fa-solid fa-video" />
+            </template>
+            <template #body="slotProps">
+              <span v-if="slotProps.data.room.video_count !== null">{{ slotProps.data.room.video_count }}</span>
+              <raw-text v-else>
+                ---
+              </raw-text>
+            </template>
+          </Column>
+
+          <!-- actions -->
+          <Column
+            :style="{ width: '100px' }"
+            :header="$t('app.actions')"
+          >
+            <template #body="slotProps">
+              <div class="flex justify-content-between">
+                <router-link
+                  :to="{ name: 'rooms.view', params: { id: slotProps.data.room.id } }"
+                  :disabled="true"
+                >
+                  <Button
+                    v-tooltip="$t('meetings.view_room', { name: slotProps.data.room.name })"
+                    :aria-label="$t('meetings.view_room', { name: slotProps.data.room.name })"
+
+                    icon="fa-solid fa-eye"
+                  />
+                </router-link>
+              </div>
+            </template>
+          </Column>
+
+        </DataTable>
+      </template>
+    </Card>
+  </div>
 </template>
 
-<script>
+<script setup>
 import Base from '@/api/base';
 import RawText from '@/components/RawText.vue';
 import TextTruncate from '@/components/TextTruncate.vue';
 
-export default {
-  components: { TextTruncate, RawText },
+import { ref, onMounted, watch } from 'vue';
+import { useAuthStore } from '../../stores/auth.js';
+import { useApi } from '../../composables/useApi.js';
+import { useUserPermissions } from '../../composables/useUserPermission.js';
+import EventBus from '../../services/EventBus.js';
+import { EVENT_CURRENT_ROOM_CHANGED } from '../../constants/events.js';
 
-  data () {
-    return {
-      isBusy: false,
-      loadingError: false,
-      currentPage: undefined,
-      total: undefined,
-      perPage: undefined,
-      filter: undefined
-    };
-  },
+const authStore = useAuthStore();
+const api = useApi();
+const userPermissions = useUserPermissions();
 
-  computed: {
+const isBusy = ref(false);
+const meetings = ref([]);
+const currentPage = ref(1);
+const sortField = ref('lastname');
+const sortOrder = ref(1);
+const search = ref('');
+const meta = ref({
+  current_page: 0,
+  from: 0,
+  last_page: 0,
+  per_page: 0,
+  to: 0,
+  total: 0
+});
 
-    tableFields () {
-      return [
-        { key: 'start', label: this.$t('meetings.start'), sortable: true, thStyle: { width: '120px' } },
-        { key: 'room.name', label: this.$t('rooms.name'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'room.owner', label: this.$t('meetings.owner'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'server.name', label: this.$t('app.server'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'room.participant_count', label: this.$t('meetings.participant_count'), sortable: true, thStyle: { width: '64px' } },
-        { key: 'room.listener_count', label: this.$t('meetings.listener_count'), sortable: true, thStyle: { width: '64px' } },
-        { key: 'room.voice_participant_count', label: this.$t('meetings.voice_participant_count'), sortable: true, thStyle: { width: '64px' } },
-        { key: 'room.video_count', label: this.$t('meetings.video_count'), sortable: true, thStyle: { width: '64px' } },
-        { key: 'actions', label: this.$t('app.actions'), sortable: false, thStyle: { width: '100px' } }
-      ];
+/**
+ * reload member list from api
+ */
+function loadData () {
+  // enable data loading indicator
+  isBusy.value = true;
+  // make request to load users
+
+  const config = {
+    params: {
+      page: currentPage.value,
+      sort_by: sortField.value,
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
-  },
+  };
 
-  methods: {
-    /**
-     * Loads the running meetings from the backend and calls on finish the callback function.
-     *
-     * @param ctx Context information e.g. the sort field and direction and the page.
-     * @param callback
-     * @return {null}
-     */
-    fetchMeetings (ctx, callback) {
-      let data = [];
-
-      const config = {
-        params: {
-          page: ctx.currentPage
-        }
-      };
-
-      if (ctx.sortBy) {
-        config.params.sort_by = ctx.sortBy;
-        config.params.sort_direction = ctx.sortDesc ? 'desc' : 'asc';
-      }
-
-      if (ctx.filter) {
-        config.params.search = ctx.filter;
-      }
-
-      Base.call('meetings', config).then(response => {
-        this.perPage = response.data.meta.per_page;
-        this.currentPage = response.data.meta.current_page;
-        this.total = response.data.meta.total;
-        data = response.data.data;
-        this.loadingError = false;
-      }).catch(error => {
-        this.loadingError = true;
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        callback(data);
-      });
-
-      return null;
-    }
+  if (search.value) {
+    config.params.search = search.value;
   }
-};
+
+  api.call('meetings', config)
+    .then(response => {
+      // fetching successful
+      meetings.value = response.data.data;
+      meta.value = response.data.meta;
+    })
+    .catch((error) => {
+      api.error(error, this.$root);
+    })
+    .finally(() => {
+      isBusy.value = false;
+    });
+}
+
+function onPage (event) {
+  currentPage.value = event.page + 1;
+  loadData();
+}
+
+function onSort () {
+  loadData();
+}
+
+onMounted(() => {
+  loadData();
+});
+
 </script>

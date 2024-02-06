@@ -30,6 +30,8 @@ class MeetingController extends Controller
      */
     public function index(Request $request)
     {
+        $additionalMeta = [];
+
         // Load meetings, rooms, owners and servers
         $resource = Meeting::query()
             ->join('rooms as room', 'meetings.room_id', '=', 'room.id')
@@ -39,6 +41,9 @@ class MeetingController extends Controller
 
         // Filter only running meetings
         $resource = $resource->whereNull('end')->whereNotNull('start');
+
+        // count all running meetings before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         // And-search, sub queries split by space
         if ($request->has('search') && trim($request->search) != '') {
@@ -75,7 +80,7 @@ class MeetingController extends Controller
         // Respond with paginated result
         $resource = $resource->paginate(setting('pagination_page_size'));
 
-        return MeetingResource::collection($resource);
+        return MeetingResource::collection($resource)->additional($additionalMeta);
     }
 
     /**

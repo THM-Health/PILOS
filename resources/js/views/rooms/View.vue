@@ -4,27 +4,54 @@
     class="container mt-5 mb-5"
   >
     <!-- room token is invalid -->
-    <div v-if="tokenInvalid">
+    <div
+      v-if="tokenInvalid"
+      class="flex justify-content-center mt-8"
+    >
       <!-- Show message that room can only be used by logged in users -->
-      <Message severity="error" icon="fa-solid fa-unlink" :closable="false">
-        {{ $t('rooms.invalid_personal_link') }}
-      </Message>
+      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+        <template #header>
+          <Badge severity="danger" class="border-circle flex justify-content-center align-items-center h-4rem w-4rem -mt-5">
+            <i class="fa-solid fa-unlink text-2xl text-white"></i>
+          </Badge>
+        </template>
+        <template #content>
+          <span class="font-bold">
+            {{ $t('rooms.invalid_personal_link') }}
+          </span>
+        </template>
+      </Card>
     </div>
 
     <!-- room is only for logged in users -->
-    <div v-else-if="guestsNotAllowed">
-      <!-- Show message that room can only be used by logged in users -->
-      <Message severity="info" icon="fa-solid fa-exclamation-circle" :closable="false">
-        {{ $t('rooms.only_used_by_authenticated_users') }}
-      </Message>
-        <!-- Reload page, in case the room settings changed -->
-        <Button
-          :disabled="loading"
-          @click="reload"
-          :loading="loading"
-          icon="fa-solid fa-sync"
-          :label="$t('rooms.try_again')"
-        />
+    <div
+      v-else-if="guestsNotAllowed"
+      class="flex justify-content-center mt-8"
+    >
+      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+        <template #header>
+          <Badge severity="danger" class="border-circle flex justify-content-center align-items-center h-4rem w-4rem -mt-5">
+            <i class="fa-solid fa-lock text-2xl text-white"></i>
+          </Badge>
+        </template>
+        <template #content>
+          <span class="font-bold">
+            {{ $t('rooms.only_used_by_authenticated_users') }}
+          </span>
+        </template>
+        <template #footer>
+          <div class="flex justify-content-start w-full">
+            <!-- Reload page, in case the room settings changed -->
+            <Button
+              :disabled="loading"
+              @click="reload"
+              :loading="loading"
+              icon="fa-solid fa-sync"
+              :label="$t('rooms.try_again')"
+            />
+          </div>
+        </template>
+      </Card>
     </div>
 
     <div v-else>
@@ -39,54 +66,68 @@
             @click="load()"
             icon="fa-solid fa-sync"
             :label="$t('app.reload')"
+            :aria-label="$t('app.reload')"
           />
         </div>
       </div>
       <div v-else>
-        <div class="flex flex-row gap-2">
-          <div class="flex-grow-1">
-            <!-- Display room type, name and owner  -->
-            <RoomTypeBadge :room-type="room.type" />
-            <h2 class="h2 mt-2 roomname">
-              {{ room.name }}
-            </h2>
+        <div v-if="!room.authenticated"
+           class="flex justify-content-center mt-8"
+        >
+          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+            <template #header>
+              <Badge severity="danger" class="border-circle flex justify-content-center align-items-center h-4rem w-4rem -mt-5">
+                <i class="fa-solid fa-lock text-2xl text-white"></i>
+              </Badge>
+            </template>
+            <template #content>
+            <RoomHeader :room="room" :loading="loading" @reload="reload" :details-inline="false" :hide-favorites="true" :hide-membership="true" />
+            <Divider/>
 
-            <RoomDetailsList
-              :room="room"
-              :show-description="true"
-              :inline="true"
-            />
-          </div>
-          <div class="flex-shrink-0 flex justify-content-end align-items-start">
-            <div class="flex gap-2">
-              <!-- Reload general room settings/details -->
+            <span class="font-bold">
+              {{ $t('rooms.require_access_code') }}
+            </span>
+
+            <div class="flex flex-column w-full gap-2 mt-4">
+              <label for="access-code">{{ $t('rooms.access_code') }}</label>
+              <InputGroup>
+                  <InputMask
+                    autofocus
+                    v-model="accessCodeInput"
+                    unmask
+                    mask="999-999-999"
+                    placeholder="123-456-789"
+                    :class="{ 'p-invalid': accessCodeInvalid }"
+                    @keydown.enter="login"
+                    class="text-center"
+                    id="access-code"
+                  />
               <Button
-                v-tooltip="$t('app.reload')"
-                severity="secondary"
-                :disabled="loading"
-                @click="reload"
-                icon="fa-solid fa-sync"
+                @click="login"
                 :loading="loading"
+                icon="fa-solid fa-lock"
+                :label="$t('rooms.login')"
               />
-              <RoomOptionsDropdownButton :room="room" @reload="reload()" @invalidCode="handleInvalidCode" />
+              </InputGroup>
+              <p class="p-error mt-1" v-if="accessCodeInvalid">{{ $t('rooms.flash.access_code_invalid') }}</p>
+            </div>
+            </template>
+          </Card>
+        </div>
+        <div v-else>
+          <RoomHeader :room="room" :loading="loading" @reload="reload" :details-inline="true" />
+          <div
+            v-if="room.can_start && room.room_type_invalid"
+            class="row pt-2"
+          >
+            <div class="col-lg-12 col-12">
+              <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">
+                {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
+              </Message>
             </div>
           </div>
-        </div>
-        <div
-          v-if="room.authenticated && room.can_start && room.room_type_invalid"
-          class="row pt-2"
-        >
-          <div class="col-lg-12 col-12">
-            <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">
-              {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
-            </Message>
-          </div>
-        </div>
 
-        <Divider />
-
-        <!-- room join/start, files, settings for logged in users -->
-        <template v-if="room.authenticated">
+          <Divider />
           <!-- Room join/start -->
 
           <div class="grid mb-2">
@@ -132,27 +173,6 @@
             @guests-not-allowed="handleGuestsNotAllowed"
             @settings-changed="reload"
           />
-        </template>
-        <!-- Ask for room access code -->
-        <div v-else>
-          <Message :closable="false">
-            {{ $t('rooms.require_access_code') }}
-          </Message>
-          <InputGroup>
-            <InputMask
-              v-model="accessCodeInput"
-              mask="999-999-999"
-              :class="{ 'p-invalid': !accessCodeValid }"
-              :placeholder="$t('rooms.access_code')"
-              @keydown.enter="login"
-            />
-            <Button
-                @click="login"
-                :loading="loading"
-                icon="fa-solid fa-lock"
-                :label="$t('rooms.login')"
-              />
-          </InputGroup>
         </div>
       </div>
     </div>
@@ -168,6 +188,7 @@ import { useToast } from '@/composables/useToast.js';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import RoomHeader from "../../components/RoomHeader.vue";
 
 const props = defineProps({
   id: {
@@ -185,7 +206,7 @@ const loading = ref(false); // Room settings/details loading
 const room = ref(null); // Room object
 const accessCode = ref(null); // Access code to use for requests
 const accessCodeInput = ref(''); // Access code input modal
-const accessCodeValid = ref(null); // Is access code valid
+const accessCodeInvalid = ref(null); // Is access code invalid
 const roomLoading = ref(false); // Room loading indicator for initial load
 const tokenInvalid = ref(false); // Room token is invalid
 const guestsNotAllowed = ref(false); // Access to room was forbidden
@@ -252,7 +273,7 @@ function handleGuestsNotAllowed () {
  */
 function handleInvalidCode () {
   // Show access code is valid
-  accessCodeValid.value = false;
+  accessCodeInvalid.value = true;
   // Reset access code (not the form input) to load the general room details again
   accessCode.value = null;
   // Show error message
@@ -350,7 +371,7 @@ function reload () {
       room.value = response.data.data;
       // If logged in, reset the access code valid
       if (room.value.authenticated) {
-        accessCodeValid.value = null;
+        accessCodeInvalid.value = null;
       }
 
       // @TODO Fix bug
@@ -405,10 +426,8 @@ function setPageTitle (roomName) {
  * Handle login with access code
  */
 function login () {
-  // Remove all non-numeric or dash chars
-  accessCodeInput.value = accessCodeInput.value.replace(/[^0-9-]/g, '');
-  // Remove the dashes for storing the access code
-  accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, '')) || '';
+  // Parse to int
+  accessCode.value = parseInt(accessCodeInput.value);
   // Reload the room with an access code
   reload();
 }
