@@ -143,7 +143,10 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
         }
 
         // Remove .tar file as extraction was successful
-        Storage::disk('recordings-spool')->delete($this->file);
+        $delete = Storage::disk('recordings-spool')->delete($this->file);
+        if (!$delete) {
+            \Log::error('Failed to delete '.$this->file);
+        }
 
         $this->cleanup();
     }
