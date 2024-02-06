@@ -91,7 +91,7 @@ begin
 
         # Transfer to spool_dir
         BigBlueButton.logger.info("Transferring recording archive for #{format} of meeting #{meeting_id} to #{spool_dir}")
-        system('rsync', '--verbose', '--remove-source-files', *extra_rsync_opts, archive_file, spool_dir) \
+        system('rsync', '--verbose', '--remove-source-files', '--chmod=664', *extra_rsync_opts, archive_file, spool_dir) \
           || raise('Failed to transfer recording archive')
 
         # BigBlueButton.logger.info('Create sender.done file');
