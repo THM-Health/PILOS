@@ -37,14 +37,14 @@ services:
     cron:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
         <<: *pilos-common
-        entrypoint: ['/usr/sbin/crond','-f']
+        entrypoint: [ 'pilos-cli', 'run:cron' ]
         depends_on:
           app:
             condition: service_healthy
     horizon:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
         <<: *pilos-common
-        entrypoint: ['pilos-cli', 'horizon']
+        entrypoint: [ 'pilos-cli', 'run:horizon' ]
         depends_on:
           app:
             condition: service_healthy

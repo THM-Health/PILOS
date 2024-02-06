@@ -39,7 +39,7 @@ services:
             condition: service_healthy
     cron:
       <<: *app-image
-      entrypoint: [ '/usr/sbin/crond','-f' ]
+      entrypoint: [ 'pilos-cli', 'run:cron' ]
       volumes:
         - './:/var/www/html/'
       depends_on:
@@ -47,7 +47,7 @@ services:
           condition: service_healthy
     horizon:
       <<: *app-image
-      entrypoint: [ 'pilos-cli', 'horizon' ]
+      entrypoint: [ 'pilos-cli', 'run:horizon' ]
       volumes:
         - './:/var/www/html/'
       depends_on:
