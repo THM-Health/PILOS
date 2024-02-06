@@ -72,7 +72,7 @@ published_files = "#{format}/#{meeting_id}"
 # Get relevant metadata data of the meeting
 meeting_metadata = BigBlueButton::Events.get_meeting_metadata("#{recording_dir}/raw/#{meeting_id}/events.xml")
 origin = get_metadata("bbb-origin", meeting_metadata)
-spool_sub_dir = get_metadata("bbb-spool-dir", meeting_metadata) || ''
+spool_sub_dir = get_metadata("pilos-sub-spool-dir", meeting_metadata) || ''
 
 # Directory (local, NFS or via rsync) where to store the recording files
 spool_dir = "#{spool_dir}#{spool_dir.end_with?('/') ? '' : '/'}#{spool_sub_dir}"

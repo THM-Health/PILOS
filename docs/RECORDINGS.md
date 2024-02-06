@@ -190,3 +190,19 @@ x-docker-pilos-common: &pilos-common
  environment:
    PILOS_SPOOL_GID: 5000
 ```
+
+### Using multiple BBB-Servers and PILOS instances
+
+If you are sharing the same BBB-Serves with multiple PILOS instances, you need to make sure the recordings are transferred to the correct PILOS instance.
+To do this, you should have a central storage server that is accessible from all BBB-Servers and PILOS instances.
+
+The BBB-Servers mounts the spool directory from the central storage server.
+Each PILOS instance has a subdirectory in the spool directory of the central storage server that only contains the recordings for this PILOS instance.
+This subdirectory is mounted to the PILOS instance.
+
+To tell the post_publish script in what subdirectory the recordings should be transferred, you need to set the `RECORDING_SPOOL_SUB_DIRECTORY` environment variable.
+PILOS will send this as a meta variable on the creation of each meeting and the post_publish script will use this to transfer the recordings to the correct subdirectory.
+
+```dotenv
+RECORDING_SPOOL_SUB_DIRECTORY=instance1
+```

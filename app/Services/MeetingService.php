@@ -93,7 +93,7 @@ class MeetingService
         //->setNotifyRecordingIsOn(true);
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
-        $meetingParams->addMeta('pilos-recordings-spool-directory', config('recording.bbb-spool-directory'));
+        $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
