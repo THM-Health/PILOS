@@ -47,6 +47,12 @@ case $ACTION in
     find /var/www/html/storage/ -type d -exec chmod 775 {} \;
     find /var/www/html/public/build/ -type f -exec chmod 664 {} \;
     find /var/www/html/public/build/ -type d -exec chmod 775 {} \;
+
+    # Create spool group and add www-data to it
+    # PILOS_SPOOL_GID is 2000 by default
+    echo "Creating spool group with GID $PILOS_SPOOL_GID"
+    addgroup pilos-spool --gid ${PILOS_SPOOL_GID}
+    adduser www-data pilos-spool
     ;;
 
   optimize)

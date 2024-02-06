@@ -1,9 +1,11 @@
 # For more information: https://laravel.com/docs/sail
 version: '3'
 
-x-docker-pilos-volumes: &pilos-volumes
+x-docker-pilos-common: &pilos-common
+  env_file: .env
   volumes:
     - './storage/app:/var/www/html/storage/app'
+    - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
     - './resources/custom:/var/www/html/resources/custom'
     - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
     - './app/Auth/config:/var/www/html/app/Auth/config'
@@ -16,8 +18,7 @@ services:
         ports:
           - '127.0.0.1:5000:80'
           - '127.0.0.1:9000:81'
-        env_file: .env
-        <<: *pilos-volumes
+        <<: *pilos-common
         sysctls:
           net.core.somaxconn: 65536
           net.ipv4.ip_local_port_range: "2000 65535"
@@ -35,16 +36,14 @@ services:
             condition: service_healthy
     cron:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
-        env_file: .env
-        <<: *pilos-volumes  
+        <<: *pilos-common
         entrypoint: ['/usr/sbin/crond','-f']
         depends_on:
           app:
             condition: service_healthy
     horizon:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
-        env_file: .env
-        <<: *pilos-volumes 
+        <<: *pilos-common
         entrypoint: ['pilos-cli', 'horizon']
         depends_on:
           app:

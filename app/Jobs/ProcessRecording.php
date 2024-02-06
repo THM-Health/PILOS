@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\RecordingFormat;
 use DateTime;
 use Exception;
+use FilesystemIterator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -107,24 +108,29 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
                 return;
             }
 
-            foreach (Storage::disk('recordings')->directories($this->tempPath) as $formatDirectory) {
-                foreach (Storage::disk('recordings')->directories($formatDirectory) as $recordingDirectory) {
-                    // Each recording directory inside each format has a metadata file describing the recording
-                    // and files with the actual recording
+            # Find metadata.xml files
+            $metadataFiles = array_filter(Storage::disk('recordings')->allFiles($this->tempPath), function ($file) {
+                return str_ends_with($file, 'metadata.xml');
+            });
 
-                    $xmlContent = Storage::disk('recordings')->get($recordingDirectory.'/metadata.xml');
-                    $xml        = simplexml_load_string($xmlContent);
+            foreach ($metadataFiles as $metadataFile) {
+                // Each recording directory inside each format has a metadata file describing the recording
+                // and files with the actual recording
 
-                    // Create or update the recording format in the database
-                    $recordingFormat = RecordingFormat::createFromRecordingXML($xml);
+                $xmlContent = Storage::disk('recordings')->get($metadataFile);
+                $xml        = simplexml_load_string($xmlContent);
 
-                    // Recording format was created or updated (found the corresponding room)
-                    if ($recordingFormat != null) {
-                        // Move the recording to the final destination
-                        Storage::disk('recordings')->move($recordingDirectory, $recordingFormat->recording->id.'/'.$recordingFormat->format);
-                    } else {
-                        $this->fail('Room not found for recording '.$recordingDirectory);
-                    }
+                // Create or update the recording format in the database
+                $recordingFormat = RecordingFormat::createFromRecordingXML($xml);
+
+                $formatDirectory = dirname($metadataFile);
+
+                // Recording format was created or updated (found the corresponding room)
+                if ($recordingFormat != null) {
+                    // Move the recording to the final destination
+                    Storage::disk('recordings')->move($formatDirectory, $recordingFormat->recording->id.'/'.$recordingFormat->format);
+                } else {
+                    $this->fail('Room not found for recording meeting '.$recordingFormat->recording->id.' format '.$recordingFormat->format);
                 }
             }
         } catch (Exception $e) {

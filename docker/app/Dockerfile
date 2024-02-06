@@ -13,7 +13,8 @@ ENV TZ=UTC \
     PHP_FPM_PM_MAX_CHILDREN=100 \
     NGINX_WORKER_PROCESSES=auto \
     NGINX_WORKER_CONNECTIONS=auto \
-    NGINX_WORKER_RLIMIT_NOFILE=auto
+    NGINX_WORKER_RLIMIT_NOFILE=auto \
+    PILOS_SPOOL_GID=2000
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -40,10 +41,6 @@ RUN apk add --no-cache --virtual .mod-deps shadow \
   && chown www-data:www-data /var/www/ \
   && chown www-data:www-data -R /var/lib/nginx/ \
   && apk del .mod-deps
-
-# Add spool user for recording import
-RUN addgroup pilos-spool --gid 2000 && \
-    addgroup www-data pilos-spool
 
 # Copy entrypoint
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
