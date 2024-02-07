@@ -1,79 +1,66 @@
 <template>
-  <b-form-select
-    :id="id"
+  <Dropdown
+    :id="props.id"
+    :model-value="props.modelValue"
+    :required="props.required"
+    :disabled="props.disabled"
     :options="locales"
-    :required="required"
-    :value="value"
-    :state="state"
-    :disabled="disabled"
-    @input="input"
+    option-value="value"
+    option-label="text"
+    :placeholder="$t('app.select_locale')"
+    @update:modelValue="input"
+    :class="{'p-invalid': props.invalid}"
+
   >
-    <template #first>
-      <b-form-select-option
-        :value="null"
-        disabled
-      >
-        {{ $t('app.select_locale') }}
-      </b-form-select-option>
-    </template>
-  </b-form-select>
+  </Dropdown>
 </template>
 
-<script>
-import { mapState } from 'pinia';
-import { useSettingsStore } from '../../stores/settings';
+<script setup>
+import { useSettingsStore } from '@/stores/settings';
+import {computed} from "vue";
 
-export default {
-  name: 'LocaleSelect',
-  props: {
-    value: {
-      type: String,
-      default: null
-    },
-    state: {
-      type: Boolean,
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    required: {
-      type: Boolean,
-      default: false
-    },
-    id: {
-      type: String,
-      default: 'locale'
-    }
+const settingsStore = useSettingsStore();
+
+const props = defineProps({
+  modelValue: Object,
+  disabled: {
+    type: Boolean,
+    default: false
   },
-  computed: {
-
-    ...mapState(useSettingsStore, ['getSetting']),
-
-    /**
-     * The available locales that the user can select from.
-     */
-    locales () {
-      const locales = [];
-      for (const [locale, label] of Object.entries(this.getSetting('enabled_locales'))) {
-        locales.push({
-          value: locale,
-          text: label
-        });
-      }
-      return locales;
-    }
+  required: {
+    type: Boolean,
+    default: false
   },
-  methods: {
-    /**
-     * Emits the input event.
-     *
-     * @param {string} value
-     */
-    input (value) {
-      this.$emit('input', value);
-    }
+  id: {
+    type: String,
+    default: 'locale'
+  },
+  invalid: Boolean
+});
+
+const emit = defineEmits(['update:modelValue']);
+
+/**
+ * The available locales that the user can select from.
+ */
+const locales = computed(()=>{
+  const locales = [];
+  for (const [locale, label] of Object.entries(settingsStore.getSetting('enabled_locales'))) {
+    locales.push({
+      value: locale,
+      text: label
+    });
   }
-};
+  return locales;
+});
+
+/**
+ * Emits the input event.
+ *
+ * @param {string} value
+ */
+function input(value){
+  emit('update:modelValue', value);
+}
+
 </script>

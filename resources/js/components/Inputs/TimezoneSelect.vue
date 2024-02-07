@@ -1,116 +1,102 @@
 <template>
-  <b-input-group>
-    <b-form-select
-      :id="id"
+  <InputGroup>
+    <Dropdown
+      :id="props.id"
+      :model-value="props.modelValue"
+      class="w-full"
       :options="timezones"
-      :required="required"
-      :value="value"
-      :state="state"
+      :required="props.required"
+      :invalid="props.invalid"
       :disabled="disabled || loading || loadingError"
-      @input="input"
+      @update:modelValue="input"
+      :placeholder="props.placeholder"
+      :class="{'p-invalid': props.invalid}"
     >
-      <template
-        v-if="placeholder"
-        #first
-      >
-        <b-form-select-option
-          :value="null"
-          disabled
-        >
-          {{ placeholder }}
-        </b-form-select-option>
-      </template>
-    </b-form-select>
-    <b-input-group-append v-if="loadingError">
-      <b-button
+    </Dropdown>
+      <Button
+        v-if="loadingError"
         :disabled="loading"
-        variant="outline-secondary"
+        severity="secondary"
+        outlined
         @click="loadTimezones()"
-      >
-        <i class="fa-solid fa-sync" />
-      </b-button>
-    </b-input-group-append>
-  </b-input-group>
+        icon="fa-solid fa-sync"
+      />
+  </InputGroup>
 </template>
 
-<script>
-import Base from '@/api/base';
+<script setup>
+import { useApi } from '@/composables/useApi.js';
+import {onMounted, ref, watch} from "vue";
+const api = useApi();
 
-export default {
-  name: 'TimezoneSelect',
-  props: {
-    value: {
-      type: String,
-      default: null
-    },
-    placeholder: {
-      type: String,
-      required: false
-    },
-    state: {
-      type: Boolean,
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    required: {
-      type: Boolean,
-      default: false
-    },
-    id: {
-      type: String,
-      default: 'locale'
-    }
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: null
   },
-  data () {
-    return {
-      timezones: [],
-      loading: false,
-      loadingError: false
-    };
+  placeholder: {
+    type: String,
+    required: false
   },
-  watch: {
-    // detect changes of the model loading error
-    loadingError: function () {
-      this.$emit('loadingError', this.loadingError);
-    },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
+  id: {
+    type: String,
+    default: 'locale'
+  },
+  invalid: Boolean
+});
 
-    // detect busy status while data fetching and notify parent
-    loading: function () {
-      this.$emit('busy', this.loading);
-    }
-  },
-  mounted () {
-    this.loadTimezones();
-  },
-  methods: {
-    /**
-     * Loads the possible selectable timezones.
-     */
-    loadTimezones () {
-      this.loading = true;
+const timezones = ref([]);
+const loading = ref(false);
+const loadingError = ref(false);
 
-      Base.call('getTimezones').then(response => {
-        this.timezones = response.data.data;
-        this.loadingError = false;
-      }).catch(error => {
-        this.loadingError = true;
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        this.loading = false;
-      });
-    },
+const emit = defineEmits(['update:modelValue', 'loadingError']);
 
-    /**
-     * Emits the input event.
-     *
-     * @param {string} value
-     */
-    input (value) {
-      this.$emit('input', value);
-    }
-  }
-};
+// detect changes of the model loading error
+watch(loadingError, (value) =>{
+  emit('loadingError', value);
+});
+
+// detect busy status while data fetching and notify parent
+watch(loading, (value) =>{
+  emit('busy', value);
+});
+
+onMounted(()=>{
+  loadTimezones();
+});
+
+/**
+ * Loads the possible selectable timezones.
+ */
+function loadTimezones(){
+  loading.value = true;
+
+  api.call('getTimezones').then(response => {
+    timezones.value = response.data.data;
+    loadingError.value = false;
+  }).catch(error => {
+    loadingError.value = true;
+    api.error(error);
+  }).finally(() => {
+    loading.value = false;
+  });
+}
+
+/**
+ * Emits the input event.
+ *
+ * @param {string} value
+ */
+function input(value){
+  emit('update:modelValue', value);
+}
+
 </script>
