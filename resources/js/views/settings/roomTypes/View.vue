@@ -303,7 +303,7 @@
 </template>
 
 <script setup>
-import env from '@/env';
+import env from '@/env.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useApi } from '@/composables/useApi.js';
 import {onMounted, ref} from "vue";
