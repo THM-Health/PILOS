@@ -32,6 +32,7 @@ In this example, we will use the code from the `2.x` branch and create a new ima
 ```bash
 docker build -f docker/app/Dockerfile -t custom-pilos:v2 https://github.com/THM-Health/PILOS.git#2.x
 ```
+To learn more about this syntax, check out the [Docker docs](https://docs.docker.com/engine/reference/commandline/image_build/#git-repositories).
 
 ## Requirements
 - fully qualified hostname
