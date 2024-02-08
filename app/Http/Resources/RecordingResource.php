@@ -19,7 +19,7 @@ class RecordingResource extends JsonResource
             'end'         => $this->end,
             'description' => $this->description,
             'access'      => $this->access,
-            'formats'     => RecordingFormatResource::collection($this->formats)
+            'formats'     => RecordingFormatResource::collection($this->formats->sortBy('format')),
         ];
     }
 }
