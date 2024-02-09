@@ -24,9 +24,13 @@
       :value="tokens"
       dataKey="id"
       paginator
-      :loading="isBusy"
+      :loading="isBusy || loadingError"
       rowHover
     >
+      <template #loading>
+        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+      </template>
+
       <template #empty>
         <i>{{ $t('rooms.tokens.nodata') }}</i>
       </template>
@@ -113,12 +117,14 @@ const userPermissions = useUserPermissions();
 
 const tokens = ref([]);
 const isBusy = ref(false);
+const loadingError = ref(false);
 
 /**
  * (Re)loads list of tokens from api
  */
 function loadData () {
   isBusy.value = true;
+  loadingError.value = false;
 
   api.call('rooms/' + props.room.id + '/tokens')
     .then(response => {
@@ -126,6 +132,7 @@ function loadData () {
     })
     .catch((error) => {
       api.error(error);
+      loadingError.value = true;
     })
     .finally(() => {
       isBusy.value = false;

@@ -1,9 +1,13 @@
 <template>
   <div>
     <form
-        :aria-hidden="modelLoadingError"
+        :aria-hidden="loadingError"
         @submit="save"
       >
+      <OverlayComponent :show="isBusy || loadingError ">
+        <template #overlay>
+          <LoadingRetryButton :error="loadingError" @reload="load" />
+        </template>
         <div class="grid">
           <!-- General settings tab -->
           <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
@@ -386,6 +390,7 @@
             </div>
           </div>
         </div>
+      </OverlayComponent>
         <Divider/>
         <div class="flex flex-column-reverse md:flex-row md:justify-content-between gap-2 align-items-start ">
           <div class="flex flex-shrink-0 flex-column md:flex-row align-items-start gap-2">
@@ -437,6 +442,7 @@ const emit = defineEmits(['settingsChanged']);
 const settings = ref({});
 const roomTypeSelectRef = ref();
 const isBusy = ref(false);
+const loadingError = ref(false);
 const roomTypeSelectBusy = ref(false);
 const roomTypeSelectLoadingError = ref(false);
 
@@ -491,6 +497,8 @@ function save (event) {
 
 function load () {
   isBusy.value = true;
+  loadingError.value = false;
+
   // Load all room settings
   api.call('rooms/' + props.room.id + '/settings')
     .then(response => {
@@ -498,6 +506,7 @@ function load () {
       settings.value = response.data.data;
     }).catch((error) => {
       api.error(error);
+      loadingError.value = true;
     }).finally(() => {
       isBusy.value = false;
     });
@@ -511,7 +520,7 @@ function createAccessCode () {
  * Input fields are disabled: due to limited permissions, loading of settings or errors
  */
 const disabled = computed(() => {
-  return !userPermissions.can('manageSettings', props.room) || isBusy.value;
+  return !userPermissions.can('manageSettings', props.room) || isBusy.value || loadingError.value;
 });
 
 /**

@@ -6,6 +6,7 @@
       severity="secondary"
       icon="fa-solid fa-user-gear"
       :label="$t('rooms.modals.transfer_ownership.title')"
+      :disabled="disabled"
     />
 
     <!--transfer ownership modal-->
@@ -122,6 +123,10 @@ const props = defineProps({
   room: {
     type: Object,
     required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 
