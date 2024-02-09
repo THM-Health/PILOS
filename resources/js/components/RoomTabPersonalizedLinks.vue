@@ -31,7 +31,7 @@
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
       </template>
 
-      <template #empty>
+      <template #empty v-if="!isBusy && !loadingError">
         <i>{{ $t('rooms.tokens.nodata') }}</i>
       </template>
 

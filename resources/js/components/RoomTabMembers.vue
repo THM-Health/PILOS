@@ -52,7 +52,7 @@
           <LoadingRetryButton :error="loadingError" @reload="loadData" />
         </template>
         <!-- Show message on empty attendance list -->
-        <template #empty>
+        <template #empty v-if="!isBusy && !loadingError">
           <i>{{ $t('rooms.members.nodata') }}</i>
         </template>
 

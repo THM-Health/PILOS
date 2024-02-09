@@ -56,7 +56,7 @@
       </template>
 
         <!-- Show message on empty file list -->
-        <template #empty>
+        <template #empty v-if="!isBusy && !loadingError">
           <i>{{ $t('rooms.files.nodata') }}</i>
         </template>
 
