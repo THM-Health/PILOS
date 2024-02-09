@@ -86,11 +86,9 @@ class MeetingService
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->mute_on_start)
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setLearningDashboardEnabled(false);
-
-        // @TODO: implement remindRecordingIsOn / notifyRecordingIsOn in littleredbutton api
-        //->setRemindRecordingIsOn(true)
-        //->setNotifyRecordingIsOn(true);
+            ->setLearningDashboardEnabled(false)
+            ->setRemindRecordingIsOn(true)
+            ->setNotifyRecordingIsOn(true);
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
