@@ -44,15 +44,19 @@
           lazy
           dataKey="id"
           paginator
-          :loading="isBusy"
+          :loading="isBusy || loadingError"
           rowHover
           v-model:sortField="sortField"
           v-model:sortOrder="sortOrder"
           @page="onPage"
           @sort="onSort"
         >
+          <template #loading>
+            <LoadingRetryButton :error="loadingError" @reload="loadData" />
+          </template>
+
           <!-- Show message on empty attendance list -->
-          <template #empty>
+          <template #empty v-if="!isBusy && !loadingError">
             <i v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</i>
             <i v-else>{{ $t('meetings.no_data_filtered') }}</i>
           </template>
@@ -192,22 +196,15 @@
 </template>
 
 <script setup>
-import Base from '@/api/base';
 import RawText from '@/components/RawText.vue';
 import TextTruncate from '@/components/TextTruncate.vue';
-
-import { ref, onMounted, watch } from 'vue';
-import { useAuthStore } from '../../stores/auth.js';
+import { ref, onMounted } from 'vue';
 import { useApi } from '../../composables/useApi.js';
-import { useUserPermissions } from '../../composables/useUserPermission.js';
-import EventBus from '../../services/EventBus.js';
-import { EVENT_CURRENT_ROOM_CHANGED } from '../../constants/events.js';
 
-const authStore = useAuthStore();
 const api = useApi();
-const userPermissions = useUserPermissions();
 
 const isBusy = ref(false);
+const loadingError = ref(false);
 const meetings = ref([]);
 const currentPage = ref(1);
 const sortField = ref('lastname');
@@ -228,6 +225,7 @@ const meta = ref({
 function loadData () {
   // enable data loading indicator
   isBusy.value = true;
+  loadingError.value = false;
   // make request to load users
 
   const config = {
@@ -249,7 +247,8 @@ function loadData () {
       meta.value = response.data.meta;
     })
     .catch((error) => {
-      api.error(error, this.$root);
+      api.error(error);
+      loadingError.value = true;
     })
     .finally(() => {
       isBusy.value = false;
