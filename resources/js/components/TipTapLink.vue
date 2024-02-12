@@ -18,7 +18,7 @@
       <InputText
         id="url"
         v-model.trim="link"
-        :class="{ 'p-invalid': urlInvalid }"
+        :invalid="urlInvalid"
       />
       <p v-if="urlInvalid" class="p-error">{{ $t('rooms.description.modals.link.invalid_url') }}</p>
     </div>

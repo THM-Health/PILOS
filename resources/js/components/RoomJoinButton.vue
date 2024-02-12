@@ -43,7 +43,7 @@
         autofocus
         v-model="name"
         :placeholder="$t('rooms.placeholder_name')"
-        :class="{'p-invalid': formErrors.fieldInvalid('name')}"
+        :invalid="formErrors.fieldInvalid('name')"
       />
       <p class="p-error" v-html="formErrors.fieldError('name')" />
     </div>
@@ -55,7 +55,7 @@
           inputId="record-attendance-agreement"
           v-model="recordAttendanceAgreement"
           binary
-          :class="{'p-invalid': formErrors.fieldInvalid('record_attendance')}"
+          :invalid="formErrors.fieldInvalid('record_attendance')"
         />
         <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
       </div>

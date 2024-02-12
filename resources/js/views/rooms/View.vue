@@ -97,7 +97,7 @@
                     unmask
                     mask="999-999-999"
                     placeholder="123-456-789"
-                    :class="{ 'p-invalid': accessCodeInvalid }"
+                    :invalid="accessCodeInvalid"
                     @keydown.enter="login"
                     class="text-center"
                     id="access-code"

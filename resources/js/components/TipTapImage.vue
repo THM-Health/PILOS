@@ -18,7 +18,7 @@
       <InputText
         id="src"
         v-model.trim="src"
-        :class="{ 'p-invalid': srcInvalid }"
+        :invalid="srcInvalid"
       />
       <p v-if="srcInvalid" class="p-error">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
     </div>

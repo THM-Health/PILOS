@@ -44,7 +44,7 @@
           :show-no-results="true"
           :show-labels="false"
           @search-change="asyncFind"
-          :class="{'p-invalid': formErrors.fieldInvalid('user')}"
+          :invalid="formErrors.fieldInvalid('user')"
         >
           <template #noResult>
           <span v-if="tooManyResults" class="white-space-normal">

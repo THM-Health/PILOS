@@ -10,7 +10,7 @@
           v-model="username"
           :placeholder="props.usernameLabel"
           aria-describedby="username-help-block"
-          :class="{'p-invalid': props.errors !== null && props.errors.username && props.errors.username.length > 0}"
+          :invalid="props.errors !== null && props.errors.username && props.errors.username.length > 0"
           required
         />
         <small id="username-help-block">{{ $t('auth.ldap.username_help') }}</small>

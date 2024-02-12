@@ -13,7 +13,7 @@
             required
             :disabled="isBusy || viewOnly || !canUpdateAttributes"
             class="w-full"
-            :class="{'p-invalid': formErrors.fieldInvalid('firstname')}"
+            :invalid="formErrors.fieldInvalid('firstname')"
           />
           <p class="p-error" v-html="formErrors.fieldError('firstname')" />
         </div>
@@ -29,7 +29,7 @@
             required
             :disabled="isBusy || viewOnly || !canUpdateAttributes"
             class="w-full"
-            :class="{'p-invalid': formErrors.fieldInvalid('lastname')}"
+            :invalid="formErrors.fieldInvalid('lastname')"
           />
           <p class="p-error" v-html="formErrors.fieldError('lastname')" />
         </div>
