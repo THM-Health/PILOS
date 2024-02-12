@@ -32,8 +32,8 @@
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
       </template>
 
-      <template #empty v-if="!isBusy && !loadingError">
-        <i>{{ $t('meetings.no_historical_data') }}</i>
+      <template #empty>
+        <i v-if="!isBusy && !loadingError">{{ $t('meetings.no_historical_data') }}</i>
       </template>
 
       <Column field="start" :header="$t('meetings.start')">

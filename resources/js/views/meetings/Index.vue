@@ -56,9 +56,11 @@
           </template>
 
           <!-- Show message on empty attendance list -->
-          <template #empty v-if="!isBusy && !loadingError">
-            <i v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</i>
-            <i v-else>{{ $t('meetings.no_data_filtered') }}</i>
+          <template #empty>
+            <div v-if="!isBusy && !loadingError">
+              <i v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</i>
+              <i v-else>{{ $t('meetings.no_data_filtered') }}</i>
+            </div>
           </template>
 
           <Column

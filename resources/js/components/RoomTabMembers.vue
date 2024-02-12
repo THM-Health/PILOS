@@ -52,8 +52,8 @@
           <LoadingRetryButton :error="loadingError" @reload="loadData" />
         </template>
         <!-- Show message on empty attendance list -->
-        <template #empty v-if="!isBusy && !loadingError">
-          <i>{{ $t('rooms.members.nodata') }}</i>
+        <template #empty>
+          <i v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</i>
         </template>
 
         <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">

@@ -31,8 +31,8 @@
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
       </template>
 
-      <template #empty v-if="!isBusy && !loadingError">
-        <i>{{ $t('rooms.tokens.nodata') }}</i>
+      <template #empty>
+        <i v-if="!isBusy && !loadingError">{{ $t('rooms.tokens.nodata') }}</i>
       </template>
 
       <Column field="firstname" sortable :header="$t('app.firstname')"></Column>

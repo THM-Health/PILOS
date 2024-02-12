@@ -56,8 +56,8 @@
       </template>
 
         <!-- Show message on empty file list -->
-        <template #empty v-if="!isBusy && !loadingError">
-          <i>{{ $t('rooms.files.nodata') }}</i>
+        <template #empty>
+          <i v-if="!isBusy && !loadingError">{{ $t('rooms.files.nodata') }}</i>
         </template>
 
       <Column field="filename" sortable :header="$t('rooms.files.filename')" style="max-width: 250px">
