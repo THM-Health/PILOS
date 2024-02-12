@@ -39,7 +39,7 @@ return [
     'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
     'password'                  => 'Mot de passe',
     'reset_password'            => 'Réinitialiser le mot de passe',
-    'send_email_confirm_mail'   => 'Un e-mail de vérification a été envoyé à {email}. Veuillez confirmer la nouvelle adresse en cliquant sur le lien dans l\'e-mail.',
+    'send_email_confirm_mail'   => 'Un e-mail de vérification a été envoyé à :email. Veuillez confirmer la nouvelle adresse en cliquant sur le lien dans l\'e-mail.',
     'send_password_reset_link'  => 'Envoyer le lien de réinitialisation du mot de passe',
     'session_expired'           => 'Votre session est expirée. Veuillez vous connecter à nouveau',
     'sessions'                  => [

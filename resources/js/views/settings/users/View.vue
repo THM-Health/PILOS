@@ -5,7 +5,7 @@
     </h3>
     <hr>
 
-    <view-edit-component
+    <UserTabSection
       :id="id"
       :modal-static="false"
       :view-only="viewOnly"
@@ -15,12 +15,8 @@
 </template>
 
 <script>
-import ViewEditComponent from '@/components/User/ViewEditComponent.vue';
 
 export default {
-  components: {
-    ViewEditComponent
-  },
   props: {
     id: {
       type: Number,
