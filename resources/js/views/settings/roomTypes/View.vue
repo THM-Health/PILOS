@@ -22,6 +22,7 @@
         </div>
       </template>
       <form @submit="saveRoomType">
+        <div class="container container-fluid">
         <div class="field grid">
           <label for="description" class="col-12 md:col-4 md:mb-0">{{$t('app.description')}}</label>
           <div class="col-12 md:col-8">
@@ -252,8 +253,9 @@
                 :disabled="isBusy"
                 severity="secondary"
                 @click="$router.push({ name: 'settings.room_types' })"
+                icon="fa-solid fa-arrow-left"
+                :label="$t('app.back')"
               >
-                <i class="fa-solid fa-arrow-left" /> {{ $t('app.back') }}
               </Button>
               <Button
                 v-if="!viewOnly"
@@ -261,11 +263,13 @@
                 severity="success"
                 type="submit"
                 class="ml-1"
+                icon="fa-solid fa-save"
+                :label="$t('app.save')"
               >
-                <i class="fa-solid fa-save" /> {{ $t('app.save') }}
               </Button>
             </div>
           </div>
+        </div>
       </form>
     </b-overlay>
 

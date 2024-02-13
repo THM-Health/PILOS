@@ -111,8 +111,7 @@
     </div>
     <hr>
 
-
-<!--ToDo -->
+<!--ToDo example RoomTabHistory and RoomTabMembers-->
     <DataTable
       :paginator="true"
       id="users-table"
@@ -126,13 +125,13 @@
       :current-page="meta.current_page"
       :filter="filter"
     >
-    <Column v-for="col of tableFields" :key="col.field" :field="col.field" :header="col.header" :sortable="col.sortable"></Column>
-      <template #table-busy>
-        <div class="text-center my-2">
-          <b-spinner class="align-middle" />
-        </div>
-      </template>
-
+      <Column field="id" :header="$t('app.id')" sortable></Column>
+      <Column field="firstname" :header="$t('app.firstname')" sortable></Column>
+      <Column field="lastname" :header="$t('app.lastname')" sortable></Column>
+      <Column field="email" :header="$t('settings.users.email')" sortable></Column>
+      <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable></Column>
+      <Column field="roles" :header="$t('app.roles')"></Column>
+      <Column :header="$t('app.actions')" class="action-column"></Column>
       <template #empty>
         <i>{{ $t('settings.users.no_data') }}</i>
       </template>

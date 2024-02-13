@@ -25,30 +25,30 @@
     >
       <Column field="description" key="description" :header="$t('app.description')" :sortable="true"></Column>
       <Column field="actions" :header="$t('app.actions')" class="action-column">
-        <template #body="{slotProps}">
+        <template #body="slotProps">
           <div class="flex flex-row gap-2">
             <router-link
-              v-if="userPermissions.can('view', slotProps)"
+              v-if="userPermissions.can('view', slotProps.data)"
               class="p-button p-button-info"
-              v-tooltip="$t('settings.room_types.view', { name: slotProps.description })"
+              v-tooltip="$t('settings.room_types.view', { name: slotProps.data.description })"
               :disabled="isBusy"
-              :to="{ name: 'settings.room_types.view', params: { id: slotProps.id }, query: { view: '1' } }"
+              :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
             >
               <i class="fa-solid fa-eye" />
             </router-link>
             <router-link
-              v-if="userPermissions.can('update', slotProps)"
+              v-if="userPermissions.can('update', slotProps.data)"
               class="p-button p-button-secondary"
-              v-tooltip="$t('settings.room_types.edit', { name: slotProps.description })"
+              v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.description })"
               :disabled="isBusy"
-              :to="{ name: 'settings.room_types.view', params: { id: slotProps.id } }"
+              :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id } }"
             >
               <i class="fa-solid fa-edit" />
             </router-link>
             <SettingsRoomTypesDeleteButton
-              v-if="userPermissions.can('delete', slotProps)"
-              :id="slotProps.id"
-              :description="slotProps.description"
+              v-if="userPermissions.can('delete', slotProps.data)"
+              :id="slotProps.data.id"
+              :description="slotProps.data.description"
               @deleted="fetchRoomTypes"
             />
           </div>
