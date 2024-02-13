@@ -20,6 +20,7 @@
 <!--            label-class="font-weight-bold pt-0"-->
 <!--            class="mb-0"-->
 <!--          >-->
+          <div class="container container-fluid">
           <div>
             <p class="text-lg font-semibold">{{ $t('rooms.settings.general.title') }}</p>
             <div class="field grid">
@@ -204,6 +205,7 @@
                 :label="$t('app.save')"
               />
             </div>
+          </div>
           </div>
         </form>
     </b-overlay>

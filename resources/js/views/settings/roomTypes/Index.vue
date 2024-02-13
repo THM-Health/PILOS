@@ -28,55 +28,55 @@
       sort-field="description"
       :sort-order="1"
       paginator
+      row-hover
       :loading="isBusy"
       :rows="settingsStore.getSetting('pagination_page_size')"
     >
-<!--      ToDo change?-->
-<!--      <Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" :sortable="col.sortable"></Column>-->
       <Column field="description" key="description" :header="$t('app.description')" :sortable="true"></Column>
-      <Column field="actions" :header="$t('app.actions')" class="text-right">
-        <template #body="{data}">
-          <span class="p-buttongroup">
+      <Column :header="$t('app.actions')" class="action-column">
+        <template #body="slotProps">
+<!--          <div class="p-buttongroup">-->
+          <div class="flex gap-2">
             <Can
               method="view"
-              :policy="data"
+              :policy="slotProps.data"
             >
               <router-link
                 class="p-button p-button-info"
-                v-tooltip="$t('settings.room_types.view', { name: data.description })"
+                v-tooltip="$t('settings.room_types.view', { name: slotProps.data.description })"
                 :disabled="isBusy"
-                :to="{ name: 'settings.room_types.view', params: { id: data.id }, query: { view: '1' } }"
+                :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
               >
                 <i class="fa-solid fa-eye" />
               </router-link>
             </can>
             <Can
               method="update"
-              :policy="data"
+              :policy="slotProps.data"
             >
               <router-link
                 class="p-button p-button-secondary"
-                v-tooltip="$t('settings.room_types.edit', { name: data.description })"
+                v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.description })"
                 :disabled="isBusy"
-                :to="{ name: 'settings.room_types.view', params: { id: data.id } }"
+                :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id } }"
               >
                 <i class="fa-solid fa-edit" />
               </router-link>
             </can>
             <Can
               method="delete"
-              :policy="data"
+              :policy="slotProps.data"
             >
               <Button
-                v-tooltip="$t('settings.room_types.delete.item', { id: data.description })"
+                v-tooltip="$t('settings.room_types.delete.item', { id: slotProps.data.description })"
                 :disabled="isBusy"
                 severity="danger"
-                @click="showDeleteModal(data)"
+                @click="showDeleteModal(slotProps.data)"
               >
                 <i class="fa-solid fa-trash" />
               </Button>
             </can>
-            </span>
+            </div>
         </template>
       </Column>
       <template #empty>
