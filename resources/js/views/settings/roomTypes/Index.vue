@@ -19,35 +19,36 @@
       sort-field="description"
       :sort-order="1"
       paginator
+      row-hover
       :loading="isBusy"
       :rows="settingsStore.getSetting('pagination_page_size')"
     >
       <Column field="description" key="description" :header="$t('app.description')" :sortable="true"></Column>
       <Column field="actions" :header="$t('app.actions')" class="action-column">
-        <template #body="{data}">
+        <template #body="{slotProps}">
           <div class="flex flex-row gap-2">
             <router-link
-              v-if="userPermissions.can('view', data)"
+              v-if="userPermissions.can('view', slotProps)"
               class="p-button p-button-info"
-              v-tooltip="$t('settings.room_types.view', { name: data.description })"
+              v-tooltip="$t('settings.room_types.view', { name: slotProps.description })"
               :disabled="isBusy"
-              :to="{ name: 'settings.room_types.view', params: { id: data.id }, query: { view: '1' } }"
+              :to="{ name: 'settings.room_types.view', params: { id: slotProps.id }, query: { view: '1' } }"
             >
               <i class="fa-solid fa-eye" />
             </router-link>
             <router-link
-              v-if="userPermissions.can('update', data)"
+              v-if="userPermissions.can('update', slotProps)"
               class="p-button p-button-secondary"
-              v-tooltip="$t('settings.room_types.edit', { name: data.description })"
+              v-tooltip="$t('settings.room_types.edit', { name: slotProps.description })"
               :disabled="isBusy"
-              :to="{ name: 'settings.room_types.view', params: { id: data.id } }"
+              :to="{ name: 'settings.room_types.view', params: { id: slotProps.id } }"
             >
               <i class="fa-solid fa-edit" />
             </router-link>
             <SettingsRoomTypesDeleteButton
-              v-if="userPermissions.can('delete', data)"
-              :id="data.id"
-              :description="data.description"
+              v-if="userPermissions.can('delete', slotProps)"
+              :id="slotProps.id"
+              :description="slotProps.description"
               @deleted="fetchRoomTypes"
             />
           </div>
