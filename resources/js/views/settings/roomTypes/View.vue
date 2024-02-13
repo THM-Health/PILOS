@@ -6,23 +6,12 @@
         : $t('settings.room_types.edit', { name: model.description })
       ) }}
     </h2>
-    <hr>
-<!--    ToDo Overlay-->
-    <b-overlay :show="isBusy || modelLoadingError">
-      <template #overlay>
-        <div class="text-center">
-          <b-spinner v-if="isBusy" />
-          <b-button
-            v-else
-            ref="reloadRoomType"
-            @click="loadRoomType()"
-          >
-            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
-          </b-button>
-        </div>
+    <Divider/>
+    <OverlayComponent :show="isBusy || modelLoadingError">
+      <template #loading>
+        <LoadingRetryButton :error="modelLoadingError" @reload="loadRoomType"></LoadingRetryButton>
       </template>
-      <form @submit="saveRoomType">
-        <div class="container container-fluid">
+      <form @submit.prevent="saveRoomType">
         <div class="field grid">
           <label for="description" class="col-12 md:col-4 md:mb-0">{{$t('app.description')}}</label>
           <div class="col-12 md:col-8">
@@ -74,6 +63,7 @@
             </Tag>
           </div>
         </div>
+
         <div class="field grid">
           <label for="allow_listing" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_listing')}}</label>
           <div class="col-12 md:col-8">
@@ -97,7 +87,7 @@
             <InputGroup>
               <multiselect
                 id="server_pool"
-                ref="server-pool-multiselect"
+                ref="serverPoolMultiselectRef"
                 v-model="model.server_pool"
                 :placeholder="$t('settings.room_types.select_server_pool')"
                 track-by="id"
@@ -121,22 +111,24 @@
                   {{ $t('settings.server_pools.no_data') }}
                 </template>
                 <template #afterList>
-                  <Button
-                    :disabled="serverPoolsLoading || currentPage === 1"
-                    severity="secondary"
-                    outlined
-                    @click="loadServerPools(Math.max(1, currentPage - 1))"
-                  >
-                    <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
-                  </Button>
-                  <Button
-                    :disabled="serverPoolsLoading || !hasNextPage"
-                    severity="secondary"
-                    outlined
-                    @click="loadServerPools(currentPage + 1)"
-                  >
-                    <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
-                  </Button>
+                  <div class="flex p-2 gap-2">
+                    <Button
+                      :disabled="serverPoolsLoading || serverPoolsCurrentPage === 1"
+                      severity="secondary"
+                      outlined
+                      @click="loadServerPools(Math.max(1, serverPoolsCurrentPage - 1))"
+                      icon="fa-solid fa-arrow-left"
+                      :label="$t('app.previous_page')"
+                    />
+                    <Button
+                      :disabled="serverPoolsLoading || !serverPoolsHasNextPage"
+                      severity="secondary"
+                      outlined
+                      @click="loadServerPools(serverPoolsCurrentPage + 1)"
+                      icon="fa-solid fa-arrow-right"
+                      :label="$t('app.next_page')"
+                    />
+                  </div>
                 </template>
               </multiselect>
               <Button
@@ -176,7 +168,7 @@
             <InputGroup>
               <multiselect
                 id="roles"
-                ref="roles-multiselect"
+                ref="rolesMultiselectRef"
                 v-model="model.roles"
                 :placeholder="$t('settings.room_types.select_roles')"
                 track-by="id"
@@ -202,107 +194,78 @@
                   {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
                 </template>
                 <template v-slot:tag="{ option, remove }">
-                  <h5 class="inline mr-1 mb-1">
-<!--                    ToDo no severity secondary (other options?)-->
-                    <Tag severity="warning">
-                      {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
-                      <span @click="remove(option)"><i
-                        class="fa-solid fa-xmark"
-                        :aria-label="$t('settings.users.remove_role')"
-                      /></span>
-                    </Tag>
-                  </h5>
+                  <Tag variant="secondary" class="flex-auto flex-row gap-2 mr-1 mb-1">
+                    {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
+                    <Button
+                      size="small"
+                      @click="remove(option)"
+                      icon="fa-solid fa-xmark"
+                      :aria-label="$t('settings.users.remove_role')"
+                      text
+                      rounded
+                      class="text-white p-0 h-1rem w-1rem"
+                    />
+                  </Tag>
                 </template>
                 <template #afterList>
-                  <Button
-                    :disabled="rolesLoading || currentRolePage === 1"
-                    severity="secondary"
-                    outlined
-                    @click="loadRoles(Math.max(1, currentRolePage - 1))"
-                  >
-                    <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
-                  </Button>
-                  <Button
-                    :disabled="rolesLoading || !hasNextRolePage"
-                    severity="secondary"
-                    outlined
-                    @click="loadRoles(currentRolePage + 1)"
-                  >
-                    <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
-                  </Button>
+                  <div class="flex p-2 gap-2">
+                    <Button
+                      :disabled="rolesLoading || rolesCurrentPage === 1"
+                      severity="secondary"
+                      outlined
+                      @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
+                      icon="fa-solid fa-arrow-left"
+                      :label="$t('app.previous_page')"
+                    />
+                    <Button
+                      :disabled="rolesLoading || !rolesHasNextPage"
+                      severity="secondary"
+                      outlined
+                      @click="loadRoles(rolesCurrentPage + 1)"
+                      icon="fa-solid fa-arrow-right"
+                      :label="$t('app.next_page')"
+                    />
+                  </div>
                 </template>
               </multiselect>
-                <Button
-                  v-if="rolesLoadingError"
-                  ref="reloadRolesButton"
-                  severity="secondary"
-                  outlined
-                  @click="loadRoles(currentRolePage)"
-                >
-                  <i class="fa-solid fa-sync" />
-                </Button>
+              <Button
+                v-if="rolesLoadingError"
+                severity="secondary"
+                outlined
+                @click="loadRoles(rolesCurrentPage)"
+              >
+                <i class="fa-solid fa-sync" />
+              </Button>
             </InputGroup>
             <p class="p-error" v-html="formErrors.fieldError('roles')"></p>
           </div>
         </div>
 
-          <hr>
-          <div class="grid my-1" >
-            <div class="col sm:col-12 flex justify-content-end">
-              <Button
-                :disabled="isBusy"
-                severity="secondary"
-                @click="$router.push({ name: 'settings.room_types' })"
-                icon="fa-solid fa-arrow-left"
-                :label="$t('app.back')"
-              >
-              </Button>
-              <Button
-                v-if="!viewOnly"
-                :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
-                severity="success"
-                type="submit"
-                class="ml-1"
-                icon="fa-solid fa-save"
-                :label="$t('app.save')"
-              >
-              </Button>
-            </div>
-          </div>
+        <Divider/>
+
+        <div class="flex justify-content-end">
+          <Button
+            :disabled="isBusy"
+            severity="secondary"
+            @click="$router.push({ name: 'settings.room_types' })"
+            icon="fa-solid fa-arrow-left"
+            :label="$t('app.back')"
+          >
+          </Button>
+          <Button
+            v-if="!viewOnly"
+            :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
+            severity="success"
+            type="submit"
+            class="ml-1"
+            icon="fa-solid fa-save"
+            :label="$t('app.save')"
+          >
+          </Button>
         </div>
       </form>
-    </b-overlay>
-
-<!--    ToDo-->
-    <b-modal
-      ref="stale-roomType-modal"
-      :static="modalStatic"
-      :busy="isBusy"
-      ok-variant="danger"
-      cancel-variant="secondary"
-      :hide-header-close="true"
-      :no-close-on-backdrop="true"
-      :no-close-on-esc="true"
-      :hide-header="true"
-      @ok="forceOverwrite"
-      @cancel="refreshRoomType"
-    >
-      <template #default>
-        <h5>{{ staleError.message }}</h5>
-      </template>
-      <template #modal-ok>
-        <b-spinner
-          v-if="isBusy"
-          small
-        />  {{ $t('app.overwrite') }}
-      </template>
-      <template #modal-cancel>
-        <b-spinner
-          v-if="isBusy"
-          small
-        />  {{ $t('app.reload') }}
-      </template>
-    </b-modal>
+    </OverlayComponent>
+    <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
 
@@ -310,66 +273,69 @@
 import env from '@/env.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useApi } from '@/composables/useApi.js';
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import _ from "lodash";
+import _ from 'lodash';
 import { Multiselect } from 'vue-multiselect';
+import {useConfirm} from "primevue/useconfirm";
+import {useI18n} from "vue-i18n";
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const formErrors = useFormErrors();
 const api = useApi();
 const router = useRouter();
+const confirm = useConfirm();
+const { t } = useI18n();
 
 const props = defineProps({
   id: {
     type: [String, Number],
-      required: true
+    required: true
   },
 
   viewOnly: {
     type: Boolean,
-      required: true
+    required: true
   },
 
   modalStatic: {
     type: Boolean,
-  default: false
+    default: false
   }
 });
 
 const isBusy = ref(false);
 const model = ref({
-  description:null,
-  color:env.ROOM_TYPE_COLORS[0],
+  description: null,
+  color: env.ROOM_TYPE_COLORS[0],
   server_pool: null,
   allow_listing: false,
   restrict: false,
   roles: []
 });
+
 const roles = ref([]);
 const rolesLoading = ref(false);
-const currentRolePage = ref(1);
-const hasNextRolePage = ref(false);
+const rolesCurrentPage = ref(1);
+const rolesHasNextPage = ref(false);
 const colors = env.ROOM_TYPE_COLORS;
 
 const serverPoolsLoading = ref(false);
 const serverPools = ref([]);
-const currentPage = ref(1);
-const hasNextPage = ref(false);
+const serverPoolsCurrentPage = ref(1);
+const serverPoolsHasNextPage = ref(false);
 
 const rolesLoadingError = ref(false);
 const modelLoadingError = ref(false);
-const staleError = ref({});
 const serverPoolsLoadingError = ref(false);
-const errors = ref({});
 
-//Todo
-const serverPoolMultiselect = ref(null);
-const rolesMultiselect = ref(null);
+const serverPoolMultiselectRef = ref();
+const rolesMultiselectRef = ref();
 
 /**
  * Loads the role from the backend and also a part of permissions that can be selected.
  */
-onMounted(() =>{
+onMounted(() => {
   loadRoomType();
   loadRoles();
   loadServerPools();
@@ -379,7 +345,7 @@ onMounted(() =>{
  * Load the room type from the server api
  *
  */
-function loadRoomType(){
+function loadRoomType () {
   if (props.id !== 'new') {
     isBusy.value = true;
 
@@ -404,7 +370,7 @@ function loadRoomType(){
  *
  * @param [page=1] The page to load the roles for.
  */
-function loadServerPools (page = 1){
+function loadServerPools (page = 1) {
   serverPoolsLoading.value = true;
 
   const config = {
@@ -416,10 +382,10 @@ function loadServerPools (page = 1){
   api.call('serverPools', config).then(response => {
     serverPoolsLoadingError.value = false;
     serverPools.value = response.data.data;
-    currentPage.value = page;
-    hasNextPage.value = page < response.data.meta.last_page;
+    serverPoolsCurrentPage.value = page;
+    serverPoolsHasNextPage.value = page < response.data.meta.last_page;
   }).catch(error => {
-    serverPoolMultiselect.value.deactivate();
+    serverPoolMultiselectRef.value.deactivate();
     serverPoolsLoadingError.value = true;
     api.error(error);
   }).finally(() => {
@@ -428,14 +394,9 @@ function loadServerPools (page = 1){
 }
 
 /**
- * Saves the changes of the room type to the database by making a api call.
- *
- * @param evt
+ * Saves the changes of the room type to the database by making an api call.
  */
-function saveRoomType(evt){
-  if (evt) {
-    evt.preventDefault();
-  }
+function saveRoomType () {
   isBusy.value = true;
 
   const config = {
@@ -454,8 +415,7 @@ function saveRoomType(evt){
       formErrors.set(error.response.data.errors);
     } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
       // handle stale errors
-      staleError.value = error.response.data;
-      this.$refs['stale-roomType-modal'].show();
+      handleStaleError(error.response.data);
     } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
       api.error(error);
       router.push({ name: 'settings.room_types' });
@@ -467,23 +427,22 @@ function saveRoomType(evt){
   });
 }
 
-/**
- * Force a overwrite of the user in the database by setting the `updated_at` field to the new one.
- */
-function forceOverwrite(){
-  model.value.updated_at = staleError.value.new_model.updated_at;
-  staleError.value = {};
-  this.$refs['stale-roomType-modal'].hide();
-  saveRoomType();
-}
-
-/**
- * Refreshes the current model with the new passed from the stale error response.
- */
-function refreshRoomType(){
-  model.value = staleError.value.new_model;
-  staleError.value = {};
-  this.$refs['stale-roomType-modal'].hide();
+function handleStaleError (staleError) {
+  confirm.require({
+    message: staleError.message,
+    header: 'Confirmation',
+    icon: 'pi pi-exclamation-triangle',
+    rejectClass: 'p-button-secondary p-button-outlined',
+    rejectLabel: t('app.reload'),
+    acceptLabel: t('app.overwrite'),
+    accept: () => {
+      model.value.updated_at = staleError.new_model.updated_at;
+      saveRoomType();
+    },
+    reject: () => {
+      model.value = staleError.new_model;
+    }
+  });
 }
 
 /**
@@ -491,7 +450,7 @@ function refreshRoomType(){
  *
  * @param [page=1] The page to load the roles for.
  */
-function loadRoles (page=1){
+function loadRoles (page = 1) {
   rolesLoading.value = true;
 
   const config = {
@@ -503,10 +462,10 @@ function loadRoles (page=1){
   api.call('roles', config).then(response => {
     rolesLoadingError.value = false;
     roles.value = response.data.data;
-    currentRolePage.value = page;
-    hasNextRolePage.value = page < response.data.meta.last_page;
+    rolesCurrentPage.value = page;
+    rolesHasNextPage.value = page < response.data.meta.last_page;
   }).catch(error => {
-    rolesMultiselect.value.deactivate();
+    rolesMultiselectRef.value.deactivate();
     rolesLoadingError.value = true;
     api.error(error);
   }).finally(() => {

@@ -2,49 +2,39 @@
     <div class="flex">
         <div
             role="button"
-            v-for="color in colors"
+            v-for="color in props.colors"
             :key="color"
             class="color-select"
             :style="{'background-color': color}"
-            :class="{'selected': isColorSelected(color), 'disabled': disabled}"
-            @click="input(color)"
-            >
-                <div class="overlay">
-                    <i v-if="isColorSelected(color)" class="fa-solid fa-circle-check"></i>
-                </div>
-
+            :class="{'selected': isColorSelected(color), 'disabled': props.disabled}"
+            @click="selectColor(color)"
+        >
+          <div class="overlay">
+            <i v-if="isColorSelected(color)" class="fa-solid fa-circle-check"></i>
+          </div>
         </div>
     </div>
   </template>
 
-<script>
-export default {
-  props: {
-    colors: {
-      type: Array
-    },
-    value: {
-      type: String,
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    }
+<script setup>
+
+const model = defineModel();
+
+const props = defineProps({
+  colors: {
+    type: Array
   },
-  methods: {
-    /**
-       * Emits the input event.
-       *
-       * @param {string} value
-       */
-    input (value) {
-      if (this.disabled) return;
-      this.$emit('input', value);
-    },
-    isColorSelected (color) {
-      return this.value && this.value.toLowerCase() === color.toLowerCase();
-    }
+  disabled: {
+    type: Boolean,
+    default: false
   }
-};
+});
+
+function selectColor (value) {
+  if (props.disabled) return;
+  model.value = value;
+}
+function isColorSelected (color) {
+  return model.value && model.value.toLowerCase() === color.toLowerCase();
+}
 </script>
