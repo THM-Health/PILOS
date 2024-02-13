@@ -120,7 +120,7 @@
           >
             <template #clearicon="{ clearCallback }">
               <Button
-                @click="clearCallback"
+                @click.stop="clearCallback"
                 severity="secondary"
                 icon="fa-solid fa-times"
                 text
