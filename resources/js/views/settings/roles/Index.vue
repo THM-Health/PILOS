@@ -1,44 +1,48 @@
 <template>
   <div>
-    <h3>
-      {{ $t('app.roles') }}
-      <Can
-        method="create"
-        policy="RolePolicy"
-      >
-        <b-button
-          v-b-tooltip.hover
-          class="float-right"
-          variant="success"
-          :title="$t('settings.roles.new')"
-          :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
-        >
-          <i class="fa-solid fa-plus" />
-        </b-button>
-      </can>
-    </h3>
+      <div class="grid">
+        <div class="col">
+          <h2>
+            {{ $t('app.roles') }}
+          </h2>
+        </div>
+        <div class="col flex justify-content-end align-items-center">
+          <Can
+            method="create"
+            policy="RolePolicy"
+          >
+            <RouterLink
+              class="float-right p-button p-button-success"
+              v-tooltip="$t('settings.roles.new')"
+              :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
+            >
+              <i class="fa-solid fa-plus" />
+            </RouterLink>
+          </can>
+        </div>
+      </div>
     <hr>
 
-    <b-table
-      id="roles-table"
+<!--    ToDo-->
+    <DataTable
       ref="roles"
       fixed
-      hover
+      row-hover
       stacked="lg"
       show-empty
-      v-model:busy="isBusy"
+      paginator
+      :loading="isBusy"
       :fields="tableFields"
       :items="fetchRoles"
       :current-page="currentPage"
     >
+      <Column field="id" :header="$t('app.id')" sortable></Column>
+      <Column field="name" :header="$t('app.model_name')" sortable></Column>
+      <Column field="default" :header="$t('settings.roles.default')" sortable></Column>
+      <Column :header="$t('app.actions')" class="action-column"></Column>
+
       <template #empty>
         <i>{{ $t('settings.roles.nodata') }}</i>
-      </template>
-
-      <template #table-busy>
-        <div class="text-center my-2">
-          <b-spinner class="align-middle" />
-        </div>
       </template>
 
       <template #cell(name)="data">
@@ -97,18 +101,9 @@
           </can>
         </b-button-group>
       </template>
-    </b-table>
+    </DataTable>
 
-    <b-pagination
-      v-model="currentPage"
-      :total-rows="total"
-      :per-page="perPage"
-      aria-controls="roles-table"
-      align="center"
-      :disabled="isBusy"
-      @input="$root.$emit('bv::refresh::table', 'roles-table')"
-    />
-
+<!--    ToDo-->
     <b-modal
       ref="delete-role-modal"
       :busy="deleting"
@@ -139,6 +134,7 @@
   </div>
 </template>
 
+<!--ToDo switch to script setup-->
 <script>
 import Base from '@/api/base';
 import ActionsColumn from '@/mixins/ActionsColumn';

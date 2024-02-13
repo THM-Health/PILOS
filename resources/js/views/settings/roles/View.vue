@@ -1,13 +1,14 @@
 <template>
   <div>
-    <h3>
+    <h2>
       {{ id === 'new' ? $t('settings.roles.new') : (
         viewOnly ? $t('settings.roles.view', { name: $te(`app.role_lables.${model.name}`) ? $t(`app.role_lables.${model.name}`) : model.name })
         : $t('settings.roles.edit', { name: $te(`app.role_lables.${model.name}`) ? $t(`app.role_lables.${model.name}`) : model.name })
       ) }}
-    </h3>
+    </h2>
     <hr>
 
+<!--    ToDo Overlay-->
     <b-overlay :show="isBusy || modelLoadingError">
       <template #overlay>
         <div class="text-center">
@@ -21,35 +22,36 @@
         </div>
       </template>
 
-      <b-form
+      <form
         :aria-hidden="modelLoadingError"
         @submit="saveRole"
       >
-        <b-container fluid>
-          <b-form-group
-            label-cols-sm="4"
-            :label="$t('app.model_name')"
-            label-for="name"
-            :state="fieldState('name')"
-          >
-            <b-form-input
-              id="name"
-              v-model="model.name"
-              type="text"
-              :state="fieldState('name')"
-              :disabled="isBusy || modelLoadingError || viewOnly"
-            />
-            <template #invalid-feedback>
-              <div v-html="fieldError('name')" />
-            </template>
-          </b-form-group>
+        <div class="container container-fluid">
+          <div class="field grid">
+            <label for="name" class="col-4">{{$t('app.model_name')}}</label>
+            <div class="col-8">
+              <InputText
+                class="w-full"
+                id="name"
+                v-model="model.name"
+                type="text"
+                :state="fieldState('name')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+<!--            <template #invalid-feedback>-->
+<!--              <div v-html="fieldError('name')" />-->
+<!--            </template>-->
+          </div>
 
-          <b-modal
+<!--      ToDo-->
+          <Dialog
+            v-model:visible="helpRoomLimitVisible"
+            modal
             id="modal-help-roomlimit"
-            size="lg"
-            :hide-footer="true"
           >
-            <template #modal-title>
+<!--            ToDo fix header-->
+            <template #header>
               <i class="fa-solid fa-circle-info" /> {{ $t('app.room_limit') }}
             </template>
             <p>{{ $t('settings.roles.room_limit.help_modal.info') }}</p>
@@ -118,113 +120,118 @@
               </tbody>
             </table>
             <p>{{ $t('settings.roles.room_limit.help_modal.note') }}</p>
-          </b-modal>
+          </Dialog>
 
-          <b-form-group
-            label-cols-sm="4"
-            label-for="room-limit"
-            :state="fieldState('room_limit')"
-          >
-            <template #label>
-              {{ $t('app.room_limit') }}  <b-button
-                v-b-modal.modal-help-roomlimit
-                variant="link"
+          <div class="field grid">
+            <label for="room-limit" class="col-4 align-items-start">
+              <span class="flex align-items-center">
+                {{ $t('app.room_limit') }}
+                <Button
+                @click="helpRoomLimitVisible=true"
+                severity="link"
                 class="secondary"
                 :disabled="isBusy || modelLoadingError"
-              >
+                >
                 <i class="fa-solid fa-circle-info" />
-              </b-button>
-            </template>
-            <b-form-radio-group
-              v-model="roomLimitMode"
-              class="mb-2"
-              :options="roomLimitModeOptions"
-              :disabled="isBusy || modelLoadingError || viewOnly"
-              :state="fieldState('room_limit')"
-              stacked
-              @change="roomLimitModeChanged"
-            />
-            <b-form-input
-              v-if="roomLimitMode === 'custom'"
-              id="room-limit"
-              v-model="model.room_limit"
-              type="number"
-              :state="fieldState('room_limit')"
-              min="0"
-              :disabled="isBusy || modelLoadingError || viewOnly"
-            />
-            <template #invalid-feedback>
-              <div v-html="fieldError('room_limit')" />
-            </template>
-          </b-form-group>
-          <b-form-group
-            :label="$t('settings.roles.permissions')"
-            label-size="lg"
-            label-class="font-weight-bold pt-0"
-            :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
-          >
-            <b-row v-if="!isBusy && Object.keys(permissions).length > 0">
-              <b-col cols="8">
+                </Button>
+              </span>
+            </label>
+            <div class="col-8">
+              <div v-for="option in roomLimitModeOptions" :key="option.value" class="mb-2">
+                <RadioButton
+                  v-model="roomLimitMode"
+                  ::inputId="option.value"
+                  :value="option.value"
+                  @change="roomLimitModeChanged"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                />
+                <label :for="option.value" class="ml-2">{{option.text}}</label>
+              </div>
+              <InputText
+                class="w-full"
+                v-if="roomLimitMode === 'custom'"
+                id="room-limit"
+                v-model="model.room_limit"
+                type="number"
+                :state="fieldState('room_limit')"
+                min="0"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+              <!--            <template #invalid-feedback>-->
+              <!--              <div v-html="fieldError('room_limit')" />-->
+              <!--            </template>-->
+            </div>
+          </div>
+
+<!--          <b-form-group-->
+<!--            :label="$t('settings.roles.permissions')"-->
+<!--            label-size="lg"-->
+<!--            label-class="font-weight-bold pt-0"-->
+<!--            :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"-->
+<!--          >-->
+<!--          ToDo Label-->
+          <div class="field grid">
+
+            <div class="grid w-full" v-if="!isBusy && Object.keys(permissions).length > 0">
+              <div class="col-8">
                 <b>{{ $t('settings.roles.permission_name') }}</b>
-              </b-col>
-              <b-col cols="2">
+              </div>
+              <div class="col-2">
                 <b>{{ $t('settings.roles.permission_explicit') }}</b>
-              </b-col>
-              <b-col cols="2">
+              </div>
+              <div class="col-2">
                 <b>{{ $t('settings.roles.permission_included') }}
                   <i
-                    v-b-tooltip.hover
                     class="fa-solid fa-circle-info"
-                    :title="$t('settings.roles.permission_included_help')"
+                    v-tooltip="$t('settings.roles.permission_included_help')"
                   /></b>
-              </b-col>
-              <b-col cols="12">
-                <hr>
-                <b-row
+              </div>
+
+
+              <div class="col-12">
+                <hr class="mt-4 mb-4">
+                <div class="grid mb-3"
                   v-for="key in Object.keys(permissions)"
                   :key="key"
-                  class="mb-2"
                 >
-                  <b-col cols="12">
+                  <div class="col-12 mb-3">
                     <b>{{ $t(`app.permissions.${key}.title`) }}</b>
-                  </b-col>
-                  <b-col cols="12">
-                    <b-row
+                  </div>
+                  <div class="col-12">
+                    <div class="grid mb-3"
                       v-for="permission in permissions[key]"
                       :key="permission.id"
                     >
-                      <b-col cols="8">
+                      <div class="col-8">
                         <label :for="permission.name">{{ $t(`app.permissions.${permission.name}`) }}</label>
-                      </b-col>
-                      <b-col cols="2">
-                        <b-form-checkbox
-                          :id="permission.name"
+                      </div>
+                      <div class="col-2 flex">
+<!--                        ToDo check for better option-->
+                        <Checkbox
+                          :input-id="permission.name"
                           v-model="model.permissions"
                           :value="permission.id"
-                          switch
                           :disabled="isBusy || modelLoadingError || viewOnly"
                           :state="fieldState('permissions', true)"
                         />
-                      </b-col>
-                      <b-col cols="2">
+                      </div>
+                      <div class="col-2">
                         <i
                           v-if="includedPermissions.includes(permission.id)"
-                          v-b-tooltip.hover
                           class="fa-solid fa-check-circle text-success"
-                          :title="$t('settings.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                          v-tooltip="$t('settings.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                         />
                         <i
                           v-else
-                          v-b-tooltip.hover
                           class="fa-solid fa-minus-circle text-danger"
-                          :title="$t('settings.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                          v-tooltip="$t('settings.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                         />
-                      </b-col>
-                    </b-row>
-                  </b-col>
-                </b-row>
-              </b-col>
-            </b-row>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div
               v-if="!isBusy && Object.keys(permissions).length === 0"
@@ -233,34 +240,38 @@
               {{ $t('settings.roles.no_options') }}
             </div>
 
-            <template #invalid-feedback>
-              <div v-html="fieldError('permissions', true)" />
-            </template>
-          </b-form-group>
+<!--            <template #invalid-feedback>-->
+<!--              <div v-html="fieldError('permissions', true)" />-->
+<!--            </template>-->
+          </div>
+<!--          </b-form-group>-->
           <hr>
-          <b-row class="my-1 float-right">
-            <b-col sm="12">
-              <b-button
+          <div class=" grid my-1 ">
+            <div class="col sm:col-12 flex justify-content-end">
+              <Button
                 :disabled="isBusy"
-                variant="secondary"
+                severity="secondary"
                 @click="$router.push({ name: 'settings.roles' })"
+                icon="fa-solid fa-arrow-left"
+                :label="$t('app.back')"
               >
-                <i class="fa-solid fa-arrow-left" /> {{ $t('app.back') }}
-              </b-button>
-              <b-button
+              </Button>
+              <Button
                 v-if="!viewOnly"
                 :disabled="isBusy || modelLoadingError"
-                variant="success"
+                severity="success"
                 type="submit"
                 class="ml-1"
+                icon="fa-solid fa-save"
+                :label="$t('app.save')"
               >
-                <i class="fa-solid fa-save" /> {{ $t('app.save') }}
-              </b-button>
-            </b-col>
-          </b-row>
-        </b-container>
-      </b-form>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </form>
 
+<!--      ToDo-->
       <b-modal
         ref="stale-role-modal"
         :static="modalStatic"
@@ -294,6 +305,7 @@
   </div>
 </template>
 
+<!--ToDo switch to script setup-->
 <script>
 import Base from '@/api/base';
 import FieldErrors from '@/mixins/FieldErrors';
@@ -375,7 +387,8 @@ export default {
       staleError: {},
       roomLimitMode: 'default',
       busyCounter: 0,
-      modelLoadingError: false
+      modelLoadingError: false,
+      helpRoomLimitVisible: false
     };
   },
 
@@ -433,7 +446,8 @@ export default {
 
           this.permissions[group].push(permission);
 
-          this.$set(this.includedPermissionMap, permission.id, permission.included_permissions);
+          //ToDo
+          //this.$set(this.includedPermissionMap, permission.id, permission.included_permissions);
         });
       }).catch(error => {
         this.modelLoadingError = true;
