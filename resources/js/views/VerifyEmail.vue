@@ -1,100 +1,94 @@
 <template>
-  <b-container class="mt-3 mb-5">
-    <b-card class="p-3 border bg-white">
-      <h3>
-        {{ $t('app.verify_email.title') }}
-      </h3>
-      <hr>
-      <div
-        v-if="loading"
-        class="text-center my-5"
-      >
-        <b-spinner />
+  <div class="container">
+    <div class="grid mt-4 mb-5">
+      <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
+        <Card>
+          <template #title> {{ $t('app.verify_email.title') }} </template>
+          <template #content>
+            <OverlayComponent :show="loading">
+              <div v-if="!loading">
+                <Message
+                  v-if="success"
+                  severity="success"
+                  icon="fa-solid fa-envelope-circle-check"
+                  :closable="false"
+                >
+                  {{ $t('app.verify_email.success') }}
+                </Message>
+                <Message
+                  v-else-if="error === env.HTTP_UNPROCESSABLE_ENTITY"
+                  severity="error"
+                  icon="fa-solid fa-triangle-exclamation"
+                  :closable="false"
+                >
+                  {{ $t('app.verify_email.invalid') }}
+                </Message>
+                <Message
+                  v-else
+                  severity="error"
+                  icon="fa-solid fa-triangle-exclamation"
+                  :closable="false"
+                >
+                  {{ $t('app.verify_email.fail') }}
+                </Message>
+              </div>
+            </OverlayComponent>
+          </template>
+        </Card>
       </div>
-      <div v-else>
-        <div v-if="success">
-          <b-alert
-            variant="success"
-            show
-          >
-            <i class="fa-solid fa-envelope-circle-check" /> {{ $t('app.verify_email.success') }}
-          </b-alert>
-        </div>
-        <div v-else>
-          <b-alert
-            v-if="error === env.HTTP_UNPROCESSABLE_ENTITY"
-            variant="danger"
-            show
-          >
-            <i class="fa-solid fa-triangle-exclamation" /> {{ $t('app.verify_email.invalid') }}
-          </b-alert>
-          <b-alert
-            v-else
-            variant="danger"
-            show
-          >
-            <i class="fa-solid fa-triangle-exclamation" /> {{ $t('app.verify_email.fail') }}
-          </b-alert>
-        </div>
-      </div>
-    </b-card>
-  </b-container>
+    </div>
+  </div>
 </template>
 
-<script>
-import Base from '@/api/base';
+<script setup>
 import env from '@/env';
+import { onMounted, ref } from 'vue';
+import { useApi } from '../composables/useApi.js';
 
-export default {
-  name: 'ConfirmEmailChange.vue',
-  props: {
-    token: {
-      type: String,
-      default: null
-    },
-
-    email: {
-      type: String,
-      default: null
-    }
-  },
-  data () {
-    return {
-      loading: true,
-      success: true,
-      error: null,
-      env
-    };
-  },
-  mounted () {
-    this.verifyEmail();
+const props = defineProps({
+  token: {
+    type: String,
+    default: null
   },
 
-  methods: {
-    verifyEmail () {
-      this.loading = true;
-      Base.call('email/verify', {
-        method: 'POST',
-        data: {
-          email: this.email,
-          token: this.token
-        }
-      })
-        .then(response => {
-          this.success = true;
-        })
-        .catch((error) => {
-          if (error.response) {
-            this.error = error.response.status;
-            if (error.response.status !== env.HTTP_UNPROCESSABLE_ENTITY) {
-              Base.error(error, this.$root, error.message);
-            }
-          }
-          this.success = false;
-        }).finally(() => {
-          this.loading = false;
-        });
-    }
+  email: {
+    type: String,
+    default: null
   }
-};
+});
+
+const loading = ref(true);
+const success = ref(true);
+const error = ref(null);
+
+const api = useApi();
+
+onMounted(() => {
+  verifyEmail();
+});
+
+function verifyEmail () {
+  loading.value = true;
+  api.call('email/verify', {
+    method: 'POST',
+    data: {
+      email: props.email,
+      token: props.token
+    }
+  })
+    .then(response => {
+      success.value = true;
+    })
+    .catch((error) => {
+      if (error.response) {
+        error.value = error.response.status;
+        if (error.response.status !== env.HTTP_UNPROCESSABLE_ENTITY) {
+          api.error(error);
+        }
+      }
+      success.value = false;
+    }).finally(() => {
+      loading.value = false;
+    });
+}
 </script>
