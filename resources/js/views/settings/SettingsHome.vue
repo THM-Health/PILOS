@@ -1,160 +1,177 @@
 <template>
   <div>
-    <h3>{{ $t('settings.overview') }}</h3>
+    <h2>{{ $t('settings.overview') }}</h2>
     <p>{{ $t('settings.overview_description') }}</p>
-    <hr>
-    <b-row
-      cols="1"
-      cols-sm="2"
-      cols-md="3"
-      cols-lg="3"
-      align-v="stretch"
-    >
+    <Divider/>
+    <div class="grid mt-1">
       <Can
         method="viewAny"
         policy="ApplicationSettingPolicy"
       >
-        <b-col class="p-2">
-          <b-card class="h-100">
-            <router-link
-              class="stretched-link"
-              :to="{ name: 'settings.application' }"
-            >
-              <h2 class="text-center text-primary">
+        <div class="col-12 md:col-4 lg:col-4 sm:col-6 p-2">
+          <Card
+            :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
+            class="h-full relative"
+          >
+            <template #title>
+              <h2 class="m-0">
                 <i class="fa-solid fa-cogs" />
               </h2>
-            </router-link>
-            <b-card-title class="text-center text-primary">
-              {{ $t('settings.application.title') }}
-            </b-card-title>
-            <b-card-text>
+              <span>
+                 {{ $t('settings.application.title') }}
+              </span>
+            </template>
+            <template #content>
               {{ $t('settings.application.tile_description') }}
-            </b-card-text>
-          </b-card>
-        </b-col>
+              <router-link
+                class="stretched-link"
+                :to="{ name: 'settings.application' }"
+              >
+              </router-link>
+            </template>
+          </Card>
+        </div>
       </can>
       <Can
         method="viewAny"
         policy="UserPolicy"
       >
-        <b-col class="p-2">
-          <b-card class="h-100">
-            <router-link
-              class="stretched-link"
-              :to="{ name: 'settings.users' }"
-            >
-              <h2 class="text-center text-primary">
+        <div class="col-12 md:col-4 lg:col-4 sm:col-6 p-2">
+          <Card
+            :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
+            class="h-full relative"
+          >
+            <template #title>
+              <h2 class="m-0">
                 <i class="fa-solid fa-users" />
               </h2>
-            </router-link>
-            <b-card-title class="text-center text-primary">
-              {{ $t('app.users') }}
-            </b-card-title>
-            <b-card-text>
+              <span>
+                 {{ $t('app.users') }}
+              </span>
+            </template>
+            <template #content>
               {{ $t('settings.users.tile_description') }}
-            </b-card-text>
-          </b-card>
-        </b-col>
+              <router-link
+                class="stretched-link"
+                :to="{ name: 'settings.users' }"
+              >
+              </router-link>
+            </template>
+          </Card>
+        </div>
       </can>
       <Can
         method="viewAny"
         policy="RolePolicy"
       >
-        <b-col class="p-2">
-          <b-card class="h-100">
-            <router-link
-              class="stretched-link"
-              :to="{ name: 'settings.roles' }"
-            >
-              <h2 class="text-center text-primary">
+        <div class="col-12 md:col-4 lg:col-4 sm:col-6 p-2">
+          <Card
+            :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
+            class="h-full relative"
+          >
+            <template #title>
+              <h2 class="m-0">
                 <i class="fa-solid fa-user-tag" />
               </h2>
-            </router-link>
-            <b-card-title class="text-center text-primary">
-              {{ $t('app.roles') }}
-            </b-card-title>
-            <b-card-text>
+              <span>
+                 {{ $t('app.roles') }}
+              </span>
+            </template>
+            <template #content>
               {{ $t('settings.roles.tile_description') }}
-            </b-card-text>
-          </b-card>
-        </b-col>
+              <router-link
+                class="stretched-link"
+                :to="{ name: 'settings.roles' }"
+              >
+              </router-link>
+            </template>
+          </Card>
+        </div>
       </can>
       <Can
         method="viewAny"
         policy="RoomTypePolicy"
       >
-        <b-col class="p-2">
-          <b-card class="h-100">
-            <router-link
-              class="stretched-link"
-              :to="{ name: 'settings.room_types' }"
-            >
-              <h2 class="text-center text-primary">
+        <div class="col-12 md:col-4 lg:col-4 sm:col-6 p-2">
+          <Card
+            :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
+            class="h-full relative"
+          >
+            <template #title>
+              <h2 class="m-0">
                 <i class="fa-solid fa-tags" />
               </h2>
-            </router-link>
-            <b-card-title class="text-center text-primary">
-              {{ $t('app.room_types') }}
-            </b-card-title>
-            <b-card-text>
+              <span>
+                 {{ $t('app.room_types') }}
+              </span>
+            </template>
+            <template #content>
               {{ $t('settings.room_types.tile_description') }}
-            </b-card-text>
-          </b-card>
-        </b-col>
+              <router-link
+              class="stretched-link"
+              :to="{ name: 'settings.room_types' }"
+              >
+              </router-link>
+            </template>
+          </Card>
+        </div>
       </can>
       <Can
         method="viewAny"
         policy="ServerPolicy"
       >
-        <b-col class="p-2">
-          <b-card class="h-100">
-            <router-link
-              class="stretched-link"
-              :to="{ name: 'settings.servers' }"
-            >
-              <h2 class="text-center text-primary">
+        <div class="col-12 md:col-4 lg:col-4 sm:col-6 p-2">
+          <Card
+            :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
+            class="h-full relative"
+          >
+            <template #title>
+              <h2 class="m-0">
                 <i class="fa-solid fa-server" />
               </h2>
-            </router-link>
-            <b-card-title class="text-center text-primary">
-              {{ $t('app.servers') }}
-            </b-card-title>
-            <b-card-text>
+              <span>
+                 {{ $t('app.servers') }}
+              </span>
+            </template>
+            <template #content>
               {{ $t('settings.servers.tile_description') }}
-            </b-card-text>
-          </b-card>
-        </b-col>
+              <router-link
+                class="stretched-link"
+                :to="{ name: 'settings.servers' }"
+              >
+              </router-link>
+            </template>
+          </Card>
+        </div>
       </can>
       <Can
         method="viewAny"
         policy="ServerPoolPolicy"
       >
-        <b-col class="p-2">
-          <b-card class="h-100">
-            <router-link
-              class="stretched-link"
-              :to="{ name: 'settings.server_pools' }"
-            >
-              <h2 class="text-center text-primary">
+        <div class="col-12 md:col-4 lg:col-4 sm:col-6 p-2">
+          <Card
+            :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
+            class="h-full relative"
+          >
+            <template #title>
+              <h2 class="m-0">
                 <i class="fa-solid fa-th-large" />
               </h2>
-            </router-link>
-            <b-card-title class="text-center text-primary">
-              {{ $t('app.server_pools') }}
-            </b-card-title>
-            <b-card-text>
+              <span>
+                 {{ $t('app.server_pools') }}
+              </span>
+            </template>
+            <template #content>
               {{ $t('settings.server_pools.tile_description') }}
-            </b-card-text>
-          </b-card>
-        </b-col>
+              <router-link
+                class="stretched-link"
+                :to="{ name: 'settings.server_pools' }"
+              >
+              </router-link>
+            </template>
+          </Card>
+        </div>
       </can>
-    </b-row>
+    </div>
   </div>
 </template>
-
-<script>
-
-</script>
-
-<style scoped>
-</style>

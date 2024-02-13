@@ -1,56 +1,48 @@
 <template>
   <div>
-    <b-row>
-      <b-col>
-        <h3>
+    <div class="grid">
+      <div class="col">
+        <h2>
           {{ $t('app.users') }}
-        </h3>
-      </b-col>
-      <b-col>
+        </h2>
+      </div>
+      <div class="col flex justify-content-end align-items-center">
         <Can
           method="create"
           policy="UserPolicy"
         >
-          <b-button
+          <router-link
             v-if="getSetting('auth.local')"
             ref="new-user-button"
-            v-b-tooltip.hover
-            class="float-right"
-            variant="success"
-            :title="$t('settings.users.new')"
+            v-tooltip.left="$t('settings.users.new')"
+            class="p-button p-button-success"
             :to="{ name: 'settings.users.new' }"
           >
             <i class="fa-solid fa-plus" />
-          </b-button>
+          </router-link>
         </can>
-      </b-col>
-    </b-row>
+      </div>
+    </div>
 
-    <b-row>
-      <b-col
-        sm="12"
-        md="4"
+    <div class="grid">
+      <div
+        class="col-12 sm:col-12 md:col-4"
       >
-        <b-input-group>
-          <b-form-input
+        <InputGroup>
+          <InputText
             v-model="filter.name"
             :placeholder="$t('app.search')"
-            :debounce="200"
           />
-          <b-input-group-append>
-            <b-input-group-text class="bg-primary">
-              <i class="fa-solid fa-magnifying-glass" />
-            </b-input-group-text>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
+          <InputGroupAddon class="bg-primary">
+            <i class="fa-solid fa-magnifying-glass" />
+          </InputGroupAddon>
+        </InputGroup>
+      </div>
 
-      <b-col
-        sm="12"
-        md="4"
-        offset-md="4"
+      <div
+        class="col-12 sm:col-12 md:col-4 md:col-offset-4"
       >
-        <b-input-group>
+        <InputGroup>
           <multiselect
             id="roles"
             ref="roles-multiselect"
@@ -81,47 +73,48 @@
               {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
             </template>
             <template #afterList>
-              <b-button
+              <Button
                 :disabled="rolesLoading || rolesCurrentPage === 1"
-                variant="outline-secondary"
+                severity="outline-secondary"
                 @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
               >
                 <i class="fa-solid fa-arrow-left" /> {{ $t('app.previous_page') }}
-              </b-button>
-              <b-button
+              </Button>
+              <Button
                 :disabled="rolesLoading || !rolesHasNextPage"
-                variant="outline-secondary"
+                severity="outline-secondary"
                 @click="loadRoles(rolesCurrentPage + 1)"
               >
                 <i class="fa-solid fa-arrow-right" /> {{ $t('app.next_page') }}
-              </b-button>
+              </Button>
             </template>
           </multiselect>
-          <b-input-group-append>
-            <b-button
+            <Button
               v-if="!rolesLoadingError && filter.role"
               ref="clearRolesButton"
-              variant="outline-secondary"
+              severity="outline-secondary"
               @click="filter.role = null"
             >
               <i class="fa-solid fa-xmark" />
-            </b-button>
+            </Button>
 
-            <b-button
+            <Button
               v-if="rolesLoadingError"
               ref="reloadRolesButton"
               variant="outline-secondary"
               @click="loadRoles(rolesCurrentPage)"
             >
               <i class="fa-solid fa-sync" />
-            </b-button>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
-    </b-row>
+            </Button>
+        </InputGroup>
+      </div>
+    </div>
     <hr>
 
-    <b-table
+
+<!--ToDo -->
+    <DataTable
+      :paginator="true"
       id="users-table"
       ref="users"
       fixed
@@ -129,11 +122,11 @@
       show-empty
       stacked="lg"
       v-model:busy="isBusy"
-      :fields="tableFields"
       :items="fetchUsers"
       :current-page="meta.current_page"
       :filter="filter"
     >
+    <Column v-for="col of tableFields" :key="col.field" :field="col.field" :header="col.header" :sortable="col.sortable"></Column>
       <template #table-busy>
         <div class="text-center my-2">
           <b-spinner class="align-middle" />
@@ -233,8 +226,9 @@
           </can>
         </b-button-group>
       </template>
-    </b-table>
+    </DataTable>
 
+<!--ToDo maybe can be deleted because table can contain pagination-->
     <b-pagination
       v-model="meta.current_page"
       :total-rows="meta.total"
@@ -245,6 +239,7 @@
       @input="$root.$emit('bv::refresh::table', 'users-table')"
     />
 
+<!--ToDo-->
     <b-modal
       ref="reset-user-password-modal"
       :busy="resetting"
@@ -303,6 +298,7 @@
   </div>
 </template>
 
+<!--ToDo switch to script setup-->
 <script>
 import ActionsColumn from '@/mixins/ActionsColumn';
 import Base from '@/api/base';
@@ -325,12 +321,12 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('app.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
-        { key: 'firstname', label: this.$t('app.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'lastname', label: this.$t('app.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true },
-        { key: 'roles', label: this.$t('app.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
+        { field: 'id', header: this.$t('app.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
+        { field: 'firstname', header: this.$t('app.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { field: 'lastname', header: this.$t('app.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { field: 'email', header: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { field: 'authenticator', header: this.$t('settings.users.authenticator.title'), sortable: true },
+        { field: 'roles', header: this.$t('app.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
       ];
 
       if (this.actionColumnVisible) {
