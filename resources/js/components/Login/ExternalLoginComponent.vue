@@ -1,27 +1,21 @@
 <template>
   <div>
-    <h5>{{ title }}</h5>
-
-    <b-button
+    <p class="p-card-title">{{ props.title }}</p>
+    <a
+      class="p-button"
       :href="redirectUrl"
-      variant="primary"
-      block
     >
-      {{ redirectLabel }}
-    </b-button>
+      <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> {{ redirectLabel }}
+    </a>
   </div>
 </template>
 
-<script>
-export default {
-  props: [
-    'redirectLabel',
-    'title',
-    'redirect-url'
-  ]
-};
+<script setup>
+
+const props = defineProps([
+  'redirectLabel',
+  'title',
+  'redirect-url'
+]);
+
 </script>
-
-<style scoped>
-
-</style>

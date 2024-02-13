@@ -75,10 +75,10 @@
               {{ $t('settings.roles.nodata') }}
             </template>
             <template v-slot:option="{ option }">
-              {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+              {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
             </template>
             <template v-slot:singleLabel="{ option }">
-              {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+              {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
             </template>
             <template #afterList>
               <b-button
@@ -157,7 +157,7 @@
           v-for="role in data.item.roles"
           :key="role.id"
         >
-          {{ $te(`app.role_lables.${role.name}`) ? $t(`app.role_lables.${role.name}`) : role.name }}
+          {{ $te(`app.role_labels.${role.name}`) ? $t(`app.role_labels.${role.name}`) : role.name }}
         </text-truncate>
       </template>
 

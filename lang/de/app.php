@@ -25,7 +25,7 @@ return [
     'email'       => 'E-Mail',
     'enable'      => 'Aktivieren',
     'enabled'     => 'Aktiviert',
-    'error'       => 'Es ist ein Fehler aufgetreten!',
+    'error'       => 'Es ist ein Fehler aufgetreten',
     'errors'      => [
         'attendance_agreement_missing' => 'Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.',
         'file_not_found'               => 'Die Datei konnte nicht gefunden werden.',
@@ -84,7 +84,7 @@ return [
     'next'        => 'Weiter',
     'next_page'   => 'Nächste Seite',
     'no'          => 'Nein',
-    'not_found'   => '404 | Die aufgerufene Adresse existiert nicht!',
+    'not_found'   => '404 | Die aufgerufene Adresse wurde nicht gefunden',
     'overwrite'   => 'Überschreiben',
     'permissions' => [
         'application_settings' => [
@@ -155,7 +155,7 @@ return [
     'profile'       => 'Profil',
     'reload'        => 'Neuladen',
     'reset'         => 'Zurücksetzen',
-    'role_lables'   => [
+    'role_labels'   => [
         'admin' => 'Administrator',
         'user'  => 'Benutzer',
     ],

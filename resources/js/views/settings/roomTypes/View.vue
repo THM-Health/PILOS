@@ -212,12 +212,12 @@
                   {{ $t('settings.roles.nodata') }}
                 </template>
                 <template v-slot:option="{ option }">
-                  {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+                  {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
                 </template>
                 <template v-slot:tag="{ option, remove }">
                   <h5 class="d-inline mr-1 mb-1">
                     <b-badge variant="secondary">
-                      {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+                      {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
                       <span @click="remove(option)"><i
                         class="fa-solid fa-xmark"
                         :aria-label="$t('settings.users.remove_role')"

@@ -18,8 +18,8 @@ describe('RoleSelect', () => {
     const view = mount(RoleSelect, {
       localVue,
       mocks: {
-        $t: key => key === 'app.role_lables.admin' ? 'Administrator' : key,
-        $te: (key) => key === 'app.role_lables.admin'
+        $t: key => key === 'app.role_labels.admin' ? 'Administrator' : key,
+        $te: (key) => key === 'app.role_labels.admin'
       },
       propsData: {
         value: [{ id: 1, name: 'admin' }],
@@ -134,8 +134,8 @@ describe('RoleSelect', () => {
     const view = mount(RoleSelect, {
       localVue,
       mocks: {
-        $t: key => key === 'app.role_lables.admin' ? 'Administrator' : key,
-        $te: (key) => key === 'app.role_lables.admin'
+        $t: key => key === 'app.role_labels.admin' ? 'Administrator' : key,
+        $te: (key) => key === 'app.role_labels.admin'
       },
       propsData: {
         value: [],
@@ -218,8 +218,8 @@ describe('RoleSelect', () => {
     const view = mount(RoleSelect, {
       localVue,
       mocks: {
-        $t: key => key === 'app.role_lables.admin' ? 'Administrator' : key,
-        $te: (key) => key === 'app.role_lables.admin'
+        $t: key => key === 'app.role_labels.admin' ? 'Administrator' : key,
+        $te: (key) => key === 'app.role_labels.admin'
       },
       propsData: {
         value: [],

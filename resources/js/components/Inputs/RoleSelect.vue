@@ -25,11 +25,11 @@
         {{ $t('settings.roles.nodata') }}
       </template>
       <template v-slot:option="{ option }">
-        {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+        {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
       </template>
       <template v-slot:tag="{ option, remove }" >
           <Tag variant="secondary" class="flex-auto flex-row gap-2 mr-1 mb-1">
-            {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
+            {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
             <Button
               v-if="!option.$isDisabled && selectedRoles.length>1"
               size="small"

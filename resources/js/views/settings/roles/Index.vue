@@ -43,7 +43,7 @@
 
       <template #cell(name)="data">
         <text-truncate>
-          {{ $te(`app.role_lables.${data.item.name}`) ? $t(`app.role_lables.${data.item.name}`) : data.item.name }}
+          {{ $te(`app.role_labels.${data.item.name}`) ? $t(`app.role_labels.${data.item.name}`) : data.item.name }}
         </text-truncate>
       </template>
 
@@ -133,7 +133,7 @@
         />  {{ $t('app.yes') }}
       </template>
       <span v-if="roleToDelete">
-        {{ $t('settings.roles.delete.confirm', { name: $te(`app.role_lables.${roleToDelete.name}`) ? $t(`app.role_lables.${roleToDelete.name}`) : roleToDelete.name }) }}
+        {{ $t('settings.roles.delete.confirm', { name: $te(`app.role_labels.${roleToDelete.name}`) ? $t(`app.role_labels.${roleToDelete.name}`) : roleToDelete.name }) }}
       </span>
     </b-modal>
   </div>

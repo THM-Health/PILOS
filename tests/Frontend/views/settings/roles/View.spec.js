@@ -74,7 +74,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key, values) => key === 'settings.roles.view' ? `${key} ${values.name}` : key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: true,
@@ -85,7 +85,7 @@ describe('RolesView', () => {
     });
 
     await mockAxios.wait();
-    expect(view.html()).toContain('settings.roles.view app.role_lables.admin');
+    expect(view.html()).toContain('settings.roles.view app.role_labels.admin');
     view.destroy();
   });
 
@@ -94,7 +94,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key, values) => key === 'settings.roles.edit' ? `${key} ${values.name}` : key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -105,7 +105,7 @@ describe('RolesView', () => {
     });
 
     await mockAxios.wait();
-    expect(view.html()).toContain('settings.roles.edit app.role_lables.admin');
+    expect(view.html()).toContain('settings.roles.edit app.role_labels.admin');
     view.destroy();
   });
 
@@ -114,7 +114,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key, values) => key === 'settings.roles.view' ? `${key} ${values.name}` : key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: true,
@@ -144,7 +144,7 @@ describe('RolesView', () => {
           }
           return key;
         },
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -226,7 +226,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -266,7 +266,7 @@ describe('RolesView', () => {
           }
           return key;
         },
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -302,7 +302,7 @@ describe('RolesView', () => {
           }
           return key;
         },
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -391,7 +391,7 @@ describe('RolesView', () => {
           }
           return key;
         },
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -457,7 +457,7 @@ describe('RolesView', () => {
           }
           return key;
         },
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -537,7 +537,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -588,7 +588,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -631,7 +631,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -663,7 +663,7 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -742,7 +742,7 @@ describe('RolesView', () => {
           }
           return key;
         },
-        $te: key => key === 'app.role_lables.admin' || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.role_labels.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
