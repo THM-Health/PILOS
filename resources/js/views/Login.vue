@@ -26,7 +26,7 @@
                   })
                 }"
               >
-                <ldap-login-component
+                <LoginTabLdap
                   id="ldap"
                   :title="$t('auth.ldap.title')"
                   :submit-label="$t('auth.login')"
@@ -49,7 +49,7 @@
                   })
                 }"
               >
-                <external-login-component
+                <LoginTabExternal
                   id="shibboleth"
                   :title="$t('auth.shibboleth.title')"
                   :redirect-label="$t('auth.shibboleth.redirect')"
@@ -68,7 +68,7 @@
                   })
                 }"
               >
-                <local-login-component
+                <LoginTabLocal
                   id="local"
                   :title="$t('auth.email.title')"
                   :submit-label="$t('auth.login')"
