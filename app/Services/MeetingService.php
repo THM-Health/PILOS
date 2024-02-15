@@ -9,6 +9,8 @@ use App\Models\Meeting;
 use App\Models\Room;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
+use BigBlueButton\Enum\Feature;
+use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
@@ -66,8 +68,7 @@ class MeetingService
         // TODO user limit, not working properly with bbb at the moment
         // Use errorRedirectUrl to redirect back
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
-        $meetingParams->setModeratorPW($this->meeting->moderator_pw)
-            ->setAttendeePW($this->meeting->attendee_pw)
+        $meetingParams
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
             ->setEndCallbackUrl($this->getCallbackUrl())
             ->setDuration($this->meeting->room->roomType->duration)
@@ -79,13 +80,15 @@ class MeetingService
             ->setWebcamsOnlyForModerator($this->meeting->room->webcams_only_for_moderator)
             ->setLockSettingsDisablePrivateChat($this->meeting->room->lock_settings_disable_private_chat)
             ->setLockSettingsDisablePublicChat($this->meeting->room->lock_settings_disable_public_chat)
-            ->setLockSettingsDisableNote($this->meeting->room->lock_settings_disable_note)
+            ->setLockSettingsDisableNotes($this->meeting->room->lock_settings_disable_note)
             ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
             // @TODO refactor: maybe always true or if any of the restrictions is enabled
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->mute_on_start)
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setLearningDashboardEnabled(false);
+            ->setDisabledFeatures([Feature::LEARNING_DASHBOARD]);
+
+        $meetingParams->addMeta('bbb-origin', 'PILOS');
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
@@ -263,15 +266,20 @@ class MeetingService
         }
 
         $userId = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
-        $role   = $this->meeting->room->getRole(Auth::user(), $token);
+        $roomUserRole   = $this->meeting->room->getRole(Auth::user(), $token);
 
-        $password = ($role->is(RoomUserRole::MODERATOR()) || $role->is(RoomUserRole::CO_OWNER()) || $role->is(RoomUserRole::OWNER)) ? $this->meeting->moderator_pw : $this->meeting->attendee_pw;
+        $bbbRole = Role::VIEWER;
 
-        $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $password);
+        if($roomUserRole->is(RoomUserRole::MODERATOR) || $roomUserRole->is(RoomUserRole::CO_OWNER) || $roomUserRole->is(RoomUserRole::OWNER)) {
+            $bbbRole = Role::MODERATOR;
+        }
+
+        $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
         $joinMeetingParams->setRedirect(true);
+        $joinMeetingParams->setErrorRedirectUrl(url('rooms/'.$this->meeting->room->id));
         $joinMeetingParams->setUserID($userId);
         $joinMeetingParams->setAvatarURL(Auth::user() ? Auth::user()->imageUrl : null);
-        if ($role->is(RoomUserRole::GUEST())) {
+        if ($roomUserRole->is(RoomUserRole::GUEST)) {
             $joinMeetingParams->setGuest(true);
         }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
