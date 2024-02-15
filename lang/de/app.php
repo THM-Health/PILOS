@@ -171,6 +171,7 @@ return [
     'server_pool'   => 'Serverpool',
     'server_pools'  => 'Serverpools',
     'servers'       => 'Server',
+    'unlimited'     => 'Unbegrenzt',
     'user'          => 'Benutzer',
     'user_name'     => 'Name',
     'users'         => 'Benutzer',

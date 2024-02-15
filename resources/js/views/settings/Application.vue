@@ -1470,7 +1470,7 @@ export default {
      */
     roomLimitModeOptions () {
       return [
-        { text: this.$t('settings.roles.room_limit.unlimited'), value: 'unlimited' },
+        { text: this.$t('app.unlimited'), value: 'unlimited' },
         { text: this.$t('settings.roles.room_limit.custom'), value: 'custom' }
       ];
     },
@@ -1486,7 +1486,7 @@ export default {
         { value: 129600, text: this.$t('settings.application.three_month') },
         { value: 262800, text: this.$t('settings.application.six_month') },
         { value: 525600, text: this.$t('settings.application.one_year') },
-        { value: -1, text: this.$t('settings.application.unlimited') }
+        { value: -1, text: this.$t('app.unlimited') }
       ];
     },
 

@@ -113,9 +113,9 @@
                 </tr>
                 <tr>
                   <td><raw-text>5</raw-text></td>
-                  <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
+                  <td>{{ $t('app.unlimited') }}</td>
                   <td><raw-text>2</raw-text></td>
-                  <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
+                  <td>{{ $t('app.unlimited') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -348,12 +348,12 @@ export default {
         {
           text: this.$t('settings.roles.room_limit.default', {
             value: parseInt(this.getSetting('room_limit'), 10) === -1
-              ? this.$t('settings.roles.room_limit.unlimited').toLowerCase()
+              ? this.$t('app.unlimited').toLowerCase()
               : this.getSetting('room_limit')
           }),
           value: 'default'
         },
-        { text: this.$t('settings.roles.room_limit.unlimited'), value: 'unlimited' },
+        { text: this.$t('app.unlimited'), value: 'unlimited' },
         { text: this.$t('settings.roles.room_limit.custom'), value: 'custom' }
       ];
     },
