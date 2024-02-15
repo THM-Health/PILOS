@@ -9,6 +9,9 @@ return [
         'ok'    => 'Erstellen',
         'title' => 'Raum erstellen',
     ],
+    'change_type' => [
+        'title' => 'Raumart ändern',
+    ],
     'description' => [
         'cancel' => 'Abbrechen',
         'color'  => [
@@ -246,8 +249,15 @@ return [
     'room_types'              => [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
-        'select_type'   => '-- Raumart auswählen --',
         'all'           => 'Alle Raumarten',
+        'restrictions' => [
+            'title' => 'Einschränkungen',
+            'none' => 'Keine',
+            'no_attendace_recording' => 'Keine Anwesenheitsprotokollierung',
+            'require_access_code' => 'Zugangscode erforderlich',
+            'max_participants' => 'Max. :participants Teilnehmer',
+            'max_duration' => 'Max. :duration Minuten',
+        ]
     ],
     'settings' => [
         'general' => [

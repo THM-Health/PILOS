@@ -1,41 +1,47 @@
 <template>
 
-  <InputGroup>
-    <InputGroupAddon
-      v-if="modelLoadingError"
-      class="flex-grow-1 p-0"
-      style="width: 1%"
+  <div v-if="modelLoadingError" class="flex flex-column gap-2 align-items-start">
+    <Message
+      severity="error"
+      :closable="false"
+      class="w-full"
     >
-      <InlineMessage
-        severity="error"
-        class="w-full"
-      >
-        {{ $t('rooms.room_types.loading_error') }}
-      </InlineMessage>
-    </InputGroupAddon>
-    <Dropdown
-      v-else
-      v-model="roomTypeId"
-      :disabled="disabled || isLoadingAction"
-      @change="changeRoomType"
-      :placeholder="$t('rooms.room_types.select_type')"
-      :options="roomTypes"
-      optionLabel="description"
-      optionValue="id"
-      :invalid="props.invalid"
-    />
-    <!-- reload the room types -->
+      {{ $t('rooms.room_types.loading_error') }}
+    </Message>
+
     <Button
       v-if="modelLoadingError"
       v-tooltip="$t('rooms.room_types.reload')"
       :disabled="disabled || isLoadingAction"
-      severity="secondary"
-      outlined
       @click="reloadRoomTypes"
       icon="fa-solid fa-sync"
+      :label="$t('app.reload')"
       :loading="isLoadingAction"
     />
-  </InputGroup>
+  </div>
+  <OverlayComponent v-else :show="isLoadingAction">
+  <div class="flex flex-column md:flex-row">
+    <Listbox
+      v-model="roomTypeId"
+      :disabled="disabled || isLoadingAction"
+      @change="changeRoomType"
+      :options="roomTypes"
+      optionLabel="description"
+      optionValue="id"
+      :invalid="props.invalid"
+      class="w-full"
+      listStyle="max-height:250px"
+    />
+    <div class="w-full md:w-2" v-if="modelValue">
+      <Divider layout="vertical" class="hidden md:flex"/>
+      <Divider layout="horizontal" class="flex md:hidden" align="center"/>
+    </div>
+    <div class="w-full flex" v-if="modelValue">
+      <RoomTypeDetails :roomType="modelValue" />
+    </div>
+  </div>
+  </OverlayComponent>
+
 </template>
 
 <script setup>
@@ -110,7 +116,7 @@ function reloadRoomTypes () {
 }
 
 // detect changes of the select and notify parent
-function changeRoomType () {
+function changeRoomType (event) {
   const newRoomType = roomTypes.value.find((entry) => entry.id === roomTypeId.value) ?? null;
   emit('update:modelValue', newRoomType);
 }

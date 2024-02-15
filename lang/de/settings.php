@@ -170,6 +170,10 @@ return [
     'room_types' => [
         'allow_listing'             => 'Raumsuche erlaubt',
         'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
+        'allow_record_attendance'   => 'Anwesenheitsprotokollierung erlauben',
+        'require_access_code'       => 'Zugangscode erforderlich',
+        'max_duration'              => 'Maximale Dauer',
+        'max_participants'          => 'Maximale Teilnehmeranzahl',
         'color'                     => 'Farbe',
         'custom_color'              => 'Eigene Farbe',
         'delete'                    => [
