@@ -13,7 +13,7 @@ class RoomTypeRequest extends FormRequest
             'description'             => ['required', 'string', 'max:255', Rule::unique('room_types', 'description')],
             'color'                   => ['required', 'string', 'hex_color'],
             'allow_listing'           => ['required', 'boolean'],
-            'duration'                => 'nullable|numeric|min:1',
+            'max_duration'            => 'nullable|numeric|min:1',
             'max_participants'        => 'nullable|numeric|min:1',
             'require_access_code'     => ['required', 'boolean'],
             'allow_record_attendance' => ['required', 'boolean'],

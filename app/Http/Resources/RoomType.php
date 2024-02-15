@@ -60,7 +60,7 @@ class RoomType extends JsonResource
             'updated_at'              => $this->updated_at,
             'restrict'                => $this->restrict,
             'max_participants'        => $this->max_participants,
-            'duration'                => $this->duration,
+            'max_duration'            => $this->max_duration,
             'require_access_code'     => $this->require_access_code,
             'allow_record_attendance' => $this->allow_record_attendance,
             'roles'                   => $this->when($this->withRoles, function () {

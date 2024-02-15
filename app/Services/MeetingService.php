@@ -71,7 +71,7 @@ class MeetingService
         $meetingParams
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
             ->setEndCallbackUrl($this->getCallbackUrl())
-            ->setDuration($this->meeting->room->roomType->duration)
+            ->setDuration($this->meeting->room->roomType->max_duration)
             ->setMaxParticipants($this->meeting->room->roomType->max_participants)
             ->setWelcome($this->meeting->room->welcome)
             ->setModeratorOnlyMessage($this->meeting->room->getModeratorOnlyMessage())
