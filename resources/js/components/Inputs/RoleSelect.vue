@@ -28,19 +28,11 @@
         {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
       </template>
       <template v-slot:tag="{ option, remove }" >
-          <Tag variant="secondary" class="flex-auto flex-row gap-2 mr-1 mb-1">
-            {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
-            <Button
-              v-if="!option.$isDisabled && selectedRoles.length>1"
-              size="small"
-              @click="remove(option)"
-              icon="fa-solid fa-xmark"
-              :aria-label="$t('settings.users.remove_role')"
-              text
-              rounded
-              class="text-white p-0 h-1rem w-1rem"
-            />
-          </Tag>
+          <Chip
+            :label="$te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name"
+            :removable="!option.$isDisabled && selectedRoles.length>1"
+            @remove="remove(option)"
+          />
       </template>
       <template #afterList>
         <Button

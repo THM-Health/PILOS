@@ -95,15 +95,7 @@
                   {{ option.name }}
                 </template>
                 <template v-slot:tag="{ option, remove }">
-                  <h5 class="d-inline mr-1 mb-1">
-                    <b-badge variant="secondary">
-                      {{ option.name }}
-                      <span @click="remove(option)"><i
-                        class="fa-solid fa-xmark"
-                        :aria-label="$t('settings.server_pools.remove_server')"
-                      /></span>
-                    </b-badge>
-                  </h5>
+                  <Chip class="mr-2 mb-2" :label="option.name" removable @remove="remove(option)" />
                 </template>
                 <template #afterList>
                   <b-button

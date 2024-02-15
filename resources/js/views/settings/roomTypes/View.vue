@@ -194,18 +194,12 @@
                   {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
                 </template>
                 <template v-slot:tag="{ option, remove }">
-                  <Tag variant="secondary" class="flex-auto flex-row gap-2 mr-1 mb-1">
-                    {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
-                    <Button
-                      size="small"
-                      @click="remove(option)"
-                      icon="fa-solid fa-xmark"
-                      :aria-label="$t('settings.users.remove_role')"
-                      text
-                      rounded
-                      class="text-white p-0 h-1rem w-1rem"
-                    />
-                  </Tag>
+                  <Chip
+                    class="mr-2 mb-2"
+                    :label="$te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name"
+                    removable
+                    @remove="remove(option)"
+                  />
                 </template>
                 <template #afterList>
                   <div class="flex p-2 gap-2">
