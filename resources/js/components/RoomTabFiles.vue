@@ -50,13 +50,17 @@
       :value="files"
       dataKey="id"
       paginator
-      :loading="isBusy"
+      :loading="isBusy || loadingError"
       rowHover
       scrollable
     >
+      <template #loading>
+        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+      </template>
+
         <!-- Show message on empty file list -->
         <template #empty>
-          <i>{{ $t('rooms.files.nodata') }}</i>
+          <i v-if="!isBusy && !loadingError">{{ $t('rooms.files.nodata') }}</i>
         </template>
 
       <Column field="filename" sortable :header="$t('rooms.files.filename')" style="max-width: 250px">
@@ -186,6 +190,7 @@ const toast = useToast();
 const files = ref([]);
 const defaultFile = ref(null);
 const isBusy = ref(false);
+const loadingError = ref(false);
 const downloadAgreement = ref(false);
 
 /**
@@ -194,6 +199,7 @@ const downloadAgreement = ref(false);
 function loadData () {
   // Change table to busy state
   isBusy.value = true;
+  loadingError.value = false;
   // Fetch file list
   const config = {};
 
@@ -226,6 +232,7 @@ function loadData () {
         }
       }
       api.error(error);
+      loadingError.value = true;
     }).finally(() => {
       isBusy.value = false;
     });

@@ -1,14 +1,14 @@
 <template>
   <div class="bg-white pt-5 mt-2 mb-5">
-    <div class="surface-section px-4 py-8 md:px-6 lg:px-8 text-center">
+    <div class="surface-section container text-center">
         <div class="mb-3 font-bold text-3xl">
             <span>{{ $t('home.possibilities.title') }}</span>
         </div>
         <div class="grid">
 
             <div class="col-12 md:col-4 mb-4 px-5" v-for="(item, index) in items" :key="index">
-                <span class="p-3 shadow-2 mb-3 inline-block surface-card" style="border-radius: 10px">
-                    <i class="fa-solid text-4xl text-primary" :class="'fa-'+item.icon"></i>
+                <span class="p-3 shadow-2 mb-3 inline-block bg-primary" style="border-radius: 10px">
+                    <i class="fa-solid text-4xl" :class="'fa-'+item.icon"></i>
                 </span>
                 <div class="text-900 text-xl mb-3 font-medium">{{ item.title }}</div>
                 <span class="text-700 line-height-3">{{ item.description }}</span>

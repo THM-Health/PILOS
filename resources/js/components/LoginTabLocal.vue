@@ -10,7 +10,7 @@
           v-model="email"
           :placeholder="props.emailLabel"
           aria-describedby="email-help-block"
-          :class="{'p-invalid': props.errors !== null && props.errors.email && props.errors.email.length > 0}"
+          :invalid="props.errors !== null && props.errors.email && props.errors.email.length > 0"
           required
         />
         <InlineMessage v-for="(error, index) in props.errors?.email" :key="index">

@@ -2,13 +2,15 @@
     width: 42px;
     height: 42px;
     margin-right: 11px;
-    @include border-radius($thumbnail-border-radius);
+    border-radius: $borderRadius;
     position: relative;
     overflow: hidden;
     outline: 0.5px solid #000;
 
-    &.disabled:hover{
+    &.disabled{
+        pointer-events: none;
         cursor: not-allowed;
+        opacity: 0.8;
     }
 
     &:hover {

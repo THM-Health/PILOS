@@ -2,7 +2,6 @@
   <div class="container">
     <div class="grid mt-4 mb-5">
       <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
-
         <Card
           :pt="{ body: { class: 'p-0' }, content: { class : 'p-0'} }"
         >
@@ -27,7 +26,7 @@
                   })
                 }"
               >
-                <ldap-login-component
+                <LoginTabLdap
                   id="ldap"
                   :title="$t('auth.ldap.title')"
                   :submit-label="$t('auth.login')"
@@ -50,7 +49,7 @@
                   })
                 }"
               >
-                <external-login-component
+                <LoginTabExternal
                   id="shibboleth"
                   :title="$t('auth.shibboleth.title')"
                   :redirect-label="$t('auth.shibboleth.redirect')"
@@ -69,7 +68,7 @@
                   })
                 }"
               >
-                <local-login-component
+                <LoginTabLocal
                   id="local"
                   :title="$t('auth.email.title')"
                   :submit-label="$t('auth.login')"

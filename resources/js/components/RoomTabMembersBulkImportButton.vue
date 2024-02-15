@@ -71,7 +71,7 @@
           v-model="rawList"
           :disabled="isLoadingAction"
           :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
-          :class="{ 'p-invalid': formErrors.fieldInvalid('user_emails') }"
+          :invalid="formErrors.fieldInvalid('user_emails')"
           rows="8"
         />
         <small id="user-emails-help">{{ $t('rooms.members.modals.bulk_import.list_description') }}</small>

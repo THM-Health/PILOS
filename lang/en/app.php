@@ -25,7 +25,7 @@ return [
     'email'       => 'Email',
     'enable'      => 'Enable',
     'enabled'     => 'Enabled',
-    'error'       => 'An error occurred!',
+    'error'       => 'An error occurred',
     'errors'      => [
         'attendance_agreement_missing' => 'Consent to record attendance is required.',
         'file_not_found'               => 'The file could not be found.',
@@ -84,7 +84,7 @@ return [
     'next'        => 'Next',
     'next_page'   => 'Next page',
     'no'          => 'No',
-    'not_found'   => '404 | The requested route doesn\'t exists!',
+    'not_found'   => '404 | The requested address was not found',
     'overwrite'   => 'Overwrite',
     'permissions' => [
         'application_settings' => [
@@ -155,7 +155,7 @@ return [
     'profile'       => 'Profile',
     'reload'        => 'Reload',
     'reset'         => 'Reset',
-    'role_lables'   => [
+    'role_labels'   => [
         'admin' => 'Administrator',
         'user'  => 'User',
     ],

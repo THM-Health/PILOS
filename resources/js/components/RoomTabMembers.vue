@@ -39,7 +39,7 @@
         v-model:selection="selectedMembers"
         dataKey="id"
         paginator
-        :loading="isBusy"
+        :loading="isBusy || loadingError"
         rowHover
         v-model:sortField="sortField"
         v-model:sortOrder="sortOrder"
@@ -48,9 +48,12 @@
         :select-all="selectableMembers === selectedMembers.length && selectableMembers > 0"
         @select-all-change="toggleSelectAll"
       >
+        <template #loading>
+          <LoadingRetryButton :error="loadingError" @reload="loadData" />
+        </template>
         <!-- Show message on empty attendance list -->
         <template #empty>
-          <i>{{ $t('meetings.attendance.nodata') }}</i>
+          <i v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</i>
         </template>
 
         <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">
@@ -150,6 +153,7 @@ const api = useApi();
 const userPermissions = useUserPermissions();
 
 const isBusy = ref(false);
+const loadingError = ref(false);
 const members = ref([]);
 const currentPage = ref(1);
 const sortField = ref('lastname');
@@ -193,6 +197,7 @@ function onRowSelected (data, selected) {
 function loadData () {
   // enable data loading indicator
   isBusy.value = true;
+  loadingError.value = false;
   // make request to load users
 
   const config = {
@@ -210,7 +215,8 @@ function loadData () {
       meta.value = response.data.meta;
     })
     .catch((error) => {
-      api.error(error, this.$root);
+      api.error(error);
+      loadingError.value = true;
     })
     .finally(() => {
       isBusy.value = false;

@@ -39,7 +39,7 @@ return [
     'new_password_confirmation' => 'New password confirmation',
     'password'                  => 'Password',
     'reset_password'            => 'Reset password',
-    'send_email_confirm_mail'   => 'A verification email has been sent to {email}. Please confirm the new email address by clicking on the link in the email.',
+    'send_email_confirm_mail'   => 'A verification email has been sent to :email. Please confirm the new email address by clicking on the link in the email.',
     'send_password_reset_link'  => 'Send password reset link',
     'session_expired'           => 'Your session has expired. Please log in again.',
     'sessions'                  => [

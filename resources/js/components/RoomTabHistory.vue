@@ -22,14 +22,18 @@
       :value="meetings"
       dataKey="id"
       paginator
-      :loading="isBusy"
+      :loading="isBusy || loadingError"
       rowHover
       scrollable
       lazy
       @page="onPage"
     >
+      <template #loading>
+        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+      </template>
+
       <template #empty>
-        <i>{{ $t('meetings.no_historical_data') }}</i>
+        <i v-if="!isBusy && !loadingError">{{ $t('meetings.no_historical_data') }}</i>
       </template>
 
       <Column field="start" :header="$t('meetings.start')">
@@ -96,6 +100,7 @@ const settingsStore = useSettingsStore();
 
 const meetings = ref([]);
 const isBusy = ref(false);
+const loadingError = ref(false);
 const currentPage = ref(1);
 const meta = ref({
   current_page: 0,
@@ -111,6 +116,7 @@ const meta = ref({
  */
 function loadData () {
   isBusy.value = true;
+  loadingError.value = false;
 
   const config = {
     params: {
@@ -123,6 +129,7 @@ function loadData () {
     meta.value = response.data.meta;
   }).catch(error => {
     api.error(error);
+    loadingError.value = true;
   }).finally(() => {
     isBusy.value = false;
   });

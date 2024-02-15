@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h3>
+    <h2>
       {{ $t('settings.users.new') }}
-    </h3>
+    </h2>
     <hr>
-
+    <!--ToDo Overlay-->
     <b-overlay :show="isBusy">
       <template #overlay>
         <div class="text-center">
@@ -12,320 +12,290 @@
         </div>
       </template>
 
-      <b-container :fluid="true">
-        <b-form @submit="save">
-          <b-form-group
-            label-cols-lg="12"
-            :label="$t('settings.users.base_data')"
-            label-size="lg"
-            label-class="font-weight-bold pt-0"
-            class="mb-0"
-          >
-            <b-form-group
-              label-cols-sm="3"
-              :label="$t('app.firstname')"
-              label-for="firstname"
-              :state="fieldState('firstname')"
-            >
-              <b-form-input
-                id="firstname"
-                v-model="model.firstname"
-                required
-                type="text"
-                :state="fieldState('firstname')"
-                :disabled="isBusy"
-              />
-              <template #invalid-feedback>
-                <div v-html="fieldError('firstname')" />
-              </template>
-            </b-form-group>
-            <b-form-group
-              label-cols-sm="3"
-              :label="$t('app.lastname')"
-              label-for="lastname"
-              :state="fieldState('lastname')"
-            >
-              <b-form-input
-                id="lastname"
-                v-model="model.lastname"
-                type="text"
-                required
-                :state="fieldState('lastname')"
-                :disabled="isBusy"
-              />
-              <template #invalid-feedback>
-                <div v-html="fieldError('lastname')" />
-              </template>
-            </b-form-group>
-            <b-form-group
-              label-cols-sm="3"
-              :label="$t('app.email')"
-              label-for="email"
-              :state="fieldState('email')"
-            >
-              <b-form-input
-                id="email"
-                v-model="model.email"
-                type="email"
-                required
-                :state="fieldState('email')"
-                :disabled="isBusy"
-              />
-              <template #invalid-feedback>
-                <div v-html="fieldError('email')" />
-              </template>
-            </b-form-group>
-            <b-form-group
-              label-cols-sm="3"
-              :label="$t('settings.users.user_locale')"
-              label-for="user_locale"
-              :state="fieldState('user_locale')"
-            >
-              <locale-select
-                id="user_locale"
-                v-model="model.user_locale"
-                required
-                :state="fieldState('user_locale')"
-                :disabled="isBusy"
-              />
-              <template #invalid-feedback>
-                <div v-html="fieldError('user_locale')" />
-              </template>
-            </b-form-group>
-            <b-form-group
-              label-cols-sm="3"
-              :label="$t('settings.users.timezone')"
-              label-for="timezone"
-              :state="fieldState('timezone')"
-            >
-              <timezone-select
-                id="timezone"
-                v-model="model.timezone"
-                required
-                :state="fieldState('timezone')"
-                :disabled="isBusy"
-                :placeholder="$t('settings.users.timezone')"
-                @loading-error="(value) => timezonesLoadingError = value"
-                @busy="(value) => timezonesLoading = value"
-              />
-              <template #invalid-feedback>
-                <div v-html="fieldError('timezone')" />
-              </template>
-            </b-form-group>
-            <b-form-group
-              label-cols-sm="3"
-              :label="$t('app.roles')"
-              label-for="roles"
-              :state="fieldState('roles', true)"
-            >
-              <role-select
-                id="roles"
-                v-model="model.roles"
-                :invalid="fieldState('roles', true)===false"
-                :disabled="isBusy"
-                @loading-error="(value) => rolesLoadingError = value"
-                @busy="(value) => rolesLoading = value"
-              />
-              <template #invalid-feedback>
-                <div v-html="fieldError('roles', true)" />
-              </template>
-            </b-form-group>
-          </b-form-group>
-          <hr>
-          <b-form-group
-            label-cols-lg="12"
-            :label="$t('auth.password')"
-            label-size="lg"
-            label-class="font-weight-bold pt-0"
-            class="mb-0"
-          >
-            <b-form-group
-              label-cols-sm="3"
-              :label="$t('settings.users.generate_password')"
-              label-for="generate_password"
-              :state="fieldState('generate_password')"
-              :description="$t('settings.users.generate_password_description')"
-              class="align-items-center d-flex"
-            >
-              <b-form-checkbox
-                id="generate_password"
-                v-model="generate_password"
-                :state="fieldState('generate_password')"
-                :disabled="isBusy"
-                switch
-              />
-              <template #invalid-feedback>
-                <div v-html="fieldError('generate_password')" />
-              </template>
-            </b-form-group>
-            <b-form-group
-              v-if="!generate_password"
-              label-cols-sm="3"
-              :label="$t('auth.new_password')"
-              label-for="new_password"
-              :state="fieldState('new_password')"
-            >
-              <b-input-group>
-                <b-form-input
-                  id="new_password"
-                  v-model="model.new_password"
-                  :type="showPassword ? 'text' : 'password'"
+        <form @submit="save">
+<!--          <b-form-group-->
+<!--            label-cols-lg="12"-->
+<!--            :label="$t('settings.users.base_data')"-->
+<!--            label-size="lg"-->
+<!--            label-class="font-weight-bold pt-0"-->
+<!--            class="mb-0"-->
+<!--          >-->
+          <div class="container container-fluid">
+          <div>
+            <p class="text-lg font-semibold">{{ $t('rooms.settings.general.title') }}</p>
+            <div class="field grid">
+              <label for="firstname" class="col-12 md:col-4 md:mb-0">{{$t('app.firstname')}}</label>
+              <div class="col-12 md:col-8">
+                <InputText
+                  id="firstname"
+                  class="w-full"
+                  v-model="model.firstname"
                   required
-                  :state="fieldState('new_password')"
+                  type="text"
+                  :class="{'p-invalid': formErrors.fieldInvalid('firstname')}"
                   :disabled="isBusy"
                 />
-                <template #append>
-                  <b-button
-                    v-b-tooltip.hover
+                <p class="p-error" v-html="formErrors.fieldError('firstname')"></p>
+              </div>
+            </div>
+            <div class="field grid">
+              <label for="lastname" class="col-12 md:col-4 md:mb-0">{{$t('app.lastname')}}</label>
+              <div class="col-12 md:col-8">
+                <InputText
+                  id="lastname"
+                  class="w-full"
+                  v-model="model.lastname"
+                  type="text"
+                  required
+                  :class="{'p-invalid': formErrors.fieldInvalid('lastname')}"
+                  :disabled="isBusy"
+                />
+                <p class="p-error" v-html="formErrors.fieldError('lastname')"></p>
+              </div>
+            </div>
+            <div class="field grid">
+              <label for="email" class="col-12 md:col-4 md:mb-0">{{$t('app.email')}}</label>
+              <div class="col-12 md:col-8">
+                <InputText
+                  id="email"
+                  class="w-full"
+                  v-model="model.email"
+                  type="email"
+                  required
+                  :class="{'p-invalid': formErrors.fieldInvalid('email')}"
+                  :disabled="isBusy"
+                />
+                <p class="p-error" v-html="formErrors.fieldError('email')"></p>
+              </div>
+            </div>
+            <div class="field grid">
+              <label for="user_locale" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.user_locale')}}</label>
+              <div class="col-12 md:col-8">
+<!--                ToDo fix (default)-->
+                <locale-select
+                  class="w-full"
+                  id="user_locale"
+                  v-model="model.user_locale"
+                  required
+                  :invalid="formErrors.fieldInvalid('user_locale')"
+                  :disabled="isBusy"
+                />
+                <p class="p-error" v-html="formErrors.fieldError('user_locale')"></p>
+              </div>
+            </div>
+
+            <div class="field grid">
+              <label for="timezone" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.timezone')}}</label>
+              <div class="col-12 md:col-8">
+<!--                ToDo fix (default)-->
+                <timezone-select
+                  id="timezone"
+                  v-model="model.timezone"
+                  required
+                  :invalid="formErrors.fieldInvalid('timezone')"
+                  :disabled="isBusy"
+                  :placeholder="$t('settings.users.timezone')"
+                  @loading-error="(value) => timezonesLoadingError = value"
+                  @busy="(value) => timezonesLoading = value"
+                />
+                <p class="p-error" v-html="formErrors.fieldError('timezone')"></p>
+              </div>
+            </div>
+            <div class="field grid">
+              <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
+              <div class="col-12 md:col-8">
+<!--            ToDo fix (default)-->
+                <role-select
+                  id="roles"
+                  v-model="model.roles"
+                  :invalid="formErrors.fieldInvalid('allow_listing', true)===false"
+                  :disabled="isBusy"
+                  @loading-error="(value) => rolesLoadingError = value"
+                  @busy="(value) => rolesLoading = value"
+                />
+                <p class="p-error" v-html="formErrors.fieldError('allow_listing', true)"></p>
+              </div>
+            </div>
+
+<!--          </b-form-group>-->
+          <Divider/>
+          </div>
+<!--          <b-form-group-->
+<!--            label-cols-lg="12"-->
+<!--            :label="$t('auth.password')"-->
+<!--            label-size="lg"-->
+<!--            label-class="font-weight-bold pt-0"-->
+<!--            class="mb-0"-->
+<!--          >-->
+          <div>
+          <p class="text-lg font-semibold">{{$t('auth.password')}}</p>
+            <div class="field grid">
+              <label for="generate_password" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.users.generate_password')}}</label>
+              <div class="col-12 md:col-8">
+                <div>
+                  <InputSwitch
+                    id="generate_password"
+                    v-model="generate_password"
+                    :class="{'p-invalid': formErrors.fieldInvalid('generate_password')}"
                     :disabled="isBusy"
-                    :title="!showPassword ? $t('settings.users.show_password') : $t('settings.users.hide_password')"
-                    variant="secondary"
-                    @click="showPassword = !showPassword"
-                  >
-                    <i
-                      v-if="!showPassword"
-                      class="fa-solid fa-eye"
-                    /><i
+                    aria-describedby="generate_password-help"
+                  />
+                </div>
+                <p class="p-error" v-html="formErrors.fieldError('generate_password')"></p>
+                <small id="generate_password-help">{{$t('settings.users.generate_password_description')}}</small>
+              </div>
+            </div>
+            <div class="field grid" v-if="!generate_password">
+              <label for="new_password" class="col-12 md:col-4 md:mb-0">{{$t('auth.new_password')}}</label>
+              <div class="col-12 md:col-8">
+                <InputGroup>
+                  <InputText
+                    id="new_password"
+                    v-model="model.new_password"
+                    :type="showPassword ? 'text' : 'password'"
+                    required
+                    :class="{'p-invalid': formErrors.fieldInvalid('new_password')}"
+                    :disabled="isBusy"
+                  />
+                    <Button
+                      v-tooltip="!showPassword ? $t('settings.users.show_password') : $t('settings.users.hide_password')"
+                      :disabled="isBusy"
+                      severity="secondary"
+                      @click="showPassword = !showPassword"
+                    >
+                      <i
+                        v-if="!showPassword"
+                        class="fa-solid fa-eye"
+                      /><i
                       v-else
                       class="fa-solid fa-eye-slash"
                     />
-                  </b-button>
-                </template>
-              </b-input-group>
+                    </Button>
+                </InputGroup>
+                <p class="p-error" v-html="formErrors.fieldError('new_password')"></p>
+              </div>
+            </div>
 
-              <template #invalid-feedback>
-                <div v-html="fieldError('new_password')" />
-              </template>
-            </b-form-group>
-            <b-form-group
-              v-if="!generate_password"
-              label-cols-sm="3"
-              :label="$t('auth.new_password_confirmation')"
-              label-for="new_password_confirmation"
-              :state="fieldState('password_confirmation')"
-            >
-              <b-form-input
-                id="new_password_confirmation"
-                v-model="model.new_password_confirmation"
-                :type="showPassword ? 'text' : 'password'"
-                required
-                :state="fieldState('new_password_confirmation')"
-                :disabled="isBusy"
+            <div class="field grid" v-if="!generate_password">
+              <label for="new_password_confirmation" class="col-12 md:col-4 md:mb-0">{{$t('auth.new_password_confirmation')}}</label>
+              <div class="col-12 md:col-8">
+                <InputText
+                  id="new_password_confirmation"
+                  class="w-full"
+                  v-model="model.new_password_confirmation"
+                  :type="showPassword ? 'text' : 'password'"
+                  required
+                  :class="{'p-invalid': formErrors.fieldInvalid('new_password_confirmation')}"
+                  :disabled="isBusy"
+                />
+                <p class="p-error" v-html="formErrors.fieldError('new_password_confirmation')"></p>
+              </div>
+            </div>
+          </div>
+
+<!--          </b-form-group>-->
+          <hr>
+          <div class="grid my-1" >
+            <div class="col flex justify-content-end">
+              <Button
+                :disabled="isBusy || rolesLoadingError || timezonesLoadingError || rolesLoading || timezonesLoading"
+                severity="success"
+                type="submit"
+                icon="fa-solid fa-save"
+                :label="$t('app.save')"
               />
-              <template #invalid-feedback>
-                <div v-html="fieldError('new_password_confirmation')" />
-              </template>
-            </b-form-group>
-          </b-form-group>
-          <b-button
-            :disabled="isBusy || rolesLoadingError || timezonesLoadingError || rolesLoading || timezonesLoading"
-            variant="success"
-            type="submit"
-          >
-            <i class="fa-solid fa-save" /> {{ $t('app.save') }}
-          </b-button>
-        </b-form>
-      </b-container>
+            </div>
+          </div>
+          </div>
+        </form>
     </b-overlay>
   </div>
 </template>
-
-<script>
-import FieldErrors from '@/mixins/FieldErrors';
-import Base from '@/api/base';
-import env from '@/env';
-import RoleSelect from '@/components/Inputs/RoleSelect.vue';
+<script setup>
+import env from '@/env.js';
 import 'cropperjs/dist/cropper.css';
-import LocaleSelect from '@/components/Inputs/LocaleSelect.vue';
-import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
-import { mapState } from 'pinia';
+import { useApi } from '@/composables/useApi.js';
+import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useSettingsStore } from '@/stores/settings';
+import {onMounted, reactive, ref} from "vue";
+import {useRouter} from "vue-router";
 
-export default {
-  components: { TimezoneSelect, LocaleSelect, RoleSelect },
-  mixins: [FieldErrors],
-  data () {
-    return {
-      isBusy: false,
-      showPassword: false,
-      model: {
-        firstname: null,
-        lastname: null,
-        email: null,
-        new_password: null,
-        new_password_confirmation: null,
-        user_locale: null,
-        timezone: null,
-        roles: []
-      },
-      generate_password: false,
-      errors: {},
-      rolesLoading: false,
-      rolesLoadingError: false,
-      timezonesLoading: false,
-      timezonesLoadingError: false
-    };
-  },
+const formErrors = useFormErrors();
+const api = useApi();
+const settingsStore = useSettingsStore();
+const router = useRouter();
 
-  /**
-   * Loads the user, part of roles that can be selected and enables an event listener
-   * to enable or disable the edition of roles and attributes when the permissions
-   * of the current user gets changed.
-   */
-  mounted () {
-    this.model.user_locale = this.getSetting('default_locale');
-    this.model.timezone = this.getSetting('default_timezone');
-  },
 
-  computed: {
-    ...mapState(useSettingsStore, ['getSetting'])
-  },
+const isBusy = ref(false);
+const showPassword = ref(false);
+const model = reactive({
+  firstname: null,
+  lastname: null,
+  email: null,
+  new_password: null,
+  new_password_confirmation: null,
+  user_locale: null,
+  timezone: null,
+  roles: []
+});
+const generate_password = ref(false);
+const rolesLoading = ref(false);
+const rolesLoadingError = ref(false);
+const timezonesLoading = ref(false);
+const timezonesLoadingError = ref(false);
 
-  methods: {
-    /**
-     * Create new user by making a POST request to the API.
-     *
-     */
-    save (evt) {
-      if (evt) {
-        evt.preventDefault();
-      }
+/**
+ * Loads the user, part of roles that can be selected and enables an event listener
+ * to enable or disable the edition of roles and attributes when the permissions
+ * of the current user gets changed.
+ */
+onMounted(()=>{
+  //ToDo fix default locale and timezone (works with strings)
+  model.user_locale = settingsStore.getSettings('default_locale');
+  model.timezone = settingsStore.getSettings('default_timezone');
+});
 
-      this.isBusy = true;
-      this.errors = {};
-
-      const data = {
-        firstname: this.model.firstname,
-        lastname: this.model.lastname,
-        username: this.model.username,
-        email: this.model.email,
-        user_locale: this.model.user_locale,
-        timezone: this.model.timezone,
-        roles: this.model.roles.map(role => role.id),
-        generate_password: this.generate_password
-      };
-
-      if (!this.generate_password) {
-        data.new_password = this.model.new_password;
-        data.new_password_confirmation = this.model.new_password_confirmation;
-      }
-
-      Base.call('users', {
-        method: 'POST',
-        data
-      }).then(response => {
-        this.$router.push({ name: 'settings.users.view', params: { id: response.data.data.id } });
-      }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.errors = error.response.data.errors;
-        } else {
-          Base.error(error, this.$root, error.message);
-        }
-      }).finally(() => {
-        this.isBusy = false;
-      });
-    }
+/**
+ * Create new user by making a POST request to the API.
+ *
+ */
+function save (evt) {
+  if (evt) {
+    evt.preventDefault();
   }
-};
 
+  isBusy.value = true;
+  formErrors.clear();
+
+  const data = {
+    firstname: model.firstname,
+    lastname: model.lastname,
+    username: model.username,
+    email: model.email,
+    user_locale: model.user_locale,
+    timezone: model.timezone,
+    roles: model.roles.map(role => role.id),
+    generate_password: generate_password.value
+  };
+
+  if (!generate_password.value) {
+    data.new_password = model.new_password;
+    data.new_password_confirmation = model.new_password_confirmation;
+  }
+
+  api.call('users', {
+    method: 'POST',
+    data
+  }).then(response => {
+    router.push({ name: 'settings.users.view', params: { id: response.data.data.id } });
+  }).catch(error => {
+    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      formErrors.set(error.response.data.errors);
+    } else {
+      api.error(error);
+    }
+  }).finally(() => {
+    isBusy.value = false;
+  });
+}
 </script>

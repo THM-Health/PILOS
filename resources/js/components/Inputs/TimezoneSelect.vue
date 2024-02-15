@@ -1,116 +1,91 @@
 <template>
-  <b-input-group>
-    <b-form-select
-      :id="id"
+  <InputGroup class="w-full">
+    <Dropdown
+      :inputId="props.id"
       :options="timezones"
-      :required="required"
-      :value="value"
-      :state="state"
-      :disabled="disabled || loading || loadingError"
-      @input="input"
-    >
-      <template
-        v-if="placeholder"
-        #first
-      >
-        <b-form-select-option
-          :value="null"
-          disabled
-        >
-          {{ placeholder }}
-        </b-form-select-option>
-      </template>
-    </b-form-select>
-    <b-input-group-append v-if="loadingError">
-      <b-button
-        :disabled="loading"
-        variant="outline-secondary"
-        @click="loadTimezones()"
-      >
-        <i class="fa-solid fa-sync" />
-      </b-button>
-    </b-input-group-append>
-  </b-input-group>
+      :required="props.required"
+      v-model="model"
+      :invalid="props.invalid"
+      :disabled="props.disabled || loadingError"
+      :placeholder="props.placeholder"
+      :loading="loading"
+    />
+    <Button
+      v-if="loadingError"
+      :disabled="loading"
+      variant="outline-secondary"
+      @click="loadTimezones()"
+      icon="fa-solid fa-sync"
+    />
+  </InputGroup>
 </template>
 
-<script>
-import Base from '@/api/base';
+<script setup>
 
-export default {
-  name: 'TimezoneSelect',
-  props: {
-    value: {
-      type: String,
-      default: null
-    },
-    placeholder: {
-      type: String,
-      required: false
-    },
-    state: {
-      type: Boolean,
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    required: {
-      type: Boolean,
-      default: false
-    },
-    id: {
-      type: String,
-      default: 'locale'
-    }
-  },
-  data () {
-    return {
-      timezones: [],
-      loading: false,
-      loadingError: false
-    };
-  },
-  watch: {
-    // detect changes of the model loading error
-    loadingError: function () {
-      this.$emit('loadingError', this.loadingError);
-    },
+import { onMounted, ref, watch, defineModel } from 'vue';
+import { useApi } from '../../composables/useApi.js';
 
-    // detect busy status while data fetching and notify parent
-    loading: function () {
-      this.$emit('busy', this.loading);
-    }
+const model = defineModel();
+
+const props = defineProps({
+  placeholder: {
+    type: String,
+    required: false
   },
-  mounted () {
-    this.loadTimezones();
+  invalid: {
+    type: Boolean,
+    default: null
   },
-  methods: {
-    /**
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
+  id: {
+    type: String,
+    default: 'locale'
+  }
+});
+
+const emit = defineEmits('loadingError', 'busy');
+
+const timezones = ref([]);
+const loading = ref(false);
+const loadingError = ref(false);
+
+const api = useApi();
+
+// detect changes of the model loading error
+watch(loadingError, () => {
+  emit('loadingError', loadingError.value);
+});
+
+// detect busy status while data fetching and notify parent
+watch(loading, () => {
+  emit('busy', loading.value);
+});
+
+onMounted(() => {
+  loadTimezones();
+});
+
+/**
      * Loads the possible selectable timezones.
      */
-    loadTimezones () {
-      this.loading = true;
+function loadTimezones () {
+  loading.value = true;
 
-      Base.call('getTimezones').then(response => {
-        this.timezones = response.data.data;
-        this.loadingError = false;
-      }).catch(error => {
-        this.loadingError = true;
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        this.loading = false;
-      });
-    },
-
-    /**
-     * Emits the input event.
-     *
-     * @param {string} value
-     */
-    input (value) {
-      this.$emit('input', value);
-    }
-  }
-};
+  api.call('getTimezones').then(response => {
+    timezones.value = response.data.data;
+    loadingError.value = false;
+  }).catch(error => {
+    loadingError.value = true;
+    api.error(error);
+  }).finally(() => {
+    loading.value = false;
+  });
+}
 </script>

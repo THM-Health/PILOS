@@ -34,7 +34,7 @@
       <InputText
         id="firstname"
         v-model.trim="newFirstname"
-        :class="{ 'p-invalid': formErrors.fieldInvalid('firstname') }"
+        :invalid="formErrors.fieldInvalid('firstname')"
       />
       <p class="p-error" v-html="formErrors.fieldError('firstname')" />
     </div>
@@ -45,7 +45,7 @@
       <InputText
         id="lastname"
         v-model.trim="newLastname"
-        :class="{ 'p-invalid': formErrors.fieldInvalid('lastname') }"
+        :invalid="formErrors.fieldInvalid('lastname')"
       />
       <p class="p-error" v-html="formErrors.fieldError('lastname')" />
     </div>

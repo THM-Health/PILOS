@@ -22,7 +22,7 @@
       :options="roomTypes"
       optionLabel="description"
       optionValue="id"
-      :class="{'p-invalid': props.invalid}"
+      :invalid="props.invalid"
     />
     <!-- reload the room types -->
     <Button

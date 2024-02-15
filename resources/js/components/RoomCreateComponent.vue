@@ -41,7 +41,7 @@
             id="room-name"
             v-model="room.name"
             :disabled="isLoadingAction"
-            :class="{'p-invalid': formErrors.fieldInvalid('name')}"
+            :invalid="formErrors.fieldInvalid('name')"
           />
         <p class="p-error" v-html="formErrors.fieldError('name')" />
       </div>

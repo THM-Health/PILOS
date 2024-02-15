@@ -1,9 +1,13 @@
 <template>
   <div>
     <form
-        :aria-hidden="modelLoadingError"
+        :aria-hidden="loadingError"
         @submit="save"
       >
+      <OverlayComponent :show="isBusy || loadingError ">
+        <template #overlay>
+          <LoadingRetryButton :error="loadingError" @reload="load" />
+        </template>
         <div class="grid">
           <!-- General settings tab -->
           <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
@@ -29,7 +33,7 @@
                 id="room-name"
                 v-model="settings.name"
                 :disabled="disabled"
-                :class="{'p-invalid': formErrors.fieldInvalid('name')}"
+                :invalid="formErrors.fieldInvalid('name')"
               />
               <p class="p-error" v-html="formErrors.fieldError('name')" />
             </div>
@@ -41,7 +45,7 @@
                 id="welcome-message"
                 v-model="settings.welcome"
                 :disabled="disabled"
-                :class="{'p-invalid': formErrors.fieldInvalid('welcome')}"
+                :invalid="formErrors.fieldInvalid('welcome')"
                 :placeholder="$t('rooms.settings.none_placeholder')"
                 rows="3"
               />
@@ -60,7 +64,7 @@
                 :disabled="disabled"
                 :placeholder="$t('rooms.settings.none_placeholder')"
                 rows="3"
-                :class="{'p-invalid': formErrors.fieldInvalid('short_description')}"
+                :invalid="formErrors.fieldInvalid('short_description')"
               />
               <small>
                 {{ $t('rooms.settings.general.chars', {chars: charactersLeftShortDescription}) }}
@@ -89,7 +93,7 @@
                   :placeholder="$t('rooms.settings.security.unprotected_placeholder')"
                   readonly="readonly"
                   :disabled="disabled"
-                  :class="{'p-invalid': formErrors.fieldInvalid('access_code')}"
+                  :invalid="formErrors.fieldInvalid('access_code')"
                   type="number"
                   />
                 <!-- Clear access code -->
@@ -115,7 +119,7 @@
                   v-model="settings.allow_guests"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('allow_guests')}"
+                  :invalid="formErrors.fieldInvalid('allow_guests')"
                 />
                 <label for="allow-guests">{{ $t('rooms.settings.security.allow_guests') }}</label>
               </div>
@@ -130,7 +134,7 @@
                   v-model="settings.allow_membership"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('allow_membership')}"
+                  :invalid="formErrors.fieldInvalid('allow_membership')"
                 />
                 <label for="allow-membership">{{ $t('rooms.settings.security.allow_new_members') }}</label>
               </div>
@@ -145,7 +149,7 @@
                   v-model="settings.listed"
                   :disabled="disabled || (settings.room_type && !settings.room_type.allow_listing && settings.access_code)"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('listed')}"
+                  :invalid="formErrors.fieldInvalid('listed')"
                 />
                 <label for="listed">{{ $t('rooms.settings.security.listed') }}</label>
               </div>
@@ -163,7 +167,7 @@
                   v-model="settings.record_attendance"
                   :disabled="disabled || !settingsStore.getSetting('attendance.enabled')"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('default_role')}"
+                  :invalid="formErrors.fieldInvalid('default_role')"
                 />
                 <label for="record-attendance">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
               </div>
@@ -178,7 +182,7 @@
                   v-model="settings.record"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('record')}"
+                  :invalid="formErrors.fieldInvalid('record')"
                 />
                 <label for="video-conference">{{ $t('rooms.settings.recordings.record_video_conference') }}</label>
               </div>
@@ -209,7 +213,7 @@
                 ]"
                 :disabled="disabled"
                 class="flex-shrink-0"
-                :class="{'p-invalid': formErrors.fieldInvalid('default_role')}"
+                :invalid="formErrors.fieldInvalid('default_role')"
               />
 
               <p class="p-error" v-html="formErrors.fieldError('default_role')" />
@@ -268,7 +272,7 @@
                   v-model="settings.everyone_can_start"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('everyone_can_start')}"
+                  :invalid="formErrors.fieldInvalid('everyone_can_start')"
                 />
                 <label for="everyone-can-start">{{ $t('rooms.settings.permissions.everyone_start') }}</label>
               </div>
@@ -283,7 +287,7 @@
                   v-model="settings.mute_on_start"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('mute_on_start')}"
+                  :invalid="formErrors.fieldInvalid('mute_on_start')"
                 />
                 <label for="mute-on-start">{{ $t('rooms.settings.permissions.mute_mic') }}</label>
               </div>
@@ -300,7 +304,7 @@
                   v-model="settings.lock_settings_disable_cam"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_cam')}"
+                  :invalid="formErrors.fieldInvalid('lock_settings_disable_cam')"
                 />
                 <label for="mute-on-start">{{ $t('rooms.settings.restrictions.disable_cam') }}</label>
               </div>
@@ -319,7 +323,7 @@
                   v-model="settings.webcams_only_for_moderator"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('webcams_only_for_moderator')}"
+                  :invalid="formErrors.fieldInvalid('webcams_only_for_moderator')"
                 />
                 <label for="webcams-only-for-moderator">{{ $t('rooms.settings.restrictions.only_mod_see_cam') }}</label>
               </div>
@@ -333,7 +337,7 @@
                   v-model="settings.lock_settings_disable_mic"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_mic')}"
+                  :invalid="formErrors.fieldInvalid('lock_settings_disable_mic')"
                 />
                 <label for="disable-mic">{{ $t('rooms.settings.restrictions.disable_mic') }}</label>
               </div>
@@ -348,7 +352,7 @@
                   v-model="settings.lock_settings_disable_public_chat"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_public_chat')}"
+                  :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat')"
                 />
                 <label for="disable-public-chat">{{ $t('rooms.settings.restrictions.disable_public_chat') }}</label>
               </div>
@@ -367,7 +371,7 @@
                   v-model="settings.lock_settings_disable_private_chat"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_private_chat')}"
+                  :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat')"
                 />
                 <label for="disable-private-chat">{{ $t('rooms.settings.restrictions.disable_private_chat') }}</label>
               </div>
@@ -382,7 +386,7 @@
                   v-model="settings.lock_settings_disable_note"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_disable_note')}"
+                  :invalid="formErrors.fieldInvalid('lock_settings_disable_note')"
                 />
                 <label for="disable-note-edit">{{ $t('rooms.settings.restrictions.disable_note_edit') }}</label>
               </div>
@@ -397,7 +401,7 @@
                   v-model="settings.lock_settings_hide_user_list"
                   :disabled="disabled"
                   class="flex-shrink-0"
-                  :class="{'p-invalid': formErrors.fieldInvalid('lock_settings_hide_user_list')}"
+                  :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list')"
                 />
                 <label for="disable-user-list">{{ $t('rooms.settings.restrictions.hide_participants_list') }}</label>
               </div>
@@ -405,6 +409,7 @@
             </div>
           </div>
         </div>
+      </OverlayComponent>
         <Divider/>
         <div class="flex flex-column-reverse md:flex-row md:justify-content-between gap-2 align-items-start ">
           <div class="flex flex-shrink-0 flex-column md:flex-row align-items-start gap-2">
@@ -456,6 +461,7 @@ const emit = defineEmits(['settingsChanged']);
 const settings = ref({});
 const roomTypeSelectRef = ref();
 const isBusy = ref(false);
+const loadingError = ref(false);
 const roomTypeSelectBusy = ref(false);
 const roomTypeSelectLoadingError = ref(false);
 
@@ -510,6 +516,8 @@ function save (event) {
 
 function load () {
   isBusy.value = true;
+  loadingError.value = false;
+
   // Load all room settings
   api.call('rooms/' + props.room.id + '/settings')
     .then(response => {
@@ -517,6 +525,7 @@ function load () {
       settings.value = response.data.data;
     }).catch((error) => {
       api.error(error);
+      loadingError.value = true;
     }).finally(() => {
       isBusy.value = false;
     });
@@ -530,7 +539,7 @@ function createAccessCode () {
  * Input fields are disabled: due to limited permissions, loading of settings or errors
  */
 const disabled = computed(() => {
-  return !userPermissions.can('manageSettings', props.room) || isBusy.value;
+  return !userPermissions.can('manageSettings', props.room) || isBusy.value || loadingError.value;
 });
 
 /**
