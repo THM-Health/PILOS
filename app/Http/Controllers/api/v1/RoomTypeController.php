@@ -58,7 +58,7 @@ class RoomTypeController extends Controller
             }
         }
 
-        return RoomTypeResource::collection($roomTypes->get());
+        return RoomTypeResource::collection($roomTypes->orderBy('description')->get());
     }
 
     /**
