@@ -14,7 +14,8 @@ const props = defineProps({
 });
 
 const hasRestrictions = computed(() => {
-  return !props.roomType.allow_record_attendance ||
+  return !props.roomType.allow_listing ||
+          !props.roomType.allow_record_attendance ||
           props.roomType.require_access_code ||
           props.roomType.max_participants ||
           props.roomType.max_duration;
@@ -31,8 +32,13 @@ const hasRestrictions = computed(() => {
 
         <i v-if="!hasRestrictions">{{ $t('rooms.room_types.restrictions.none') }}</i>
 
+        <div v-if="!roomType.allow_listing" class="flex align-items-start gap-2">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>{{ $t('rooms.room_types.restrictions.no_listing') }}</span>
+        </div>
+
         <div v-if="!roomType.allow_record_attendance" class="flex align-items-start gap-2">
-          <i class="fa-solid fa-times-circle"></i>
+          <i class="fa-solid fa-list-check"></i>
           <span>{{ $t('rooms.room_types.restrictions.no_attendace_recording') }}</span>
         </div>
 

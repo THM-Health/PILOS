@@ -254,6 +254,7 @@ return [
         'restrictions' => [
             'title' => 'Einschränkungen',
             'none' => 'Keine',
+            'no_listing' => 'In öffentlicher Raumsuche verborgen',
             'no_attendace_recording' => 'Keine Anwesenheitsprotokollierung',
             'require_access_code' => 'Zugangscode erforderlich',
             'max_participants' => 'Max. :participants Teilnehmer',
