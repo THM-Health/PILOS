@@ -14,7 +14,7 @@
             <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.general.title') }}</p>
             <div class="flex flex-column gap-2">
               <label for="room-type">{{ $t('rooms.settings.general.type') }}</label>
-              <RoomChangeTypeButton
+              <RoomTypeChangeButton
                 v-model="settings.room_type"
                 :disabled="disabled"
                 :room-id="room.id"
@@ -428,7 +428,6 @@ import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { onMounted, ref, computed, watch } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
-import RoomChangeTypeButton from "./RoomChangeTypeButton.vue";
 
 const props = defineProps({
   room: {

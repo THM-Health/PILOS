@@ -35,8 +35,9 @@
 
       <!-- Room type -->
       <div class="flex flex-column gap-2">
-        <label for="room-type">{{ $t('rooms.settings.general.type') }}</label>
+        <label id="room-type-label">{{ $t('rooms.settings.general.type') }}</label>
         <RoomTypeSelect
+          aria-labelledby="room-type-label"
           ref="roomTypeSelect"
           v-model="room.room_type"
           :disabled="isLoadingAction"

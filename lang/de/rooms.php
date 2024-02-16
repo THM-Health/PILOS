@@ -270,6 +270,7 @@ return [
             'short_description' => 'Öffentliche Kurzbeschreibung',
             'title'             => 'Allgemein',
             'type'              => 'Art',
+            'change_type'       => 'Raumart ändern',
             'welcome_message'   => 'Begrüßungsnachricht',
         ],
         'none_placeholder' => '-- keine --',

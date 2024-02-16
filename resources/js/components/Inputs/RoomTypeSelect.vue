@@ -31,12 +31,13 @@
       :invalid="props.invalid"
       class="w-full"
       listStyle="max-height:250px"
+      :aria-labelledby="ariaLabelledby"
     />
     <div class="w-full md:w-2" v-if="modelValue">
       <Divider layout="vertical" class="hidden md:flex"/>
       <Divider layout="horizontal" class="flex md:hidden" align="center"/>
     </div>
-    <div class="w-full flex" v-if="modelValue">
+    <div class="w-full flex" v-if="modelValue" aria-live="polite" aria-atomic="true">
       <RoomTypeDetails :roomType="modelValue" />
     </div>
   </div>
@@ -56,7 +57,8 @@ const props = defineProps({
   state: Boolean,
   disabled: Boolean,
   roomId: String,
-  invalid: Boolean
+  invalid: Boolean,
+  ariaLabelledby: String
 });
 
 const emit = defineEmits(['update:modelValue', 'loadingError']);
