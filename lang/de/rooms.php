@@ -119,6 +119,7 @@ return [
         'file_gone'           => 'Die Datei wurde in der Zwischenzeit gelöscht.',
         'no_new_room'         => 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
         'start_forbidden'     => 'Der Raum kann von Ihnen nicht gestartet werden.',
+        'not_running'         => 'Der Beitritt zum Raum ist fehlgeschlagen, da dieser momentan geschlossen ist.',
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [

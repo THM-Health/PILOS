@@ -89,7 +89,7 @@ const props = defineProps([
   'recordAttendance'
 ]);
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'notRunning', 'forbidden']);
 
 const authStore = useAuthStore();
 
@@ -213,6 +213,7 @@ function getJoinUrl () {
 
         // Room is not running, update running status
         if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
+          toast.error(t('rooms.flash.not_running'));
           emit('notRunning');
           showModal.value = false;
           return;

@@ -151,6 +151,11 @@
                   :can-start="room.can_start"
                   :token="props.token"
                   :access-code="accessCode"
+                  @invalidCode="handleInvalidCode"
+                  @invalidToken="handleInvalidToken"
+                  @guests-not-allowed="handleGuestsNotAllowed"
+                  @not-running="reload"
+                  @forbidden="reload"
                 />
               </div>
               <div class="flex-1" :class="viewInvitation ? 'flex-none' : 'xl:flex-none'">
