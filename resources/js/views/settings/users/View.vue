@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h3>
+    <h2>
       {{ viewOnly ? $t('settings.users.view', { firstname: firstname, lastname: lastname }) : $t('settings.users.edit', { firstname: firstname, lastname: lastname }) }}
-    </h3>
+    </h2>
     <hr>
 
     <UserTabSection
