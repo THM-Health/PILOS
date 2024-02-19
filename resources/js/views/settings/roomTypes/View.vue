@@ -148,72 +148,15 @@
         <div class="field grid" v-if="model.restrict">
           <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
           <div class="col-12 md:col-8">
-            <InputGroup>
-              <multiselect
-                id="roles"
-                ref="rolesMultiselectRef"
-                v-model="model.roles"
-                :placeholder="$t('settings.room_types.select_roles')"
-                track-by="id"
-                open-direction="bottom"
-                :multiple="true"
-                :searchable="false"
-                :internal-search="false"
-                :clear-on-select="false"
-                :close-on-select="false"
-                :show-no-results="false"
-                :show-labels="false"
-                :options="roles"
-                :disabled="isBusy || modelLoadingError || viewOnly || rolesLoadingError"
-                :loading="rolesLoading"
-                :allow-empty="!!model.restrict"
-                :class="{ 'is-invalid': formErrors.fieldError('roles'), 'multiselect-form-control': true }"
-
-              >
-                <template #noOptions>
-                  {{ $t('settings.roles.nodata') }}
-                </template>
-                <template v-slot:option="{ option }">
-                  {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
-                </template>
-                <template v-slot:tag="{ option, remove }">
-                  <Chip
-                    class="mr-2 mb-2"
-                    :label="$te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name"
-                    removable
-                    @remove="remove(option)"
-                  />
-                </template>
-                <template #afterList>
-                  <div class="flex p-2 gap-2">
-                    <Button
-                      :disabled="rolesLoading || rolesCurrentPage === 1"
-                      severity="secondary"
-                      outlined
-                      @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
-                      icon="fa-solid fa-arrow-left"
-                      :label="$t('app.previous_page')"
-                    />
-                    <Button
-                      :disabled="rolesLoading || !rolesHasNextPage"
-                      severity="secondary"
-                      outlined
-                      @click="loadRoles(rolesCurrentPage + 1)"
-                      icon="fa-solid fa-arrow-right"
-                      :label="$t('app.next_page')"
-                    />
-                  </div>
-                </template>
-              </multiselect>
-              <Button
-                v-if="rolesLoadingError"
-                severity="secondary"
-                outlined
-                @click="loadRoles(rolesCurrentPage)"
-              >
-                <i class="fa-solid fa-sync" />
-              </Button>
-            </InputGroup>
+            <RoleSelect
+              v-model="model.roles"
+              :invalid="formErrors.fieldInvalid('roles')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              :allowEmpty="true"
+              id="roles"
+              @busy="(value) => rolesLoading = value"
+              @rolesLoadingError="(value) => rolesLoadingError = value"
+            />
             <p class="p-error" v-html="formErrors.fieldError('roles')"></p>
           </div>
         </div>
@@ -308,8 +251,6 @@
           </div>
         </div>
 
-
-
         <Divider/>
 
         <div class="flex justify-content-end">
@@ -389,10 +330,7 @@ const model = ref({
 
 const description = ref('');
 
-const roles = ref([]);
 const rolesLoading = ref(false);
-const rolesCurrentPage = ref(1);
-const rolesHasNextPage = ref(false);
 const colors = env.ROOM_TYPE_COLORS;
 
 const serverPoolsLoading = ref(false);
@@ -405,14 +343,12 @@ const modelLoadingError = ref(false);
 const serverPoolsLoadingError = ref(false);
 
 const serverPoolMultiselectRef = ref();
-const rolesMultiselectRef = ref();
 
 /**
  * Loads the role from the backend and also a part of permissions that can be selected.
  */
 onMounted(() => {
   loadRoomType();
-  loadRoles();
   loadServerPools();
 });
 
@@ -524,34 +460,6 @@ function handleStaleError (staleError) {
       model.value = staleError.new_model;
       description.value = staleError.new_model.description;
     }
-  });
-}
-
-/**
- * Loads the roles for the passed page, that can be selected through the multiselect.
- *
- * @param [page=1] The page to load the roles for.
- */
-function loadRoles (page = 1) {
-  rolesLoading.value = true;
-
-  const config = {
-    params: {
-      page
-    }
-  };
-
-  api.call('roles', config).then(response => {
-    rolesLoadingError.value = false;
-    roles.value = response.data.data;
-    rolesCurrentPage.value = page;
-    rolesHasNextPage.value = page < response.data.meta.last_page;
-  }).catch(error => {
-    rolesMultiselectRef.value.deactivate();
-    rolesLoadingError.value = true;
-    api.error(error);
-  }).finally(() => {
-    rolesLoading.value = false;
   });
 }
 </script>

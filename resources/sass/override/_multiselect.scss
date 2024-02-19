@@ -2,6 +2,12 @@
     border-color: $danger;
 }
 
+.multiselect--disabled{
+    .multiselect__select {
+        display: none;
+    }
+}
+
 .multiselect__option--highlight {
     background: $success;
     color: text-color("success");
