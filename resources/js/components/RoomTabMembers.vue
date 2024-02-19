@@ -61,7 +61,7 @@
             <Checkbox
               v-if="authStore.currentUser && authStore.currentUser.id !== slotProps.data.id"
               :model-value="isRowSelected(slotProps.data)"
-              @input="(selected) => onRowSelected(slotProps.data, selected)"
+              @update:modelValue="(selected) => onRowSelected(slotProps.data, selected)"
               :binary="true"
             />
           </template>
