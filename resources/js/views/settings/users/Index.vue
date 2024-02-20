@@ -109,7 +109,7 @@
         </InputGroup>
       </div>
     </div>
-    <hr>
+    <Divider/>
 
 <!--ToDo example RoomTabHistory and RoomTabMembers-->
     <DataTable

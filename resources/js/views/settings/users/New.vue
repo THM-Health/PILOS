@@ -9,7 +9,7 @@
 <!--          Todo check if needed-->
           <div class="container container-fluid">
           <div>
-            <p class="text-lg font-semibold">{{ $t('rooms.settings.general.title') }}</p>
+            <h3>{{ $t('rooms.settings.general.title') }}</h3>
             <div class="field grid">
               <label for="firstname" class="col-12 md:col-4 md:mb-0">{{$t('app.firstname')}}</label>
               <div class="col-12 md:col-8">
@@ -103,7 +103,7 @@
             <Divider/>
           </div>
           <div>
-          <p class="text-lg font-semibold">{{$t('auth.password')}}</p>
+          <h3>{{$t('auth.password')}}</h3>
             <div class="field grid">
               <label for="generate_password" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.users.generate_password')}}</label>
               <div class="col-12 md:col-8">

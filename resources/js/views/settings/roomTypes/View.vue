@@ -30,7 +30,6 @@
         <div class="field grid">
           <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
           <div class="col-12 md:col-8">
-<!--        ToDo Color Select-->
             <color-select
               id="color"
               class="mb-2"

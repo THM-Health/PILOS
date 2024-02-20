@@ -4,6 +4,7 @@
       <router-link
         v-if="$route.name!=='settings'"
         v-tooltip="$t('settings.home_button')"
+        :aria-label="$t('settings.home_button')"
         class="p-button p-button-secondary mr-3"
         :to="{ name: 'settings'}"
       >
