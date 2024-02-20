@@ -8,6 +8,7 @@
           :id="`${props.id}-email`"
           type="text"
           v-model="email"
+          autocomplete="email"
           :placeholder="props.emailLabel"
           aria-describedby="email-help-block"
           :invalid="props.errors !== null && props.errors.email && props.errors.email.length > 0"
@@ -20,10 +21,12 @@
 
       <div class="flex flex-column gap-2 mt-4">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
-        <InputText
+        <Password
           :id="`${props.id}-password`"
           v-model="password"
-          type="password"
+          autocomplete="current-password"
+          :feedback="false"
+          toggleMask
           required
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
