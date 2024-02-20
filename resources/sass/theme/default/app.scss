@@ -4,13 +4,13 @@
 
 //@import 'modern-normalize/modern-normalize.css';
 
-fieldset {
+fieldset:not(.p-fieldset) {
     min-width: 0;
     padding: 0;
     margin: 0;
     border: 0;
 }
-legend {
+legend:not(.p-fieldset-legend) {
     float: left;
     width: 100%;
     padding: 0;
