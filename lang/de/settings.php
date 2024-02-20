@@ -47,6 +47,7 @@ return [
             'upload_title' => 'Favicon hochladen (max. 500 KB, Format: .ico)',
             'url_title'    => 'URL zu Favicon-Datei',
         ],
+        'max_file_size' => 'Ausgewählte Datei zu groß, max. :size KB',
         'help_url' => [
             'description' => 'Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.',
             'title'       => 'URL zur Hilfeseite',
@@ -80,7 +81,7 @@ return [
             'description' => 'Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title'       => 'Größe der Paginierung',
         ],
-        'password_change_allowed' => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',
+        'password_change_allowed' => 'Lokale Benutzer können Passwort ändern',
         'privacy_policy_url'      => [
             'description' => 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.',
             'title'       => 'URL zur Datenschutzerklärung',
@@ -88,7 +89,7 @@ return [
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Zeitraum zwischen Zustellung der Informations-E-Mail und der Löschung',
-                'title'       => 'Löschfirst',
+                'title'       => 'Löschfrist',
             ],
             'enabled' => [
                 'title' => 'Ungenutzte Räume automatisch löschen',
@@ -107,7 +108,7 @@ return [
             'title'       => 'Anzahl der Räume pro Benutzer',
         ],
         'room_token_expiration' => [
-            'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.',
+            'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierten Raumlinks automatisch gelöscht werden.',
             'title'       => 'Ablaufzeit für personalisierte Raumlinks',
         ],
         'six_month'  => '6 Monate (180 Tage)',

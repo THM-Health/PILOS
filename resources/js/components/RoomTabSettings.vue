@@ -480,7 +480,6 @@ function save (event) {
   }).catch((error) => {
     // Settings couldn't be saved
     if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-
       formErrors.set(error.response.data.errors);
       return;
     }

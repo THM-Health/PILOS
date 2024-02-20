@@ -4,6 +4,18 @@
 
 //@import 'modern-normalize/modern-normalize.css';
 
+fieldset {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+legend {
+    float: left;
+    width: 100%;
+    padding: 0;
+}
+
 // The contrast ratio to reach against white, to determine if color changes from "light" to "dark". Acceptable values for WCAG 2.0 are 3, 4.5 and 7.
 // See https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast
 
@@ -292,3 +304,6 @@ a[data-target="safeLink"] {
     width: 100%;
 }
 
+.p-fileupload-choose.p-invalid {
+    outline: $danger solid 1px;
+}

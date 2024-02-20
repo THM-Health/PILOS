@@ -1,7 +1,7 @@
 <template>
   <InputGroup class="w-full">
     <Dropdown
-      :inputId="props.id"
+      :aria-labelledby="props.ariaLabelledby"
       :options="timezones"
       :required="props.required"
       v-model="model"
@@ -44,9 +44,8 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  id: {
+  ariaLabelledby: {
     type: String,
-    default: 'locale'
   }
 });
 
