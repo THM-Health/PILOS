@@ -91,7 +91,7 @@ $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
 
 // Vue Multi-Select
 @import "vue-multiselect/dist/vue-multiselect.css";
-//@import "../../override/multiselect";
+@import "../../override/multiselect";
 
 
 // Height of footer

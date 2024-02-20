@@ -152,7 +152,6 @@
               v-model="model.roles"
               :invalid="formErrors.fieldInvalid('roles')"
               :disabled="isBusy || modelLoadingError || viewOnly"
-              :allowEmpty="true"
               id="roles"
               @busy="(value) => rolesLoading = value"
               @rolesLoadingError="(value) => rolesLoadingError = value"
