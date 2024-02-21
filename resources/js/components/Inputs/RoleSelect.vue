@@ -30,7 +30,6 @@
       <template v-slot:tag="{ option, remove }" >
           <Chip
             :key="option.name"
-            class="mr-2 mb-2"
             :label="$te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name"
             :removable="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty)"
             @remove="remove(option)"

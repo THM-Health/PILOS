@@ -95,7 +95,7 @@
                   {{ option.name }}
                 </template>
                 <template v-slot:tag="{ option, remove }">
-                  <Chip class="mr-2 mb-2" :label="option.name" removable @remove="remove(option)" />
+                  <Chip :label="option.name" removable @remove="remove(option)" />
                 </template>
                 <template #afterList>
                   <b-button

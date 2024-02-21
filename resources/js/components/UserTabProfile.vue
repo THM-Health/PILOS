@@ -1,7 +1,7 @@
 <template>
   <div>
     <h4>{{ $t('settings.users.base_data') }}</h4>
-    <form @submit="save">
+    <form @submit.prevent="save">
 
       <div class="field grid">
         <label for="firstname" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.firstname') }}</label>
@@ -184,11 +184,7 @@ function onDeleteImage (deleteImage) {
  * Saves the changes of the user to the database by making a api call.
  *
  */
-function save (evt) {
-  if (evt) {
-    evt.preventDefault();
-  }
-
+function save () {
   isBusy.value = true;
 
   const formData = new FormData();

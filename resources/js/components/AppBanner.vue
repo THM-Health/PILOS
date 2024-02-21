@@ -1,88 +1,104 @@
 <template>
-  <b-alert
-    :show="true"
+  <Message
     :style="{ 'border-color': background, 'background-color': background, 'color': color }"
-    class="mb-0 p-2 rounded-0"
+    class="m-0 border-noround"
+    :closable="false"
+    :pt="{
+      icon: {
+        class: 'hidden'
+      },
+      wrapper: {
+        class: 'p-3 container'
+      }
+    }"
+    :unstyled="true"
   >
-    <div class="container">
-      <h4
+    <template #messageicon>
+    </template>
+
+    <div class="container flex flex-column gap-2">
+      <p
         v-if="title"
-        class="alert-heading"
+        class="text-lg font-bold m-0"
       >
         <i
           v-if="icon"
           :class="`${icon}`"
         />
         {{ title }}
-      </h4>
-      <div class="banner-message">
+      </p>
+      <p class="m-0">
         {{ message }}
-      </div>
-      <a
-        v-if="link"
-        :class="`btn btn-${linkStyle}`"
-        :href="link"
-        :target="`_${linkTarget}`"
-      >{{ linkText ? linkText : link }}</a>
+      </p>
+      <a v-if="link" :href="link" :target="`_${linkTarget}`">
+        <Button
+          :link="linkStyle === 'link'"
+          :style="linkStyle === 'link' ? {'color': color}: {}"
+          :class="linkStyle === 'link' ? 'underline p-0': '' "
+          :severity="linkStyle"
+          :label="linkText ? linkText : link"
+        />
+      </a>
     </div>
-  </b-alert>
+  </Message>
 </template>
 
-<script>
-export default {
-  props: {
-    background: {
-      type: String,
-      default: null,
-      required: false
-    },
+<script setup>
+import {computed} from "vue";
 
-    color: {
-      type: String,
-      default: null,
-      required: false
-    },
+const props = defineProps({
+  background: {
+    type: String,
+    default: null,
+    required: false
+  },
 
-    icon: {
-      type: String,
-      default: null,
-      required: false
-    },
+  color: {
+    type: String,
+    default: null,
+    required: false
+  },
 
-    link: {
-      type: String,
-      default: null,
-      required: false
-    },
+  icon: {
+    type: String,
+    default: null,
+    required: false
+  },
 
-    linkStyle: {
-      type: String,
-      default: 'primary'
-    },
+  link: {
+    type: String,
+    default: null,
+    required: false
+  },
 
-    linkTarget: {
-      type: String,
-      default: '_self'
-    },
+  linkStyle: {
+    type: String,
+    default: 'primary'
+  },
 
-    linkText: {
-      type: String,
-      default: null,
-      required: false
-    },
+  linkTarget: {
+    type: String,
+    default: '_self'
+  },
 
-    message: {
-      type: String,
-      required: true
-    },
+  linkText: {
+    type: String,
+    default: null,
+    required: false
+  },
 
-    title: {
-      type: String,
-      default: null,
-      required: false
-    }
+  message: {
+    type: String,
+    required: true
+  },
+
+  title: {
+    type: String,
+    default: null,
+    required: false
   }
-};
+});
+
 </script>
 <style scoped>
   .banner-message {
