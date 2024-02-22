@@ -2,7 +2,7 @@
 
 return [
     'access_code'                  => 'Zugangscode',
-    'access_for_participants'      => 'Zugang für Teilnehmer',
+    'access_for_participants'      => 'Zugangsdaten für Teilnehmer',
     'become_member'                => 'Mitglied werden',
     'copy_access_for_participants' => 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
     'create'                       => [

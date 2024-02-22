@@ -29,7 +29,7 @@
           <div class="flex flex-row gap-2">
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
-              class="p-button p-button-info"
+              class="p-button p-button-icon-only p-button-info"
               v-tooltip="$t('settings.room_types.view', { name: slotProps.data.description })"
               :disabled="isBusy"
               :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
@@ -38,7 +38,7 @@
             </router-link>
             <router-link
               v-if="userPermissions.can('update', slotProps.data)"
-              class="p-button p-button-secondary"
+              class="p-button p-button-icon-only p-button-secondary"
               v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.description })"
               :disabled="isBusy"
               :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id } }"

@@ -32,7 +32,7 @@
       </template>
 
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('rooms.tokens.nodata') }}</i>
+        <InlineMessage severity="info" v-if="!isBusy && !loadingError">{{ $t('rooms.tokens.nodata') }}</InlineMessage>
       </template>
 
       <Column field="firstname" sortable :header="$t('app.firstname')"></Column>

@@ -1,6 +1,6 @@
 <template>
   <div v-if="props.editor">
-    <div class="flex justify-content-start md:justify-content-between gap-1 flex-wrap">
+    <div class="flex justify-content-start md:justify-content-between gap-1 flex-wrap border-1 border-300 p-2 border-round surface-100">
       <div>
         <!-- Text styling -->
         <span class="p-buttonset">

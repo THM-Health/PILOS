@@ -68,7 +68,7 @@
     <div class="flex-column xl:flex-row gap-2 justify-content-between"
       :class="toggleMobileMenu?'flex':'hidden md:flex'"
     >
-      <div class="flex flex-wrap gap-1">
+      <div class="flex flex-wrap flex-shrink-0 gap-1">
         <ToggleButton
           v-model="roomFilterAll"
           @change="loadRooms(1)"
@@ -119,13 +119,9 @@
             optionValue="id"
           >
             <template #clearicon="{ clearCallback }">
-              <Button
-                @click.stop="clearCallback"
-                severity="secondary"
-                icon="fa-solid fa-times"
-                text
-                class="m-0"
-              />
+              <span class="p-dropdown-clear" role="button" @click.stop="clearCallback">
+                <i class="fa-solid fa-times"/>
+              </span>
             </template>
           </Dropdown>
           <!-- reload the room types -->
@@ -160,6 +156,7 @@
 
     <!--rooms overlay-->
     <OverlayComponent
+      class="mt-3"
       v-if="!showNoFilterMessage"
       :show="loadingRooms || loadingRoomsError"
       :noCenter="true"
@@ -170,7 +167,6 @@
           <i class="fa-solid fa-circle-notch fa-spin text-3xl" v-if="loadingRooms"  />
           <Button
             v-else
-            ref="reload"
             @click="reload()"
           >
             <i class="fa-solid fa-sync mr-2" /> {{ $t('app.reload') }}
@@ -195,11 +191,11 @@
       <div v-if="rooms">
         <div
           v-if="!loadingRooms && !loadingRoomsError"
-          class="text-center mt-3"
+          class="text-center"
         >
-          <em v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </em>
-          <em v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
-          <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</em>
+          <InlineMessage severity="info" v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
+          <InlineMessage severity="info" v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
+          <InlineMessage severity="info" v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
         </div>
         <div class="grid p-1">
           <div
@@ -239,13 +235,14 @@
       v-else
       class="text-center mt-3"
     >
-      <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
+      <InlineMessage severity="error">{{ $t('rooms.index.no_rooms_selected') }}</InlineMessage>
       <br>
       <Button
         class="mt-2"
         ref="reset"
         @click="resetRoomFilter"
         :label="$t('rooms.index.reset_filter')"
+        icon="fa-solid fa-rotate-left"
       />
     </div>
   </div>
@@ -338,8 +335,8 @@ const filterOptions = computed(() => {
 });
 
 /**
-     * Resets the room filters and reloads the rooms
-     */
+ * Resets the room filters and reloads the rooms
+ */
 function resetRoomFilter () {
   roomFilter.value = ['own', 'shared'];
   roomFilterAll.value = false;
@@ -347,8 +344,8 @@ function resetRoomFilter () {
 }
 
 /**
-     *  Reload rooms
-     */
+ *  Reload rooms
+ */
 function reload () {
   loadRoomTypes();
   loadRooms();

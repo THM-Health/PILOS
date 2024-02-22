@@ -158,12 +158,6 @@
                   @forbidden="reload"
                 />
               </div>
-              <div class="flex-1" :class="viewInvitation ? 'flex-none' : 'xl:flex-none'">
-                <RoomBrowserNotification
-                    :running="running"
-                    :name="room.name"
-                  />
-              </div>
             </div>
           </div>
 

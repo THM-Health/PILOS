@@ -80,7 +80,9 @@
       <template #footer>
         <div class="flex justify-content-end gap-2">
           <Button :label="$t('app.close')" outlined @click="handleCancel" />
-          <Button :label="$t('rooms.index.room_component.open')" @click="handleOk" />
+          <router-link :to="link" class="p-button">
+            {{ $t('rooms.index.room_component.open') }}
+          </router-link>
         </div>
       </template>
     </Dialog>

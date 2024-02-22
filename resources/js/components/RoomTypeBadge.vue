@@ -1,7 +1,6 @@
 <template>
   <Tag
-    class="flex-shrink-1 text-break"
-    style="white-space: normal"
+    class="flex-shrink-1 text-break room-type-badge"
     :pt="{
         root: { style: { background: roomType.color } }
     }"

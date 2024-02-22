@@ -172,6 +172,7 @@
                 optionLabel="label"
                 dataKey="role"
                 optionValue="role"
+                :allowEmpty="false"
                 :options="[
                   { role: 1, label: $t('rooms.roles.participant')},
                   { role: 2, label: $t('rooms.roles.moderator')}

@@ -53,7 +53,7 @@
         </template>
         <!-- Show message on empty attendance list -->
         <template #empty>
-          <i v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</i>
+          <InlineMessage severity="info" v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</InlineMessage>
         </template>
 
         <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">

@@ -1,53 +1,65 @@
 <template>
-  <Fieldset
-    :legend="$t('rooms.access_for_participants')"
+  <Panel
+    :header="$t('rooms.access_for_participants')"
+    :toggleable="true"
+    :collapsed="true"
     :pt="{
-        root: { class: 'm-0' },
-        content: { class: 'p-0' },
-        legend: { class: 'p-2 bg-primary' }
+        header: { class: 'p-1 pl-3' },
+        content: { class: 'p-1' }
     }"
   >
+    <template #togglericon="slotProps">
+      <i class="fa-solid" :class="slotProps.collapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+    </template>
+    <template #icons>
+      <button
+        class="p-panel-header-icon p-link mr-2"
+        @click="copyInvitationText"
+        v-tooltip="$t('rooms.copy_access_for_participants')"
+        :aria-label="$t('rooms.copy_access_for_participants')"
+      >
+        <span class="fa-solid fa-copy"></span>
+      </button>
+    </template>
+
     <div class="flex justify-content-between align-items-start gap-3">
       <div class="flex-grow-1">
-        <div class="p-input-icon-left w-full">
-          <i
-             class="fa-solid fa-link"
-             v-tooltip="$t('rooms.invitation.link')"
-           />
+        <IconField iconPosition="left">
+          <InputIcon>
+            <i
+              class="fa-solid fa-link"
+              v-tooltip="$t('rooms.invitation.link')"
+            />
+          </InputIcon>
           <InputText
-            class="border-0 w-full"
+            class="border-0 shadow-none w-full"
             id="invitationLink"
             :aria-label="$t('rooms.invitation.link')"
             readonly
             :value="roomUrl"
             @focus="$event.target.select()"
           />
-        </div>
-        <div v-if="room.access_code" class="p-input-icon-left w-full mt-2">
-          <i
-            class="fa-solid fa-key"
-            v-tooltip="$t('rooms.invitation.code')"
-          />
+        </IconField>
+
+        <IconField iconPosition="left" v-if="room.access_code">
+          <InputIcon>
+            <i
+              class="fa-solid fa-key"
+              v-tooltip="$t('rooms.invitation.code')"
+            />
+          </InputIcon>
           <InputText
-            class="border-0 w-full text-color"
+            class="border-0 shadow-none w-full"
             id="invitationLink"
             :aria-label="$t('rooms.invitation.code')"
             readonly
             :value="formattedAccessCode"
             @focus="$event.target.select()"
           />
-        </div>
+        </IconField>
       </div>
-      <Button
-        v-tooltip="$t('rooms.copy_access_for_participants')"
-        class="float-right flex-shrink-0"
-        :aria-label="$t('rooms.copy_access_for_participants')"
-        variant="light"
-        @click="copyInvitationText"
-        icon="fa-solid fa-copy"
-      />
     </div>
-  </Fieldset>
+  </Panel>
 </template>
 <script setup>
 import { useSettingsStore } from '../stores/settings';

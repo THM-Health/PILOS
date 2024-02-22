@@ -1,29 +1,50 @@
 <template>
-  <!-- If room is running, show join button -->
-    <!-- If user is guest, join is only possible if a name is provided -->
-    <Button
-      v-if="props.running"
-      class="p-button-block"
-      :disabled="isLoadingAction || disabled"
-      @click="join"
-      :loading="isLoadingAction"
-      icon="fa-solid fa-door-open"
-      :label="$t('rooms.join')"
-    />
+  <div class="flex flex-column gap-2">
+    <div class="flex gap-2">
+      <!-- If room is running, show join button -->
+      <Button
+        v-if="props.running"
+        class="p-button-block"
+        :disabled="isLoadingAction || disabled"
+        @click="join"
+        :loading="isLoadingAction"
+        icon="fa-solid fa-door-open"
+        :label="$t('rooms.join')"
+      />
 
-    <!-- If room is not running -->
-    <Button
-      v-else-if="canStart"
-      class="p-button-block"
-      :disabled="isLoadingAction || disabled"
-      @click="join"
-      :loading="isLoadingAction"
-      icon="fa-solid fa-door-open"
-      :label="$t('rooms.start')"
-    />
+      <!-- If room is not running -->
+      <Button
+        v-else-if="canStart"
+        class="p-button-block"
+        :disabled="isLoadingAction || disabled"
+        @click="join"
+        :loading="isLoadingAction"
+        icon="fa-solid fa-door-open"
+        :label="$t('rooms.start')"
+      />
 
-    <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-  <InlineMessage v-else severity="info" class="w-full"><span class="font-semibold">{{ $t('rooms.not_running') }}</span></InlineMessage>
+      <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
+      <InlineMessage v-else severity="info">{{ $t('rooms.not_running') }}</InlineMessage>
+
+      <Button
+        v-if="notificationSupport && !running && !notificationEnabled"
+        severity="secondary"
+        @click="enableNotification"
+        icon="fa-solid fa-bell"
+        :aria-label="$t('rooms.notification.enable')"
+        v-tooltip="$t('rooms.notification.enable')"
+      />
+
+    </div>
+
+    <InlineMessage v-if="notificationEnabled && !running" severity="info">
+      <template v-slot:icon>
+        <i class="fa-solid fa-bell mr-2" />
+      </template>
+      {{ $t('rooms.notification.enabled') }}
+    </InlineMessage>
+
+  </div>
 
   <Dialog
     v-model:visible="showModal"
@@ -71,16 +92,19 @@
 </template>
 <script setup>
 
-import { ref, defineEmits, computed } from 'vue';
+import { ref, defineEmits, computed, watch, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useApi } from '../composables/useApi.js';
 import env from '../env.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
+import { useSettingsStore } from '../stores/settings.js';
+import notificationSound from '../../audio/notification.mp3';
 
 const props = defineProps([
   'roomId',
+  'roomName',
   'canStart',
   'running',
   'disabled',
@@ -92,6 +116,7 @@ const props = defineProps([
 const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'notRunning', 'forbidden']);
 
 const authStore = useAuthStore();
+const settingsStore = useSettingsStore();
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);
@@ -100,8 +125,12 @@ const name = ref(''); // Name of guest
 
 const api = useApi();
 const toast = useToast();
-const { t } = useI18n();
+const { t, d } = useI18n();
 const formErrors = useFormErrors();
+
+const notificationSupport = ref(false);
+const notificationEnabled = ref(false);
+const notification = ref(null);
 
 async function join () {
   if (!showPopup.value) {
@@ -227,5 +256,89 @@ function getJoinUrl () {
       isLoadingAction.value = false;
     });
 }
+
+watch(() => props.running, (running, wasRunning) => {
+  if (notificationEnabled.value) {
+    if (wasRunning === false && running === true) {
+      clearNotification();
+      sendNotification();
+    }
+    if (wasRunning === true && running === false) {
+      clearNotification();
+    }
+  }
+});
+
+onMounted(() => {
+  if (!('Notification' in window)) {
+    noSupportHandler();
+  } else if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+    notificationSupport.value = true;
+  } else {
+    try {
+      const testNotification = new Notification('');
+      testNotification.close();
+      notificationSupport.value = true;
+    } catch (e) {
+      if (e.name === 'TypeError') {
+        noSupportHandler();
+      }
+    }
+  }
+});
+
+const clearNotification = () => {
+  if (notification.value != null) {
+    notification.value.close();
+    notification.value = null;
+  }
+};
+
+const noSupportHandler = (showToast = false) => {
+  notificationEnabled.value = false;
+  notificationSupport.value = false;
+  if (showToast) {
+    toast.error(t('rooms.notification.browser_support'));
+  }
+};
+
+const sendNotification = () => {
+  const options = {
+    body: t('rooms.notification.body', { time: d(new Date(), 'time') }),
+    icon: settingsStore.getSetting('favicon')
+  };
+  try {
+    notification.value = new Notification(props.roomName, options);
+    notification.value.addEventListener('click', () => {
+      window.focus();
+      clearNotification();
+    });
+
+    const audio = new Audio(notificationSound);
+    audio.play();
+  } catch (e) {
+    if (e.name === 'TypeError') {
+      noSupportHandler(true);
+    }
+  }
+};
+
+const enableNotification = () => {
+  if (Notification.permission === 'granted') {
+    notificationEnabled.value = true;
+  } else if (Notification.permission === 'denied') {
+    notificationEnabled.value = false;
+    toast.error(t('rooms.notification.denied'));
+  } else {
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        notificationEnabled.value = true;
+      } else {
+        notificationEnabled.value = false;
+        toast.error(t('rooms.notification.denied'));
+      }
+    });
+  }
+};
 
 </script>
