@@ -5,8 +5,8 @@ const toastService = {
     this.primeToastService = primeToastService;
   },
 
-  toastMessage (severity, message, title = null) {
-    this.primeToastService.add({ severity, summary: title, detail: message, life: 5000 });
+  toastMessage (severity, summary, detail = null) {
+    this.primeToastService.add({ severity, summary, detail, life: 5000 });
   }
 };
 
@@ -16,20 +16,20 @@ export function setPrimeToastService (primeToastService) {
 
 export function useToast () {
   return {
-    error (message, title = null) {
-      toastService.toastMessage('error', message, title);
+    error (summary, detail = null) {
+      toastService.toastMessage('error', summary, detail);
     },
 
-    info (message, title = null) {
-      toastService.toastMessage('info', message, title);
+    info (summary, detail = null) {
+      toastService.toastMessage('info', summary, detail);
     },
 
-    warning (message, title = null) {
-      toastService.toastMessage('warn', message, title);
+    warning (summary, detail = null) {
+      toastService.toastMessage('warn', summary, detail);
     },
 
-    success (message, title = null) {
-      toastService.toastMessage('success', message, title);
+    success (summary, detail = null) {
+      toastService.toastMessage('success', summary, detail);
     }
   };
 }
