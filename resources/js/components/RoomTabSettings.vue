@@ -408,7 +408,7 @@
           <div class="flex">
             <Button
               :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
-              variant="success"
+              severity="success"
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
@@ -440,7 +440,6 @@ const props = defineProps({
 const emit = defineEmits(['settingsChanged']);
 
 const settings = ref({});
-const roomTypeSelectRef = ref();
 const isBusy = ref(false);
 const loadingError = ref(false);
 const roomTypeSelectBusy = ref(false);
