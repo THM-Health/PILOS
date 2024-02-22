@@ -37,16 +37,16 @@ import { useApi } from '../composables/useApi.js';
 const api = useApi();
 
 const props = defineProps({
-  id:{
+  id: {
     type: String,
     required: true
   },
-  firstname:{
+  firstname: {
     type: String,
     required: true
   },
-  lastname:{
-    type:String,
+  lastname: {
+    type: String,
     required: true
   }
 });
@@ -59,19 +59,19 @@ const isBusy = ref(false);
  * Shows the delete modal
  *
  */
-function showDeleteModal(){
-  showModal.value=true;
+function showDeleteModal () {
+  showModal.value = true;
 }
 
 /**
  * Deletes the user
  *
  */
-function deleteUser (){
+function deleteUser () {
   isBusy.value = true;
   api.call(`users/${props.id}`, {
     method: 'delete'
-  }).then(()=>{
+  }).then(() => {
     showModal.value = false;
     emit('deleted');
   }).catch(error => {

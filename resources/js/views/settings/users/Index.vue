@@ -235,8 +235,8 @@ const meta = ref({
   total: 0
 });
 const filter = ref({
-    name: undefined,
-    role: undefined
+  name: undefined,
+  role: undefined
 });
 
 const roles = ref([]);
@@ -251,7 +251,7 @@ const rolesMultiselectRef = ref();
  * to enable or disable the edition of roles and attributes when the permissions
  * of the current user gets changed.
  */
-onMounted(()=>{
+onMounted(() => {
   loadRoles();
   loadData();
 });
@@ -261,7 +261,7 @@ onMounted(()=>{
  *
  * @param [page=1] The page to load the roles for.
  */
-function loadRoles(page = 1){
+function loadRoles (page = 1) {
   rolesLoading.value = true;
 
   const config = {
@@ -288,7 +288,7 @@ function loadRoles(page = 1){
  * Loads the users from the backend
  *
  */
-function loadData(){
+function loadData () {
   isBusy.value = true;
   loadingError.value = false;
   const config = {
@@ -299,7 +299,7 @@ function loadData(){
       name: filter.value.name,
       role: filter.value.role?.id
     }
-  }
+  };
 
   api.call('users', config).then(response => {
     meta.value = response.data.meta;
@@ -312,13 +312,13 @@ function loadData(){
   });
 }
 
-function onPage(event) {
+function onPage (event) {
   currentPage.value = event.page + 1;
   loadData();
 }
 
-function onSort() {
-  //ToDo check if solves problem
+function onSort () {
+  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }
@@ -327,7 +327,7 @@ function onSort() {
  * Clears the role filter and reloads users
  *
  */
-function clearFilterRole(){
+function clearFilterRole () {
   filter.value.role = null;
   loadData();
 }
