@@ -36,11 +36,11 @@ import { useApi } from '../composables/useApi.js';
 const api = useApi();
 
 const props = defineProps({
-  id:{
+  id: {
     type: String,
     required: true
   },
-  name:{
+  name: {
     type: String,
     required: true
   }
@@ -51,29 +51,29 @@ const emit = defineEmits(['deleted']);
 const showModal = ref(false);
 const isBusy = ref(false);
 
- /**
+/**
   * Shows the delete modal
   *
   */
- function showDeleteModal(){
-   showModal.value=true;
- }
+function showDeleteModal () {
+  showModal.value = true;
+}
 
 /**
  * Deletes the role
  *
  */
- function deleteRole (){
-   isBusy.value = true;
-   api.call(`roles/${props.id}`, {
-     method: 'delete'
-   }).then(()=>{
-     showModal.value = false;
-     emit('deleted');
-   }).catch(error => {
-     api.error(error);
-   }).finally(() => {
-     isBusy.value = false;
-   });
- }
+function deleteRole () {
+  isBusy.value = true;
+  api.call(`roles/${props.id}`, {
+    method: 'delete'
+  }).then(() => {
+    showModal.value = false;
+    emit('deleted');
+  }).catch(error => {
+    api.error(error);
+  }).finally(() => {
+    isBusy.value = false;
+  });
+}
 </script>

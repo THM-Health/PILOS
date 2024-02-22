@@ -376,9 +376,9 @@ function loadRoomType () {
 }
 
 /**
- * Loads the roles for the passed page, that can be selected through the multiselect.
+ * Loads the server pools for the passed page, that can be selected through the multiselect.
  *
- * @param [page=1] The page to load the roles for.
+ * @param [page=1] The page to load the server pools for.
  */
 function loadServerPools (page = 1) {
   serverPoolsLoading.value = true;

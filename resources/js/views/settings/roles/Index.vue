@@ -115,7 +115,7 @@ const meta = ref({
   total: 0
 });
 
-onMounted(() =>{
+onMounted(() => {
   loadData();
 });
 
@@ -123,7 +123,7 @@ onMounted(() =>{
  * Loads the roles from the backend
  *
  */
-function loadData (){
+function loadData () {
   isBusy.value = true;
   loadingError.value = false;
   const config = {
@@ -145,13 +145,13 @@ function loadData (){
   });
 }
 
-function onPage(event) {
+function onPage (event) {
   currentPage.value = event.page + 1;
   loadData();
 }
 
-function onSort() {
-  //ToDo check if solves problem
+function onSort () {
+  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }

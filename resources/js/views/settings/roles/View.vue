@@ -268,12 +268,12 @@ import env from '@/env.js';
 import { useApi } from '@/composables/useApi.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useRouter } from 'vue-router';
-import {onMounted, ref, computed, defineProps} from "vue";
+import { onMounted, ref, computed, defineProps } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
-import {useI18n} from "vue-i18n";
-import _ from "lodash";
+import { useI18n } from 'vue-i18n';
+import _ from 'lodash';
 import ConfirmDialog from 'primevue/confirmdialog';
-import {useConfirm} from "primevue/useconfirm";
+import { useConfirm } from 'primevue/useconfirm';
 
 const formErrors = useFormErrors();
 const settingsStore = useSettingsStore();
@@ -295,9 +295,9 @@ const props = defineProps({
 });
 
 const model = ref({
-    name: null,
-    room_limit: null,
-    permissions: []
+  name: null,
+  room_limit: null,
+  permissions: []
 });
 const includedPermissionMap = ref({});
 const permissions = ref({});
@@ -309,7 +309,7 @@ const helpRoomLimitModalVisible = ref(false);
 /**
  * Options for the room limit mode radio button group.
  */
-const roomLimitModeOptions = computed(()=>{
+const roomLimitModeOptions = computed(() => {
   return [
     {
       text: t('settings.roles.room_limit.default', {
@@ -328,27 +328,27 @@ const roomLimitModeOptions = computed(()=>{
  * Calculate what permissions the role gets, based on the select permissions and the permissions that are included
  * in the selected permissions
  */
-const includedPermissions = computed(()=>{
+const includedPermissions = computed(() => {
   return _.uniq(model.value.permissions.flatMap(permission => [permission, includedPermissionMap.value[permission]].flat()));
 });
 
 /**
  * Boolean that indicates, whether any request for this form is pending or not.
  */
-const isBusy = computed(()=>{
+const isBusy = computed(() => {
   return busyCounter.value > 0;
-})
+});
 
 /**
  * Loads the role from the backend and also the permissions that can be selected.
  */
-onMounted(()=>{
+onMounted(() => {
   load();
 });
 /**
  * Loads the role from the backend and also the permissions that can be selected.
  */
-function load(){
+function load () {
   modelLoadingError.value = false;
   loadPermissions();
 
@@ -374,7 +374,7 @@ function load(){
 /**
  * Loads the permissions that can be selected through checkboxes.
  */
-function loadPermissions() {
+function loadPermissions () {
   busyCounter.value++;
 
   api.call('permissions').then(response => {
@@ -403,8 +403,7 @@ function loadPermissions() {
  * Saves the changes of the role to the database by making a api call.
  *
  */
-function saveRole(){
-
+function saveRole () {
   busyCounter.value++;
 
   const config = {
@@ -442,7 +441,7 @@ function saveRole(){
  *
  * @param value Value of the radio button that was selected.
  */
-function roomLimitModeChanged(value){
+function roomLimitModeChanged (value) {
   console.log(value);
   switch (value) {
     case 'default':

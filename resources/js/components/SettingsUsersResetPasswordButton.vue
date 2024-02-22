@@ -34,27 +34,27 @@
 import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useToast } from '../composables/useToast.js';
-import {useI18n} from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
 const props = defineProps({
-  id:{
+  id: {
     type: String,
     required: true
   },
-  firstname:{
+  firstname: {
     type: String,
     required: true
   },
-  lastname:{
-    type:String,
+  lastname: {
+    type: String,
     required: true
   },
   email: {
-    required:true
+    required: true
   }
 });
 
@@ -65,23 +65,23 @@ const isBusy = ref(false);
  * Shows the reset password modal
  *
  */
-function showResetPasswordModal(){
+function showResetPasswordModal () {
   showModal.value = true;
 }
 /**
   * Resets the password for the given user.
   */
-function resetPassword (){
+function resetPassword () {
   isBusy.value = true;
   api.call(`users/${props.id}/resetPassword`, {
     method: 'post'
-  }).then(()=>{
+  }).then(() => {
     showModal.value = false;
     toast.success(t('settings.users.password_reset_success', { mail: props.email }));
-  }).catch(error =>{
+  }).catch(error => {
     api.error(error);
-  }).finally(()=>{
+  }).finally(() => {
     isBusy.value = false;
-  })
+  });
 }
 </script>
