@@ -57,7 +57,7 @@
 
         <!-- Show message on empty file list -->
         <template #empty>
-          <InlineMessage severity="info" v-if="!isBusy && !loadingError">{{ $t('rooms.files.nodata') }}</InlineMessage>
+          <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.files.nodata') }}</InlineNote>
         </template>
 
       <Column field="filename" sortable :header="$t('rooms.files.filename')" style="max-width: 250px">

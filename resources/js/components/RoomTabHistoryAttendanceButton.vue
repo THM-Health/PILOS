@@ -29,9 +29,9 @@
       </div>
     </template>
 
-    <InlineMessage severity="info" class="w-full">
+    <InlineNote class="w-full">
       {{ $t('meetings.stats.no_breakout_support') }}
-    </InlineMessage>
+    </InlineNote>
 
     <!-- List of all meetings -->
     <DataTable
