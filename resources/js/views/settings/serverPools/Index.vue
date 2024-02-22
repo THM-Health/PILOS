@@ -7,20 +7,15 @@
         </h2>
       </div>
       <div class="col flex justify-content-end align-items-center">
-        <Can
-          method="create"
-          policy="ServerPoolPolicy"
+        <router-link
+          v-if="userPermissions.can('create', 'ServerPolicy')"
+          v-tooltip.left="$t('settings.server_pools.new')"
+          :aria-label="$t('settings.server_pools.new')"
+          :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
+          class="p-button p-button-success"
         >
-          <router-link
-            ref="newServerPool"
-            v-tooltip.left="$t('settings.server_pools.new')"
-            :aria-label="$t('settings.server_pools.new')"
-            :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
-            class="p-button p-button-success"
-          >
-            <i class="fa-solid fa-plus"/>
-          </router-link>
-        </can>
+          <i class="fa-solid fa-plus"/>
+        </router-link>
       </div>
       <div class="col-12 md:col-3 flex align-items-center">
         <InputGroup>
@@ -35,8 +30,8 @@
             :aria-label="$t('app.search')"
             severity="primary"
             @click="loadData"
+            icon="fa-solid fa.magnifying-glass"
           >
-            <i class="fa-solid fa-magnifying-glass"/>
           </Button>
         </InputGroup>
       </div>
@@ -60,7 +55,7 @@
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData"/>
       </template>
-      <!-- Show message on empty user list -->
+      <!-- Show message on empty server pool list -->
       <template #empty>
         <i v-if="!isBusy && !loadingError">{{ $t('settings.server_pools.no_data') }}</i>
       </template>

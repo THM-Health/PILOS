@@ -92,7 +92,6 @@ function deleteServerPool () {
       deleteFailedRoomTypes.value = error.response.data.room_types;
     } else {
       api.error(error);
-      this.clearServerPoolToDelete();
     }
   }).finally(() => {
     isBusy.value = false;
