@@ -72,7 +72,7 @@
         <ToggleButton
           v-model="roomFilterAll"
           @change="loadRooms(1)"
-          v-if="!onlyShowFavorites"
+          v-if="!onlyShowFavorites && userPermissions.can('viewAll', 'RoomPolicy')"
           :on-label="$t('rooms.index.show_all')"
           :off-label="$t('rooms.index.show_all')"
         >
