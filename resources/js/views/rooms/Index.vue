@@ -119,13 +119,9 @@
             optionValue="id"
           >
             <template #clearicon="{ clearCallback }">
-              <Button
-                @click.stop="clearCallback"
-                severity="secondary"
-                icon="fa-solid fa-times"
-                text
-                class="m-0"
-              />
+              <span class="p-dropdown-clear" role="button" @click.stop="clearCallback">
+                <i class="fa-solid fa-times"/>
+              </span>
             </template>
           </Dropdown>
           <!-- reload the room types -->
