@@ -2,9 +2,7 @@
   <div class="container">
     <div class="grid mt-4 mb-5">
       <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
-        <Card
-          :pt="{ body: { class: 'p-0' }, content: { class : 'p-0'} }"
-        >
+        <Card>
           <template #content>
             <TabView
               :lazy="true"

@@ -183,22 +183,20 @@
     <Dialog
       v-model:visible="helpRoomLimitModalVisible"
       modal
-      :style="{ width: '500px' }"
-      :breakpoints="{ '575px': '90vw' }"
+      :style="{ width: '700px' }"
+      :breakpoints="{ '775px': '90vw' }"
       closeOnEscape
       dismissableMask
       :draggable = false
+      :header="$t('app.room_limit')"
     >
-      <template #header>
-        <i class="fa-solid fa-circle-info" />
-        <span class="p-dialog-title"> {{ $t('app.room_limit') }} </span>
-      </template>
+      <div class="overflow-auto">
       <p>{{ $t('settings.roles.room_limit.help_modal.info') }}</p>
 
-      <strong>{{ $t('settings.roles.room_limit.help_modal.examples') }}</strong>
-      <table class="table">
-        <thead>
-        <tr>
+      <p class="font-bold text-lg">{{ $t('settings.roles.room_limit.help_modal.examples') }}</p>
+      <table class="p-datatable p-datatable-table">
+        <thead class="p-datatable-thead">
+          <tr>
           <th scope="col">
             {{ $t('settings.roles.room_limit.help_modal.system_default') }}
           </th>
@@ -213,52 +211,53 @@
           </th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
-          <td><raw-text>5</raw-text></td>
-          <td><raw-text>X</raw-text></td>
-          <td><raw-text>X</raw-text></td>
-          <td><raw-text>5</raw-text></td>
-        </tr>
-        <tr>
-          <td><raw-text>1</raw-text></td>
-          <td><raw-text>5</raw-text></td>
-          <td><raw-text>X</raw-text></td>
-          <td><raw-text>5</raw-text></td>
-        </tr>
-        <tr>
-          <td><raw-text>5</raw-text></td>
-          <td><raw-text>1</raw-text></td>
-          <td><raw-text>X</raw-text></td>
-          <td><raw-text>1</raw-text></td>
-        </tr>
-        <tr>
-          <td><raw-text>5</raw-text></td>
-          <td><raw-text>1</raw-text></td>
-          <td><raw-text>2</raw-text></td>
-          <td><raw-text>2</raw-text></td>
-        </tr>
-        <tr>
-          <td><raw-text>5</raw-text></td>
-          <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
-          <td><raw-text>2</raw-text></td>
-          <td><raw-text>5</raw-text></td>
-        </tr>
-        <tr>
-          <td><raw-text>5</raw-text></td>
-          <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
-          <td><raw-text>10</raw-text></td>
-          <td><raw-text>10</raw-text></td>
-        </tr>
-        <tr>
-          <td><raw-text>5</raw-text></td>
-          <td>{{ $t('app.unlimited') }}</td>
-          <td><raw-text>2</raw-text></td>
-          <td>{{ $t('app.unlimited') }}</td>
-        </tr>
+        <tbody class="p-datatable-tbody">
+          <tr>
+            <td><raw-text>5</raw-text></td>
+            <td><raw-text>X</raw-text></td>
+            <td><raw-text>X</raw-text></td>
+            <td><raw-text>5</raw-text></td>
+          </tr>
+          <tr>
+            <td><raw-text>1</raw-text></td>
+            <td><raw-text>5</raw-text></td>
+            <td><raw-text>X</raw-text></td>
+            <td><raw-text>5</raw-text></td>
+          </tr>
+          <tr>
+            <td><raw-text>5</raw-text></td>
+            <td><raw-text>1</raw-text></td>
+            <td><raw-text>X</raw-text></td>
+            <td><raw-text>1</raw-text></td>
+          </tr>
+          <tr>
+            <td><raw-text>5</raw-text></td>
+            <td><raw-text>1</raw-text></td>
+            <td><raw-text>2</raw-text></td>
+            <td><raw-text>2</raw-text></td>
+          </tr>
+          <tr>
+            <td><raw-text>5</raw-text></td>
+            <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
+            <td><raw-text>2</raw-text></td>
+            <td><raw-text>5</raw-text></td>
+          </tr>
+          <tr>
+            <td><raw-text>5</raw-text></td>
+            <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
+            <td><raw-text>10</raw-text></td>
+            <td><raw-text>10</raw-text></td>
+          </tr>
+          <tr>
+            <td><raw-text>5</raw-text></td>
+            <td>{{ $t('app.unlimited') }}</td>
+            <td><raw-text>2</raw-text></td>
+            <td>{{ $t('app.unlimited') }}</td>
+          </tr>
         </tbody>
       </table>
       <p>{{ $t('settings.roles.room_limit.help_modal.note') }}</p>
+      </div>
     </Dialog>
   </div>
 </template>

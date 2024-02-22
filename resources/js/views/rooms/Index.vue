@@ -3,7 +3,7 @@
     <!--  heading and option to add new rooms-->
     <div class="flex justify-content-between">
       <div>
-        <h1 class="m-0">
+        <h1 class="m-0 text-color text-3xl">
           {{ $t('rooms.index.rooms') }}
         </h1>
       </div>
@@ -75,6 +75,12 @@
           v-if="!onlyShowFavorites && userPermissions.can('viewAll', 'RoomPolicy')"
           :on-label="$t('rooms.index.show_all')"
           :off-label="$t('rooms.index.show_all')"
+          class="border-1 border-300 border-round"
+          :pt="{
+            box: {
+              class: 'bg-white'
+            }
+          }"
         >
         </ToggleButton>
         <SelectButton
@@ -86,6 +92,12 @@
           optionValue="value"
           multiple
           @change="loadRooms(1)"
+          class="border-1 border-300 border-round"
+          :pt="{
+            button: {
+              class: 'bg-white'
+            }
+          }"
         />
 
       </div>

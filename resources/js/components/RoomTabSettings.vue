@@ -11,7 +11,7 @@
         <div class="grid">
           <!-- General settings tab -->
           <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
-            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.general.title') }}</p>
+            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.general.title') }}</p>
             <div class="flex flex-column gap-2">
               <label for="room-type">{{ $t('rooms.settings.general.type') }}</label>
               <RoomTypeChangeButton
@@ -74,7 +74,7 @@
 
           <!-- Security settings tab -->
           <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
-            <p class="text-lg font-semibold m-0">{{ $t('app.security') }}</p>
+            <p class="text-lg font-semibold text-color m-0">{{ $t('app.security') }}</p>
             <!-- Access code -->
             <div class="flex flex-column gap-2">
               <label for="access-code">{{ $t('rooms.access_code') }}</label>
@@ -158,7 +158,7 @@
 
           <!-- Participants settings tab -->
           <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
-            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.participants.title') }}</p>
+            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.participants.title') }}</p>
 
             <!-- Radio default user role for logged in users only -->
             <div class="flex flex-column gap-2">
@@ -244,7 +244,7 @@
 
           <!-- Permissions & Restrictions tab -->
           <div class="col-12 md:col-6 lg:col-3 flex flex-column gap-2">
-            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.permissions.title') }}</p>
+            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.permissions.title') }}</p>
             <!-- Everyone can start a new meeting, not only the moderator -->
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center gap-2">
@@ -275,7 +275,7 @@
               <p class="p-error" v-html="formErrors.fieldError('mute_on_start')" />
             </div>
             <Divider class="my-0"/>
-            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.restrictions.title') }}</p>
+            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.restrictions.title') }}</p>
 
             <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
             <div class="flex flex-column gap-2">

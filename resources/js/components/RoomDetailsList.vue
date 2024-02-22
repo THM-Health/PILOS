@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-column gap-2"
+    class="flex flex-column gap-2 text-color"
     :class="{ 'md:flex-row': props.inline }"
   >
     <!--owner name-->

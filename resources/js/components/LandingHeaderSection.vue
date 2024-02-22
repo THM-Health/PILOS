@@ -5,21 +5,19 @@
         <img
           v-if="settingsStore.getSetting('logo')"
           class="logo"
+          alt="Logo"
           :src="settingsStore.getSetting('logo')"
         >
-        <h1
-          id="main-text"
-          class="mb-4"
-        >
+        <h1 class="mb-4 text-color">
           {{ $t('home.title') }}
         </h1>
-        <p class="lead col-sm-12">
+        <p class="text-color">
           {{ $t('home.subtitle') }}
         </p>
-        <p class="lead col-sm-12">
+        <p class="text-color">
           {{ $t('home.description') }}
         </p>
-        <p class="lead col-sm-12">
+        <p class="text-color">
           {{ $t('home.description_extended') }}
         </p>
       </div>

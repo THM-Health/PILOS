@@ -1,0 +1,16 @@
+.p-avatar {
+    font-size: 0.85rem;
+
+    &.p-avatar-lg {
+        font-size: 1.25rem;
+    }
+
+    &.p-avatar-xl {
+        font-size: 1.85rem;
+    }
+
+    .p-avatar-text {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}

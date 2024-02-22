@@ -4,7 +4,7 @@
       v-if="list.length > 0"
       class="mb-3"
     >
-      <p>
+      <p class="font-bold">
         {{ description }} <Badge :severity="variant">
           {{ list.length }}
         </Badge>
@@ -17,11 +17,13 @@
           :header="user.email"
           :disabled="!user.error"
           :pt="{
+            header: {
+              class: 'opacity-100'
+            },
             headerAction: {
               class: {
                 'p-2': true,
-                'flex-row-reverse': user.error,
-                'justify-content-between': true
+                'justify-content-end': !user.error
               }
             },
             headerIcon: {
@@ -37,7 +39,7 @@
 
           }"
         >
-          <i>{{ user.error }}</i>
+          <InlineNote severity="error">{{ user.error }}</InlineNote>
         </AccordionTab>
       </Accordion>
     </div>
