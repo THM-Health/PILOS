@@ -44,13 +44,9 @@
           :label="$t('app.undo')"
         />
 
-        <a v-if="fileUrl && !file && !fileDeleted" :href="fileUrl" target="_blank">
-          <Button
-            tabindex="-1"
-            severity="secondary"
-            icon="fa-solid fa-eye"
-            :label="$t('app.view')"
-          />
+        <a v-if="fileUrl && !file && !fileDeleted" :href="fileUrl" target="_blank" class="p-button p-button-secondary">
+          <span class="p-button-icon p-button-icon-left fa-solid fa-eye" />
+          <span class="p-button-label">{{ $t('app.view') }}</span>
         </a>
       </div>
       <div>
