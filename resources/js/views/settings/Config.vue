@@ -796,7 +796,7 @@ const disabled = computed(() => {
 });
 
 const viewOnly = computed(() => {
-  return !userPermissions.can('update', 'ApplicationSettingPolicy');
+  return !userPermissions.can('update', 'ConfigPolicy');
 });
 
 /**
