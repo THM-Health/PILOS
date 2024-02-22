@@ -113,7 +113,7 @@
         </Column>
       </DataTable>
       <!-- selected rows action buttons -->
-      <div class="flex gap-2" v-if="selectedMembers.length > 0">
+      <div class="flex justify-content-end gap-2 px-3" v-if="selectedMembers.length > 0">
         <!-- bulk edit membership role -->
         <RoomTabMembersBulkEditButton
           :room-id="props.room.id"
