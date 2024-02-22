@@ -33,7 +33,7 @@
       </template>
 
       <template #empty>
-        <InlineMessage severity="info" v-if="!isBusy && !loadingError">{{ $t('meetings.no_historical_data') }}</InlineMessage>
+        <InlineNote v-if="!isBusy && !loadingError">{{ $t('meetings.no_historical_data') }}</InlineNote>
       </template>
 
       <Column field="start" :header="$t('meetings.start')">
