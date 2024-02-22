@@ -2,9 +2,7 @@
 
 return [
     'access_code'                  => 'Zugangscode',
-    'access_for_participants'      => 'Zugangsdaten für Teilnehmer',
     'become_member'                => 'Mitglied werden',
-    'copy_access_for_participants' => 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
     'create'                       => [
         'ok'    => 'Erstellen',
         'title' => 'Raum erstellen',
@@ -150,6 +148,9 @@ return [
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [
+        'share' => 'Teilen',
+        'title' => 'Zugangsdaten für Teilnehmer',
+        'copy' => 'Kopieren',
         'code'   => 'Zugangscode',
         'copied' => 'Zugangsdaten in Zwischenablage kopiert',
         'link'   => 'Link',
@@ -231,6 +232,8 @@ return [
         'denied'          => 'Der Browser verweigert Benachrichtigungen.',
         'enable'          => 'Beim Start des Raumes benachrichtigen',
         'enabled'         => 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
+        'disable'         => 'Beachrichtigung beim Start des Raumes deaktivieren',
+        'disabled'        => 'Sie werden beim Start des Raumes von Ihrem Browser nicht mehr benachrichtigt.',
     ],
     'only_used_by_authenticated_users' => 'Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.',
     'placeholder_name'                 => 'Max Mustermann',

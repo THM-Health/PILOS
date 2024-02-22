@@ -130,35 +130,30 @@
           <Divider />
           <!-- Room join/start -->
 
-          <div class="grid mb-2">
+          <div class="flex justify-content-between align-items-start gap-2 mb-3">
+            <div class="flex justify-content-start gap-2">
+              <RoomJoinButton
+                :roomId="room.id"
+                :running="running"
+                :disabled="room.room_type_invalid"
+                :record-attendance="room.record_attendance"
+                :can-start="room.can_start"
+                :token="props.token"
+                :access-code="accessCode"
+                @invalidCode="handleInvalidCode"
+                @invalidToken="handleInvalidToken"
+                @guests-not-allowed="handleGuestsNotAllowed"
+                @not-running="reload"
+                @forbidden="reload"
+              />
+              <RoomBrowserNotification
+                :room-name="room.name"
+                :running="running"
+              />
+            </div>
+
             <!-- Show invitation text/link to moderators and room owners -->
-            <div
-              v-if="viewInvitation"
-              class="col-12 lg:col-6 flex-order-2 lg:flex-order-1"
-            >
-              <RoomAccessWidget :room="room" />
-            </div>
-            <div
-              class="col-12 flex-order-1 lg:flex-order-2 flex flex-column gap-2"
-              :class="viewInvitation ? 'lg:col-6' : 'lg:col-12 lg:flex-row justify-content-between'"
-            >
-              <div class="flex-1" :class="viewInvitation ? 'flex-none' : 'xl:flex-none'">
-                <RoomJoinButton
-                  :roomId="room.id"
-                  :running="running"
-                  :disabled="room.room_type_invalid"
-                  :record-attendance="room.record_attendance"
-                  :can-start="room.can_start"
-                  :token="props.token"
-                  :access-code="accessCode"
-                  @invalidCode="handleInvalidCode"
-                  @invalidToken="handleInvalidToken"
-                  @guests-not-allowed="handleGuestsNotAllowed"
-                  @not-running="reload"
-                  @forbidden="reload"
-                />
-              </div>
-            </div>
+            <RoomAccessWidget v-if="viewInvitation" :room="room" />
           </div>
 
           <!-- Show room tabs -->
