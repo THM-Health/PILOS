@@ -4,18 +4,6 @@
 
 //@import 'modern-normalize/modern-normalize.css';
 
-fieldset:not(.p-fieldset) {
-    min-width: 0;
-    padding: 0;
-    margin: 0;
-    border: 0;
-}
-legend:not(.p-fieldset-legend) {
-    float: left;
-    width: 100%;
-    padding: 0;
-}
-
 // The contrast ratio to reach against white, to determine if color changes from "light" to "dark". Acceptable values for WCAG 2.0 are 3, 4.5 and 7.
 // See https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast
 
@@ -72,9 +60,7 @@ $highlightFocusBg: rgba($primaryColor, .24) !default;
 
 $fontFamily: SourceSansPro, sans-serif;
 
-@import './_variables';
-@import 'primevue-sass-theme/theme-base/_components';
-@import './_extensions';
+@import 'theme';
 @import "streched-link";
 @import 'primeflex/primeflex.css';
 
@@ -179,6 +165,7 @@ a:any-link {
     text-decoration: none;
 }
 
+
 .p-inputswitch, .p-inputswitch-slider {
     width: 1.75rem;
     height: 1rem;
@@ -221,9 +208,74 @@ a:any-link {
     }
 }
 
-.p-toast .p-toast-message .p-toast-message-content {
-    padding: 0.5rem 1rem;
+.p-toast-message-text {
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .p-toast-detail {
+        margin: 0;
+    }
 }
+
+
+.p-avatar {
+    font-size: 0.85rem;
+
+    &.p-avatar-lg {
+        font-size: 1.25rem;
+    }
+
+    &.p-avatar-xl {
+        font-size: 1.85rem;
+    }
+
+    .p-avatar-text {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+
+.p-tabview {
+    .p-tabview-ink-bar {
+        display: none !important;
+    }
+
+    .p-tabview-header {
+        border-bottom: 3px solid #e2e8f0;
+
+        &.p-highlight {
+            border-bottom: 3px solid $primaryColor;
+        }
+    }
+
+
+
+    .p-tabview-nav {
+        border: none;
+
+        li {
+            flex-grow: 1;
+            text-align: center;
+            display: flex;
+
+            .p-tabview-nav-link {
+                border: none;
+            }
+
+            a {
+                flex-grow: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+            }
+        }
+    }
+
+}
+
 
 .room-tabs {
     .p-tabview-nav {
@@ -250,22 +302,6 @@ a[data-target="safeLink"] {
     &:hover {
         color: $primaryDarkColor;
     }
-}
-
-.room-role-guest {
-    background-color: $info;
-}
-
-.room-role-participant {
-    background-color: $success;
-}
-
-.room-role-moderator {
-    background-color: $danger;
-}
-
-.room-role-co-owner {
-    background-color: $secondary;
 }
 
 .p-dialog-content {
@@ -306,4 +342,60 @@ a[data-target="safeLink"] {
 
 .p-fileupload-choose.p-invalid {
     outline: $danger solid 1px;
+}
+
+fieldset:not(.p-fieldset) {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+legend:not(.p-fieldset-legend) {
+    float: left;
+    padding: 0;
+}
+
+.p-dropdown-clear{
+    color: $inputIconColor;
+    padding: 0 0.25rem;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &:hover {
+        color: $inputTextColor;
+    }
+}
+
+.p-dropdown.p-dropdown-clearable .p-dropdown-label {
+    padding: $inputPadding;
+}
+
+.room-type-badge {
+    white-space: normal;
+    color: #FFF;
+}
+
+.room-role-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-role-guest {
+        background-color: $info;
+    }
+
+    &.room-role-participant {
+        background-color: $success;
+    }
+
+    &.room-role-moderator {
+        background-color: $danger;
+    }
+
+    &.room-role-co-owner {
+        background-color: $secondary;
+    }
 }
