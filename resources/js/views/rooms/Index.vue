@@ -195,11 +195,11 @@
       <div v-if="rooms">
         <div
           v-if="!loadingRooms && !loadingRoomsError"
-          class="text-center mt-3"
+          class="text-center"
         >
-          <em v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </em>
-          <em v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
-          <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</em>
+          <InlineMessage severity="info" v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
+          <InlineMessage severity="info" v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
+          <InlineMessage severity="info" v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
         </div>
         <div class="grid p-1">
           <div
@@ -239,7 +239,7 @@
       v-else
       class="text-center mt-3"
     >
-      <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
+      <InlineMessage severity="error">{{ $t('rooms.index.no_rooms_selected') }}</InlineMessage>
       <br>
       <Button
         class="mt-2"

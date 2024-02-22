@@ -36,7 +36,7 @@
           :html="sanitizedHtml"
         />
         <div v-else>
-          <i>{{ $t('rooms.description.missing') }}</i>
+          <InlineMessage severity="info">{{ $t('rooms.description.missing') }}</InlineMessage>
         </div>
       </div>
 
