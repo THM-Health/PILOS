@@ -1,7 +1,6 @@
 <template>
   <div>
     <Button
-      class="p-button-block"
       :disabled="props.disabled"
       @click="modalVisible = true"
       icon="fa-solid fa-plus"

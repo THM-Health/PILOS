@@ -7,7 +7,7 @@
           {{ $t('rooms.index.rooms') }}
         </h1>
       </div>
-      <div v-if="userPermissions.can('create', 'RoomPolicy')" class="flex gap-2 flex-column">
+      <div v-if="userPermissions.can('create', 'RoomPolicy')" class="flex align-items-end gap-2 flex-column">
         <RoomCreateComponent
           :disabled="limitReached"
           @limit-reached="onReachLimit"
