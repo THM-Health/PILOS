@@ -68,7 +68,7 @@
     <div class="flex-column xl:flex-row gap-2 justify-content-between"
       :class="toggleMobileMenu?'flex':'hidden md:flex'"
     >
-      <div class="flex flex-wrap gap-1">
+      <div class="flex flex-wrap flex-shrink-0 gap-1">
         <ToggleButton
           v-model="roomFilterAll"
           @change="loadRooms(1)"
@@ -156,6 +156,7 @@
 
     <!--rooms overlay-->
     <OverlayComponent
+      class="mt-3"
       v-if="!showNoFilterMessage"
       :show="loadingRooms || loadingRoomsError"
       :noCenter="true"
@@ -166,7 +167,6 @@
           <i class="fa-solid fa-circle-notch fa-spin text-3xl" v-if="loadingRooms"  />
           <Button
             v-else
-            ref="reload"
             @click="reload()"
           >
             <i class="fa-solid fa-sync mr-2" /> {{ $t('app.reload') }}
@@ -242,6 +242,7 @@
         ref="reset"
         @click="resetRoomFilter"
         :label="$t('rooms.index.reset_filter')"
+        icon="fa-solid fa-rotate-left"
       />
     </div>
   </div>
@@ -334,8 +335,8 @@ const filterOptions = computed(() => {
 });
 
 /**
-     * Resets the room filters and reloads the rooms
-     */
+ * Resets the room filters and reloads the rooms
+ */
 function resetRoomFilter () {
   roomFilter.value = ['own', 'shared'];
   roomFilterAll.value = false;
@@ -343,8 +344,8 @@ function resetRoomFilter () {
 }
 
 /**
-     *  Reload rooms
-     */
+ *  Reload rooms
+ */
 function reload () {
   loadRoomTypes();
   loadRooms();
