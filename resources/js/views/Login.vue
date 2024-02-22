@@ -17,14 +17,6 @@
               <TabPanel
                 v-if="settingsStore.getSetting('auth.ldap')"
                 :header="$t('auth.ldap.tab_title')"
-                :pt="{
-                  header: {
-                    class: 'flex-1 flex align-items-center justify-content-center'
-                  },
-                  headerAction: ({ context }) => ({
-                      class: panelClass(context)
-                  })
-                }"
               >
                 <LoginTabLdap
                   id="ldap"
@@ -40,14 +32,6 @@
               <TabPanel
                 v-if="settingsStore.getSetting('auth.shibboleth')"
                 :header="$t('auth.shibboleth.tab_title')"
-                :pt="{
-                  header: {
-                    class: 'flex-1 flex align-items-center justify-content-center'
-                  },
-                  headerAction: ({ context }) => ({
-                      class: panelClass(context)
-                  })
-                }"
               >
                 <LoginTabExternal
                   id="shibboleth"
@@ -59,14 +43,6 @@
               <TabPanel
                 v-if="settingsStore.getSetting('auth.local')"
                 :header="$t('auth.email.tab_title')"
-                :pt="{
-                  header: {
-                    class: 'flex-1 flex align-items-center justify-content-center'
-                  },
-                  headerAction: ({ context }) => ({
-                      class: panelClass(context)
-                  })
-                }"
               >
                 <LoginTabLocal
                   id="local"
