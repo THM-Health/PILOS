@@ -3,7 +3,7 @@
     <div
       v-if="getSetting('legal_notice_url') || getSetting('privacy_policy_url') || getSetting('version') || !getSetting('whitelabel')"
       ref="footer_container"
-      class="border-top-1 border-200 bg-white p-2"
+      class="border-top-1 border-300 bg-white p-2"
     >
       <div class="container">
         <div class="flex justify-content-between flex-column sm:flex-row text-center sm:text-left">
@@ -11,7 +11,7 @@
             <a
               v-if="getSetting('legal_notice_url')"
               :href="getSetting('legal_notice_url')"
-              class="text-primary"
+              class="link-color"
             >
               <small>{{ $t('app.footer.legal_notice') }}</small>
             </a>
@@ -25,7 +25,7 @@
             <a
               v-if="getSetting('privacy_policy_url')"
               :href="getSetting('privacy_policy_url')"
-              class="text-primary"
+              class="link-color"
             >
               <small>{{ $t('app.footer.privacy_policy') }}</small>
             </a>
@@ -33,7 +33,7 @@
           <div>
             <small v-if="!getSetting('whitelabel')">
               <a
-                class="text-primary"
+                class="link-color"
                 href="https://github.com/THM-Health/PILOS"
                 target="_blank"
               ><raw-text>PILOS</raw-text></a>

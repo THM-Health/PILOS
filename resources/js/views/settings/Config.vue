@@ -8,10 +8,14 @@
         </div>
       </template>
 
+      <h2>
+        {{ $t('settings.application.title') }}
+      </h2>
+
       <form
         @submit.prevent="updateSettings"
       >
-        <h4 class="text-xl">{{ $t('settings.application.title') }}</h4>
+        <h4 class="text-xl">{{ $t('settings.application.application') }}</h4>
 
         <div class="grid">
           <label for="application-name" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.name.title')}}</label>
@@ -792,7 +796,7 @@ const disabled = computed(() => {
 });
 
 const viewOnly = computed(() => {
-  return !userPermissions.can('update', 'ApplicationSettingPolicy');
+  return !userPermissions.can('update', 'ConfigPolicy');
 });
 
 /**

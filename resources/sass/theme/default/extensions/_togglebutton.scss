@@ -9,7 +9,6 @@
         &::before {
             content: '';
             background-color: transparent;
-            transition: $formElementTransition;
             position: absolute;
             left: .25rem;
             top: .25rem;
@@ -21,9 +20,13 @@
 
     &.p-highlight {
         .p-button {
+            .p-button-label {
+                color: $buttonTextColor;
+            }
+
             &::before {
-                background: $shade000;
-                border-color: $shade000;
+                background: $buttonBg;
+                border-color: $buttonBg;
                 box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.02), 0px 1px 2px 0px rgba(0, 0, 0, 0.04);
             }
         }

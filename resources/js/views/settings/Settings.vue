@@ -1,17 +1,20 @@
 <template>
   <div class="container mt-3 mb-5">
-    <h1>
+    <div class="flex flex-row align-items-center gap-4">
       <router-link
         v-if="$route.name!=='settings'"
         v-tooltip="$t('settings.home_button')"
         :aria-label="$t('settings.home_button')"
-        class="p-button p-button-secondary mr-3"
+        class="p-button p-button-icon-only p-button-secondary"
         :to="{ name: 'settings'}"
       >
         <i class="fa-solid fa-arrow-left" />
       </router-link>
-      {{ $t('settings.title') }}
-    </h1>
+      <h1 class="m-0 text-3xl text-color">
+        {{ $t('settings.title') }}
+      </h1>
+    </div>
+
     <Divider/>
     <Card
       :pt="{content:{class:'p-0'}}"
@@ -22,3 +25,5 @@
     </Card>
   </div>
 </template>
+<script setup>
+</script>

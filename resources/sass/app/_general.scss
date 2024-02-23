@@ -1,29 +1,85 @@
-html {
-    position: relative;
-    min-height: 100%;
+body {
+    background-color: var(--surface-ground);
+}
+
+
+html, body, #app, #app > .overlay-wrap {
+    height: 100%;
 }
 
 body {
-    margin-bottom: $footer-height;
+    margin: 0;
 }
 
-.footer {
-    height: $footer-height;
-    position: absolute;
-    bottom: 0;
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+header {
+    flex-shrink: 0;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+
+
+.container {
     width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto
 }
 
-.custom-select:disabled {
-    color: $input-color;
-    opacity: 1;
-}
-.collapsed > .when-open,
-.not-collapsed > .when-closed {
-    display: none;
+@media (min-width: 576px) {
+    .container {
+        max-width:540px
+    }
 }
 
+@media (min-width: 768px) {
+    .container {
+        max-width:720px
+    }
+}
 
-.is-invalid .ProseMirror{
-    border-color: $danger;
+@media (min-width: 992px) {
+    .container {
+        max-width:960px
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width:1140px
+    }
+}
+
+fieldset:not(.p-fieldset) {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+legend:not(.p-fieldset-legend) {
+    float: left;
+    padding: 0;
+}
+
+a:-webkit-any-link,
+a:any-link {
+    text-decoration: none;
+}
+
+a.link-color,
+.link-color a{
+    color: $linkColor;
 }

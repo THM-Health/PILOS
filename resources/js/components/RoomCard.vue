@@ -3,7 +3,7 @@
     <!-- room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative"
+      class="room-card h-full relative bg-white border-1 border-300 border-round shadow-none hover:shadow-2"
       :class="{'room-card--running': running}"
       @click="open"
       @keyup.enter="open"
@@ -29,7 +29,7 @@
               </div>
             </div>
             <p
-              class="mt-2 text-break font-bold"
+              class="mt-2 text-break font-bold text-color"
               style="width: 100% "
             >
               {{ props.room.name }}

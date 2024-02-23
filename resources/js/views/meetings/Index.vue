@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-5 mb-5">
     <Card>
-      <template #title>{{ $t('meetings.currently_running') }}</template>
+      <template #title><h1 class="m-0 text-3xl">{{ $t('meetings.currently_running') }}</h1></template>
 
       <template #content>
 

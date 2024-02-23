@@ -1,9 +1,9 @@
 <template>
   <div>
     <Button
-      class="p-button-block"
       :disabled="props.disabled"
       @click="modalVisible = true"
+      severity="success"
       icon="fa-solid fa-plus"
       :label="$t('rooms.create.title')"
     />

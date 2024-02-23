@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white pt-5 mt-2 mb-5">
     <div class="surface-section container text-center">
-        <div class="mb-3 font-bold text-3xl">
+        <div class="mb-3 font-bold text-color text-3xl">
             <span>{{ $t('home.possibilities.title') }}</span>
         </div>
         <div class="grid">
@@ -10,8 +10,8 @@
                 <span class="p-3 shadow-2 mb-3 inline-block bg-primary" style="border-radius: 10px">
                     <i class="fa-solid text-4xl" :class="'fa-'+item.icon"></i>
                 </span>
-                <div class="text-900 text-xl mb-3 font-medium">{{ item.title }}</div>
-                <span class="text-700 line-height-3">{{ item.description }}</span>
+                <div class="text-color text-xl mb-3 font-bold">{{ item.title }}</div>
+                <span class="text-color line-height-3">{{ item.description }}</span>
             </div>
         </div>
     </div>

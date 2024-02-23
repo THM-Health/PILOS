@@ -17,7 +17,7 @@ $color-contrast-dark:      $black !default;
 $color-contrast-light:     $white !default;
 
 // Body background
-$bodyBg: #f8fafc;
+$bodyBg: #edf1f6;
 
 // Colors
 $blue: #2980b9;
@@ -27,12 +27,12 @@ $green: #27ae60;
 $purple: #8e44ad;
 
 // Branding color
-$primary: #3BBC9C;
-$link-color: $primary;
+$primary: #0b9383;
+$linkColor: $primary;
 
 // Recommended to use a black/grey, color is used for some buttons and most text
-$secondary: #2C3E50;
-$body-color: $secondary;
+$secondary: #3a4d5d;
+$textColor: $secondary;
 
 // Semantic colors
 $success: $green;
@@ -41,19 +41,18 @@ $warning: $orange;
 $danger: $red;
 $help: $purple;
 
-@import 'functions';
+@import '../../app/functions';
 
 $primaryColor: $primary !default;
-$primaryLightColor: #a7f3d0 !default;
-$primaryDarkColor: #059669 !default;
-$primaryDarkerColor: #047857 !default;
-$primaryTextColor: #ffffff !default;
+$primaryLightColor: tint-color($primaryColor, 20%) !default;
+$primaryDarkColor: shade-color($primaryColor, 20%) !default;
+$primaryDarkerColor: shade-color($primaryColor, 40%) !default;
+$primaryTextColor: color-contrast($primaryColor) !default;
 
 $highlightBg: #F0FDFA !default;
 $highlightTextColor: $primaryDarkerColor !default;
 $highlightFocusBg: rgba($primaryColor, .24) !default;
 
-//$borderRadius: 0px;
 
 // Typography
 @import './_fonts';
@@ -64,11 +63,7 @@ $fontFamily: SourceSansPro, sans-serif;
 @import "streched-link";
 @import 'primeflex/primeflex.css';
 
-@import '../../app/_variables';
-@import '../../app/_room';
-@import '../../app/_profile-image';
-@import '../../app/_action-column';
-@import "../../app/_color-select";
+@import '../../app/app';
 
 // Font Awesome
 $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
@@ -77,325 +72,5 @@ $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
 
 // Vue Multi-Select
 @import "vue-multiselect/dist/vue-multiselect.css";
-@import "../../override/multiselect";
 
-
-// Height of footer
-$footer-height: 25px !default;
-
-body {
-    background-color: var(--surface-ground);
-}
-
-
-html, body, #app, #app > .overlay-wrap {
-    height: 100%;
-}
-
-body {
-    margin: 0;
-}
-
-.app {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-header {
-    flex-shrink: 0;
-}
-
-main {
-    flex: 1 0 auto;
-}
-
-footer {
-    flex-shrink: 0;
-}
-
-
-.container {
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto
-}
-
-@media (min-width: 576px) {
-    .container {
-        max-width:540px
-    }
-}
-
-@media (min-width: 768px) {
-    .container {
-        max-width:720px
-    }
-}
-
-@media (min-width: 992px) {
-    .container {
-        max-width:960px
-    }
-}
-
-@media (min-width: 1200px) {
-    .container {
-        max-width:1140px
-    }
-}
-
-.overlay-spinner {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-    z-index: 1102; /* this seems to work for me but may need to be higher*/
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-a:-webkit-any-link,
-a:any-link {
-    text-decoration: none;
-}
-
-
-.p-inputswitch, .p-inputswitch-slider {
-    width: 1.75rem;
-    height: 1rem;
-}
-.p-inputswitch .p-inputswitch-slider {
-    border-radius: 30px;
-}
-.p-inputswitch .p-inputswitch-slider:before {
-    width: calc(1rem - 4px);
-    height: calc(1rem - 4px);
-    left: 2px;
-    margin-top: calc(-0.5rem + 2px);
-    border-radius: 50%;
-    transition-duration: 0.2s;
-}
-.p-inputswitch.p-highlight .p-inputswitch-slider:before {
-    transform: translateX(calc(1rem - 4px - 2px));
-}
-
-.p-error {
-    margin: 0;
-
-    ul{
-        margin: 0;
-        padding: 0 1.5rem;
-    }
-}
-
-.p-tabview-header-action-button {
-    padding: 0.75rem;
-}
-
-.p-button-block{
-    display: flex;
-    justify-content: center;
-    width: 100%;
-
-    .p-button-label {
-        flex: none;
-    }
-}
-
-.p-toast-message-text {
-
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-
-    .p-toast-detail {
-        margin: 0;
-    }
-}
-
-
-.p-avatar {
-    font-size: 0.85rem;
-
-    &.p-avatar-lg {
-        font-size: 1.25rem;
-    }
-
-    &.p-avatar-xl {
-        font-size: 1.85rem;
-    }
-
-    .p-avatar-text {
-        user-select: none;
-        -webkit-user-select: none;
-    }
-}
-
-.p-tabview {
-    .p-tabview-ink-bar {
-        display: none !important;
-    }
-
-    .p-tabview-header {
-        border-bottom: 3px solid #e2e8f0;
-
-        &.p-highlight {
-            border-bottom: 3px solid $primaryColor;
-        }
-    }
-
-
-
-    .p-tabview-nav {
-        border: none;
-
-        li {
-            flex-grow: 1;
-            text-align: center;
-            display: flex;
-
-            .p-tabview-nav-link {
-                border: none;
-            }
-
-            a {
-                flex-grow: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-            }
-        }
-    }
-
-}
-
-
-.room-tabs {
-    .p-tabview-nav {
-        display: flex;
-        flex-wrap: wrap;
-
-        .p-tabview-header-action {
-            border-radius: 0;
-            padding: 0.5rem 1rem;
-            margin-top:10px;
-        }
-    }
-}
-
-.p-paginator .p-paginator-pages .p-paginator-page {
-    min-width: 2rem;
-    height: 2rem;
-}
-
-a[data-target="safeLink"] {
-    color: $primaryColor;
-    text-decoration: underline;
-    cursor: pointer;
-    &:hover {
-        color: $primaryDarkColor;
-    }
-}
-
-.p-dialog-content {
-    overflow-y: visible;
-}
-
-.p-dialog-mask {
-    overflow-y: scroll;
-}
-.room-bulk-import-preview {
-    .p-disabled {
-        opacity: 1;
-    }
-}
-
-.p-menubar-mobile {
-    justify-content: space-between;
-    width: 100%;
-}
-
-.main-menu-right {
-    .user-avatar {
-        > .p-menuitem-content {
-            > .p-menuitem-link {
-                padding: 0.25rem 0.5rem !important;
-            }
-        }
-    }
-
-    .p-menuitem-content, .p-menuitem-link {
-        height: 100%;
-    }
-}
-
-.p-password-input{
-    width: 100%;
-}
-
-.p-fileupload-choose.p-invalid {
-    outline: $danger solid 1px;
-}
-
-fieldset:not(.p-fieldset) {
-    min-width: 0;
-    padding: 0;
-    margin: 0;
-    border: 0;
-}
-legend:not(.p-fieldset-legend) {
-    float: left;
-    padding: 0;
-}
-
-.p-dropdown-clear{
-    color: $inputIconColor;
-    padding: 0 0.25rem;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    &:hover {
-        color: $inputTextColor;
-    }
-}
-
-.p-dropdown.p-dropdown-clearable .p-dropdown-label {
-    padding: $inputPadding;
-}
-
-.room-type-badge {
-    white-space: normal;
-    color: #FFF;
-}
-
-.room-role-badge {
-    white-space: normal;
-    color: #FFF;
-
-    &.room-role-guest {
-        background-color: $info;
-    }
-
-    &.room-role-participant {
-        background-color: $success;
-    }
-
-    &.room-role-moderator {
-        background-color: $danger;
-    }
-
-    &.room-role-co-owner {
-        background-color: $secondary;
-    }
-}
+@import "../../override/override";

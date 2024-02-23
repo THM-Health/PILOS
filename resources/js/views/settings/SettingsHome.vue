@@ -6,15 +6,15 @@
     <div class="grid mt-1">
       <Can
         method="viewAny"
-        policy="ApplicationSettingPolicy"
+        policy="ConfigPolicy"
       >
         <div class="col-12 md:col-4 lg:col-4 sm:col-6 p-2">
           <router-link
-            :to="{ name: 'settings.application' }"
+            :to="{ name: 'settings.config' }"
           >
             <Card
               :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-              class="h-full relative border-1 border-200 border-round shadow-none hover:shadow-2"
+              class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
             >
               <template #title>
                 <h2 class="m-0">
@@ -41,7 +41,7 @@
           >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border-1 border-200 border-round shadow-none hover:shadow-2"
+            class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -68,7 +68,7 @@
           >
             <Card
               :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-              class="h-full relative border-1 border-200 border-round shadow-none hover:shadow-2"
+              class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
             >
               <template #title>
                 <h2 class="m-0">
@@ -95,7 +95,7 @@
           >
             <Card
               :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-              class="h-full relative border-1 border-200 border-round shadow-none hover:shadow-2"
+              class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
             >
               <template #title>
                 <h2 class="m-0">
@@ -122,7 +122,7 @@
           >
             <Card
               :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-              class="h-full relative border-1 border-200 border-round shadow-none hover:shadow-2"
+              class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
             >
               <template #title>
                 <h2 class="m-0">
@@ -149,7 +149,7 @@
           >
             <Card
               :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-              class="h-full relative border-1 border-200 border-round shadow-none hover:shadow-2"
+              class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
             >
               <template #title>
                 <h2 class="m-0">

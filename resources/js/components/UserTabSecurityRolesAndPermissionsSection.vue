@@ -8,7 +8,7 @@
           <RoleSelect
             id="roles"
             v-model="model.roles"
-            :invalid="formErrors.fieldInvalid('roles', true) === false"
+            :invalid="formErrors.fieldInvalid('roles', true)"
             :disabled="isBusy || viewOnly || !userPermissions.can('editUserRole', model)"
             :disabled-roles="disabledRoles"
             @loading-error="(value) => rolesLoadingError = value"

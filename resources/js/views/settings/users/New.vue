@@ -92,7 +92,7 @@
                 <role-select
                   id="roles"
                   v-model="model.roles"
-                  :invalid="formErrors.fieldInvalid('roles', true)===false"
+                  :invalid="formErrors.fieldInvalid('roles', true)"
                   :disabled="isBusy"
                   @loading-error="(value) => rolesLoadingError = value"
                   @busy="(value) => rolesLoading = value"

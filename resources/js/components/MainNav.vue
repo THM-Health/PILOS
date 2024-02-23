@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white py-2">
+  <div class="bg-white py-2 border-bottom-1 border-300">
     <div class="container flex flex-row justify-content-between">
       <Menubar
         :breakpoint="menuBreakpoint+'px'"

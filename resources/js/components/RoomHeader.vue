@@ -32,9 +32,9 @@ const emit = defineEmits(['reload']);
     <div class="flex-grow-1">
       <!-- Display room type, name and owner  -->
       <RoomTypeBadge :room-type="props.room.type" />
-      <h2 class="h2 mt-2 roomname">
+      <h1 class="text-3xl mt-2 roomname text-color">
         {{ props.room.name }}
-      </h2>
+      </h1>
 
       <RoomDetailsList
         :room="props.room"
