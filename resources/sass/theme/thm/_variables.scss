@@ -1,37 +1,42 @@
 // Overrides variables of app/variables and bootstrap
 
 // Body background
-$body-bg: #f8fafc;
+$bodyBg: #edf1f6;
 
 // Colors
+$purple: #8e44ad;
+$indigo: #6366F1;
 $blue: #3490dc;
+$cyan: #06B6D4;
 $red: #9C132E;
 $orange: #F4AA00;
+$yellow: #EAB308;
 $green: #80BA27;
+$pink: #EC4899;
+$teal: #0b9383;
+$bluegray: #4a5c66;
 
 // Branding color
 $primary: $green;
-$link-color: $green;
-
-// Recommended to use a black/grey, color is used for some buttons and most text
-$secondary: #343a40;
-$body-color: $secondary;
+$secondary: $bluegray;
 
 // Semantic colors
 $success: $green;
 $info: $blue;
 $warning: $orange;
 $danger: $red;
+$help: $purple;
+$contrast: #020617FF;
 
-// Overwrite button and badge text color, by default automatically set to a light or dark color
-// depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
-$text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
+$linkColor: $primary;
 
-// Elements to have rounded edges
-$enable-rounded: false;
+// Elements to have sharp edges
+$enableRounded: false;
 
-// Show red indicator if room is closed/not running
-$showRoomClosedIndicator: false;
+// Overwrite button color
+$primaryTextColor: #FFF;
+$successButtonTextColor: #FFF;
 
-// Typography
-$font-family-sans-serif: 'Source Sans Pro', sans-serif;
+// Fonts
+$fontFamily: "SourceSansPro", sans-serif;
+$fontFeatureSettings: normal !default;
