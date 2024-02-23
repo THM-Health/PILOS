@@ -164,7 +164,6 @@ function onPage (event) {
 }
 
 function onSort () {
-  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }

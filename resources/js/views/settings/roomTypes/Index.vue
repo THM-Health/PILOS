@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-start">
+    <div class="flex justify-content-between align-items-center">
       <h2>{{ $t('app.room_types') }}</h2>
       <router-link
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
