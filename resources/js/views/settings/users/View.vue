@@ -3,7 +3,6 @@
     <h2>
       {{ viewOnly ? $t('settings.users.view', { firstname: firstname, lastname: lastname }) : $t('settings.users.edit', { firstname: firstname, lastname: lastname }) }}
     </h2>
-    <Divider/>
 
     <UserTabSection
       :id="id"

@@ -1,48 +1,42 @@
 <template>
   <div>
-    <div class="grid">
-      <div class="col">
-        <h2>
-          {{ $t('app.users') }}
-        </h2>
-      </div>
-      <div class="col flex justify-content-end align-items-center">
-          <router-link
-            v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
-            ref="new-user-button"
-            v-tooltip.left="$t('settings.users.new')"
-            class="p-button p-button-success"
-            :to="{ name: 'settings.users.new' }"
-          >
-            <i class="fa-solid fa-plus" />
-          </router-link>
-      </div>
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.users') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
+        ref="new-user-button"
+        v-tooltip.left="$t('settings.users.new')"
+        class="p-button p-button-success p-button-icon-only"
+        :to="{ name: 'settings.users.new' }"
+      >
+        <i class="fa-solid fa-plus" />
+      </router-link>
     </div>
 
     <div class="grid">
-      <div
-        class="col-12 sm:col-12 md:col-4"
-      >
-        <InputGroup>
-          <InputText
-            v-model="filter.name"
-            :disabled="isBusy"
-            :placeholder="$t('app.search')"
-            @change="loadData"
-          />
-          <Button
-            :disabled="isBusy"
-            @click="loadData"
-            v-tooltip="$t('app.search')"
-            :aria-label="$t('app.search')"
-            icon="fa-solid fa-magnifying-glass"
-          ></Button>
-        </InputGroup>
+      <div class="col flex flex-column md:flex-row md:align-content-center">
+        <div>
+          <InputGroup>
+            <InputText
+              v-model="filter.name"
+              :disabled="isBusy"
+              :placeholder="$t('app.search')"
+              @keyup.enter="loadData"
+            />
+            <Button
+              :disabled="isBusy"
+              @click="loadData"
+              v-tooltip="$t('app.search')"
+              :aria-label="$t('app.search')"
+              icon="fa-solid fa-magnifying-glass"
+            ></Button>
+          </InputGroup>
+        </div>
       </div>
 
-      <div
-        class="col-12 sm:col-12 md:col-4 md:col-offset-4"
-      >
+      <div class="col-12 sm:col-12 md:col-4 md:col-offset-4">
         <InputGroup>
           <multiselect
             id="roles"
@@ -117,7 +111,6 @@
     </div>
     <Divider/>
 
-<!--    ToDo find solution for mobile devices responsiveLayout="stack" deprecated and breakpoint doesnt seem to work-->
     <DataTable
       :totalRecords="meta.total"
       :rows="meta.per_page"
@@ -131,7 +124,6 @@
       v-model:sortOrder="sortOrder"
       @page="onPage"
       @sort="onSort"
-      responsiveLayout="stack"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
@@ -145,16 +137,34 @@
       </template>
 
 <!--      ToDo fix Column size-->
-      <Column field="id" :header="$t('app.id')" sortable></Column>
-      <Column field="firstname" :header="$t('app.firstname')" sortable></Column>
-      <Column field="lastname" :header="$t('app.lastname')" sortable></Column>
-      <Column field="email" :header="$t('settings.users.email')" sortable></Column>
-      <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable>
+      <Column field="id" :header="$t('app.id')" sortable style="width: 1px"/>
+      <Column field="firstname" :header="$t('app.firstname')" sortable style="max-width: 200px">
+        <template #body="slotProps">
+          <TextTruncate>
+            {{slotProps.data.firstname}}
+          </TextTruncate>
+        </template>
+      </Column>
+      <Column field="lastname" :header="$t('app.lastname')" sortable style="max-width: 200px">
+        <template #body="slotProps">
+          <TextTruncate>
+            {{slotProps.data.lastname}}
+          </TextTruncate>
+        </template>
+      </Column>
+      <Column field="email" :header="$t('settings.users.email')" sortable style="max-width: 200px">
+        <template #body="slotProps">
+          <TextTruncate>
+            {{slotProps.data.email}}
+          </TextTruncate>
+        </template>
+      </Column>
+      <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable style="width: 1px">
         <template #body="slotProps">
           {{ $t(`settings.users.authenticator.${slotProps.data.authenticator}`) }}
         </template>
       </Column>
-      <Column field="roles" :header="$t('app.roles')">
+      <Column field="roles" :header="$t('app.roles')" style="max-width: 200px">
         <template #body="slotProps">
           <text-truncate
             v-for="role in slotProps.data.roles"
@@ -204,10 +214,6 @@
           </div>
         </template>
       </Column>
-<!--      ToDo check if needed-->
-<!--      <template #emptyfiltered>-->
-<!--        <i>{{ $t('settings.users.no_data_filtered') }}</i>-->
-<!--      </template>-->
     </DataTable>
   </div>
 </template>
@@ -321,7 +327,6 @@ function onPage (event) {
 }
 
 function onSort () {
-  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }
