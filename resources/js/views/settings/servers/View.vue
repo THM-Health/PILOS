@@ -19,21 +19,19 @@
         :aria-hidden="modelLoadingError"
         @submit.prevent="saveServer"
       >
-        <!--Todo check if needed-->
-        <div class="container container-fluid">
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="name">{{ $t('app.model_name') }}</label>
-            <div class="col-12 md:col-8">
-              <InputText
-                id="name"
-                v-model="model.name"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-                :invalid="formErrors.fieldInvalid('name')"
-                class="w-full"
-                type="text"
-              />
-              <p class="p-error" v-html="formErrors.fieldError('name')"></p>
-            </div>
+        <div class="field grid">
+          <label class="col-12 md:col-4 md:mb-0" for="name">{{ $t('app.model_name') }}</label>
+          <div class="col-12 md:col-8">
+            <InputText
+              id="name"
+              v-model="model.name"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              :invalid="formErrors.fieldInvalid('name')"
+              class="w-full"
+              type="text"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+          </div>
           </div>
           <div class="field grid">
             <label class="col-12 md:col-4 md:mb-0" for="description">{{ $t('app.description') }}</label>
@@ -66,6 +64,7 @@
             <div class="col-12 md:col-8">
               <InputText
                 id="base_url"
+                autocomplete="off"
                 v-model="model.base_url"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 :invalid="formErrors.fieldInvalid('base_url')"
@@ -78,49 +77,34 @@
           <div class="field grid">
             <label class="col-12 md:col-4 md:mb-0" for="secret">{{ $t('settings.servers.secret') }}</label>
             <div class="col-12 md:col-8">
-              <InputGroup>
-                <!--Todo switch to Password?-->
-                <InputText
-                  id="secret"
-                  v-model="model.secret"
-                  :disabled="isBusy || modelLoadingError || viewOnly"
-                  :invalid="formErrors.fieldInvalid('secret')"
-                  :type="hideSecret ? 'password': 'text'"
-                />
-                <Button
-                  v-tooltip="hideSecret ? $t('settings.servers.show_secret') : $t('settings.servers.hide_secret')"
-                  :aria-label="hideSecret ? $t('settings.servers.show_secret') : $t('settings.servers.hide_secret')"
-                  :disabled="isBusy || modelLoadingError"
-                  severity="secondary"
-                  @click="hideSecret = !hideSecret"
-                >
-                  <i
-                    v-if="hideSecret"
-                    class="fa-solid fa-eye"
-                  /><i
-                  v-else
-                  class="fa-solid fa-eye-slash"
-                />
-                </Button>
-              </InputGroup>
+              <Password
+                class="w-full"
+                id="secret"
+                :inputProps="{ autocomplete: 'off' }"
+                v-model="model.secret"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :invalid="formErrors.fieldInvalid('secret')"
+                :feedback="false"
+                :toggleMask="true"
+              />
               <p class="p-error" v-html="formErrors.fieldError('secret')"></p>
             </div>
           </div>
           <div class="field grid">
             <label class="col-12 md:col-4 md:mb-0" for="strength">{{
-                $t('settings.servers.strength_description')
+                $t('settings.servers.strength')
               }}</label>
             <div class="col-12 md:col-8">
-              <!--ToDo Improve -->
-              <Rating
-                id="strength"
-                v-model="model.strength"
-                :cancel="false"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-                :invalid="formErrors.fieldInvalid('strength')"
-                :stars="10"
-                aria-describedby="strength-help"
-                class="m-3"
+                <Rating
+                  id="strength"
+                  v-model="model.strength"
+                  :cancel="false"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                  :invalid="formErrors.fieldInvalid('strength')"
+                  :stars="10"
+                  aria-describedby="strength-help"
+                  class="border-1 border-300 border-round px-4 py-3 flex justify-content-between"
+
               />
               <small id="strength-help">{{ $t('settings.servers.strength_description') }}</small>
               <p class="p-error" v-html="formErrors.fieldError('strength')"></p>
@@ -164,10 +148,9 @@
                   @click="testConnection()"
                 ></Button>
               </InputGroup>
-              <!--ToDo improve-->
-              <small v-if="offlineReason">
+              <p v-if="offlineReason" class="p-error">
                 {{ $t('settings.servers.offline_reason.' + offlineReason) }}
-              </small>
+              </p>
             </div>
           </div>
           <Divider/>
@@ -189,12 +172,10 @@
               type="submit"
             ></Button>
           </div>
-        </div>
       </form>
       <div
         v-if="!modelLoadingError && viewOnly && !model.disabled && model.id!==null"
-        ref="currentUsage"
-        class="container container-fluid mt-5"
+        class="mt-3"
       >
         <div class="grid">
           <div class="col-12 md:col">
@@ -321,7 +302,6 @@ const model = ref({
   id: null,
   disabled: false
 });
-const hideSecret = ref(true);
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);

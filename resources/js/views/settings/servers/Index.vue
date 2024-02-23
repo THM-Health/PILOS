@@ -1,40 +1,45 @@
 <template>
   <div>
-    <div class="grid">
-      <div class="col">
-        <h2>
-          {{ $t('app.servers') }}
-        </h2>
-      </div>
-      <div class="col flex justify-content-end align-items-center">
-        <router-link
-          v-if="userPermissions.can('create', 'ServerPolicy')"
-          v-tooltip="$t('settings.servers.new')"
-          :aria-label="$t('settings.servers.new')"
-          :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
-          class="p-button p-button-success"
-        >
-          <i class="fa-solid fa-plus"/>
-        </router-link>
-      </div>
-      <div class="col-12 md:col-3 flex align-items-center">
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.servers') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'ServerPolicy')"
+        v-tooltip="$t('settings.servers.new')"
+        :aria-label="$t('settings.servers.new')"
+        :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
+        class="p-button p-button-icon-only p-button-success"
+      >
+        <i class="fa-solid fa-plus"/>
+      </router-link>
+    </div>
+
+    <div class="flex flex-column md:flex-row md:align-items-center justify-content-between gap-2">
+      <div>
         <InputGroup>
-          <!--ToDo debounce???-->
           <InputText
             v-model="filter"
             :placeholder="$t('app.search')"
-            @change="loadData"
+            @keyup.enter="loadData()"
           />
           <Button
             v-tooltip="$t('app.search')"
             :aria-label="$t('app.search')"
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
-            @click="loadData"
+            @click="loadData()"
           >
           </Button>
         </InputGroup>
       </div>
+        <Button
+          :disabled="isBusy"
+          severity="info"
+          @click="loadData(true);"
+          icon="fa-solid fa-repeat"
+          :label="$t('settings.servers.reload')"
+        />
     </div>
     <Divider/>
     <DataTable
@@ -52,7 +57,7 @@
       @sort="onSort"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData"/>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()"/>
       </template>
       <!-- Show message on empty server list -->
       <template #empty>
@@ -63,14 +68,15 @@
       </template>
 
       <Column :header="$t('app.id')" field="id" sortable style="width: 8%"></Column>
-      <Column :header="$t('app.model_name')" field="name" sortable>
+<!--      ToDo fix Column size-->
+      <Column :header="$t('app.model_name')" field="name" sortable style="max-width: 100px">
         <template #body="slotProps">
           <text-truncate>
             {{ slotProps.data.name }}
           </text-truncate>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.status')" field="status" sortable style="width: 10%">
+      <Column :header="$t('settings.servers.status')" field="status" sortable style="width: 1px">
         <template #body="slotProps">
           <Tag
             v-if="slotProps.data.status === -1"
@@ -101,7 +107,7 @@
           </Tag>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.version')" field="version" sortable style="width: 10%">
+      <Column :header="$t('settings.servers.version')" field="version" sortable style="width: 1px">
         <template #body="slotProps">
           <span v-if="slotProps.data.version !== null">{{ slotProps.data.version }}</span>
           <raw-text v-else>
@@ -109,7 +115,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.meeting_count')" field="meeting_count" sortable style="width: 15%">
+      <Column :header="$t('settings.servers.meeting_count')" field="meeting_count" sortable style="width: 1px">
         <template #body="slotProps">
           <span v-if="slotProps.data.meeting_count !== null">{{ slotProps.data.meeting_count }}</span>
           <raw-text v-else>
@@ -117,7 +123,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.participant_count')" field="participant_count" sortable style="width: 15%">
+      <Column :header="$t('settings.servers.participant_count')" field="participant_count" sortable style="width: 1px">
         <template #body="slotProps">
           <span v-if="slotProps.data.participant_count !== null">{{ slotProps.data.participant_count }}</span>
           <raw-text v-else>
@@ -125,7 +131,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.video_count')" field="video_count" sortable style="width: 15%">
+      <Column :header="$t('settings.servers.video_count')" field="video_count" sortable style="width: 1px">
         <template #body="slotProps">
           <span v-if="slotProps.data.video_count !== null">{{ slotProps.data.video_count }}</span>
           <raw-text v-else>
@@ -158,26 +164,15 @@
               v-if="userPermissions.can('delete', slotProps.data) && slotProps.data.status===-1"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
-              @deleted="loadData"
+              @deleted="loadData()"
             ></SettingsServersDeleteButton>
           </div>
         </template>
       </Column>
     </DataTable>
 
-    <!--      ToDo find better solution???-->
     <InlineNote severity="info" class="mt-2 w-full">
-<!--      <i class="fa-solid fa-info-circle"/>-->
       {{ $t('settings.servers.usage_info') }}
-      <br><br>
-      <Button
-        :disabled="isBusy"
-        size="sm"
-        severity="info"
-        @click="updateUsage=true;loadData();"
-      >
-        <i class="fa-solid fa-sync"/> {{ $t('settings.servers.reload') }}
-      </Button>
     </InlineNote>
   </div>
 </template>
@@ -205,7 +200,6 @@ const meta = ref({
   total: 0
 });
 const filter = ref(undefined);
-const updateUsage = ref(false);
 
 onMounted(() => {
   loadData();
@@ -215,13 +209,13 @@ onMounted(() => {
  * Loads the servers from the backend
  *
  */
-function loadData () {
+function loadData (updateUsage = false) {
   isBusy.value = true;
   loadingError.value = false;
   const config = {
     params: {
       page: currentPage.value,
-      update_sage: updateUsage.value,
+      update_usage: updateUsage,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       name: filter.value
@@ -236,7 +230,6 @@ function loadData () {
     loadingError.value = true;
   }).finally(() => {
     isBusy.value = false;
-    updateUsage.value = false;
   });
 }
 
@@ -246,7 +239,6 @@ function onPage (event) {
 }
 
 function onSort () {
-  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }

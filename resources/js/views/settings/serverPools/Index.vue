@@ -1,41 +1,39 @@
 <template>
   <div>
-    <div class="grid">
-      <div class="col">
-        <h2>
-          {{ $t('app.server_pools') }}
-        </h2>
-      </div>
-      <div class="col flex justify-content-end align-items-center">
-        <router-link
-          v-if="userPermissions.can('create', 'ServerPolicy')"
-          v-tooltip.left="$t('settings.server_pools.new')"
-          :aria-label="$t('settings.server_pools.new')"
-          :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
-          class="p-button p-button-success"
-        >
-          <i class="fa-solid fa-plus"/>
-        </router-link>
-      </div>
-      <div class="col-12 md:col-3 flex align-items-center">
-        <InputGroup>
-          <!--ToDo debounce???-->
-          <InputText
-            v-model="filter"
-            :placeholder="$t('app.search')"
-            @change="loadData"
-          />
-          <Button
-            v-tooltip="$t('app.search')"
-            :aria-label="$t('app.search')"
-            severity="primary"
-            @click="loadData"
-            icon="fa-solid fa.magnifying-glass"
-          >
-          </Button>
-        </InputGroup>
-      </div>
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.server_pools') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'ServerPolicy')"
+        v-tooltip.left="$t('settings.server_pools.new')"
+        :aria-label="$t('settings.server_pools.new')"
+        :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
+        class="p-button p-button-success p-button-icon-only"
+      >
+        <i class="fa-solid fa-plus"/>
+      </router-link>
     </div>
+
+      <div class="flex flex-column md:flex-row md:align-items-center justify-content-between gap-2">
+        <div>
+          <InputGroup>
+            <InputText
+              v-model="filter"
+              :placeholder="$t('app.search')"
+              @keyup.enter="loadData"
+            />
+            <Button
+              v-tooltip="$t('app.search')"
+              :aria-label="$t('app.search')"
+              severity="primary"
+              @click="loadData"
+              icon="fa-solid fa-magnifying-glass"
+            >
+            </Button>
+          </InputGroup>
+        </div>
+      </div>
     <Divider/>
 
     <DataTable
