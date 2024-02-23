@@ -1,0 +1,19 @@
+.p-selectbutton {
+    .p-button {
+
+        &::before {
+            transition: none;
+        }
+
+        &.p-highlight {
+            .p-button-label {
+                color: $buttonTextColor;
+            }
+
+            &::before {
+                background: $buttonBg;
+                border-color: $buttonBg;
+            }
+        }
+    }
+}
