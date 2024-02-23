@@ -32,15 +32,14 @@
           aria-describedby="password-help-block"
           :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-        <small id="password-help-block">
-          <router-link
-            v-if="settingsStore.getSetting('password_change_allowed')"
-            class="text-primary"
-            to="/forgot_password"
-          >
-            {{ $t('auth.forgot_password') }}
-          </router-link>
-        </small>
+        <router-link
+          id="password-help-block"
+          v-if="settingsStore.getSetting('password_change_allowed')"
+          class="link-color link"
+          to="/forgot_password"
+        >
+          {{ $t('auth.forgot_password') }}
+        </router-link>
         <InlineMessage v-for="(error, index) in props.errors?.password" :key="index">
           {{ error }}
         </InlineMessage>

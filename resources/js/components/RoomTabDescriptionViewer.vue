@@ -55,6 +55,7 @@ onMounted(() => {
 function addSafeLinkListeners () {
   const safeLinks = roomDescription.value.querySelectorAll('[href]');
   safeLinks.forEach((link) => {
+    link.classList.add('link');
     link.addEventListener('click', (event) => {
       event.preventDefault();
       confirmOpenLink(link.getAttribute('href'));
