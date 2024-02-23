@@ -1,7 +1,7 @@
 <template>
   <Button
-    v-tooltip="$t('settings.roles.delete.item', { id: props.id })"
-    :aria-label="$t('settings.roles.delete.item', { id: props.id })"
+    v-tooltip="$t('settings.roles.delete.item', { id: props.name })"
+    :aria-label="$t('settings.roles.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
     @click="showDeleteModal"
