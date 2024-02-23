@@ -118,13 +118,10 @@
           <RoomHeader :room="room" :loading="loading" @reload="reload" :details-inline="true" />
           <div
             v-if="room.can_start && room.room_type_invalid"
-            class="row pt-2"
           >
-            <div class="col-lg-12 col-12">
-              <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">
-                {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
-              </Message>
-            </div>
+            <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">
+              {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
+            </Message>
           </div>
 
           <Divider />
