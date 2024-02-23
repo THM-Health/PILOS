@@ -116,7 +116,6 @@ watch(() => props.modelValue, (value) => {
   selectedRoles.value = value;
   disableRoles(selectedRoles.value);
 },
-// ToDo check if needed
 { deep: true }
 );
 
@@ -124,7 +123,6 @@ watch(() => props.disabledRoles, (value) => {
   disableRoles(selectedRoles.value);
   disableRoles(roles.value);
 },
-// Todo check if needed
 { deep: true }
 );
 
