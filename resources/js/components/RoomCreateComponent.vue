@@ -50,8 +50,8 @@
 
       <template #footer>
         <div class="flex justify-content-end gap-2">
-          <Button :label="$t('app.cancel')" outlined :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
-          <Button :label="$t('rooms.create.ok')" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
+          <Button :label="$t('app.cancel')" severity="secondary" :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
+          <Button :label="$t('rooms.create.ok')" severity="success" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
         </div>
       </template>
     </Dialog>

@@ -16,15 +16,17 @@
         </div>
       </div>
 
-      <Button
-        v-if="!viewOnly"
-        :disabled="isBusy"
-        severity="success"
-        type="submit"
-        :loading="isBusy"
-        icon="fa-solid fa-save"
-        :label="$t('app.save')"
-      />
+      <div class="flex justify-content-end">
+        <Button
+          v-if="!viewOnly"
+          :disabled="isBusy"
+          severity="success"
+          type="submit"
+          :loading="isBusy"
+          icon="fa-solid fa-save"
+          :label="$t('app.save')"
+        />
+      </div>
     </form>
   </div>
 </template>

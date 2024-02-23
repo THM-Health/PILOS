@@ -110,15 +110,17 @@
         </div>
       </div>
 
-      <Button
-        v-if="!viewOnly"
-        :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
-        type="submit"
-        severity="success"
-        :loading="isBusy"
-        icon="fa-solid fa-save"
-        :label="$t('app.save')"
-      />
+      <div class="flex justify-content-end">
+        <Button
+          v-if="!viewOnly"
+          :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
+          type="submit"
+          severity="success"
+          :loading="isBusy"
+          icon="fa-solid fa-save"
+          :label="$t('app.save')"
+        />
+      </div>
     </form>
   </div>
 </template>
