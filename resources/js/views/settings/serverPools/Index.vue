@@ -74,7 +74,7 @@
               :aria-la="$t('settings.server_pools.view', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-              class="p-button p-button-info"
+              class="p-button p-button-info p-button-icon-only"
             >
               <i class="fa-solid fa-eye"/>
             </router-link>
@@ -84,7 +84,7 @@
               :aria-label="$t('settings.server_pools.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id } }"
-              class="p-button p-button-secondary"
+              class="p-button p-button-secondary p-button-icon-only"
             >
               <i class="fa-solid fa-edit"/>
             </router-link>

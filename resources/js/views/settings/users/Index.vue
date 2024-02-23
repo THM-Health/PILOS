@@ -169,7 +169,7 @@
           <div class="flex flex-row gap-2">
                 <router-link
                   v-if="userPermissions.can('view', slotProps.data)"
-                  class="p-button p-button-info"
+                  class="p-button p-button-icon-only p-button-info"
                   v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
                   :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
                   :disabled="isBusy"
@@ -179,7 +179,7 @@
                 </router-link>
                 <router-link
                   v-if="userPermissions.can('update', slotProps.data)"
-                  class="p-button p-button-secondary"
+                  class="p-button p-button-icon-only p-button-secondary"
                   v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
                   :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
                   :disabled="isBusy"
