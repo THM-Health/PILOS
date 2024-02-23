@@ -29,7 +29,7 @@
             v-model="rawSearchQuery"
             :disabled="loadingRooms"
             :placeholder="$t('app.search')"
-            @change="loadRooms(1)"
+            @keyup.enter="loadRooms(1)"
           />
           <Button
             icon="fa-solid fa-magnifying-glass"

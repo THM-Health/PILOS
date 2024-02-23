@@ -13,6 +13,7 @@
             &::before {
                 background: $buttonBg;
                 border-color: $buttonBg;
+                border-radius: var(--border-radius);
             }
         }
     }

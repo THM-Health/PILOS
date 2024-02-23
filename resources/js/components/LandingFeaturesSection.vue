@@ -7,7 +7,7 @@
         <div class="grid">
 
             <div class="col-12 md:col-4 mb-4 px-5" v-for="(item, index) in items" :key="index">
-                <span class="p-3 shadow-2 mb-3 inline-block bg-primary" style="border-radius: 10px">
+                <span class="p-3 shadow-2 mb-3 inline-block bg-primary border-round">
                     <i class="fa-solid text-4xl" :class="'fa-'+item.icon"></i>
                 </span>
                 <div class="text-color text-xl mb-3 font-bold">{{ item.title }}</div>

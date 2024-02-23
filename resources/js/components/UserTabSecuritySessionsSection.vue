@@ -4,62 +4,64 @@
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="getSessions()" />
       </template>
-        <Panel
-          v-for="session in sessions"
-          :key="session.id"
-          class="mb-2"
-        >
-          <template #header>
-            <div class="flex align-items-center gap-2">
-              <i
-                v-if="session.user_agent.device.type === 'mobile'"
-                class="fa-solid fa-mobile-screen mr-2"
-              />
-              <i
-                v-else-if="session.user_agent.device.type === 'tablet'"
-                class="fa-solid fa-tablet-screen-button mr-2"
-              />
-              <i
-                v-else
-                class="fa-solid fa-display mr-2"
-              />
-              <span>{{ session.user_agent.os.name || $t('auth.sessions.unknown_agent') }}</span>
-            </div>
-          </template>
-
-          <template #icons>
-            <Tag
-              severity="secondary"
-              v-if="!session.current"
-              v-tooltip="$t('auth.sessions.last_active')"
-              icon="fa-solid fa-clock"
-              :value="$d(new Date( session.last_activity),'datetimeShort')"
+      <Panel
+        v-for="session in sessions"
+        :key="session.id"
+        class="mb-2"
+      >
+        <template #header>
+          <div class="flex align-items-center gap-2">
+            <i
+              v-if="session.user_agent.device.type === 'mobile'"
+              class="fa-solid fa-mobile-screen mr-2"
             />
-            <Tag
+            <i
+              v-else-if="session.user_agent.device.type === 'tablet'"
+              class="fa-solid fa-tablet-screen-button mr-2"
+            />
+            <i
               v-else
-              severity="primary"
-              :value="$t('auth.sessions.current')"
+              class="fa-solid fa-display mr-2"
             />
-          </template>
-          <p
-            v-if="session.user_agent.browser.name"
-            class="mb-1"
-          >
-            <strong>{{ $t('auth.sessions.browser') }}</strong> {{ session.user_agent.browser.name }}
-          </p>
-          <p>
-            <strong>{{ $t('auth.sessions.ip') }}</strong> {{ session.ip_address }}
-          </p>
-        </Panel>
-      <Button
-        severity="danger"
-        :disabled="loading || loadingError"
-        class="mt-3"
-        @click="deleteAllSessions"
-        :label="$t('auth.sessions.logout_all')"
-        icon="fa-solid fa-right-from-bracket"
-        :loading="loading"
-      />
+            <span>{{ session.user_agent.os.name || $t('auth.sessions.unknown_agent') }}</span>
+          </div>
+        </template>
+
+        <template #icons>
+          <Tag
+            severity="secondary"
+            v-if="!session.current"
+            v-tooltip="$t('auth.sessions.last_active')"
+            icon="fa-solid fa-clock"
+            :value="$d(new Date( session.last_activity),'datetimeShort')"
+          />
+          <Tag
+            v-else
+            severity="primary"
+            :value="$t('auth.sessions.current')"
+          />
+        </template>
+        <p
+          v-if="session.user_agent.browser.name"
+          class="mb-1"
+        >
+          <strong>{{ $t('auth.sessions.browser') }}</strong> {{ session.user_agent.browser.name }}
+        </p>
+        <p>
+          <strong>{{ $t('auth.sessions.ip') }}</strong> {{ session.ip_address }}
+        </p>
+      </Panel>
+      <div class="flex justify-content-end">
+        <Button
+          severity="danger"
+          :disabled="loading || loadingError"
+          class="mt-3"
+          @click="deleteAllSessions"
+          :label="$t('auth.sessions.logout_all')"
+          icon="fa-solid fa-right-from-bracket"
+          :loading="loading"
+        />
+      </div>
     </OverlayComponent>
   </div>
 </template>

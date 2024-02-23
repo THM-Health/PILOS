@@ -34,15 +34,17 @@
         </div>
       </div>
 
-      <Button
-        v-if="!viewOnly && userPermissions.can('updateAttributes', user)"
-        :disabled="isBusy"
-        severity="success"
-        type="submit"
-        :loading="isBusy"
-        :label="$t('auth.change_email')"
-        icon="fa-solid fa-save"
-      />
+      <div class="flex justify-content-end">
+        <Button
+          v-if="!viewOnly && userPermissions.can('updateAttributes', user)"
+          :disabled="isBusy"
+          severity="success"
+          type="submit"
+          :loading="isBusy"
+          :label="$t('auth.change_email')"
+          icon="fa-solid fa-save"
+        />
+      </div>
 
       <div v-if="validationRequiredEmail">
         <Message
@@ -52,6 +54,7 @@
           {{ $t('auth.send_email_confirm_mail', {email: validationRequiredEmail}) }}
         </Message>
       </div>
+
     </form>
   </div>
 </template>

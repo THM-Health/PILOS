@@ -1,13 +1,5 @@
 <template>
   <div>
-    <OverlayComponent :show="isBusy || modelLoadingError" :no-center="true">
-
-      <template #overlay>
-        <div class="flex justify-content-center mt-4">
-          <LoadingRetryButton :error="modelLoadingError" @click="getSettings" />
-        </div>
-      </template>
-
       <h2>
         {{ $t('settings.application.title') }}
       </h2>
@@ -15,6 +7,13 @@
       <form
         @submit.prevent="updateSettings"
       >
+        <OverlayComponent :show="isBusy || modelLoadingError" :no-center="true">
+          <template #overlay>
+            <div class="flex justify-content-center mt-4">
+              <LoadingRetryButton :error="modelLoadingError" @click="getSettings" />
+            </div>
+          </template>
+
         <h4 class="text-xl">{{ $t('settings.application.application') }}</h4>
 
         <div class="grid">
@@ -717,20 +716,20 @@
             />
           </div>
         </div>
+        </OverlayComponent>
 
-        <Button
-            v-if="!viewOnly"
-            id="application-save-button"
-            class="float-right mr-1 mb-1"
-            variant="success"
-            type="submit"
-            :disabled="disabled || timezonesLoadingError || timezonesLoading"
-            :loading="isBusy"
-            icon="fa-solid fa-save"
-            :label="$t('app.save')"
-          />
+        <div class="flex justify-content-end mt-2">
+          <Button
+              v-if="!viewOnly"
+              severity="success"
+              type="submit"
+              :disabled="disabled || timezonesLoadingError || timezonesLoading"
+              :loading="isBusy"
+              icon="fa-solid fa-save"
+              :label="$t('app.save')"
+            />
+        </div>
       </form>
-    </OverlayComponent>
   </div>
 </template>
 
@@ -745,7 +744,6 @@ import { useFormErrors } from '../../composables/useFormErrors.js';
 import { useUserPermissions } from '../../composables/useUserPermission.js';
 import { useI18n } from 'vue-i18n';
 
-const loaded = ref(false);
 const roomLimitMode = ref('custom');
 
 const uploadFaviconFile = ref(null);

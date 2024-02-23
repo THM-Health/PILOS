@@ -230,6 +230,7 @@ function onPage (event) {
 }
 
 function onSort () {
+  currentPage.value = 1;
   selectedMembers.value = [];
   loadData();
 }

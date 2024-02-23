@@ -74,9 +74,15 @@ legend:not(.p-fieldset-legend) {
     padding: 0;
 }
 
-a:-webkit-any-link,
-a:any-link {
+a {
     text-decoration: none;
+}
+
+a.link {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 a.link-color,
