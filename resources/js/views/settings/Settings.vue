@@ -8,7 +8,7 @@
         class="p-button p-button-icon-only p-button-secondary"
         :to="{ name: 'settings'}"
       >
-        <i class="fa-solid fa-arrow-left" />
+        <i class="fa-solid fa-home" />
       </router-link>
       <h1 class="m-0 text-3xl text-color">
         {{ $t('settings.title') }}
