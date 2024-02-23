@@ -56,12 +56,11 @@
       </template>
       <!-- Show message on empty server list -->
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('settings.servers.no_data') }}</i>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.servers.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.servers.no_data_filtered') }}</InlineNote>
+        </div>
       </template>
-      <!--ToDo check if needed-->
-      <!--<template #emptyfiltered>-->
-      <!--<i>{{ $t('settings.servers.no_data_filtered') }}</i>-->
-      <!--</template>-->
 
       <Column :header="$t('app.id')" field="id" sortable style="width: 8%"></Column>
       <Column :header="$t('app.model_name')" field="name" sortable>

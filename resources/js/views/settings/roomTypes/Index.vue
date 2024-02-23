@@ -23,6 +23,9 @@
       :loading="isBusy"
       :rows="settingsStore.getSetting('pagination_page_size')"
     >
+      <template #empty>
+        <InlineNote>{{ $t('settings.room_types.no_data') }}</InlineNote>
+      </template>
       <Column field="description" key="description" :header="$t('app.description')" :sortable="true"></Column>
       <Column field="actions" :header="$t('app.actions')" class="action-column">
         <template #body="slotProps">
@@ -54,9 +57,6 @@
           </div>
         </template>
       </Column>
-      <template #empty>
-        <i>{{ $t('settings.room_types.no_data') }}</i>
-      </template>
     </DataTable>
   </div>
 </template>

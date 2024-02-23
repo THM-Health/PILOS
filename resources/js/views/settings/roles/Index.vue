@@ -39,7 +39,7 @@
       </template>
       <!-- Show message on empty role list -->
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('settings.roles.nodata') }}</i>
+        <InlineNote v-if="!isBusy && !loadingError">{{ $t('settings.roles.nodata') }}</InlineNote>
       </template>
 
       <Column field="id" :header="$t('app.id')" sortable></Column>

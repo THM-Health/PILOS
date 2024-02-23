@@ -57,12 +57,11 @@
       </template>
       <!-- Show message on empty server pool list -->
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('settings.server_pools.no_data') }}</i>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.server_pools.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.server_pools.no_data_filtered') }}</InlineNote>
+        </div>
       </template>
-      <!--ToDo check if needed-->
-      <!--<template #emptyfiltered>-->
-      <!--<i>{{ $t('settings.server_pools.no_data_filtered') }}</i>-->
-      <!--</template>-->
       <Column :header="$t('app.id')" field="id" sortable></Column>
       <Column :header="$t('app.model_name')" field="name" sortable></Column>
       <Column :header="$t('settings.server_pools.server_count')" field="servers_count" sortable></Column>

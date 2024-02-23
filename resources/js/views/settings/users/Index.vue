@@ -138,7 +138,10 @@
       </template>
       <!-- Show message on empty user list -->
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('settings.users.no_data') }}</i>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.users.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.users.no_data_filtered') }}</InlineNote>
+        </div>
       </template>
 
 <!--      ToDo fix Column size-->
