@@ -66,8 +66,6 @@
           <InlineNote v-else>{{ $t('settings.servers.no_data_filtered') }}</InlineNote>
         </div>
       </template>
-
-      <Column :header="$t('app.id')" field="id" sortable style="width: 8%"></Column>
 <!--      ToDo fix Column size-->
       <Column :header="$t('app.model_name')" field="name" sortable style="max-width: 100px">
         <template #body="slotProps">
@@ -189,7 +187,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const servers = ref([]);
 const currentPage = ref(1);
-const sortField = ref('id');
+const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
   current_page: 0,

@@ -38,7 +38,6 @@
         <InlineNote v-if="!isBusy && !loadingError">{{ $t('settings.roles.nodata') }}</InlineNote>
       </template>
 
-      <Column field="id" :header="$t('app.id')" sortable></Column>
       <Column field="name" :header="$t('app.model_name')" sortable>
         <template #body="slotProps">
           <text-truncate>
@@ -99,7 +98,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const roles = ref([]);
 const currentPage = ref(1);
-const sortField = ref('id');
+const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
   current_page: 0,

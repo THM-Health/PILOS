@@ -60,7 +60,6 @@
           <InlineNote v-else>{{ $t('settings.server_pools.no_data_filtered') }}</InlineNote>
         </div>
       </template>
-      <Column :header="$t('app.id')" field="id" sortable></Column>
       <Column :header="$t('app.model_name')" field="name" sortable></Column>
       <Column :header="$t('settings.server_pools.server_count')" field="servers_count" sortable></Column>
       <Column :header="$t('app.actions')" class="action-column">
@@ -96,7 +95,6 @@
           </div>
         </template>
       </Column>
-
     </DataTable>
   </div>
 </template>
@@ -113,7 +111,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const serverPools = ref([]);
 const currentPage = ref(1);
-const sortField = ref('id');
+const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
   current_page: 0,
