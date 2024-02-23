@@ -53,13 +53,7 @@
         <div class="field grid">
           <label class="col-12 md:col-4 md:mb-0">{{$t('settings.room_types.preview')}}</label>
           <div class="col-12 md:col-8 flex align-items-center">
-            <Tag
-              :value="model.description || '&nbsp;'"
-              class="flex-shrink-1 text-break "
-              style="white-space: normal"
-              :style="{ 'background-color': model.color}"
-            >
-            </Tag>
+            <RoomTypeBadge :room-type="model" />
           </div>
         </div>
 
