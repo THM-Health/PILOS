@@ -7,12 +7,32 @@
       <router-link
         v-if="userPermissions.can('create', 'RolePolicy')"
         class="p-button p-button-success p-button-icon-only"
-        v-tooltip="$t('settings.roles.new')"
+        v-tooltip.left="$t('settings.roles.new')"
         :aria-label="$t('settings.roles.new')"
         :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
       >
         <i class="fa-solid fa-plus" />
       </router-link>
+    </div>
+
+    <div class="flex flex-column md:flex-row">
+      <div>
+        <InputGroup>
+          <InputText
+            v-model="filter"
+            :placeholder="$t('app.search')"
+            @keyup.enter="loadData"
+          />
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            severity="primary"
+            @click="loadData"
+            icon="fa-solid fa-magnifying-glass"
+          >
+          </Button>
+        </InputGroup>
+      </div>
     </div>
     <Divider/>
 
@@ -35,7 +55,10 @@
       </template>
       <!-- Show message on empty role list -->
       <template #empty>
-        <InlineNote v-if="!isBusy && !loadingError">{{ $t('settings.roles.nodata') }}</InlineNote>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.roles.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.roles.no_data_filtered') }}</InlineNote>
+        </div>
       </template>
 
       <Column field="name" :header="$t('app.model_name')" sortable>
@@ -108,6 +131,7 @@ const meta = ref({
   to: 0,
   total: 0
 });
+const filter = ref(undefined);
 
 onMounted(() => {
   loadData();
@@ -124,7 +148,8 @@ function loadData () {
     params: {
       page: currentPage.value,
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
+      name: filter.value
     }
   };
 

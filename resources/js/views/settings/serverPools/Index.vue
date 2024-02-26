@@ -15,25 +15,25 @@
       </router-link>
     </div>
 
-      <div class="flex flex-column md:flex-row md:align-items-center justify-content-between gap-2">
-        <div>
-          <InputGroup>
-            <InputText
-              v-model="filter"
-              :placeholder="$t('app.search')"
-              @keyup.enter="loadData"
-            />
-            <Button
-              v-tooltip="$t('app.search')"
-              :aria-label="$t('app.search')"
-              severity="primary"
-              @click="loadData"
-              icon="fa-solid fa-magnifying-glass"
-            >
-            </Button>
-          </InputGroup>
-        </div>
+    <div class="flex flex-column md:flex-row">
+      <div>
+        <InputGroup>
+          <InputText
+            v-model="filter"
+            :placeholder="$t('app.search')"
+            @keyup.enter="loadData"
+          />
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            severity="primary"
+            @click="loadData"
+            icon="fa-solid fa-magnifying-glass"
+          >
+          </Button>
+        </InputGroup>
       </div>
+    </div>
     <Divider/>
 
     <DataTable

@@ -22,7 +22,7 @@
       :class="{ 'is-invalid': props.invalid, 'multiselect-form-control': true }"
     >
       <template #noOptions>
-        {{ $t('settings.roles.nodata') }}
+        {{ $t('settings.roles.no_data') }}
       </template>
       <template v-slot:option="{ option }">
         {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}

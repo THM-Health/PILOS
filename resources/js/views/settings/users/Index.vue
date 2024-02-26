@@ -16,7 +16,7 @@
     </div>
 
     <div class="grid">
-      <div class="col flex flex-column md:flex-row md:align-content-center">
+      <div class="col flex flex-column md:flex-row">
         <div>
           <InputGroup>
             <InputText
@@ -60,7 +60,7 @@
             class="multiselect-form-control"
           >
             <template #noOptions>
-              {{ $t('settings.roles.nodata') }}
+              {{ $t('settings.roles.no_data') }}
             </template>
             <template v-slot:option="{ option }">
               {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}

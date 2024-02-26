@@ -6,7 +6,7 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip="$t('settings.servers.new')"
+        v-tooltip.left="$t('settings.servers.new')"
         :aria-label="$t('settings.servers.new')"
         :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
         class="p-button p-button-icon-only p-button-success"
@@ -15,7 +15,7 @@
       </router-link>
     </div>
 
-    <div class="flex flex-column md:flex-row md:align-items-center justify-content-between gap-2">
+    <div class="flex flex-column md:flex-row justify-content-between gap-2">
       <div>
         <InputGroup>
           <InputText
@@ -33,13 +33,13 @@
           </Button>
         </InputGroup>
       </div>
-        <Button
-          :disabled="isBusy"
-          severity="info"
-          @click="loadData(true);"
-          icon="fa-solid fa-repeat"
-          :label="$t('settings.servers.reload')"
-        />
+      <Button
+        :disabled="isBusy"
+        severity="info"
+        @click="loadData(true);"
+        icon="fa-solid fa-repeat"
+        :label="$t('settings.servers.reload')"
+      />
     </div>
     <Divider/>
     <DataTable
