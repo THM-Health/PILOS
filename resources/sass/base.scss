@@ -151,6 +151,37 @@ $contrastButtonActiveBg: tint-color($contrastButtonBg, 40%) !default;
 $contrastButtonTextActiveColor: color-contrast($contrastButtonActiveBg) !default;
 $contrastButtonActiveBorderColor: tint-color($contrastButtonBg, 40%) !default;
 
+//severities
+$infoMessageBg: rgba(tint-color($info, 90%), 0.95) !default;
+$infoMessageBorder:solid tint-color($info, 50%) !default;
+$infoMessageTextColor: $info !default;
+$infoMessageIconColor: $infoMessageTextColor !default;
+
+$successMessageBg: rgba(tint-color($success, 90%), 0.95) !default;
+$successMessageBorder:solid tint-color($success, 50%) !default;
+$successMessageTextColor: $success !default;
+$successMessageIconColor: $successMessageTextColor !default;
+
+$warningMessageBg: rgba(tint-color($warning, 90%), 0.95) !default;
+$warningMessageBorder:solid tint-color($warning, 50%) !default;
+$warningMessageTextColor: $warning !default;
+$warningMessageIconColor: $warningMessageTextColor !default;
+
+$errorMessageBg: rgba(tint-color($danger, 90%), 0.95) !default;
+$errorMessageBorder:solid tint-color($danger, 50%) !default;
+$errorMessageTextColor: $danger !default;
+$errorMessageIconColor: $errorMessageTextColor !default;
+
+$secondaryMessageBg: rgba(tint-color($secondary, 90%), 0.95) !default;
+$secondaryMessageBorder:solid tint-color($secondary, 50%) !default;
+$secondaryMessageTextColor: $secondary !default;
+$secondaryMessageIconColor: $secondaryMessageTextColor !default;
+
+$contrastMessageBg: $contrastButtonBg !default;
+$contrastMessageBorder: solid $contrastButtonBg !default;
+$contrastMessageTextColor: $contrastButtonTextColor !default;
+$contrastMessageIconColor: $contrastMessageTextColor !default;
+
 // PrimeVue theme variables
 @import 'primevue-sass-theme/themes/aura/aura-light/_variables';
 

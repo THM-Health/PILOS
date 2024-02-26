@@ -33,10 +33,16 @@ $linkColor: $primary;
 // Elements to have sharp edges
 $enableRounded: false;
 
+// Fonts
+$fontFamily: "SourceSansPro", sans-serif;
+$fontFeatureSettings: normal !default;
+
+
 // Overwrite button color
 $primaryTextColor: #FFF;
 $successButtonTextColor: #FFF;
 
-// Fonts
-$fontFamily: "SourceSansPro", sans-serif;
-$fontFeatureSettings: normal !default;
+// Overwrite messages and alerts
+$warningMessageBg: rgba(255, 243, 225, 0.95);
+$warningMessageTextColor: #b98000 !default;
+
