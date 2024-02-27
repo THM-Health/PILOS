@@ -1,7 +1,7 @@
 <template>
   <div
     ref="overflow"
-    v-tooltip="slotText"
+    v-tooltip="{ value: slotText, autoHide: false }"
     class="text-overflow-ellipsis overflow-hidden"
   >
     <slot />

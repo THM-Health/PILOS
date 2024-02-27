@@ -1,3 +1,59 @@
-.action-column{
-    width: 1px;
+$actionColumButtonGap: 0.5rem !default;
+
+th.action-column {
+    .p-column-header-content{
+        justify-content: end;
+    }
+}
+
+td.action-column > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    gap: $actionColumButtonGap;
+
+    .p-button{
+        flex-shrink: 0;
+    }
+}
+
+
+.table-auto {
+    table{
+        table-layout: auto;
+
+        th.id-column {
+            width: 1px;
+        }
+
+        th.action-column {
+            width: 1px;
+        }
+    }
+}
+
+@each $key, $val in $breakpoints {
+    @media screen and (min-width: #{$val}) {
+        .#{$key + $separator} {
+            &#{$prefix}table-fixed {
+                table{
+                    table-layout: fixed;
+
+                    @for $i from 2 through 6 {
+                        th.action-column-1 {
+                            width: 5rem;
+                        }
+
+                        th.action-column-#{$i} {
+                            width: calc($i * #{$buttonIconOnlyWidth} + (($i - 1) * $actionColumButtonGap)  + 2 * #{$tableCellPaddingX});
+                        }
+                    }
+
+                    th.id-column {
+                        width: 5rem;
+                    }
+                }
+            }
+        }
+    }
 }

@@ -182,6 +182,13 @@ $contrastMessageBorder: solid $contrastButtonBg !default;
 $contrastMessageTextColor: $contrastButtonTextColor !default;
 $contrastMessageIconColor: $contrastMessageTextColor !default;
 
+// tables
+$tableCellPaddingX: 0.5rem !default;
+$tableCellPaddingY: 0.5rem !default;
+$tableHeaderCellPadding: $tableCellPaddingX $tableCellPaddingY !default;
+$tableBodyCellPadding: $tableCellPaddingX $tableCellPaddingY !default;
+$tableFooterCellPadding: $tableCellPaddingX $tableCellPaddingY !default;
+
 // PrimeVue theme variables
 @import 'primevue-sass-theme/themes/aura/aura-light/_variables';
 
@@ -216,7 +223,7 @@ $colors: (
 // PrimeVue theme
 @import 'primevue-sass-theme/themes/aura/aura-light/extensions/extensions';
 
-@import 'primeflex/primeflex.css';
+@import 'primeflex/primeflex.scss';
 
 @import 'app/app';
 

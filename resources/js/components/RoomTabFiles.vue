@@ -110,10 +110,9 @@
         </template>
       </Column>
 
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')" class="action-column action-column-2">
         <template #body="slotProps">
-          <div class="flex gap-2">
-
+          <div>
             <RoomTabFilesViewButton
               :room-id="props.room.id"
               :file-id="slotProps.data.id"
@@ -123,7 +122,6 @@
               @file-not-found="loadData"
               @invalid-code="emit('invalidCode')"
               @invalid-token="emit('invalidToken')"
-
             />
             <RoomTabFilesDeleteButton
               :room-id="props.room.id"
