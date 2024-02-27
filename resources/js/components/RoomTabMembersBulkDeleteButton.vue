@@ -22,8 +22,8 @@
 
     <template #footer>
       <div class="flex justify-content-end gap-2">
-        <Button :label="$t('app.no')" outlined @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteMembers" />
+        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
+        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteMembers" />
         </div>
     </template>
 

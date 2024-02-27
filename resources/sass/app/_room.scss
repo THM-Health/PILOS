@@ -14,9 +14,6 @@
 .room-card{
     pointer-events: auto;
     cursor: pointer;
-    background: #ffffff;
-    box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
-    border-radius: $borderRadius;
 
     &--running{
         border-color: $green;
@@ -48,10 +45,6 @@
 }
 
 
-
-.room-card:hover{
-    background-color: darken(#FFF, 7.5%) !important;
-}
 
 
 
@@ -110,4 +103,30 @@
 .room-bulk-import-preview {
     overflow-y: auto;
     max-height: 200px;
+}
+
+.room-type-badge {
+    white-space: normal;
+    color: #FFF;
+}
+
+.room-role-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-role-guest {
+        background-color: $info;
+    }
+
+    &.room-role-participant {
+        background-color: $success;
+    }
+
+    &.room-role-moderator {
+        background-color: $danger;
+    }
+
+    &.room-role-co-owner {
+        background-color: $secondary;
+    }
 }

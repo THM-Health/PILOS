@@ -2,8 +2,8 @@
   <div>
     <h2>
       {{ id === 'new' ? $t('settings.room_types.new') : (
-        viewOnly ? $t('settings.room_types.view', { name: model.description })
-        : $t('settings.room_types.edit', { name: model.description })
+        viewOnly ? $t('settings.room_types.view', { name: description })
+        : $t('settings.room_types.edit', { name: description })
       ) }}
     </h2>
     <Divider/>
@@ -20,7 +20,7 @@
               id="description"
               v-model="model.description"
               type="text"
-              :class="{'p-invalid': formErrors.fieldInvalid('description')}"
+              :invalid="formErrors.fieldInvalid('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
             <p class="p-error" v-html="formErrors.fieldError('description')"></p>
@@ -30,7 +30,6 @@
         <div class="field grid">
           <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
           <div class="col-12 md:col-8">
-<!--        ToDo Color Select-->
             <color-select
               id="color"
               class="mb-2"
@@ -44,7 +43,7 @@
               id="color"
               v-model="model.color"
               type="text"
-              :class="{'p-invalid': formErrors.fieldInvalid('color')}"
+              :invalid="formErrors.fieldInvalid('color')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
             <p class="p-error" v-html="formErrors.fieldError('color')"></p>
@@ -54,30 +53,7 @@
         <div class="field grid">
           <label class="col-12 md:col-4 md:mb-0">{{$t('settings.room_types.preview')}}</label>
           <div class="col-12 md:col-8 flex align-items-center">
-            <Tag
-              :value="model.description"
-              class="flex-shrink-1 text-break "
-              style="white-space: normal"
-              :style="{ 'background-color': model.color}"
-            >
-            </Tag>
-          </div>
-        </div>
-
-        <div class="field grid">
-          <label for="allow_listing" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_listing')}}</label>
-          <div class="col-12 md:col-8">
-            <div>
-              <InputSwitch
-                id="allow_listing"
-                v-model="model.allow_listing"
-                :class="{'p-invalid': formErrors.fieldInvalid('allow_listing')}"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-                aria-describedby="allow_listing-help"
-              />
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('allow_listing')"></p>
-            <small id="allow_listing-help">{{$t('settings.room_types.allow_listing_description')}}</small>
+            <RoomTypeBadge :room-type="model" />
           </div>
         </div>
 
@@ -152,7 +128,7 @@
               <InputSwitch
                 id="restrict"
                 v-model="model.restrict"
-                :class="{'p-invalid': formErrors.fieldInvalid('restrict')}"
+                :invalid="formErrors.fieldInvalid('restrict')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 aria-describedby="restrict-help"
               />
@@ -165,79 +141,105 @@
         <div class="field grid" v-if="model.restrict">
           <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
           <div class="col-12 md:col-8">
-            <InputGroup>
-              <multiselect
-                id="roles"
-                ref="rolesMultiselectRef"
-                v-model="model.roles"
-                :placeholder="$t('settings.room_types.select_roles')"
-                track-by="id"
-                open-direction="bottom"
-                :multiple="true"
-                :searchable="false"
-                :internal-search="false"
-                :clear-on-select="false"
-                :close-on-select="false"
-                :show-no-results="false"
-                :show-labels="false"
-                :options="roles"
-                :disabled="isBusy || modelLoadingError || viewOnly || rolesLoadingError"
-                :loading="rolesLoading"
-                :allow-empty="!!model.restrict"
-                :class="{ 'is-invalid': formErrors.fieldError('roles'), 'multiselect-form-control': true }"
-
-              >
-                <template #noOptions>
-                  {{ $t('settings.roles.nodata') }}
-                </template>
-                <template v-slot:option="{ option }">
-                  {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
-                </template>
-                <template v-slot:tag="{ option, remove }">
-                  <Tag variant="secondary" class="flex-auto flex-row gap-2 mr-1 mb-1">
-                    {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
-                    <Button
-                      size="small"
-                      @click="remove(option)"
-                      icon="fa-solid fa-xmark"
-                      :aria-label="$t('settings.users.remove_role')"
-                      text
-                      rounded
-                      class="text-white p-0 h-1rem w-1rem"
-                    />
-                  </Tag>
-                </template>
-                <template #afterList>
-                  <div class="flex p-2 gap-2">
-                    <Button
-                      :disabled="rolesLoading || rolesCurrentPage === 1"
-                      severity="secondary"
-                      outlined
-                      @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
-                      icon="fa-solid fa-arrow-left"
-                      :label="$t('app.previous_page')"
-                    />
-                    <Button
-                      :disabled="rolesLoading || !rolesHasNextPage"
-                      severity="secondary"
-                      outlined
-                      @click="loadRoles(rolesCurrentPage + 1)"
-                      icon="fa-solid fa-arrow-right"
-                      :label="$t('app.next_page')"
-                    />
-                  </div>
-                </template>
-              </multiselect>
-              <Button
-                v-if="rolesLoadingError"
-                severity="secondary"
-                outlined
-                @click="loadRoles(rolesCurrentPage)"
-              >
-                <i class="fa-solid fa-sync" />
-              </Button>
-            </InputGroup>
+            <RoleSelect
+              v-model="model.roles"
+              :invalid="formErrors.fieldInvalid('roles')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              id="roles"
+              @busy="(value) => rolesLoading = value"
+              @rolesLoadingError="(value) => rolesLoadingError = value"
+            />
             <p class="p-error" v-html="formErrors.fieldError('roles')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="allow_listing" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_listing')}}</label>
+          <div class="col-12 md:col-8">
+            <div>
+              <InputSwitch
+                id="allow_listing"
+                v-model="model.allow_listing"
+                :invalid="formErrors.fieldInvalid('allow_listing')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                aria-describedby="allow_listing-help"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('allow_listing')"></p>
+            <small id="allow_listing-help">{{$t('settings.room_types.allow_listing_description')}}</small>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="allow_record_attendance" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_record_attendance')}}</label>
+          <div class="col-12 md:col-8">
+            <div>
+              <InputSwitch
+                id="allow_record_attendance"
+                v-model="model.allow_record_attendance"
+                :invalid="formErrors.fieldInvalid('allow_record_attendance')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('allow_record_attendance')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="require_access_code" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.require_access_code')}}</label>
+          <div class="col-12 md:col-8">
+            <div>
+              <InputSwitch
+                id="require_access_code"
+                v-model="model.require_access_code"
+                :invalid="formErrors.fieldInvalid('require_access_code')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('require_access_code')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="max_participants" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.max_participants')}}</label>
+          <div class="col-12 md:col-8">
+            <InputGroup>
+              <InputNumber
+                id="max_participants"
+                v-model="model.max_participants"
+                :invalid="formErrors.fieldInvalid('max_participants')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :placeholder="$t('app.unlimited')"
+              />
+              <Button
+                @click="model.max_participants = null"
+                icon="fa-solid fa-xmark"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </InputGroup>
+            <p class="p-error" v-html="formErrors.fieldError('max_participants')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="max_duration" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.max_duration')}}</label>
+          <div class="col-12 md:col-8">
+            <InputGroup>
+              <InputNumber
+                id="max_duration"
+                v-model="model.max_duration"
+                :invalid="formErrors.fieldInvalid('max_duration')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :placeholder="$t('app.unlimited')"
+                suffix=" min."
+              />
+              <Button
+                @click="model.max_duration = null"
+                icon="fa-solid fa-xmark"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </InputGroup>
+            <p class="p-error" v-html="formErrors.fieldError('max_duration')"></p>
           </div>
         </div>
 
@@ -277,8 +279,8 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import _ from 'lodash';
 import { Multiselect } from 'vue-multiselect';
-import {useConfirm} from "primevue/useconfirm";
-import {useI18n} from "vue-i18n";
+import { useConfirm } from 'primevue/useconfirm';
+import { useI18n } from 'vue-i18n';
 import ConfirmDialog from 'primevue/confirmdialog';
 
 const formErrors = useFormErrors();
@@ -296,11 +298,6 @@ const props = defineProps({
   viewOnly: {
     type: Boolean,
     required: true
-  },
-
-  modalStatic: {
-    type: Boolean,
-    default: false
   }
 });
 
@@ -310,14 +307,17 @@ const model = ref({
   color: env.ROOM_TYPE_COLORS[0],
   server_pool: null,
   allow_listing: false,
+  allow_record_attendance: false,
+  require_access_code: false,
+  max_duration: null,
+  max_participants: null,
   restrict: false,
   roles: []
 });
 
-const roles = ref([]);
+const description = ref('');
+
 const rolesLoading = ref(false);
-const rolesCurrentPage = ref(1);
-const rolesHasNextPage = ref(false);
 const colors = env.ROOM_TYPE_COLORS;
 
 const serverPoolsLoading = ref(false);
@@ -330,14 +330,12 @@ const modelLoadingError = ref(false);
 const serverPoolsLoadingError = ref(false);
 
 const serverPoolMultiselectRef = ref();
-const rolesMultiselectRef = ref();
 
 /**
  * Loads the role from the backend and also a part of permissions that can be selected.
  */
 onMounted(() => {
   loadRoomType();
-  loadRoles();
   loadServerPools();
 });
 
@@ -351,6 +349,7 @@ function loadRoomType () {
 
     api.call(`roomTypes/${props.id}`).then(response => {
       model.value = response.data.data;
+      description.value = response.data.data.description;
       modelLoadingError.value = false;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
@@ -366,9 +365,9 @@ function loadRoomType () {
 }
 
 /**
- * Loads the roles for the passed page, that can be selected through the multiselect.
+ * Loads the server pools for the passed page, that can be selected through the multiselect.
  *
- * @param [page=1] The page to load the roles for.
+ * @param [page=1] The page to load the server pools for.
  */
 function loadServerPools (page = 1) {
   serverPoolsLoading.value = true;
@@ -407,9 +406,14 @@ function saveRoomType () {
   config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
   config.data.roles = config.data.roles.map(role => role.id);
 
-  api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then(() => {
+  api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then((response) => {
     formErrors.clear();
-    router.push({ name: 'settings.room_types' });
+    if (props.id === 'new') {
+      router.push({ name: 'settings.room_types.view', params: { id: response.data.data.id } });
+    } else {
+      model.value = response.data.data;
+      description.value = response.data.data.description;
+    }
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
@@ -441,35 +445,8 @@ function handleStaleError (staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
+      description.value = staleError.new_model.description;
     }
-  });
-}
-
-/**
- * Loads the roles for the passed page, that can be selected through the multiselect.
- *
- * @param [page=1] The page to load the roles for.
- */
-function loadRoles (page = 1) {
-  rolesLoading.value = true;
-
-  const config = {
-    params: {
-      page
-    }
-  };
-
-  api.call('roles', config).then(response => {
-    rolesLoadingError.value = false;
-    roles.value = response.data.data;
-    rolesCurrentPage.value = page;
-    rolesHasNextPage.value = page < response.data.meta.last_page;
-  }).catch(error => {
-    rolesMultiselectRef.value.deactivate();
-    rolesLoadingError.value = true;
-    api.error(error);
-  }).finally(() => {
-    rolesLoading.value = false;
   });
 }
 </script>

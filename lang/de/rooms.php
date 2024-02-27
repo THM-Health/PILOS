@@ -2,12 +2,13 @@
 
 return [
     'access_code'                  => 'Zugangscode',
-    'access_for_participants'      => 'Zugang für Teilnehmer',
     'become_member'                => 'Mitglied werden',
-    'copy_access_for_participants' => 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
     'create'                       => [
         'ok'    => 'Erstellen',
         'title' => 'Raum erstellen',
+    ],
+    'change_type' => [
+        'title' => 'Raumart ändern',
     ],
     'description' => [
         'cancel' => 'Abbrechen',
@@ -118,6 +119,7 @@ return [
         'recording_forbidden' => 'Die Zugriff auf die Aufzeichnung wurde verweigert.',
         'recording_gone'      => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden'     => 'Der Raum kann von Ihnen nicht gestartet werden.',
+        'not_running'         => 'Der Beitritt zum Raum ist fehlgeschlagen, da dieser momentan geschlossen ist.',
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
@@ -148,6 +150,9 @@ return [
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [
+        'share' => 'Teilen',
+        'title' => 'Zugangsdaten für Teilnehmer',
+        'copy' => 'Kopieren',
         'code'   => 'Zugangscode',
         'copied' => 'Zugangsdaten in Zwischenablage kopiert',
         'link'   => 'Link',
@@ -229,6 +234,8 @@ return [
         'denied'          => 'Der Browser verweigert Benachrichtigungen.',
         'enable'          => 'Beim Start des Raumes benachrichtigen',
         'enabled'         => 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
+        'disable'         => 'Beachrichtigung beim Start des Raumes deaktivieren',
+        'disabled'        => 'Sie werden beim Start des Raumes von Ihrem Browser nicht mehr benachrichtigt.',
     ],
     'only_used_by_authenticated_users' => 'Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.',
     'placeholder_name'                 => 'Max Mustermann',
@@ -287,8 +294,16 @@ return [
     'room_types'              => [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
-        'select_type'   => '-- Raumart auswählen --',
         'all'           => 'Alle Raumarten',
+        'restrictions' => [
+            'title' => 'Einschränkungen',
+            'none' => 'Keine',
+            'no_listing' => 'In öffentlicher Raumsuche verborgen',
+            'no_attendace_recording' => 'Keine Anwesenheitsprotokollierung',
+            'require_access_code' => 'Zugangscode erforderlich',
+            'max_participants' => 'Max. :participants Teilnehmer',
+            'max_duration' => 'Max. :duration Minuten',
+        ]
     ],
     'settings' => [
         'general' => [
@@ -300,6 +315,7 @@ return [
             'short_description' => 'Öffentliche Kurzbeschreibung',
             'title'             => 'Allgemein',
             'type'              => 'Art',
+            'change_type'       => 'Raumart ändern',
             'welcome_message'   => 'Begrüßungsnachricht',
         ],
         'none_placeholder' => '-- keine --',

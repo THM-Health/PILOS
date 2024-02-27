@@ -18,47 +18,42 @@
       :options='roles'
       :disabled="props.disabled || loading || loadingError"
       :loading="loading"
-      :allow-empty="false"
+      :allow-empty="allowEmpty"
       :class="{ 'is-invalid': props.invalid, 'multiselect-form-control': true }"
     >
       <template #noOptions>
-        {{ $t('settings.roles.nodata') }}
+        {{ $t('settings.roles.no_data') }}
       </template>
       <template v-slot:option="{ option }">
         {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
       </template>
       <template v-slot:tag="{ option, remove }" >
-          <Tag variant="secondary" class="flex-auto flex-row gap-2 mr-1 mb-1">
-            {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
-            <Button
-              v-if="!option.$isDisabled && selectedRoles.length>1"
-              size="small"
-              @click="remove(option)"
-              icon="fa-solid fa-xmark"
-              :aria-label="$t('settings.users.remove_role')"
-              text
-              rounded
-              class="text-white p-0 h-1rem w-1rem"
-            />
-          </Tag>
+          <Chip
+            :key="option.name"
+            :label="$te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name"
+            :removable="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty)"
+            @remove="remove(option)"
+          />
       </template>
       <template #afterList>
-        <Button
-          :disabled="loading || currentPage === 1"
-          severity="secondary"
-          outlined
-          @click="loadRoles(Math.max(1, currentPage - 1))"
-          icon="fa-solid fa-arrow-left"
-          :label="$t('app.previous_page')"
-        />
-        <Button
-          :disabled="loading || !hasNextPage"
-          severity="secondary"
-          outlined
-          @click="loadRoles(currentPage + 1)"
-          icon="fa-solid fa-arrow-right"
-          :label="$t('app.next_page')"
-        />
+        <div class="flex p-2 gap-2">
+          <Button
+            :disabled="loading || currentPage === 1"
+            severity="secondary"
+            outlined
+            @click="loadRoles(Math.max(1, currentPage - 1))"
+            icon="fa-solid fa-arrow-left"
+            :label="$t('app.previous_page')"
+          />
+          <Button
+            :disabled="loading || !hasNextPage"
+            severity="secondary"
+            outlined
+            @click="loadRoles(currentPage + 1)"
+            icon="fa-solid fa-arrow-right"
+            :label="$t('app.next_page')"
+          />
+        </div>
       </template>
     </multiselect>
       <Button
@@ -75,10 +70,9 @@
 
 <script setup>
 
-import {onMounted, ref, watch} from "vue";
+import { onMounted, ref, watch } from 'vue';
 import { useApi } from '@/composables/useApi.js';
 import { Multiselect } from 'vue-multiselect';
-
 
 const api = useApi();
 
@@ -98,13 +92,17 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  allowEmpty: {
+    type: Boolean,
+    default: false
+  },
   id: {
     type: String,
     default: 'roles'
   }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'loadingError', 'busy']);
 
 const selectedRoles = ref([]);
 const roles = ref([]);
@@ -114,24 +112,22 @@ const currentPage = ref(1);
 const hasNextPage = ref(false);
 const rolesMultiselect = ref(null);
 
-watch(()=>props.modelValue, (value)=>{
+watch(() => props.modelValue, (value) => {
   selectedRoles.value = value;
   disableRoles(selectedRoles.value);
 },
-  //ToDo check if needed
-  {deep:true}
+{ deep: true }
 );
 
-watch(()=> props.disabledRoles, (value)=>{
-    disableRoles(selectedRoles.value);
-    disableRoles(roles.value);
+watch(() => props.disabledRoles, (value) => {
+  disableRoles(selectedRoles.value);
+  disableRoles(roles.value);
 },
-  //Todo check if needed
-  { deep:true }
+{ deep: true }
 );
 
-//detect changes of the model loading error
-watch(loadingError, ()=>{
+// detect changes of the model loading error
+watch(loadingError, () => {
   emit('loadingError', loadingError.value);
 });
 
@@ -140,13 +136,13 @@ watch(loading, () => {
   emit('busy', loading.value);
 });
 
-watch(props.disabled, (disabled)=>{
-  if(!disabled){
+watch(() => props.disabled, (disabled) => {
+  if (!disabled) {
     loadRoles();
   }
 });
 
-onMounted(()=>{
+onMounted(() => {
   if (!props.disabled) {
     loadRoles();
   }
@@ -154,7 +150,7 @@ onMounted(()=>{
   disableRoles(selectedRoles.value);
 });
 
-function disableRoles(roles){
+function disableRoles (roles) {
   if (roles) {
     roles.forEach(role => {
       role.$isDisabled = props.disabledRoles.some(disabledRole => disabledRole === role.id);
@@ -162,7 +158,7 @@ function disableRoles(roles){
   }
 }
 
-function loadRoles(page = 1){
+function loadRoles (page = 1) {
   loading.value = true;
 
   const config = {
@@ -176,9 +172,9 @@ function loadRoles(page = 1){
     currentPage.value = page;
     hasNextPage.value = page < response.data.meta.last_page;
 
-    const rRoles = response.data.data;
-    disableRoles(rRoles);
-    roles.value = rRoles;
+    const newRoles = response.data.data;
+    disableRoles(newRoles);
+    roles.value = newRoles;
   }).catch(error => {
     // close open multiselect
     rolesMultiselect.value.deactivate();

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h4>{{ $t('settings.users.base_data') }}</h4>
-    <form @submit="save">
+    <form @submit.prevent="save">
 
       <div class="field grid">
         <label for="firstname" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.firstname') }}</label>
@@ -110,15 +110,17 @@
         </div>
       </div>
 
-      <Button
-        v-if="!viewOnly"
-        :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
-        type="submit"
-        severity="success"
-        :loading="isBusy"
-        icon="fa-solid fa-save"
-        :label="$t('app.save')"
-      />
+      <div class="flex justify-content-end">
+        <Button
+          v-if="!viewOnly"
+          :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
+          type="submit"
+          severity="success"
+          :loading="isBusy"
+          icon="fa-solid fa-save"
+          :label="$t('app.save')"
+        />
+      </div>
     </form>
   </div>
 </template>
@@ -184,11 +186,7 @@ function onDeleteImage (deleteImage) {
  * Saves the changes of the user to the database by making a api call.
  *
  */
-function save (evt) {
-  if (evt) {
-    evt.preventDefault();
-  }
-
+function save () {
   isBusy.value = true;
 
   const formData = new FormData();

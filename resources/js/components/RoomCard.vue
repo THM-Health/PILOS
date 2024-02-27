@@ -3,7 +3,7 @@
     <!-- room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative"
+      class="room-card h-full relative bg-white border-1 border-300 border-round shadow-none hover:shadow-2"
       :class="{'room-card--running': running}"
       @click="open"
       @keyup.enter="open"
@@ -29,7 +29,7 @@
               </div>
             </div>
             <p
-              class="mt-2 text-break font-bold"
+              class="mt-2 text-break font-bold text-color"
               style="width: 100% "
             >
               {{ props.room.name }}
@@ -80,7 +80,9 @@
       <template #footer>
         <div class="flex justify-content-end gap-2">
           <Button :label="$t('app.close')" outlined @click="handleCancel" />
-          <Button :label="$t('rooms.index.room_component.open')" @click="handleOk" />
+          <router-link :to="link" class="p-button">
+            {{ $t('rooms.index.room_component.open') }}
+          </router-link>
         </div>
       </template>
     </Dialog>

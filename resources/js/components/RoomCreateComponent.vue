@@ -1,9 +1,9 @@
 <template>
   <div>
     <Button
-      class="p-button-block"
       :disabled="props.disabled"
       @click="modalVisible = true"
+      severity="success"
       icon="fa-solid fa-plus"
       :label="$t('rooms.create.title')"
     />
@@ -13,42 +13,45 @@
       v-model:visible="modalVisible"
       modal
       :header="$t('rooms.create.title')"
-      :style="{ width: '500px' }"
-      :breakpoints="{ '575px': '90vw' }"
+      :style="{ width: '900px' }"
+      :breakpoints="{ '975px': '90vw' }"
       :closeOnEscape="!isLoadingAction && !roomTypeSelectBusy"
       :dismissableMask="!isLoadingAction && !roomTypeSelectBusy"
       :closable="!isLoadingAction && !roomTypeSelectBusy"
       :draggable="false"
       @hide="clearModal"
     >
+      <!-- Room name -->
+      <div class="flex flex-column gap-2 mt-4">
+        <label for="room-name">{{ $t('rooms.name') }}</label>
+        <InputText
+          id="room-name"
+          v-model="room.name"
+          :disabled="isLoadingAction"
+          :invalid="formErrors.fieldInvalid('name')"
+        />
+        <p class="p-error" v-html="formErrors.fieldError('name')" />
+      </div>
+
+      <!-- Room type -->
       <div class="flex flex-column gap-2">
-        <label for="firstname1">{{ $t('rooms.settings.general.type') }}</label>
+        <label id="room-type-label">{{ $t('rooms.settings.general.type') }}</label>
         <RoomTypeSelect
+          aria-labelledby="room-type-label"
           ref="roomTypeSelect"
           v-model="room.room_type"
           :disabled="isLoadingAction"
-          :invalid="formErrors.fieldInvalid('name')"
+          :invalid="formErrors.fieldInvalid('room_type')"
           @loading-error="(value) => roomTypeSelectLoadingError = value"
           @busy="(value) => roomTypeSelectBusy = value"
         />
         <p class="p-error" v-html="formErrors.fieldError('room_type')" />
       </div>
 
-      <!-- Room name -->
-      <div class="flex flex-column gap-2 mt-4">
-        <label for="room-name">{{ $t('rooms.name') }}</label>
-        <InputText
-            id="room-name"
-            v-model="room.name"
-            :disabled="isLoadingAction"
-            :invalid="formErrors.fieldInvalid('name')"
-          />
-        <p class="p-error" v-html="formErrors.fieldError('name')" />
-      </div>
       <template #footer>
         <div class="flex justify-content-end gap-2">
-          <Button :label="$t('app.cancel')" outlined :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
-          <Button :label="$t('rooms.create.ok')" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
+          <Button :label="$t('app.cancel')" severity="secondary" :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
+          <Button :label="$t('rooms.create.ok')" severity="success" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
         </div>
       </template>
     </Dialog>

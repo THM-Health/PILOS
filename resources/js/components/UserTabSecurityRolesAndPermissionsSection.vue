@@ -8,7 +8,7 @@
           <RoleSelect
             id="roles"
             v-model="model.roles"
-            :invalid="formErrors.fieldInvalid('roles', true) === false"
+            :invalid="formErrors.fieldInvalid('roles', true)"
             :disabled="isBusy || viewOnly || !userPermissions.can('editUserRole', model)"
             :disabled-roles="disabledRoles"
             @loading-error="(value) => rolesLoadingError = value"
@@ -17,16 +17,17 @@
           <p class="p-error" v-html="formErrors.fieldError('roles')" />
         </div>
       </div>
-
-      <Button
-        v-if="!viewOnly && userPermissions.can('editUserRole', model)"
-        :disabled="isBusy || rolesLoadingError || rolesLoading"
-        severity="success"
-        type="submit"
-        :loading="isBusy"
-        :label="$t('app.save')"
-        icon="fa-solid fa-save"
-      />
+      <div class="flex justify-content-end">
+        <Button
+          v-if="!viewOnly && userPermissions.can('editUserRole', model)"
+          :disabled="isBusy || rolesLoadingError || rolesLoading"
+          severity="success"
+          type="submit"
+          :loading="isBusy"
+          :label="$t('app.save')"
+          icon="fa-solid fa-save"
+        />
+      </div>
     </form>
   </div>
 </template>

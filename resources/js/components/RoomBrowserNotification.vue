@@ -1,176 +1,123 @@
 <template>
-  <div
+  <Button
     v-if="notificationSupport && !running"
-    class="text-center"
-  >
-    <Button
-      v-if="!notificationEnabled"
-      class="p-button-block"
-      severity="secondary"
-      @click="enableNotification"
-      icon="fa-solid fa-bell"
-      :label="$t('rooms.notification.enable')"
-    />
-    <InlineMessage
-      v-else
-      severity="info">
-      <template v-slot:icon>
-        <i class="fa-solid fa-bell" />
-      </template>
-      {{ $t('rooms.notification.enabled') }}</InlineMessage>
-  </div>
+    :severity="notificationEnabled ? 'primary' : 'secondary'"
+    @click="notificationEnabled ? disableNotification() : enableNotification()"
+    icon="fa-solid fa-bell"
+    :aria-label="notificationEnabled ? $t('rooms.notification.disable') : $t('rooms.notification.enable')"
+    v-tooltip="notificationEnabled ? $t('rooms.notification.disable') : $t('rooms.notification.enable')"
+  />
 </template>
 
-<script>
-
-import { mapState } from 'pinia';
-import { useSettingsStore } from '../stores/settings';
+<script setup>
+import { useToast } from '../composables/useToast.js';
+import { useI18n } from 'vue-i18n';
+import {onMounted, ref, watch} from 'vue';
+import { useSettingsStore } from '../stores/settings.js';
 import notificationSound from '../../audio/notification.mp3';
 
-export default {
-  name: 'BrowserNotification',
+const props = defineProps([
+  'roomName',
+  'running'
+]);
 
-  props: {
-    running: Boolean,
-    name: String
-  },
+const toast = useToast();
+const { t, d } = useI18n();
 
-  data () {
-    return {
-      notificationSupport: false,
-      notificationEnabled: false,
-      notification: null
-    };
-  },
+const notificationSupport = ref(false);
+const notificationEnabled = ref(false);
+const notification = ref(null);
 
-  computed: {
-    ...mapState(useSettingsStore, ['getSetting'])
-  },
+const settingsStore = useSettingsStore();
 
-  watch: {
-    /**
-     * check if the running status of the room has changed
-     * @param running current running status
-     * @param wasRunning previous running status
-     */
-    running: function (running, wasRunning) {
-      // only check for changes it notifications is enabled
-      if (this.notificationEnabled) {
-        // room was not running and now is running
-        // clear older notifications and send new notification if notifications are enabled
-        if (wasRunning === false && running === true) {
-          this.clearNotification();
-          this.sendNotification();
-        }
-        // room was running and now stopped running
-        // clear notification to prevent confusion
-        if (wasRunning === true && running === false) {
-          this.clearNotification();
-        }
-      }
+watch(() => props.running, (running, wasRunning) => {
+  if (notificationEnabled.value) {
+    if (wasRunning === false && running === true) {
+      clearNotification();
+      sendNotification();
     }
-  },
-
-  mounted () {
-    // check if notification is supported by the browser
-    if (!('Notification' in window)) {
-      this.noSupportHandler();
-    // check if the notification permission is already given
-    } else if (Notification.permission === 'granted' || Notification.permission === 'denied') {
-      this.notificationSupport = true;
-    } else {
-      // no permission, check if sending a test notification
-      try {
-        const testNotification = new Notification('');
-        testNotification.close();
-        this.notificationSupport = true;
-      } catch (e) {
-        //  type error, e.g. Android due to not fully supported notification api
-        if (e.name === 'TypeError') {
-          this.noSupportHandler();
-        }
-      }
+    if (wasRunning === true && running === false) {
+      clearNotification();
     }
-  },
-  methods: {
-    /**
-     * Clear older notification if exists
-     */
-    clearNotification: function () {
-      if (this.notification != null) {
-        this.notification.close();
-        this.notification = null;
-      }
-    },
+  }
+});
 
-    /**
-     * Handle support issues with notification api
-     * @param showToast boolean Show error message
-     */
-    noSupportHandler: function (showToast = false) {
-      this.notificationEnabled = false;
-      this.notificationSupport = false;
-      if (showToast) { this.toastError(this.$t('rooms.notification.browser_support')); }
-    },
-
-    /**
-     * Send notification that the room was started
-     */
-    sendNotification: function () {
-      const options = {
-        body: this.$t('rooms.notification.body', { time: this.$d(new Date(), 'time') }),
-        icon: this.getSetting('favicon')
-      };
-      try {
-        this.notification = new Notification(this.name, options);
-        // on click open current window and remove notification
-        this.notification.addEventListener('click', () => {
-          window.focus();
-          this.clearNotification();
-        });
-
-        const audio = new Audio(notificationSound);
-        audio.play();
-      } catch (e) {
-        // missing full notification api support, e.g. Android
-        if (e.name === 'TypeError') {
-          this.noSupportHandler(true);
-        }
-      }
-    },
-
-    /**
-     * Enable notification for this room
-     */
-    enableNotification: function () {
-      // if permission granted enable notification
-      if (Notification.permission === 'granted') {
-        this.notificationEnabled = true;
-
-        // if permission denied disable notification and show error message
-      } else if (Notification.permission === 'denied') {
-        this.notificationEnabled = false;
-        this.toastError(this.$t('rooms.notification.denied'));
-
-        // if no permission decision was made yet, request permission
-      } else {
-        Notification.requestPermission().then((permission) => {
-          // permission granted, enable notification
-          if (permission === 'granted') {
-            this.notificationEnabled = true;
-
-            // permission denied, disable notification and show error message
-          } else {
-            this.notificationEnabled = false;
-            this.toastError(this.$t('rooms.notification.denied'));
-          }
-        });
+onMounted(() => {
+  if (!('Notification' in window)) {
+    noSupportHandler();
+  } else if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+    notificationSupport.value = true;
+  } else {
+    try {
+      const testNotification = new Notification('');
+      testNotification.close();
+      notificationSupport.value = true;
+    } catch (e) {
+      if (e.name === 'TypeError') {
+        noSupportHandler();
       }
     }
   }
+});
+
+const clearNotification = () => {
+  if (notification.value != null) {
+    notification.value.close();
+    notification.value = null;
+  }
 };
+
+const noSupportHandler = (showToast = false) => {
+  notificationEnabled.value = false;
+  notificationSupport.value = false;
+  if (showToast) {
+    toast.error(t('rooms.notification.browser_support'));
+  }
+};
+
+const sendNotification = () => {
+  const options = {
+    body: t('rooms.notification.body', { time: d(new Date(), 'time') }),
+    icon: settingsStore.getSetting('favicon')
+  };
+  try {
+    notification.value = new Notification(props.roomName, options);
+    notification.value.addEventListener('click', () => {
+      window.focus();
+      clearNotification();
+    });
+
+    const audio = new Audio(notificationSound);
+    audio.play();
+  } catch (e) {
+    if (e.name === 'TypeError') {
+      noSupportHandler(true);
+    }
+  }
+};
+
+const enableNotification = () => {
+  if (Notification.permission === 'granted') {
+    notificationEnabled.value = true;
+    toast.info(t('rooms.notification.enabled'));
+  } else if (Notification.permission === 'denied') {
+    notificationEnabled.value = false;
+    toast.error(t('rooms.notification.denied'));
+  } else {
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        notificationEnabled.value = true;
+      } else {
+        notificationEnabled.value = false;
+        toast.error(t('rooms.notification.denied'));
+      }
+    });
+  }
+};
+
+function disableNotification () {
+  notificationEnabled.value = false;
+  clearNotification();
+  toast.info(t('rooms.notification.disabled'));
+}
 </script>
-
-<style scoped>
-
-</style>

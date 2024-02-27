@@ -49,14 +49,16 @@
           <p class="p-error" v-html="formErrors.fieldError('new_password_confirmation')" />
         </div>
       </div>
-      <Button
-        :disabled="isBusy"
-        severity="success"
-        type="submit"
-        :loading="isBusy"
-        :label="$t('auth.change_password')"
-        icon="fa-solid fa-save"
-      />
+      <div class="flex justify-content-end">
+        <Button
+          :disabled="isBusy"
+          severity="success"
+          type="submit"
+          :loading="isBusy"
+          :label="$t('auth.change_password')"
+          icon="fa-solid fa-save"
+        />
+      </div>
     </form>
   </div>
 </template>

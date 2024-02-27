@@ -16,7 +16,6 @@
 
     <!-- List of all meetings -->
     <DataTable
-      class="mt-4"
       :totalRecords="meta.total"
       :rows="meta.per_page"
       :value="meetings"
@@ -27,13 +26,14 @@
       scrollable
       lazy
       @page="onPage"
+      class="mt-4 table-auto md:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
       </template>
 
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('meetings.no_historical_data') }}</i>
+        <InlineNote v-if="!isBusy && !loadingError">{{ $t('meetings.no_historical_data') }}</InlineNote>
       </template>
 
       <Column field="start" :header="$t('meetings.start')">
@@ -49,11 +49,11 @@
       </Column>
       <Column
         :header="$t('app.actions')"
-        class="action-column"
+        class="action-column action-column-2"
         v-if="settingsStore.getSetting('attendance.enabled') || settingsStore.getSetting('statistics.meetings.enabled')"
       >
         <template #body="slotProps">
-          <div class="flex flex-row gap-2">
+          <div>
             <RoomTabHistoryStatisticButton
               v-if="slotProps.data.statistical"
               :room-id="props.room.id"

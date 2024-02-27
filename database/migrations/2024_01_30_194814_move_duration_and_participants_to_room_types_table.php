@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('room_types', function (Blueprint $table) {
             $table->integer('max_participants')->nullable();
-            $table->integer('duration')->nullable();
+            $table->integer('max_duration')->nullable();
         });
 
         Schema::table('rooms', function (Blueprint $table) {
@@ -29,7 +29,7 @@ return new class extends Migration
     {
         Schema::table('room_types', function (Blueprint $table) {
             $table->dropColumn('max_participants');
-            $table->dropColumn('duration');
+            $table->dropColumn('max_duration');
         });
 
         Schema::table('rooms', function (Blueprint $table) {

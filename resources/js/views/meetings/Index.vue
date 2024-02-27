@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-5 mb-5">
     <Card>
-      <template #title>{{ $t('meetings.currently_running') }}</template>
+      <template #title><h1 class="m-0 text-3xl">{{ $t('meetings.currently_running') }}</h1></template>
 
       <template #content>
 
@@ -58,8 +58,8 @@
           <!-- Show message on empty attendance list -->
           <template #empty>
             <div v-if="!isBusy && !loadingError">
-              <i v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</i>
-              <i v-else>{{ $t('meetings.no_data_filtered') }}</i>
+              <InlineNote v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</InlineNote>
+              <InlineNote v-else>{{ $t('meetings.no_data_filtered') }}</InlineNote>
             </div>
           </template>
 

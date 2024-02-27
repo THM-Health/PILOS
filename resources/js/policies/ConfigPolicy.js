@@ -1,5 +1,5 @@
 /**
- * Policy for setting actions
+ * Policy for application config actions
  */
 export default {
   /**

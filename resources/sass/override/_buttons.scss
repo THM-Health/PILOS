@@ -1,15 +1,3 @@
-// Custom button text color
-@each $name, $color in $text-color {
-    @if $color {
-        .btn-#{$name} {
-            color: $color;
-        }
-        .btn-#{$name}.disabled {
-            color: $color;
-        }
-        .btn-#{$name}:hover {
-            color: $color;
-        }
-
-    }
+.p-button-label {
+    flex: none;
 }

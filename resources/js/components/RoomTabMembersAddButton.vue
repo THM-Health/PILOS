@@ -22,8 +22,8 @@
 
     <template #footer>
       <div class="flex justify-content-end gap-2">
-        <Button :label="$t('app.cancel')" outlined @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('rooms.members.modals.add.add')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
+        <Button :label="$t('rooms.members.modals.add.add')" severity="success" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
         </div>
     </template>
 

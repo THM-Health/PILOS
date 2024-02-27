@@ -60,8 +60,8 @@ import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
-import {useToast} from "../composables/useToast.js";
-import {useRouter} from "vue-router";
+import { useToast } from '../composables/useToast.js';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   token: {

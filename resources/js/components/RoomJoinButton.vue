@@ -1,29 +1,28 @@
 <template>
   <!-- If room is running, show join button -->
-    <!-- If user is guest, join is only possible if a name is provided -->
-    <Button
-      v-if="props.running"
-      class="p-button-block"
-      :disabled="isLoadingAction || disabled"
-      @click="join"
-      :loading="isLoadingAction"
-      icon="fa-solid fa-door-open"
-      :label="$t('rooms.join')"
-    />
+  <Button
+    v-if="props.running"
+    class="p-button-block"
+    :disabled="isLoadingAction || disabled"
+    @click="join"
+    :loading="isLoadingAction"
+    icon="fa-solid fa-door-open"
+    :label="$t('rooms.join')"
+  />
 
-    <!-- If room is not running -->
-    <Button
-      v-else-if="canStart"
-      class="p-button-block"
-      :disabled="isLoadingAction || disabled"
-      @click="join"
-      :loading="isLoadingAction"
-      icon="fa-solid fa-door-open"
-      :label="$t('rooms.start')"
-    />
+  <!-- If room is not running -->
+  <Button
+    v-else-if="canStart"
+    class="p-button-block"
+    :disabled="isLoadingAction || disabled"
+    @click="join"
+    :loading="isLoadingAction"
+    icon="fa-solid fa-door-open"
+    :label="$t('rooms.start')"
+  />
 
-    <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-  <InlineMessage v-else severity="info" class="w-full"><span class="font-semibold">{{ $t('rooms.not_running') }}</span></InlineMessage>
+  <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
+  <InlineMessage v-else severity="info">{{ $t('rooms.not_running') }}</InlineMessage>
 
   <Dialog
     v-model:visible="showModal"
@@ -106,6 +105,7 @@ import { useI18n } from 'vue-i18n';
 
 const props = defineProps([
   'roomId',
+  'roomName',
   'canStart',
   'running',
   'disabled',
@@ -115,7 +115,7 @@ const props = defineProps([
   'record'
 ]);
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'notRunning', 'forbidden']);
 
 const authStore = useAuthStore();
 
@@ -253,6 +253,7 @@ function getJoinUrl () {
 
         // Room is not running, update running status
         if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
+          toast.error(t('rooms.flash.not_running'));
           emit('notRunning');
           showModal.value = false;
           return;

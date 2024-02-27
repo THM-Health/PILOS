@@ -31,7 +31,6 @@
       </div>
       <!-- table with room members -->
       <DataTable
-        class="mt-4"
         :totalRecords="meta.total"
         :rows="meta.per_page"
         :value="members"
@@ -47,13 +46,14 @@
         @sort="onSort"
         :select-all="selectableMembers === selectedMembers.length && selectableMembers > 0"
         @select-all-change="toggleSelectAll"
+        class="mt-4 table-auto md:table-fixed"
       >
         <template #loading>
           <LoadingRetryButton :error="loadingError" @reload="loadData" />
         </template>
         <!-- Show message on empty attendance list -->
         <template #empty>
-          <i v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</i>
+          <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</InlineNote>
         </template>
 
         <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">
@@ -61,21 +61,33 @@
             <Checkbox
               v-if="authStore.currentUser && authStore.currentUser.id !== slotProps.data.id"
               :model-value="isRowSelected(slotProps.data)"
-              @input="(selected) => onRowSelected(slotProps.data, selected)"
+              @update:modelValue="(selected) => onRowSelected(slotProps.data, selected)"
               :binary="true"
             />
           </template>
         </Column>
-        <Column field="image" :header="$t('rooms.members.image')">
+        <Column field="image" :header="$t('rooms.members.image')" headerStyle="width: 5rem">
           <!-- render user profile image -->
           <template #body="slotProps">
             <UserAvatar :firstname="slotProps.data.firstname" :lastname="slotProps.data.lastname" :image="slotProps.data.image" size="large"/>
           </template>
         </Column>
-        <Column field="firstname" sortable :header="$t('app.firstname')"></Column>
-        <Column field="lastname" sortable :header="$t('app.lastname')"></Column>
-        <Column field="email" sortable :header="$t('app.email')"></Column>
-        <Column field="role" sortable :header="$t('rooms.role')">
+        <Column field="firstname" :header="$t('app.firstname')" sortable>
+          <template #body="slotProps">
+            <text-truncate>{{ slotProps.data.firstname }}</text-truncate>
+          </template>
+        </Column>
+        <Column field="lastname" :header="$t('app.lastname')" sortable>
+          <template #body="slotProps">
+            <text-truncate>{{ slotProps.data.lastname }}</text-truncate>
+          </template>
+        </Column>
+        <Column field="email" :header="$t('settings.users.email')" sortable>
+          <template #body="slotProps">
+            <text-truncate>{{ slotProps.data.email }}</text-truncate>
+          </template>
+        </Column>
+        <Column field="role" sortable headerStyle="width: 8rem" :header="$t('rooms.role')">
           <!-- render user role -->
           <template #body="slotProps">
             <RoomRoleBadge
@@ -83,12 +95,9 @@
             />
           </template>
         </Column>
-        <Column :header="$t('app.actions')" class="action-column" v-if="userPermissions.can('manageSettings', props.room)">
+        <Column :header="$t('app.actions')" class="action-column action-column-2" v-if="userPermissions.can('manageSettings', props.room)">
           <template #body="slotProps">
-            <div
-              v-if="authStore.currentUser?.id !== slotProps.data.id"
-              class="flex gap-2"
-            >
+            <div v-if="authStore.currentUser?.id !== slotProps.data.id">
               <!-- edit membership role -->
               <RoomTabMembersEditButton
                 :room-id="props.room.id"
@@ -113,7 +122,7 @@
         </Column>
       </DataTable>
       <!-- selected rows action buttons -->
-      <div class="flex gap-2" v-if="selectedMembers.length > 0">
+      <div class="flex justify-content-end gap-2 px-3" v-if="selectedMembers.length > 0">
         <!-- bulk edit membership role -->
         <RoomTabMembersBulkEditButton
           :room-id="props.room.id"
@@ -230,6 +239,7 @@ function onPage (event) {
 }
 
 function onSort () {
+  currentPage.value = 1;
   selectedMembers.value = [];
   loadData();
 }

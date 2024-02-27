@@ -29,9 +29,9 @@
       </div>
     </template>
 
-    <InlineMessage severity="info" class="w-full">
+    <InlineNote class="w-full">
       {{ $t('meetings.stats.no_breakout_support') }}
-    </InlineMessage>
+    </InlineNote>
 
     <OverlayComponent :show="isLoadingAction" style="min-height: 100px;" class="mt-4">
       <Chart v-if="!isLoadingAction" type="line" :data="chartData" :options="chartOptions" class="w-full"/>

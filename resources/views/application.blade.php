@@ -13,6 +13,7 @@
     @vite(['resources/js/app.js', 'resources/sass/theme/'.config('app.theme').'/app.scss'])
 </head>
 <body>
-    <div id='app'/>
+    <div id='app'>
+    </div>
 </body>
 </html>

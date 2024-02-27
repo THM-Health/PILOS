@@ -13,7 +13,7 @@ import RoomTypesView from './views/settings/roomTypes/View.vue';
 import UsersIndex from './views/settings/users/Index.vue';
 import UsersView from './views/settings/users/View.vue';
 import NewUser from './views/settings/users/New.vue';
-import Application from './views/settings/Application.vue';
+import Config from './views/settings/Config.vue';
 import SettingsHome from './views/settings/SettingsHome.vue';
 import ServersIndex from './views/settings/servers/Index.vue';
 import ServersView from './views/settings/servers/View.vue';
@@ -263,14 +263,14 @@ export const routes = [
         }
       },
       {
-        path: 'application',
-        name: 'settings.application',
-        component: Application,
+        path: 'config',
+        name: 'settings.config',
+        component: Config,
         meta: {
           requiresAuth: true,
           accessPermitted: (userPermissions) => Promise.resolve(
             userPermissions.can('manage', 'SettingPolicy') &&
-              userPermissions.can('viewAny', 'ApplicationSettingPolicy')
+              userPermissions.can('viewAny', 'ConfigPolicy')
           )
         }
       },

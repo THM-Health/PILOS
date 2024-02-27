@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="px-2 room-description"
+      class="px-2 room-description link-color"
       v-html="props.html"
       ref="roomDescription"
     />
@@ -55,6 +55,7 @@ onMounted(() => {
 function addSafeLinkListeners () {
   const safeLinks = roomDescription.value.querySelectorAll('[href]');
   safeLinks.forEach((link) => {
+    link.classList.add('link');
     link.addEventListener('click', (event) => {
       event.preventDefault();
       confirmOpenLink(link.getAttribute('href'));

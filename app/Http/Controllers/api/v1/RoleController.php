@@ -29,6 +29,7 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        $additionalMeta = [];
         $resource = Role::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
@@ -40,9 +41,16 @@ class RoleController extends Controller
             }
         }
 
+        // count all before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
+
+        if ($request->has('name')) {
+            $resource = $resource->withName($request->query('name'));
+        }
+
         $resource = $resource->paginate(setting('pagination_page_size'));
 
-        return RoleResource::collection($resource);
+        return RoleResource::collection($resource)->additional($additionalMeta);
     }
 
     /**

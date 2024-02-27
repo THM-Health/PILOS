@@ -60,6 +60,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $additionalMeta = [];
         $resource = User::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
@@ -70,6 +71,9 @@ class UserController extends Controller
                 $resource = $resource->orderBy($by, $dir);
             }
         }
+
+        // count all before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         if ($request->has('role')) {
             Validator::make($request->all(), [
@@ -84,7 +88,7 @@ class UserController extends Controller
 
         $resource = $resource->paginate(setting('pagination_page_size'));
 
-        return UserResource::collection($resource);
+        return UserResource::collection($resource)->additional($additionalMeta);
     }
 
     /**

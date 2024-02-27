@@ -2,9 +2,7 @@
   <div class="container">
     <div class="grid mt-4 mb-5">
       <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
-        <Card
-          :pt="{ body: { class: 'p-0' }, content: { class : 'p-0'} }"
-        >
+        <Card>
           <template #content>
             <TabView
               :lazy="true"
@@ -17,14 +15,6 @@
               <TabPanel
                 v-if="settingsStore.getSetting('auth.ldap')"
                 :header="$t('auth.ldap.tab_title')"
-                :pt="{
-                  header: {
-                    class: 'flex-1 flex align-items-center justify-content-center'
-                  },
-                  headerAction: ({ context }) => ({
-                      class: panelClass(context)
-                  })
-                }"
               >
                 <LoginTabLdap
                   id="ldap"
@@ -40,14 +30,6 @@
               <TabPanel
                 v-if="settingsStore.getSetting('auth.shibboleth')"
                 :header="$t('auth.shibboleth.tab_title')"
-                :pt="{
-                  header: {
-                    class: 'flex-1 flex align-items-center justify-content-center'
-                  },
-                  headerAction: ({ context }) => ({
-                      class: panelClass(context)
-                  })
-                }"
               >
                 <LoginTabExternal
                   id="shibboleth"
@@ -59,14 +41,6 @@
               <TabPanel
                 v-if="settingsStore.getSetting('auth.local')"
                 :header="$t('auth.email.tab_title')"
-                :pt="{
-                  header: {
-                    class: 'flex-1 flex align-items-center justify-content-center'
-                  },
-                  headerAction: ({ context }) => ({
-                      class: panelClass(context)
-                  })
-                }"
               >
                 <LoginTabLocal
                   id="local"

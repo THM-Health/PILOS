@@ -36,7 +36,7 @@
           :html="sanitizedHtml"
         />
         <div v-else>
-          <i>{{ $t('rooms.description.missing') }}</i>
+          <InlineNote>{{ $t('rooms.description.missing') }}</InlineNote>
         </div>
       </div>
 
