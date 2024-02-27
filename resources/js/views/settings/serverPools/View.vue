@@ -19,8 +19,6 @@
         @submit.prevent="saveServerPool"
         :aria-hidden="modelLoadingError"
       >
-        <!--Todo check if needed-->
-        <div class="container container-fluid">
           <div class="field grid">
             <label for="name" class="col-12 md:col-4 md:mb-0">{{ $t('app.model_name') }}</label>
             <div class="col-12 md:col-8">
@@ -140,7 +138,6 @@
               :label="$t('app.save')"
             ></Button>
           </div>
-        </div>
       </form>
     </OverlayComponent>
     <ConfirmDialog></ConfirmDialog>

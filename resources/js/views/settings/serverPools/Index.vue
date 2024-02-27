@@ -1,42 +1,35 @@
 <template>
   <div>
-    <div class="grid">
-      <div class="col">
-        <h2>
-          {{ $t('app.server_pools') }}
-        </h2>
-      </div>
-      <div class="col flex justify-content-end align-items-center">
-        <Can
-          method="create"
-          policy="ServerPoolPolicy"
-        >
-          <router-link
-            ref="newServerPool"
-            v-tooltip.left="$t('settings.server_pools.new')"
-            :aria-label="$t('settings.server_pools.new')"
-            :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
-            class="p-button p-button-success"
-          >
-            <i class="fa-solid fa-plus"/>
-          </router-link>
-        </can>
-      </div>
-      <div class="col-12 md:col-3 flex align-items-center">
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.server_pools') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'ServerPolicy')"
+        v-tooltip.left="$t('settings.server_pools.new')"
+        :aria-label="$t('settings.server_pools.new')"
+        :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
+        class="p-button p-button-success p-button-icon-only"
+      >
+        <i class="fa-solid fa-plus"/>
+      </router-link>
+    </div>
+
+    <div class="flex flex-column md:flex-row">
+      <div>
         <InputGroup>
-          <!--ToDo debounce???-->
           <InputText
             v-model="filter"
             :placeholder="$t('app.search')"
-            @change="loadData"
+            @keyup.enter="loadData"
           />
           <Button
             v-tooltip="$t('app.search')"
             :aria-label="$t('app.search')"
             severity="primary"
             @click="loadData"
+            icon="fa-solid fa-magnifying-glass"
           >
-            <i class="fa-solid fa-magnifying-glass"/>
           </Button>
         </InputGroup>
       </div>
@@ -60,15 +53,13 @@
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData"/>
       </template>
-      <!-- Show message on empty user list -->
+      <!-- Show message on empty server pool list -->
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('settings.server_pools.no_data') }}</i>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.server_pools.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.server_pools.no_data_filtered') }}</InlineNote>
+        </div>
       </template>
-      <!--ToDo check if needed-->
-      <!--<template #emptyfiltered>-->
-      <!--<i>{{ $t('settings.server_pools.no_data_filtered') }}</i>-->
-      <!--</template>-->
-      <Column :header="$t('app.id')" field="id" sortable></Column>
       <Column :header="$t('app.model_name')" field="name" sortable></Column>
       <Column :header="$t('settings.server_pools.server_count')" field="servers_count" sortable></Column>
       <Column :header="$t('app.actions')" class="action-column">
@@ -80,7 +71,7 @@
               :aria-la="$t('settings.server_pools.view', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-              class="p-button p-button-info"
+              class="p-button p-button-info p-button-icon-only"
             >
               <i class="fa-solid fa-eye"/>
             </router-link>
@@ -90,7 +81,7 @@
               :aria-label="$t('settings.server_pools.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id } }"
-              class="p-button p-button-secondary"
+              class="p-button p-button-secondary p-button-icon-only"
             >
               <i class="fa-solid fa-edit"/>
             </router-link>
@@ -104,7 +95,6 @@
           </div>
         </template>
       </Column>
-
     </DataTable>
   </div>
 </template>
@@ -121,7 +111,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const serverPools = ref([]);
 const currentPage = ref(1);
-const sortField = ref('id');
+const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
   current_page: 0,
@@ -170,7 +160,6 @@ function onPage (event) {
 }
 
 function onSort () {
-  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }

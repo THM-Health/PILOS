@@ -17,9 +17,6 @@
         :aria-hidden="modelLoadingError"
         @submit.prevent="saveRole"
       >
-        <!--Todo check if needed-->
-        <div class="container container-fluid">
-
           <div class="field grid">
             <label for="name" class="col-12 md:col-4">{{$t('app.model_name')}}</label>
             <div class="col-12 md:col-8">
@@ -74,13 +71,6 @@
               <p class="p-error" v-html="formErrors.fieldError('room_limit')"></p>
             </div>
           </div>
-<!--          ToDo state-->
-<!--          <b-form-group-->
-<!--            :label="$t('settings.roles.permissions')"-->
-<!--            label-size="lg"-->
-<!--            label-class="font-weight-bold pt-0"-->
-<!--            :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"-->
-<!--          >-->
           <div class="field grid">
             <h3>{{ $t('settings.roles.permissions') }}</h3>
             <div class="grid w-full" v-if="!isBusy && Object.keys(permissions).length > 0">
@@ -116,7 +106,6 @@
                         <label :for="permission.name">{{ $t(`app.permissions.${permission.name}`) }}</label>
                       </div>
                       <div class="col-2 flex">
-<!--                        ToDo check for better option-->
                         <Checkbox
                           :input-id="permission.name"
                           v-model="model.permissions"
@@ -126,15 +115,14 @@
                         />
                       </div>
                       <div class="col-2">
-<!--                        ToDo color of icon-->
                         <i
                           v-if="includedPermissions.includes(permission.id)"
-                          class="fa-solid fa-check-circle text-primary"
+                          class="fa-solid fa-check-circle text-green-500"
                           v-tooltip="$t('settings.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                         />
                         <i
                           v-else
-                          class="fa-solid fa-minus-circle text-danger"
+                          class="fa-solid fa-minus-circle text-red-500"
                           v-tooltip="$t('settings.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                         />
                       </div>
@@ -173,7 +161,6 @@
               >
               </Button>
             </div>
-        </div>
       </form>
 
     </OverlayComponent>

@@ -6,8 +6,6 @@
     <Divider/>
       <OverlayComponent :show="isBusy">
         <form @submit.prevent="save">
-<!--          Todo check if needed-->
-          <div class="container container-fluid">
           <div>
             <h3>{{ $t('rooms.settings.general.title') }}</h3>
             <div class="field grid">
@@ -45,6 +43,7 @@
               <div class="col-12 md:col-8">
                 <InputText
                   id="email"
+                  autocomplete="off"
                   class="w-full"
                   v-model="model.email"
                   type="email"
@@ -126,12 +125,13 @@
                 <Password
                   class="w-full"
                   id="new_password"
-                    v-model="model.new_password"
-                    required
-                    :feedback="false"
-                    :toggleMask="true"
-                    :invalid="formErrors.fieldInvalid('new_password')"
-                    :disabled="isBusy"
+                  :inputProps="{ autocomplete: 'off' }"
+                  v-model="model.new_password"
+                  required
+                  :feedback="false"
+                  :toggleMask="true"
+                  :invalid="formErrors.fieldInvalid('new_password')"
+                  :disabled="isBusy"
                 />
                 <p class="p-error" v-html="formErrors.fieldError('new_password')"></p>
               </div>
@@ -174,7 +174,6 @@
                 :label="$t('app.save')"
               />
             </div>
-          </div>
         </form>
       </OverlayComponent>
   </div>

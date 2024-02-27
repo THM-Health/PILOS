@@ -55,7 +55,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import env from '../env';
+import env from '../env.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useApi } from '../composables/useApi.js';
 
@@ -77,7 +77,6 @@ const emit = defineEmits(['deleted']);
 
 const showModal = ref(false);
 const isBusy = ref(false);
-const roomTypeToDelete = ref(undefined);
 const replacement = ref(null);
 const replacementRoomTypes = ref([]);
 const loadingRoomTypes = ref(false);
@@ -90,7 +89,6 @@ const loadingRoomTypes = ref(false);
 function showDeleteModal (roomType) {
   formErrors.clear();
   replacement.value = null;
-  roomTypeToDelete.value = roomType;
   loadReplacementRoomTypes();
   showModal.value = true;
 }
@@ -114,7 +112,7 @@ function loadReplacementRoomTypes () {
 }
 
 /**
- * Deletes the room type that is set in the property `roomTypeToDelete`.
+ * Deletes the room type
  */
 function deleteRoomType () {
   isBusy.value = true;

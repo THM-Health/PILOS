@@ -1,23 +1,39 @@
 <template>
   <div>
-      <div class="grid">
-        <div class="col">
-          <h2>
-            {{ $t('app.roles') }}
-          </h2>
-        </div>
-        <div class="col flex justify-content-end align-items-center">
-            <RouterLink
-              v-if="userPermissions.can('create', 'RolePolicy')"
-              class="float-right p-button p-button-success"
-              v-tooltip="$t('settings.roles.new')"
-              :aria-label="$t('settings.roles.new')"
-              :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
-            >
-              <i class="fa-solid fa-plus" />
-            </RouterLink>
-        </div>
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.roles') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'RolePolicy')"
+        class="p-button p-button-success p-button-icon-only"
+        v-tooltip.left="$t('settings.roles.new')"
+        :aria-label="$t('settings.roles.new')"
+        :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
+      >
+        <i class="fa-solid fa-plus" />
+      </router-link>
+    </div>
+
+    <div class="flex flex-column md:flex-row">
+      <div>
+        <InputGroup>
+          <InputText
+            v-model="filter"
+            :placeholder="$t('app.search')"
+            @keyup.enter="loadData"
+          />
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            severity="primary"
+            @click="loadData"
+            icon="fa-solid fa-magnifying-glass"
+          >
+          </Button>
+        </InputGroup>
       </div>
+    </div>
     <Divider/>
 
     <DataTable
@@ -39,13 +55,14 @@
       </template>
       <!-- Show message on empty role list -->
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('settings.roles.nodata') }}</i>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.roles.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.roles.no_data_filtered') }}</InlineNote>
+        </div>
       </template>
 
-      <Column field="id" :header="$t('app.id')" sortable></Column>
       <Column field="name" :header="$t('app.model_name')" sortable>
         <template #body="slotProps">
-<!--          ToDo check if text-truncate needed-->
           <text-truncate>
             {{ $te(`app.role_labels.${slotProps.data.name}`) ? $t(`app.role_labels.${slotProps.data.name}`) : slotProps.data.name }}
           </text-truncate>
@@ -59,32 +76,32 @@
       <Column :header="$t('app.actions')" class="action-column">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
-              <router-link
-                v-if="userPermissions.can('view', slotProps.data)"
-                class="p-button p-button-info"
-                v-tooltip="$t('settings.roles.view', { name: slotProps.data.id })"
-                :aria-label="$t('settings.roles.view', { name: slotProps.data.id })"
-                :disabled="isBusy"
-                :to="{ name: 'settings.roles.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-              >
-                <i class="fa-solid fa-eye" />
-              </router-link>
-              <router-link
-                v-if="userPermissions.can('update', slotProps.data)"
-                class="p-button p-button-secondary"
-                v-tooltip="$t('settings.roles.edit', { name: slotProps.data.id })"
-                :aria-label="$t('settings.roles.edit', { name: slotProps.data.id })"
-                :disabled="isBusy"
-                :to="{ name: 'settings.roles.view', params: { id: slotProps.data.id } }"
-              >
-                <i class="fa-solid fa-edit" />
-              </router-link>
-              <SettingsRolesDeleteButton
-                v-if="userPermissions.can('delete', slotProps.data)"
-                :id="slotProps.data.id"
-                :name="slotProps.data.name"
-                @deleted="loadData"
-              />
+            <router-link
+              v-if="userPermissions.can('view', slotProps.data)"
+              class="p-button p-button-info p-button-icon-only"
+              v-tooltip="$t('settings.roles.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.roles.view', { name: slotProps.data.name })"
+              :disabled="isBusy"
+              :to="{ name: 'settings.roles.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+            >
+              <i class="fa-solid fa-eye" />
+            </router-link>
+            <router-link
+              v-if="userPermissions.can('update', slotProps.data)"
+              class="p-button p-button-secondary p-button-icon-only"
+              v-tooltip="$t('settings.roles.edit', { name: slotProps.data.name })"
+              :aria-label="$t('settings.roles.edit', { name: slotProps.data.name })"
+              :disabled="isBusy"
+              :to="{ name: 'settings.roles.view', params: { id: slotProps.data.id } }"
+            >
+              <i class="fa-solid fa-edit" />
+            </router-link>
+            <SettingsRolesDeleteButton
+              v-if="userPermissions.can('delete', slotProps.data)"
+              :id="slotProps.data.id"
+              :name="slotProps.data.name"
+              @deleted="loadData"
+            />
           </div>
         </template>
       </Column>
@@ -104,7 +121,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const roles = ref([]);
 const currentPage = ref(1);
-const sortField = ref('id');
+const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
   current_page: 0,
@@ -114,6 +131,7 @@ const meta = ref({
   to: 0,
   total: 0
 });
+const filter = ref(undefined);
 
 onMounted(() => {
   loadData();
@@ -130,7 +148,8 @@ function loadData () {
     params: {
       page: currentPage.value,
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
+      name: filter.value
     }
   };
 
@@ -151,7 +170,6 @@ function onPage (event) {
 }
 
 function onSort () {
-  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }

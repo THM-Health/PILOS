@@ -1,48 +1,42 @@
 <template>
   <div>
-    <div class="grid">
-      <div class="col">
-        <h2>
-          {{ $t('app.users') }}
-        </h2>
-      </div>
-      <div class="col flex justify-content-end align-items-center">
-          <router-link
-            v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
-            ref="new-user-button"
-            v-tooltip.left="$t('settings.users.new')"
-            class="p-button p-button-success"
-            :to="{ name: 'settings.users.new' }"
-          >
-            <i class="fa-solid fa-plus" />
-          </router-link>
-      </div>
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.users') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
+        ref="new-user-button"
+        v-tooltip.left="$t('settings.users.new')"
+        class="p-button p-button-success p-button-icon-only"
+        :to="{ name: 'settings.users.new' }"
+      >
+        <i class="fa-solid fa-plus" />
+      </router-link>
     </div>
 
     <div class="grid">
-      <div
-        class="col-12 sm:col-12 md:col-4"
-      >
-        <InputGroup>
-          <InputText
-            v-model="filter.name"
-            :disabled="isBusy"
-            :placeholder="$t('app.search')"
-            @change="loadData"
-          />
-          <Button
-            :disabled="isBusy"
-            @click="loadData"
-            v-tooltip="$t('app.search')"
-            :aria-label="$t('app.search')"
-            icon="fa-solid fa-magnifying-glass"
-          ></Button>
-        </InputGroup>
+      <div class="col flex flex-column md:flex-row">
+        <div>
+          <InputGroup>
+            <InputText
+              v-model="filter.name"
+              :disabled="isBusy"
+              :placeholder="$t('app.search')"
+              @keyup.enter="loadData"
+            />
+            <Button
+              :disabled="isBusy"
+              @click="loadData"
+              v-tooltip="$t('app.search')"
+              :aria-label="$t('app.search')"
+              icon="fa-solid fa-magnifying-glass"
+            ></Button>
+          </InputGroup>
+        </div>
       </div>
 
-      <div
-        class="col-12 sm:col-12 md:col-4 md:col-offset-4"
-      >
+      <div class="col-12 sm:col-12 md:col-4 md:col-offset-4">
         <InputGroup>
           <multiselect
             id="roles"
@@ -66,7 +60,7 @@
             class="multiselect-form-control"
           >
             <template #noOptions>
-              {{ $t('settings.roles.nodata') }}
+              {{ $t('settings.roles.no_data') }}
             </template>
             <template v-slot:option="{ option }">
               {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
@@ -117,7 +111,6 @@
     </div>
     <Divider/>
 
-<!--    ToDo find solution for mobile devices responsiveLayout="stack" deprecated and breakpoint doesnt seem to work-->
     <DataTable
       :totalRecords="meta.total"
       :rows="meta.per_page"
@@ -138,24 +131,27 @@
       </template>
       <!-- Show message on empty user list -->
       <template #empty>
-        <i v-if="!isBusy && !loadingError">{{ $t('settings.users.no_data') }}</i>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.users.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.users.no_data_filtered') }}</InlineNote>
+        </div>
       </template>
 
 <!--      ToDo fix Column size-->
       <Column field="id" :header="$t('app.id')" sortable class="id-column"/>
       <Column field="firstname" :header="$t('app.firstname')" sortable>
         <template #body="slotProps">
-          <text-truncate>{{ slotProps.data.firstname }}</text-truncate>
+          <TextTruncate>{{ slotProps.data.firstname }}</TextTruncate>
         </template>
       </Column>
       <Column field="lastname" :header="$t('app.lastname')" sortable>
         <template #body="slotProps">
-          <text-truncate>{{ slotProps.data.lastname }}</text-truncate>
+          <TextTruncate>{{ slotProps.data.lastname }}</TextTruncate>
         </template>
       </Column>
       <Column field="email" :header="$t('settings.users.email')" sortable>
         <template #body="slotProps">
-          <text-truncate>{{ slotProps.data.email }}</text-truncate>
+          <TextTruncate>{{ slotProps.data.email }}</TextTruncate>
         </template>
       </Column>
       <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable>
@@ -163,7 +159,7 @@
           {{ $t(`settings.users.authenticator.${slotProps.data.authenticator}`) }}
         </template>
       </Column>
-      <Column field="roles" :header="$t('app.roles')">
+      <Column field="roles" :header="$t('app.roles')" style="max-width: 200px">
         <template #body="slotProps">
           <text-truncate
             v-for="role in slotProps.data.roles"
@@ -176,47 +172,43 @@
       <Column :header="$t('app.actions')" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div>
-            <router-link
-              v-if="userPermissions.can('view', slotProps.data)"
-              class="p-button p-button-icon-only p-button-info"
-              v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :disabled="isBusy"
-              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-            >
-              <i class="fa-solid fa-eye" />
-            </router-link>
-            <router-link
-              v-if="userPermissions.can('update', slotProps.data)"
-              class="p-button p-button-icon-only p-button-secondary"
-              v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :disabled="isBusy"
-              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
-            >
-              <i class="fa-solid fa-edit" />
-            </router-link>
-            <SettingsUsersResetPasswordButton
-              v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
-              :id="slotProps.data.id"
-              :firstname="slotProps.data.firstname"
-              :lastname="slotProps.data.lastname"
-              :email="slotProps.data.email"
-            />
-            <SettingsUsersDeleteButton
-              v-if="userPermissions.can('delete', slotProps.data)"
-              :id="slotProps.data.id"
-              :firstname="slotProps.data.firstname"
-              :lastname="slotProps.data.lastname"
-              @deleted="loadData"
-            />
+                <router-link
+                  v-if="userPermissions.can('view', slotProps.data)"
+                  class="p-button p-button-icon-only p-button-info"
+                  v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :disabled="isBusy"
+                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+                >
+                  <i class="fa-solid fa-eye" />
+                </router-link>
+                <router-link
+                  v-if="userPermissions.can('update', slotProps.data)"
+                  class="p-button p-button-icon-only p-button-secondary"
+                  v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :disabled="isBusy"
+                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
+                >
+                  <i class="fa-solid fa-edit" />
+                </router-link>
+                <SettingsUsersResetPasswordButton
+                  v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
+                  :id="slotProps.data.id"
+                  :firstname="slotProps.data.firstname"
+                  :lastname="slotProps.data.lastname"
+                  :email="slotProps.data.email"
+                ></SettingsUsersResetPasswordButton>
+                <SettingsUsersDeleteButton
+                  v-if="userPermissions.can('delete', slotProps.data)"
+                  :id="slotProps.data.id"
+                  :firstname="slotProps.data.firstname"
+                  :lastname="slotProps.data.lastname"
+                  @deleted="loadData"
+                ></SettingsUsersDeleteButton>
           </div>
         </template>
       </Column>
-<!--      ToDo check if needed-->
-<!--      <template #emptyfiltered>-->
-<!--        <i>{{ $t('settings.users.no_data_filtered') }}</i>-->
-<!--      </template>-->
     </DataTable>
   </div>
 </template>
@@ -334,7 +326,6 @@ function onPage (event) {
 }
 
 function onSort () {
-  // ToDo check if solves problem
   currentPage.value = 1;
   loadData();
 }

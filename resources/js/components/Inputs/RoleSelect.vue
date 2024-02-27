@@ -22,7 +22,7 @@
       :class="{ 'is-invalid': props.invalid, 'multiselect-form-control': true }"
     >
       <template #noOptions>
-        {{ $t('settings.roles.nodata') }}
+        {{ $t('settings.roles.no_data') }}
       </template>
       <template v-slot:option="{ option }">
         {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
@@ -116,7 +116,6 @@ watch(() => props.modelValue, (value) => {
   selectedRoles.value = value;
   disableRoles(selectedRoles.value);
 },
-// ToDo check if needed
 { deep: true }
 );
 
@@ -124,7 +123,6 @@ watch(() => props.disabledRoles, (value) => {
   disableRoles(selectedRoles.value);
   disableRoles(roles.value);
 },
-// Todo check if needed
 { deep: true }
 );
 
@@ -174,9 +172,9 @@ function loadRoles (page = 1) {
     currentPage.value = page;
     hasNextPage.value = page < response.data.meta.last_page;
 
-    const rRoles = response.data.data;
-    disableRoles(rRoles);
-    roles.value = rRoles;
+    const newRoles = response.data.data;
+    disableRoles(newRoles);
+    roles.value = newRoles;
   }).catch(error => {
     // close open multiselect
     rolesMultiselect.value.deactivate();

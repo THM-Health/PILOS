@@ -298,11 +298,6 @@ const props = defineProps({
   viewOnly: {
     type: Boolean,
     required: true
-  },
-
-  modalStatic: {
-    type: Boolean,
-    default: false
   }
 });
 

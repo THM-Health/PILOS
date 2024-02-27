@@ -24,7 +24,12 @@
     </span>
 
     <div v-if="deleteFailedRoomTypes" class="mt-2">
-      <InlineMessage severity="error">
+      <InlineMessage
+        severity="error"
+        :pt="{
+          icon:{class:'hidden'}
+        }"
+      >
         {{ $t('settings.server_pools.delete.failed') }}
         <ul>
           <li
@@ -92,7 +97,6 @@ function deleteServerPool () {
       deleteFailedRoomTypes.value = error.response.data.room_types;
     } else {
       api.error(error);
-      this.clearServerPoolToDelete();
     }
   }).finally(() => {
     isBusy.value = false;
