@@ -18,7 +18,6 @@
     </div>
     <!-- table  -->
     <DataTable
-      class="mt-4"
       :totalRecords="tokens.length"
       :rows="settingsStore.getSetting('pagination_page_size')"
       :value="tokens"
@@ -26,6 +25,7 @@
       paginator
       :loading="isBusy || loadingError"
       rowHover
+      class="mt-4 table-auto lg:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
@@ -35,9 +35,16 @@
         <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.tokens.nodata') }}</InlineNote>
       </template>
 
-      <Column field="firstname" sortable :header="$t('app.firstname')"></Column>
-      <Column field="lastname" sortable :header="$t('app.lastname')"></Column>
-
+      <Column field="firstname" sortable :header="$t('app.firstname')">
+        <template #body="slotProps">
+          <text-truncate>{{ slotProps.data.firstname }}</text-truncate>
+        </template>
+      </Column>
+      <Column field="lastname" sortable :header="$t('app.lastname')">
+        <template #body="slotProps">
+          <text-truncate>{{ slotProps.data.lastname }}</text-truncate>
+        </template>
+      </Column>
       <Column field="expires" sortable :header="$t('rooms.tokens.expires')">
         <template #body="slotProps">
           <raw-text v-if="slotProps.data.expires == null">
@@ -56,15 +63,15 @@
         </template>
       </Column>
 
-      <Column field="role" sortable :header="$t('rooms.role')">
+      <Column field="role" sortable :header="$t('rooms.role')" headerStyle="width: 8rem">
         <template #body="slotProps">
           <RoomRoleBadge :role="slotProps.data.role" />
         </template>
       </Column>
 
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')" class="action-column action-column-3">
         <template #body="slotProps">
-          <div class="flex gap-2">
+          <div>
             <!-- copy -->
             <RoomTabPersonalizedLinksCopyButton
               :room-id="props.room.id"

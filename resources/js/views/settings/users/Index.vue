@@ -124,6 +124,7 @@
       v-model:sortOrder="sortOrder"
       @page="onPage"
       @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
@@ -137,34 +138,28 @@
       </template>
 
 <!--      ToDo fix Column size-->
-      <Column field="id" :header="$t('app.id')" sortable style="width: 1px"/>
-      <Column field="firstname" :header="$t('app.firstname')" sortable style="max-width: 200px">
+      <Column field="id" :header="$t('app.id')" sortable class="id-column"/>
+      <Column field="firstname" :header="$t('app.firstname')" sortable>
         <template #body="slotProps">
-          <TextTruncate>
-            {{slotProps.data.firstname}}
-          </TextTruncate>
+          <text-truncate>{{ slotProps.data.firstname }}</text-truncate>
         </template>
       </Column>
-      <Column field="lastname" :header="$t('app.lastname')" sortable style="max-width: 200px">
+      <Column field="lastname" :header="$t('app.lastname')" sortable>
         <template #body="slotProps">
-          <TextTruncate>
-            {{slotProps.data.lastname}}
-          </TextTruncate>
+          <text-truncate>{{ slotProps.data.lastname }}</text-truncate>
         </template>
       </Column>
-      <Column field="email" :header="$t('settings.users.email')" sortable style="max-width: 200px">
+      <Column field="email" :header="$t('settings.users.email')" sortable>
         <template #body="slotProps">
-          <TextTruncate>
-            {{slotProps.data.email}}
-          </TextTruncate>
+          <text-truncate>{{ slotProps.data.email }}</text-truncate>
         </template>
       </Column>
-      <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable style="width: 1px">
+      <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable>
         <template #body="slotProps">
           {{ $t(`settings.users.authenticator.${slotProps.data.authenticator}`) }}
         </template>
       </Column>
-      <Column field="roles" :header="$t('app.roles')" style="max-width: 200px">
+      <Column field="roles" :header="$t('app.roles')">
         <template #body="slotProps">
           <text-truncate
             v-for="role in slotProps.data.roles"
@@ -174,43 +169,43 @@
           </text-truncate>
         </template>
       </Column>
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
-          <div class="flex flex-row gap-2">
-                <router-link
-                  v-if="userPermissions.can('view', slotProps.data)"
-                  class="p-button p-button-icon-only p-button-info"
-                  v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :disabled="isBusy"
-                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-                >
-                  <i class="fa-solid fa-eye" />
-                </router-link>
-                <router-link
-                  v-if="userPermissions.can('update', slotProps.data)"
-                  class="p-button p-button-icon-only p-button-secondary"
-                  v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :disabled="isBusy"
-                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
-                >
-                  <i class="fa-solid fa-edit" />
-                </router-link>
-                <SettingsUsersResetPasswordButton
-                  v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
-                  :id="slotProps.data.id"
-                  :firstname="slotProps.data.firstname"
-                  :lastname="slotProps.data.lastname"
-                  :email="slotProps.data.email"
-                ></SettingsUsersResetPasswordButton>
-                <SettingsUsersDeleteButton
-                  v-if="userPermissions.can('delete', slotProps.data)"
-                  :id="slotProps.data.id"
-                  :firstname="slotProps.data.firstname"
-                  :lastname="slotProps.data.lastname"
-                  @deleted="loadData"
-                ></SettingsUsersDeleteButton>
+          <div>
+            <router-link
+              v-if="userPermissions.can('view', slotProps.data)"
+              class="p-button p-button-icon-only p-button-info"
+              v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :disabled="isBusy"
+              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+            >
+              <i class="fa-solid fa-eye" />
+            </router-link>
+            <router-link
+              v-if="userPermissions.can('update', slotProps.data)"
+              class="p-button p-button-icon-only p-button-secondary"
+              v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :disabled="isBusy"
+              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
+            >
+              <i class="fa-solid fa-edit" />
+            </router-link>
+            <SettingsUsersResetPasswordButton
+              v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
+              :id="slotProps.data.id"
+              :firstname="slotProps.data.firstname"
+              :lastname="slotProps.data.lastname"
+              :email="slotProps.data.email"
+            />
+            <SettingsUsersDeleteButton
+              v-if="userPermissions.can('delete', slotProps.data)"
+              :id="slotProps.data.id"
+              :firstname="slotProps.data.firstname"
+              :lastname="slotProps.data.lastname"
+              @deleted="loadData"
+            />
           </div>
         </template>
       </Column>
@@ -224,10 +219,14 @@ import { onMounted, ref } from 'vue';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
 import { Multiselect } from 'vue-multiselect';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
+
+// first: view action, second: edit action (requires only view permission for current user), third: resend pw (required at least update), fourth: delete action
+const actionColumn = useActionColumn([{ permissions: ['users.view'] }, { permissions: ['users.view'] }, { permissions: ['users.update'] }, { permissions: ['users.delete'] }]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);
