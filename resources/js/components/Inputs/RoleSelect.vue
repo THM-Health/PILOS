@@ -172,9 +172,9 @@ function loadRoles (page = 1) {
     currentPage.value = page;
     hasNextPage.value = page < response.data.meta.last_page;
 
-    const rRoles = response.data.data;
-    disableRoles(rRoles);
-    roles.value = rRoles;
+    const newRoles = response.data.data;
+    disableRoles(newRoles);
+    roles.value = newRoles;
   }).catch(error => {
     // close open multiselect
     rolesMultiselect.value.deactivate();
