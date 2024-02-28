@@ -154,6 +154,24 @@
               </div>
               <p class="p-error" v-html="formErrors.fieldError('listed')" />
             </div>
+
+            <Divider class="my-0"/>
+            <p class="text-lg font-semibold m-0">{{ $t('rooms.settings.recordings.title') }}</p>
+
+            <!-- Checkbox record attendance of users and guests -->
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="record-attendance"
+                  v-model="settings.record_attendance"
+                  :disabled="disabled || (settings.room_type && !settings.room_type.allow_record_attendance) || !settingsStore.getSetting('attendance.enabled')"
+                  class="flex-shrink-0"
+                  :invalid="formErrors.fieldInvalid('record_attendance')"
+                />
+                <label for="record-attendance">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
+            </div>
           </div>
 
           <!-- Participants settings tab -->
@@ -225,21 +243,6 @@
             >
               {{ $t('rooms.settings.participants.waiting_room_alert') }}
             </InlineMessage>
-
-            <!-- Checkbox record attendance of users and guests -->
-            <div class="flex flex-column gap-2">
-              <div class="flex align-items-center gap-2">
-                <InputSwitch
-                  input-id="record-attendance"
-                  v-model="settings.record_attendance"
-                  :disabled="disabled || !settingsStore.getSetting('attendance.enabled')"
-                  class="flex-shrink-0"
-                  :invalid="formErrors.fieldInvalid('default_role')"
-                />
-                <label for="record-attendance">{{ $t('rooms.settings.participants.record_attendance') }}</label>
-              </div>
-              <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
-            </div>
           </div>
 
           <!-- Permissions & Restrictions tab -->
@@ -547,16 +550,26 @@ const showLobbyAlert = computed(() => {
   return settings.value.default_role === 2 && settings.value.lobby === 1;
 });
 
-watch(settings, () => {
-  if (!settings.value) { return; }
+function applyRoomRestrictions (roomType) {
+  if (!roomType) { return; }
 
-  if (settings.value.room_type && !settings.value.room_type.allow_listing && settings.value.access_code) {
+  if (roomType.require_access_code && !settings.value.access_code) {
+    createAccessCode();
+  }
+
+  if (!roomType.allow_listing) {
     settings.value.listed = false;
   }
 
-  if (settings.value.room_type && settings.value.room_type.require_access_code && !settings.value.access_code) {
-    createAccessCode();
+  if (!roomType.allow_record_attendance) {
+    settings.value.record_attendance = false;
   }
+}
+
+watch(settings, () => {
+  if (!settings.value) { return; }
+
+  applyRoomRestrictions(settings.value.room_type);
 }, { deep: true });
 
 onMounted(() => {
