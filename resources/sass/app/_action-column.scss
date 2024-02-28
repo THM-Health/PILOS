@@ -11,10 +11,6 @@ td.action-column > div {
     flex-direction: row;
     justify-content: end;
     gap: $actionColumButtonGap;
-
-    .p-button{
-        flex-shrink: 0;
-    }
 }
 
 
@@ -38,6 +34,10 @@ td.action-column > div {
             &#{$prefix}table-fixed {
                 table{
                     table-layout: fixed;
+
+                    .p-button{
+                        flex-shrink: 0;
+                    }
 
                     @for $i from 2 through 6 {
                         th.action-column-1 {
