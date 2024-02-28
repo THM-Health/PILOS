@@ -38,7 +38,7 @@
 
     <DataTable
       :value="roomTypes"
-      sort-field="description"
+      sort-field="name"
       :sort-order="1"
       paginator
       stripedRows
@@ -46,21 +46,21 @@
       :loading="isBusy"
       :rows="settingsStore.getSetting('pagination_page_size')"
       v-model:filters="filters"
-      :globalFilterFields="['description']"
+      :globalFilterFields="['name']"
       class="table-auto lg:table-fixed"
     >
       <template #empty>
         <InlineNote v-if="roomTypes.length === 0">{{ $t('settings.room_types.no_data') }}</InlineNote>
         <InlineNote v-else>{{ $t('settings.room_types.no_data_filtered') }}</InlineNote>
       </template>
-      <Column field="description" key="description" :header="$t('app.description')" :sortable="true"></Column>
+      <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true"></Column>
       <Column field="actions" :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
               class="p-button p-button-icon-only p-button-info"
-              v-tooltip="$t('settings.room_types.view', { name: slotProps.data.description })"
+              v-tooltip="$t('settings.room_types.view', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
             >
@@ -69,7 +69,7 @@
             <router-link
               v-if="userPermissions.can('update', slotProps.data)"
               class="p-button p-button-icon-only p-button-secondary"
-              v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.description })"
+              v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id } }"
             >
@@ -78,7 +78,7 @@
             <SettingsRoomTypesDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
-              :description="slotProps.data.description"
+              :name="slotProps.data.name"
               @deleted="fetchRoomTypes"
             />
           </div>

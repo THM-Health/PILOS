@@ -20,7 +20,7 @@ class RoomType extends Model
         'allow_record_attendance' => 'boolean',
     ];
 
-    protected $fillable = ['description','color', 'restrict'];
+    protected $fillable = ['name','color', 'restrict'];
 
     public function rooms()
     {

@@ -21,7 +21,7 @@ function handleOk () {
 
 <template>
   <InputGroup v-if="model">
-    <InputText :value="model.description" readonly />
+    <InputText :value="model.name" readonly />
     <Button icon="fa-solid fa-edit" @click="editRoomType" :aria-label="$t('rooms.settings.general.change_type')" />
   </InputGroup>
 

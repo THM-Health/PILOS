@@ -122,7 +122,7 @@ class RoomController extends Controller
 
                 break;
             case RoomSortingType::ROOM_TYPE:
-                $collection = $collection->orderBy('room_types.description')->orderBy('rooms.name');
+                $collection = $collection->orderBy('room_types.name')->orderBy('rooms.name');
 
                 break;
             case RoomSortingType::LAST_STARTED:

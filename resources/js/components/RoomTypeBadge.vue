@@ -5,7 +5,7 @@
         root: { style: { background: roomType.color } }
     }"
   >
-    {{ roomType.description }}
+    {{ roomType.name }}
   </Tag>
 </template>
 

@@ -10,7 +10,7 @@ class RoomTypeRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'description'             => ['required', 'string', 'max:255', Rule::unique('room_types', 'description')],
+            'name'                    => ['required', 'string', 'max:255', Rule::unique('room_types', 'name')],
             'color'                   => ['required', 'string', 'hex_color'],
             'allow_listing'           => ['required', 'boolean'],
             'max_duration'            => 'nullable|numeric|min:1',
@@ -24,7 +24,7 @@ class RoomTypeRequest extends FormRequest
         ];
 
         if ($this->roomType) {
-            $rules['description']   = ['required', 'string', 'max:255', Rule::unique('room_types', 'description')->ignore($this->roomType->id)];
+            $rules['name']   = ['required', 'string', 'max:255', Rule::unique('room_types', 'name')->ignore($this->roomType->id)];
         }
 
         return $rules;
