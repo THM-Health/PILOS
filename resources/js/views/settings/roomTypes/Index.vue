@@ -53,7 +53,11 @@
         <InlineNote v-if="roomTypes.length === 0">{{ $t('settings.room_types.no_data') }}</InlineNote>
         <InlineNote v-else>{{ $t('settings.room_types.no_data_filtered') }}</InlineNote>
       </template>
-      <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true"></Column>
+      <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true">
+        <template #body="slotProps">
+          <TextTruncate>{{slotProps.data.name}}</TextTruncate>
+        </template>
+      </Column>
       <Column field="actions" :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">

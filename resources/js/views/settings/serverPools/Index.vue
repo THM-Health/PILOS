@@ -61,7 +61,11 @@
           <InlineNote v-else>{{ $t('settings.server_pools.no_data_filtered') }}</InlineNote>
         </div>
       </template>
-      <Column :header="$t('app.model_name')" field="name" sortable></Column>
+      <Column :header="$t('app.model_name')" field="name" sortable>
+        <template #body="slotProps">
+          <TextTruncate>{{slotProps.data.name}}</TextTruncate>
+        </template>
+      </Column>
       <Column :header="$t('settings.server_pools.server_count')" field="servers_count" sortable></Column>
       <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
