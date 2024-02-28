@@ -80,7 +80,7 @@ const imageDeleted = defineModel('imageDeleted');
 const fileName = ref(null);
 const newImageUrl = ref(null);
 
-const props = defineProps({
+defineProps({
   showDelete: {
     type: Boolean,
     default: false

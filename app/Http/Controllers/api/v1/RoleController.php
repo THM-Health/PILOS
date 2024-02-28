@@ -30,7 +30,7 @@ class RoleController extends Controller
     public function index(Request $request)
     {
         $additionalMeta = [];
-        $resource = Role::query();
+        $resource       = Role::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');

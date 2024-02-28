@@ -58,7 +58,7 @@ class RoomTypeController extends Controller
             }
         }
 
-        return RoomTypeResource::collection($roomTypes->orderBy('description')->get());
+        return RoomTypeResource::collection($roomTypes->orderBy('name')->get());
     }
 
     /**
@@ -81,7 +81,7 @@ class RoomTypeController extends Controller
      */
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
-        $roomType->description             = $request->description;
+        $roomType->name                    = $request->name;
         $roomType->color                   = $request->color;
         $roomType->allow_listing           = $request->allow_listing;
         $roomType->restrict                = $request->restrict;
@@ -107,7 +107,7 @@ class RoomTypeController extends Controller
     public function store(RoomTypeRequest $request)
     {
         $roomType                          = new RoomType();
-        $roomType->description             = $request->description;
+        $roomType->name                    = $request->name;
         $roomType->color                   = $request->color;
         $roomType->allow_listing           = $request->allow_listing;
         $roomType->restrict                = $request->restrict;

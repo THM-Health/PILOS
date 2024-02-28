@@ -180,7 +180,7 @@ import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import RoomHeader from '../../components/RoomHeader.vue';
-import RoomShareButton from "../../components/RoomShareButton.vue";
+import RoomShareButton from '../../components/RoomShareButton.vue';
 
 const props = defineProps({
   id: {

@@ -50,7 +50,7 @@ class RoomType extends JsonResource
     {
         return [
             'id'            => $this->id,
-            'description'   => $this->description,
+            'name'          => $this->name,
             'color'         => $this->color,
             'allow_listing' => $this->allow_listing,
             'server_pool'   => $this->when($this->withServerPool, function () {

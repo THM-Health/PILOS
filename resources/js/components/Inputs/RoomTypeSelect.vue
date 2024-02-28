@@ -26,7 +26,7 @@
       :disabled="disabled || isLoadingAction"
       @change="changeRoomType"
       :options="roomTypes"
-      optionLabel="description"
+      optionLabel="name"
       optionValue="id"
       :invalid="props.invalid"
       class="w-full"

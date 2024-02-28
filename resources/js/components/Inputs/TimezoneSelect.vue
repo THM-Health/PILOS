@@ -45,7 +45,7 @@ const props = defineProps({
     default: false
   },
   ariaLabelledby: {
-    type: String,
+    type: String
   }
 });
 

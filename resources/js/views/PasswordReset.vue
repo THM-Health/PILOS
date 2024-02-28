@@ -52,10 +52,7 @@
 </template>
 
 <script setup>
-import FieldErrors from '@/mixins/FieldErrors';
-import Base from '@/api/base';
 import env from '@/env';
-import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';

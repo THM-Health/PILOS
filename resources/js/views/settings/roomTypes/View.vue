@@ -2,8 +2,8 @@
   <div>
     <h2>
       {{ id === 'new' ? $t('settings.room_types.new') : (
-        viewOnly ? $t('settings.room_types.view', { name: description })
-        : $t('settings.room_types.edit', { name: description })
+        viewOnly ? $t('settings.room_types.view', { name })
+        : $t('settings.room_types.edit', { name })
       ) }}
     </h2>
     <Divider/>
@@ -13,17 +13,17 @@
       </template>
       <form @submit.prevent="saveRoomType">
         <div class="field grid">
-          <label for="description" class="col-12 md:col-4 md:mb-0">{{$t('app.description')}}</label>
+          <label for="name" class="col-12 md:col-4 md:mb-0">{{$t('app.model_name')}}</label>
           <div class="col-12 md:col-8">
             <InputText
               class="w-full"
-              id="description"
-              v-model="model.description"
+              id="name"
+              v-model="model.name"
               type="text"
-              :invalid="formErrors.fieldInvalid('description')"
+              :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
           </div>
         </div>
 
@@ -301,7 +301,7 @@ const props = defineProps({
 
 const isBusy = ref(false);
 const model = ref({
-  description: null,
+  name: null,
   color: env.ROOM_TYPE_COLORS[0],
   server_pool: null,
   allow_listing: false,
@@ -313,7 +313,7 @@ const model = ref({
   roles: []
 });
 
-const description = ref('');
+const name = ref('');
 
 const rolesLoading = ref(false);
 const colors = env.ROOM_TYPE_COLORS;
@@ -347,7 +347,7 @@ function loadRoomType () {
 
     api.call(`roomTypes/${props.id}`).then(response => {
       model.value = response.data.data;
-      description.value = response.data.data.description;
+      name.value = response.data.data.name;
       modelLoadingError.value = false;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
@@ -410,7 +410,7 @@ function saveRoomType () {
       router.push({ name: 'settings.room_types.view', params: { id: response.data.data.id } });
     } else {
       model.value = response.data.data;
-      description.value = response.data.data.description;
+      name.value = response.data.data.name;
     }
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -443,7 +443,7 @@ function handleStaleError (staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
-      description.value = staleError.new_model.description;
+      name.value = staleError.new_model.name;
     }
   });
 }

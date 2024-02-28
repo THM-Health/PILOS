@@ -1,6 +1,6 @@
 <template>
   <Button
-    v-tooltip="$t('settings.room_types.delete.item', { id: props.description })"
+    v-tooltip="$t('settings.room_types.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
     @click="showDeleteModal"
@@ -19,7 +19,7 @@
     :draggable = false
   >
     <span>
-      {{ $t('settings.room_types.delete.confirm', { name: props.description }) }}
+      {{ $t('settings.room_types.delete.confirm', { name: props.name }) }}
     </span>
     <Divider/>
     <div class="flex flex-column gap-2">
@@ -67,7 +67,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  description: {
+  name: {
     type: String,
     required: true
   }
@@ -101,7 +101,7 @@ function loadReplacementRoomTypes () {
     }).map(roomType => {
       return {
         value: roomType.id,
-        text: roomType.description
+        text: roomType.name
       };
     });
   }).catch(error => {

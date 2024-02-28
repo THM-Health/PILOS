@@ -27,7 +27,7 @@ class ServerPoolController extends Controller
     public function index(Request $request)
     {
         $additionalMeta = [];
-        $resource = ServerPool::withCount('servers');
+        $resource       = ServerPool::withCount('servers');
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');

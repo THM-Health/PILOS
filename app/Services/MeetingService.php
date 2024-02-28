@@ -265,12 +265,12 @@ class MeetingService
             $name = Auth::user()->fullname;
         }
 
-        $userId = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
+        $userId         = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
         $roomUserRole   = $this->meeting->room->getRole(Auth::user(), $token);
 
         $bbbRole = Role::VIEWER;
 
-        if($roomUserRole->is(RoomUserRole::MODERATOR) || $roomUserRole->is(RoomUserRole::CO_OWNER) || $roomUserRole->is(RoomUserRole::OWNER)) {
+        if ($roomUserRole->is(RoomUserRole::MODERATOR) || $roomUserRole->is(RoomUserRole::CO_OWNER) || $roomUserRole->is(RoomUserRole::OWNER)) {
             $bbbRole = Role::MODERATOR;
         }
 

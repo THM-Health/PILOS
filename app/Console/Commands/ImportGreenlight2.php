@@ -68,7 +68,7 @@ class ImportGreenlight2 extends Command
         // ask user what room type the imported rooms should get
         $roomType = select(
             label: 'What room type should the rooms be assigned to?',
-            options: RoomType::pluck('description', 'id'),
+            options: RoomType::pluck('name', 'id'),
             scroll: 10
         );
 

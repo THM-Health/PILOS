@@ -36,7 +36,7 @@
             v-for="roomType in deleteFailedRoomTypes"
             :key="roomType.id"
           >
-            {{ roomType.description }}
+            {{ roomType.name }}
           </li>
         </ul>
       </InlineMessage>

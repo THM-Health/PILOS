@@ -127,7 +127,7 @@
             :placeholder="$t('rooms.room_types.all')"
             :options="roomTypes"
             showClear
-            optionLabel="description"
+            optionLabel="name"
             optionValue="id"
           >
             <template #clearicon="{ clearCallback }">
