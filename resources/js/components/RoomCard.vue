@@ -121,10 +121,6 @@ const running = computed(() => {
  * Details modal
  */
 const showModal = ref(false);
-function handleOk () {
-  showModal.value = false;
-  router.push(link.value);
-}
 
 function open () {
   router.push(link.value);

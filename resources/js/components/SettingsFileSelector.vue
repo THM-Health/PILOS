@@ -65,7 +65,7 @@ const fileDeleted = defineModel('fileDeleted');
 
 const fileName = ref(null);
 
-const props = defineProps({
+defineProps({
   showDelete: {
     type: Boolean,
     default: false

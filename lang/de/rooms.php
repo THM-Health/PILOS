@@ -148,16 +148,16 @@ return [
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [
-        'share' => 'Teilen',
-        'title' => 'Zugangsdaten für Teilnehmer',
-        'copy' => 'Kopieren',
+        'share'  => 'Teilen',
+        'title'  => 'Zugangsdaten für Teilnehmer',
+        'copy'   => 'Kopieren',
         'code'   => 'Zugangscode',
         'copied' => 'Zugangsdaten in Zwischenablage kopiert',
         'link'   => 'Link',
         'room'   => 'An ":roomname" mit :platform teilnehmen',
     ],
     'join'            => 'Beitreten',
-    'join_room' => 'Raum betreten',
+    'join_room'       => 'Raum betreten',
     'login'           => 'Anmelden',
     'meeting_history' => [
         'title' => 'Historie',
@@ -171,11 +171,11 @@ return [
         'image'             => 'Bild',
         'modals'            => [
             'add' => [
-                'add'         => 'Hinzufügen',
-                'no_options'  => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
-                'no_result'   => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
-                'select_role' => 'Bitte wählen Sie eine Rolle aus',
-                'select_user' => 'Bitte wählen Sie einen Benutzer aus',
+                'add'              => 'Hinzufügen',
+                'no_options'       => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
+                'no_result'        => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
+                'select_role'      => 'Bitte wählen Sie eine Rolle aus',
+                'select_user'      => 'Bitte wählen Sie einen Benutzer aus',
                 'too_many_results' => 'Es wurden zu viele Benutzer gefunden. Bitte geben Sie einen genaueren Suchbegriff ein.',
             ],
             'bulk_import' => [
@@ -254,14 +254,14 @@ return [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
         'all'           => 'Alle Raumarten',
-        'restrictions' => [
-            'title' => 'Einschränkungen',
-            'none' => 'Keine',
-            'no_listing' => 'In öffentlicher Raumsuche verborgen',
+        'restrictions'  => [
+            'title'                  => 'Einschränkungen',
+            'none'                   => 'Keine',
+            'no_listing'             => 'In öffentlicher Raumsuche verborgen',
             'no_attendace_recording' => 'Keine Anwesenheitsprotokollierung',
-            'require_access_code' => 'Zugangscode erforderlich',
-            'max_participants' => 'Max. :participants Teilnehmer',
-            'max_duration' => 'Max. :duration Minuten',
+            'require_access_code'    => 'Zugangscode erforderlich',
+            'max_participants'       => 'Max. :participants Teilnehmer',
+            'max_duration'           => 'Max. :duration Minuten',
         ]
     ],
     'settings' => [
@@ -297,7 +297,7 @@ return [
             'title'          => 'Berechtigungen',
         ],
         'recordings' => [
-            'title' => 'Aufzeichnungen',
+            'title'             => 'Aufzeichnungen',
             'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
         ],
         'restrictions' => [
@@ -323,7 +323,7 @@ return [
         'title' => 'Einstellungen',
     ],
     'start'        => 'Starten',
-    'start_room' => 'Raum starten',
+    'start_room'   => 'Raum starten',
     'tokens'       => [
         'add'              => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete'   => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',

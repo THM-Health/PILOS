@@ -42,7 +42,7 @@ class ServerController extends Controller
         }
 
         $additionalMeta = [];
-        $resource = Server::query();
+        $resource       = Server::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');

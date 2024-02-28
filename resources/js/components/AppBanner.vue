@@ -44,9 +44,7 @@
 </template>
 
 <script setup>
-import {computed} from "vue";
-
-const props = defineProps({
+defineProps({
   background: {
     type: String,
     default: null,
