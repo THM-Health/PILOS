@@ -40,6 +40,7 @@
         paginator
         :loading="isBusy || loadingError"
         rowHover
+        stripedRows
         v-model:sortField="sortField"
         v-model:sortOrder="sortOrder"
         @page="onPage"

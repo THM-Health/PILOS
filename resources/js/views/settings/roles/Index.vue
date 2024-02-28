@@ -45,10 +45,12 @@
       paginator
       :loading="isBusy || loadingError"
       rowHover
+      stripedRows
       v-model:sortField="sortField"
       v-model:sortOrder="sortOrder"
       @page="onPage"
       @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
@@ -73,7 +75,7 @@
           {{ $t(`app.${slotProps.data.default ? 'yes' : 'no'}`) }}
         </template>
       </Column>
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
             <router-link
@@ -113,9 +115,11 @@
 import { useApi } from '@/composables/useApi.js';
 import { onMounted, ref } from 'vue';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['roles.view'] }, { permissions: ['roles.update'] }, { permissions: ['roles.delete'] }]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);

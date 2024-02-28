@@ -53,8 +53,10 @@
       lazy
       paginator
       rowHover
+      stripedRows
       @page="onPage"
       @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()"/>
@@ -67,14 +69,14 @@
         </div>
       </template>
 <!--      ToDo fix Column size-->
-      <Column :header="$t('app.model_name')" field="name" sortable style="max-width: 100px">
+      <Column :header="$t('app.model_name')" field="name" sortable>
         <template #body="slotProps">
           <text-truncate>
             {{ slotProps.data.name }}
           </text-truncate>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.status')" field="status" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.status')" field="status" sortable>
         <template #body="slotProps">
           <Tag
             v-if="slotProps.data.status === -1"
@@ -105,7 +107,7 @@
           </Tag>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.version')" field="version" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.version')" field="version" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.version !== null">{{ slotProps.data.version }}</span>
           <raw-text v-else>
@@ -113,7 +115,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.meeting_count')" field="meeting_count" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.meeting_count')" field="meeting_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.meeting_count !== null">{{ slotProps.data.meeting_count }}</span>
           <raw-text v-else>
@@ -121,7 +123,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.participant_count')" field="participant_count" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.participant_count')" field="participant_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.participant_count !== null">{{ slotProps.data.participant_count }}</span>
           <raw-text v-else>
@@ -129,7 +131,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.video_count')" field="video_count" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.video_count')" field="video_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.video_count !== null">{{ slotProps.data.video_count }}</span>
           <raw-text v-else>
@@ -137,7 +139,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
             <router-link
@@ -178,10 +180,12 @@
 <script setup>
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 import { onMounted, ref } from 'vue';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['servers.view'] }, { permissions: ['servers.update'] }, { permissions: ['servers.delete'] }]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);
