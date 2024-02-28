@@ -1,4 +1,15 @@
 .multiselect--disabled{
+
+    opacity: 1;
+
+    .multiselect__tags {
+        background-color: $disabledInputBg;
+    }
+
+    .p-chip-remove-icon {
+        opacity: 0.6;
+    }
+
     .multiselect__select {
         display: none;
     }
@@ -43,6 +54,7 @@
 
     .multiselect__tags{
         border: $inputBorder;
+        border-radius: $borderRadius;
         padding: $inputPadding;
     }
 

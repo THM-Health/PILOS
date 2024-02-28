@@ -23,6 +23,7 @@
       paginator
       :loading="isBusy || loadingError"
       rowHover
+      stripedRows
       scrollable
       lazy
       @page="onPage"

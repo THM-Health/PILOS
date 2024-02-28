@@ -284,7 +284,6 @@ return [
                 'title'          => 'Standardrolle',
             ],
             'max_participants'  => 'Max. Teilnehmeranzahl',
-            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
             'title'             => 'Teilnehmer',
             'waiting_room'      => [
                 'only_for_guests_enabled' => 'Aktiviert für Gäste',
@@ -296,6 +295,10 @@ return [
             'everyone_start' => 'Jeder darf das Meeting starten',
             'mute_mic'       => 'Mikrofon bei Beitritt stummschalten',
             'title'          => 'Berechtigungen',
+        ],
+        'recordings' => [
+            'title' => 'Aufzeichnungen',
+            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
         ],
         'restrictions' => [
             'disable_cam'            => 'Webcam deaktivieren',

@@ -46,8 +46,10 @@
       lazy
       paginator
       rowHover
+      stripedRows
       @page="onPage"
       @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData"/>
@@ -61,7 +63,7 @@
       </template>
       <Column :header="$t('app.model_name')" field="name" sortable></Column>
       <Column :header="$t('settings.server_pools.server_count')" field="servers_count" sortable></Column>
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
             <router-link
@@ -101,10 +103,12 @@
 <script setup>
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 import { onMounted, ref } from 'vue';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['serverPools.view'] }, { permissions: ['serverPools.update'] }, { permissions: ['serverPools.delete'] }]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);

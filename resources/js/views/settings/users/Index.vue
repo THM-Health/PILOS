@@ -120,6 +120,7 @@
       paginator
       :loading="isBusy || loadingError"
       rowHover
+      stripedRows
       v-model:sortField="sortField"
       v-model:sortOrder="sortOrder"
       @page="onPage"
@@ -141,17 +142,17 @@
       <Column field="id" :header="$t('app.id')" sortable class="id-column"/>
       <Column field="firstname" :header="$t('app.firstname')" sortable>
         <template #body="slotProps">
-          <text-truncate>{{ slotProps.data.firstname }}</text-truncate>
+          <TextTruncate>{{ slotProps.data.firstname }}</TextTruncate>
         </template>
       </Column>
       <Column field="lastname" :header="$t('app.lastname')" sortable>
         <template #body="slotProps">
-          <text-truncate>{{ slotProps.data.lastname }}</text-truncate>
+          <TextTruncate>{{ slotProps.data.lastname }}</TextTruncate>
         </template>
       </Column>
       <Column field="email" :header="$t('settings.users.email')" sortable>
         <template #body="slotProps">
-          <text-truncate>{{ slotProps.data.email }}</text-truncate>
+          <TextTruncate>{{ slotProps.data.email }}</TextTruncate>
         </template>
       </Column>
       <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable>
@@ -159,6 +160,7 @@
           {{ $t(`settings.users.authenticator.${slotProps.data.authenticator}`) }}
         </template>
       </Column>
+<!--      ToDo style="max-width: 200px"?-->
       <Column field="roles" :header="$t('app.roles')">
         <template #body="slotProps">
           <text-truncate
@@ -172,40 +174,40 @@
       <Column :header="$t('app.actions')" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div>
-            <router-link
-              v-if="userPermissions.can('view', slotProps.data)"
-              class="p-button p-button-icon-only p-button-info"
-              v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :disabled="isBusy"
-              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-            >
-              <i class="fa-solid fa-eye" />
-            </router-link>
-            <router-link
-              v-if="userPermissions.can('update', slotProps.data)"
-              class="p-button p-button-icon-only p-button-secondary"
-              v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :disabled="isBusy"
-              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
-            >
-              <i class="fa-solid fa-edit" />
-            </router-link>
-            <SettingsUsersResetPasswordButton
-              v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
-              :id="slotProps.data.id"
-              :firstname="slotProps.data.firstname"
-              :lastname="slotProps.data.lastname"
-              :email="slotProps.data.email"
-            />
-            <SettingsUsersDeleteButton
-              v-if="userPermissions.can('delete', slotProps.data)"
-              :id="slotProps.data.id"
-              :firstname="slotProps.data.firstname"
-              :lastname="slotProps.data.lastname"
-              @deleted="loadData"
-            />
+                <router-link
+                  v-if="userPermissions.can('view', slotProps.data)"
+                  class="p-button p-button-icon-only p-button-info"
+                  v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :disabled="isBusy"
+                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+                >
+                  <i class="fa-solid fa-eye" />
+                </router-link>
+                <router-link
+                  v-if="userPermissions.can('update', slotProps.data)"
+                  class="p-button p-button-icon-only p-button-secondary"
+                  v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+                  :disabled="isBusy"
+                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
+                >
+                  <i class="fa-solid fa-edit" />
+                </router-link>
+                <SettingsUsersResetPasswordButton
+                  v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
+                  :id="slotProps.data.id"
+                  :firstname="slotProps.data.firstname"
+                  :lastname="slotProps.data.lastname"
+                  :email="slotProps.data.email"
+                />
+                <SettingsUsersDeleteButton
+                  v-if="userPermissions.can('delete', slotProps.data)"
+                  :id="slotProps.data.id"
+                  :firstname="slotProps.data.firstname"
+                  :lastname="slotProps.data.lastname"
+                  @deleted="loadData"
+                />
           </div>
         </template>
       </Column>

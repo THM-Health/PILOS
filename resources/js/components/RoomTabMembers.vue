@@ -40,6 +40,7 @@
         paginator
         :loading="isBusy || loadingError"
         rowHover
+        stripedRows
         v-model:sortField="sortField"
         v-model:sortOrder="sortOrder"
         @page="onPage"
@@ -56,7 +57,7 @@
           <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</InlineNote>
         </template>
 
-        <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="userPermissions.can('manageSettings', props.room)">
+        <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="showManagementColumns">
           <template #body="slotProps">
             <Checkbox
               v-if="authStore.currentUser && authStore.currentUser.id !== slotProps.data.id"
@@ -95,7 +96,7 @@
             />
           </template>
         </Column>
-        <Column :header="$t('app.actions')" class="action-column action-column-2" v-if="userPermissions.can('manageSettings', props.room)">
+        <Column :header="$t('app.actions')" class="action-column action-column-2" v-if="showManagementColumns">
           <template #body="slotProps">
             <div v-if="authStore.currentUser?.id !== slotProps.data.id">
               <!-- edit membership role -->
@@ -247,6 +248,10 @@ function onSort () {
 // amount of members that can be selected on the current page (user cannot select himself)
 const selectableMembers = computed(() => {
   return members.value.filter(member => member.id !== authStore.currentUser?.id).length;
+});
+
+const showManagementColumns = computed(() => {
+  return userPermissions.can('manageSettings', props.room);
 });
 
 /**
