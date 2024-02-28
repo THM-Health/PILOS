@@ -29,8 +29,7 @@
             severity="primary"
             @click="loadData"
             icon="fa-solid fa-magnifying-glass"
-          >
-          </Button>
+          />
         </InputGroup>
       </div>
     </div>

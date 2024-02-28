@@ -31,7 +31,7 @@
               v-tooltip="$t('app.search')"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
-            ></Button>
+            />
           </InputGroup>
         </div>
       </div>
@@ -77,7 +77,7 @@
                 @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
                 icon="fa-solid fa-arrow-left"
                 :label="$t('app.previous_page')"
-              ></Button>
+              />
               <Button
                 :disabled="rolesLoading || !rolesHasNextPage"
                 outlined
@@ -85,7 +85,7 @@
                 @click="loadRoles(rolesCurrentPage + 1)"
                 icon="fa-solid fa-arrow-right"
                 :label=" $t('app.next_page') "
-              ></Button>
+              />
               </div>
             </template>
           </multiselect>
@@ -96,7 +96,7 @@
               severity="secondary"
               @click="clearFilterRole"
               icon="fa-solid fa-xmark"
-            ></Button>
+            />
 
             <Button
               v-if="rolesLoadingError"
@@ -105,7 +105,7 @@
               badge-severity="secondary"
               @click="loadRoles(rolesCurrentPage)"
               icon="fa-solid fa-sync"
-            ></Button>
+            />
         </InputGroup>
       </div>
     </div>

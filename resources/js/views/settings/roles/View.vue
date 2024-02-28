@@ -41,9 +41,8 @@
                 severity="link"
                 class="secondary"
                 :disabled="isBusy || modelLoadingError"
-                >
-                <i class="fa-solid fa-circle-info" />
-                </Button>
+                icon="fa-solid fa-circle-info"
+                />
               </span>
             </label>
             <div class="col-12 md:col-8">
@@ -158,8 +157,7 @@
                 class="ml-1"
                 icon="fa-solid fa-save"
                 :label="$t('app.save')"
-              >
-              </Button>
+              />
             </div>
       </form>
 

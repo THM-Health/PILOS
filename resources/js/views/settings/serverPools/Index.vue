@@ -29,8 +29,7 @@
             severity="primary"
             @click="loadData"
             icon="fa-solid fa-magnifying-glass"
-          >
-          </Button>
+          />
         </InputGroup>
       </div>
     </div>
@@ -68,7 +67,7 @@
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="$t('settings.server_pools.view', { name: slotProps.data.name })"
-              :aria-la="$t('settings.server_pools.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.server_pools.view', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
               class="p-button p-button-info p-button-icon-only"

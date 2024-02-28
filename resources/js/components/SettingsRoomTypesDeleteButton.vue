@@ -47,8 +47,8 @@
       <small id="replacement-help">{{$t('settings.room_types.delete.replacement_info')}}</small>
     </div>
     <template #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteRoomType"></Button>
+      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteRoomType"/>
     </template>
   </Dialog>
 </template>

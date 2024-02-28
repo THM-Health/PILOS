@@ -111,10 +111,9 @@
                 v-if="serverPoolsLoadingError"
                 severity="secondary"
                 outlined
-                @click="loadServerPools(currentPage)"
-              >
-                <i class="fa-solid fa-sync" />
-              </Button>
+                @click="loadServerPools(serverPoolsCurrentPage)"
+                icon="fa-solid fa-sync"
+              />
             </InputGroup>
             <p class="p-error" v-html="formErrors.fieldError('server_pool')"></p>
             <small id="server_pool-help">{{$t('settings.room_types.server_pool_description')}}</small>
@@ -262,8 +261,7 @@
             class="ml-1"
             icon="fa-solid fa-save"
             :label="$t('app.save')"
-          >
-          </Button>
+          />
         </div>
       </form>
     </OverlayComponent>

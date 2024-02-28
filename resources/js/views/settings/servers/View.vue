@@ -146,7 +146,7 @@
                   icon="fa-solid fa-link"
                   severity="info"
                   @click="testConnection()"
-                ></Button>
+                />
               </InputGroup>
               <p v-if="offlineReason" class="p-error">
                 {{ $t('settings.servers.offline_reason.' + offlineReason) }}
@@ -170,7 +170,7 @@
               icon="fa-solid fa-save"
               severity="success"
               type="submit"
-            ></Button>
+            />
           </div>
       </form>
       <div
@@ -257,7 +257,7 @@
                 icon="fa-solid fa-exclamation-triangle"
                 severity="danger"
                 @click="panic()"
-              ></Button>
+              />
             </div>
             <small id="panic-help">{{ $t('settings.servers.panic_description') }}</small>
           </div>

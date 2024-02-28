@@ -92,8 +92,7 @@
                       @click="loadServers(Math.max(1, serversCurrentPage - 1))"
                       icon="fa-solid fa-arrow-left"
                       :label="$t('app.previous_page')"
-                    >
-                    </Button>
+                    />
                     <Button
                       :disabled="serversLoading || !serversHasNextPage"
                       outlined
@@ -101,8 +100,7 @@
                       @click="loadServers(serversCurrentPage + 1)"
                       icon="fa-solid fa-arrow-right"
                       :label="$t('app.next_page')"
-                    >
-                    </Button>
+                    />
                   </template>
                 </multiselect>
                 <Button
@@ -111,8 +109,7 @@
                   variant="secondary"
                   @click="loadServers(serversCurrentPage)"
                   icon="fa-solid fa-sync"
-                >
-                </Button>
+                />
               </InputGroup>
             </div>
             <p class="p-error" v-html="formErrors.fieldError('servers', true)"></p>
@@ -136,7 +133,7 @@
               class="ml-1"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
-            ></Button>
+            />
           </div>
       </form>
     </OverlayComponent>
