@@ -55,7 +55,7 @@ class ServerPoolTest extends TestCase
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role       = Role::factory()->create(['default' => true]);
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'serverPools.viewAny' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);
@@ -364,7 +364,7 @@ class ServerPoolTest extends TestCase
         $this->actingAs($this->user)->deleteJson(route('api.v1.serverPools.destroy', ['serverPool'=>$serverPool->id]))
             ->assertStatus(CustomStatusCodes::STALE_MODEL)
             ->assertJsonCount(2, 'room_types')
-            ->assertJsonFragment(['id'=>$roomTypes[0]->id, 'description'=>$roomTypes[0]->description]);
+            ->assertJsonFragment(['id'=>$roomTypes[0]->id, 'name'=>$roomTypes[0]->name]);
         $roomTypes[0]->delete();
         $roomTypes[1]->delete();
 

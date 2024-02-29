@@ -106,9 +106,9 @@ class RoleTest extends TestCase
 
     public function testUpdate()
     {
-        $user       = User::factory()->create();
+        $user               = User::factory()->create();
         $superuserRole      = Role::factory()->create(['superuser' => true, 'room_limit' => -1]);
-        $role      = Role::factory()->create(['room_limit' => 20]);
+        $role               = Role::factory()->create(['room_limit' => 20]);
         $user->roles()->attach([$superuserRole->id]);
 
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
@@ -191,7 +191,6 @@ class RoleTest extends TestCase
         $this->putJson(route('api.v1.roles.update', ['role'=>$role]), $changes)
             ->assertStatus(422)
             ->assertJsonValidationErrors(['permissions', 'name', 'room_limit']);
-
     }
 
     public function testUpdatePermissionLost()
@@ -247,8 +246,8 @@ class RoleTest extends TestCase
 
     public function testDelete()
     {
-        $user       = User::factory()->create();
-        $role      = Role::factory()->create();
+        $user               = User::factory()->create();
+        $role               = Role::factory()->create();
         $superuserRole      = Role::factory()->create(['superuser' => true]);
         $user->roles()->attach([$role->id, $superuserRole->id]);
 

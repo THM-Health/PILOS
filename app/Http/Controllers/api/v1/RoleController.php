@@ -93,7 +93,7 @@ class RoleController extends Controller
     public function update(RoleRequest $request, Role $role)
     {
         // Cannot change room_limit or permissions for superuser role
-        if(!$role->superuser){
+        if (!$role->superuser) {
             $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
 
             $role->permissions()->sync($request->permissions);

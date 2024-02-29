@@ -13,14 +13,14 @@ class RoomTypeRequest extends FormRequest
             'name'                    => ['required', 'string', 'max:255', Rule::unique('room_types', 'name')],
             'color'                   => ['required', 'string', 'hex_color'],
             'allow_listing'           => ['required', 'boolean'],
-            'max_duration'            => 'nullable|numeric|min:1',
-            'max_participants'        => 'nullable|numeric|min:1',
+            'max_duration'            => ['present','nullable','numeric','min:1'],
+            'max_participants'        => ['present','nullable','numeric','min:1'],
             'require_access_code'     => ['required', 'boolean'],
             'allow_record_attendance' => ['required', 'boolean'],
-            'server_pool'             => 'required|exists:App\Models\ServerPool,id',
+            'server_pool'             => ['required', 'exists:App\Models\ServerPool,id'],
             'restrict'                => ['required', 'boolean'],
             'roles'                   => [Rule::requiredIf($this->boolean('restrict')), 'array'],
-            'roles.*'                 => 'distinct|exists:App\Models\Role,id'
+            'roles.*'                 => ['distinct', 'exists:App\Models\Role,id']
         ];
 
         if ($this->roomType) {
