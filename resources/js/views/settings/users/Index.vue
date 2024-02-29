@@ -63,10 +63,10 @@
               {{ $t('settings.roles.no_data') }}
             </template>
             <template v-slot:option="{ option }">
-              {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
+              {{ option.name }}
             </template>
             <template v-slot:singleLabel="{ option }">
-              {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
+              {{ option.name }}
             </template>
             <template #afterList>
               <div class="flex p-2 gap-2">
@@ -165,7 +165,7 @@
             v-for="role in slotProps.data.roles"
             :key="role.id"
           >
-            {{ $te(`app.role_labels.${role.name}`) ? $t(`app.role_labels.${role.name}`) : role.name }}
+            {{ role.name }}
           </text-truncate>
         </template>
       </Column>

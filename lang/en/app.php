@@ -157,10 +157,6 @@ return [
     'profile'       => 'Profile',
     'reload'        => 'Reload',
     'reset'         => 'Reset',
-    'role_labels'   => [
-        'admin' => 'Administrator',
-        'user'  => 'User',
-    ],
     'roles'         => 'Roles',
     'room_limit'    => 'Room limit',
     'room_types'    => 'Room types',

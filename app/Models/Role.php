@@ -24,7 +24,7 @@ class Role extends Model
     protected $fillable = ['name'];
 
     protected $casts = [
-        'default' => 'boolean'
+        'superuser' => 'boolean'
     ];
 
     /**

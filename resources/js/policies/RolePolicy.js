@@ -39,8 +39,8 @@ export default {
    * @param role
    * @return {boolean}
    */
-  update (user, role) {
-    return !user ? false : user.permissions.includes('roles.update') && !role.default;
+  update (user) {
+    return !user ? false : user.permissions.includes('roles.update');
   },
 
   /**
@@ -51,6 +51,6 @@ export default {
    * @return {boolean}
    */
   delete (user, role) {
-    return !user ? false : user.permissions.includes('roles.delete') && !role.default;
+    return !user ? false : user.permissions.includes('roles.delete') && !role.superuser;
   }
 };

@@ -5,8 +5,8 @@ namespace App\Console;
 use App\Console\Commands\CleanupAttendance;
 use App\Console\Commands\CleanupRooms;
 use App\Console\Commands\CleanupStatistics;
-use App\Console\Commands\CreateAdminUser;
 use App\Console\Commands\BuildHistory;
+use App\Console\Commands\CreateSuperuser;
 use App\Console\Commands\DeleteObsoleteTokens;
 use App\Console\Commands\DeleteUnverifiedNewUsers;
 use App\Console\Commands\ImportGreenlight2;
@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         BuildHistory::class,
-        CreateAdminUser::class,
+        CreateSuperuser::class,
         ImportGreenlight2::class,
         CleanupAttendance::class,
         CleanupStatistics::class,

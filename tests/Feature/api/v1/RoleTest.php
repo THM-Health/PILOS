@@ -67,7 +67,7 @@ class RoleTest extends TestCase
         $roleA      = Role::factory()->create();
         $user->roles()->attach([$roleA->id]);
 
-        $role = ['name' => $roleA->name, 'default' => true, 'permissions' => 'test', 'room_limit' => -2];
+        $role = ['name' => $roleA->name, 'superuser' => true, 'permissions' => 'test', 'room_limit' => -2];
 
         $this->postJson(route('api.v1.roles.store', $role))->assertUnauthorized();
         $this->actingAs($user)->postJson(route('api.v1.roles.store', $role))->assertStatus(403);
@@ -98,16 +98,18 @@ class RoleTest extends TestCase
         $this->assertDatabaseCount('roles', 2);
         $this->assertDatabaseCount('permission_role', 2);
         $roleDB = Role::where(['name' => 'Test'])->first();
-        $this->assertFalse($roleDB->default);
+
+        // check if superuser cannot be set, even if it is sent
+        $this->assertFalse($roleDB->superuser);
         $this->assertEquals(10, $roleDB->room_limit);
     }
 
     public function testUpdate()
     {
         $user       = User::factory()->create();
-        $roleA      = Role::factory()->create(['default' => true, 'room_limit' => 20]);
-        $roleB      = Role::factory()->create(['default' => true, 'room_limit' => 20]);
-        $user->roles()->attach([$roleA->id]);
+        $superuserRole      = Role::factory()->create(['superuser' => true, 'room_limit' => -1]);
+        $role      = Role::factory()->create(['room_limit' => 20]);
+        $user->roles()->attach([$superuserRole->id]);
 
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
 
@@ -120,72 +122,76 @@ class RoleTest extends TestCase
         ];
 
         $changes = [
-            'name'        => $roleB->name,
+            'name'        => 'NewSuperuser',
             'permissions' => [$permission_ids[0], $permission_ids[1], $permission_ids[2], $permission_ids[3], $new_permission],
-            'default'     => true,
-            'room_limit'  => null
+            'superuser'   => false,
+            'room_limit'  => 10
         ];
 
-        $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
+        // Test update superuser role unauthorized
+        $this->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
             ->assertUnauthorized();
 
-        $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
+        // Test update superuser role authorized, but without permissions
+        $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
             ->assertStatus(403);
 
-        $roleA->permissions()->attach($permission_ids);
+        // Test update superuser role with permissions
+        $superuserRole->permissions()->attach($permission_ids);
 
-        $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
-            ->assertStatus(403);
-
-        $roleA->default = false;
-        $roleA->save();
-
-        $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
             ->assertStatus(CustomStatusCodes::STALE_MODEL);
 
         $changes['updated_at'] = Carbon::now();
 
-        $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('name');
-
-        $changes['name'] = $roleA->name;
-
-        $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
             ->assertSuccessful();
 
-        $roleA->refresh();
-        $this->assertEquals($changes['name'], $roleA->name);
-        $this->assertEquals(false, $roleA->default);
-        $this->assertEquals(null, $roleA->room_limit);
-        $this->assertEquals($changes['permissions'], $roleA->permissions()->pluck('permissions.id')->toArray());
+        $superuserRole->refresh();
 
-        // Test empty permissions array
-        $roleB->permissions()->attach($permission_ids);
-        $roleB->default = false;
-        $roleB->save();
+        // Changing name of superuser role is allowed
+        $this->assertEquals('NewSuperuser', $superuserRole->name);
+
+        // Changing permissions and room_limit cannot be changed for superuser
+        $this->assertEquals(-1, $superuserRole->room_limit);
+        $this->assertNotEquals($changes['permissions'], $superuserRole->permissions()->pluck('permissions.id')->toArray());
+
+        // Changing superuser to false is not possible
+        $this->assertTrue($superuserRole->superuser);
+
+        // Test editing with empty permissions
+        $role->permissions()->attach($permission_ids);
         $changes = [
-            'name'        => $roleB->name,
+            'name'        => 'NewUser',
             'permissions' => [],
-            'default'     => false,
-            'room_limit'  => null,
-            'updated_at'  => $roleB->updated_at
+            'superuser'   => true,
+            'room_limit'  => -1,
+            'updated_at'  => $role->updated_at
         ];
-        $this->putJson(route('api.v1.roles.update', ['role'=>$roleB]), $changes)
-            ->assertSuccessful();
-        $roleB->refresh();
-        $this->assertEquals(0, $roleB->permissions()->count());
 
-        // Test missing permissions array
+        $this->putJson(route('api.v1.roles.update', ['role'=>$role]), $changes)
+            ->assertSuccessful();
+        $role->refresh();
+
+        // Check if changes are applied
+        $this->assertEquals('NewUser', $role->name);
+        $this->assertEquals(0, $role->permissions()->count());
+        $this->assertEquals(-1, $role->room_limit);
+
+        // Changing superuser to true is not possible
+        $this->assertFalse($role->superuser);
+
+        // Test invalid / missing
         $changes = [
-            'name'        => $roleB->name,
-            'default'     => false,
-            'room_limit'  => null,
-            'updated_at'  => $roleB->updated_at
+            'name'        => $superuserRole->name,
+            'superuser'   => false,
+            'room_limit'  => -10,
+            'updated_at'  => $role->updated_at
         ];
-        $this->putJson(route('api.v1.roles.update', ['role'=>$roleB]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role'=>$role]), $changes)
             ->assertStatus(422)
-            ->assertJsonValidationErrors('permissions');
+            ->assertJsonValidationErrors(['permissions', 'name', 'room_limit']);
+
     }
 
     public function testUpdatePermissionLost()
@@ -242,27 +248,31 @@ class RoleTest extends TestCase
     public function testDelete()
     {
         $user       = User::factory()->create();
-        $roleA      = Role::factory()->create(['default' => true]);
-        $roleB      = Role::factory()->create();
-        $user->roles()->attach([$roleA->id, $roleB->id]);
+        $role      = Role::factory()->create();
+        $superuserRole      = Role::factory()->create(['superuser' => true]);
+        $user->roles()->attach([$role->id, $superuserRole->id]);
 
-        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleA]))->assertUnauthorized();
-        $this->actingAs($user)->deleteJson(route('api.v1.roles.destroy', ['role' => $roleA]))->assertStatus(403);
+        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))->assertUnauthorized();
+        $this->actingAs($user)->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))->assertStatus(403);
 
         $permission = Permission::firstOrCreate([ 'name' => 'roles.delete' ]);
-        $roleA->permissions()->attach($permission->id);
-        $roleB->permissions()->attach($permission->id);
+        $superuserRole->permissions()->attach($permission->id);
+        $role->permissions()->attach($permission->id);
 
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => self::INVALID_ID]))->assertNotFound();
-        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleA]))->assertStatus(403);
-        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleB]))
+
+        // check if superuser role cannot be deleted
+        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $superuserRole]))->assertStatus(403);
+
+        // check if role with linked users cannot be deleted
+        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))
             ->assertStatus(CustomStatusCodes::ROLE_DELETE_LINKED_USERS)
             ->assertJsonFragment([
                 'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
                 'message' => __('app.errors.role_delete_linked_users')
             ]);
 
-        $roleB->users()->detach([$user->id]);
-        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleB]))->assertSuccessful();
+        $role->users()->detach([$user->id]);
+        $this->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))->assertSuccessful();
     }
 }

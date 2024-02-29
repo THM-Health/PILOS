@@ -20,7 +20,7 @@
     :draggable = false
   >
     <span>
-      {{ $t('settings.roles.delete.confirm', { name: $te(`app.role_labels.${props.name}`) ? $t(`app.role_labels.${props.name}`) : props.name }) }}
+      {{ props.name }}
     </span>
     <template #footer>
       <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>

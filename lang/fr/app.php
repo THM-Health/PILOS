@@ -151,10 +151,6 @@ return [
     'profile'       => 'Profil',
     'reload'        => 'Recharger',
     'reset'         => 'Réinitialiser',
-    'role_labels'   => [
-        'admin' => 'Administrateur',
-        'user'  => 'Utilisateur',
-    ],
     'roles'         => 'Rôles',
     'room_limit'    => 'Limitation de salle',
     'room_types'    => 'Types de salle',
