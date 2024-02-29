@@ -3,8 +3,6 @@ import _ from 'lodash';
 import { useLocaleStore } from './locale';
 import { useApi } from '@/composables/useApi';
 
-const api = useApi();
-
 export const useAuthStore = defineStore('auth', {
   state: () => {
     return {
@@ -16,6 +14,8 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     login: async function (credentials, method) {
+      const api = useApi();
+
       await api.call('login/' + method, {
         method: 'post',
         data: credentials
@@ -25,6 +25,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async getCurrentUser () {
+      const api = useApi();
+
       let currentUser = await api.call('currentUser').then(response => {
         return response.data.data;
       });
@@ -44,6 +46,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout () {
+      const api = useApi();
+
       const response = await api.call('logout', {
         method: 'post'
       });

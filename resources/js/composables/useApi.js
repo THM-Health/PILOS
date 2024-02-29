@@ -6,6 +6,11 @@ import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 
 export function useApi () {
+  const auth = useAuthStore();
+  const router = useRouter();
+  const toast = useToast();
+  const { t } = i18n.global;
+
   return {
     /**
      * Makes a request with the passed params.
@@ -35,11 +40,6 @@ export function useApi () {
      * @param error The occurred error
      */
     error (error) {
-      const auth = useAuthStore();
-      const router = useRouter();
-      const toast = useToast();
-      const { t } = i18n.global;
-
       const responseStatus = error.response !== undefined ? error.response.status : undefined;
       const errorMessage = error.response && error.response.data ? error.response.data.message : undefined;
 

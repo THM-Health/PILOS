@@ -25,12 +25,12 @@
         {{ $t('settings.roles.no_data') }}
       </template>
       <template v-slot:option="{ option }">
-        {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
+        {{ option.name }}
       </template>
       <template v-slot:tag="{ option, remove }" >
           <Chip
             :key="option.name"
-            :label="$te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name"
+            :label="option.name"
             :removable="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty)"
             @remove="remove(option)"
           />

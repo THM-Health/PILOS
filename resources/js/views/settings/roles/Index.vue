@@ -65,14 +65,12 @@
 
       <Column field="name" :header="$t('app.model_name')" sortable>
         <template #body="slotProps">
-          <text-truncate>
-            {{ $te(`app.role_labels.${slotProps.data.name}`) ? $t(`app.role_labels.${slotProps.data.name}`) : slotProps.data.name }}
-          </text-truncate>
-        </template>
-      </Column>
-      <Column field="default" :header="$t('settings.roles.default')" sortable>
-        <template #body="slotProps">
-          {{ $t(`app.${slotProps.data.default ? 'yes' : 'no'}`) }}
+          <div class="flex flex-row gap-2 align-items-center">
+            <text-truncate>
+              {{ slotProps.data.name }}
+            </text-truncate>
+            <Tag icon="fa-solid fa-crown" value="Superuser" v-if="slotProps.data.superuser" />
+          </div>
         </template>
       </Column>
       <Column :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">

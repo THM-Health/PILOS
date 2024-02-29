@@ -2,8 +2,8 @@
   <div>
     <h2>
       {{ id === 'new' ? $t('settings.roles.new') : (
-        viewOnly ? $t('settings.roles.view', { name: $te(`app.role_labels.${model.name}`) ? $t(`app.role_labels.${model.name}`) : model.name })
-        : $t('settings.roles.edit', { name: $te(`app.role_labels.${model.name}`) ? $t(`app.role_labels.${model.name}`) : model.name })
+        viewOnly ? $t('settings.roles.view', { name: model.name })
+        : $t('settings.roles.edit', { name: model.name })
       ) }}
     </h2>
     <Divider/>
@@ -53,7 +53,7 @@
                   ::inputId="option.value"
                   :value="option.value"
                   @change="roomLimitModeChanged(option.value)"
-                  :disabled="isBusy || modelLoadingError || viewOnly"
+                  :disabled="isBusy || modelLoadingError || viewOnly || model.superuser"
                 />
                 <label :for="option.value" class="ml-2">{{option.text}}</label>
               </div>
@@ -110,7 +110,7 @@
                           :input-id="permission.name"
                           v-model="model.permissions"
                           :value="permission.id"
-                          :disabled="isBusy || modelLoadingError || viewOnly"
+                          :disabled="isBusy || modelLoadingError || viewOnly || model.superuser"
                           :invalid="formErrors.fieldInvalid('permissions', true)"
                         />
                       </div>
