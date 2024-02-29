@@ -16,20 +16,17 @@
       <div>
         <InputGroup>
           <InputText
-            v-model="filters['global'].value"
+            v-model="nameSearch"
             :placeholder="$t('app.search')"
+            @keyup.enter="filters['name'].value = nameSearch"
           />
-<!--          ToDo??-->
-<!--          <Button-->
-<!--            v-tooltip="$t('app.search')"-->
-<!--            :aria-label="$t('app.search')"-->
-<!--            icon="fa-solid fa-magnifying-glass"-->
-<!--            severity="primary"-->
-<!--          >-->
-<!--          </Button>-->
-          <InputGroupAddon class="bg-green-500">
-            <i class="fa-solid fa-magnifying-glass text-white"></i>
-          </InputGroupAddon>
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            icon="fa-solid fa-magnifying-glass"
+            severity="primary"
+            @click="filters['name'].value = nameSearch"
+          />
         </InputGroup>
       </div>
     </div>
@@ -46,7 +43,6 @@
       :loading="isBusy"
       :rows="settingsStore.getSetting('pagination_page_size')"
       v-model:filters="filters"
-      :globalFilterFields="['name']"
       class="table-auto lg:table-fixed"
     >
       <template #empty>
@@ -107,8 +103,9 @@ const actionColumn = useActionColumn([{ permissions: ['roomTypes.view'] }, { per
 
 const isBusy = ref(false);
 const roomTypes = ref([]);
+const nameSearch = ref('');
 const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  name: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
 onMounted(() => {
