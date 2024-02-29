@@ -1,6 +1,6 @@
 <template>
   <div class="grid">
-    <div class="col-12 lg:col-9 flex gap-2 align-items-start">
+    <div class="col-12 lg:col-9 flex gap-2 align-items-start" v-if="!viewOnly">
     <FileUpload
       v-if="!imageDeleted"
       mode="basic"
