@@ -6,6 +6,40 @@
         : $t('settings.room_types.edit', { name })
       ) }}
     </h2>
+    <div class="flex justify-content-between">
+      <router-link
+        class="p-button p-button-secondary"
+        :disabled="isBusy"
+        :to="{ name: 'settings.room_types' }"
+      >
+        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
+      </router-link>
+      <div v-if="model.id && id !== 'new'" class="flex gap-2">
+        <router-link
+          v-if="!viewOnly && userPermissions.can('view', model)"
+          class="p-button p-button-secondary"
+          :disabled="isBusy"
+          :to="{ name: 'settings.room_types.view', params: { id: model.id }, query: { view: '1' } }"
+        >
+          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
+        </router-link>
+        <router-link
+          v-if="viewOnly && userPermissions.can('update', model)"
+          class="p-button p-button-secondary"
+          :disabled="isBusy"
+          :to="{ name: 'settings.room_types.view', params: { id: model.id } }"
+        >
+          <i class="fa-solid fa-edit mr-2" /> {{$t('app.edit')}}
+        </router-link>
+        <SettingsRoomTypesDeleteButton
+          v-if="userPermissions.can('delete', model)"
+          :id="model.id"
+          :description="model.name"
+          @deleted="$router.push({ name: 'settings.room_types' })"
+        />
+      </div>
+    </div>
+
     <Divider/>
     <OverlayComponent :show="isBusy || modelLoadingError">
       <template #loading>
@@ -241,27 +275,17 @@
             <p class="p-error" v-html="formErrors.fieldError('max_duration')"></p>
           </div>
         </div>
-
-        <Divider/>
-
-        <div class="flex justify-content-end">
-          <Button
-            :disabled="isBusy"
-            severity="secondary"
-            @click="$router.push({ name: 'settings.room_types' })"
-            icon="fa-solid fa-arrow-left"
-            :label="$t('app.back')"
-          >
-          </Button>
-          <Button
-            v-if="!viewOnly"
-            :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
-            severity="success"
-            type="submit"
-            class="ml-1"
-            icon="fa-solid fa-save"
-            :label="$t('app.save')"
-          />
+        <div v-if="!viewOnly">
+          <Divider/>
+          <div class="flex justify-content-end">
+            <Button
+              :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
+              severity="success"
+              type="submit"
+              icon="fa-solid fa-save"
+              :label="$t('app.save')"
+            />
+          </div>
         </div>
       </form>
     </OverlayComponent>
@@ -271,6 +295,7 @@
 
 <script setup>
 import env from '@/env.js';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useApi } from '@/composables/useApi.js';
 import { onMounted, ref } from 'vue';
@@ -282,6 +307,7 @@ import { useI18n } from 'vue-i18n';
 import ConfirmDialog from 'primevue/confirmdialog';
 
 const formErrors = useFormErrors();
+const userPermissions = useUserPermissions();
 const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
@@ -404,14 +430,9 @@ function saveRoomType () {
   config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
   config.data.roles = config.data.roles.map(role => role.id);
 
-  api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then((response) => {
+  api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then(response => {
     formErrors.clear();
-    if (props.id === 'new') {
-      router.push({ name: 'settings.room_types.view', params: { id: response.data.data.id } });
-    } else {
-      model.value = response.data.data;
-      name.value = response.data.data.name;
-    }
+    router.push({ name: 'settings.room_types.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

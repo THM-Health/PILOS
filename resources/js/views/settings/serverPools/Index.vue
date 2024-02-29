@@ -6,7 +6,7 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip.left="$t('settings.server_pools.new')"
+        v-tooltip="$t('settings.server_pools.new')"
         :aria-label="$t('settings.server_pools.new')"
         :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
         class="p-button p-button-success p-button-icon-only"

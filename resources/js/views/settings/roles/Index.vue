@@ -7,7 +7,7 @@
       <router-link
         v-if="userPermissions.can('create', 'RolePolicy')"
         class="p-button p-button-success p-button-icon-only"
-        v-tooltip.left="$t('settings.roles.new')"
+        v-tooltip="$t('settings.roles.new')"
         :aria-label="$t('settings.roles.new')"
         :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
       >

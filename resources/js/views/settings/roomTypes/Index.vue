@@ -4,7 +4,7 @@
       <h2>{{ $t('app.room_types') }}</h2>
       <router-link
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
-        v-tooltip.left="$t('settings.room_types.new')"
+        v-tooltip="$t('settings.room_types.new')"
         class="p-button p-button-success p-button-icon-only"
         :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
       >

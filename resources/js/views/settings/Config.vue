@@ -1,9 +1,9 @@
 <template>
   <div>
-      <h2>
-        {{ $t('settings.application.title') }}
-      </h2>
-
+    <h2>
+      {{ $t('settings.application.title') }}
+    </h2>
+    <Divider/>
       <form
         @submit.prevent="updateSettings"
       >
@@ -717,17 +717,18 @@
           </div>
         </div>
         </OverlayComponent>
-
-        <div class="flex justify-content-end mt-2">
-          <Button
-              v-if="!viewOnly"
-              severity="success"
-              type="submit"
-              :disabled="disabled || timezonesLoadingError || timezonesLoading"
-              :loading="isBusy"
-              icon="fa-solid fa-save"
-              :label="$t('app.save')"
-            />
+        <div v-if="!viewOnly">
+        <Divider/>
+          <div class="flex justify-content-end">
+            <Button
+                severity="success"
+                type="submit"
+                :disabled="disabled || timezonesLoadingError || timezonesLoading"
+                :loading="isBusy"
+                icon="fa-solid fa-save"
+                :label="$t('app.save')"
+              />
+          </div>
         </div>
       </form>
   </div>

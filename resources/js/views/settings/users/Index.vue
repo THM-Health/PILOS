@@ -7,7 +7,7 @@
       <router-link
         v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
         ref="new-user-button"
-        v-tooltip.left="$t('settings.users.new')"
+        v-tooltip="$t('settings.users.new')"
         class="p-button p-button-success p-button-icon-only"
         :to="{ name: 'settings.users.new' }"
       >
@@ -138,7 +138,6 @@
         </div>
       </template>
 
-<!--      ToDo fix Column size-->
       <Column field="id" :header="$t('app.id')" sortable class="id-column"/>
       <Column field="firstname" :header="$t('app.firstname')" sortable>
         <template #body="slotProps">
@@ -160,7 +159,6 @@
           {{ $t(`settings.users.authenticator.${slotProps.data.authenticator}`) }}
         </template>
       </Column>
-<!--      ToDo style="max-width: 200px"?-->
       <Column field="roles" :header="$t('app.roles')">
         <template #body="slotProps">
           <text-truncate
