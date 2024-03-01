@@ -292,7 +292,6 @@ return [
             'invalid_mime' => 'Das Dateiformat wird nicht unterstützt. Bitte wählen Sie eine jpg- oder png-Datei aus.',
             'save'         => 'Übernehmen',
             'title'        => 'Profilbild',
-            'undo_delete'  => 'Löschen rückgänig machen',
             'upload'       => 'Neues Bild hochladen',
         ],
         'new'                    => 'Neuen Benutzer erstellen',

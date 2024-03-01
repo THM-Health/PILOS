@@ -81,8 +81,8 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label id="favicon-label" for="favicon" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.favicon.title')}}</label>
+        <fieldset class="grid">
+          <legend id="favicon-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.favicon.title')}}</legend>
           <div class="col-12 md:col-8">
             <SettingsImageSelector
               v-model:image-url="settings.favicon"
@@ -92,19 +92,18 @@
               :max-file-size="500000"
               preview-width="32"
               :preview-alt="$t('settings.application.favicon.alt')"
-              accept-mime-type="image/x-icon,image/vnd.microsoft.icon"
+              :allowed-extensions="['ico']"
               inputId="favicon"
-              aria-labelledby="favicon-label"
               :url-invalid="formErrors.fieldInvalid('favicon')"
               :file-invalid="formErrors.fieldInvalid('favicon_file')"
               :url-error="formErrors.fieldError('favicon')"
               :file-error="formErrors.fieldError('favicon_file')"
             />
           </div>
-        </div>
+        </fieldset>
 
-        <div class="grid">
-          <label id="logo-label" for="logo" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.logo.title')}}</label>
+        <fieldset class="grid">
+          <legend id="logo-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.logo.title')}}</legend>
           <div class="col-12 md:col-8">
             <SettingsImageSelector
               v-model:image-url="settings.logo"
@@ -114,16 +113,15 @@
               :max-file-size="500000"
               preview-width="150"
               :preview-alt="$t('settings.application.logo.alt')"
-              accept-mime-type="image/jpeg, image/png, image/gif, image/svg+xml"
+              :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
               inputId="logo"
-              aria-labelledby="logo-label"
               :url-invalid="formErrors.fieldInvalid('logo')"
               :file-invalid="formErrors.fieldInvalid('logo_file')"
               :url-error="formErrors.fieldError('logo')"
               :file-error="formErrors.fieldError('logo_file')"
             />
           </div>
-        </div>
+        </fieldset>
 
         <div class="grid">
           <label for="pagination-page-size" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.pagination_page_size.title')}}</label>
@@ -653,8 +651,8 @@
         <Divider/>
         <h4 class="text-xl">{{ $t('settings.application.bbb.title') }}</h4>
 
-        <div class="grid">
-          <label id="bbb-logo-label" for="bbb-logo" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.logo.title')}}</label>
+        <fieldset class="grid">
+          <legend id="bbb-logo-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.logo.title')}}</legend>
           <div class="col-12 md:col-8">
             <SettingsImageSelector
               v-model:image-url="settings.bbb.logo"
@@ -666,19 +664,18 @@
               preview-width="150"
               show-delete
               :preview-alt="$t('settings.application.bbb.logo.alt')"
-              accept-mime-type="image/jpeg, image/png, image/gif, image/svg+xml"
+              :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
               inputId="bbb-logo"
-              aria-labelledby="bbb-logo-label"
               :url-invalid="formErrors.fieldInvalid('bbb.logo')"
               :file-invalid="formErrors.fieldInvalid('bbb.logo_file')"
               :url-error="formErrors.fieldError('bbb.logo')"
               :file-error="formErrors.fieldError('bbb.logo_file')"
             />
           </div>
-        </div>
+        </fieldset>
 
-        <div class="grid">
-          <label id="bbb-style-label" for="bbb-style" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.bbb.style.title')}}</label>
+        <fieldset class="grid">
+          <legend id="bbb-style-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.bbb.style.title')}}</legend>
           <div class="col-12 md:col-8">
             <SettingsFileSelector
               v-model:file-url="settings.bbb.style"
@@ -688,17 +685,15 @@
               :readonly="viewOnly"
               :max-file-size="500000"
               show-delete
-              accept-mime-type="text/css,.css"
-              inputId="bbb-style"
-              aria-labelledby="bbb-style-label"
+              :allowed-extensions="['css']"
               :file-invalid="formErrors.fieldInvalid('bbb.style')"
               :file-error="formErrors.fieldError('bbb.style')"
             />
           </div>
-        </div>
+        </fieldset>
 
-        <div class="grid">
-          <label id="default-presentation-label" for="default-presentation" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.default_presentation')}}</label>
+        <fieldset class="grid">
+          <legend id="default-presentation-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.default_presentation')}}</legend>
           <div class="col-12 md:col-8">
             <SettingsFileSelector
               v-model:file-url="settings.default_presentation"
@@ -708,14 +703,12 @@
               :readonly="viewOnly"
               :max-file-size="settings.bbb.max_filesize*1000"
               show-delete
-              :accept-mime-type="'.'+String(settings.bbb.file_mimes).split(',').join(',.')"
-              inputId="default-presentation"
-              aria-labelledby="default-presentation-label"
+              :allowed-extensions="String(settings.bbb.file_mimes).split(',')"
               :file-invalid="formErrors.fieldInvalid('default_presentation')"
               :file-error="formErrors.fieldError('default_presentation')"
             />
           </div>
-        </div>
+        </fieldset>
         </OverlayComponent>
 
         <div class="flex justify-content-end mt-2">

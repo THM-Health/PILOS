@@ -167,12 +167,14 @@ return [
     'server_pool'   => 'Serverpool',
     'server_pools'  => 'Serverpools',
     'servers'       => 'Server',
+    'undo_delete'   => 'Löschen rückgänig machen',
     'unlimited'     => 'Unbegrenzt',
     'user'          => 'Benutzer',
     'user_name'     => 'Name',
     'users'         => 'Benutzer',
     'validation'    => [
         'too_large' => 'Die ausgewählte Datei ist zu groß.',
+        'invalid_type' => 'Der Dateityp ist nicht erlaubt.',
     ],
     'verify_email' => [
         'fail'    => 'Ihre E-Mail konnte nicht verifiziert werden!',

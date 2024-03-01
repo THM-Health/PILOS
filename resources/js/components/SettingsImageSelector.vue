@@ -7,28 +7,20 @@
           :disabled="disabled"
           v-model="imageUrl"
           type="text"
-          :id="inputId"
           :invalid="urlInvalid"
           :required="!showDelete"
         />
 
-        <FileUpload
+        <FileInput
           v-if="!imageDeleted && !readonly"
           :disabled="disabled"
-          mode="basic"
-          :accept="acceptMimeType"
-          :maxFileSize="maxFileSize"
-          customUpload
-          auto
-          @uploader="onFileSelect"
-          :choose-label="fileName ?? $t('app.browse')"
-          :aria-labelledby="ariaLabelledby"
-          :class="{'p-invalid': fileInvalid}"
-        >
-          <template #chooseicon>
-            <i class="fa-solid fa-upload" />
-          </template>
-        </FileUpload>
+          :allowed-extensions="allowedExtensions"
+          :max-file-size="maxFileSize"
+          :invalid="fileInvalid"
+          v-model="image"
+          v-model:too-big="fileTooBig"
+          v-model:invalid-extension="fileInvalidExtension"
+        />
 
         <Button
           v-if="image"
@@ -55,6 +47,12 @@
         />
       </div>
       <div>
+        <p class="p-error" v-if="fileTooBig">
+          {{ $t('app.validation.too_large') }}
+        </p>
+        <p class="p-error" v-if="fileInvalidExtension">
+          {{ $t('app.validation.invalid_type') }}
+        </p>
         <p class="p-error" v-html="fileError"/>
         <p class="p-error" v-html="urlError"/>
       </div>
@@ -77,8 +75,10 @@ const image = defineModel('image');
 const imageUrl = defineModel('imageUrl');
 const imageDeleted = defineModel('imageDeleted');
 
-const fileName = ref(null);
 const newImageUrl = ref(null);
+
+const fileTooBig = ref(false);
+const fileInvalidExtension = ref(false);
 
 defineProps({
   showDelete: {
@@ -96,14 +96,8 @@ defineProps({
   maxFileSize: {
     type: Number
   },
-  acceptMimeType: {
-    type: String
-  },
-  ariaLabelledby: {
-    type: String
-  },
-  inputId: {
-    type: String
+  allowedExtensions: {
+    type: Array
   },
   urlInvalid: {
     type: Boolean
@@ -127,24 +121,15 @@ defineProps({
 
 watch(() => image.value, (value) => {
   if (value) {
-    fileName.value = value.name;
     newImageUrl.value = URL.createObjectURL(value);
   } else {
-    fileName.value = null;
     newImageUrl.value = null;
   }
 });
 
 function resetFileUpload () {
   image.value = null;
-  fileName.value = null;
   newImageUrl.value = null;
 }
 
-function onFileSelect (event) {
-  const file = event.files[0];
-
-  fileName.value = file.name;
-  image.value = file;
-}
 </script>

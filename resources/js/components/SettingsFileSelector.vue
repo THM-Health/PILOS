@@ -2,23 +2,16 @@
   <div class="grid">
     <div class="col-12 flex flex-column gap-2">
       <div class="flex gap-2 align-items-start">
-        <FileUpload
+        <FileInput
           v-if="!fileDeleted && !readonly"
           :disabled="disabled"
-          mode="basic"
-          :accept="acceptMimeType"
-          :maxFileSize="maxFileSize"
-          customUpload
-          auto
-          @uploader="onFileSelect"
-          :choose-label="fileName ?? $t('app.browse')"
-          :aria-labelledby="ariaLabelledby"
-          :class="{'p-invalid': fileInvalid}"
-        >
-          <template #chooseicon>
-            <i class="fa-solid fa-upload" />
-          </template>
-        </FileUpload>
+          :allowed-extensions="allowedExtensions"
+          :max-file-size="maxFileSize"
+          :invalid="fileInvalid"
+          v-model="file"
+          v-model:too-big="fileTooBig"
+          v-model:invalid-extension="fileInvalidExtension"
+        />
 
         <Button
           v-if="file"
@@ -41,7 +34,7 @@
           severity="secondary"
           @click="fileDeleted = false"
           icon="fa-solid fa-undo"
-          :label="$t('app.undo')"
+          :label="$t('app.undo_delete')"
         />
 
         <a v-if="fileUrl && !file && !fileDeleted" :href="fileUrl" target="_blank" class="p-button p-button-secondary">
@@ -50,6 +43,12 @@
         </a>
       </div>
       <div>
+        <p class="p-error" v-if="fileTooBig">
+          {{ $t('app.validation.too_large') }}
+        </p>
+        <p class="p-error" v-if="fileInvalidExtension">
+          {{ $t('app.validation.invalid_type') }}
+        </p>
         <p class="p-error" v-html="fileError"/>
       </div>
     </div>
@@ -57,13 +56,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import {ref} from "vue";
 
 const file = defineModel('file');
 const fileUrl = defineModel('fileUrl');
 const fileDeleted = defineModel('fileDeleted');
 
-const fileName = ref(null);
+const fileTooBig = ref(false);
+const fileInvalidExtension = ref(false);
 
 defineProps({
   showDelete: {
@@ -73,14 +73,8 @@ defineProps({
   maxFileSize: {
     type: Number
   },
-  acceptMimeType: {
-    type: String
-  },
-  ariaLabelledby: {
-    type: String
-  },
-  inputId: {
-    type: String
+  allowedExtensions: {
+    type: Array
   },
   fileInvalid: {
     type: Boolean
@@ -96,23 +90,7 @@ defineProps({
   }
 });
 
-watch(() => file.value, (value) => {
-  if (value) {
-    fileName.value = value.name;
-  } else {
-    fileName.value = null;
-  }
-});
-
 function resetFileUpload () {
   file.value = null;
-  fileName.value = null;
-}
-
-function onFileSelect (event) {
-  const newFile = event.files[0];
-
-  fileName.value = newFile.name;
-  file.value = newFile;
 }
 </script>
