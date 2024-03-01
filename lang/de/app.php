@@ -173,7 +173,7 @@ return [
     'user_name'     => 'Name',
     'users'         => 'Benutzer',
     'validation'    => [
-        'too_large' => 'Die ausgewählte Datei ist zu groß.',
+        'too_large'    => 'Die ausgewählte Datei ist zu groß.',
         'invalid_type' => 'Der Dateityp ist nicht erlaubt.',
     ],
     'verify_email' => [

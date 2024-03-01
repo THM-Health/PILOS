@@ -3,7 +3,7 @@
 return [
     'access_code'                  => 'Access code',
     'become_member'                => 'Become member',
-    'change_type' => [
+    'change_type'                  => [
         'title' => 'Change room type',
     ],
     'create'                       => [
@@ -148,10 +148,10 @@ return [
         'share'  => 'Share',
         'title'  => 'Access for participants',
         'copy'   => 'Copy',
-        'code' => 'Access code',
+        'code'   => 'Access code',
         'copied' => 'Copied access information to clipboard',
-        'link' => 'Link',
-        'room' => 'Join ":roomname" with :platform',
+        'link'   => 'Link',
+        'room'   => 'Join ":roomname" with :platform',
     ],
     'join'            => 'Join',
     'join_room'       => 'Join room',
