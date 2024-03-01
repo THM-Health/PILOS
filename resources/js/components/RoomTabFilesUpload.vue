@@ -10,7 +10,7 @@
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
       >
-        <i class="fa-solid fa-upload mr-2"></i> {{ $t('rooms.files.browse') }}
+        <i class="fa-solid fa-upload mr-2"></i> {{ $t('app.browse') }}
       </label>
       <input
         type="file"

@@ -213,7 +213,7 @@ function getJoinUrl () {
 
         // Room is not running, update running status
         if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
-          toast.error(t('rooms.flash.not_running'));
+          toast.error(t('app.errors.not_running'));
           emit('notRunning');
           showModal.value = false;
           return;

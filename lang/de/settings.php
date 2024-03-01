@@ -2,6 +2,7 @@
 
 return [
     'application' => [
+        'application' => 'Anwendung',
         'attendance' => [
             'enabled_title'          => 'Protokollierung der Teilnehmeranwesenheit in Meetings zulassen',
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
@@ -47,7 +48,6 @@ return [
             'upload_title' => 'Favicon hochladen (max. 500 KB, Format: .ico)',
             'url_title'    => 'URL zu Favicon-Datei',
         ],
-        'max_file_size' => 'Ausgewählte Datei zu groß, max. :size KB',
         'help_url'      => [
             'description' => 'Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.',
             'title'       => 'URL zur Hilfeseite',
@@ -125,10 +125,8 @@ return [
         'three_month'      => '3 Monate (90 Tage)',
         'tile_description' => 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
         'title'            => 'Konfiguration',
-        'application'      => 'Anwendung',
         'two_weeks'        => '2 Wochen (14 Tage)',
         'two_years'        => '2 Jahre (730 Tage)',
-        'unlimited'        => 'Unbegrenzt',
         'user_settings'    => 'Benutzereinstellungen',
     ],
     'home_button'          => 'Zurück zur Übersicht',
@@ -164,7 +162,6 @@ return [
                 'role_b'         => 'Rolle B',
                 'system_default' => 'Systemstandard',
             ],
-            'unlimited' => 'Unbegrenzt',
         ],
         'select_roles'     => 'Bitte wählen Sie mindestens eine Rolle aus',
         'tile_description' => 'Die Rollen vergeben Berechtigungen, gliedern die Benutzer und legen das Maximum an Räumen pro Benutzer fest.',

@@ -163,6 +163,8 @@ return [
     'server_pool'   => 'Groupe de serveurs',
     'server_pools'  => 'Groupes de serveurs',
     'servers'       => 'Serveurs',
+    'undo_delete'   => 'Annuler la suppression',
+    'unlimited'     => 'Illimité',
     'user'          => 'Utilisateur',
     'user_name'     => 'Nom',
     'users'         => 'Utilisateurs',

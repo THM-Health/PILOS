@@ -36,7 +36,7 @@ return [
         'no_room_access'               => 'Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.',
         'no_server_available'          => 'Zur Zeit sind keine Server verfügbar.',
         'not_member_of_room'           => 'Die Person ist nicht (mehr) Mitglied dieses Raums.',
-        'not_running'                  => 'Teilnahme fehlgeschlagen! Der Raum ist aktuell geschlossen.',
+        'not_running'                  => 'Der Beitritt zum Raum ist fehlgeschlagen, da er derzeit geschlossen ist.',
         'role_delete_linked_users'     => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',
         'role_update_permission_lost'  => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
         'room_limit_exceeded'          => 'Raumerstellung fehlgeschlagen! Sie haben die max. Anzahl an Räumen erreicht.',

@@ -90,7 +90,6 @@ return [
         'remove' => 'Aus Favoriten entfernen'
     ],
     'files' => [
-        'browse'         => 'Durchsuchen',
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
         'default'        => 'Standard',
         'delete'         => 'Datei löschen',
@@ -117,7 +116,6 @@ return [
         'file_gone'           => 'Die Datei wurde in der Zwischenzeit gelöscht.',
         'no_new_room'         => 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
         'start_forbidden'     => 'Der Raum kann von Ihnen nicht gestartet werden.',
-        'not_running'         => 'Der Beitritt zum Raum ist fehlgeschlagen, da dieser momentan geschlossen ist.',
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
@@ -126,7 +124,6 @@ return [
         'no_favorites'      => 'Keine Räume als Favoriten markiert',
         'no_rooms_selected' => 'Keine Räume ausgewählt',
         'reset_filter'      => 'Filter zurücksetzen',
-        'rooms'             => 'Räume',
         'show_all'          => 'Alle Räume',
         'show_own'          => 'Eigene Räume',
         'show_public'       => 'Öffentliche Räume',
@@ -139,9 +136,9 @@ return [
 
         ],
         'room_component'=> [
-            'never_started'   => ' Noch nie gestartet',
-            'running_since'   => ' Läuft seit :date',
-            'last_ran_till'   => ' Zuletzt gelaufen bis :date',
+            'never_started'   => 'Noch nie gestartet',
+            'running_since'   => 'Läuft seit :date',
+            'last_ran_till'   => 'Zuletzt gelaufen bis :date',
             'open'            => 'Öffnen',
             'details'         => 'Details',
         ],
@@ -232,7 +229,7 @@ return [
         'denied'          => 'Der Browser verweigert Benachrichtigungen.',
         'enable'          => 'Beim Start des Raumes benachrichtigen',
         'enabled'         => 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
-        'disable'         => 'Beachrichtigung beim Start des Raumes deaktivieren',
+        'disable'         => 'Benachrichtigung beim Start des Raumes deaktivieren',
         'disabled'        => 'Sie werden beim Start des Raumes von Ihrem Browser nicht mehr benachrichtigt.',
     ],
     'only_used_by_authenticated_users' => 'Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.',
@@ -273,7 +270,6 @@ return [
             'short_description' => 'Öffentliche Kurzbeschreibung',
             'title'             => 'Allgemein',
             'type'              => 'Art',
-            'change_type'       => 'Raumart ändern',
             'welcome_message'   => 'Begrüßungsnachricht',
         ],
         'none_placeholder' => '-- keine --',

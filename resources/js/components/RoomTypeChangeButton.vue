@@ -22,7 +22,7 @@ function handleOk () {
 <template>
   <InputGroup v-if="model">
     <InputText :value="model.name" readonly />
-    <Button icon="fa-solid fa-edit" @click="editRoomType" :aria-label="$t('rooms.settings.general.change_type')" />
+    <Button icon="fa-solid fa-edit" @click="editRoomType" :aria-label="$t('rooms.change_type.title')" />
   </InputGroup>
 
   <Dialog

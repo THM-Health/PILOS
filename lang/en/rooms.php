@@ -2,9 +2,10 @@
 
 return [
     'access_code'                  => 'Access code',
-    'access_for_participants'      => 'Access for participants',
     'become_member'                => 'Become member',
-    'copy_access_for_participants' => 'Copy access for participants to clipboard',
+    'change_type' => [
+        'title' => 'Change room type',
+    ],
     'create'                       => [
         'ok'    => 'Create',
         'title' => 'Create room',
@@ -119,12 +120,10 @@ return [
     ],
     'index' => [
         'only_favorites'    => 'Only show favorites',
-        'favorites'         => 'Favorites',
         'filter'            => 'Filter',
         'no_favorites'      => 'No rooms marked as favorites',
         'no_rooms_selected' => 'No rooms selected',
         'reset_filter'      => 'Reset filter',
-        'rooms'             => 'Rooms',
         'show_all'          => 'All rooms',
         'show_own'          => 'Own rooms',
         'show_public'       => 'Public rooms',
@@ -136,9 +135,9 @@ return [
             'room_type'       => 'By room type',
         ],
         'room_component'=> [
-            'never_started'   => ' Never started before',
-            'running_since'   => ' Running since :date',
-            'last_ran_till'   => ' Last ran till :date',
+            'never_started'   => 'Never started before',
+            'running_since'   => 'Running since :date',
+            'last_ran_till'   => 'Last ran till :date',
             'open'            => 'Open',
             'details'         => 'Details',
         ],
@@ -146,11 +145,16 @@ return [
     ],
     'invalid_personal_link' => 'This personalised room link is invalid.',
     'invitation'            => [
+        'share'  => 'Share',
+        'title'  => 'Access for participants',
+        'copy'   => 'Copy',
         'code' => 'Access code',
+        'copied' => 'Copied access information to clipboard',
         'link' => 'Link',
         'room' => 'Join ":roomname" with :platform',
     ],
     'join'            => 'Join',
+    'join_room'       => 'Join room',
     'login'           => 'Login',
     'meeting_history' => [
         'title' => 'History',
@@ -164,11 +168,12 @@ return [
         'image'             => 'Picture',
         'modals'            => [
             'add' => [
-                'add'         => 'Add',
-                'no_options'  => 'No entries, please search for a user.',
-                'no_result'   => 'Oops! No user was found for this query.',
-                'select_role' => 'Please select a role',
-                'select_user' => 'Please select the user you would like to add',
+                'add'              => 'Add',
+                'no_options'       => 'No entries, please search for a user.',
+                'no_result'        => 'Oops! No user was found for this query.',
+                'select_role'      => 'Please select a role',
+                'select_user'      => 'Please select the user you would like to add',
+                'too_many_results' => 'Too many users were found. Please enter a more precise search term.',
             ],
             'bulk_import' => [
                 'can_import_users'           => 'Users that can be added',
@@ -224,6 +229,8 @@ return [
         'denied'          => 'The browser denied notifications.',
         'enable'          => 'Notify on room start',
         'enabled'         => 'You will be notified by your browser when the room starts. Do not close this window/tab.',
+        'disable'         => 'Deactivate notification when starting the room',
+        'disabled'        => 'You will no longer be notified by your browser when the room is started.',
     ],
     'only_used_by_authenticated_users' => 'This room can only be used by authenticated users.',
     'placeholder_name'                 => 'John Doe',
@@ -236,14 +243,23 @@ return [
         'guest'       => 'Guest',
         'moderator'   => 'Moderator',
         'participant' => 'Participant',
+        'no_role'     => 'No role'
     ],
     'room_limit'              => 'Room limit: :has/:max',
     'room_type_invalid_alert' => 'The usage of the room type :roomTypeName is only permitted for special user groups. If you are the owner of this room, please change the room type so that the room can be started again.',
     'room_types'              => [
         'loading_error' => 'An error occurred during loading of the room types.',
         'reload'        => 'Reload room types',
-        'select_type'   => '-- Select room type --',
         'all'           => 'All room types',
+        'restrictions'  => [
+            'title'                  => 'Restrictions',
+            'none'                   => 'None',
+            'no_listing'             => 'Hidden in the search for public rooms',
+            'no_attendace_recording' => 'No attendance recording',
+            'require_access_code'    => 'Access code required',
+            'max_participants'       => 'Max. :participants Participants',
+            'max_duration'           => 'Max. :duration minutes',
+        ]
     ],
     'settings' => [
         'general' => [
@@ -264,7 +280,6 @@ return [
                 'title'          => 'Default role',
             ],
             'max_participants'  => 'Max. participants',
-            'record_attendance' => 'Log attendance of participants',
             'title'             => 'Participants',
             'waiting_room'      => [
                 'only_for_guests_enabled' => 'Enabled only for guests',
@@ -276,6 +291,10 @@ return [
             'everyone_start' => 'Everyone can start the meeting',
             'mute_mic'       => 'Mute microphone on join',
             'title'          => 'Permissions',
+        ],
+        'recordings' => [
+            'title'             => 'Recordings',
+            'record_attendance' => 'Log attendance of participants',
         ],
         'restrictions' => [
             'disable_cam'            => 'Disable webcam',
@@ -300,6 +319,7 @@ return [
         'title' => 'Settings',
     ],
     'start'        => 'Start',
+    'start_room'   => 'Start room',
     'tokens'       => [
         'add'              => 'Add personalized room link',
         'confirm_delete'   => 'Do you really want to delete the personalized room link for :firstname :lastname?',
