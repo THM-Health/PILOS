@@ -65,8 +65,6 @@ class MeetingService
     public function start(): bool
     {
         // Set meeting parameters
-        // TODO user limit, not working properly with bbb at the moment
-        // Use errorRedirectUrl to redirect back
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
         $meetingParams
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
