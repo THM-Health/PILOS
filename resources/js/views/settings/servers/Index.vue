@@ -6,7 +6,7 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip.left="$t('settings.servers.new')"
+        v-tooltip="$t('settings.servers.new')"
         :aria-label="$t('settings.servers.new')"
         :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
         class="p-button p-button-icon-only p-button-success"
@@ -15,7 +15,7 @@
       </router-link>
     </div>
 
-    <div class="flex flex-column md:flex-row justify-content-between gap-2">
+    <div class="flex flex-column md:flex-row justify-content-between">
       <div>
         <InputGroup>
           <InputText
@@ -29,17 +29,25 @@
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
             @click="loadData()"
-          >
-          </Button>
+          />
         </InputGroup>
       </div>
-      <Button
-        :disabled="isBusy"
-        severity="info"
-        @click="loadData(true);"
-        icon="fa-solid fa-repeat"
-        :label="$t('settings.servers.reload')"
-      />
+      <div class="flex gap-2 justify-content-between  mt-2">
+        <Button
+          :disabled="isBusy"
+          severity="info"
+          @click="loadData(true);"
+          icon="fa-solid fa-repeat"
+          :label="$t('settings.servers.reload')"
+        />
+        <Button
+          :disabled="isBusy"
+          severity="secondary"
+          @click="loadData();"
+          icon="fa-solid fa-sync"
+          v-tooltip="$t('app.reload')"
+        />
+      </div>
     </div>
     <Divider/>
     <DataTable
@@ -68,7 +76,6 @@
           <InlineNote v-else>{{ $t('settings.servers.no_data_filtered') }}</InlineNote>
         </div>
       </template>
-<!--      ToDo fix Column size-->
       <Column :header="$t('app.model_name')" field="name" sortable>
         <template #body="slotProps">
           <text-truncate>

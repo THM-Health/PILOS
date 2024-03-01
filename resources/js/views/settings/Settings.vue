@@ -20,7 +20,7 @@
       :pt="{content:{class:'p-0'}}"
     >
       <template #content>
-        <router-view />
+        <router-view :key="$route.fullPath" />
       </template>
     </Card>
   </div>

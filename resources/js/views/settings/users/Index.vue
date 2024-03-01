@@ -7,7 +7,7 @@
       <router-link
         v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
         ref="new-user-button"
-        v-tooltip.left="$t('settings.users.new')"
+        v-tooltip="$t('settings.users.new')"
         class="p-button p-button-success p-button-icon-only"
         :to="{ name: 'settings.users.new' }"
       >
@@ -31,7 +31,7 @@
               v-tooltip="$t('app.search')"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
-            ></Button>
+            />
           </InputGroup>
         </div>
       </div>
@@ -77,7 +77,7 @@
                 @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
                 icon="fa-solid fa-arrow-left"
                 :label="$t('app.previous_page')"
-              ></Button>
+              />
               <Button
                 :disabled="rolesLoading || !rolesHasNextPage"
                 outlined
@@ -85,7 +85,7 @@
                 @click="loadRoles(rolesCurrentPage + 1)"
                 icon="fa-solid fa-arrow-right"
                 :label=" $t('app.next_page') "
-              ></Button>
+              />
               </div>
             </template>
           </multiselect>
@@ -96,7 +96,7 @@
               severity="secondary"
               @click="clearFilterRole"
               icon="fa-solid fa-xmark"
-            ></Button>
+            />
 
             <Button
               v-if="rolesLoadingError"
@@ -105,7 +105,7 @@
               badge-severity="secondary"
               @click="loadRoles(rolesCurrentPage)"
               icon="fa-solid fa-sync"
-            ></Button>
+            />
         </InputGroup>
       </div>
     </div>
@@ -138,7 +138,6 @@
         </div>
       </template>
 
-<!--      ToDo fix Column size-->
       <Column field="id" :header="$t('app.id')" sortable class="id-column"/>
       <Column field="firstname" :header="$t('app.firstname')" sortable>
         <template #body="slotProps">
@@ -160,7 +159,7 @@
           {{ $t(`settings.users.authenticator.${slotProps.data.authenticator}`) }}
         </template>
       </Column>
-      <Column field="roles" :header="$t('app.roles')" style="max-width: 200px">
+      <Column field="roles" :header="$t('app.roles')">
         <template #body="slotProps">
           <text-truncate
             v-for="role in slotProps.data.roles"
@@ -199,14 +198,14 @@
                   :firstname="slotProps.data.firstname"
                   :lastname="slotProps.data.lastname"
                   :email="slotProps.data.email"
-                ></SettingsUsersResetPasswordButton>
+                />
                 <SettingsUsersDeleteButton
                   v-if="userPermissions.can('delete', slotProps.data)"
                   :id="slotProps.data.id"
                   :firstname="slotProps.data.firstname"
                   :lastname="slotProps.data.lastname"
                   @deleted="loadData"
-                ></SettingsUsersDeleteButton>
+                />
           </div>
         </template>
       </Column>

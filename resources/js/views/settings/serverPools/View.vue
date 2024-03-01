@@ -8,6 +8,40 @@
         )
       }}
     </h2>
+    <div class="flex justify-content-between">
+      <router-link
+        class="p-button p-button-secondary"
+        :disabled="isBusy"
+        :to="{ name: 'settings.server_pools' }"
+      >
+        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
+      </router-link>
+      <div v-if="model.id && id !=='new'" class="flex gap-2">
+        <router-link
+          v-if="!viewOnly && userPermissions.can('view', model)"
+          :disabled="isBusy"
+          :to="{ name: 'settings.server_pools.view', params: { id: model.id }, query: { view: '1' } }"
+          class="p-button p-button-secondary"
+        >
+          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
+        </router-link>
+        <router-link
+          v-if="viewOnly && userPermissions.can('update', model)"
+          :disabled="isBusy"
+          :to="{ name: 'settings.server_pools.view', params: { id: model.id } }"
+          class="p-button p-button-secondary"
+        >
+          <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
+        </router-link>
+        <SettingsServerPoolsDeleteButton
+          v-if="userPermissions.can('delete', model)"
+          :id="model.id"
+          :name="model.name"
+          @deleted="$router.push({ name: 'settings.server_pools' })"
+        >
+        </SettingsServerPoolsDeleteButton>
+      </div>
+    </div>
     <Divider/>
 
     <OverlayComponent :show="isBusy">
@@ -19,125 +53,109 @@
         @submit.prevent="saveServerPool"
         :aria-hidden="modelLoadingError"
       >
-          <div class="field grid">
-            <label for="name" class="col-12 md:col-4 md:mb-0">{{ $t('app.model_name') }}</label>
-            <div class="col-12 md:col-8">
-
-              <InputText
-                class="w-full"
-                id="name"
-                v-model="model.name"
-                type="text"
-                :invalid="formErrors.fieldInvalid('name')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
+        <div class="field grid">
+          <label for="name" class="col-12 md:col-4 md:mb-0">{{ $t('app.model_name') }}</label>
+          <div class="col-12 md:col-8">
+            <InputText
+              class="w-full"
+              id="name"
+              v-model="model.name"
+              type="text"
+              :invalid="formErrors.fieldInvalid('name')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+          </div>
+        </div>
+        <div class="field grid">
+          <label for="description" class="col-12 md:col-4 md:mb-0">{{ $t('app.description') }}</label>
+          <div class="col-12 md:col-8">
+            <InputText
+              class="w-full"
+              id="description"
+              v-model="model.description"
+              type="text"
+              :invalid="formErrors.fieldInvalid('description')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+          </div>
+        </div>
+        <div class="field grid">
+          <label for="servers" class="col-12 md:col-4 md:mb-0">{{ $t('app.servers') }}</label>
+          <div class="col-12 md:col-8">
+            <InputGroup>
+              <multiselect
+                id="servers"
+                ref="serversMultiselectRef"
+                v-model="model.servers"
+                :placeholder="$t('settings.server_pools.select_servers')"
+                track-by="id"
+                open-direction="bottom"
+                :multiple="true"
+                :searchable="false"
+                :internal-search="false"
+                :clear-on-select="false"
+                :close-on-select="false"
+                :show-no-results="false"
+                :show-labels="false"
+                :options="servers"
+                :disabled="isBusy || modelLoadingError || serversLoadingError || viewOnly"
+                :loading="serversLoading"
+                :allow-empty="true"
+                :class="{ 'is-invalid': formErrors.fieldInvalid('servers', true), 'multiselect-form-control': true }"
+              >
+                <template #noOptions>
+                  {{ $t('settings.servers.no_data') }}
+                </template>
+                <template v-slot:option="{ option }">
+                  {{ option.name }}
+                </template>
+                <template v-slot:tag="{ option, remove }">
+                  <Chip :label="option.name" removable @remove="remove(option)"/>
+                </template>
+                <template #afterList>
+                  <Button
+                    :disabled="serversLoading || serversCurrentPage === 1"
+                    outlined
+                    severity="secondary"
+                    @click="loadServers(Math.max(1, serversCurrentPage - 1))"
+                    icon="fa-solid fa-arrow-left"
+                    :label="$t('app.previous_page')"
+                  />
+                  <Button
+                    :disabled="serversLoading || !serversHasNextPage"
+                    outlined
+                    severity="secondary"
+                    @click="loadServers(serversCurrentPage + 1)"
+                    icon="fa-solid fa-arrow-right"
+                    :label="$t('app.next_page')"
+                  />
+                </template>
+              </multiselect>
+              <Button
+                v-if="serversLoadingError"
+                outlined
+                variant="secondary"
+                @click="loadServers(serversCurrentPage)"
+                icon="fa-solid fa-sync"
               />
-              <p class="p-error" v-html="formErrors.fieldError('name')"></p>
-            </div>
+            </InputGroup>
           </div>
-
-          <div class="field grid">
-            <label for="description" class="col-12 md:col-4 md:mb-0">{{ $t('app.description') }}</label>
-            <div class="col-12 md:col-8">
-
-              <InputText
-                class="w-full"
-                id="description"
-                v-model="model.description"
-                type="text"
-                :invalid="formErrors.fieldInvalid('description')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-              />
-              <p class="p-error" v-html="formErrors.fieldError('description')"></p>
-            </div>
-          </div>
-          <div class="field grid"
-          >
-            <label for="servers" class="col-12 md:col-4 md:mb-0">{{ $t('app.servers') }}</label>
-            <div class="col-12 md:col-8">
-              <InputGroup>
-                <multiselect
-                  id="servers"
-                  ref="serversMultiselectRef"
-                  v-model="model.servers"
-                  :placeholder="$t('settings.server_pools.select_servers')"
-                  track-by="id"
-                  open-direction="bottom"
-                  :multiple="true"
-                  :searchable="false"
-                  :internal-search="false"
-                  :clear-on-select="false"
-                  :close-on-select="false"
-                  :show-no-results="false"
-                  :show-labels="false"
-                  :options="servers"
-                  :disabled="isBusy || modelLoadingError || serversLoadingError || viewOnly"
-                  :loading="serversLoading"
-                  :allow-empty="true"
-                  :class="{ 'is-invalid': formErrors.fieldInvalid('servers', true), 'multiselect-form-control': true }"
-                >
-                  <template #noOptions>
-                    {{ $t('settings.servers.no_data') }}
-                  </template>
-                  <template v-slot:option="{ option }">
-                    {{ option.name }}
-                  </template>
-                  <template v-slot:tag="{ option, remove }">
-                    <Chip :label="option.name" removable @remove="remove(option)"/>
-                  </template>
-                  <template #afterList>
-                    <Button
-                      :disabled="serversLoading || serversCurrentPage === 1"
-                      outlined
-                      severity="secondary"
-                      @click="loadServers(Math.max(1, serversCurrentPage - 1))"
-                      icon="fa-solid fa-arrow-left"
-                      :label="$t('app.previous_page')"
-                    >
-                    </Button>
-                    <Button
-                      :disabled="serversLoading || !serversHasNextPage"
-                      outlined
-                      severity="secondary"
-                      @click="loadServers(serversCurrentPage + 1)"
-                      icon="fa-solid fa-arrow-right"
-                      :label="$t('app.next_page')"
-                    >
-                    </Button>
-                  </template>
-                </multiselect>
-                <Button
-                  v-if="serversLoadingError"
-                  outlined
-                  variant="secondary"
-                  @click="loadServers(serversCurrentPage)"
-                  icon="fa-solid fa-sync"
-                >
-                </Button>
-              </InputGroup>
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('servers', true)"></p>
-          </div>
-
+          <p class="p-error" v-html="formErrors.fieldError('servers', true)"></p>
+        </div>
+        <div v-if="!viewOnly">
           <Divider/>
           <div class="flex justify-content-end">
             <Button
-              :disabled="isBusy"
-              severity="secondary"
-              @click="$router.push({ name: 'settings.server_pools' })"
-              icon="fa-solid fa-arrow-left"
-              :label="$t('app.back')"
-            >
-            </Button>
-            <Button
-              v-if="!viewOnly"
               :disabled="isBusy || modelLoadingError || serversLoadingError || serversLoading"
               severity="success"
               type="submit"
-              class="ml-1"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
-            ></Button>
+            />
           </div>
+        </div>
       </form>
     </OverlayComponent>
     <ConfirmDialog></ConfirmDialog>
@@ -147,6 +165,7 @@
 <script setup>
 import env from '@/env.js';
 import { useApi } from '@/composables/useApi.js';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useConfirm } from 'primevue/useconfirm';
 import { Multiselect } from 'vue-multiselect';
@@ -158,6 +177,7 @@ import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
+const userPermissions = useUserPermissions();
 const formErrors = useFormErrors();
 const api = useApi();
 const confirm = useConfirm();
@@ -262,9 +282,9 @@ function saveServerPool () {
 
   config.data.servers = config.data.servers.map(server => server.id);
 
-  api.call(props.id === 'new' ? 'serverPools' : `serverPools/${props.id}`, config).then(() => {
+  api.call(props.id === 'new' ? 'serverPools' : `serverPools/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'settings.server_pools' });
+    router.push({ name: 'settings.server_pools.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

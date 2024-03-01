@@ -6,7 +6,7 @@
     :title="$t('settings.servers.delete.item', { name: props.name })"
     variant="danger"
     @click="showDeleteModal()"
-  ></Button>
+  />
     <Dialog
       v-model:visible="showModal"
       :breakpoints="{ '575px': '90vw' }"
@@ -21,8 +21,8 @@
       <span>{{ $t('settings.servers.delete.confirm', {name: props.name}) }}</span>
 
       <template #footer>
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-        <Button :label="$t('app.yes')" :loading="isBusy" severity="danger" @click="deleteServer"></Button>
+        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+        <Button :label="$t('app.yes')" :loading="isBusy" severity="danger" @click="deleteServer"/>
       </template>
     </Dialog>
 </template>

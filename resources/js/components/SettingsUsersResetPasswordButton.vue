@@ -6,8 +6,8 @@
     :disabled="isBusy"
     severity="warning"
     @click="showResetPasswordModal"
-    icon="fa-solid fa-key">
-  </Button>
+    icon="fa-solid fa-key"
+  />
 
   <Dialog
     v-model:visible="showModal"
@@ -24,8 +24,8 @@
       {{ $t('settings.users.reset_password.confirm', { firstname: props.firstname, lastname: props.lastname }) }}
     </span>
     <template #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="resetPassword"></Button>
+      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="resetPassword"/>
     </template>
   </Dialog>
 </template>

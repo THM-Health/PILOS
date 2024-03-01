@@ -23,8 +23,8 @@
       {{ props.name }}
     </span>
     <template #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteRole"></Button>
+      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteRole"/>
     </template>
   </Dialog>
 </template>

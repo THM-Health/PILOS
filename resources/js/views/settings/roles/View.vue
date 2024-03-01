@@ -6,6 +6,40 @@
         : $t('settings.roles.edit', { name: model.name })
       ) }}
     </h2>
+    <div class="flex justify-content-between">
+      <router-link
+        class="p-button p-button-secondary"
+        :disabled="isBusy"
+        :to="{ name: 'settings.roles' }"
+      >
+        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
+      </router-link>
+      <div v-if="model.id && id !=='new'" class="flex gap-2">
+        <router-link
+          v-if="!viewOnly && userPermissions.can('view', model)"
+          class="p-button p-button-secondary"
+          :disabled="isBusy"
+          :to="{ name: 'settings.roles.view', params: { id: model.id }, query: { view: '1' } }"
+        >
+          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
+        </router-link>
+        <router-link
+          v-if="viewOnly && userPermissions.can('update', model)"
+          class="p-button p-button-secondary"
+          :disabled="isBusy"
+          :to="{ name: 'settings.roles.view', params: { id: model.id } }"
+        >
+          <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
+        </router-link>
+        <SettingsRolesDeleteButton
+          v-if="userPermissions.can('delete', model)"
+          :id="model.id"
+          :name="model.name"
+          @deleted="$router.push({ name: 'settings.roles' })"
+        />
+      </div>
+    </div>
+
     <Divider/>
 
     <OverlayComponent :show="isBusy || modelLoadingError">
@@ -41,9 +75,8 @@
                 severity="link"
                 class="secondary"
                 :disabled="isBusy || modelLoadingError"
-                >
-                <i class="fa-solid fa-circle-info" />
-                </Button>
+                icon="fa-solid fa-circle-info"
+                />
               </span>
             </label>
             <div class="col-12 md:col-8">
@@ -71,9 +104,8 @@
               <p class="p-error" v-html="formErrors.fieldError('room_limit')"></p>
             </div>
           </div>
-          <div class="field grid">
             <h3>{{ $t('settings.roles.permissions') }}</h3>
-            <div class="grid w-full" v-if="!isBusy && Object.keys(permissions).length > 0">
+            <div class="grid" v-if="!isBusy && Object.keys(permissions).length > 0">
               <div class="col-8">
                 <b>{{ $t('settings.roles.permission_name') }}</b>
               </div>
@@ -90,15 +122,15 @@
 
               <div class="col-12">
                 <Divider/>
-                <div class="grid mb-3"
+                <div class="grid"
                   v-for="key in Object.keys(permissions)"
                   :key="key"
                 >
-                  <div class="col-12 mb-3">
+                  <div class="col-12">
                     <b>{{ $t(`app.permissions.${key}.title`) }}</b>
                   </div>
                   <div class="col-12">
-                    <div class="grid mb-3"
+                    <div class="grid"
                       v-for="permission in permissions[key]"
                       :key="permission.id"
                     >
@@ -139,28 +171,18 @@
               {{ $t('settings.roles.no_options') }}
             </div>
             <p class="p-error" v-html="formErrors.fieldError('permissions', true)"></p>
-          </div>
+        <div v-if="!viewOnly">
           <Divider/>
-            <div class="flex justify-content-end">
-              <Button
-                :disabled="isBusy"
-                severity="secondary"
-                @click="$router.push({ name: 'settings.roles' })"
-                icon="fa-solid fa-arrow-left"
-                :label="$t('app.back')"
-              >
-              </Button>
-              <Button
-                v-if="!viewOnly"
-                :disabled="isBusy || modelLoadingError"
-                severity="success"
-                type="submit"
-                class="ml-1"
-                icon="fa-solid fa-save"
-                :label="$t('app.save')"
-              >
-              </Button>
-            </div>
+          <div class="flex justify-content-end">
+            <Button
+              :disabled="isBusy || modelLoadingError"
+              severity="success"
+              type="submit"
+              icon="fa-solid fa-save"
+              :label="$t('app.save')"
+            />
+          </div>
+        </div>
       </form>
 
     </OverlayComponent>
@@ -255,6 +277,7 @@ import { useApi } from '@/composables/useApi.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useRouter } from 'vue-router';
 import { onMounted, ref, computed, defineProps } from 'vue';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
 import { useI18n } from 'vue-i18n';
 import _ from 'lodash';
@@ -262,6 +285,7 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 
 const formErrors = useFormErrors();
+const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
 const confirm = useConfirm();
 const { t } = useI18n();
@@ -402,9 +426,9 @@ function saveRole () {
     }
   };
 
-  api.call(props.id === 'new' ? 'roles' : `roles/${props.id}`, config).then(() => {
+  api.call(props.id === 'new' ? 'roles' : `roles/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'settings.roles' });
+    router.push({ name: 'settings.roles.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

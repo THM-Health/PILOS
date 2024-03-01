@@ -6,7 +6,7 @@
     severity="danger"
     @click="showDeleteModal"
     icon="fa-solid fa-trash"
-  ></Button>
+  />
   <Dialog
     v-model:visible="showModal"
     modal
@@ -22,8 +22,8 @@
       {{ $t('settings.users.delete.confirm', { firstname: props.firstname, lastname: props.lastname }) }}
     </span>
     <template #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteUser"></Button>
+      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteUser"/>
     </template>
 
   </Dialog>

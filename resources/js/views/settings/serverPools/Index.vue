@@ -6,7 +6,7 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip.left="$t('settings.server_pools.new')"
+        v-tooltip="$t('settings.server_pools.new')"
         :aria-label="$t('settings.server_pools.new')"
         :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
         class="p-button p-button-success p-button-icon-only"
@@ -29,8 +29,7 @@
             severity="primary"
             @click="loadData"
             icon="fa-solid fa-magnifying-glass"
-          >
-          </Button>
+          />
         </InputGroup>
       </div>
     </div>
@@ -62,7 +61,11 @@
           <InlineNote v-else>{{ $t('settings.server_pools.no_data_filtered') }}</InlineNote>
         </div>
       </template>
-      <Column :header="$t('app.model_name')" field="name" sortable></Column>
+      <Column :header="$t('app.model_name')" field="name" sortable>
+        <template #body="slotProps">
+          <TextTruncate>{{slotProps.data.name}}</TextTruncate>
+        </template>
+      </Column>
       <Column :header="$t('settings.server_pools.server_count')" field="servers_count" sortable></Column>
       <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
@@ -70,7 +73,7 @@
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="$t('settings.server_pools.view', { name: slotProps.data.name })"
-              :aria-la="$t('settings.server_pools.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.server_pools.view', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
               class="p-button p-button-info p-button-icon-only"

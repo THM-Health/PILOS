@@ -4,7 +4,7 @@
       <h2>{{ $t('app.room_types') }}</h2>
       <router-link
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
-        v-tooltip.left="$t('settings.room_types.new')"
+        v-tooltip="$t('settings.room_types.new')"
         class="p-button p-button-success p-button-icon-only"
         :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
       >
@@ -16,20 +16,17 @@
       <div>
         <InputGroup>
           <InputText
-            v-model="filters['global'].value"
+            v-model="nameSearch"
             :placeholder="$t('app.search')"
+            @keyup.enter="filters['name'].value = nameSearch"
           />
-<!--          ToDo??-->
-<!--          <Button-->
-<!--            v-tooltip="$t('app.search')"-->
-<!--            :aria-label="$t('app.search')"-->
-<!--            icon="fa-solid fa-magnifying-glass"-->
-<!--            severity="primary"-->
-<!--          >-->
-<!--          </Button>-->
-          <InputGroupAddon class="bg-green-500">
-            <i class="fa-solid fa-magnifying-glass text-white"></i>
-          </InputGroupAddon>
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            icon="fa-solid fa-magnifying-glass"
+            severity="primary"
+            @click="filters['name'].value = nameSearch"
+          />
         </InputGroup>
       </div>
     </div>
@@ -46,14 +43,17 @@
       :loading="isBusy"
       :rows="settingsStore.getSetting('pagination_page_size')"
       v-model:filters="filters"
-      :globalFilterFields="['name']"
       class="table-auto lg:table-fixed"
     >
       <template #empty>
         <InlineNote v-if="roomTypes.length === 0">{{ $t('settings.room_types.no_data') }}</InlineNote>
         <InlineNote v-else>{{ $t('settings.room_types.no_data_filtered') }}</InlineNote>
       </template>
-      <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true"></Column>
+      <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true">
+        <template #body="slotProps">
+          <TextTruncate>{{slotProps.data.name}}</TextTruncate>
+        </template>
+      </Column>
       <Column field="actions" :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
@@ -103,8 +103,9 @@ const actionColumn = useActionColumn([{ permissions: ['roomTypes.view'] }, { per
 
 const isBusy = ref(false);
 const roomTypes = ref([]);
+const nameSearch = ref('');
 const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  name: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
 onMounted(() => {
