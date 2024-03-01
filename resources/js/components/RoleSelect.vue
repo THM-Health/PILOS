@@ -71,7 +71,7 @@
 <script setup>
 
 import { onMounted, ref, watch } from 'vue';
-import { useApi } from '@/composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 import { Multiselect } from 'vue-multiselect';
 
 const api = useApi();

@@ -23,7 +23,7 @@
 <script setup>
 
 import { onMounted, ref, watch, defineModel } from 'vue';
-import { useApi } from '../../composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 
 const model = defineModel();
 

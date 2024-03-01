@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { useSettingsStore } from '../../stores/settings';
+import { useSettingsStore } from '../stores/settings';
 import { computed } from 'vue';
 
 const settingsStore = useSettingsStore();

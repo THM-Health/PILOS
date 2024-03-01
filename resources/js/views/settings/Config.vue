@@ -729,8 +729,6 @@
 <script setup>
 import env from '@/env';
 import { useSettingsStore } from '@/stores/settings';
-import TimezoneSelect from '@/components/Inputs/TimezoneSelect.vue';
-import ColorSelect from '@/components/Inputs/ColorSelect.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../../composables/useApi.js';
 import { useFormErrors } from '../../composables/useFormErrors.js';
