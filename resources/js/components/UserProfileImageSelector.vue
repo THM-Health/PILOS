@@ -34,7 +34,7 @@
       v-if="imageDeleted"
       severity="secondary"
       @click="emit('deleteImage', false)"
-      :label="$t('settings.users.image.undo_delete')"
+      :label="$t('app.undo_delete')"
       icon="fa-solid fa-undo"
     />
     </div>

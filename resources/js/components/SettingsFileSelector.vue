@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
+import { ref } from 'vue';
 
 const file = defineModel('file');
 const fileUrl = defineModel('fileUrl');
