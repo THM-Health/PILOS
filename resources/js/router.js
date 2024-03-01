@@ -515,7 +515,6 @@ export default function () {
 
   router.onError(error => {
     const api = useApi();
-    console.log("route error");
     api.error(error);
   });
 
