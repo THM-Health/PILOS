@@ -2,7 +2,7 @@
   <InputGroup>
     <multiselect
       :id="id"
-      ref="roles-multiselect"
+      ref="rolesMultiselectRef"
       :placeholder="$t('settings.roles.select_roles')"
       :model-value="selectedRoles"
       @update:modelValue="input"
@@ -58,7 +58,6 @@
     </multiselect>
       <Button
         v-if="loadingError"
-        ref="reloadRolesButton"
         :disabled="loading"
         severity="secondary"
         outlined
@@ -110,7 +109,7 @@ const loading = ref(false);
 const loadingError = ref(false);
 const currentPage = ref(1);
 const hasNextPage = ref(false);
-const rolesMultiselect = ref(null);
+const rolesMultiselectRef = ref(null);
 
 watch(() => props.modelValue, (value) => {
   selectedRoles.value = value;
@@ -177,7 +176,7 @@ function loadRoles (page = 1) {
     roles.value = newRoles;
   }).catch(error => {
     // close open multiselect
-    rolesMultiselect.value.deactivate();
+    rolesMultiselectRef.value.deactivate();
     loadingError.value = true;
     api.error(error);
   }).finally(() => {

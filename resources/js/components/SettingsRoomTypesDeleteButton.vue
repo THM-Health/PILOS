@@ -82,11 +82,10 @@ const replacementRoomTypes = ref([]);
 const loadingRoomTypes = ref(false);
 
 /**
- * Shows the delete modal with the passed room type.
+ * Shows the delete modal
  *
- * @param roomType room type that should be deleted.
  */
-function showDeleteModal (roomType) {
+function showDeleteModal () {
   formErrors.clear();
   replacement.value = null;
   loadReplacementRoomTypes();

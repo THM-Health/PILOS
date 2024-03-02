@@ -11,14 +11,12 @@ return [
         'title' => 'Raumart ändern',
     ],
     'description' => [
-        'cancel' => 'Abbrechen',
         'color'  => [
             'black' => 'Schwarz',
             'blue'  => 'Blau',
             'green' => 'Grün',
             'red'   => 'Rot',
         ],
-        'edit'                  => 'Bearbeiten',
         'external_link_warning' => [
             'description' => 'Sie werden zu folgender URL weitergeleitet :link',
             'title'       => 'Externer Link',

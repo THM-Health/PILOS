@@ -64,7 +64,7 @@
             <div class="field grid">
               <label for="user_locale" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.user_locale')}}</label>
               <div class="col-12 md:col-8">
-                <locale-select
+                <LocaleSelect
                   class="w-full"
                   id="user_locale"
                   v-model="model.user_locale"
@@ -79,7 +79,7 @@
             <div class="field grid">
               <label for="timezone" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.timezone')}}</label>
               <div class="col-12 md:col-8">
-                <timezone-select
+                <TimezoneSelect
                   id="timezone"
                   v-model="model.timezone"
                   required
@@ -95,7 +95,7 @@
             <div class="field grid">
               <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
               <div class="col-12 md:col-8">
-                <role-select
+                <RoleSelect
                   id="roles"
                   v-model="model.roles"
                   :invalid="formErrors.fieldInvalid('roles', true)"

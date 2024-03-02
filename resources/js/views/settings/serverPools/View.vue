@@ -136,7 +136,7 @@
               <Button
                 v-if="serversLoadingError"
                 outlined
-                variant="secondary"
+                severity="secondary"
                 @click="loadServers(serversCurrentPage)"
                 icon="fa-solid fa-sync"
               />
@@ -210,7 +210,7 @@ const serversLoadingError = ref(false);
 const serversMultiselectRef = ref(false);
 
 /**
- * Loads the server from the backend
+ * Loads the server pool and servers from the backend
  */
 onMounted(() => {
   load();

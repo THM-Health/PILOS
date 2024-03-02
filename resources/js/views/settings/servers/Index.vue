@@ -46,6 +46,7 @@
           @click="loadData();"
           icon="fa-solid fa-sync"
           v-tooltip="$t('app.reload')"
+          :aria-label="$t('app.reload')"
         />
       </div>
     </div>
@@ -78,9 +79,9 @@
       </template>
       <Column :header="$t('app.model_name')" field="name" sortable>
         <template #body="slotProps">
-          <text-truncate>
+          <TextTruncate>
             {{ slotProps.data.name }}
-          </text-truncate>
+          </TextTruncate>
         </template>
       </Column>
       <Column :header="$t('settings.servers.status')" field="status" sortable>
@@ -153,6 +154,7 @@
               v-if="userPermissions.can('view', slotProps.data)"
               :disabled="isBusy"
               v-tooltip="$t('settings.servers.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.servers.view', { name: slotProps.data.name })"
               :to="{ name: 'settings.servers.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
               class="p-button p-button-info p-button-icon-only"
             >
@@ -162,6 +164,7 @@
               v-if="userPermissions.can('update', slotProps.data)"
               :disabled="isBusy"
               v-tooltip="$t('settings.servers.edit', { name: slotProps.data.name })"
+              :aria-label="$t('settings.servers.edit', { name: slotProps.data.name })"
               :to="{ name: 'settings.servers.view', params: { id: slotProps.data.id } }"
               class="p-button p-button-secondary p-button-icon-only"
             >

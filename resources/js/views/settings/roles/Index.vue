@@ -65,9 +65,9 @@
       <Column field="name" :header="$t('app.model_name')" sortable>
         <template #body="slotProps">
           <div class="flex flex-row gap-2 align-items-center">
-            <text-truncate>
+            <TextTruncate>
               {{ slotProps.data.name }}
-            </text-truncate>
+            </TextTruncate>
             <Tag icon="fa-solid fa-crown" value="Superuser" v-if="slotProps.data.superuser" />
           </div>
         </template>
