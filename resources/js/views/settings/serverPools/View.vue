@@ -3,8 +3,8 @@
     <h2>
       {{
         id === 'new' ? $t('settings.server_pools.new') : (
-          viewOnly ? $t('settings.server_pools.view', {name: model.name})
-            : $t('settings.server_pools.edit', {name: model.name})
+          viewOnly ? $t('settings.server_pools.view', { name })
+            : $t('settings.server_pools.edit', { name })
         )
       }}
     </h2>
@@ -36,7 +36,7 @@
         <SettingsServerPoolsDeleteButton
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
-          :name="model.name"
+          :name="name"
           @deleted="$router.push({ name: 'settings.server_pools' })"
         >
         </SettingsServerPoolsDeleteButton>
@@ -198,6 +198,7 @@ const props = defineProps({
 const model = ref({
   servers: []
 });
+const name = ref('');
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 
@@ -227,6 +228,7 @@ function load () {
 
     api.call(`serverPools/${props.id}`).then(response => {
       model.value = response.data.data;
+      name.value = response.data.data.name;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
         router.push({ name: 'settings.server_pools' });
@@ -317,6 +319,7 @@ function handleStaleError (staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
+      name.value = staleError.newMember.name;
     }
   });
 }

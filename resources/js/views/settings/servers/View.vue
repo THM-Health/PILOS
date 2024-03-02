@@ -3,8 +3,8 @@
     <h2>
       {{
         id === 'new' ? $t('settings.servers.new') : (
-          viewOnly ? $t('settings.servers.view', {name: model.name})
-            : $t('settings.servers.edit', {name: model.name})
+          viewOnly ? $t('settings.servers.view', { name })
+            : $t('settings.servers.edit', { name })
         )
       }}
     </h2>
@@ -36,7 +36,7 @@
         <SettingsServersDeleteButton
           v-if="userPermissions.can('delete', model) && model.status===-1"
           :id="model.id"
-          :name="model.name"
+          :name="name"
           @deleted="$router.push({ name: 'settings.servers' })"
         ></SettingsServersDeleteButton>
       </div>
@@ -328,6 +328,7 @@ const model = ref({
   id: null,
   disabled: false
 });
+const name = ref('');
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);
@@ -420,6 +421,7 @@ function load () {
     api.call(`servers/${props.id}`).then(response => {
       model.value = response.data.data;
       model.value.disabled = model.value.status === -1;
+      name.value = response.data.data.name;
       // this.$set(this.model, 'disabled', this.model.status === -1);
       online.value = model.value.status === -1 ? null : model.value.status;
       offlineReason.value = null;
@@ -483,6 +485,7 @@ function handleStaleError (staleError) {
     reject: () => {
       model.value = staleError.new_model;
       model.value.disabled = model.value.status === -1;
+      name.value = staleError.new_model.name;
       online.value = model.value.status === -1 ? null : model.value.status;
       offlineReason.value = null;
     }

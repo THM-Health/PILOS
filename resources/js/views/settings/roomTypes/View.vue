@@ -34,7 +34,7 @@
         <SettingsRoomTypesDeleteButton
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
-          :description="model.name"
+          :name="name"
           @deleted="$router.push({ name: 'settings.room_types' })"
         />
       </div>
