@@ -472,9 +472,9 @@ function roomLimitModeChanged (value) {
 function handleStaleError (staleError) {
   confirm.require({
     message: staleError.message,
-    header: 'Confirmation',
+    header: t('app.errors.stale_error'),
     icon: 'pi pi-exclamation-triangle',
-    rejectClass: 'p-button-secondary p-button-outlined',
+    rejectClass: 'p-button-secondary',
     rejectLabel: t('app.reload'),
     acceptLabel: t('app.overwrite'),
     accept: () => {
@@ -483,6 +483,7 @@ function handleStaleError (staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
+      model.value.permissions = model.value.permissions.map(permission => permission.id);
       name.value = staleError.new_model.name;
     }
   });
