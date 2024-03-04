@@ -170,8 +170,9 @@
     <OverlayComponent
       class="mt-3"
       v-if="!showNoFilterMessage"
-      :show="loadingRooms || loadingRoomsError"
+      :show="loadingRoomsError && !loadingRooms"
       :noCenter="true"
+      opacity="0"
       z-index="3"
     >
       <template #overlay>
@@ -186,25 +187,22 @@
         </div>
       </template>
 
-      <!--show room skeleton if there is an error while no rooms are displayed-->
-      <div v-if="(loadingRoomsError && (!rooms || rooms.data.length===0))">
+      <!--show room skeleton during loading or error-->
+      <div v-if="loadingRooms || loadingRoomsError">
         <div class="grid p-1">
           <div
             class="col-12 md:col-6 lg:col-4 p-2"
-            v-for="i in 3"
+            v-for="i in rooms?.data?.length || 3"
             :key="i"
           >
-            <RoomCardSkeleton />
+            <RoomCardSkeleton :animation="loadingRooms ? 'wave' : (loadingRoomsError ? 'none' : null)" />
           </div>
         </div>
       </div>
 
       <!--rooms and pagination-->
-      <div v-if="rooms">
-        <div
-          v-if="!loadingRooms && !loadingRoomsError"
-          class="text-center"
-        >
+      <div v-if="rooms && !loadingRooms && !loadingRoomsError">
+        <div class="text-center">
           <InlineMessage severity="info" v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
           <InlineMessage severity="info" v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
           <InlineMessage severity="info" v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
