@@ -32,7 +32,7 @@
 
       <!-- Show message on empty recording list -->
       <template #empty>
-        <i>{{ $t('rooms.recordings.nodata') }}</i>
+        <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.recordings.nodata') }}</InlineNote>
       </template>
 
       <Column field="start" :header="$t('rooms.recordings.start')">
@@ -135,6 +135,8 @@ const api = useApi();
 const userPermissions = useUserPermissions();
 
 const isBusy = ref(false);
+const loadingError = ref(false);
+
 const recordings = ref([]);
 const currentPage = ref(1);
 const sortField = ref('lastname');
@@ -155,6 +157,7 @@ const meta = ref({
 function loadData () {
   // enable data loading indicator
   isBusy.value = true;
+  loadingError.value = false;
 
   // make request to load recordings
   const config = {
@@ -178,7 +181,8 @@ function loadData () {
       meta.value = response.data.meta;
     })
     .catch((error) => {
-      api.error(error, this.$root);
+      loadingError.value = true;
+      api.error(error);
     })
     .finally(() => {
       isBusy.value = false;
