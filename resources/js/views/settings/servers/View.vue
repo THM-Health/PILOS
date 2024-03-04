@@ -423,7 +423,6 @@ function load () {
       model.value = response.data.data;
       model.value.disabled = model.value.status === -1;
       name.value = response.data.data.name;
-      // this.$set(this.model, 'disabled', this.model.status === -1);
       online.value = model.value.status === -1 ? null : model.value.status;
       offlineReason.value = null;
     }).catch(error => {
