@@ -52,15 +52,34 @@
 import { ref } from 'vue';
 
 const emit = defineEmits(['submit']);
-const props = defineProps([
-  'errors',
-  'id',
-  'loading',
-  'passwordLabel',
-  'submitLabel',
-  'title',
-  'usernameLabel'
-]);
+const props = defineProps({
+  errors: {
+    type: Object
+  },
+  id: {
+    type: String,
+    required: true
+  },
+  loading: {
+    type: Boolean
+  },
+  passwordLabel: {
+    type: String,
+    required: true
+  },
+  submitLabel: {
+    type: String,
+    required: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  usernameLabel: {
+    type: String,
+    required: true
+  }
+});
 
 const username = ref('');
 const password = ref('');

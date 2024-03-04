@@ -47,14 +47,32 @@ import env from '../env.js';
 import { useI18n } from 'vue-i18n';
 import 'chartjs-adapter-date-fns';
 
-const props = defineProps([
-  'roomId',
-  'meetingId',
-  'start',
-  'end',
-  'roomName',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  meetingId: {
+    type: String,
+    required: true
+  },
+  start: {
+    type: String,
+    required: true
+  },
+  end: {
+    type: String,
+    required: true
+  },
+  roomName: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);

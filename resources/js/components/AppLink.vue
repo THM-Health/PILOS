@@ -20,11 +20,23 @@
 
 <script setup>
 
-const props = defineProps([
-  'to',
-  'href',
-  'target',
-  'class'
-]);
+const props = defineProps({
+  to: {
+    type: String,
+    required: true
+  },
+  href: {
+    type: String,
+    required: true
+  },
+  target: {
+    type: String,
+    required: true
+  },
+  class: {
+    type: String,
+    required: true
+  }
+});
 
 </script>

@@ -45,12 +45,19 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    list: Array,
-    variant: String,
-    description: String
+<script setup>
+
+defineProps({
+  list: {
+    type: Array,
+    required: true
+  },
+  variant: {
+    type: String
+  },
+  description: {
+    type: String,
+    required: true
   }
-};
+});
 </script>

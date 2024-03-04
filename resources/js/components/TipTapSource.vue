@@ -40,9 +40,11 @@
 
 import { ref } from 'vue';
 
-const props = defineProps([
-  'editor'
-]);
+const props = defineProps({
+  editor: {
+    type: Object
+  }
+});
 
 const source = ref(null);
 const modalVisible = ref(false);

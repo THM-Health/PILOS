@@ -105,14 +105,32 @@ import { useApi } from '../composables/useApi.js';
 import 'chartjs-adapter-date-fns';
 import { FilterMatchMode } from 'primevue/api';
 
-const props = defineProps([
-  'roomId',
-  'meetingId',
-  'start',
-  'end',
-  'roomName',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  meetingId: {
+    type: String,
+    required: true
+  },
+  start: {
+    type: String,
+    required: true
+  },
+  end: {
+    type: String,
+    required: true
+  },
+  roomName: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);

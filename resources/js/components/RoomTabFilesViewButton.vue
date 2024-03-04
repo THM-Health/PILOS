@@ -35,7 +35,7 @@ const props = defineProps({
     required: true
   },
   roomId: {
-    type: Number,
+    type: String,
     required: true
   }
 });

@@ -19,7 +19,11 @@ import Link from '@tiptap/extension-link';
 
 import { onMounted, onUnmounted, ref } from 'vue';
 
-const props = defineProps(['modelValue']);
+const props = defineProps({
+  modelValue: {
+    type: String
+  }
+});
 const emit = defineEmits(['update:modelValue']);
 
 const editor = ref(null);

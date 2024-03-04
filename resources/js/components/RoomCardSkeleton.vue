@@ -46,14 +46,12 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  name: 'RoomSkeletonComponent',
-  props: {
-    animation: {
-      type: String,
-      default: 'wave'
-    }
+<script setup>
+
+defineProps({
+  animation: {
+    type: String,
+    default: 'wave'
   }
-};
+});
 </script>

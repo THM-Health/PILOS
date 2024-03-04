@@ -38,13 +38,28 @@ import env from '../env';
 import { useApi } from '../composables/useApi.js';
 import { ref } from 'vue';
 
-const props = defineProps([
-  'roomId',
-  'userId',
-  'firstname',
-  'lastname',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  userId: {
+    type: Number,
+    required: true
+  },
+  firstname: {
+    type: String,
+    required: true
+  },
+  lastname: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['deleted']);
 

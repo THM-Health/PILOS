@@ -1,24 +1,3 @@
-<script setup>
-import { ref } from 'vue';
-import _ from 'lodash';
-const model = defineModel();
-
-const modalVisible = ref(false);
-
-const newRoomType = ref(null);
-
-function editRoomType () {
-  newRoomType.value = _.cloneDeep(model.value);
-  modalVisible.value = true;
-}
-
-function handleOk () {
-  model.value = _.cloneDeep(newRoomType.value);
-  modalVisible.value = false;
-}
-
-</script>
-
 <template>
   <InputGroup v-if="model">
     <InputText :value="model.name" readonly />
@@ -46,3 +25,24 @@ function handleOk () {
     </template>
   </Dialog>
 </template>
+
+<script setup>
+import { ref } from 'vue';
+import _ from 'lodash';
+const model = defineModel();
+
+const modalVisible = ref(false);
+
+const newRoomType = ref(null);
+
+function editRoomType () {
+  newRoomType.value = _.cloneDeep(model.value);
+  modalVisible.value = true;
+}
+
+function handleOk () {
+  model.value = _.cloneDeep(newRoomType.value);
+  modalVisible.value = false;
+}
+
+</script>

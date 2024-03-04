@@ -1,28 +1,3 @@
-<script setup>
-
-import { computed } from 'vue';
-
-const props = defineProps({
-  roomType: {
-    type: Object,
-    required: true
-  },
-  iconsOnly: {
-    type: Boolean,
-    default: false
-  }
-});
-
-const hasRestrictions = computed(() => {
-  return !props.roomType.allow_listing ||
-          !props.roomType.allow_record_attendance ||
-          props.roomType.require_access_code ||
-          props.roomType.max_participants ||
-          props.roomType.max_duration;
-});
-
-</script>
-
 <template>
   <div class="flex flex-column gap-2 w-full">
       <RoomTypeBadge :roomType="roomType" class="w-full text-base" />
@@ -60,6 +35,31 @@ const hasRestrictions = computed(() => {
 
   </div>
 </template>
+
+<script setup>
+
+import { computed } from 'vue';
+
+const props = defineProps({
+  roomType: {
+    type: Object,
+    required: true
+  },
+  iconsOnly: {
+    type: Boolean,
+    default: false
+  }
+});
+
+const hasRestrictions = computed(() => {
+  return !props.roomType.allow_listing ||
+    !props.roomType.allow_record_attendance ||
+    props.roomType.require_access_code ||
+    props.roomType.max_participants ||
+    props.roomType.max_duration;
+});
+
+</script>
 
 <style scoped>
 

@@ -76,14 +76,32 @@ import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';
 import env from '../env.js';
 
-const props = defineProps([
-  'roomId',
-  'token',
-  'firstname',
-  'lastname',
-  'role',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  token: {
+    type: String,
+    required: true
+  },
+  firstname: {
+    type: String,
+    required: true
+  },
+  lastname: {
+    type: String,
+    required: true
+  },
+  role: {
+    type: Number,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['added']);
 

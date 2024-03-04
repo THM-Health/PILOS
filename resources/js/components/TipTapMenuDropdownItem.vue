@@ -1,13 +1,3 @@
-<script setup>
-const props = defineProps([
-  'text',
-  'to',
-  'href',
-  'target',
-  'active'
-]);
-</script>
-
 <template>
   <button v-if="!to && !href" class="border-none w-full flex p-3 py-2 lg:py-2 align-items-center" :class="{ 'bg-primary': props.active, 'bg-transparent text-500 hover:surface-100 hover:text-900': !props.active }">
     <slot>{{ props.text }}</slot>
@@ -16,6 +6,26 @@ const props = defineProps([
     <slot>{{ props.text }}</slot>
   </AppLink>
 </template>
+
+<script setup>
+const props = defineProps({
+  text: {
+    type: String
+  },
+  to: {
+    type: String
+  },
+  href: {
+    type: String
+  },
+  target: {
+    type: String
+  },
+  active: {
+    type: Boolean
+  }
+});
+</script>
 
 <style scoped>
 

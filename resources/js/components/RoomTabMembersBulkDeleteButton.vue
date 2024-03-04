@@ -36,11 +36,20 @@ import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';
 
-const props = defineProps([
-  'roomId',
-  'userIds',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  userIds: {
+    type: Array,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['deleted']);
 

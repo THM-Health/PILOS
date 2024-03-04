@@ -276,7 +276,7 @@ import env from '@/env.js';
 import { useApi } from '@/composables/useApi.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useRouter } from 'vue-router';
-import { onMounted, ref, computed, defineProps } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
 import { useI18n } from 'vue-i18n';

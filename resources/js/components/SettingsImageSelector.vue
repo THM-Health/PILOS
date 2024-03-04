@@ -57,7 +57,7 @@
         <p class="p-error" v-html="urlError"/>
       </div>
     </div>
-    <div class="col-12 lg:col-3 text-left"  :class="{'lg:text-right': !viewOnly}">
+    <div class="col-12 lg:col-3 text-left lg:text-right">
       <img
         v-if="newImageUrl || imageUrl"
         :src="newImageUrl ?? imageUrl"

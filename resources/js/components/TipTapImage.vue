@@ -71,9 +71,11 @@
 <script setup>
 import { computed, ref } from 'vue';
 
-const props = defineProps([
-  'editor'
-]);
+const props = defineProps({
+  editor: {
+    type: Object
+  }
+});
 
 const src = ref(null);
 const width = ref(null);

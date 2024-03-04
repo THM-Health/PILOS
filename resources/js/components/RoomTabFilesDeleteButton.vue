@@ -40,12 +40,24 @@ import { ref } from 'vue';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
 
-const props = defineProps([
-  'roomId',
-  'fileId',
-  'filename',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  fileId: {
+    type: Number,
+    required: true
+  },
+  filename: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['deleted']);
 
