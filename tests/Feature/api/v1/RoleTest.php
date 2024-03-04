@@ -28,8 +28,8 @@ class RoleTest extends TestCase
         setting(['pagination_page_size' => $page_size]);
 
         $user       = User::factory()->create();
-        $roleA      = Role::factory()->create();
-        $roleB      = Role::factory()->create();
+        $roleA      = Role::factory()->create(['name' => 'Administrator']);
+        $roleB      = Role::factory()->create(['name' => 'User']);
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         $this->getJson(route('api.v1.roles.index'))->assertUnauthorized();
@@ -59,6 +59,15 @@ class RoleTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleB->name]);
+
+        // Test search
+        setting(['pagination_page_size' => 10]);
+        $this->getJson(route('api.v1.roles.index') . '?name=Admin')
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment(['name' => $roleA->name])
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 2);
     }
 
     public function testCreate()
