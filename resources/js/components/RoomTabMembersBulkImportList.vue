@@ -13,7 +13,6 @@
         <AccordionTab
           v-for="user in list"
           :key="user.email"
-          :variant="variant"
           :header="user.email"
           :disabled="!user.error"
           :pt="{
