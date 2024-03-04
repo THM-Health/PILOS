@@ -3,11 +3,45 @@
     <h2>
       {{
         id === 'new' ? $t('settings.servers.new') : (
-          viewOnly ? $t('settings.servers.view', {name: model.name})
-            : $t('settings.servers.edit', {name: model.name})
+          viewOnly ? $t('settings.servers.view', { name })
+            : $t('settings.servers.edit', { name })
         )
       }}
     </h2>
+    <div class="flex justify-content-between">
+      <router-link
+        class="p-button p-button-secondary"
+        :disabled="isBusy"
+        :to="{ name: 'settings.servers' }"
+      >
+        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
+      </router-link>
+      <div v-if="model.id!== null && id!=='new'" class="flex gap-2">
+        <router-link
+          v-if="!viewOnly && userPermissions.can('view', model)"
+          :disabled="isBusy"
+          :to="{ name: 'settings.servers.view', params: { id: model.id }, query: { view: '1' } }"
+          class="p-button p-button-secondary"
+        >
+          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
+        </router-link>
+        <router-link
+          v-if="viewOnly && userPermissions.can('update', model)"
+          :disabled="isBusy"
+          :to="{ name: 'settings.servers.view', params: { id: model.id } }"
+          class="p-button p-button-secondary"
+        >
+          <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
+        </router-link>
+        <SettingsServersDeleteButton
+          v-if="userPermissions.can('delete', model) && model.status===-1"
+          :id="model.id"
+          :name="name"
+          @deleted="$router.push({ name: 'settings.servers' })"
+        ></SettingsServersDeleteButton>
+      </div>
+    </div>
+
     <Divider/>
 
     <OverlayComponent :show="isBusy">
@@ -95,16 +129,15 @@
                 $t('settings.servers.strength')
               }}</label>
             <div class="col-12 md:col-8">
-                <Rating
-                  id="strength"
-                  v-model="model.strength"
-                  :cancel="false"
-                  :disabled="isBusy || modelLoadingError || viewOnly"
-                  :invalid="formErrors.fieldInvalid('strength')"
-                  :stars="10"
-                  aria-describedby="strength-help"
-                  class="border-1 border-300 border-round px-4 py-3 flex justify-content-between"
-
+              <Rating
+                id="strength"
+                v-model="model.strength"
+                :cancel="false"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :invalid="formErrors.fieldInvalid('strength')"
+                :stars="10"
+                aria-describedby="strength-help"
+                class="border-1 border-300 border-round px-4 py-3 flex justify-content-between"
               />
               <small id="strength-help">{{ $t('settings.servers.strength_description') }}</small>
               <p class="p-error" v-html="formErrors.fieldError('strength')"></p>
@@ -146,32 +179,25 @@
                   icon="fa-solid fa-link"
                   severity="info"
                   @click="testConnection()"
-                ></Button>
+                />
               </InputGroup>
               <p v-if="offlineReason" class="p-error">
                 {{ $t('settings.servers.offline_reason.' + offlineReason) }}
               </p>
             </div>
           </div>
+        <div v-if="!viewOnly">
           <Divider/>
           <div class="flex justify-content-end">
             <Button
-              :disabled="isBusy"
-              :label="$t('app.back')"
-              icon="fa-solid fa-arrow-left"
-              severity="secondary"
-              @click="$router.push({ name: 'settings.servers' })"
-            ></Button>
-            <Button
-              v-if="!viewOnly"
               :disabled="isBusy || modelLoadingError"
               :label="$t('app.save')"
-              class="ml-1"
               icon="fa-solid fa-save"
               severity="success"
               type="submit"
-            ></Button>
+            />
           </div>
+        </div>
       </form>
       <div
         v-if="!modelLoadingError && viewOnly && !model.disabled && model.id!==null"
@@ -216,11 +242,10 @@
           </div>
         </div>
         <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="participantCount">{{
-              $t('settings.servers.participant_count')
-            }}</label>
+          <label class="col-12 md:col-4 md:mb-0" for="participantCount">
+            {{$t('settings.servers.participant_count') }}
+          </label>
           <div class="col-12 md:col-8">
-
             <InputText
               id="participantCount"
               v-model="model.participant_count"
@@ -243,8 +268,9 @@
           </div>
         </div>
 
-        <div v-if="userPermissions.can('update', model)"
-             class="field grid"
+        <div
+          v-if="userPermissions.can('update', model)"
+          class="field grid"
         >
           <label class="col-12 md:col-4 md:mb-0" for="panic">{{ $t('settings.servers.panic') }}</label>
           <div class="col-12 md:col-8">
@@ -257,7 +283,7 @@
                 icon="fa-solid fa-exclamation-triangle"
                 severity="danger"
                 @click="panic()"
-              ></Button>
+              />
             </div>
             <small id="panic-help">{{ $t('settings.servers.panic_description') }}</small>
           </div>
@@ -302,6 +328,7 @@ const model = ref({
   id: null,
   disabled: false
 });
+const name = ref('');
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);
@@ -394,6 +421,7 @@ function load () {
     api.call(`servers/${props.id}`).then(response => {
       model.value = response.data.data;
       model.value.disabled = model.value.status === -1;
+      name.value = response.data.data.name;
       // this.$set(this.model, 'disabled', this.model.status === -1);
       online.value = model.value.status === -1 ? null : model.value.status;
       offlineReason.value = null;
@@ -422,16 +450,13 @@ function saveServer () {
     data: model.value
   };
 
-  api.call(props.id === 'new' ? 'servers' : `servers/${props.id}`, config).then(() => {
+  api.call(props.id === 'new' ? 'servers' : `servers/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'settings.servers' });
+    router.push({ name: 'settings.servers.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
     } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-      // this.staleError = error.response.data;
-      // this.$refs['stale-server-modal'].show();
-
       // handle stale errors
       handleStaleError(error.response.data);
     } else {
@@ -460,6 +485,7 @@ function handleStaleError (staleError) {
     reject: () => {
       model.value = staleError.new_model;
       model.value.disabled = model.value.status === -1;
+      name.value = staleError.new_model.name;
       online.value = model.value.status === -1 ? null : model.value.status;
       offlineReason.value = null;
     }

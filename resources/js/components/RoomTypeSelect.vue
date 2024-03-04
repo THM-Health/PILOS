@@ -26,7 +26,7 @@
       :disabled="disabled || isLoadingAction"
       @change="changeRoomType"
       :options="roomTypes"
-      optionLabel="description"
+      optionLabel="name"
       optionValue="id"
       :invalid="props.invalid"
       class="w-full"
@@ -47,7 +47,7 @@
 
 <script setup>
 
-import { useApi } from '../../composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 import { onMounted, ref, watch } from 'vue';
 
 const api = useApi();

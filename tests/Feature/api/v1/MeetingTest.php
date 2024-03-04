@@ -65,7 +65,7 @@ class MeetingTest extends TestCase
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role       = Role::factory()->create(['default' => true]);
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'meetings.viewAny' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);

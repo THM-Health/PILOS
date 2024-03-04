@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class CreateAdminUserTest extends TestCase
+class CreateSuperuserTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -28,10 +28,10 @@ class CreateAdminUserTest extends TestCase
 
     public function testInvalidInputs()
     {
-        Role::factory()->create(['name' => 'admin']);
+        Role::factory()->create(['name' => 'superuser', 'superuser' => true]);
 
-        $this->artisan('users:create:admin')
-            ->expectsOutput('Creating an new admin user, please notify your inputs.')
+        $this->artisan('users:create:superuser')
+            ->expectsOutput('Creating an new superuser, please notify your inputs.')
             ->expectsQuestion('Firstname', str_repeat('a', 256))
             ->expectsQuestion('Lastname', str_repeat('a', 256))
             ->expectsQuestion('E-Mail', str_repeat('a', 256))
@@ -44,24 +44,26 @@ class CreateAdminUserTest extends TestCase
 
     public function testMissingRole()
     {
-        $this->artisan('users:create:admin')
-            ->expectsOutput('The admin role does not exist. Please seed the database and then retry!')
+        Role::factory()->create(['name' => 'superuser']);
+
+        $this->artisan('users:create:superuser')
+            ->expectsOutput('The superuser role does not exist. Please seed the database and then retry!')
             ->assertExitCode(1);
     }
 
     public function testValidInputs()
     {
-        Role::factory()->create(['name' => 'admin']);
+        Role::factory()->create(['name' => 'superuser', 'superuser' => true]);
 
-        $this->artisan('users:create:admin')
-            ->expectsOutput('Creating an new admin user, please notify your inputs.')
+        $this->artisan('users:create:superuser')
+            ->expectsOutput('Creating an new superuser, please notify your inputs.')
             ->expectsQuestion('Firstname', $this->faker->firstName)
             ->expectsQuestion('Lastname', $this->faker->lastName)
             ->expectsQuestion('E-Mail', $this->faker->email)
             ->expectsQuestion('Locale (possible values: ' . join(',', array_keys(config('app.enabled_locales'))) . ')', array_keys(config('app.enabled_locales'))[0])
             ->expectsQuestion('Password', 'Test_1234')
             ->expectsQuestion('Password Confirmation', 'Test_1234')
-            ->expectsOutput('New admin user created successfully.')
+            ->expectsOutput('New superuser created successfully.')
             ->assertExitCode(0);
 
         $this->assertDatabaseCount('users', 1);
@@ -73,7 +75,7 @@ class CreateAdminUserTest extends TestCase
             'auth.local.enabled'    => false
         ]);
 
-        $this->artisan('users:create:admin')
+        $this->artisan('users:create:superuser')
             ->expectsOutput('Local login is not enabled. Please enable it in the .env with the option LOCAL_AUTH_ENABLED and then retry!')
             ->assertExitCode(1);
     }

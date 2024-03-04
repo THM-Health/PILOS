@@ -2,10 +2,44 @@
   <div>
     <h2>
       {{ id === 'new' ? $t('settings.room_types.new') : (
-        viewOnly ? $t('settings.room_types.view', { name: description })
-        : $t('settings.room_types.edit', { name: description })
+        viewOnly ? $t('settings.room_types.view', { name })
+        : $t('settings.room_types.edit', { name })
       ) }}
     </h2>
+    <div class="flex justify-content-between">
+      <router-link
+        class="p-button p-button-secondary"
+        :disabled="isBusy"
+        :to="{ name: 'settings.room_types' }"
+      >
+        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
+      </router-link>
+      <div v-if="model.id && id !== 'new'" class="flex gap-2">
+        <router-link
+          v-if="!viewOnly && userPermissions.can('view', model)"
+          class="p-button p-button-secondary"
+          :disabled="isBusy"
+          :to="{ name: 'settings.room_types.view', params: { id: model.id }, query: { view: '1' } }"
+        >
+          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
+        </router-link>
+        <router-link
+          v-if="viewOnly && userPermissions.can('update', model)"
+          class="p-button p-button-secondary"
+          :disabled="isBusy"
+          :to="{ name: 'settings.room_types.view', params: { id: model.id } }"
+        >
+          <i class="fa-solid fa-edit mr-2" /> {{$t('app.edit')}}
+        </router-link>
+        <SettingsRoomTypesDeleteButton
+          v-if="userPermissions.can('delete', model)"
+          :id="model.id"
+          :name="name"
+          @deleted="$router.push({ name: 'settings.room_types' })"
+        />
+      </div>
+    </div>
+
     <Divider/>
     <OverlayComponent :show="isBusy || modelLoadingError">
       <template #loading>
@@ -13,24 +47,24 @@
       </template>
       <form @submit.prevent="saveRoomType">
         <div class="field grid">
-          <label for="description" class="col-12 md:col-4 md:mb-0">{{$t('app.description')}}</label>
+          <label for="name" class="col-12 md:col-4 md:mb-0">{{$t('app.model_name')}}</label>
           <div class="col-12 md:col-8">
             <InputText
               class="w-full"
-              id="description"
-              v-model="model.description"
+              id="name"
+              v-model="model.name"
               type="text"
-              :invalid="formErrors.fieldInvalid('description')"
+              :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
           </div>
         </div>
 
         <div class="field grid">
           <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
           <div class="col-12 md:col-8">
-            <color-select
+            <ColorSelect
               id="color"
               class="mb-2"
               :disabled='isBusy || modelLoadingError || viewOnly'
@@ -111,10 +145,9 @@
                 v-if="serverPoolsLoadingError"
                 severity="secondary"
                 outlined
-                @click="loadServerPools(currentPage)"
-              >
-                <i class="fa-solid fa-sync" />
-              </Button>
+                @click="loadServerPools(serverPoolsCurrentPage)"
+                icon="fa-solid fa-sync"
+              />
             </InputGroup>
             <p class="p-error" v-html="formErrors.fieldError('server_pool')"></p>
             <small id="server_pool-help">{{$t('settings.room_types.server_pool_description')}}</small>
@@ -186,6 +219,21 @@
         </div>
 
         <div class="field grid">
+          <label for="allow_record" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_record')}}</label>
+          <div class="col-12 md:col-8">
+            <div>
+              <InputSwitch
+                id="allow_record"
+                v-model="model.allow_record"
+                :invalid="formErrors.fieldInvalid('allow_record')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('allow_record')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
           <label for="require_access_code" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.require_access_code')}}</label>
           <div class="col-12 md:col-8">
             <div>
@@ -242,28 +290,17 @@
             <p class="p-error" v-html="formErrors.fieldError('max_duration')"></p>
           </div>
         </div>
-
-        <Divider/>
-
-        <div class="flex justify-content-end">
-          <Button
-            :disabled="isBusy"
-            severity="secondary"
-            @click="$router.push({ name: 'settings.room_types' })"
-            icon="fa-solid fa-arrow-left"
-            :label="$t('app.back')"
-          >
-          </Button>
-          <Button
-            v-if="!viewOnly"
-            :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
-            severity="success"
-            type="submit"
-            class="ml-1"
-            icon="fa-solid fa-save"
-            :label="$t('app.save')"
-          >
-          </Button>
+        <div v-if="!viewOnly">
+          <Divider/>
+          <div class="flex justify-content-end">
+            <Button
+              :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
+              severity="success"
+              type="submit"
+              icon="fa-solid fa-save"
+              :label="$t('app.save')"
+            />
+          </div>
         </div>
       </form>
     </OverlayComponent>
@@ -273,6 +310,7 @@
 
 <script setup>
 import env from '@/env.js';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useApi } from '@/composables/useApi.js';
 import { onMounted, ref } from 'vue';
@@ -284,6 +322,7 @@ import { useI18n } from 'vue-i18n';
 import ConfirmDialog from 'primevue/confirmdialog';
 
 const formErrors = useFormErrors();
+const userPermissions = useUserPermissions();
 const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
@@ -303,11 +342,12 @@ const props = defineProps({
 
 const isBusy = ref(false);
 const model = ref({
-  description: null,
+  name: null,
   color: env.ROOM_TYPE_COLORS[0],
   server_pool: null,
   allow_listing: false,
   allow_record_attendance: false,
+  allow_record: false,
   require_access_code: false,
   max_duration: null,
   max_participants: null,
@@ -315,7 +355,7 @@ const model = ref({
   roles: []
 });
 
-const description = ref('');
+const name = ref('');
 
 const rolesLoading = ref(false);
 const colors = env.ROOM_TYPE_COLORS;
@@ -349,7 +389,7 @@ function loadRoomType () {
 
     api.call(`roomTypes/${props.id}`).then(response => {
       model.value = response.data.data;
-      description.value = response.data.data.description;
+      name.value = response.data.data.name;
       modelLoadingError.value = false;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
@@ -406,14 +446,9 @@ function saveRoomType () {
   config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
   config.data.roles = config.data.roles.map(role => role.id);
 
-  api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then((response) => {
+  api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then(response => {
     formErrors.clear();
-    if (props.id === 'new') {
-      router.push({ name: 'settings.room_types.view', params: { id: response.data.data.id } });
-    } else {
-      model.value = response.data.data;
-      description.value = response.data.data.description;
-    }
+    router.push({ name: 'settings.room_types.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
@@ -445,7 +480,7 @@ function handleStaleError (staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
-      description.value = staleError.new_model.description;
+      name.value = staleError.new_model.name;
     }
   });
 }

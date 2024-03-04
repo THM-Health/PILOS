@@ -13,9 +13,8 @@
       </div>
     </div>
 
-    <!-- table with room members -->
+    <!-- table with room recordings -->
     <DataTable
-      class="mt-4"
       :totalRecords="meta.total"
       :rows="meta.per_page"
       :value="recordings"
@@ -28,6 +27,7 @@
       v-model:sortOrder="sortOrder"
       @page="onPage"
       @sort="onSort"
+      class="mt-4 table-auto lg:table-fixed"
     >
 
       <!-- Show message on empty recording list -->
@@ -47,11 +47,16 @@
         </template>
       </Column>
 
-      <Column field="description" :header="$t('rooms.recordings.description')" />
+      <Column field="description" :header="$t('rooms.recordings.description')" >
+        <template #body="slotProps">
+          <TextTruncate>{{ slotProps.data.description }}</TextTruncate>
+        </template>
+
+      </Column>
 
       <Column field="formats" :header="$t('rooms.recordings.formats')">
         <template #body="slotProps">
-          <span class="p-buttonset">
+          <div class="flex flex-row md:flex-wrap gap-1">
             <!-- View file -->
             <RoomTabRecordingsViewButton
               v-for="format in slotProps.data.formats.filter(format => !format.disabled || userPermissions.can('manageSettings', room))" :key="format.id"
@@ -66,7 +71,7 @@
               @forbidden="loadData"
               @notFound="loadData"
             />
-          </span>
+          </div>
         </template>
       </Column>
 
@@ -76,9 +81,9 @@
         </template>
       </Column>
 
-      <Column v-if="userPermissions.can('manageSettings', room)" :header="$t('rooms.recordings.actions')">
+      <Column v-if="userPermissions.can('manageSettings', room)" :header="$t('rooms.recordings.actions')" class="action-column action-column-2">
         <template #body="slotProps">
-          <span class="p-buttonset">
+          <div>
             <!-- Edit button -->
             <RoomTabRecordingsEditButton
               :roomId="props.room.id"
@@ -99,7 +104,7 @@
               :filename="slotProps.data.description"
               @deleted="loadData()"
             />
-          </span>
+          </div>
         </template>
       </Column>
 

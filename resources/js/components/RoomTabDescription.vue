@@ -7,15 +7,7 @@
         :disabled="isBusy"
         @click="edit"
         icon="fa-solid fa-edit"
-        :label="$t('rooms.description.edit')"
-      />
-      <Button
-        v-if="editorOpen"
-        severity="success"
-        :disabled="isBusy"
-        @click="save"
-        icon="fa-solid fa-save"
-        :label="$t('rooms.description.save')"
+        :label="$t('app.edit')"
       />
       <Button
         v-if="editorOpen"
@@ -23,7 +15,7 @@
         :disabled="isBusy"
         @click="cancel"
         icon="fa-solid fa-times"
-        :label="$t('rooms.description.cancel')"
+        :label="$t('app.cancel_editing')"
       />
     </div>
 
@@ -51,6 +43,16 @@
         />
       </div>
     </OverlayComponent>
+    <div class="flex justify-content-end mt-2">
+      <Button
+        v-if="editorOpen"
+        severity="success"
+        :disabled="isBusy"
+        @click="save"
+        icon="fa-solid fa-save"
+        :label="$t('rooms.description.save')"
+      />
+    </div>
   </div>
 </template>
 

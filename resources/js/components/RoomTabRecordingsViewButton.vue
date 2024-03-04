@@ -1,7 +1,6 @@
 <template>
   <Button
-    severity="secondary"
-    :outlined="formatDisabled"
+    :severity="formatDisabled ? 'secondary' : 'primary'"
     @click="downloadFormat"
     :disabled="isLoadingAction"
     :aria-label="$t('rooms.recordings.format_types.'+format)"

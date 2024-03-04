@@ -3,22 +3,12 @@ import { createPinia } from 'pinia';
 import App from './components/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
-import axios from 'axios';
 import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
 import StyleClass from 'primevue/styleclass';
 import ConfirmationService from 'primevue/confirmationservice';
 import Toast from './plugins/toast';
 import { useToast } from './composables/useToast';
-
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-window.axios = axios;
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 const pinia = createPinia();
 const router = createRouter();

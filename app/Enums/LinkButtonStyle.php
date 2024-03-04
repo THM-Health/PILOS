@@ -16,7 +16,7 @@ final class LinkButtonStyle extends Enum
     public const DANGER    = 'danger';
     public const WARNING   = 'warning';
     public const INFO      = 'info';
-    public const HELP     = 'help';
+    public const HELP      = 'help';
     public const CONTRAST  = 'contrast';
     public const LINK      = 'link';
 }

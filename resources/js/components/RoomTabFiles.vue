@@ -52,6 +52,7 @@
       paginator
       :loading="isBusy || loadingError"
       rowHover
+      stripedRows
       scrollable
     >
       <template #loading>

@@ -13,7 +13,8 @@
     <Button
       v-if="loadingError"
       :disabled="loading"
-      variant="outline-secondary"
+      outlined
+      severity="secondary"
       @click="loadTimezones()"
       icon="fa-solid fa-sync"
     />
@@ -23,7 +24,7 @@
 <script setup>
 
 import { onMounted, ref, watch, defineModel } from 'vue';
-import { useApi } from '../../composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 
 const model = defineModel();
 
@@ -45,7 +46,7 @@ const props = defineProps({
     default: false
   },
   ariaLabelledby: {
-    type: String,
+    type: String
   }
 });
 

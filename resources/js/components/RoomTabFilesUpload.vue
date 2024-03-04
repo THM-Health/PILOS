@@ -10,7 +10,7 @@
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
       >
-        <i class="fa-solid fa-upload mr-2"></i> {{ $t('rooms.files.browse') }}
+        <i class="fa-solid fa-upload mr-2"></i> {{ $t('app.browse') }}
       </label>
       <input
         type="file"
@@ -19,6 +19,7 @@
         class="p-sr-only"
         :disabled="disabled"
         @input="fileSelected"
+        :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
       />
       <div
         class="flex-grow-1 border-1 border-round border-400 border-noround-left hidden lg:flex cursor-pointer align-items-center p-2"

@@ -6,7 +6,7 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip.left="$t('settings.servers.new')"
+        v-tooltip="$t('settings.servers.new')"
         :aria-label="$t('settings.servers.new')"
         :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
         class="p-button p-button-icon-only p-button-success"
@@ -15,7 +15,7 @@
       </router-link>
     </div>
 
-    <div class="flex flex-column md:flex-row justify-content-between gap-2">
+    <div class="flex flex-column md:flex-row justify-content-between">
       <div>
         <InputGroup>
           <InputText
@@ -29,17 +29,26 @@
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
             @click="loadData()"
-          >
-          </Button>
+          />
         </InputGroup>
       </div>
-      <Button
-        :disabled="isBusy"
-        severity="info"
-        @click="loadData(true);"
-        icon="fa-solid fa-repeat"
-        :label="$t('settings.servers.reload')"
-      />
+      <div class="flex gap-2 justify-content-between  mt-2">
+        <Button
+          :disabled="isBusy"
+          severity="info"
+          @click="loadData(true);"
+          icon="fa-solid fa-repeat"
+          :label="$t('settings.servers.reload')"
+        />
+        <Button
+          :disabled="isBusy"
+          severity="secondary"
+          @click="loadData();"
+          icon="fa-solid fa-sync"
+          v-tooltip="$t('app.reload')"
+          :aria-label="$t('app.reload')"
+        />
+      </div>
     </div>
     <Divider/>
     <DataTable
@@ -53,8 +62,10 @@
       lazy
       paginator
       rowHover
+      stripedRows
       @page="onPage"
       @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()"/>
@@ -66,15 +77,14 @@
           <InlineNote v-else>{{ $t('settings.servers.no_data_filtered') }}</InlineNote>
         </div>
       </template>
-<!--      ToDo fix Column size-->
-      <Column :header="$t('app.model_name')" field="name" sortable style="max-width: 100px">
+      <Column :header="$t('app.model_name')" field="name" sortable>
         <template #body="slotProps">
-          <text-truncate>
+          <TextTruncate>
             {{ slotProps.data.name }}
-          </text-truncate>
+          </TextTruncate>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.status')" field="status" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.status')" field="status" sortable>
         <template #body="slotProps">
           <Tag
             v-if="slotProps.data.status === -1"
@@ -105,7 +115,7 @@
           </Tag>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.version')" field="version" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.version')" field="version" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.version !== null">{{ slotProps.data.version }}</span>
           <raw-text v-else>
@@ -113,7 +123,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.meeting_count')" field="meeting_count" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.meeting_count')" field="meeting_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.meeting_count !== null">{{ slotProps.data.meeting_count }}</span>
           <raw-text v-else>
@@ -121,7 +131,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.participant_count')" field="participant_count" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.participant_count')" field="participant_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.participant_count !== null">{{ slotProps.data.participant_count }}</span>
           <raw-text v-else>
@@ -129,7 +139,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.video_count')" field="video_count" sortable style="width: 1px">
+      <Column :header="$t('settings.servers.video_count')" field="video_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.video_count !== null">{{ slotProps.data.video_count }}</span>
           <raw-text v-else>
@@ -137,13 +147,14 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
               :disabled="isBusy"
               v-tooltip="$t('settings.servers.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.servers.view', { name: slotProps.data.name })"
               :to="{ name: 'settings.servers.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
               class="p-button p-button-info p-button-icon-only"
             >
@@ -153,6 +164,7 @@
               v-if="userPermissions.can('update', slotProps.data)"
               :disabled="isBusy"
               v-tooltip="$t('settings.servers.edit', { name: slotProps.data.name })"
+              :aria-label="$t('settings.servers.edit', { name: slotProps.data.name })"
               :to="{ name: 'settings.servers.view', params: { id: slotProps.data.id } }"
               class="p-button p-button-secondary p-button-icon-only"
             >
@@ -178,10 +190,12 @@
 <script setup>
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 import { onMounted, ref } from 'vue';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['servers.view'] }, { permissions: ['servers.update'] }, { permissions: ['servers.delete'] }]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);

@@ -693,7 +693,7 @@ class FileTest extends TestCase
         // Upload a fake file
         $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.add', ['room'=>$room]), ['file' => $this->file_valid]);
         $response->assertSuccessful();
-        
+
         // Set file to be used in next meeting
         $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=> $room, 'file' => $response->json('data.files.0.id')]), ['use_in_meeting'=>true])
             ->assertSuccessful();

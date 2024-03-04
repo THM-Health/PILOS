@@ -10,24 +10,26 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * Command class that makes it possible to create an new admin user.
+ * Command class that makes it possible to create an new superuser.
  * @package App\Console\Commands
  */
-class CreateAdminUser extends Command
+class CreateSuperuser extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'users:create:admin';
+    protected $signature = 'users:create:superuser';
+
+    protected $aliases = ['users:create:admin'];
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Creates an new admin user.';
+    protected $description = 'Creates an new superuser.';
 
     /**
      * Create a new command instance.
@@ -52,16 +54,16 @@ class CreateAdminUser extends Command
 
             return 1;
         }
-        
-        $roles = Role::where(['name' => 'admin'])->pluck('id')->all();
 
-        if (empty($roles)) {
-            $this->error('The admin role does not exist. Please seed the database and then retry!');
+        $superuserRole = Role::where(['superuser' => true])->first();
+
+        if ($superuserRole === null) {
+            $this->error('The superuser role does not exist. Please seed the database and then retry!');
 
             return 1;
         }
 
-        $this->info('Creating an new admin user, please notify your inputs.');
+        $this->info('Creating an new superuser, please notify your inputs.');
 
         $data                          = [];
         $data['firstname']             = $this->ask('Firstname');
@@ -72,7 +74,7 @@ class CreateAdminUser extends Command
         $data['password_confirmation'] = $this->secret('Password Confirmation');
         $data['generate_password']     = false;
         $data['bbb_skip_check_audio']  = false;
-        $data['roles']                 = $roles;
+        $data['roles']                 = [$superuserRole->id];
         $data['timezone']              = 'UTC';
 
         $validator = Validator::make($data, (new UserRequest())->rules());
@@ -97,9 +99,9 @@ class CreateAdminUser extends Command
         $user->email_verified_at = $user->freshTimestamp();
 
         $user->save();
-        $user->roles()->sync($roles);
+        $user->roles()->attach($superuserRole);
 
-        $this->info('New admin user created successfully.');
+        $this->info('New superuser created successfully.');
 
         return 0;
     }

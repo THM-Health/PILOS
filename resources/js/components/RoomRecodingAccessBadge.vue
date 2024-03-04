@@ -26,22 +26,22 @@ const accessType = computed(() => {
     case 0:
       return {
         description: t('rooms.recordings.access_types.everyone'),
-        class: 'room-recording-access-guest'
+        class: 'room-recording-access-badge room-access-everyone'
       };
     case 1:
       return {
         description: t('rooms.recordings.access_types.participant'),
-        class: 'room-recording-access-participant'
+        class: 'room-recording-access-badge room-access-participant'
       };
     case 2:
       return {
         description: t('rooms.recordings.access_types.moderator'),
-        class: 'room-recording-access-moderator'
+        class: 'room-recording-access-badge room-access-moderator'
       };
     case 3:
       return {
         description: t('rooms.recordings.access_types.owner'),
-        class: 'room-recording-access-owner'
+        class: 'room-recording-access-badge room-access-owner'
       };
     default:
       return {

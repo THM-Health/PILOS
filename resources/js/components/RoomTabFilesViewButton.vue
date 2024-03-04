@@ -2,7 +2,6 @@
   <!-- View file -->
   <Button
     v-tooltip="$t('rooms.files.view')"
-    severity="secondary"
     :disabled="disabled"
     target="_blank"
     @click="downloadFile"

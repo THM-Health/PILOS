@@ -6,7 +6,7 @@
     icon="fa-solid fa-trash"
     severity="danger"
     @click="showDeleteModal"
-  ></Button>
+  />
 
   <Dialog
     v-model:visible="showModal"
@@ -36,15 +36,15 @@
             v-for="roomType in deleteFailedRoomTypes"
             :key="roomType.id"
           >
-            {{ roomType.description }}
+            {{ roomType.name }}
           </li>
         </ul>
       </InlineMessage>
     </div>
 
     <template v-if="deleteFailedRoomTypes==null" #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-      <Button :label="$t('app.yes')" :loading="isBusy" severity="danger" @click="deleteServerPool"></Button>
+      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+      <Button :label="$t('app.yes')" :loading="isBusy" severity="danger" @click="deleteServerPool"/>
     </template>
   </Dialog>
 </template>

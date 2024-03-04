@@ -21,7 +21,6 @@ import ServerPoolsIndex from './views/settings/serverPools/Index.vue';
 import ServerPoolsView from './views/settings/serverPools/View.vue';
 import MeetingsIndex from './views/meetings/Index.vue';
 import PasswordReset from './views/PasswordReset.vue';
-import Base from './api/base';
 import ForgotPassword from './views/ForgotPassword.vue';
 import VerifyEmail from './views/VerifyEmail.vue';
 import Profile from './views/Profile.vue';
@@ -31,6 +30,7 @@ import { useSettingsStore } from './stores/settings';
 import { useToast } from '@/composables/useToast';
 import i18n from '@/i18n';
 import { useUserPermissions } from './composables/useUserPermission.js';
+import { useApi } from './composables/useApi.js';
 
 const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue'], { eager: true }))[0].default;
 
@@ -250,15 +250,10 @@ export const routes = [
               );
             }
 
-            // @TODO refactor
-            return Base.call(`roles/${id}`).then((response) => {
-              return userPermissions.can('manage', 'SettingPolicy') &&
-                  userPermissions.can('update', response.data.data);
-            }).catch((response) => {
-              // @TODO refactor error handling
-              Base.error(response, vm, response.message);
-              return false;
-            });
+            return Promise.resolve(
+              userPermissions.can('manage', 'SettingPolicy') &&
+              userPermissions.can('update', 'RolePolicy')
+            );
           }
         }
       },
@@ -519,8 +514,8 @@ export default function () {
   router.beforeEach((to, from, next) => beforeEachRoute(router, to, from, next));
 
   router.onError(error => {
-    // @TODO refactor error handling
-    Base.error(error);
+    const api = useApi();
+    api.error(error);
   });
 
   return router;

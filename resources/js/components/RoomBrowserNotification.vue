@@ -12,7 +12,7 @@
 <script setup>
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
-import {onMounted, ref, watch} from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useSettingsStore } from '../stores/settings.js';
 import notificationSound from '../../audio/notification.mp3';
 

@@ -87,8 +87,8 @@
     </div>
 
     <div class="flex align-items-center justify-content-end mt-4 gap-2">
-      <Button :label="$t('app.cancel')" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"></Button>
-      <Button :label="$t('app.continue')" :disabled="isLoadingAction" :loading="isLoadingAction" @click="getJoinUrl" size="small"></Button>
+      <Button :label="$t('app.cancel')" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"/>
+      <Button :label="$t('app.continue')" :disabled="isLoadingAction" :loading="isLoadingAction" @click="getJoinUrl" size="small"/>
     </div>
   </Dialog>
 
@@ -253,7 +253,7 @@ function getJoinUrl () {
 
         // Room is not running, update running status
         if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
-          toast.error(t('rooms.flash.not_running'));
+          toast.error(t('app.errors.not_running'));
           emit('notRunning');
           showModal.value = false;
           return;

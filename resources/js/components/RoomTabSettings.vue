@@ -164,9 +164,9 @@
                 <InputSwitch
                   input-id="record-attendance"
                   v-model="settings.record_attendance"
-                  :disabled="disabled || !settingsStore.getSetting('attendance.enabled')"
+                  :disabled="disabled || (settings.room_type && !settings.room_type.allow_record_attendance) || !settingsStore.getSetting('attendance.enabled')"
                   class="flex-shrink-0"
-                  :invalid="formErrors.fieldInvalid('default_role')"
+                  :invalid="formErrors.fieldInvalid('record_attendance')"
                 />
                 <label for="record-attendance">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
               </div>
@@ -179,7 +179,7 @@
                 <InputSwitch
                   input-id="record-video-conference"
                   v-model="settings.record"
-                  :disabled="disabled"
+                  :disabled="disabled || (settings.room_type && !settings.room_type.allow_record)"
                   class="flex-shrink-0"
                   :invalid="formErrors.fieldInvalid('record')"
                 />
@@ -566,16 +566,30 @@ const showLobbyAlert = computed(() => {
   return settings.value.default_role === 2 && settings.value.lobby === 1;
 });
 
-watch(settings, () => {
-  if (!settings.value) { return; }
+function applyRoomRestrictions (roomType) {
+  if (!roomType) { return; }
 
-  if (settings.value.room_type && !settings.value.room_type.allow_listing && settings.value.access_code) {
+  if (roomType.require_access_code && !settings.value.access_code) {
+    createAccessCode();
+  }
+
+  if (!roomType.allow_listing) {
     settings.value.listed = false;
   }
 
-  if (settings.value.room_type && settings.value.room_type.require_access_code && !settings.value.access_code) {
-    createAccessCode();
+  if (!roomType.allow_record_attendance) {
+    settings.value.record_attendance = false;
   }
+
+  if (!roomType.allow_record) {
+    settings.value.record = false;
+  }
+}
+
+watch(settings, () => {
+  if (!settings.value) { return; }
+
+  applyRoomRestrictions(settings.value.room_type);
 }, { deep: true });
 
 onMounted(() => {

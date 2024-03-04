@@ -28,8 +28,6 @@ class MeetingTest extends TestCase
         // Create room and meeting
         $room                              = Room::factory()->create(['access_code'=> 123456789]);
         $this->meeting                     = new Meeting();
-        $this->meeting->attendee_pw        = bin2hex(random_bytes(5));
-        $this->meeting->moderator_pw       = bin2hex(random_bytes(5));
         $this->meeting->room()->associate($room);
         $this->meeting->save();
     }
@@ -58,8 +56,6 @@ class MeetingTest extends TestCase
 
         $this->assertEquals($meeting->id, $data['meetingID']);
         $this->assertEquals($meeting->room->name, $data['name']);
-        $this->assertEquals($meeting->moderator_pw, $data['moderatorPW']);
-        $this->assertEquals($meeting->attendee_pw, $data['attendeePW']);
         $this->assertEquals(url('rooms/'.$meeting->room->id), $data['logoutURL']);
 
         $this->assertStringContainsString($meeting->room->name, $data['moderatorOnlyMessage']);

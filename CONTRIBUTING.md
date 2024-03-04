@@ -149,10 +149,10 @@ You can manage your MariaDB using PHPMyAdmin.
 To adjust the port of PHPMyAdmin, change FORWARD_PHPMYADMIN_PORT in the .env file.
 By default, PHPMyAdmin is served at http://localhost:8080
 
-### Admin user
-To create a new admin user run the artisan command for admin user creation (see [installation guide](docs/INSTALL.md)).
+### Superuser
+To create a new superuser run the artisan command for superuser creation (see [installation guide](docs/INSTALL.md)).
 ```bash
-sail artisan users:create:admin
+sail artisan users:create:superuser
 ```
 
 ### LDAP 

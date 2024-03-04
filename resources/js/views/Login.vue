@@ -91,18 +91,6 @@ const shibbolethRedirectUrl = computed(() => {
   return route.query.redirect ? url + '?redirect=' + encodeURIComponent(route.query.redirect) : url;
 });
 
-const panelClass = (context) => {
-  return [
-    {
-      'w-full': true,
-      'border-noround': true,
-      'justify-content-center': true,
-      'p-tabview-header-action-button': true,
-      'bg-primary': context.active
-    }
-  ];
-};
-
 /**
 * Handle login request
 * @param data Credentials with username/email and password

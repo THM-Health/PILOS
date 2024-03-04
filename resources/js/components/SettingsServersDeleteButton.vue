@@ -3,26 +3,26 @@
     severity="danger"
     icon="fa-solid fa-trash"
     :disabled="isBusy"
-    :title="$t('settings.servers.delete.item', { name: props.name })"
-    variant="danger"
+    v-tooltip="$t('settings.servers.delete.item', { name: props.name })"
+    :aria-label="$t('settings.servers.delete.item', { name: props.name })"
     @click="showDeleteModal()"
-  ></Button>
+  />
     <Dialog
       v-model:visible="showModal"
+      :header="$t('settings.servers.delete.title')"
+      :style="{ width: '500px' }"
       :breakpoints="{ '575px': '90vw' }"
+      modal
       :closeOnEscape="!isBusy"
       :closeable="!isBusy"
       :dismissableMask="!isBusy"
       :draggable=false
-      :header="$t('settings.servers.delete.title')"
-      :style="{ width: '500px' }"
-      modal
     >
       <span>{{ $t('settings.servers.delete.confirm', {name: props.name}) }}</span>
 
       <template #footer>
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-        <Button :label="$t('app.yes')" :loading="isBusy" severity="danger" @click="deleteServer"></Button>
+        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+        <Button :label="$t('app.yes')" :loading="isBusy" severity="danger" @click="deleteServer"/>
       </template>
     </Dialog>
 </template>

@@ -181,7 +181,10 @@ import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import RoomHeader from '../../components/RoomHeader.vue';
-import RoomShareButton from "../../components/RoomShareButton.vue";
+import RoomShareButton from '../../components/RoomShareButton.vue';
+import EventBus from '../../services/EventBus.js';
+import { EVENT_CURRENT_ROOM_CHANGED } from '../../constants/events.js';
+import _ from 'lodash';
 
 const props = defineProps({
   id: {
@@ -361,14 +364,17 @@ function reload () {
   // Load data
   api.call(url, config)
     .then(response => {
-      room.value = response.data.data;
+      const newRoomData = response.data.data;
+
+      const roomDataChanged = !_.isEqual(room.value, newRoomData);
+
+      room.value = newRoomData;
       // If logged in, reset the access code valid
       if (room.value.authenticated) {
         accessCodeInvalid.value = null;
       }
 
-      // @TODO Fix bug
-      // EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, room.value);
+      if (roomDataChanged) { EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, room.value); }
 
       setPageTitle(room.value.name);
 

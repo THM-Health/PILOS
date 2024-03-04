@@ -2,7 +2,7 @@
   <InputGroup>
     <multiselect
       :id="id"
-      ref="roles-multiselect"
+      ref="rolesMultiselectRef"
       :placeholder="$t('settings.roles.select_roles')"
       :model-value="selectedRoles"
       @update:modelValue="input"
@@ -25,12 +25,12 @@
         {{ $t('settings.roles.no_data') }}
       </template>
       <template v-slot:option="{ option }">
-        {{ $te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name }}
+        {{ option.name }}
       </template>
       <template v-slot:tag="{ option, remove }" >
           <Chip
             :key="option.name"
-            :label="$te(`app.role_labels.${option.name}`) ? $t(`app.role_labels.${option.name}`) : option.name"
+            :label="option.name"
             :removable="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty)"
             @remove="remove(option)"
           />
@@ -58,7 +58,6 @@
     </multiselect>
       <Button
         v-if="loadingError"
-        ref="reloadRolesButton"
         :disabled="loading"
         severity="secondary"
         outlined
@@ -71,7 +70,7 @@
 <script setup>
 
 import { onMounted, ref, watch } from 'vue';
-import { useApi } from '@/composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 import { Multiselect } from 'vue-multiselect';
 
 const api = useApi();
@@ -110,7 +109,7 @@ const loading = ref(false);
 const loadingError = ref(false);
 const currentPage = ref(1);
 const hasNextPage = ref(false);
-const rolesMultiselect = ref(null);
+const rolesMultiselectRef = ref(null);
 
 watch(() => props.modelValue, (value) => {
   selectedRoles.value = value;
@@ -177,7 +176,7 @@ function loadRoles (page = 1) {
     roles.value = newRoles;
   }).catch(error => {
     // close open multiselect
-    rolesMultiselect.value.deactivate();
+    rolesMultiselectRef.value.deactivate();
     loadingError.value = true;
     api.error(error);
   }).finally(() => {

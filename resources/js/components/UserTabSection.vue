@@ -85,7 +85,6 @@
 </template>
 
 <script setup>
-import Base from '../api/base';
 import env from '../env';
 import { onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
@@ -151,7 +150,7 @@ function refreshUser () {
 function loadUser () {
   isBusy.value = true;
 
-  Base.call('users/' + props.id).then(response => {
+  api.call('users/' + props.id).then(response => {
     loadingError.value = false;
     user.value = response.data.data;
     user.value.roles.forEach(role => {

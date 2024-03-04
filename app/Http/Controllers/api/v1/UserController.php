@@ -61,7 +61,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $additionalMeta = [];
-        $resource = User::query();
+        $resource       = User::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');

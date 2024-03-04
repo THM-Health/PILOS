@@ -4,7 +4,7 @@
     <div class="flex justify-content-between">
       <div>
         <h1 class="m-0 text-color text-3xl">
-          {{ $t('rooms.index.rooms') }}
+          {{ $t('app.rooms') }}
         </h1>
       </div>
       <div v-if="userPermissions.can('create', 'RoomPolicy')" class="flex align-items-end gap-2 flex-column">
@@ -127,7 +127,7 @@
             :placeholder="$t('rooms.room_types.all')"
             :options="roomTypes"
             showClear
-            optionLabel="description"
+            optionLabel="name"
             optionValue="id"
           >
             <template #clearicon="{ clearCallback }">

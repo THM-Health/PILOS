@@ -58,7 +58,7 @@ class RoomTypeController extends Controller
             }
         }
 
-        return RoomTypeResource::collection($roomTypes->orderBy('description')->get());
+        return RoomTypeResource::collection($roomTypes->orderBy('name')->get());
     }
 
     /**
@@ -81,7 +81,7 @@ class RoomTypeController extends Controller
      */
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
-        $roomType->description             = $request->description;
+        $roomType->name                    = $request->name;
         $roomType->color                   = $request->color;
         $roomType->allow_listing           = $request->allow_listing;
         $roomType->restrict                = $request->restrict;
@@ -89,6 +89,7 @@ class RoomTypeController extends Controller
         $roomType->max_duration            = $request->max_duration;
         $roomType->require_access_code     = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
+        $roomType->allow_record            = $request->allow_record;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {
@@ -107,7 +108,7 @@ class RoomTypeController extends Controller
     public function store(RoomTypeRequest $request)
     {
         $roomType                          = new RoomType();
-        $roomType->description             = $request->description;
+        $roomType->name                    = $request->name;
         $roomType->color                   = $request->color;
         $roomType->allow_listing           = $request->allow_listing;
         $roomType->restrict                = $request->restrict;
@@ -115,6 +116,7 @@ class RoomTypeController extends Controller
         $roomType->max_duration            = $request->max_duration;
         $roomType->require_access_code     = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
+        $roomType->allow_record            = $request->allow_record;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {

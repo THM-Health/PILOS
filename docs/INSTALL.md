@@ -190,10 +190,10 @@ docker compose logs -f
 
 **Notice:** If you modify the `.env` file you need to restart the container.
 
-## Admin user
-The first admin user can be created by running the following command:
+## Superuser
+The first superuser can be created by running the following command:
 ```bash
-docker compose exec app pilos-cli users:create:admin
+docker compose exec app pilos-cli users:create:superuser
 ```
 
 ## External authentication

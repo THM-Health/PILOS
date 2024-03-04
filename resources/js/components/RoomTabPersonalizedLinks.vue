@@ -25,6 +25,7 @@
       paginator
       :loading="isBusy || loadingError"
       rowHover
+      stripedRows
       class="mt-4 table-auto lg:table-fixed"
     >
       <template #loading>

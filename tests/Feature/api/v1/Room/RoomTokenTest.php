@@ -93,7 +93,7 @@ class RoomTokenTest extends TestCase
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
-        $this->user->roles()->attach(Role::where(['name' => 'admin', 'default' => true])->first());
+        $this->user->roles()->attach(Role::where(['superuser' => true])->first());
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonStructure(['data' => [
@@ -180,7 +180,7 @@ class RoomTokenTest extends TestCase
 
         // Create with viewAllPermission
         $this->room->members()->sync([]);
-        $this->user->roles()->attach(Role::where(['name' => 'admin', 'default' => true])->first());
+        $this->user->roles()->attach(Role::where(['superuser' => true])->first());
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.tokens.add', ['room' => $this->room]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
@@ -271,7 +271,7 @@ class RoomTokenTest extends TestCase
             'role'      => RoomUserRole::USER
         ];
         $this->room->members()->sync([]);
-        $this->user->roles()->attach(Role::where(['name' => 'admin', 'default' => true])->first());
+        $this->user->roles()->attach(Role::where(['superuser' => true])->first());
         $response = $this->actingAs($this->user)->putJson(route('api.v1.rooms.tokens.update', ['room' => $this->room, 'token' => $token]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
@@ -331,7 +331,7 @@ class RoomTokenTest extends TestCase
 
         // Delete with viewAllPermission
         $this->room->members()->sync([]);
-        $this->user->roles()->attach(Role::where(['name' => 'admin', 'default' => true])->first());
+        $this->user->roles()->attach(Role::where(['superuser' => true])->first());
         $token = RoomToken::factory()->create([
             'room_id' => $this->room
         ]);

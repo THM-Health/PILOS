@@ -7,7 +7,7 @@
       <router-link
         v-if="userPermissions.can('create', 'RolePolicy')"
         class="p-button p-button-success p-button-icon-only"
-        v-tooltip.left="$t('settings.roles.new')"
+        v-tooltip="$t('settings.roles.new')"
         :aria-label="$t('settings.roles.new')"
         :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
       >
@@ -29,8 +29,7 @@
             severity="primary"
             @click="loadData"
             icon="fa-solid fa-magnifying-glass"
-          >
-          </Button>
+          />
         </InputGroup>
       </div>
     </div>
@@ -45,10 +44,12 @@
       paginator
       :loading="isBusy || loadingError"
       rowHover
+      stripedRows
       v-model:sortField="sortField"
       v-model:sortOrder="sortOrder"
       @page="onPage"
       @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData" />
@@ -63,17 +64,15 @@
 
       <Column field="name" :header="$t('app.model_name')" sortable>
         <template #body="slotProps">
-          <text-truncate>
-            {{ $te(`app.role_labels.${slotProps.data.name}`) ? $t(`app.role_labels.${slotProps.data.name}`) : slotProps.data.name }}
-          </text-truncate>
+          <div class="flex flex-row gap-2 align-items-center">
+            <TextTruncate>
+              {{ slotProps.data.name }}
+            </TextTruncate>
+            <Tag icon="fa-solid fa-crown" value="Superuser" v-if="slotProps.data.superuser" />
+          </div>
         </template>
       </Column>
-      <Column field="default" :header="$t('settings.roles.default')" sortable>
-        <template #body="slotProps">
-          {{ $t(`app.${slotProps.data.default ? 'yes' : 'no'}`) }}
-        </template>
-      </Column>
-      <Column :header="$t('app.actions')" class="action-column">
+      <Column :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
             <router-link
@@ -113,9 +112,11 @@
 import { useApi } from '@/composables/useApi.js';
 import { onMounted, ref } from 'vue';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['roles.view'] }, { permissions: ['roles.update'] }, { permissions: ['roles.delete'] }]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);

@@ -65,8 +65,6 @@ class MeetingService
     public function start(): ?\BigBlueButton\Responses\CreateMeetingResponse
     {
         // Set meeting parameters
-        // TODO user limit, not working properly with bbb at the moment
-        // Use errorRedirectUrl to redirect back
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
         $meetingParams
             ->setRecord($this->meeting->record)
@@ -269,12 +267,12 @@ class MeetingService
             $name = Auth::user()->fullname;
         }
 
-        $userId = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
+        $userId         = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
         $roomUserRole   = $this->meeting->room->getRole(Auth::user(), $token);
 
         $bbbRole = Role::VIEWER;
 
-        if($roomUserRole->is(RoomUserRole::MODERATOR) || $roomUserRole->is(RoomUserRole::CO_OWNER) || $roomUserRole->is(RoomUserRole::OWNER)) {
+        if ($roomUserRole->is(RoomUserRole::MODERATOR) || $roomUserRole->is(RoomUserRole::CO_OWNER) || $roomUserRole->is(RoomUserRole::OWNER)) {
             $bbbRole = Role::MODERATOR;
         }
 

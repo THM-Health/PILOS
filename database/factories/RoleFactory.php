@@ -23,7 +23,7 @@ class RoleFactory extends Factory
     {
         return [
             'name'    => $this->faker->unique()->word,
-            'default' => false
+            'superuser' => false
         ];
     }
 }

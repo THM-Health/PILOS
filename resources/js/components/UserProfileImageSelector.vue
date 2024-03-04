@@ -1,6 +1,6 @@
 <template>
   <div class="grid">
-    <div class="col-12 lg:col-9 flex gap-2 align-items-start">
+    <div class="col-12 lg:col-9 flex gap-2 align-items-start" v-if="!viewOnly">
     <FileUpload
       v-if="!imageDeleted"
       mode="basic"
@@ -34,7 +34,7 @@
       v-if="imageDeleted"
       severity="secondary"
       @click="emit('deleteImage', false)"
-      :label="$t('settings.users.image.undo_delete')"
+      :label="$t('app.undo_delete')"
       icon="fa-solid fa-undo"
     />
     </div>

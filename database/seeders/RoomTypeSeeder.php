@@ -20,36 +20,11 @@ class RoomTypeSeeder extends Seeder
             $pool = ServerPool::all()->first();
 
             $pool->roomTypes()->createMany([
-                ['description' => 'Lecture', 'color' => '#16a085'],
-                ['description' => 'Meeting', 'color' => '#2c3e50'],
-                ['description' => 'Exam', 'color' => '#c0392b'],
-                ['description' => 'Seminar', 'color' => '#2980b9']
+                ['name' => 'Lecture', 'color' => '#16a085'],
+                ['name' => 'Meeting', 'color' => '#2c3e50'],
+                ['name' => 'Exam', 'color' => '#c0392b'],
+                ['name' => 'Seminar', 'color' => '#2980b9']
             ]);
-
-/*
-            $roomType = new RoomType();
-            $roomType->description = 'Lecture';
-            $roomType->color = '#16a085';
-            $roomType->serverPool()->associate($pool);
-            $roomType->save();
-
-            $roomType = new RoomType();
-            $roomType->description = 'Meeting';
-            $roomType->color = '#2c3e50';
-            $roomType->serverPool()->associate($pool);
-            $roomType->save();
-
-            $roomType = new RoomType();
-            $roomType->description = 'Exam';
-            $roomType->color = '#c0392b';
-            $roomType->serverPool()->associate($pool);
-            $roomType->save();
-
-            $roomType = new RoomType();
-            $roomType->description = 'Seminar';
-            $roomType->color = '#2980b9';
-            $roomType->serverPool()->associate($pool);
-            $roomType->save();*/
         }
     }
 }

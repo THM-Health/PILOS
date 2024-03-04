@@ -210,7 +210,7 @@ class ImportGreenlight2Test extends TestCase
         // mock database connections with fake data
         $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses));
 
-        $roomType = RoomType::where('description', 'Lecture')->first();
+        $roomType = RoomType::where('name', 'Lecture')->first();
         $role     = Role::where('name', 'student')->first();
 
         // run artisan command and text questions and outputs
@@ -295,7 +295,7 @@ class ImportGreenlight2Test extends TestCase
         $this->assertNotNull(User::where([['authenticator', 'shibboleth'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', '4696234782348234734']])->first());
         $this->assertNotNull(User::where([['authenticator', 'local'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', null],['password', $password]])->first());
         $this->assertNotNull(User::where([['authenticator', 'local'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', null],['password', $password]])->first());
-    
+
         // Testing user roles for new non ldap-users
         $this->assertEquals(['student'], User::where([['authenticator', 'local'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', null],['password', $password]])->first()->roles->pluck('name')->toArray());
 

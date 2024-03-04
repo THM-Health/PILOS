@@ -58,7 +58,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useSettingsStore } from '@/stores/settings';
+import { useSettingsStore } from '../stores/settings';
 
 const settingsStore = useSettingsStore();
 

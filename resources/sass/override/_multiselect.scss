@@ -16,13 +16,13 @@
 }
 
 .multiselect__option--highlight {
-    background: $success;
-    color: text-color("success");
+    background: $successButtonBg;
+    color: $successButtonTextColor;
 }
 
 .multiselect__option--selected.multiselect__option--highlight {
-    background: $danger;
-    color: text-color("danger");
+    background: $dangerButtonBg;
+    color: $dangerButtonTextColor;
 }
 
 
@@ -61,6 +61,7 @@
     .multiselect__single{
         padding: 0;
         margin: 0;
+        background: transparent;
         color: $inputTextColor;
         font-size: $inputTextFontSize;
     }

@@ -11,14 +11,12 @@ return [
         'title' => 'Raumart ändern',
     ],
     'description' => [
-        'cancel' => 'Abbrechen',
         'color'  => [
             'black' => 'Schwarz',
             'blue'  => 'Blau',
             'green' => 'Grün',
             'red'   => 'Rot',
         ],
-        'edit'                  => 'Bearbeiten',
         'external_link_warning' => [
             'description' => 'Sie werden zu folgender URL weitergeleitet :link',
             'title'       => 'Externer Link',
@@ -90,7 +88,6 @@ return [
         'remove' => 'Aus Favoriten entfernen'
     ],
     'files' => [
-        'browse'         => 'Durchsuchen',
         'confirm_delete' => 'Soll die Datei :filename gelöscht werden?',
         'default'        => 'Standard',
         'delete'         => 'Datei löschen',
@@ -119,7 +116,6 @@ return [
         'recording_forbidden' => 'Die Zugriff auf die Aufzeichnung wurde verweigert.',
         'recording_gone'      => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden'     => 'Der Raum kann von Ihnen nicht gestartet werden.',
-        'not_running'         => 'Der Beitritt zum Raum ist fehlgeschlagen, da dieser momentan geschlossen ist.',
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
@@ -128,7 +124,6 @@ return [
         'no_favorites'      => 'Keine Räume als Favoriten markiert',
         'no_rooms_selected' => 'Keine Räume ausgewählt',
         'reset_filter'      => 'Filter zurücksetzen',
-        'rooms'             => 'Räume',
         'show_all'          => 'Alle Räume',
         'show_own'          => 'Eigene Räume',
         'show_public'       => 'Öffentliche Räume',
@@ -141,25 +136,25 @@ return [
 
         ],
         'room_component'=> [
-            'never_started'   => ' Noch nie gestartet',
-            'running_since'   => ' Läuft seit :date',
-            'last_ran_till'   => ' Zuletzt gelaufen bis :date',
+            'never_started'   => 'Noch nie gestartet',
+            'running_since'   => 'Läuft seit :date',
+            'last_ran_till'   => 'Zuletzt gelaufen bis :date',
             'open'            => 'Öffnen',
             'details'         => 'Details',
         ],
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [
-        'share' => 'Teilen',
-        'title' => 'Zugangsdaten für Teilnehmer',
-        'copy' => 'Kopieren',
+        'share'  => 'Teilen',
+        'title'  => 'Zugangsdaten für Teilnehmer',
+        'copy'   => 'Kopieren',
         'code'   => 'Zugangscode',
         'copied' => 'Zugangsdaten in Zwischenablage kopiert',
         'link'   => 'Link',
         'room'   => 'An ":roomname" mit :platform teilnehmen',
     ],
     'join'            => 'Beitreten',
-    'join_room' => 'Raum betreten',
+    'join_room'       => 'Raum betreten',
     'login'           => 'Anmelden',
     'meeting_history' => [
         'title' => 'Historie',
@@ -173,11 +168,11 @@ return [
         'image'             => 'Bild',
         'modals'            => [
             'add' => [
-                'add'         => 'Hinzufügen',
-                'no_options'  => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
-                'no_result'   => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
-                'select_role' => 'Bitte wählen Sie eine Rolle aus',
-                'select_user' => 'Bitte wählen Sie einen Benutzer aus',
+                'add'              => 'Hinzufügen',
+                'no_options'       => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
+                'no_result'        => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
+                'select_role'      => 'Bitte wählen Sie eine Rolle aus',
+                'select_user'      => 'Bitte wählen Sie einen Benutzer aus',
                 'too_many_results' => 'Es wurden zu viele Benutzer gefunden. Bitte geben Sie einen genaueren Suchbegriff ein.',
             ],
             'bulk_import' => [
@@ -234,7 +229,7 @@ return [
         'denied'          => 'Der Browser verweigert Benachrichtigungen.',
         'enable'          => 'Beim Start des Raumes benachrichtigen',
         'enabled'         => 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
-        'disable'         => 'Beachrichtigung beim Start des Raumes deaktivieren',
+        'disable'         => 'Benachrichtigung beim Start des Raumes deaktivieren',
         'disabled'        => 'Sie werden beim Start des Raumes von Ihrem Browser nicht mehr benachrichtigt.',
     ],
     'only_used_by_authenticated_users' => 'Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.',
@@ -295,11 +290,12 @@ return [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
         'all'           => 'Alle Raumarten',
-        'restrictions' => [
-            'title' => 'Einschränkungen',
-            'none' => 'Keine',
-            'no_listing' => 'In öffentlicher Raumsuche verborgen',
+        'restrictions'  => [
+            'title'                  => 'Einschränkungen',
+            'none'                   => 'Keine',
+            'no_listing'             => 'In öffentlicher Raumsuche verborgen',
             'no_attendace_recording' => 'Keine Anwesenheitsprotokollierung',
+            'no_recording' => 'Keine Video-Konferenz Aufzeichnung',
             'require_access_code' => 'Zugangscode erforderlich',
             'max_participants' => 'Max. :participants Teilnehmer',
             'max_duration' => 'Max. :duration Minuten',
@@ -315,7 +311,6 @@ return [
             'short_description' => 'Öffentliche Kurzbeschreibung',
             'title'             => 'Allgemein',
             'type'              => 'Art',
-            'change_type'       => 'Raumart ändern',
             'welcome_message'   => 'Begrüßungsnachricht',
         ],
         'none_placeholder' => '-- keine --',
@@ -333,15 +328,15 @@ return [
             ],
             'waiting_room_alert' => 'Standardrolle ist auf Moderator gesetzt: Warteraum ist nur für Gäste und bereits bestehende Mitglieder mit Teilnehmerrolle aktiv!',
         ],
-        'recordings' => [
-            'title' => 'Aufzeichnungen',
-            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
-            'record_video_conference' => 'Video-Konferenz aufzeichnen',
-        ],
         'permissions' => [
             'everyone_start' => 'Jeder darf das Meeting starten',
             'mute_mic'       => 'Mikrofon bei Beitritt stummschalten',
             'title'          => 'Berechtigungen',
+        ],
+        'recordings' => [
+            'title' => 'Aufzeichnungen',
+            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
+            'record_video_conference' => 'Video-Konferenz aufzeichnen',
         ],
         'restrictions' => [
             'disable_cam'            => 'Webcam deaktivieren',
@@ -366,7 +361,7 @@ return [
         'title' => 'Einstellungen',
     ],
     'start'        => 'Starten',
-    'start_room' => 'Raum starten',
+    'start_room'   => 'Raum starten',
     'tokens'       => [
         'add'              => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete'   => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',

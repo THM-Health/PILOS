@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('room_types', function (Blueprint $table) {
-            $table->dropColumn('short');
+        Schema::table('roles', function (Blueprint $table) {
+            $table->renameColumn('default', 'superuser');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('room_types', function (Blueprint $table) {
-            $table->string('short',2);
+        Schema::table('roles', function (Blueprint $table) {
+            $table->renameColumn('superuser', 'default');
         });
     }
 };

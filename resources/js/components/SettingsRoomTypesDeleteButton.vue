@@ -1,6 +1,6 @@
 <template>
   <Button
-    v-tooltip="$t('settings.room_types.delete.item', { id: props.description })"
+    v-tooltip="$t('settings.room_types.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
     @click="showDeleteModal"
@@ -19,7 +19,7 @@
     :draggable = false
   >
     <span>
-      {{ $t('settings.room_types.delete.confirm', { name: props.description }) }}
+      {{ $t('settings.room_types.delete.confirm', { name: props.name }) }}
     </span>
     <Divider/>
     <div class="flex flex-column gap-2">
@@ -47,8 +47,8 @@
       <small id="replacement-help">{{$t('settings.room_types.delete.replacement_info')}}</small>
     </div>
     <template #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"></Button>
-      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteRoomType"></Button>
+      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
+      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteRoomType"/>
     </template>
   </Dialog>
 </template>
@@ -67,7 +67,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  description: {
+  name: {
     type: String,
     required: true
   }
@@ -82,11 +82,10 @@ const replacementRoomTypes = ref([]);
 const loadingRoomTypes = ref(false);
 
 /**
- * Shows the delete modal with the passed room type.
+ * Shows the delete modal
  *
- * @param roomType room type that should be deleted.
  */
-function showDeleteModal (roomType) {
+function showDeleteModal () {
   formErrors.clear();
   replacement.value = null;
   loadReplacementRoomTypes();
@@ -101,7 +100,7 @@ function loadReplacementRoomTypes () {
     }).map(roomType => {
       return {
         value: roomType.id,
-        text: roomType.description
+        text: roomType.name
       };
     });
   }).catch(error => {

@@ -3,6 +3,13 @@
     <h2>
       {{ $t('settings.users.new') }}
     </h2>
+    <router-link
+      class="p-button p-button-secondary"
+      :disabled="isBusy"
+      :to="{ name: 'settings.users' }"
+    >
+      <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
+    </router-link>
     <Divider/>
       <OverlayComponent :show="isBusy">
         <form @submit.prevent="save">
@@ -57,7 +64,7 @@
             <div class="field grid">
               <label for="user_locale" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.user_locale')}}</label>
               <div class="col-12 md:col-8">
-                <locale-select
+                <LocaleSelect
                   class="w-full"
                   id="user_locale"
                   v-model="model.user_locale"
@@ -72,7 +79,7 @@
             <div class="field grid">
               <label for="timezone" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.timezone')}}</label>
               <div class="col-12 md:col-8">
-                <timezone-select
+                <TimezoneSelect
                   id="timezone"
                   v-model="model.timezone"
                   required
@@ -88,7 +95,7 @@
             <div class="field grid">
               <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
               <div class="col-12 md:col-8">
-                <role-select
+                <RoleSelect
                   id="roles"
                   v-model="model.roles"
                   :invalid="formErrors.fieldInvalid('roles', true)"
@@ -154,22 +161,12 @@
               </div>
             </div>
           </div>
-
             <Divider/>
             <div class="flex justify-content-end">
-              <Button
-                :disabled="isBusy"
-                severity="secondary"
-                @click="$router.push({ name: 'settings.users' })"
-                icon="fa-solid fa-arrow-left"
-                :label="$t('app.back')"
-              >
-              </Button>
               <Button
                 :disabled="isBusy || rolesLoadingError || timezonesLoadingError || rolesLoading || timezonesLoading"
                 severity="success"
                 type="submit"
-                class="ml-1"
                 icon="fa-solid fa-save"
                 :label="$t('app.save')"
               />
@@ -248,7 +245,7 @@ function save () {
     method: 'POST',
     data
   }).then(response => {
-    router.push({ name: 'settings.users.view', params: { id: response.data.data.id } });
+    router.push({ name: 'settings.users.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
