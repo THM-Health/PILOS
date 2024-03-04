@@ -53,10 +53,16 @@ import env from '../env.js';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../stores/settings.js';
 
-const props = defineProps([
-  'roomId',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['uploaded']);
 

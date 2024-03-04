@@ -56,14 +56,32 @@ import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';
 
-const props = defineProps([
-  'roomId',
-  'userId',
-  'firstname',
-  'lastname',
-  'role',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  userId: {
+    type: Number,
+    required: true
+  },
+  firstname: {
+    type: String,
+    required: true
+  },
+  lastname: {
+    type: String,
+    required: true
+  },
+  role: {
+    type: Number,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['edited']);
 

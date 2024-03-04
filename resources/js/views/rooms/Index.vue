@@ -172,8 +172,8 @@
       v-if="!showNoFilterMessage"
       :show="loadingRoomsError && !loadingRooms"
       :noCenter="true"
-      opacity="0"
-      z-index="3"
+      :opacity="0"
+      :z-index="3"
     >
       <template #overlay>
         <div class="text-center py-8">

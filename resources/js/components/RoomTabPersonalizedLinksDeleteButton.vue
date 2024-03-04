@@ -39,13 +39,28 @@
 import { useApi } from '../composables/useApi.js';
 import { ref } from 'vue';
 
-const props = defineProps([
-  'roomId',
-  'token',
-  'firstname',
-  'lastname',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  token: {
+    type: String,
+    required: true
+  },
+  firstname: {
+    type: String,
+    required: true
+  },
+  lastname: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['added']);
 

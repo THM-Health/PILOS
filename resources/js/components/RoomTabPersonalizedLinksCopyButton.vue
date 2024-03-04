@@ -14,13 +14,28 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useSettingsStore } from '../stores/settings.js';
 
-const props = defineProps([
-  'roomId',
-  'token',
-  'firstname',
-  'lastname',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  token: {
+    type: String,
+    required: true
+  },
+  firstname: {
+    type: String,
+    required: true
+  },
+  lastname: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const toast = useToast();
 const { t } = useI18n();

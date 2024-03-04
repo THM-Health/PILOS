@@ -35,7 +35,7 @@ const props = defineProps({
     required: true
   },
   roomId: {
-    type: Number,
+    type: String,
     required: true
   }
 });
@@ -77,7 +77,7 @@ function downloadFile () {
       }
     }).catch((error) => {
       if (error.response) {
-        // Access code invalid
+      // Access code invalid
         if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
           return emit('invalidCode');
         }

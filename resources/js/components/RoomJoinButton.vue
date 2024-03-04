@@ -56,7 +56,7 @@
           binary
           :invalid="formErrors.fieldInvalid('record_attendance')"
         />
-        <label for="record-attendance-agreement"  class="required">{{ $t('rooms.recording_attendance_accept') }}</label>
+        <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
       </div>
       <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
     </div>
@@ -95,7 +95,7 @@
 </template>
 <script setup>
 
-import { ref, defineEmits, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useApi } from '../composables/useApi.js';
@@ -103,17 +103,36 @@ import env from '../env.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
 
-const props = defineProps([
-  'roomId',
-  'roomName',
-  'canStart',
-  'running',
-  'disabled',
-  'token',
-  'accessCode',
-  'recordAttendance',
-  'record'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  canStart: {
+    type: Boolean
+  },
+  running: {
+    type: Boolean
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  token: {
+    type: String,
+    default: null
+  },
+  accessCode: {
+    type: Number,
+    required: false
+  },
+  recordAttendance: {
+    type: Boolean
+  },
+  record: {
+    type: Boolean
+  }
+});
 
 const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'notRunning', 'forbidden']);
 

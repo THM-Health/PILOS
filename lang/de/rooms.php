@@ -295,10 +295,10 @@ return [
             'none'                   => 'Keine',
             'no_listing'             => 'In öffentlicher Raumsuche verborgen',
             'no_attendace_recording' => 'Keine Anwesenheitsprotokollierung',
-            'no_recording' => 'Keine Video-Konferenz Aufzeichnung',
-            'require_access_code' => 'Zugangscode erforderlich',
-            'max_participants' => 'Max. :participants Teilnehmer',
-            'max_duration' => 'Max. :duration Minuten',
+            'no_recording'           => 'Keine Video-Konferenz Aufzeichnung',
+            'require_access_code'    => 'Zugangscode erforderlich',
+            'max_participants'       => 'Max. :participants Teilnehmer',
+            'max_duration'           => 'Max. :duration Minuten',
         ]
     ],
     'settings' => [
@@ -334,10 +334,10 @@ return [
             'title'          => 'Berechtigungen',
         ],
         'recordings' => [
-            'title' => 'Aufzeichnungen',
-            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
+            'title'                   => 'Aufzeichnungen',
+            'record_attendance'       => 'Anwesenheit der Teilnehmer protokollieren',
             'record_video_conference' => 'Video-Konferenz aufzeichnen',
-            'auto_start_recording' => 'Automatischer Aufnahmestart',
+            'auto_start_recording'    => 'Automatischer Aufnahmestart',
         ],
         'restrictions' => [
             'disable_cam'            => 'Webcam deaktivieren',

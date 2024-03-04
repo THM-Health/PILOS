@@ -47,6 +47,7 @@ return [
         'room_type_invalid'            => 'Die Art des Raumes ist für bestimmte Benutzergruppen eingeschränkt. Wenn Sie der Beistzer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum gestartet werden kann.',
         'server_delete_failed'         => 'Der Server konnte nicht gelöscht werden. Um den Server zu löschen, muss dieser deaktivert werden und es dürfen keine Meetings laufen.',
         'server_pool_delete_failed'    => 'Der Serverpool konnte nicht gelöscht werden. Um den Serverpool zu löschen, darf dieser von keiner Raumart verwendet werden.',
+        'stale_error'                  => 'Änderungskonflikt',
         'stale_model'                  => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
         'token_not_found'              => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],

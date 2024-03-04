@@ -214,9 +214,11 @@ import { computed } from 'vue';
 
 const { t } = useI18n();
 
-const props = defineProps([
-  'editor'
-]);
+const props = defineProps({
+  editor: {
+    type: Object
+  }
+});
 
 // Text highlight colors
 const highlightColors = computed(() => {

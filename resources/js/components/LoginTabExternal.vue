@@ -12,10 +12,19 @@
 
 <script setup>
 
-const props = defineProps([
-  'redirectLabel',
-  'title',
-  'redirect-url'
-]);
+const props = defineProps({
+  redirectLabel: {
+    type: String,
+    required: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  redirectUrl: {
+    type: String,
+    required: true
+  }
+});
 
 </script>

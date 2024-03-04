@@ -1,3 +1,8 @@
+<template>
+  <Avatar v-if="props.image" :image="props.image" :size="size" :shape="shape" />
+  <Avatar v-else :label="avatarLabel" :size="size" :shape="shape" />
+</template>
+
 <script setup>
 
 import { computed } from 'vue';
@@ -26,11 +31,6 @@ const avatarLabel = computed(() => {
 });
 
 </script>
-
-<template>
-  <Avatar v-if="props.image" :image="props.image" :size="size" :shape="shape" />
-  <Avatar v-else :label="avatarLabel" :size="size" :shape="shape" />
-</template>
 
 <style scoped>
 

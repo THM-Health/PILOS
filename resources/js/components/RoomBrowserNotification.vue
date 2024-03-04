@@ -16,10 +16,16 @@ import { onMounted, ref, watch } from 'vue';
 import { useSettingsStore } from '../stores/settings.js';
 import notificationSound from '../../audio/notification.mp3';
 
-const props = defineProps([
-  'roomName',
-  'running'
-]);
+const props = defineProps({
+  roomName: {
+    type: String,
+    required: true
+  },
+  running: {
+    type: Boolean,
+    required: true
+  }
+});
 
 const toast = useToast();
 const { t, d } = useI18n();

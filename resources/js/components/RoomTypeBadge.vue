@@ -9,11 +9,12 @@
   </Tag>
 </template>
 
-<script>
-export default {
-  name: 'RoomTypeBadge',
-  props: {
-    roomType: Object
+<script setup>
+
+defineProps({
+  roomType: {
+    type: Object,
+    required: true
   }
-};
+});
 </script>

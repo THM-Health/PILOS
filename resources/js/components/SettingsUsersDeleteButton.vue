@@ -38,7 +38,7 @@ const api = useApi();
 
 const props = defineProps({
   id: {
-    type: String,
+    type: Number,
     required: true
   },
   firstname: {

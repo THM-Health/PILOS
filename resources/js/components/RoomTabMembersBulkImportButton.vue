@@ -142,10 +142,16 @@ import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 
-const props = defineProps([
-  'roomId',
-  'disabled'
-]);
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['imported']);
 

@@ -42,7 +42,7 @@ const { t } = useI18n();
 
 const props = defineProps({
   id: {
-    type: String,
+    type: Number,
     required: true
   },
   firstname: {

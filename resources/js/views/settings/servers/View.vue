@@ -300,6 +300,7 @@ import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
+import ConfirmDialog from 'primevue/confirmdialog';
 import { useI18n } from 'vue-i18n';
 import { computed, onMounted, ref } from 'vue';
 import { useToast } from '@/composables/useToast.js';
@@ -422,7 +423,6 @@ function load () {
       model.value = response.data.data;
       model.value.disabled = model.value.status === -1;
       name.value = response.data.data.name;
-      // this.$set(this.model, 'disabled', this.model.status === -1);
       online.value = model.value.status === -1 ? null : model.value.status;
       offlineReason.value = null;
     }).catch(error => {
@@ -473,9 +473,9 @@ function saveServer () {
 function handleStaleError (staleError) {
   confirm.require({
     message: staleError.message,
-    header: 'Confirmation',
+    header: t('app.errors.stale_error'),
     icon: 'pi pi-exclamation-triangle',
-    rejectClass: 'p-button-secondary p-button-outlined',
+    rejectClass: 'p-button-secondary',
     rejectLabel: t('app.reload'),
     acceptLabel: t('app.overwrite'),
     accept: () => {

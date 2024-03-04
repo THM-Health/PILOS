@@ -1,34 +1,32 @@
 <template>
   <div>
-    <div class="flex flex-column-reverse md:flex-row justify-content-between align-items-start gap-2">
-      <div class="flex-grow-1 flex-shrink-1">
-        <Message
-          severity="info"
-          v-if="requireAgreement && files.length >0"
-          :closable="false"
-          :pt="{
-            root: { class: [ 'm-0' ] },
+    <Message
+      severity="info"
+      v-if="requireAgreement && files.length >0"
+      :closable="false"
+      :pt="{
         wrapper: { class: [ 'align-items-start', 'gap-2']},
         icon: { class: [ 'mt-1' ] }
       }"
-        >
-          <strong>{{ $t('rooms.files.terms_of_use.title') }}</strong><br>
-          {{ $t('rooms.files.terms_of_use.content') }}
-          <Divider/>
-          <div class="flex align-items-center">
-            <Checkbox v-model="downloadAgreement" inputId="terms_of_use" :binary="true" />
-            <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
-          </div>
-        </Message>
+     >
+      <strong>{{ $t('rooms.files.terms_of_use.title') }}</strong><br>
+      {{ $t('rooms.files.terms_of_use.content') }}
+      <Divider/>
+      <div class="flex align-items-center">
+        <Checkbox v-model="downloadAgreement" inputId="terms_of_use" :binary="true" />
+        <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
+      </div>
+    </Message>
+
+    <div class="flex justify-content-between align-items-start gap-2">
+      <div class="flex-grow-1 flex-shrink-1">
         <RoomTabFilesUpload
           v-if="userPermissions.can('manageSettings', props.room)"
           :room-id="props.room.id"
           :disabled="isBusy"
           @uploaded="loadData"
         />
-
       </div>
-      <div class="flex justify-content-end w-full md:w-auto">
       <!-- Reload file list -->
       <Button
         class="flex-shrink-0"
@@ -39,7 +37,6 @@
         @click="loadData"
         icon="fa-solid fa-sync"
       />
-      </div>
     </div>
 
     <!-- Display files -->

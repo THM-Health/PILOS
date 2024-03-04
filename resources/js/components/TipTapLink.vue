@@ -53,9 +53,11 @@
 <script setup>
 import { computed, ref } from 'vue';
 
-const props = defineProps([
-  'editor'
-]);
+const props = defineProps({
+  editor: {
+    type: Object
+  }
+});
 
 const link = ref(null);
 const newLink = ref(true);

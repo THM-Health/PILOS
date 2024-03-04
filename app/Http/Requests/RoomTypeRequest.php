@@ -18,7 +18,7 @@ class RoomTypeRequest extends FormRequest
             'require_access_code'     => ['required', 'boolean'],
             'allow_record_attendance' => ['required', 'boolean'],
             'allow_record'            => ['required', 'boolean'],
-            'server_pool'             => 'required|exists:App\Models\ServerPool,id',
+            'server_pool'             => ['required', 'exists:App\Models\ServerPool,id'],
             'restrict'                => ['required', 'boolean'],
             'roles'                   => [Rule::requiredIf($this->boolean('restrict')), 'array'],
             'roles.*'                 => ['distinct', 'exists:App\Models\Role,id']

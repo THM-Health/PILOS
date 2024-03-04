@@ -24,7 +24,7 @@
         "laravel/telescope": "^4.15",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^4.3",
-        "littleredbutton/bigbluebutton-api-php": "^5.0.0",
+        "littleredbutton/bigbluebutton-api-php": "^5.3.0",
         "maatwebsite/excel": "^3.1",
         "nunomaduro/collision": "^7.0",
         "spatie/laravel-ignition": "^2.0",

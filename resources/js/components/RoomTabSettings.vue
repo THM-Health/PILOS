@@ -146,7 +146,7 @@
                 <InputSwitch
                   input-id="listed"
                   v-model="settings.listed"
-                  :disabled="disabled || (settings.room_type && !settings.room_type.allow_listing && settings.access_code)"
+                  :disabled="disabled || (settings.room_type && !settings.room_type.allow_listing) || !!settings.access_code"
                   class="flex-shrink-0"
                   :invalid="formErrors.fieldInvalid('listed')"
                 />
@@ -588,7 +588,7 @@ function applyRoomRestrictions (roomType) {
     createAccessCode();
   }
 
-  if (!roomType.allow_listing) {
+  if (!roomType.allow_listing || settings.value.access_code) {
     settings.value.listed = false;
   }
 
