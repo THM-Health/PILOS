@@ -67,14 +67,14 @@
         </template>
       </Column>
 
-      <Column field="uploaded" sortable :header="$t('rooms.files.uploaded_at')" v-if="userPermissions.can('manageSettings', props.room)">
+      <Column field="uploaded" sortable :header="$t('rooms.files.uploaded_at')" v-if="showManagementColumns">
         <template #body="slotProps">
           {{ $d(new Date(slotProps.data.uploaded), 'datetimeLong') }}
         </template>
       </Column>
 
       <!-- Checkbox if file should be downloadable by all room participants -->
-      <Column field="download" sortable :header="$t('rooms.files.downloadable')" v-if="userPermissions.can('manageSettings', props.room)">
+      <Column field="download" sortable :header="$t('rooms.files.downloadable')" v-if="showManagementColumns">
         <template #body="slotProps">
           <InputSwitch
             v-model="slotProps.data.download"
@@ -88,7 +88,7 @@
         Checkbox if file should be send to the api on the next meeting start,
         setting can't be changed manually if the file is the default presentation
         -->
-      <Column field="use_in_meeting" sortable :header="$t('rooms.files.use_in_next_meeting')" v-if="userPermissions.can('manageSettings', props.room)">
+      <Column field="use_in_meeting" sortable :header="$t('rooms.files.use_in_next_meeting')" v-if="showManagementColumns">
         <template #body="slotProps">
           <InputSwitch
             v-model="slotProps.data.use_in_meeting"
@@ -99,7 +99,7 @@
       </Column>
 
       <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
-      <Column field="default" sortable :header="$t('rooms.files.default')" v-if="userPermissions.can('manageSettings', props.room)">
+      <Column field="default" sortable :header="$t('rooms.files.default')" v-if="showManagementColumns">
         <template #body="slotProps">
           <RadioButton
             v-model="defaultFile"
@@ -142,7 +142,7 @@
 import env from '../env.js';
 import EventBus from '../services/EventBus';
 import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useSettingsStore } from '../stores/settings.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useApi } from '../composables/useApi.js';
@@ -270,6 +270,10 @@ function changeSettings (file, setting, value) {
     isBusy.value = false;
   });
 }
+
+const showManagementColumns = computed(() => {
+  return userPermissions.can('manageSettings', props.room);
+});
 
 /**
  * Sets the event listener for current room change to reload the file list.
