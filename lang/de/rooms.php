@@ -306,7 +306,7 @@ return [
             'chars'             => 'Zeichen: :chars',
             'max_duration'      => 'Max. Dauer',
             'minutes'           => 'min.',
-			'record'          => 'Aufzeichnen',
+			'record'                     => 'Aufzeichnen',
             'reset_duration'    => 'Dauer zurücksetzen',
             'short_description' => 'Öffentliche Kurzbeschreibung',
             'title'             => 'Allgemein',
