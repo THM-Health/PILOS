@@ -11,7 +11,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('settings.users.reset_password.title')"
+    :header="$t('settings.roles.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :closeOnEscape="!isBusy"
@@ -20,7 +20,7 @@
     :draggable = false
   >
     <span>
-      {{ props.name }}
+      {{ $t('settings.roles.delete.confirm', { name: props.name })}}
     </span>
     <template #footer>
       <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>

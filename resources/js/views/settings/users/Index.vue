@@ -6,8 +6,8 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
-        ref="new-user-button"
         v-tooltip="$t('settings.users.new')"
+        :aria-label="$t('settings.users.new')"
         class="p-button p-button-success p-button-icon-only"
         :to="{ name: 'settings.users.new' }"
       >
@@ -91,7 +91,6 @@
           </multiselect>
             <Button
               v-if="!rolesLoadingError && filter.role"
-              ref="clearRolesButton"
               outlined
               severity="secondary"
               @click="clearFilterRole"
@@ -100,9 +99,8 @@
 
             <Button
               v-if="rolesLoadingError"
-              ref="reloadRolesButton"
               outlined
-              badge-severity="secondary"
+              severity="secondary"
               @click="loadRoles(rolesCurrentPage)"
               icon="fa-solid fa-sync"
             />
@@ -161,51 +159,51 @@
       </Column>
       <Column field="roles" :header="$t('app.roles')">
         <template #body="slotProps">
-          <text-truncate
+          <TextTruncate
             v-for="role in slotProps.data.roles"
             :key="role.id"
           >
             {{ role.name }}
-          </text-truncate>
+          </TextTruncate>
         </template>
       </Column>
       <Column :header="$t('app.actions')" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div>
-                <router-link
-                  v-if="userPermissions.can('view', slotProps.data)"
-                  class="p-button p-button-icon-only p-button-info"
-                  v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :disabled="isBusy"
-                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-                >
-                  <i class="fa-solid fa-eye" />
-                </router-link>
-                <router-link
-                  v-if="userPermissions.can('update', slotProps.data)"
-                  class="p-button p-button-icon-only p-button-secondary"
-                  v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-                  :disabled="isBusy"
-                  :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
-                >
-                  <i class="fa-solid fa-edit" />
-                </router-link>
-                <SettingsUsersResetPasswordButton
-                  v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
-                  :id="slotProps.data.id"
-                  :firstname="slotProps.data.firstname"
-                  :lastname="slotProps.data.lastname"
-                  :email="slotProps.data.email"
-                />
-                <SettingsUsersDeleteButton
-                  v-if="userPermissions.can('delete', slotProps.data)"
-                  :id="slotProps.data.id"
-                  :firstname="slotProps.data.firstname"
-                  :lastname="slotProps.data.lastname"
-                  @deleted="loadData"
-                />
+            <router-link
+              v-if="userPermissions.can('view', slotProps.data)"
+              class="p-button p-button-icon-only p-button-info"
+              v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :disabled="isBusy"
+              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+            >
+              <i class="fa-solid fa-eye" />
+            </router-link>
+            <router-link
+              v-if="userPermissions.can('update', slotProps.data)"
+              class="p-button p-button-icon-only p-button-secondary"
+              v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :disabled="isBusy"
+              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
+            >
+              <i class="fa-solid fa-edit" />
+            </router-link>
+            <SettingsUsersResetPasswordButton
+              v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
+              :id="slotProps.data.id"
+              :firstname="slotProps.data.firstname"
+              :lastname="slotProps.data.lastname"
+              :email="slotProps.data.email"
+            />
+            <SettingsUsersDeleteButton
+              v-if="userPermissions.can('delete', slotProps.data)"
+              :id="slotProps.data.id"
+              :firstname="slotProps.data.firstname"
+              :lastname="slotProps.data.lastname"
+              @deleted="loadData"
+            />
           </div>
         </template>
       </Column>
@@ -299,6 +297,7 @@ function loadRoles (page = 1) {
 function loadData () {
   isBusy.value = true;
   loadingError.value = false;
+
   const config = {
     params: {
       page: currentPage.value,

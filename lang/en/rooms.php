@@ -11,14 +11,12 @@ return [
         'title' => 'Create room',
     ],
     'description' => [
-        'cancel' => 'Cancel',
         'color'  => [
             'black' => 'Black',
             'blue'  => 'Blue',
             'green' => 'Green',
             'red'   => 'Red',
         ],
-        'edit'                  => 'Edit',
         'external_link_warning' => [
             'description' => 'You are beeing redirected to the following URL :link',
             'title'       => 'External link',

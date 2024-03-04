@@ -34,7 +34,7 @@
         <SettingsRoomTypesDeleteButton
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
-          :description="model.name"
+          :name="name"
           @deleted="$router.push({ name: 'settings.room_types' })"
         />
       </div>
@@ -64,7 +64,7 @@
         <div class="field grid">
           <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
           <div class="col-12 md:col-8">
-            <color-select
+            <ColorSelect
               id="color"
               class="mb-2"
               :disabled='isBusy || modelLoadingError || viewOnly'

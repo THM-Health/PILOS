@@ -45,7 +45,6 @@
 
     <UserTabSection
       :id="id"
-      :modal-static="false"
       :view-only="viewOnly"
       @update-user="updateUser"
     />
@@ -83,7 +82,7 @@ const lastname = computed(() => {
 
 function updateUser (newUser) {
   if (user.value) {
-    router.push({ name: 'settings.users.view', params: { id: user.value.id }, query: { view: '1' } });
+    router.push({ name: 'settings.users.view', params: { id: newUser.id }, query: { view: '1' } });
   }
   user.value = newUser;
 }

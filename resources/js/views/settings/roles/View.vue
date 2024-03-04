@@ -2,8 +2,8 @@
   <div>
     <h2>
       {{ id === 'new' ? $t('settings.roles.new') : (
-        viewOnly ? $t('settings.roles.view', { name: model.name })
-        : $t('settings.roles.edit', { name: model.name })
+        viewOnly ? $t('settings.roles.view', { name })
+        : $t('settings.roles.edit', { name })
       ) }}
     </h2>
     <div class="flex justify-content-between">
@@ -34,7 +34,7 @@
         <SettingsRolesDeleteButton
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
-          :name="model.name"
+          :name="name"
           @deleted="$router.push({ name: 'settings.roles' })"
         />
       </div>
@@ -83,7 +83,7 @@
               <div v-for="option in roomLimitModeOptions" :key="option.value" class="mb-2">
                 <RadioButton
                   v-model="roomLimitMode"
-                  ::inputId="option.value"
+                  :inputId="option.value"
                   :value="option.value"
                   @change="roomLimitModeChanged(option.value)"
                   :disabled="isBusy || modelLoadingError || viewOnly || model.superuser"
@@ -95,14 +95,15 @@
                 v-if="roomLimitMode === 'custom'"
                 id="room-limit"
                 v-model="model.room_limit"
-                type="number"
-                placeholder="0"
+                mode="decimal"
+                show-buttons
+                :min="0"
                 :invalid="formErrors.fieldInvalid('room_limit')"
-                min="0"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
               <p class="p-error" v-html="formErrors.fieldError('room_limit')"></p>
             </div>
+
           </div>
             <h3>{{ $t('settings.roles.permissions') }}</h3>
             <div class="grid" v-if="!isBusy && Object.keys(permissions).length > 0">
@@ -119,7 +120,6 @@
                     v-tooltip="$t('settings.roles.permission_included_help')"
                   /></b>
               </div>
-
               <div class="col-12">
                 <Divider/>
                 <div class="grid"
@@ -309,6 +309,8 @@ const model = ref({
   room_limit: null,
   permissions: []
 });
+
+const name = ref('');
 const includedPermissionMap = ref({});
 const permissions = ref({});
 const roomLimitMode = ref('default');
@@ -368,6 +370,7 @@ function load () {
     api.call(`roles/${props.id}`).then(response => {
       model.value = response.data.data;
       model.value.permissions = model.value.permissions.map(permission => permission.id);
+      name.value = response.data.data.name;
       roomLimitMode.value = model.value.room_limit === null ? 'default' : (model.value.room_limit === -1 ? 'unlimited' : 'custom');
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
@@ -480,6 +483,7 @@ function handleStaleError (staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
+      name.value = staleError.new_model.name;
     }
   });
 }

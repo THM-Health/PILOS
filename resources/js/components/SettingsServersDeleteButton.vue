@@ -3,20 +3,20 @@
     severity="danger"
     icon="fa-solid fa-trash"
     :disabled="isBusy"
-    :title="$t('settings.servers.delete.item', { name: props.name })"
-    variant="danger"
+    v-tooltip="$t('settings.servers.delete.item', { name: props.name })"
+    :aria-label="$t('settings.servers.delete.item', { name: props.name })"
     @click="showDeleteModal()"
   />
     <Dialog
       v-model:visible="showModal"
+      :header="$t('settings.servers.delete.title')"
+      :style="{ width: '500px' }"
       :breakpoints="{ '575px': '90vw' }"
+      modal
       :closeOnEscape="!isBusy"
       :closeable="!isBusy"
       :dismissableMask="!isBusy"
       :draggable=false
-      :header="$t('settings.servers.delete.title')"
-      :style="{ width: '500px' }"
-      modal
     >
       <span>{{ $t('settings.servers.delete.confirm', {name: props.name}) }}</span>
 

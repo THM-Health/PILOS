@@ -13,7 +13,8 @@
     <Button
       v-if="loadingError"
       :disabled="loading"
-      variant="outline-secondary"
+      outlined
+      severity="secondary"
       @click="loadTimezones()"
       icon="fa-solid fa-sync"
     />

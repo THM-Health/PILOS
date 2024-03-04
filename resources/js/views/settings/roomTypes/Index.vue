@@ -61,6 +61,7 @@
               v-if="userPermissions.can('view', slotProps.data)"
               class="p-button p-button-icon-only p-button-info"
               v-tooltip="$t('settings.room_types.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.room_types.view', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
             >
@@ -70,6 +71,7 @@
               v-if="userPermissions.can('update', slotProps.data)"
               class="p-button p-button-icon-only p-button-secondary"
               v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.name })"
+              :aria-label="$t('settings.room_types.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
               :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id } }"
             >
