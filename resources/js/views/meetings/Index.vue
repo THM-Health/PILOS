@@ -16,7 +16,6 @@
               />
                 <Button
                   :disabled="isBusy "
-                  variant="primary"
                   @click="loadData()"
                   icon="fa-solid fa-magnifying-glass"
                 />

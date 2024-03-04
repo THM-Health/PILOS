@@ -3,7 +3,7 @@
     <div class="flex justify-content-start md:justify-content-between gap-1 flex-wrap border-1 border-300 p-2 border-round surface-100">
       <div>
         <!-- Text styling -->
-        <span class="p-buttonset">
+        <span class="p-button-group">
           <!-- Text type -->
           <TipTapMenuDropdownButton
             severity="secondary"
@@ -123,7 +123,7 @@
         </span>
       </div>
       <div>
-        <span class="p-buttonset">
+        <span class="p-button-group">
           <!-- Text alignment -->
           <Button
             v-tooltip="$t('rooms.description.tooltips.left')"
@@ -147,7 +147,7 @@
         </span>
       </div>
       <div>
-        <span class="p-buttonset">
+        <span class="p-button-group">
           <!-- Text styles -->
           <!-- Unordered list -->
         <Button
@@ -158,7 +158,6 @@
         />
           <!-- Ordered list -->
         <Button
-          variant="outline-dark"
           v-tooltip="$t('rooms.description.tooltips.numbered_list')"
           :severity="props.editor.isActive('orderedList') ? 'primary' : 'secondary'"
           @click="props.editor.chain().focus().toggleOrderedList().run()"
@@ -179,7 +178,7 @@
       </div>
 
       <div>
-        <span class="p-buttonset">
+        <span class="p-button-group">
           <!-- History -->
           <Button
             severity="secondary"

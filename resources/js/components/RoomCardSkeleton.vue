@@ -1,66 +1,59 @@
 <template>
   <div class="h-100">
     <!--      room card-->
-    <b-card
-      no-body
-      bg-variant="white"
-      class="room-card h-100"
+    <div
+      tabindex="0"
+      class="room-card h-full relative bg-white border-1 border-300 border-round shadow-none hover:shadow-2"
     >
-      <b-card-body class="p-3 h-100">
+      <div class="p-3 h-100">
         <div class="flex flex-column h-100">
           <div class="flex-grow-1">
-            <b-row>
-              <b-col>
-                <b-skeleton />
-              </b-col>
-              <b-col>
-                <div class="flex justify-content-end">
-                  <b-skeleton
-                    type="button"
-                    size="25px"
-                    class="mr-1"
-                  />
-                  <b-skeleton
-                    type="button"
-                    size="25px"
-                  />
-                </div>
-              </b-col>
-            </b-row>
-            <h5
-              class="mt-2 text-break "
+            <div class="flex justify-content-between align-items-start">
+              <Skeleton :animation="animation" height="1.5rem" width="5rem" class="mb-2"></Skeleton>
+              <div class="room-card__buttons flex-shrink-0">
+                <Skeleton :animation="animation" size="1.5rem" class="mr-2"></Skeleton>
+              </div>
+            </div>
+            <p
+              class="mt-2 text-break font-bold text-color"
               style="width: 100% "
             >
-              <b-skeleton height="1.5rem" />
-            </h5>
+              <Skeleton :animation="animation" height="1.5rem" class="mb-2"></Skeleton>
+            </p>
           </div>
-          <div>
+          <div
+            class="flex flex-column gap-2 text-color"
+          >
             <div class="flex">
-              <div class="room-card-info-icon">
-                <i class="fa-solid fa-user" />
+              <div class="room-details__icon">
+                <Skeleton :animation="animation" size="1rem"></Skeleton>
               </div>
-              <div class="room-info-text">
-                <small><b-skeleton class="mt-1" /></small>
+              <div class="room-details__text">
+                <Skeleton :animation="animation" height="1rem" class="mb-2"></Skeleton>
               </div>
             </div>
             <div class="flex">
-              <div class="room-card-info-icon">
-                <i class="fa-solid fa-clock" />
+              <div class="room-details__icon">
+                <Skeleton :animation="animation" size="1rem"></Skeleton>
               </div>
-              <div class="room-info-text">
-                <small>
-                  <b-skeleton class="mt-1" />
-                </small>
+              <div class="room-details__text">
+                <Skeleton :animation="animation" height="1rem" class="mb-2"></Skeleton>
               </div>
             </div>
           </div>
         </div>
-      </b-card-body>
-    </b-card>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 export default {
-  name: 'RoomSkeletonComponent'
+  name: 'RoomSkeletonComponent',
+  props: {
+    animation: {
+      type: String,
+      default: 'wave'
+    }
+  }
 };
 </script>
