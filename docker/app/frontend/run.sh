@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 # Function to set the hash of previous runs from the file or create the hash file if it doesn't exist
 function getPreviousHash() {
@@ -27,9 +27,15 @@ function buildFrontend() {
     echo "Build frontend"
     # Run the build
     npm run build
-    # Put the new hash in the file for the next time
-    echo "$NEW_HASH" > "$HASH_FILE"
-    echo "Saved new hash, hash is: $NEW_HASH"
+
+    if [ $? -eq 0 ]; then
+        # Put the new hash in the file for the next time
+        echo "$NEW_HASH" > "$HASH_FILE"
+        echo "Saved new hash, hash is: $NEW_HASH"
+    else
+        echo "Building frontend failed"
+        exit 1
+    fi
 }
 
 cd /var/www/html
