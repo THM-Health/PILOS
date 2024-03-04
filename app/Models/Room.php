@@ -72,6 +72,7 @@ class Room extends Model
         'listed'                             => 'boolean',
         'record_attendance'                  => 'boolean',
         'record'                             => 'boolean',
+        'auto_start_recording'               => 'boolean',
         'delete_inactive'                    => 'datetime'
     ];
 

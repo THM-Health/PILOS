@@ -37,6 +37,7 @@ class RoomSettings extends JsonResource
             'listed'                             => $this->listed,
             'record_attendance'                  => $this->record_attendance,
             'record'                             => $this->record,
+            'auto_start_recording'               => $this->auto_start_recording,
         ];
     }
 }

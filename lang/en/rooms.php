@@ -337,6 +337,7 @@ return [
             'title'             => 'Recordings',
             'record_attendance' => 'Log attendance of participants',
             'record_video_conference' => 'Record video conference',
+            'auto_start_recording' => 'Automatic recording start',
         ],
         'restrictions' => [
             'disable_cam'            => 'Disable webcam',

@@ -35,7 +35,8 @@ class UpdateRoomSettings extends FormRequest
             'short_description'                  => 'nullable|string|max:300',
             'listed'                             => 'required|boolean',
             'record_attendance'                  => 'required|boolean',
-            'record'                             => 'required|boolean'
+            'record'                             => 'required|boolean',
+            'auto_start_recording'               => 'required|boolean',
         ];
     }
 }

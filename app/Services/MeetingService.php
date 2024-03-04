@@ -68,6 +68,7 @@ class MeetingService
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
         $meetingParams
             ->setRecord($this->meeting->record)
+            ->setAutoStartRecording($this->meeting->room->auto_start_recording)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
             ->setEndCallbackUrl($this->getCallbackUrl())
             ->setDuration($this->meeting->room->roomType->max_duration)

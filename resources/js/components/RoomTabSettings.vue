@@ -188,6 +188,21 @@
               <p class="p-error" v-html="formErrors.fieldError('record')" />
             </div>
 
+            <!-- Checkbox record video conference -->
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  input-id="auto-start-record"
+                  v-model="settings.auto_start_recording"
+                  :disabled="disabled || !settings.record"
+                  class="flex-shrink-0"
+                  :invalid="formErrors.fieldInvalid('auto_start_recording')"
+                />
+                <label for="auto-start-record">{{ $t('rooms.settings.recordings.auto_start_recording') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('auto_start_recording')" />
+            </div>
+
           </div>
 
           <!-- Participants settings tab -->
@@ -583,6 +598,10 @@ function applyRoomRestrictions (roomType) {
 
   if (!roomType.allow_record) {
     settings.value.record = false;
+  }
+
+  if (!settings.value.record) {
+    settings.value.auto_start_recording = false;
   }
 }
 

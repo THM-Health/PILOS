@@ -248,6 +248,7 @@ class RoomController extends Controller
 
         $room->record_attendance              = $request->record_attendance;
         $room->record                         = $request->record;
+        $room->auto_start_recording           = $request->auto_start_recording;
 
         $room->default_role = $request->default_role;
         $room->lobby        = $request->lobby;
