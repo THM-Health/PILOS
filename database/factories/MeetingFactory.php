@@ -29,8 +29,6 @@ class MeetingFactory extends Factory
         return [
             'room_id'     => Room::factory(),
             'server_id'   => Server::factory(),
-            'attendee_pw'  => $this->faker->password,
-            'moderator_pw' => $this->faker->password,
             'start'       => date('Y-m-d H:i:s', $end - $length),
             'end'         => date('Y-m-d H:i:s', $end),
         ];

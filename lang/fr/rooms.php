@@ -2,9 +2,7 @@
 
 return [
     'access_code'                  => 'Code d\'accès',
-    'access_for_participants'      => 'Accès pour les participants',
     'become_member'                => 'Devenir membre',
-    'copy_access_for_participants' => 'Copier les informations d\'accès des participants dans le presse-papier',
     'create'                       => [
         'ok'    => 'Créer',
         'title' => 'Créer une nouvelle salle',
@@ -115,11 +113,16 @@ return [
     ],
     'invalid_personal_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
     'invitation'            => [
-        'code' => 'Code d\'accès',
-        'link' => 'Lien',
-        'room' => 'Rejoindre ":roomname" avec :platform',
+        'share'  => 'Share',
+        'title'  => 'Accès pour les participants',
+        'copy'   => 'Copier',
+        'code'   => 'Code d\'accès',
+        'copied' => 'Copié les informations d\'accès des participants dans le presse-papier.',
+        'link'   => 'Link',
+        'room'   => 'Rejoindre ":roomname" avec :platform',
     ],
     'join'            => 'Rejoindre',
+    'join_room'       => 'Rejoindre la salle',
     'login'           => 'Se connecter',
     'meeting_history' => [
         'title' => 'Historique',
@@ -200,7 +203,6 @@ return [
     'room_types'              => [
         'loading_error' => 'Une erreur s\'est produite lors du chargement des types de salle.',
         'reload'        => 'Recharger les types de salle',
-        'select_type'   => '-- Selection du type de salle --',
     ],
     'settings' => [
         'general' => [
@@ -220,7 +222,6 @@ return [
                 'title'          => 'Rôle par défaut',
             ],
             'max_participants'  => 'Nombre de participants max.',
-            'record_attendance' => 'Journaliser la présence des participants',
             'title'             => 'Participants',
             'waiting_room'      => [
                 'only_for_guests_enabled' => 'Activé pour les invités uniquement',
@@ -232,6 +233,10 @@ return [
             'everyone_start' => 'Tout le monde peut ouvrir la salle',
             'mute_mic'       => 'Couper le microphone en arrivant',
             'title'          => 'Permissions',
+        ],
+        'recordings' => [
+            'title'             => 'Enregistrements',
+            'record_attendance' => 'Journaliser la présence des participants',
         ],
         'restrictions' => [
             'disable_cam'            => 'Désactiver la webcam',

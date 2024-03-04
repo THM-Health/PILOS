@@ -13,6 +13,7 @@ use App\Http\Resources\RoomUser;
 use App\Models\Room;
 use App\Models\User;
 use Auth;
+use Illuminate\Http\Request;
 use Log;
 
 class RoomMemberController extends Controller
@@ -27,9 +28,23 @@ class RoomMemberController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Room $room)
+    public function index(Room $room, Request $request)
     {
-        return RoomUser::collection($room->members);
+        $sortBy = match ($request->get('sort_by')) {
+            'firstname' => 'firstname',
+            'email'     => 'email',
+            'role'      => 'role',
+            default     => 'lastname',
+        };
+
+        $sortOrder = match ($request->get('sort_direction')) {
+            'desc'  => 'desc',
+            default => 'asc',
+        };
+
+        $members = $room->members()->orderBy($sortBy, $sortOrder)->paginate(setting('pagination_page_size'));
+
+        return RoomUser::collection($members);
     }
 
     /**

@@ -1,329 +1,173 @@
 <template>
   <div>
-    <b-row>
-      <b-col>
-        <h3>
-          {{ $t('app.server_pools') }}
-
-          <can
-            method="create"
-            policy="ServerPoolPolicy"
-          >
-            <b-button
-              ref="newServerPool"
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              class="ml-2 float-right"
-              variant="success"
-              :title="$t('settings.server_pools.new')"
-              :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
-            >
-              <i class="fa-solid fa-plus" />
-            </b-button>
-          </can>
-        </h3>
-      </b-col>
-      <b-col
-        sm="12"
-        md="3"
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.server_pools') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'ServerPolicy')"
+        v-tooltip="$t('settings.server_pools.new')"
+        :aria-label="$t('settings.server_pools.new')"
+        :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
+        class="p-button p-button-success p-button-icon-only"
       >
-        <b-input-group>
-          <b-form-input
+        <i class="fa-solid fa-plus"/>
+      </router-link>
+    </div>
+
+    <div class="flex flex-column md:flex-row">
+      <div>
+        <InputGroup>
+          <InputText
             v-model="filter"
             :placeholder="$t('app.search')"
-            :debounce="searchDebounce"
+            @keyup.enter="loadData"
           />
-          <b-input-group-append>
-            <b-input-group-text class="bg-primary">
-              <i class="fa-solid fa-magnifying-glass" />
-            </b-input-group-text>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
-    </b-row>
-    <hr>
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            severity="primary"
+            @click="loadData"
+            icon="fa-solid fa-magnifying-glass"
+          />
+        </InputGroup>
+      </div>
+    </div>
+    <Divider/>
 
-    <b-table
-      id="server-pools-table"
-      ref="serverPools"
-      :responsive="true"
-      hover
-      stacked="xl"
-      show-empty
-      :busy.sync="isBusy"
-      :fields="tableFields"
-      :items="fetchServerPools"
-      :filter="filter"
-      :current-page="currentPage"
+    <DataTable
+      v-model:sortField="sortField"
+      v-model:sortOrder="sortOrder"
+      :loading="isBusy || loadingError"
+      :rows="meta.per_page"
+      :totalRecords="meta.total"
+      :value="serverPools"
+      dataKey="id"
+      lazy
+      paginator
+      rowHover
+      stripedRows
+      @page="onPage"
+      @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
+      <template #loading>
+        <LoadingRetryButton :error="loadingError" @reload="loadData"/>
+      </template>
+      <!-- Show message on empty server pool list -->
       <template #empty>
-        <i>{{ $t('settings.server_pools.no_data') }}</i>
-      </template>
-
-      <template #emptyfiltered>
-        <i>{{ $t('settings.server_pools.no_data_filtered') }}</i>
-      </template>
-
-      <template #table-busy>
-        <div class="text-center my-2">
-          <b-spinner class="align-middle" />
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.server_pools.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.server_pools.no_data_filtered') }}</InlineNote>
         </div>
       </template>
-
-      <template #cell(actions)="data">
-        <b-button-group>
-          <can
-            method="view"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover.bottom
-              v-tooltip-hide-click
-              :title="$t('settings.server_pools.view', { name: data.item.name })"
+      <Column :header="$t('app.model_name')" field="name" sortable>
+        <template #body="slotProps">
+          <TextTruncate>{{slotProps.data.name}}</TextTruncate>
+        </template>
+      </Column>
+      <Column :header="$t('settings.server_pools.server_count')" field="servers_count" sortable></Column>
+      <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
+        <template #body="slotProps">
+          <div class="flex flex-row gap-2">
+            <router-link
+              v-if="userPermissions.can('view', slotProps.data)"
+              v-tooltip="$t('settings.server_pools.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.server_pools.view', { name: slotProps.data.name })"
               :disabled="isBusy"
-              variant="info"
-              :to="{ name: 'settings.server_pools.view', params: { id: data.item.id }, query: { view: '1' } }"
+              :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+              class="p-button p-button-info p-button-icon-only"
             >
-              <i class="fa-solid fa-eye" />
-            </b-button>
-          </can>
-          <can
-            method="update"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover.bottom
-              v-tooltip-hide-click
-              :title="$t('settings.server_pools.edit', { name: data.item.name })"
+              <i class="fa-solid fa-eye"/>
+            </router-link>
+            <router-link
+              v-if="userPermissions.can('update', slotProps.data)"
+              v-tooltip="$t('settings.server_pools.edit', { name: slotProps.data.name })"
+              :aria-label="$t('settings.server_pools.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
-              variant="secondary"
-              :to="{ name: 'settings.server_pools.view', params: { id: data.item.id } }"
+              :to="{ name: 'settings.server_pools.view', params: { id: slotProps.data.id } }"
+              class="p-button p-button-secondary p-button-icon-only"
             >
-              <i class="fa-solid fa-edit" />
-            </b-button>
-          </can>
-          <can
-            method="delete"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover.bottom
-              v-tooltip-hide-click
-              :title="$t('settings.server_pools.delete.item', { name: data.item.name })"
-              :disabled="isBusy"
-              variant="danger"
-              @click="showServerPoolModal(data.item)"
+              <i class="fa-solid fa-edit"/>
+            </router-link>
+            <SettingsServerPoolsDeleteButton
+              v-if="userPermissions.can('delete', slotProps.data)"
+              :id="slotProps.data.id"
+              :name="slotProps.data.name"
+              @deleted="loadData"
             >
-              <i class="fa-solid fa-trash" />
-            </b-button>
-          </can>
-        </b-button-group>
-      </template>
-    </b-table>
-
-    <b-pagination
-      v-model="currentPage"
-      :total-rows="total"
-      :per-page="perPage"
-      aria-controls="server-pools-table"
-      align="center"
-      :disabled="isBusy"
-      @input="$root.$emit('bv::refresh::table', 'server-pools-table')"
-    />
-
-    <b-modal
-      ref="delete-server-pool-modal"
-      :busy="deleting"
-      :hide-footer="deleteFailedRoomTypes!=null"
-      ok-variant="danger"
-      cancel-variant="dark"
-      :cancel-title="$t('app.no')"
-      :static="modalStatic"
-      :no-close-on-esc="deleting"
-      :no-close-on-backdrop="deleting"
-      :hide-header-close="deleting"
-      @ok="deleteServerPool($event)"
-      @cancel="clearServerPoolToDelete"
-      @close="clearServerPoolToDelete"
-    >
-      <template #modal-title>
-        {{ $t('settings.server_pools.delete.title') }}
-      </template>
-      <template #modal-ok>
-        <b-spinner
-          v-if="deleting"
-          small
-        />  {{ $t('app.yes') }}
-      </template>
-      <span v-if="serverPoolToDelete">
-        {{ $t('settings.server_pools.delete.confirm', { name:serverPoolToDelete.name }) }}
-      </span>
-
-      <div v-if="deleteFailedRoomTypes">
-        <b-alert
-          :show="true"
-          variant="danger"
-        >
-          {{ $t('settings.server_pools.delete.failed') }}
-          <ul>
-            <li
-              v-for="roomType in deleteFailedRoomTypes"
-              :key="roomType.id"
-            >
-              {{ roomType.description }}
-            </li>
-          </ul>
-        </b-alert>
-      </div>
-    </b-modal>
+            </SettingsServerPoolsDeleteButton>
+          </div>
+        </template>
+      </Column>
+    </DataTable>
   </div>
 </template>
 
-<script>
-import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
-import ActionsColumn from '@/mixins/ActionsColumn';
-import env from '@/env';
+<script setup>
+import { useApi } from '@/composables/useApi.js';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useActionColumn } from '@/composables/useActionColumn.js';
+import { onMounted, ref } from 'vue';
 
-export default {
-  components: { Can },
-  mixins: [ActionsColumn],
+const api = useApi();
+const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['serverPools.view'] }, { permissions: ['serverPools.update'] }, { permissions: ['serverPools.delete'] }]);
 
-  props: {
-    searchDebounce: {
-      type: Number,
-      default: 200,
-      required: false
-    },
-    modalStatic: {
-      type: Boolean,
-      default: false
+const isBusy = ref(false);
+const loadingError = ref(false);
+const serverPools = ref([]);
+const currentPage = ref(1);
+const sortField = ref('name');
+const sortOrder = ref(1);
+const meta = ref({
+  current_page: 0,
+  from: 0,
+  last_page: 0,
+  per_page: 0,
+  to: 0,
+  total: 0
+});
+const filter = ref(undefined);
+
+onMounted(() => {
+  loadData();
+});
+
+/**
+ * Loads the server pools from the backend
+ *
+ */
+function loadData () {
+  isBusy.value = true;
+  loadingError.value = false;
+  const config = {
+    params: {
+      page: currentPage.value,
+      sort_by: sortField.value,
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
+      name: filter.value
     }
-  },
+  };
 
-  data () {
-    return {
-      isBusy: false,
-      deleting: false,
-      currentPage: undefined,
-      total: undefined,
-      perPage: undefined,
-      serverPoolToDelete: undefined,
-      actionPermissions: ['serverPools.view', 'serverPools.update', 'serverPools.delete'],
-      filter: undefined,
-      deleteFailedRoomTypes: null
-    };
-  },
+  api.call('serverPools', config).then(response => {
+    serverPools.value = response.data.data;
+    meta.value = response.data.meta;
+  }).catch(error => {
+    api.error(error);
+    loadingError.value = true;
+  }).finally(() => {
+    isBusy.value = false;
+  });
+}
 
-  computed: {
-    tableFields () {
-      const fields = [
-        { key: 'id', label: this.$t('app.id'), sortable: true },
-        { key: 'name', label: this.$t('app.model_name'), sortable: true },
-        { key: 'servers_count', label: this.$t('settings.server_pools.server_count'), sortable: true }
-      ];
+function onPage (event) {
+  currentPage.value = event.page + 1;
+  loadData();
+}
 
-      if (this.actionColumnVisible) {
-        fields.push(this.actionColumnDefinition);
-      }
-
-      return fields;
-    }
-  },
-
-  methods: {
-    /**
-     * Loads the server pools from the backend and calls on finish the callback function.
-     *
-     * @param ctx Context information e.g. the sort field and direction and the page.
-     * @param callback
-     * @return {null}
-     */
-    fetchServerPools (ctx, callback) {
-      let data = [];
-
-      const config = {
-        params: {
-          page: ctx.currentPage
-        }
-      };
-
-      if (ctx.sortBy) {
-        config.params.sort_by = ctx.sortBy;
-        config.params.sort_direction = ctx.sortDesc ? 'desc' : 'asc';
-      }
-
-      if (ctx.filter) {
-        config.params.name = ctx.filter;
-      }
-
-      Base.call('serverPools', config).then(response => {
-        this.perPage = response.data.meta.per_page;
-        this.currentPage = response.data.meta.current_page;
-        this.total = response.data.meta.total;
-
-        data = response.data.data;
-      }).catch(error => {
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        callback(data);
-      });
-
-      return null;
-    },
-
-    /**
-     * Shows the delete modal with the passed server.
-     *
-     * @param server Server that should be deleted.
-     */
-    showServerPoolModal (server) {
-      this.deleteFailedRoomTypes = null;
-      this.serverPoolToDelete = server;
-      this.$refs['delete-server-pool-modal'].show();
-    },
-
-    /**
-     * Deletes the server that is set in the property `serverPoolToDelete`.
-     */
-    deleteServerPool (evt) {
-      evt.preventDefault();
-      this.deleting = true;
-
-      Base.call(`serverPools/${this.serverPoolToDelete.id}`, {
-        method: 'delete'
-      }).then(() => {
-        this.clearServerPoolToDelete();
-        this.$refs['delete-server-pool-modal'].hide();
-        this.currentPage = 1;
-        this.$refs.serverPools.refresh();
-      }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-          this.deleteFailedRoomTypes = error.response.data.room_types;
-        } else {
-          Base.error(error, this.$root, error.message);
-          this.clearServerPoolToDelete();
-          this.$refs['delete-server-pool-modal'].hide();
-          this.currentPage = 1;
-          this.$refs.serverPools.refresh();
-        }
-      }).finally(() => {
-        this.deleting = false;
-      });
-    },
-
-    /**
-     * Clears the temporary property `serverPoolToDelete` on canceling or
-     * after success delete when the modal gets hidden.
-     */
-    clearServerPoolToDelete () {
-      this.serverPoolToDelete = undefined;
-      this.deleteFailedRoomTypes = null;
-    }
-  }
-};
+function onSort () {
+  currentPage.value = 1;
+  loadData();
+}
 </script>
-
-<style scoped>
-
-</style>

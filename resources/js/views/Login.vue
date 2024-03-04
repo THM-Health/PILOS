@@ -1,135 +1,126 @@
 <template>
   <div class="container">
-    <div class="row mt-4 mb-5">
-      <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
-        <b-card
-          no-body
-          bg-variant="light"
-        >
-          <b-tabs
-            content-class="m-3"
-            align="center"
-            fill
-            active-nav-item-class="bg-primary"
-          >
-            <b-tab
-              v-if="getSetting('auth.ldap')"
-              :title="$t('auth.ldap.tab_title')"
+    <div class="grid mt-4 mb-5">
+      <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
+        <Card>
+          <template #content>
+            <TabView
+              :lazy="true"
+              :pt="{
+              navContent: {
+                class: 'border-round-top'
+              },
+              }"
             >
-              <ldap-login-component
-                id="ldap"
-                :title="$t('auth.ldap.title')"
-                :submit-label="$t('auth.login')"
-                :password-label="$t('auth.password')"
-                :username-label="$t('auth.ldap.username')"
-                :loading="loading"
-                :errors="errors.ldap"
-                @submit="handleLogin"
-              />
-            </b-tab>
-            <b-tab
-              v-if="getSetting('auth.shibboleth')"
-              :title="$t('auth.shibboleth.tab_title')"
-            >
-              <external-login-component
-                id="shibboleth"
-                :title="$t('auth.shibboleth.title')"
-                :redirect-label="$t('auth.shibboleth.redirect')"
-                :redirect-url="shibbolethRedirectUrl"
-              />
-            </b-tab>
-            <b-tab
-              v-if="getSetting('auth.local')"
-              :title="$t('auth.email.tab_title')"
-            >
-              <local-login-component
-                id="local"
-                :title="$t('auth.email.title')"
-                :submit-label="$t('auth.login')"
-                :password-label="$t('auth.password')"
-                :email-label="$t('app.email')"
-                :loading="loading"
-                :errors="errors.local"
-                @submit="handleLogin"
-              />
-            </b-tab>
-          </b-tabs>
-        </b-card>
+              <TabPanel
+                v-if="settingsStore.getSetting('auth.ldap')"
+                :header="$t('auth.ldap.tab_title')"
+              >
+                <LoginTabLdap
+                  id="ldap"
+                  :title="$t('auth.ldap.title')"
+                  :submit-label="$t('auth.login')"
+                  :password-label="$t('auth.password')"
+                  :username-label="$t('auth.ldap.username')"
+                  :loading="loading"
+                  :errors="errors.ldap"
+                  @submit="handleLogin"
+                />
+              </TabPanel>
+              <TabPanel
+                v-if="settingsStore.getSetting('auth.shibboleth')"
+                :header="$t('auth.shibboleth.tab_title')"
+              >
+                <LoginTabExternal
+                  id="shibboleth"
+                  :title="$t('auth.shibboleth.title')"
+                  :redirect-label="$t('auth.shibboleth.redirect')"
+                  :redirect-url="shibbolethRedirectUrl"
+                />
+              </TabPanel>
+              <TabPanel
+                v-if="settingsStore.getSetting('auth.local')"
+                :header="$t('auth.email.tab_title')"
+              >
+                <LoginTabLocal
+                  id="local"
+                  :title="$t('auth.email.title')"
+                  :submit-label="$t('auth.login')"
+                  :password-label="$t('auth.password')"
+                  :email-label="$t('app.email')"
+                  :loading="loading"
+                  :errors="errors.local"
+                  @submit="handleLogin"
+                />
+              </TabPanel>
+            </TabView>
+          </template>
+
+        </Card>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import LocalLoginComponent from '@/components/Login/LocalLoginComponent.vue';
-import LdapLoginComponent from '@/components/Login/LdapLoginComponent.vue';
+<script setup>
 import env from '@/env';
-import Base from '@/api/base';
-import { mapState, mapActions } from 'pinia';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthStore } from '@/stores/auth';
-import ExternalLoginComponent from '@/components/Login/ExternalLoginComponent.vue';
+import { computed, ref, reactive } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useApi } from '@/composables/useApi';
+import { useToast } from '@/composables/useToast.js';
 
-export default {
-  components: {
-    ExternalLoginComponent,
-    LocalLoginComponent,
-    LdapLoginComponent
-  },
-  data () {
-    return {
-      loading: false,
-      errors: {
-        local: null,
-        ldap: null
-      }
-    };
-  },
-  computed: {
+const settingsStore = useSettingsStore();
+const router = useRouter();
+const authStore = useAuthStore();
+const route = useRoute();
+const { t } = useI18n();
+const toast = useToast();
+const api = useApi();
 
-    ...mapState(useSettingsStore, ['getSetting']),
+const loading = ref(false);
+const errors = reactive({
+  local: null,
+  ldap: null
+});
 
-    shibbolethRedirectUrl () {
-      const url = '/auth/shibboleth/redirect';
-      return this.$route.query.redirect ? url + '?redirect=' + encodeURIComponent(this.$route.query.redirect) : url;
+const shibbolethRedirectUrl = computed(() => {
+  const url = '/auth/shibboleth/redirect';
+  return route.query.redirect ? url + '?redirect=' + encodeURIComponent(route.query.redirect) : url;
+});
+
+/**
+* Handle login request
+* @param data Credentials with username/email and password
+* @param id ID of the login method (ldap or local)
+* @return {Promise<void>}
+*/
+async function handleLogin ({ data, id }) {
+  try {
+    errors[id] = null;
+    loading.value = true;
+    await authStore.login(data, id);
+    toast.success(t('auth.flash.login'));
+    // check if user should be redirected back after login
+    if (route.query.redirect !== undefined) {
+      await router.push(route.query.redirect);
+    } else {
+      await router.push({ name: 'rooms.index' });
     }
-  },
-  methods: {
-
-    ...mapActions(useAuthStore, ['login']),
-
-    /**
-     * Handle login request
-     * @param data Credentials with username/email and password
-     * @param id ID of the login method (ldap or local)
-     * @return {Promise<void>}
-     */
-    async handleLogin ({ data, id }) {
-      try {
-        this.errors[id] = null;
-        this.loading = true;
-        await this.login(data, id);
-        this.toastSuccess(this.$t('auth.flash.login'));
-        // check if user should be redirected back after login
-        if (this.$route.query.redirect !== undefined) {
-          await this.$router.push(this.$route.query.redirect);
-        } else {
-          await this.$router.push({ name: 'rooms.index' });
-        }
-      } catch (error) {
-        if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.errors[id] = error.response.data.errors;
-        } else {
-          if (error.response !== undefined && error.response.status === env.HTTP_TOO_MANY_REQUESTS) {
-            this.errors[id] = error.response.data.errors;
-          } else {
-            Base.error(error, this.$root, error.message);
-          }
-        }
-      } finally {
-        this.loading = false;
+  } catch (error) {
+    if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      errors[id] = error.response.data.errors;
+    } else {
+      if (error.response !== undefined && error.response.status === env.HTTP_TOO_MANY_REQUESTS) {
+        errors[id] = error.response.data.errors;
+      } else {
+        api.error(error);
       }
     }
+  } finally {
+    loading.value = false;
   }
-};
+}
 </script>

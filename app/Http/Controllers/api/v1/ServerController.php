@@ -41,7 +41,8 @@ class ServerController extends Controller
             }
         }
 
-        $resource = Server::query();
+        $additionalMeta = [];
+        $resource       = Server::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');
@@ -52,13 +53,16 @@ class ServerController extends Controller
             }
         }
 
+        // count all before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
+
         if ($request->has('name')) {
             $resource = $resource->withName($request->query('name'));
         }
 
         $resource = $resource->paginate(setting('pagination_page_size'));
 
-        return ServerResource::collection($resource);
+        return ServerResource::collection($resource)->additional($additionalMeta);
     }
 
     /**

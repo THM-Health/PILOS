@@ -62,7 +62,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role       = Role::factory()->create(['default' => true]);
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'servers.viewAny' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);

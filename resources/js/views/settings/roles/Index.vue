@@ -1,271 +1,178 @@
 <template>
   <div>
-    <h3>
-      {{ $t('app.roles') }}
-      <can
-        method="create"
-        policy="RolePolicy"
+    <div class="flex justify-content-between align-items-center">
+      <h2>
+        {{ $t('app.roles') }}
+      </h2>
+      <router-link
+        v-if="userPermissions.can('create', 'RolePolicy')"
+        class="p-button p-button-success p-button-icon-only"
+        v-tooltip="$t('settings.roles.new')"
+        :aria-label="$t('settings.roles.new')"
+        :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
       >
-        <b-button
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          class="float-right"
-          variant="success"
-          :title="$t('settings.roles.new')"
-          :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
-        >
-          <i class="fa-solid fa-plus" />
-        </b-button>
-      </can>
-    </h3>
-    <hr>
+        <i class="fa-solid fa-plus" />
+      </router-link>
+    </div>
 
-    <b-table
-      id="roles-table"
-      ref="roles"
-      fixed
-      hover
-      stacked="lg"
-      show-empty
-      :busy.sync="isBusy"
-      :fields="tableFields"
-      :items="fetchRoles"
-      :current-page="currentPage"
+    <div class="flex flex-column md:flex-row">
+      <div>
+        <InputGroup>
+          <InputText
+            v-model="filter"
+            :placeholder="$t('app.search')"
+            @keyup.enter="loadData"
+          />
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            severity="primary"
+            @click="loadData"
+            icon="fa-solid fa-magnifying-glass"
+          />
+        </InputGroup>
+      </div>
+    </div>
+    <Divider/>
+
+    <DataTable
+      :totalRecords="meta.total"
+      :rows="meta.per_page"
+      :value="roles"
+      lazy
+      dataKey="id"
+      paginator
+      :loading="isBusy || loadingError"
+      rowHover
+      stripedRows
+      v-model:sortField="sortField"
+      v-model:sortOrder="sortOrder"
+      @page="onPage"
+      @sort="onSort"
+      class="table-auto lg:table-fixed"
     >
-      <template #empty>
-        <i>{{ $t('settings.roles.nodata') }}</i>
+      <template #loading>
+        <LoadingRetryButton :error="loadingError" @reload="loadData" />
       </template>
-
-      <template #table-busy>
-        <div class="text-center my-2">
-          <b-spinner class="align-middle" />
+      <!-- Show message on empty role list -->
+      <template #empty>
+        <div v-if="!isBusy && !loadingError">
+          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.roles.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('settings.roles.no_data_filtered') }}</InlineNote>
         </div>
       </template>
 
-      <template #cell(name)="data">
-        <text-truncate>
-          {{ $te(`app.role_lables.${data.item.name}`) ? $t(`app.role_lables.${data.item.name}`) : data.item.name }}
-        </text-truncate>
-      </template>
-
-      <template #cell(default)="data">
-        {{ $t(`app.${data.item.default ? 'yes' : 'no'}`) }}
-      </template>
-
-      <template #cell(actions)="data">
-        <b-button-group>
-          <can
-            method="view"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              :title="$t('settings.roles.view', { name: data.item.id })"
+      <Column field="name" :header="$t('app.model_name')" sortable>
+        <template #body="slotProps">
+          <div class="flex flex-row gap-2 align-items-center">
+            <TextTruncate>
+              {{ slotProps.data.name }}
+            </TextTruncate>
+            <Tag icon="fa-solid fa-crown" value="Superuser" v-if="slotProps.data.superuser" />
+          </div>
+        </template>
+      </Column>
+      <Column :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
+        <template #body="slotProps">
+          <div class="flex flex-row gap-2">
+            <router-link
+              v-if="userPermissions.can('view', slotProps.data)"
+              class="p-button p-button-info p-button-icon-only"
+              v-tooltip="$t('settings.roles.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.roles.view', { name: slotProps.data.name })"
               :disabled="isBusy"
-              variant="info"
-              :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
+              :to="{ name: 'settings.roles.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
             >
               <i class="fa-solid fa-eye" />
-            </b-button>
-          </can>
-          <can
-            method="update"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              :title="$t('settings.roles.edit', { name: data.item.id })"
+            </router-link>
+            <router-link
+              v-if="userPermissions.can('update', slotProps.data)"
+              class="p-button p-button-secondary p-button-icon-only"
+              v-tooltip="$t('settings.roles.edit', { name: slotProps.data.name })"
+              :aria-label="$t('settings.roles.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
-              variant="secondary"
-              :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
+              :to="{ name: 'settings.roles.view', params: { id: slotProps.data.id } }"
             >
               <i class="fa-solid fa-edit" />
-            </b-button>
-          </can>
-          <can
-            method="delete"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              :title="$t('settings.roles.delete.item', { id: data.item.id })"
-              :disabled="isBusy"
-              variant="danger"
-              @click="showDeleteModal(data.item)"
-            >
-              <i class="fa-solid fa-trash" />
-            </b-button>
-          </can>
-        </b-button-group>
-      </template>
-    </b-table>
-
-    <b-pagination
-      v-model="currentPage"
-      :total-rows="total"
-      :per-page="perPage"
-      aria-controls="roles-table"
-      align="center"
-      :disabled="isBusy"
-      @input="$root.$emit('bv::refresh::table', 'roles-table')"
-    />
-
-    <b-modal
-      ref="delete-role-modal"
-      :busy="deleting"
-      ok-variant="danger"
-      cancel-variant="secondary"
-      :cancel-title="$t('app.no')"
-      :static="modalStatic"
-      :no-close-on-esc="deleting"
-      :no-close-on-backdrop="deleting"
-      :hide-header-close="deleting"
-      @ok="deleteRole($event)"
-      @cancel="clearRoleToDelete"
-      @close="clearRoleToDelete"
-    >
-      <template #modal-title>
-        {{ $t('settings.roles.delete.title') }}
-      </template>
-      <template #modal-ok>
-        <b-spinner
-          v-if="deleting"
-          small
-        />  {{ $t('app.yes') }}
-      </template>
-      <span v-if="roleToDelete">
-        {{ $t('settings.roles.delete.confirm', { name: $te(`app.role_lables.${roleToDelete.name}`) ? $t(`app.role_lables.${roleToDelete.name}`) : roleToDelete.name }) }}
-      </span>
-    </b-modal>
+            </router-link>
+            <SettingsRolesDeleteButton
+              v-if="userPermissions.can('delete', slotProps.data)"
+              :id="slotProps.data.id"
+              :name="slotProps.data.name"
+              @deleted="loadData"
+            />
+          </div>
+        </template>
+      </Column>
+    </DataTable>
   </div>
 </template>
 
-<script>
-import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
-import ActionsColumn from '@/mixins/ActionsColumn';
-import TextTruncate from '@/components/TextTruncate.vue';
+<script setup>
+import { useApi } from '@/composables/useApi.js';
+import { onMounted, ref } from 'vue';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 
-export default {
-  components: { TextTruncate, Can },
-  mixins: [ActionsColumn],
+const api = useApi();
+const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['roles.view'] }, { permissions: ['roles.update'] }, { permissions: ['roles.delete'] }]);
 
-  props: {
-    modalStatic: {
-      type: Boolean,
-      default: false
+const isBusy = ref(false);
+const loadingError = ref(false);
+const roles = ref([]);
+const currentPage = ref(1);
+const sortField = ref('name');
+const sortOrder = ref(1);
+const meta = ref({
+  current_page: 0,
+  from: 0,
+  last_page: 0,
+  per_page: 0,
+  to: 0,
+  total: 0
+});
+const filter = ref(undefined);
+
+onMounted(() => {
+  loadData();
+});
+
+/**
+ * Loads the roles from the backend
+ *
+ */
+function loadData () {
+  isBusy.value = true;
+  loadingError.value = false;
+  const config = {
+    params: {
+      page: currentPage.value,
+      sort_by: sortField.value,
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
+      name: filter.value
     }
-  },
+  };
 
-  data () {
-    return {
-      isBusy: false,
-      deleting: false,
-      currentPage: undefined,
-      total: undefined,
-      perPage: undefined,
-      roleToDelete: undefined,
-      actionPermissions: ['roles.view', 'roles.update', 'roles.delete']
-    };
-  },
+  api.call('roles', config).then(response => {
+    roles.value = response.data.data;
+    meta.value = response.data.meta;
+  }).catch(error => {
+    api.error(error);
+    loadingError.value = true;
+  }).finally(() => {
+    isBusy.value = false;
+  });
+}
 
-  computed: {
-    tableFields () {
-      const fields = [
-        { key: 'id', label: this.$t('app.id'), sortable: true, thStyle: { width: '8%' } },
-        { key: 'name', label: this.$t('app.model_name'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'default', label: this.$t('settings.roles.default'), sortable: true, thStyle: { width: '15%' } }
-      ];
+function onPage (event) {
+  currentPage.value = event.page + 1;
+  loadData();
+}
 
-      if (this.actionColumnVisible) {
-        fields.push(this.actionColumnDefinition);
-      }
+function onSort () {
+  currentPage.value = 1;
+  loadData();
+}
 
-      return fields;
-    }
-  },
-
-  methods: {
-    /**
-     * Loads the roles from the backend and calls on finish the callback function.
-     *
-     * @param ctx Context information e.g. the sort field and direction and the page.
-     * @param callback
-     * @return {null}
-     */
-    fetchRoles (ctx, callback) {
-      let data = [];
-
-      const config = {
-        params: {
-          page: ctx.currentPage
-        }
-      };
-
-      if (ctx.sortBy) {
-        config.params.sort_by = ctx.sortBy;
-        config.params.sort_direction = ctx.sortDesc ? 'desc' : 'asc';
-      }
-
-      Base.call('roles', config).then(response => {
-        this.perPage = response.data.meta.per_page;
-        this.currentPage = response.data.meta.current_page;
-        this.total = response.data.meta.total;
-
-        data = response.data.data;
-      }).catch(error => {
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        callback(data);
-      });
-
-      return null;
-    },
-
-    /**
-     * Shows the delete modal with the passed role.
-     *
-     * @param role Role that should be deleted.
-     */
-    showDeleteModal (role) {
-      this.roleToDelete = role;
-      this.$refs['delete-role-modal'].show();
-    },
-
-    /**
-     * Deletes the role that is set in the property `roleToDelete`.
-     */
-    deleteRole (evt) {
-      evt.preventDefault();
-      this.deleting = true;
-
-      Base.call(`roles/${this.roleToDelete.id}`, {
-        method: 'delete'
-      }).catch(error => {
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        this.currentPage = 1;
-        this.$refs.roles.refresh();
-        this.clearRoleToDelete();
-        this.$refs['delete-role-modal'].hide();
-        this.deleting = false;
-      });
-    },
-
-    /**
-     * Clears the temporary property `roleToDelete` on canceling or
-     * after success delete when the modal gets hidden.
-     */
-    clearRoleToDelete () {
-      this.roleToDelete = undefined;
-    }
-  }
-};
 </script>
-
-<style scoped>
-
-</style>

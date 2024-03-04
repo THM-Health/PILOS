@@ -19,3 +19,4 @@ coverage.xml
 /db
 /redis
 version
+components.d.ts

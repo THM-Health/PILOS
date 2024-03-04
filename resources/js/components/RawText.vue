@@ -1,14 +1,3 @@
 <template>
-  <div v-frag>
-    <slot />
-  </div>
+  <slot></slot>
 </template>
-
-<script>
-import frag from 'vue-frag';
-export default {
-  directives: {
-    frag
-  }
-};
-</script>

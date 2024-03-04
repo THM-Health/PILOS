@@ -5,7 +5,7 @@
         flex-shrink: 0;
         text-align: center
     }
-    
+
     &__text{
         flex-grow: 1;
     }
@@ -14,7 +14,7 @@
 .room-card{
     pointer-events: auto;
     cursor: pointer;
-    
+
     &--running{
         border-color: $green;
         border-width: 2.5px;
@@ -23,8 +23,8 @@
     &__buttons {
         z-index: 2;
         position: relative;
-    
-        .btn{
+
+        .p-button{
             margin-left: 0.25rem;
             padding: 0;
             height: 25px;
@@ -46,10 +46,6 @@
 
 
 
-.room-card:hover{
-    background-color: darken(#FFF, 7.5%) !important;
-}
-
 
 
 /* Basic editor styles */
@@ -59,7 +55,7 @@
     padding: 10px;
     outline: none;
     border: 1px solid;
-    @include border-radius($thumbnail-border-radius);
+    border-radius: $borderRadius;
 
     > * + * {
         margin-top: 0.75em;
@@ -107,4 +103,30 @@
 .room-bulk-import-preview {
     overflow-y: auto;
     max-height: 200px;
+}
+
+.room-type-badge {
+    white-space: normal;
+    color: #FFF;
+}
+
+.room-role-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-role-guest {
+        background-color: $info;
+    }
+
+    &.room-role-participant {
+        background-color: $success;
+    }
+
+    &.room-role-moderator {
+        background-color: $danger;
+    }
+
+    &.room-role-co-owner {
+        background-color: $secondary;
+    }
 }

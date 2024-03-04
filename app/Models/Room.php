@@ -66,8 +66,6 @@ class Room extends Model
         'allow_guests'                       => 'boolean',
         'lock_settings_lock_on_join'         => 'boolean',
         'lock_settings_hide_user_list'       => 'boolean',
-        'max_participants'                   => 'integer',
-        'duration'                           => 'integer',
         'default_role'                       => 'integer',
         'lobby'                              => 'integer',
         'access_code'                        => 'integer',

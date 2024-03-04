@@ -23,7 +23,7 @@ class RoomTypeFactory extends Factory
     public function definition()
     {
         return [
-            'description' => $this->faker->word,
+            'name' => $this->faker->word,
             'color' => $this->faker->hexColor,
             'server_pool_id' => ServerPool::factory()
         ];

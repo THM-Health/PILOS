@@ -1,11 +1,10 @@
-import VueRouter from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import Login from './views/Login.vue';
 import ExternalLogin from './views/ExternalLogin.vue';
 import Logout from './views/Logout.vue';
 import NotFound from './views/NotFound.vue';
 import RoomsIndex from './views/rooms/Index.vue';
 import RoomView from './views/rooms/View.vue';
-import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings.vue';
 import RolesIndex from './views/settings/roles/Index.vue';
 import RolesView from './views/settings/roles/View.vue';
@@ -14,7 +13,7 @@ import RoomTypesView from './views/settings/roomTypes/View.vue';
 import UsersIndex from './views/settings/users/Index.vue';
 import UsersView from './views/settings/users/View.vue';
 import NewUser from './views/settings/users/New.vue';
-import Application from './views/settings/Application.vue';
+import Config from './views/settings/Config.vue';
 import SettingsHome from './views/settings/SettingsHome.vue';
 import ServersIndex from './views/settings/servers/Index.vue';
 import ServersView from './views/settings/servers/View.vue';
@@ -22,13 +21,16 @@ import ServerPoolsIndex from './views/settings/serverPools/Index.vue';
 import ServerPoolsView from './views/settings/serverPools/View.vue';
 import MeetingsIndex from './views/meetings/Index.vue';
 import PasswordReset from './views/PasswordReset.vue';
-import Base from './api/base';
 import ForgotPassword from './views/ForgotPassword.vue';
 import VerifyEmail from './views/VerifyEmail.vue';
 import Profile from './views/Profile.vue';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
 import { useSettingsStore } from './stores/settings';
+import { useToast } from '@/composables/useToast';
+import i18n from '@/i18n';
+import { useUserPermissions } from './composables/useUserPermission.js';
+import { useApi } from './composables/useApi.js';
 
 const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue'], { eager: true }))[0].default;
 
@@ -136,7 +138,7 @@ export const routes = [
     name: 'meetings.index',
     meta: {
       requiresAuth: true,
-      accessPermitted: () => Promise.resolve(PermissionService.can('viewAny', 'MeetingPolicy'))
+      accessPermitted: (userPermissions) => Promise.resolve(userPermissions.can('viewAny', 'MeetingPolicy'))
     }
   },
 
@@ -145,7 +147,7 @@ export const routes = [
     component: Settings,
     meta: {
       requiresAuth: true,
-      accessPermitted: () => Promise.resolve(PermissionService.can('manage', 'SettingPolicy'))
+      accessPermitted: (userPermissions) => Promise.resolve(userPermissions.can('manage', 'SettingPolicy'))
     },
     children: [
       {
@@ -159,9 +161,9 @@ export const routes = [
         name: 'settings.users',
         meta: {
           requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'UserPolicy')
+          accessPermitted: (userPermissions) => Promise.resolve(
+            userPermissions.can('manage', 'SettingPolicy') &&
+            userPermissions.can('viewAny', 'UserPolicy')
           )
         }
       },
@@ -172,9 +174,9 @@ export const routes = [
         meta: {
           requiresAuth: true,
           disabled: () => !useSettingsStore().getSetting('auth.local'),
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('create', 'UserPolicy')
+          accessPermitted: (userPermissions) => Promise.resolve(
+            userPermissions.can('manage', 'SettingPolicy') &&
+            userPermissions.can('create', 'UserPolicy')
           )
         }
       },
@@ -190,20 +192,20 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (userPermissions, params, query, vm) => {
             const id = params.id;
             const view = query.view;
 
             if (view === '1') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', { model_name: 'User', id })
+                userPermissions.can('manage', 'SettingPolicy') &&
+                userPermissions.can('view', { model_name: 'User', id })
               );
             }
 
             return Promise.resolve(
-              PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', { model_name: 'User', id })
+              userPermissions.can('manage', 'SettingPolicy') &&
+                userPermissions.can('update', { model_name: 'User', id })
             );
           }
         }
@@ -214,9 +216,9 @@ export const routes = [
         component: RolesIndex,
         meta: {
           requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('viewAny', 'RolePolicy')
+          accessPermitted: (userPermissions) => Promise.resolve(
+            userPermissions.can('manage', 'SettingPolicy') &&
+              userPermissions.can('viewAny', 'RolePolicy')
           )
         }
       },
@@ -232,41 +234,38 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (userPermissions, params, query, vm) => {
             const id = params.id;
             const view = query.view;
 
             if (id === 'new') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('create', 'RolePolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('create', 'RolePolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('view', 'RolePolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('view', 'RolePolicy')
               );
             }
 
-            return Base.call(`roles/${id}`).then((response) => {
-              return PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('update', response.data.data);
-            }).catch((response) => {
-              Base.error(response, vm, response.message);
-              return false;
-            });
+            return Promise.resolve(
+              userPermissions.can('manage', 'SettingPolicy') &&
+              userPermissions.can('update', 'RolePolicy')
+            );
           }
         }
       },
       {
-        path: 'application',
-        name: 'settings.application',
-        component: Application,
+        path: 'config',
+        name: 'settings.config',
+        component: Config,
         meta: {
           requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('viewAny', 'ApplicationSettingPolicy')
+          accessPermitted: (userPermissions) => Promise.resolve(
+            userPermissions.can('manage', 'SettingPolicy') &&
+              userPermissions.can('viewAny', 'ConfigPolicy')
           )
         }
       },
@@ -276,8 +275,8 @@ export const routes = [
         component: RoomTypesIndex,
         meta: {
           requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy')
+          accessPermitted: (userPermissions) => Promise.resolve(
+            userPermissions.can('manage', 'SettingPolicy')
           )
         }
       },
@@ -293,25 +292,25 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (userPermissions, params, query) => {
             const id = params.id;
             const view = query.view;
 
             if (id === 'new') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('create', 'RoomTypePolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('create', 'RoomTypePolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('view', 'RoomTypePolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('view', 'RoomTypePolicy')
               );
             }
 
             return Promise.resolve(
-              PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', 'RoomTypePolicy')
+              userPermissions.can('manage', 'SettingPolicy') &&
+                userPermissions.can('update', 'RoomTypePolicy')
             );
           }
         }
@@ -322,9 +321,9 @@ export const routes = [
         component: ServersIndex,
         meta: {
           requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('viewAny', 'ServerPolicy')
+          accessPermitted: (userPermissions) => Promise.resolve(
+            userPermissions.can('manage', 'SettingPolicy') &&
+              userPermissions.can('viewAny', 'ServerPolicy')
           )
         }
       },
@@ -340,24 +339,24 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (userPermissions, params, query) => {
             const id = params.id;
             const view = query.view;
 
             if (id === 'new') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('create', 'ServerPolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('create', 'ServerPolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('view', 'ServerPolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('view', 'ServerPolicy')
               );
             }
             return Promise.resolve(
-              PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', 'ServerPolicy')
+              userPermissions.can('manage', 'SettingPolicy') &&
+                userPermissions.can('update', 'ServerPolicy')
             );
           }
         }
@@ -368,9 +367,9 @@ export const routes = [
         component: ServerPoolsIndex,
         meta: {
           requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('viewAny', 'ServerPoolPolicy')
+          accessPermitted: (userPermissions) => Promise.resolve(
+            userPermissions.can('manage', 'SettingPolicy') &&
+              userPermissions.can('viewAny', 'ServerPoolPolicy')
           )
         }
       },
@@ -386,24 +385,24 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (params, query, vm) => {
+          accessPermitted: (userPermissions, params, query) => {
             const id = params.id;
             const view = query.view;
 
             if (id === 'new') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('create', 'ServerPoolPolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('create', 'ServerPoolPolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                  PermissionService.can('view', 'ServerPoolPolicy')
+                userPermissions.can('manage', 'SettingPolicy') &&
+                  userPermissions.can('view', 'ServerPoolPolicy')
               );
             }
             return Promise.resolve(
-              PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', 'ServerPoolPolicy')
+              userPermissions.can('manage', 'SettingPolicy') &&
+                userPermissions.can('update', 'ServerPoolPolicy')
             );
           }
         }
@@ -416,8 +415,8 @@ export const routes = [
     component: NotFound
   },
   {
-    path: '*',
-    redirect: '/404'
+    path: '/:pathMatch(.*)*',
+    redirect: { name: '404' }
   }
 ];
 
@@ -449,6 +448,9 @@ export async function beforeEachRoute (router, to, from, next) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
   const settings = useSettingsStore();
+  const userPermissions = useUserPermissions();
+  const toast = useToast();
+  const { t } = i18n.global;
 
   // If app is not initialized yet, initialize it and unmout app until finished only showing loading screen
   if (!loading.initialized) {
@@ -460,7 +462,7 @@ export async function beforeEachRoute (router, to, from, next) {
 
   // Resolve all permission promises for the current route
   const recordsPermissions = await Promise.all(to.matched.map((record) =>
-    record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
+    record.meta.accessPermitted ? record.meta.accessPermitted(userPermissions, to.params, to.query) : Promise.resolve(true)
   ));
 
   // Hide loading screen
@@ -469,7 +471,7 @@ export async function beforeEachRoute (router, to, from, next) {
   // Check if route is disabled
   if (to.matched.some((record) => {
     if (record.meta.disabled !== undefined) {
-      return record.meta.disabled(to.params, to.query, router.app);
+      return record.meta.disabled(to.params, to.query);
     }
     return false;
   })) {
@@ -488,14 +490,14 @@ export async function beforeEachRoute (router, to, from, next) {
 
   // Check if authenticated user tries to access a route that is only for guests
   if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
-    router.app.$root.toastError(router.app.$t('app.flash.guests_only'));
+    toast.error(t('app.flash.guests_only'));
     next({ name: 'home' });
     return;
   }
 
   // Check if user doesn't have permission to access a route
   if (!recordsPermissions.every(permission => permission)) {
-    router.app.$root.toastError(router.app.$t('app.flash.unauthorized'));
+    toast.error(t('app.flash.unauthorized'));
     next(from.matched.length !== 0 ? false : '/');
     return;
   }
@@ -504,15 +506,16 @@ export async function beforeEachRoute (router, to, from, next) {
 }
 
 export default function () {
-  const router = new VueRouter({
-    mode: 'history',
+  const router = createRouter({
+    history: createWebHistory(),
     routes
   });
 
   router.beforeEach((to, from, next) => beforeEachRoute(router, to, from, next));
 
   router.onError(error => {
-    Base.error(error, router.app.$root);
+    const api = useApi();
+    api.error(error);
   });
 
   return router;

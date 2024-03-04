@@ -492,7 +492,7 @@ class RoomTest extends TestCase
                     'last_meeting' => $room->latestMeeting,
                     'type'         => [
                         'id'            => $room->roomType->id,
-                        'description'   => $room->roomType->description,
+                        'name'          => $room->roomType->name,
                         'color'         => $room->roomType->color,
                         'allow_listing' => $room->roomType->allow_listing,
                         'model_name'    => 'RoomType',
@@ -542,8 +542,6 @@ class RoomTest extends TestCase
         $meeting1 = $roomAll2->meetings()->create();
         $meeting1->server()->associate($server);
         $meeting1->start        = date('Y-m-d H:i:s');
-        $meeting1->attendee_pw  = bin2hex(random_bytes(5));
-        $meeting1->moderator_pw = bin2hex(random_bytes(5));
         $meeting1->save();
         $roomAll2->latestMeeting()->associate($meeting1);
         $roomAll2->save();
@@ -576,7 +574,7 @@ class RoomTest extends TestCase
                         'last_meeting',
                         'type' => [
                             'id',
-                            'description',
+                            'name',
                             'color'
                         ],
                         'model_name',
@@ -747,9 +745,9 @@ class RoomTest extends TestCase
         setting(['room_pagination_page_size' => 10]);
 
         $server       = Server::factory()->create();
-        $roomType1    = RoomType::factory()->create(['description' => 'roomType1']);
-        $roomType2    = RoomType::factory()->create(['description' => 'roomType2']);
-        $roomType3    = RoomType::factory()->create(['description' => 'roomType3']);
+        $roomType1    = RoomType::factory()->create(['name' => 'roomType1']);
+        $roomType2    = RoomType::factory()->create(['name' => 'roomType2']);
+        $roomType3    = RoomType::factory()->create(['name' => 'roomType3']);
         $roomRunning1 = Room::factory()->create(['name' => 'Runnning room 1','room_type_id'=>$roomType1->id]);
         $roomRunning1->owner()->associate($this->user);
         $meetingRunning1 = Meeting::factory()->create(['room_id' => $roomRunning1->id, 'start' => '2000-01-01 11:11:00', 'end'=> null, 'server_id'=> $server->id]);
@@ -965,8 +963,6 @@ class RoomTest extends TestCase
         $meeting = $room->meetings()->create();
         $meeting->server()->associate($server);
         $meeting->start        = date('Y-m-d H:i:s');
-        $meeting->attendee_pw  = bin2hex(random_bytes(5));
-        $meeting->moderator_pw = bin2hex(random_bytes(5));
         $meeting->save();
 
         self::assertNull($meeting->end);
@@ -1113,8 +1109,6 @@ class RoomTest extends TestCase
         $settings['allow_guests']                       = $this->faker->boolean;
         $settings['lobby']                              = $this->faker->randomElement(RoomLobby::getValues());
         $settings['room_type']                          = $roomType->id;
-        $settings['duration']                           = $this->faker->numberBetween(1, 50);
-        $settings['max_participants']                   = $this->faker->numberBetween(1, 50);
         $settings['name']                               = RoomFactory::createValidRoomName();
         $settings['welcome']                            = $this->faker->text;
         $settings['short_description']                  = $this->faker->text(300);
@@ -1193,14 +1187,12 @@ class RoomTest extends TestCase
 
         $settings['access_code']      = $this->faker->numberBetween(1111111, 9999999);
         $settings['default_role']     = RoomUserRole::GUEST;
-        $settings['duration']         = -10;
         $settings['lobby']            = 5;
-        $settings['max_participants'] = -10;
         $settings['name']             = null;
         $settings['room_type']        = 0;
 
         $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
-            ->assertJsonValidationErrors(['access_code','default_role','duration','lobby','max_participants','name','room_type']);
+            ->assertJsonValidationErrors(['access_code','default_role','lobby','name','room_type']);
     }
 
     /**
@@ -1543,8 +1535,6 @@ class RoomTest extends TestCase
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
                     <voiceBridge>70663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
-                    <attendeePW>asdfgh32343</attendeePW>
-                    <moderatorPW>h6gfdew423</moderatorPW>
                     <running>true</running>
                     <duration>0</duration>
                     <hasUserJoined>true</hasUserJoined>
@@ -1748,8 +1738,6 @@ class RoomTest extends TestCase
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
                     <voiceBridge>70663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
-                    <attendeePW>asdfgh32343</attendeePW>
-                    <moderatorPW>h6gfdew423</moderatorPW>
                     <running>true</running>
                     <duration>0</duration>
                     <hasUserJoined>true</hasUserJoined>
@@ -1778,8 +1766,6 @@ class RoomTest extends TestCase
 
         // Testing join with meeting that is starting, but not ready yet
         $meeting               = $room->meetings()->create();
-        $meeting->attendee_pw  = bin2hex(random_bytes(5));
-        $meeting->moderator_pw = bin2hex(random_bytes(5));
         $meeting->server()->associate($server);
         $meeting->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
@@ -1792,8 +1778,6 @@ class RoomTest extends TestCase
         // Test to join a meeting marked in the db as running, but isn't running on the server
         $meeting               = $room->meetings()->create();
         $meeting->start        = date('Y-m-d H:i:s');
-        $meeting->attendee_pw  = bin2hex(random_bytes(5));
-        $meeting->moderator_pw = bin2hex(random_bytes(5));
         $meeting->server()->associate($server);
         $meeting->save();
         $room->latestMeeting()->associate($meeting);
@@ -1993,8 +1977,6 @@ class RoomTest extends TestCase
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
                     <voiceBridge>70663</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>
-                    <attendeePW>asdfgh32343</attendeePW>
-                    <moderatorPW>h6gfdew423</moderatorPW>
                     <running>true</running>
                     <duration>0</duration>
                     <hasUserJoined>true</hasUserJoined>
@@ -2021,8 +2003,6 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertSuccessful();
         $runningMeeting = $room->runningMeeting();
-        $attendeePW     = $runningMeeting->attendee_pw;
-        $moderatorPW    = $runningMeeting->moderator_pw;
 
         \Auth::logout();
 
@@ -2032,7 +2012,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($attendeePW, $queryParams['password']);
+        $this->assertEquals('VIEWER', $queryParams['role']);
         $this->assertEquals('true', $queryParams['guest']);
         $this->assertEquals($guestName, $queryParams['fullName']);
 
@@ -2045,7 +2025,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($attendeePW, $queryParams['password']);
+        $this->assertEquals('VIEWER', $queryParams['role']);
         $this->assertEquals($this->user->fullname, $queryParams['fullName']);
         // Check if avatarURL is set, if profile image exists
         $this->assertEquals($this->user->imageUrl, $queryParams['avatarURL']);
@@ -2057,7 +2037,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($moderatorPW, $queryParams['password']);
+        $this->assertEquals('MODERATOR', $queryParams['role']);
         // Check if avatarURL empty, if no profile image is set
         $this->assertFalse(isset($queryParams['avatarURL']));
 
@@ -2067,7 +2047,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($attendeePW, $queryParams['password']);
+        $this->assertEquals('VIEWER', $queryParams['role']);
 
         // Testing member moderator
         $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
@@ -2075,7 +2055,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($moderatorPW, $queryParams['password']);
+        $this->assertEquals('MODERATOR', $queryParams['role']);
 
         // Testing member co-owner
         $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
@@ -2083,7 +2063,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($moderatorPW, $queryParams['password']);
+        $this->assertEquals('MODERATOR', $queryParams['role']);
 
         // Reset room membership
         $room->members()->sync([]);
@@ -2095,7 +2075,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($attendeePW, $queryParams['password']);
+        $this->assertEquals('VIEWER', $queryParams['role']);
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Testing with manage rooms permission
@@ -2105,7 +2085,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
-        $this->assertEquals($moderatorPW, $queryParams['password']);
+        $this->assertEquals('MODERATOR', $queryParams['role']);
         $this->role->permissions()->detach($this->managePermission);
     }
 }

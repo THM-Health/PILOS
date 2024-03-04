@@ -66,7 +66,7 @@ class BigBlueButtonServerFaker
             if ($checksum == null || strtolower($requestChecksum) != strtolower($checksum)) {
                 return Http::response(file_get_contents(__DIR__.'/../Fixtures/ChecksumError.xml'));
             }
-            
+
             // Save the request for inspection
             $this->requests[$this->requestCount]['request'] = $request;
 
@@ -108,8 +108,6 @@ class BigBlueButtonServerFaker
                     <meetingID>'.$params['meetingID'].'</meetingID>
                     <internalMeetingID>5756487f8952a40879db59f8fe4085798cb79ccc-1695892370102</internalMeetingID>
                     <parentMeetingID>bbb-none</parentMeetingID>
-                    <attendeePW>'.$params['attendeePW'].'</attendeePW>
-                    <moderatorPW>'.$params['moderatorPW'].'</moderatorPW>
                     <createTime>1695892370102</createTime>
                     <voiceBridge>92443</voiceBridge>
                     <dialNumber>613-555-1234</dialNumber>

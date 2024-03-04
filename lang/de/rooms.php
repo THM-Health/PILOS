@@ -2,22 +2,21 @@
 
 return [
     'access_code'                  => 'Zugangscode',
-    'access_for_participants'      => 'Zugang für Teilnehmer',
     'become_member'                => 'Mitglied werden',
-    'copy_access_for_participants' => 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
     'create'                       => [
         'ok'    => 'Erstellen',
         'title' => 'Raum erstellen',
     ],
+    'change_type' => [
+        'title' => 'Raumart ändern',
+    ],
     'description' => [
-        'cancel' => 'Abbrechen',
         'color'  => [
             'black' => 'Schwarz',
             'blue'  => 'Blau',
             'green' => 'Grün',
             'red'   => 'Rot',
         ],
-        'edit'                  => 'Bearbeiten',
         'external_link_warning' => [
             'description' => 'Sie werden zu folgender URL weitergeleitet :link',
             'title'       => 'Externer Link',
@@ -123,33 +122,37 @@ return [
         'no_favorites'      => 'Keine Räume als Favoriten markiert',
         'no_rooms_selected' => 'Keine Räume ausgewählt',
         'reset_filter'      => 'Filter zurücksetzen',
-        'rooms'             => 'Räume',
         'show_all'          => 'Alle Räume',
         'show_own'          => 'Eigene Räume',
         'show_public'       => 'Öffentliche Räume',
         'show_shared'       => 'Geteilte Räume',
         'sorting'           => [
-            'select_sorting'  => '-- Sortierung auswählen --',
+            'select_sorting'  => 'Sortierung',
             'alpha'           => 'Alphabetisch',
             'last_started'    => 'Zuletzt gestartet',
             'room_type'       => 'Nach Raumart',
 
         ],
         'room_component'=> [
-            'never_started'   => ' Noch nie gestartet',
-            'running_since'   => ' Läuft seit :date',
-            'last_ran_till'   => ' Zuletzt gelaufen bis :date',
+            'never_started'   => 'Noch nie gestartet',
+            'running_since'   => 'Läuft seit :date',
+            'last_ran_till'   => 'Zuletzt gelaufen bis :date',
             'open'            => 'Öffnen',
             'details'         => 'Details',
         ],
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [
-        'code' => 'Zugangscode',
-        'link' => 'Link',
-        'room' => 'An ":roomname" mit :platform teilnehmen',
+        'share'  => 'Teilen',
+        'title'  => 'Zugangsdaten für Teilnehmer',
+        'copy'   => 'Kopieren',
+        'code'   => 'Zugangscode',
+        'copied' => 'Zugangsdaten in Zwischenablage kopiert',
+        'link'   => 'Link',
+        'room'   => 'An ":roomname" mit :platform teilnehmen',
     ],
-    'join'            => 'Teilnehmen',
+    'join'            => 'Beitreten',
+    'join_room'       => 'Raum betreten',
     'login'           => 'Anmelden',
     'meeting_history' => [
         'title' => 'Historie',
@@ -163,11 +166,12 @@ return [
         'image'             => 'Bild',
         'modals'            => [
             'add' => [
-                'add'         => 'Hinzufügen',
-                'no_options'  => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
-                'no_result'   => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
-                'select_role' => 'Bitte wählen Sie eine Rolle aus',
-                'select_user' => 'Bitte wählen Sie einen Benutzer aus',
+                'add'              => 'Hinzufügen',
+                'no_options'       => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
+                'no_result'        => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
+                'select_role'      => 'Bitte wählen Sie eine Rolle aus',
+                'select_user'      => 'Bitte wählen Sie einen Benutzer aus',
+                'too_many_results' => 'Es wurden zu viele Benutzer gefunden. Bitte geben Sie einen genaueren Suchbegriff ein.',
             ],
             'bulk_import' => [
                 'can_import_users'           => 'Benutzer, die hinzugefügt werden können',
@@ -223,6 +227,8 @@ return [
         'denied'          => 'Der Browser verweigert Benachrichtigungen.',
         'enable'          => 'Beim Start des Raumes benachrichtigen',
         'enabled'         => 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
+        'disable'         => 'Benachrichtigung beim Start des Raumes deaktivieren',
+        'disabled'        => 'Sie werden beim Start des Raumes von Ihrem Browser nicht mehr benachrichtigt.',
     ],
     'only_used_by_authenticated_users' => 'Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.',
     'placeholder_name'                 => 'Max Mustermann',
@@ -235,14 +241,23 @@ return [
         'guest'       => 'Gast',
         'moderator'   => 'Moderator',
         'participant' => 'Teilnehmer',
+        'no_role'     => 'Keine Rolle',
     ],
     'room_limit'              => 'Maximale Anzahl an Räumen: :has/:max',
     'room_type_invalid_alert' => 'Die Nutzung der Raumart :roomTypeName ist nur für bestimmte Benutzergruppen genehmigt. Wenn Sie der Eigentümer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum wieder gestartet werden kann.',
     'room_types'              => [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
-        'select_type'   => '-- Raumart auswählen --',
         'all'           => 'Alle Raumarten',
+        'restrictions'  => [
+            'title'                  => 'Einschränkungen',
+            'none'                   => 'Keine',
+            'no_listing'             => 'In öffentlicher Raumsuche verborgen',
+            'no_attendace_recording' => 'Keine Anwesenheitsprotokollierung',
+            'require_access_code'    => 'Zugangscode erforderlich',
+            'max_participants'       => 'Max. :participants Teilnehmer',
+            'max_duration'           => 'Max. :duration Minuten',
+        ]
     ],
     'settings' => [
         'general' => [
@@ -259,11 +274,10 @@ return [
         'participants'     => [
             'clear_max_participants' => 'Max. Teilnehmeranzahl zurücksetzen',
             'default_role'           => [
-                'only_logged_in' => '(nur für angemeldete Beutzer)',
+                'only_logged_in' => '(nur für angemeldete Benutzer)',
                 'title'          => 'Standardrolle',
             ],
             'max_participants'  => 'Max. Teilnehmeranzahl',
-            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
             'title'             => 'Teilnehmer',
             'waiting_room'      => [
                 'only_for_guests_enabled' => 'Aktiviert für Gäste',
@@ -275,6 +289,10 @@ return [
             'everyone_start' => 'Jeder darf das Meeting starten',
             'mute_mic'       => 'Mikrofon bei Beitritt stummschalten',
             'title'          => 'Berechtigungen',
+        ],
+        'recordings' => [
+            'title'             => 'Aufzeichnungen',
+            'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
         ],
         'restrictions' => [
             'disable_cam'            => 'Webcam deaktivieren',
@@ -299,6 +317,7 @@ return [
         'title' => 'Einstellungen',
     ],
     'start'        => 'Starten',
+    'start_room'   => 'Raum starten',
     'tokens'       => [
         'add'              => 'Personalisierten Raumlink hinzufügen',
         'confirm_delete'   => 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?',

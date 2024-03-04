@@ -2,7 +2,8 @@
 
 return [
     'application' => [
-        'attendance' => [
+        'application' => 'Anwendung',
+        'attendance'  => [
             'enabled_title'          => 'Protokollierung der Teilnehmeranwesenheit in Meetings zulassen',
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
         ],
@@ -47,7 +48,7 @@ return [
             'upload_title' => 'Favicon hochladen (max. 500 KB, Format: .ico)',
             'url_title'    => 'URL zu Favicon-Datei',
         ],
-        'help_url' => [
+        'help_url'      => [
             'description' => 'Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.',
             'title'       => 'URL zur Hilfeseite',
         ],
@@ -80,7 +81,7 @@ return [
             'description' => 'Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title'       => 'Größe der Paginierung',
         ],
-        'password_change_allowed' => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',
+        'password_change_allowed' => 'Lokale Benutzer können Passwort ändern',
         'privacy_policy_url'      => [
             'description' => 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.',
             'title'       => 'URL zur Datenschutzerklärung',
@@ -88,7 +89,7 @@ return [
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Zeitraum zwischen Zustellung der Informations-E-Mail und der Löschung',
-                'title'       => 'Löschfirst',
+                'title'       => 'Löschfrist',
             ],
             'enabled' => [
                 'title' => 'Ungenutzte Räume automatisch löschen',
@@ -107,7 +108,7 @@ return [
             'title'       => 'Anzahl der Räume pro Benutzer',
         ],
         'room_token_expiration' => [
-            'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.',
+            'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierten Raumlinks automatisch gelöscht werden.',
             'title'       => 'Ablaufzeit für personalisierte Raumlinks',
         ],
         'six_month'  => '6 Monate (180 Tage)',
@@ -123,10 +124,9 @@ return [
         ],
         'three_month'      => '3 Monate (90 Tage)',
         'tile_description' => 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
-        'title'            => 'Anwendung',
+        'title'            => 'Konfiguration',
         'two_weeks'        => '2 Wochen (14 Tage)',
         'two_years'        => '2 Jahre (730 Tage)',
-        'unlimited'        => 'Unbegrenzt',
         'user_settings'    => 'Benutzereinstellungen',
     ],
     'home_button'          => 'Zurück zur Übersicht',
@@ -139,18 +139,19 @@ return [
             'item'    => 'Rolle :id löschen',
             'title'   => 'Rolle löschen?',
         ],
-        'edit'                        => 'Rolle :name bearbeiten',
-        'has_included_permission'     => 'Das Recht ":name" wurde entweder explizit ausgewählt oder ist in einem anderen ausgewählten Recht inkludiert.',
-        'has_not_included_permission' => 'Das Recht ":name" wurde weder explizit ausgewählt noch ist es in einem anderen ausgewählten Recht inkludiert.',
-        'new'                         => 'Neue Rolle erstellen',
-        'no_options'                  => 'Keine Berechtigungen vorhanden!',
-        'nodata'                      => 'Es sind keine Rollen vorhanden!',
-        'permission_explicit'         => 'Explizit',
-        'permission_included'         => 'Inkludiert',
-        'permission_included_help'    => 'Rechte die ausgewählt wurden und Rechte, die in den ausgewählten Rechten inkludiert sind.',
-        'permission_name'             => 'Name des Rechts',
-        'permissions'                 => 'Rechte',
-        'room_limit'                  => [
+        'edit'                         => 'Rolle :name bearbeiten',
+        'has_included_permission'      => 'Das Recht ":name" wurde entweder explizit ausgewählt oder ist in einem anderen ausgewählten Recht inkludiert.',
+        'has_not_included_permission'  => 'Das Recht ":name" wurde weder explizit ausgewählt noch ist es in einem anderen ausgewählten Recht inkludiert.',
+        'new'                          => 'Neue Rolle erstellen',
+        'no_options'                   => 'Keine Berechtigungen vorhanden!',
+        'no_data'                      => 'Es sind keine Rollen vorhanden!',
+        'no_data_filtered'             => 'Für die Suchanfrage wurden keine Rollen gefunden!',
+        'permission_explicit'          => 'Explizit',
+        'permission_included'          => 'Inkludiert',
+        'permission_included_help'     => 'Rechte die ausgewählt wurden und Rechte, die in den ausgewählten Rechten inkludiert sind.',
+        'permission_name'              => 'Name des Rechts',
+        'permissions'                  => 'Rechte',
+        'room_limit'                   => [
             'custom'     => 'Benutzerdefinierter Wert',
             'default'    => 'Systemstandard (:value)',
             'help_modal' => [
@@ -161,7 +162,6 @@ return [
                 'role_b'         => 'Rolle B',
                 'system_default' => 'Systemstandard',
             ],
-            'unlimited' => 'Unbegrenzt',
         ],
         'select_roles'     => 'Bitte wählen Sie mindestens eine Rolle aus',
         'tile_description' => 'Die Rollen vergeben Berechtigungen, gliedern die Benutzer und legen das Maximum an Räumen pro Benutzer fest.',
@@ -170,6 +170,10 @@ return [
     'room_types' => [
         'allow_listing'             => 'Raumsuche erlaubt',
         'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
+        'allow_record_attendance'   => 'Anwesenheitsprotokollierung erlauben',
+        'require_access_code'       => 'Zugangscode erforderlich',
+        'max_duration'              => 'Maximale Dauer',
+        'max_participants'          => 'Maximale Teilnehmeranzahl',
         'color'                     => 'Farbe',
         'custom_color'              => 'Eigene Farbe',
         'delete'                    => [
@@ -183,6 +187,7 @@ return [
         'edit'                    => 'Raumart :name bearbeiten',
         'new'                     => 'Neue Raumart erstellen',
         'no_data'                 => 'Es sind keine Raumarten vorhanden!',
+        'no_data_filtered'        => 'Für die Suchanfrage wurden keine Raumarten gefunden!',
         'preview'                 => 'Vorschau',
         'restrict'                => 'Verwendung einschränken',
         'restrict_description'    => 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
@@ -284,7 +289,6 @@ return [
             'invalid_mime' => 'Das Dateiformat wird nicht unterstützt. Bitte wählen Sie eine jpg- oder png-Datei aus.',
             'save'         => 'Übernehmen',
             'title'        => 'Profilbild',
-            'undo_delete'  => 'Löschen rückgänig machen',
             'upload'       => 'Neues Bild hochladen',
         ],
         'new'                    => 'Neuen Benutzer erstellen',

@@ -29,7 +29,8 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $resource = Role::query();
+        $additionalMeta = [];
+        $resource       = Role::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');
@@ -40,9 +41,16 @@ class RoleController extends Controller
             }
         }
 
+        // count all before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
+
+        if ($request->has('name')) {
+            $resource = $resource->withName($request->query('name'));
+        }
+
         $resource = $resource->paginate(setting('pagination_page_size'));
 
-        return RoleResource::collection($resource);
+        return RoleResource::collection($resource)->additional($additionalMeta);
     }
 
     /**
@@ -56,7 +64,7 @@ class RoleController extends Controller
         $role             = new Role;
         $role->name       = $request->name;
         $role->room_limit = $request->room_limit;
-        $role->default    = false;
+        $role->superuser  = false;
 
         $role->save();
         $role->permissions()->sync($request->permissions);
@@ -84,28 +92,32 @@ class RoleController extends Controller
      */
     public function update(RoleRequest $request, Role $role)
     {
-        $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
+        // Cannot change room_limit or permissions for superuser role
+        if (!$role->superuser) {
+            $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
 
-        $role->permissions()->sync($request->permissions);
+            $role->permissions()->sync($request->permissions);
 
-        $user = Auth::user();
+            $user = Auth::user();
 
-        if (!($user->hasPermission('settings.manage')
-            && $user->hasPermission('roles.viewAny')
-            && $user->hasPermission('roles.view')
-            && $user->hasPermission('roles.update'))) {
-            $role->permissions()->sync($old_role_permissions);
+            if (!($user->hasPermission('settings.manage')
+                && $user->hasPermission('roles.viewAny')
+                && $user->hasPermission('roles.view')
+                && $user->hasPermission('roles.update'))) {
+                $role->permissions()->sync($old_role_permissions);
 
-            return response()->json([
-                'error'   => CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST,
-                'message' => __('app.errors.role_update_permission_lost')
-            ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
+                return response()->json([
+                    'error'   => CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST,
+                    'message' => __('app.errors.role_update_permission_lost')
+                ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
+            }
+
+            // Ensure updated refreshed even if nothing was changed!
+            $role->touch();
+
+            $role->room_limit = $request->room_limit;
         }
 
-        // Ensure updated refreshed even if nothing was changed!
-        $role->touch();
-
-        $role->room_limit = $request->room_limit;
         $role->name       = $request->name;
         $role->save();
 

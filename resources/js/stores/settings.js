@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import base from '@/api/base';
 import _ from 'lodash';
+import { useApi } from '../composables/useApi.js';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => {
@@ -15,7 +15,9 @@ export const useSettingsStore = defineStore('settings', {
   },
   actions: {
     async getSettings () {
-      const response = await base.call('settings');
+      const api = useApi();
+
+      const response = await api.call('settings');
       this.settings = response.data.data;
     }
   }

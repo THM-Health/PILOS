@@ -2,7 +2,8 @@
 
 return [
     'application' => [
-        'attendance' => [
+        'application' => 'Application',
+        'attendance'  => [
             'enabled_title'          => 'Allow logging of participant attendance at meetings',
             'retention_period_title' => 'Retention period of the attendance logging in days',
         ],
@@ -126,7 +127,6 @@ return [
         'title'            => 'Application',
         'two_weeks'        => '2 Weeks (14 Days)',
         'two_years'        => '2 Year (730 Days)',
-        'unlimited'        => 'Unlimited',
         'user_settings'    => 'User settings',
     ],
     'home_button'          => 'Back to the overview',
@@ -139,18 +139,19 @@ return [
             'item'    => 'Delete role :id',
             'title'   => 'Delete role?',
         ],
-        'edit'                        => 'Edit role :name',
-        'has_included_permission'     => 'The permission ":name" was either explicitly selected or is included in another selected permission.',
-        'has_not_included_permission' => 'The permission ":name" was neither explicitly selected nor is it included in another selected permission.',
-        'new'                         => 'Create new role',
-        'no_options'                  => 'No permissions found!',
-        'nodata'                      => 'No roles found!',
-        'permission_explicit'         => 'Explicit',
-        'permission_included'         => 'Included',
-        'permission_included_help'    => 'Permissions that have been selected and permissions that are included in the selected permissions.',
-        'permission_name'             => 'Name of the permissions',
-        'permissions'                 => 'Permissions',
-        'room_limit'                  => [
+        'edit'                         => 'Edit role :name',
+        'has_included_permission'      => 'The permission ":name" was either explicitly selected or is included in another selected permission.',
+        'has_not_included_permission'  => 'The permission ":name" was neither explicitly selected nor is it included in another selected permission.',
+        'new'                          => 'Create new role',
+        'no_options'                   => 'No permissions found!',
+        'no_data'                      => 'No roles found!',
+        'no_data_filtered'             => 'For the filter query no roles were found!',
+        'permission_explicit'          => 'Explicit',
+        'permission_included'          => 'Included',
+        'permission_included_help'     => 'Permissions that have been selected and permissions that are included in the selected permissions.',
+        'permission_name'              => 'Name of the permissions',
+        'permissions'                  => 'Permissions',
+        'room_limit'                   => [
             'custom'     => 'Custom amount',
             'default'    => 'System default (:value)',
             'help_modal' => [
@@ -161,7 +162,6 @@ return [
                 'role_b'         => 'Role B',
                 'system_default' => 'System default',
             ],
-            'unlimited' => 'Unlimited',
         ],
         'select_roles'     => 'Please select at least one role',
         'tile_description' => 'The roles assign permissions, organise the users and define the maximum number of rooms per user.',
@@ -170,6 +170,10 @@ return [
     'room_types' => [
         'allow_listing'             => 'Room search allowed',
         'allow_listing_description' => 'In the room settings the rooms can be made visible for the room search.',
+        'allow_record_attendance'   => 'Allow attendance recording',
+        'require_access_code'       => 'Access code required',
+        'max_duration'              => 'Maximum duration',
+        'max_participants'          => 'Maximum number of participants',
         'color'                     => 'Color',
         'custom_color'              => 'Custom color',
         'delete'                    => [
@@ -183,6 +187,7 @@ return [
         'edit'                    => 'Edit room type :name',
         'new'                     => 'Create new room type',
         'no_data'                 => 'No room types found!',
+        'no_data_filtered'        => 'For the filter query no room types were found!',
         'preview'                 => 'Preview',
         'restrict'                => 'Restrict usage',
         'restrict_description'    => 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
@@ -284,7 +289,6 @@ return [
             'invalid_mime' => 'The file format is not supported. Please select a jpg or png file.',
             'save'         => 'Confirm',
             'title'        => 'Profile picture',
-            'undo_delete'  => 'Undo deletion',
             'upload'       => 'Upload new picture',
         ],
         'new'                    => 'Create new user',

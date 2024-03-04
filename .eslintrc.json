@@ -6,8 +6,7 @@
      "vitest-globals/env":true
   },
   "extends":[
-     "plugin:vue/essential",
-     // "plugin:vue/recommended",
+      "plugin:vue/vue3-essential",
      "standard",
      "plugin:jsonc/base",
      "plugin:vitest-globals/recommended"
@@ -75,13 +74,7 @@
         }
      ],
      "vue/custom-event-name-casing":[
-        "error",
-        "kebab-case",
-        {
-           "ignores":[
-              "/^bv::.*$/u"
-           ]
-        }
+        "error"
      ]
   },
   "settings":{

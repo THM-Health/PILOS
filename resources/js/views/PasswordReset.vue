@@ -1,171 +1,124 @@
 <template>
   <div class="container">
-    <div class="row mt-4 mb-5">
-      <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
-        <b-card
-          no-body
-          bg-variant="light"
-        >
-          <div class="m-3">
-            <h5>{{ welcome ? $t('auth.input_new_password_new_user') : $t('auth.input_new_password') }}</h5>
-            <b-form @submit.prevent="submit">
-              <b-form-group
-                label-cols-sm="3"
-                :label="$t('auth.new_password')"
-                label-for="password"
-                :state="fieldState('password')"
-              >
-                <b-form-input
-                  id="password"
+    <div class="grid mt-4 mb-5">
+      <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
+        <Card>
+          <template #title> {{ welcome ? $t('auth.input_new_password_new_user') : $t('auth.input_new_password') }} </template>
+          <template #content>
+            <form @submit.prevent="submit">
+              <div class="flex flex-column gap-2">
+                <label for="new_password">{{ $t('auth.new_password') }}</label>
+                <InputText
+                  id="new_password"
                   v-model="password"
                   type="password"
                   required
-                  :state="fieldState('password')"
                   :disabled="loading"
+                  class="w-full"
+                  :invalid="formErrors.fieldInvalid('password')"
                 />
+                <p class="p-error" v-html="formErrors.fieldError('password')" />
+              </div>
 
-                <template #invalid-feedback>
-                  <div v-html="fieldError('password')" />
-                </template>
-              </b-form-group>
-              <b-form-group
-                label-cols-sm="3"
-                :label="$t('auth.new_password_confirmation')"
-                label-for="password_confirmation"
-                :state="fieldState('password_confirmation')"
-              >
-                <b-form-input
+              <div class="flex flex-column gap-2">
+                <label for="password_confirmation">{{ $t('auth.new_password_confirmation') }}</label>
+                <InputText
                   id="password_confirmation"
-                  v-model="password_confirmation"
+                  v-model="passwordConfirmation"
                   type="password"
                   required
-                  :state="fieldState('password_confirmation')"
                   :disabled="loading"
+                  class="w-full"
+                  :invalid="formErrors.fieldInvalid('password_confirmation')"
                 />
+                <p class="p-error" v-html="formErrors.fieldError('password_confirmation')" />
+              </div>
 
-                <template #invalid-feedback>
-                  <div v-html="fieldError('password_confirmation')" />
-                </template>
-              </b-form-group>
+              <p class="p-error my-2" v-html="formErrors.fieldError('email')" />
+              <p class="p-error my-2" v-html="formErrors.fieldError('token')" />
 
-              <b-form-invalid-feedback v-if="fieldState('email') === false">
-                <template>
-                  {{ fieldError('email') }}
-                </template>
-              </b-form-invalid-feedback>
-
-              <b-form-invalid-feedback v-if="fieldState('token') === false">
-                <template>
-                  {{ fieldError('token') }}
-                </template>
-              </b-form-invalid-feedback>
-
-              <b-button
+              <Button
                 type="submit"
-                variant="primary"
                 :disabled="loading"
-                block
-              >
-                <b-spinner
-                  v-if="loading"
-                  small
-                />
-                {{ welcome ? $t('auth.set_password') : $t('auth.change_password') }}
-              </b-button>
-            </b-form>
-          </div>
-        </b-card>
+                :loading="loading"
+                :label="welcome ? $t('auth.set_password') : $t('auth.change_password')"
+              />
+            </form>
+          </template>
+        </Card>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import FieldErrors from '@/mixins/FieldErrors';
-import Base from '@/api/base';
+<script setup>
 import env from '@/env';
-import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
+import { ref } from 'vue';
+import { useApi } from '../composables/useApi.js';
+import { useFormErrors } from '../composables/useFormErrors.js';
+import { useToast } from '../composables/useToast.js';
+import { useRouter } from 'vue-router';
 
-export default {
-  mixins: [FieldErrors],
-
-  props: {
-    token: {
-      type: String,
-      default: null
-    },
-
-    email: {
-      type: String,
-      default: null
-    },
-
-    welcome: {
-      type: Boolean,
-      default: false
-    }
+const props = defineProps({
+  token: {
+    type: String,
+    default: null
   },
 
-  data () {
-    return {
-      loading: false,
-      errors: {},
-      password: null,
-      password_confirmation: null
-    };
+  email: {
+    type: String,
+    default: null
   },
 
-  computed: {
-    ...mapState(useAuthStore, ['currentUser'])
-  },
-
-  methods: {
-
-    ...mapActions(useAuthStore, ['getCurrentUser']),
-
-    /**
-     * Sends a request with a new password to set for the given email through the query parameters
-     * in the url. If an error occurs a flash message will be shown. Otherwise if the reset is
-     * successful, the current user is requested on the server and the locale of the frontend
-     * gets updated with the locale of the current user.
-     *
-     * @return {Promise<void>}
-     */
-    async submit () {
-      this.loading = true;
-      const config = {
-        method: 'post',
-        data: {
-          email: this.email,
-          token: this.token,
-          password: this.password,
-          password_confirmation: this.password_confirmation
-        }
-      };
-
-      try {
-        const response = await Base.call('password/reset', config, true);
-
-        this.toastSuccess(response.data.message);
-
-        await this.getCurrentUser();
-
-        await this.$router.push({ name: 'home' });
-      } catch (error) {
-        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.errors = error.response.data.errors;
-        } else {
-          Base.error(error, this.$root, error.message);
-        }
-      } finally {
-        this.loading = false;
-      }
-    }
+  welcome: {
+    type: Boolean,
+    default: false
   }
-};
+});
+
+const loading = ref(false);
+const password = ref(null);
+const passwordConfirmation = ref(null);
+
+const api = useApi();
+const formErrors = useFormErrors();
+const authStore = useAuthStore();
+const toast = useToast();
+const router = useRouter();
+
+/**
+ * Sends a request with a new password to set for the given email through the query parameters
+ * in the url. If an error occurs a flash message will be shown. Otherwise if the reset is
+ * successful, the current user is requested on the server and the locale of the frontend
+ * gets updated with the locale of the current user.
+ */
+function submit () {
+  loading.value = true;
+  formErrors.clear();
+
+  const config = {
+    method: 'post',
+    data: {
+      email: props.email,
+      token: props.token,
+      password: password.value,
+      password_confirmation: passwordConfirmation.value
+    }
+  };
+
+  api.call('password/reset', config, true).then(async (response) => {
+    toast.success(response.data.message);
+    await authStore.getCurrentUser();
+    await router.push({ name: 'home' });
+  }).catch(error => {
+    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+      formErrors.set(error.response.data.errors);
+    } else {
+      api.error(error);
+    }
+  }).finally(() => {
+    loading.value = false;
+  });
+}
 </script>
-
-<style scoped>
-
-</style>

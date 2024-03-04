@@ -26,7 +26,8 @@ class ServerPoolController extends Controller
      */
     public function index(Request $request)
     {
-        $resource = ServerPool::withCount('servers');
+        $additionalMeta = [];
+        $resource       = ServerPool::withCount('servers');
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');
@@ -37,13 +38,16 @@ class ServerPoolController extends Controller
             }
         }
 
+        // count all before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
+
         if ($request->has('name')) {
             $resource = $resource->withName($request->query('name'));
         }
 
         $resource = $resource->paginate(setting('pagination_page_size'));
 
-        return ServerPoolResource::collection($resource);
+        return ServerPoolResource::collection($resource)->additional($additionalMeta);
     }
 
     /**

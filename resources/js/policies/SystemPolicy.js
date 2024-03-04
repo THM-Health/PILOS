@@ -5,10 +5,10 @@ export default {
   /**
    * Returns a boolean that indicates whether the user can monitor the system or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  monitor (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('system.monitor');
+  monitor (user) {
+    return !user ? false : user.permissions.includes('system.monitor');
   }
 };

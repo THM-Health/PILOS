@@ -1,513 +1,425 @@
 <template>
-  <b-container class="mt-3 mb-5">
+  <div class="container mt-3 mb-5">
     <!--  heading and option to add new rooms-->
-    <b-row class="mb-3">
-      <b-col>
-        <h2>
-          {{ $t('rooms.index.rooms') }}
-        </h2>
-      </b-col>
-      <can
-        method="create"
-        policy="RoomPolicy"
-      >
-        <b-col
-          cols="6"
-          md="6"
-          xl="3"
-        >
-          <new-room-component
-            :disabled="limitReached"
-            @limit-reached="onReachLimit"
-          />
-          <b-badge
-            v-if="showLimit"
-            ref="room-limit"
-            class="float-right w-100"
-          >
-            {{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}
-          </b-badge>
-        </b-col>
-      </can>
-    </b-row>
-    <hr>
+    <div class="flex justify-content-between">
+      <div>
+        <h1 class="m-0 text-color text-3xl">
+          {{ $t('app.rooms') }}
+        </h1>
+      </div>
+      <div v-if="userPermissions.can('create', 'RoomPolicy')" class="flex align-items-end gap-2 flex-column">
+        <RoomCreateComponent
+          :disabled="limitReached"
+          @limit-reached="onReachLimit"
+        />
+        <Tag v-if="showLimit" severity="info" class="w-full" >
+          {{ $t('rooms.room_limit',{has:rooms.meta.total_own,max: authStore.currentUser.room_limit}) }}
+        </Tag>
+      </div>
+    </div>
+    <Divider />
+
     <!--  search, sorting, favorite-->
-    <b-row>
-      <b-col md="4">
+    <div class="grid">
+      <div class="col-12 md:col-4">
         <!--search-->
-        <b-input-group class="mb-2">
-          <b-form-input
+        <InputGroup class="mb-2">
+          <InputText
             ref="search"
             v-model="rawSearchQuery"
             :disabled="loadingRooms"
             :placeholder="$t('app.search')"
-            @change="loadRooms(1)"
+            @keyup.enter="loadRooms(1)"
           />
-          <b-input-group-append>
-            <b-button
-              v-tooltip-hide-click
-              v-b-tooltip.hover
-              :disabled="loadingRooms"
-              variant="primary"
-              :title="$t('app.search')"
-              @click="loadRooms(1)"
-            >
-              <i class="fa-solid fa-magnifying-glass" />
-            </b-button>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
-      <b-col
-        md="8"
-        class="d-flex justify-content-end flex-column-reverse flex-md-row "
+          <Button
+            icon="fa-solid fa-magnifying-glass"
+            @click="loadRooms(1)"
+            :disabled="loadingRooms"
+            v-tooltip="$t('app.search')"
+          />
+        </InputGroup>
+      </div>
+      <div
+        class="col-12 md:col-8 flex justify-content-end flex-column-reverse md:flex-row align-items-start gap-2"
       >
-        <!--dropdown for sorting type (on small devices only shown, when filter menu is open)-->
-        <b-dropdown
-          :disabled="loadingRooms"
-          variant="secondary"
-          class="mb-2"
-          :class="toggleMobileMenu?'':'d-none d-md-flex'"
-          style="width: 14rem"
-          menu-class="w-100"
-          no-caret
-        >
-          <template #button-content>
-            <div class="d-flex justify-content-between">
-              <div>
-                <small class="fa-solid fa-sort mr-1" />
-                <span v-if="selectedSortingType==='last_started'">  {{ $t('rooms.index.sorting.last_started') }}</span>
-                <span v-if="selectedSortingType==='alpha'">  {{ $t('rooms.index.sorting.alpha') }}</span>
-                <span v-if="selectedSortingType==='room_type'">  {{ $t('rooms.index.sorting.room_type') }}</span>
-              </div>
-              <div>
-                <small class="fa-solid fa-chevron-down ml-1" />
-              </div>
-            </div>
-          </template>
-
-          <b-dropdown-item disabled>
-            {{ $t('rooms.index.sorting.select_sorting') }}
-          </b-dropdown-item>
-          <b-dropdown-item @click="changeSortingOption('last_started')">
-            {{ $t('rooms.index.sorting.last_started') }}
-          </b-dropdown-item>
-          <b-dropdown-item @click="changeSortingOption('alpha')">
-            {{ $t('rooms.index.sorting.alpha') }}
-          </b-dropdown-item>
-          <b-dropdown-item @click="changeSortingOption('room_type')">
-            {{ $t('rooms.index.sorting.room_type') }}
-          </b-dropdown-item>
-        </b-dropdown>
-
-        <div class="d-flex justify-content-start mb-2">
+        <div class="flex justify-content-start gap-2">
           <!--button to open filter menu on small devices-->
-          <b-button
-            class="d-block d-md-none"
-            :variant="toggleMobileMenu?'primary':'secondary'"
+          <Button
+            class="block md:hidden"
+            :severity="toggleMobileMenu?'primary':'secondary'"
             @click="toggleMobileMenu=!toggleMobileMenu"
-          >
-            <small class="fa-solid fa-filter" /> {{ $t('rooms.index.filter') }}
-          </b-button>
+            icon="fa-solid fa-filter"
+            :label="$t('rooms.index.filter')"
+          />
 
           <!--only favorites button-->
-          <b-button
-            :variant="onlyShowFavorites?'primary':'secondary'"
+          <Button
+            :severity="onlyShowFavorites?'primary':'secondary'"
             :disabled="loadingRooms"
-            class="ml-1"
             @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);"
-          >
-            <small class="fa-solid fa-star" /> <span>{{ $t('rooms.index.only_favorites') }}</span>
-          </b-button>
+            icon="fa-solid fa-star"
+            :label="$t('rooms.index.only_favorites')"
+          />
         </div>
-      </b-col>
-    </b-row>
+      </div>
+    </div>
 
     <!--filter checkboxes (on small devices only shown, when filter menu is open)-->
-    <b-row
-      class="mb-2"
-      :class="toggleMobileMenu?'':'d-none d-md-flex'"
+    <div class="flex-column xl:flex-row gap-2 justify-content-between"
+      :class="toggleMobileMenu?'flex':'hidden md:flex'"
     >
-      <b-col
-        md="9"
-        class="d-flex align-items-center"
-      >
-        <b-form-group
-          class="mb-2 mt-2"
-          :disabled="loadingRooms || onlyShowFavorites"
+      <div class="flex flex-wrap flex-shrink-0 gap-1">
+        <ToggleButton
+          v-model="roomFilterAll"
+          @change="loadRooms(1)"
+          v-if="!onlyShowFavorites && userPermissions.can('viewAll', 'RoomPolicy')"
+          :on-label="$t('rooms.index.show_all')"
+          :off-label="$t('rooms.index.show_all')"
+          class="border-1 border-300 border-round"
+          :pt="{
+            box: {
+              class: 'bg-white'
+            }
+          }"
         >
-          <b-form-checkbox
-            v-model="filter.own"
-            inline
-            switch
-            @change="toggleCheckbox"
-          >
-            {{ $t('rooms.index.show_own') }}
-          </b-form-checkbox>
+        </ToggleButton>
+        <SelectButton
+          v-if="!roomFilterAll && !onlyShowFavorites"
+          v-model="roomFilter"
+          :options="filterOptions"
+          :disabled="onlyShowFavorites"
+          optionLabel="name"
+          optionValue="value"
+          multiple
+          @change="loadRooms(1)"
+          class="border-1 border-300 border-round"
+          :pt="{
+            button: {
+              class: 'bg-white'
+            }
+          }"
+        />
 
-          <b-form-checkbox
-            v-model="filter.shared"
-            inline
-            switch
-            @change="toggleCheckbox"
-          >
-            {{ $t('rooms.index.show_shared') }}
-          </b-form-checkbox>
-
-          <b-form-checkbox
-            v-model="filter.public"
-            inline
-            switch
-            @change="toggleCheckbox"
-          >
-            {{ $t('rooms.index.show_public') }}
-          </b-form-checkbox>
-
-          <can
-            method="viewAll"
-            policy="RoomPolicy"
-          >
-            <b-form-checkbox
-              v-model="filter.all"
-              inline
-              switch
-              @change="toggleCheckboxAll"
-            >
-              {{ $t('rooms.index.show_all') }}
-            </b-form-checkbox>
-          </can>
-        </b-form-group>
-      </b-col>
-      <b-col
-        md="3"
-        class="h-100"
-      >
+      </div>
+      <div class="flex flex-column md:flex-row align-items-start gap-2">
         <!-- room type select (on small devices only shown, when filter menu is open)-->
-        <b-input-group>
-          <b-input-group-prepend
+        <InputGroup v-if="!onlyShowFavorites">
+          <InputGroupAddon>
+            <i class="fa-solid fa-tag"></i>
+          </InputGroupAddon>
+          <InputGroupAddon
             v-if="roomTypesLoadingError"
-            class="flex-grow-1"
+            class="flex-grow-1 p-0"
             style="width: 1%"
           >
-            <b-alert
-              class="mb-0 w-100"
-              show
-              variant="danger"
+            <InlineMessage
+              severity="error"
+              class="w-full"
             >
               {{ $t('rooms.room_types.loading_error') }}
-            </b-alert>
-          </b-input-group-prepend>
-          <b-form-select
+            </InlineMessage>
+          </InputGroupAddon>
+          <Dropdown
             v-else
             v-model="selectedRoomType"
-            class="float-right"
             :disabled="loadingRooms||roomTypesBusy||onlyShowFavorites"
             @change="loadRooms(1)"
+            :placeholder="$t('rooms.room_types.all')"
+            :options="roomTypes"
+            showClear
+            optionLabel="name"
+            optionValue="id"
           >
-            <b-form-select-option
-              disabled
-              value="-1"
-            >
-              {{ $t('rooms.room_types.select_type') }}
-            </b-form-select-option>
-            <b-form-select-option :value="null">
-              {{ $t('rooms.room_types.all') }}
-            </b-form-select-option>
-            <b-form-select-option
-              v-for="roomType in roomTypes"
-              :key="roomType.id"
-              :value="roomType.id"
-            >
-              {{ roomType.description }}
-            </b-form-select-option>
-          </b-form-select>
-          <b-input-group-append>
-            <!-- reload the room types -->
-            <b-button
-              v-b-tooltip.hover
-              v-tooltip-hide-click
+            <template #clearicon="{ clearCallback }">
+              <span class="p-dropdown-clear" role="button" @click.stop="clearCallback">
+                <i class="fa-solid fa-times"/>
+              </span>
+            </template>
+          </Dropdown>
+          <!-- reload the room types -->
+          <Button
+              v-if="roomTypesLoadingError"
+              v-tooltip="$t('rooms.room_types.reload')"
               :disabled="roomTypesBusy||onlyShowFavorites"
-              variant="outline-secondary"
-              :title="$t('rooms.room_types.reload')"
+              severity="secondary"
+              outlined
               @click="loadRoomTypes"
-            >
-              <i
-                class="fa-solid fa-sync"
-                :class="{ 'fa-spin': roomTypesBusy }"
-              />
-            </b-button>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
-    </b-row>
+              icon="fa-solid fa-sync"
+              :loading="roomTypesBusy"
+          />
+        </InputGroup>
+
+        <!--dropdown for sorting type (on small devices only shown, when filter menu is open)-->
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="fa-solid fa-sort"></i>
+          </InputGroupAddon>
+          <Dropdown
+            v-model="selectedSortingType"
+            @change="loadRooms(1)"
+            :disabled="loadingRooms"
+            :options="sortingTypes"
+            optionLabel="label"
+            optionValue="type"
+          />
+        </InputGroup>
+      </div>
+    </div>
 
     <!--rooms overlay-->
-    <b-overlay
+    <OverlayComponent
+      class="mt-3"
       v-if="!showNoFilterMessage"
-      :show="loadingRooms || loadingRoomsError"
-      no-center
+      :show="loadingRoomsError && !loadingRooms"
+      :noCenter="true"
+      :opacity="0"
+      :z-index="3"
     >
       <template #overlay>
-        <div class="text-center mt-5">
-          <b-spinner v-if="loadingRooms" />
-          <b-button
+        <div class="text-center py-8">
+          <i class="fa-solid fa-circle-notch fa-spin text-3xl" v-if="loadingRooms"  />
+          <Button
             v-else
-            ref="reload"
             @click="reload()"
           >
-            <i class="fa-solid fa-sync" /> {{ $t('app.reload') }}
-          </b-button>
+            <i class="fa-solid fa-sync mr-2" /> {{ $t('app.reload') }}
+          </Button>
         </div>
       </template>
 
-      <!--show room skeleton if there is an error while no rooms are displayed-->
-      <div v-if="(loadingRoomsError && (!rooms || rooms.data.length===0))">
-        <b-row
-          cols="1"
-          cols-sm="2"
-          cols-md="2"
-          cols-lg="3"
-        >
-          <b-col
-            v-for="i in 3"
+      <!--show room skeleton during loading or error-->
+      <div v-if="loadingRooms || loadingRoomsError">
+        <div class="grid p-1">
+          <div
+            class="col-12 md:col-6 lg:col-4 p-2"
+            v-for="i in rooms?.data?.length || 3"
             :key="i"
           >
-            <RoomSkeletonComponent />
-          </b-col>
-        </b-row>
+            <RoomCardSkeleton :animation="loadingRooms ? 'wave' : (loadingRoomsError ? 'none' : null)" />
+          </div>
+        </div>
       </div>
 
       <!--rooms and pagination-->
-      <div v-if="rooms">
-        <div
-          v-if="!loadingRooms && !loadingRoomsError"
-          class="text-center mt-3"
-        >
-          <em v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </em>
-          <em v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
-          <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</em>
+      <div v-if="rooms && !loadingRooms && !loadingRoomsError">
+        <div class="text-center">
+          <InlineMessage severity="info" v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
+          <InlineMessage severity="info" v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
+          <InlineMessage severity="info" v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
         </div>
-        <b-row
-          cols="1"
-          cols-sm="2"
-          cols-md="2"
-          cols-lg="3"
-          class="p-1"
-        >
-          <b-col
+        <div class="grid p-1">
+          <div
+            class="col-12 md:col-6 lg:col-4 p-2"
             v-for="room in rooms.data"
             :key="room.id"
-            class="p-2"
           >
-            <room-card-component
+            <RoomCard
               :room="room"
               @favorites-changed="loadRooms()"
             />
-          </b-col>
-        </b-row>
-        <b-pagination
-          v-if="rooms.meta.last_page !== 1"
+          </div>
+        </div>
+        <Paginator
+          :alwaysShow="false"
           v-model="rooms.meta.current_page"
           class="mt-4"
-          :total-rows="rooms.meta.total"
-          :per-page="rooms.meta.per_page"
-          @change="loadRooms"
+          :totalRecords="rooms.meta.total"
+          :rows="rooms.meta.per_page"
+          :template="{
+            '576px': 'FirstPageLink PrevPageLink NextPageLink LastPageLink',
+            default: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
+          }"
+          :pt="{
+            root: {
+              class: 'bg-transparent'
+            },
+            pageButton: ({ props, state, context }) => ({
+                class: context.active ? 'bg-primary' : undefined
+            })
+          }"
+          @page="(event) => loadRooms(event.page+1)"
         />
       </div>
-    </b-overlay>
+    </OverlayComponent>
     <div
       v-else
       class="text-center mt-3"
     >
-      <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
+      <InlineMessage severity="error">{{ $t('rooms.index.no_rooms_selected') }}</InlineMessage>
       <br>
-      <b-button
+      <Button
+        class="mt-2"
         ref="reset"
         @click="resetRoomFilter"
-      >
-        {{ $t('rooms.index.reset_filter') }}
-      </b-button>
+        :label="$t('rooms.index.reset_filter')"
+        icon="fa-solid fa-rotate-left"
+      />
     </div>
-  </b-container>
+  </div>
 </template>
 
-<script>
+<script setup>
 
-import RoomCardComponent from '@/components/Room/RoomCardComponent.vue';
-import NewRoomComponent from '@/components/Room/NewRoomComponent.vue';
-import Base from '@/api/base';
-import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
-import RoomSkeletonComponent from '@/components/Room/RoomSkeletonComponent.vue';
-import Can from '@/components/Permissions/Can.vue';
+import { onMounted, ref, computed } from 'vue';
+import { useApi } from '@/composables/useApi.js';
+import { useI18n } from 'vue-i18n';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 
-export default {
-  components: {
-    RoomSkeletonComponent,
-    RoomCardComponent,
-    NewRoomComponent,
-    Can
-  },
-  computed: {
+const authStore = useAuthStore();
+const api = useApi();
+const { t } = useI18n();
+const userPermissions = useUserPermissions();
 
-    ...mapState(useAuthStore, ['currentUser']),
+const toggleMobileMenu = ref(false);
+const loadingRooms = ref(false);
+const loadingRoomsError = ref(false);
+const rooms = ref(null);
+const rawSearchQuery = ref('');
 
-    showLimit: function () {
-      return this.currentUser && this.currentUser.room_limit !== -1 && this.rooms !== null;
+const roomFilter = ref(['own', 'shared']);
+const roomFilterAll = ref(false);
+
+const showNoFilterMessage = ref(false);
+const onlyShowFavorites = ref(false);
+const selectedRoomType = ref(null);
+const selectedSortingType = ref('last_started');
+const roomTypes = ref([]);
+const roomTypesBusy = ref(false);
+const roomTypesLoadingError = ref(false);
+
+const showLimit = computed(() => {
+  return authStore.currentUser && authStore.currentUser.room_limit !== -1 && rooms.value !== null;
+});
+
+const limitReached = computed(() => {
+  return authStore.currentUser && authStore.currentUser.room_limit !== -1 && rooms.value !== null && rooms.value.meta.total_own >= authStore.currentUser.room_limit;
+});
+
+// t('rooms.index.sorting.select_sorting')
+
+const sortingTypes = computed(() => {
+  return [
+    {
+      type: 'last_started',
+      label: t('rooms.index.sorting.last_started')
     },
-    limitReached: function () {
-      return this.currentUser && this.currentUser.room_limit !== -1 && this.rooms !== null && this.rooms.meta.total_own >= this.currentUser.room_limit;
+    {
+      type: 'alpha',
+      label: t('rooms.index.sorting.alpha')
+    },
+    {
+      type: 'room_type',
+      label: t('rooms.index.sorting.room_type')
     }
-  },
-  mounted: function () {
-    this.reload();
-  },
-  methods: {
+  ];
+});
 
-    ...mapActions(useAuthStore, ['getCurrentUser']),
+onMounted(() => {
+  reload();
+});
 
-    /**
+/**
      * Handle event from new room component that the limit was reached
      */
-    onReachLimit () {
-      this.getCurrentUser();
-      this.loadRooms();
-    },
-    /**
-     * Loads the listed rooms
-     * Change sorting type to the type that was selected in the dropdown
-     * @param newOption
-     */
-    changeSortingOption (newOption) {
-      this.selectedSortingType = newOption;
-      this.loadRooms(1);
-    },
+function onReachLimit () {
+  authStore.getCurrentUser();
+  loadRooms();
+}
 
-    /**
-     * Check all checkboxes if the checkbox for all rooms is checked
-     */
-    toggleCheckboxAll () {
-      if (this.filter.all) {
-        this.filter.own = true;
-        this.filter.public = true;
-        this.filter.shared = true;
-      }
-      this.loadRooms(1);
+const filterOptions = computed(() => {
+  return [
+    {
+      name: t('rooms.index.show_own'),
+      value: 'own'
     },
+    {
+      name: t('rooms.index.show_shared'),
+      value: 'shared'
+    },
+    {
+      name: t('rooms.index.show_public'),
+      value: 'public'
+    }
+  ];
+});
 
-    /**
-     * Uncheck the checkbox for all rooms if one checkbox is unchecked
-     * @param checked
-     */
-    toggleCheckbox (checked) {
-      if (this.filter.all) {
-        if (!checked) {
-          this.filter.all = false;
-        }
-      }
-      this.loadRooms(1);
-    },
-    /**
-     * Resets the room filters and reloads the rooms
-     */
-    resetRoomFilter () {
-      this.filter.own = true;
-      this.filter.shared = true;
-      this.selectedRoomType = null;
-      this.loadRooms(1);
-    },
-    /**
-     *  Reload rooms
-     */
-    reload () {
-      this.loadRoomTypes();
-      this.loadRooms();
-    },
+/**
+ * Resets the room filters and reloads the rooms
+ */
+function resetRoomFilter () {
+  roomFilter.value = ['own', 'shared'];
+  roomFilterAll.value = false;
+  loadRooms(1);
+}
 
-    /**
+/**
+ *  Reload rooms
+ */
+function reload () {
+  loadRoomTypes();
+  loadRooms();
+}
+
+/**
      * Load the room types
      */
-    loadRoomTypes () {
-      this.roomTypesBusy = true;
+function loadRoomTypes () {
+  roomTypesBusy.value = true;
 
-      Base.call('roomTypes').then(response => {
-        this.roomTypes = response.data.data;
-        this.roomTypesLoadingError = false;
-      }).catch(error => {
-        this.roomTypesLoadingError = true;
-        Base.error(error, this);
-      }).finally(() => {
-        this.roomTypesBusy = false;
-      });
-    },
-    /**
+  api.call('roomTypes').then(response => {
+    roomTypes.value = response.data.data;
+    roomTypesLoadingError.value = false;
+  }).catch(error => {
+    roomTypesLoadingError.value = true;
+    api.error(error);
+  }).finally(() => {
+    roomTypesBusy.value = false;
+  });
+}
+
+/**
      * Load the rooms of the current user based on the given inputs
-     * @param page
      */
-    loadRooms (page = null) {
-      if (this.filter.own === false && this.filter.shared === false && this.filter.public === false && this.filter.all === false) {
-        this.showNoFilterMessage = true;
-        return;
-      }
-      this.showNoFilterMessage = false;
-      if (page === null) {
-        page = this.rooms !== null ? this.rooms.meta.current_page : 1;
-      }
-      this.loadingRooms = true;
-
-      Base.call('rooms', {
-        method: 'get',
-        params: {
-          filter_own: this.filter.own ? 1 : 0,
-          filter_shared: this.filter.shared ? 1 : 0,
-          filter_public: this.filter.public ? 1 : 0,
-          filter_all: this.filter.all ? 1 : 0,
-          only_favorites: this.onlyShowFavorites ? 1 : 0,
-          room_type: this.selectedRoomType,
-          sort_by: this.selectedSortingType,
-          search: this.rawSearchQuery.trim() !== '' ? this.rawSearchQuery.trim() : null,
-          page
-        }
-      }).then(response => {
-        // operation successful, set rooms and reset loadingRoomsError
-        this.rooms = response.data;
-        this.loadingRoomsError = false;
-        if (this.rooms.meta.current_page > 1 && this.rooms.data.length === 0) {
-          this.loadRooms(this.rooms.meta.last_page);
-        }
-      }).catch(error => {
-        // failed
-        this.loadingRoomsError = true;
-        Base.error(error, this);
-      }).finally(() => {
-        this.loadingRooms = false;
-      });
-    }
-
-  },
-  data () {
-    return {
-      toggleMobileMenu: false,
-      loadingRooms: false,
-      loadingRoomsError: false,
-      rooms: null,
-      rawSearchQuery: '',
-      filter: {
-        own: true,
-        shared: true,
-        public: false,
-        all: false
-      },
-      showNoFilterMessage: false,
-      onlyShowFavorites: false,
-      selectedRoomType: null,
-      selectedSortingType: 'last_started',
-      roomTypes: [],
-      roomTypesBusy: false,
-      roomTypesLoadingError: false
-    };
-  },
-  watch: {
-
+function loadRooms (page = null) {
+  console.log('page', page);
+  if (roomFilter.value.length === 0 && roomFilterAll.value === false) {
+    showNoFilterMessage.value = true;
+    return;
   }
-};
+  showNoFilterMessage.value = false;
+  if (page === null) {
+    page = rooms.value !== null ? rooms.value.meta.current_page : 1;
+  }
+  loadingRooms.value = true;
+
+  api.call('rooms', {
+    method: 'get',
+    params: {
+      filter_own: roomFilter.value.includes('own') ? 1 : 0,
+      filter_shared: roomFilter.value.includes('shared') ? 1 : 0,
+      filter_public: roomFilter.value.includes('public') ? 1 : 0,
+      filter_all: roomFilterAll.value ? 1 : 0,
+      only_favorites: onlyShowFavorites.value ? 1 : 0,
+      room_type: selectedRoomType.value,
+      sort_by: selectedSortingType.value,
+      search: rawSearchQuery.value.trim() !== '' ? rawSearchQuery.value.trim() : null,
+      page
+    }
+  }).then(response => {
+    // operation successful, set rooms and reset loadingRoomsError
+    rooms.value = response.data;
+    loadingRoomsError.value = false;
+    if (rooms.value.meta.current_page > 1 && rooms.value.data.length === 0) {
+      loadRooms(rooms.value.meta.last_page);
+    }
+  }).catch(error => {
+    // failed
+    loadingRoomsError.value = true;
+    api.error(error);
+  }).finally(() => {
+    loadingRooms.value = false;
+  });
+}
+
 </script>

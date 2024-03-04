@@ -44,7 +44,12 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        return UserSearch::collection(User::withName($request->get('query'))->orderBy('lastname', 'ASC')->orderBy('firstname', 'ASC')->limit(config('bigbluebutton.user_search_limit'))->get());
+        $resultCount = User::withName($request->get('query'))->count();
+        if ($resultCount > config('bigbluebutton.user_search_limit')) {
+            abort(204, 'Too many results');
+        }
+
+        return UserSearch::collection(User::withName($request->get('query'))->orderBy('lastname', 'ASC')->orderBy('firstname', 'ASC')->get());
     }
 
     /**
@@ -55,7 +60,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $resource = User::query();
+        $additionalMeta = [];
+        $resource       = User::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');
@@ -65,6 +71,9 @@ class UserController extends Controller
                 $resource = $resource->orderBy($by, $dir);
             }
         }
+
+        // count all before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         if ($request->has('role')) {
             Validator::make($request->all(), [
@@ -79,7 +88,7 @@ class UserController extends Controller
 
         $resource = $resource->paginate(setting('pagination_page_size'));
 
-        return UserResource::collection($resource);
+        return UserResource::collection($resource)->additional($additionalMeta);
     }
 
     /**

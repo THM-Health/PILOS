@@ -22,71 +22,71 @@ class RolesAndPermissionsSeeder extends Seeder
         // Check if roles already exists (not a clean installation)
         $freshInstall = Role::all()->count() == 0;
 
-        // Setup default admin role and permissions
+        // List of all permissions
+        $permissions = [
+            Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id,
+            Permission::firstOrCreate([ 'name' => 'rooms.viewAll' ])->id,
+            Permission::firstOrCreate([ 'name' => 'rooms.manage' ])->id,
 
-        $adminPermissions = [];
+            Permission::firstOrCreate([ 'name' => 'meetings.viewAny' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.viewAll' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.manage' ])->id;
+            Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'meetings.viewAny' ])->id;
+            Permission::firstOrCreate([ 'name' => 'applicationSettings.viewAny' ])->id,
+            Permission::firstOrCreate([ 'name' => 'applicationSettings.update' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
+            Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.view' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.update' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.create' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.delete' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'applicationSettings.viewAny' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'applicationSettings.update' ])->id;
+            Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id,
+            Permission::firstOrCreate([ 'name' => 'users.view' ])->id,
+            Permission::firstOrCreate([ 'name' => 'users.update' ])->id,
+            Permission::firstOrCreate([ 'name' => 'users.create' ])->id,
+            Permission::firstOrCreate([ 'name' => 'users.delete' ])->id,
+            Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.update' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.delete' ])->id;
+            Permission::firstOrCreate([ 'name' => 'roomTypes.view' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roomTypes.update' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roomTypes.create' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roomTypes.delete' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.update' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.delete' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ])->id;
+            Permission::firstOrCreate([ 'name' => 'servers.viewAny' ])->id,
+            Permission::firstOrCreate([ 'name' => 'servers.view' ])->id,
+            Permission::firstOrCreate([ 'name' => 'servers.update' ])->id,
+            Permission::firstOrCreate([ 'name' => 'servers.create' ])->id,
+            Permission::firstOrCreate([ 'name' => 'servers.delete' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.update' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.delete' ])->id;
+            Permission::firstOrCreate([ 'name' => 'serverPools.viewAny' ])->id,
+            Permission::firstOrCreate([ 'name' => 'serverPools.view' ])->id,
+            Permission::firstOrCreate([ 'name' => 'serverPools.update' ])->id,
+            Permission::firstOrCreate([ 'name' => 'serverPools.create' ])->id,
+            Permission::firstOrCreate([ 'name' => 'serverPools.delete' ])->id,
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.viewAny' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.update' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.delete' ])->id;
+            Permission::firstOrCreate([ 'name' => 'system.monitor' ])->id
+        ];
 
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.viewAny' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.update' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.delete' ])->id;
-
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'system.monitor' ])->id;
-
-        $adminRole = Role::where(['name' => 'admin', 'default' => true])->first();
-        if ($adminRole == null) {
-            $adminRole = Role::create([ 'name' => 'admin', 'default' => true, 'room_limit' => -1 ]);
+        // Setup superuser role and give all permissions
+        $superuserRole = Role::where(['superuser' => true])->first();
+        if ($superuserRole == null) {
+            $superuserRole = Role::create([ 'name' => 'Superuser', 'superuser' => true, 'room_limit' => -1 ]);
         }
-        $adminRole->permissions()->syncWithoutDetaching($adminPermissions);
+        $superuserRole->permissions()->syncWithoutDetaching($permissions);
 
 
         // Setup default user role and permissions on fresh installation
         if($freshInstall) {
-            $userRole = Role::create([ 'name' => 'user']);
+            $userRole = Role::create([ 'name' => 'User']);
 
-            $userPermissions = [];
-            $userPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
-            $userRole->permissions()->syncWithoutDetaching($userPermissions);
+            $userDefaultPermissions = [];
+            $userDefaultPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
+            $userRole->permissions()->syncWithoutDetaching($userDefaultPermissions);
         }
 
         // Remove non-existing permissions
-        Permission::whereNotIn('id', $adminPermissions)->delete();
+        Permission::whereNotIn('id', $permissions)->delete();
 
         // Setup permission inheritances
         /// e.g. If you have permission x, you also get the permissions a,b,c

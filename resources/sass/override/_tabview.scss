@@ -1,0 +1,38 @@
+.p-tabview {
+    .p-tabview-ink-bar {
+        display: none !important;
+    }
+
+    .p-tabview-header {
+        border-bottom: 3px solid #e2e8f0;
+
+        &.p-highlight {
+            border-bottom: 3px solid $primaryColor;
+        }
+    }
+
+    .p-tabview-nav {
+        display: flex;
+        flex-wrap: wrap;
+
+        border: none;
+
+        li {
+            flex-grow: 1;
+            text-align: center;
+            display: flex;
+
+            .p-tabview-nav-link {
+                border: none;
+            }
+
+            a {
+                flex-grow: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+            }
+        }
+    }
+}

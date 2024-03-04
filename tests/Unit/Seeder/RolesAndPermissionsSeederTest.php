@@ -28,10 +28,10 @@ class RolesAndPermissionsSeederTest extends TestCase
     public function testCleanInstall()
     {
         // Check if admin role has all permissions
-        $this->assertCount(Permission::all()->count(), Role::where('name', 'admin')->first()->permissions);
+        $this->assertCount(Permission::all()->count(), Role::where('name', 'superuser')->where('superuser', true)->first()->permissions);
 
         // Check if user role has create room permission
-        $this->assertTrue(Role::where('name', 'user')->first()->permissions->contains('name', 'rooms.create'));
+        $this->assertTrue(Role::where('name', 'user')->where('superuser', false)->first()->permissions->contains('name', 'rooms.create'));
     }
 
     /**

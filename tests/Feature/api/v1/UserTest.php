@@ -62,7 +62,7 @@ class UserTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.users.index'))->assertForbidden();
 
         // Authenticated user with permission
-        $role = Role::factory()->create(['default' => true]);
+        $role = Role::factory()->create();
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ]);
         $role->permissions()->attach($permission->id);
@@ -176,8 +176,8 @@ class UserTest extends TestCase
 
     public function testSearch()
     {
-        $page_size = 5;
-        config(['bigbluebutton.user_search_limit' => $page_size]);
+        $searchLimit = 5;
+        config(['bigbluebutton.user_search_limit' => $searchLimit]);
 
         $users   = [];
         $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname'  => 'Dumas']);
@@ -190,29 +190,25 @@ class UserTest extends TestCase
         // Unauthenticated user
         $this->getJson(route('api.v1.users.search'))->assertUnauthorized();
 
-        // Test without query and order asc lastname and asc firstname
-        $result = $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+        // Test without query and order, too many results
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+            ->assertNoContent();
+
+        // Test with query and order, too many results
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=a')
+            ->assertNoContent();
+
+        // Check with lastname query
+        $result = $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun')
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[4]->firstname)
-            ->assertJsonPath('data.0.lastname', $users[4]->lastname)
-            ->assertJsonPath('data.0.email', $users[4]->email)
             ->assertJsonPath('data.1.firstname', $users[5]->firstname)
-            ->assertJsonPath('data.2.firstname', $users[0]->firstname)
-            ->assertJsonPath('data.3.firstname', $users[2]->firstname)
-            ->assertJsonPath('data.4.firstname', $users[1]->firstname)
-            ->assertJsonCount($page_size, 'data');
+            ->assertJsonCount(2, 'data');
 
         // check only the four attributes are returned
         foreach ($result->json('data') as $user) {
             $this->assertEquals(array_keys($user), ['id','firstname','lastname','email']);
         }
-
-        // Check with lastname query
-        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun')
-            ->assertSuccessful()
-            ->assertJsonPath('data.0.firstname', $users[4]->firstname)
-            ->assertJsonPath('data.1.firstname', $users[5]->firstname)
-            ->assertJsonCount(2, 'data');
 
         // check with multiple words
         $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun+Connie')
@@ -242,7 +238,7 @@ class UserTest extends TestCase
         $this->actingAs($user)->postJson(route('api.v1.users.store', $request))->assertForbidden();
 
         // Invalid request
-        $role = Role::factory()->create(['default' => true]);
+        $role = Role::factory()->create();
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
         $role->permissions()->attach($permission->id);
@@ -773,7 +769,7 @@ class UserTest extends TestCase
         $user  = User::factory()->create([ 'email' => $email ]);
 
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first());
+        $admin->roles()->attach(Role::where('superuser', true)->first());
 
         $newEmail = $this->faker->email;
         $changes  = [
@@ -954,7 +950,7 @@ class UserTest extends TestCase
 
         // Create admin user
         $admin = User::factory()->create();
-        $admin->roles()->attach(Role::where('name', 'admin')->first());
+        $admin->roles()->attach(Role::where('superuser', true)->first());
 
         $changes = [];
 
@@ -1057,7 +1053,7 @@ class UserTest extends TestCase
         ]);
 
         $user       = User::factory()->create(['locale' => 'de', 'timezone' => 'Europe/Berlin' ,'bbb_skip_check_audio' => false]);
-        $role       = Role::factory()->create(['default' => true]);
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach([$user->id]);
@@ -1174,7 +1170,7 @@ class UserTest extends TestCase
             ]);
 
         // Not existing user
-        $role = Role::factory()->create(['default' => true]);
+        $role = Role::factory()->create();
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.view' ]);
         $role->permissions()->attach($permission->id);
@@ -1237,7 +1233,7 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // User other model
-        $role = Role::factory()->create(['default' => true]);
+        $role = Role::factory()->create();
         $role->users()->attach([$userToDelete->id, $user->id]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
@@ -1272,7 +1268,7 @@ class UserTest extends TestCase
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertForbidden();
 
-        $role = Role::factory()->create(['default' => true]);
+        $role = Role::factory()->create();
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
         $role->permissions()->attach($permission->id);
@@ -1314,7 +1310,7 @@ class UserTest extends TestCase
     public function testCreateUserWithGeneratedPassword()
     {
         $user = User::factory()->create();
-        $role = Role::factory()->create(['default' => true]);
+        $role = Role::factory()->create();
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
         $role->permissions()->attach($permission->id);

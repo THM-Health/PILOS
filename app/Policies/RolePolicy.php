@@ -53,7 +53,7 @@ class RolePolicy
      */
     public function update(User $user, Role $role)
     {
-        return $user->can('roles.update') && !$role->default;
+        return $user->can('roles.update');
     }
 
     /**
@@ -65,6 +65,6 @@ class RolePolicy
      */
     public function delete(User $user, Role $role)
     {
-        return $user->can('roles.delete') && !$role->default;
+        return $user->can('roles.delete') && !$role->superuser;
     }
 }

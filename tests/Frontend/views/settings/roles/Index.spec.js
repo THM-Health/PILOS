@@ -25,7 +25,7 @@ describe('RolesIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: key => key === 'app.role_lables.admin'
+        $te: key => key === 'app.role_labels.admin'
       },
       attachTo: createContainer()
     });
@@ -81,7 +81,7 @@ describe('RolesIndex', () => {
     });
     html = view.findComponent(BTbody).findComponent(BTr).html();
 
-    expect(html).toContain('app.role_lables.admin');
+    expect(html).toContain('app.role_labels.admin');
     expect(html).toContain('app.yes');
     expect(html).toContain('2');
 
@@ -122,7 +122,7 @@ describe('RolesIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: key => key === 'app.role_lables.admin'
+        $te: key => key === 'app.role_labels.admin'
       },
       attachTo: createContainer()
     });
@@ -157,7 +157,7 @@ describe('RolesIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: key => key === 'app.role_lables.admin'
+        $te: key => key === 'app.role_labels.admin'
       },
       attachTo: createContainer()
     });
@@ -204,7 +204,7 @@ describe('RolesIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: key => key === 'app.role_lables.admin'
+        $te: key => key === 'app.role_labels.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -285,7 +285,7 @@ describe('RolesIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: key => key === 'app.role_lables.admin'
+        $te: key => key === 'app.role_labels.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -326,7 +326,7 @@ describe('RolesIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: key => key === 'app.role_lables.admin'
+        $te: key => key === 'app.role_labels.admin'
       },
       attachTo: createContainer()
     });

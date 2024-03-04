@@ -107,10 +107,10 @@ class RoomController extends Controller
             $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $collection = $collection->where(function ($query) use ($searchQuery) {
-                    $query->where('name', 'like', '%' . $searchQuery . '%')
+                    $query->where('rooms.name', 'like', '%' . $searchQuery . '%')
                         ->orWhereHas('owner', function ($query2) use ($searchQuery) {
-                            $query2->where('firstname', 'like', '%' . $searchQuery . '%')
-                                ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
+                            $query2->where('users.firstname', 'like', '%' . $searchQuery . '%')
+                                ->orWhere('users.lastname', 'like', '%' . $searchQuery . '%');
                         });
                 });
             }
@@ -122,7 +122,7 @@ class RoomController extends Controller
 
                 break;
             case RoomSortingType::ROOM_TYPE:
-                $collection = $collection->orderBy('room_types.description')->orderBy('rooms.name');
+                $collection = $collection->orderBy('room_types.name')->orderBy('rooms.name');
 
                 break;
             case RoomSortingType::LAST_STARTED:
@@ -230,8 +230,6 @@ class RoomController extends Controller
         $room->name             = $request->name;
         $room->welcome          = $request->welcome;
         $room->short_description= $request->short_description;
-        $room->max_participants = $request->max_participants;
-        $room->duration         = $request->duration;
         $room->access_code      = $request->access_code;
         $room->listed           = $request->listed;
 

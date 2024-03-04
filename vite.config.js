@@ -1,8 +1,12 @@
 import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue2';
+import vue from '@vitejs/plugin-vue';
 import * as fs from 'fs';
 import * as path from 'path';
+import Components from 'unplugin-vue-components/vite';
+import {
+  PrimeVueResolver
+} from 'unplugin-vue-components/resolvers';
 
 export default ({ mode }) => {
   const ENV_PREFIX = ['VITE_', 'VITEST_'];
@@ -24,11 +28,6 @@ export default ({ mode }) => {
       '@': path.resolve(__dirname, './resources/js')
     };
 
-    if (!process.env.VITEST) {
-      alias.vue = 'vue/dist/vue.esm.js';
-    } else {
-      alias.vue$ = 'vue/dist/vue.esm.js';
-    }
     return alias;
   }
 
@@ -66,7 +65,23 @@ export default ({ mode }) => {
         ],
         buildDirectory: BUILD_DIR
       }),
-      vue()
+      vue(),
+      Components({
+        dirs: ['resources/js', 'resources/custom/js'],
+        allowOverrides: true,
+        extensions: ['vue'],
+        deep: true,
+        dts: true,
+        resolvers: [
+          PrimeVueResolver(),
+          (componentName) => {
+            if (componentName === 'InputGroup') { return { from: 'primevue/inputgroup' }; }
+            if (componentName === 'InputGroupAddon') { return { from: 'primevue/inputgroupaddon' }; }
+            if (componentName === 'IconField') { return { from: 'primevue/iconfield' }; }
+            if (componentName === 'InputIcon') { return { from: 'primevue/inputicon' }; }
+          }
+        ]
+      })
     ],
     server: {
       https: getSslConfig(),
@@ -79,6 +94,9 @@ export default ({ mode }) => {
     },
     resolve: {
       alias: getAlias()
+    },
+    optimizeDeps: {
+      include: ['axe-core']
     }
   });
 };

@@ -18,7 +18,7 @@ class RoomTypeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(RoomType::class, 'roomType');
-        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withServerPool', ['only' => 'update']);
+        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withServerPool,withRoles', ['only' => 'update']);
     }
 
     /**
@@ -58,7 +58,7 @@ class RoomTypeController extends Controller
             }
         }
 
-        return RoomTypeResource::collection($roomTypes->get());
+        return RoomTypeResource::collection($roomTypes->orderBy('name')->get());
     }
 
     /**
@@ -81,10 +81,14 @@ class RoomTypeController extends Controller
      */
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
-        $roomType->description   = $request->description;
-        $roomType->color         = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
-        $roomType->restrict      = $request->restrict;
+        $roomType->name                    = $request->name;
+        $roomType->color                   = $request->color;
+        $roomType->allow_listing           = $request->allow_listing;
+        $roomType->restrict                = $request->restrict;
+        $roomType->max_participants        = $request->max_participants;
+        $roomType->max_duration            = $request->max_duration;
+        $roomType->require_access_code     = $request->require_access_code;
+        $roomType->allow_record_attendance = $request->allow_record_attendance;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {
@@ -102,11 +106,15 @@ class RoomTypeController extends Controller
      */
     public function store(RoomTypeRequest $request)
     {
-        $roomType                = new RoomType();
-        $roomType->description   = $request->description;
-        $roomType->color         = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
-        $roomType->restrict      = $request->restrict;
+        $roomType                          = new RoomType();
+        $roomType->name                    = $request->name;
+        $roomType->color                   = $request->color;
+        $roomType->allow_listing           = $request->allow_listing;
+        $roomType->restrict                = $request->restrict;
+        $roomType->max_participants        = $request->max_participants;
+        $roomType->max_duration            = $request->max_duration;
+        $roomType->require_access_code     = $request->require_access_code;
+        $roomType->allow_record_attendance = $request->allow_record_attendance;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {

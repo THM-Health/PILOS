@@ -1,55 +1,75 @@
-.multiselect.is-invalid .multiselect__tags {
-    border-color: $danger;
-}
+.multiselect--disabled{
 
-.multiselect__option--highlight {
-    background: $success;
-    color: text-color("success");
-}
-
-.multiselect__option--selected.multiselect__option--highlight {
-    background: $danger;
-    color: text-color("danger");
-}
-
-.multiselect-form-control {
-    @extend .form-control;
-    padding: 2px;
-    height: auto;
-
-    border: $input-border-width solid $input-border-color;
-    @include border-radius($input-border-radius, 0);
-    @include box-shadow($input-box-shadow);
-
-    &.is-invalid {
-        background-position: right $input-height-inner center;
-        .multiselect__tags {
-            margin-right: $input-height-inner-half;
-        }
-    }
+    opacity: 1;
 
     .multiselect__tags {
-        border: none;
-        padding: 6px 40px 6px 10px;
+        background-color: $disabledInputBg;
     }
 
-    .multiselect__single {
-        margin-bottom: 3px;
-        margin-top: 3px;
+    .p-chip-remove-icon {
+        opacity: 0.6;
     }
 
     .multiselect__select {
-        height: 42px;
-        &:before {
-            border-color: #000 transparent transparent;
+        display: none;
+    }
+}
+
+.multiselect__option--highlight {
+    background: $successButtonBg;
+    color: $successButtonTextColor;
+}
+
+.multiselect__option--selected.multiselect__option--highlight {
+    background: $dangerButtonBg;
+    color: $dangerButtonTextColor;
+}
+
+
+.multiselect{
+    &.is-invalid .multiselect__tags {
+        border-color: $inputErrorBorderColor !important;
+    }
+
+    &:focus {
+        .multiselect__tags{
+            outline: $focusOutline;
+            outline-offset: $inputFocusOutlineOffset;
+            box-shadow: $focusShadow;
+            border-color: $inputFocusBorderColor;
         }
     }
 
+    &:hover{
+        .multiselect__tags {
+            border-color: $inputHoverBorderColor;
+        }
+    }
+
+    .multiselect__tags-wrap{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .multiselect__tags{
+        border: $inputBorder;
+        border-radius: $borderRadius;
+        padding: $inputPadding;
+    }
+
+    .multiselect__single{
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        color: $inputTextColor;
+        font-size: $inputTextFontSize;
+    }
+
     .multiselect__placeholder{
-        margin-bottom: 0;
-        font-family: $input-font-family;
-        @include font-size($input-font-size);
-        font-weight: $input-font-weight;
-        color: $input-color;
+        color: $inputPlaceholderTextColor;
+        font-size: $inputTextFontSize;
+        padding: 0;
+        margin: 0;
     }
 }

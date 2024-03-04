@@ -1,48 +1,52 @@
-import { BootstrapVue } from 'bootstrap-vue';
-import Vue from 'vue';
-import { createPinia, PiniaVuePlugin } from 'pinia';
-import App from './views/App.vue';
+import { createApp, h, Fragment } from 'vue';
+import { createPinia } from 'pinia';
+import App from './components/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
-import Toast from './mixins/Toast';
-import Base from './api/base';
-import HideTooltip from './directives/hide-tooltip';
-import axios from 'axios';
-import VueRouter from 'vue-router';
+import PrimeVue from 'primevue/config';
+import Tooltip from 'primevue/tooltip';
+import StyleClass from 'primevue/styleclass';
+import ConfirmationService from 'primevue/confirmationservice';
+import Toast from './plugins/toast';
+import { useToast } from './composables/useToast';
 
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-window.axios = axios;
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-// Install BootstrapVue
-Vue.use(BootstrapVue);
-
-Vue.mixin(Toast);
-
-// Add accessibility check tools for development
-if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
-  import('vue-axe').then(({ default: VueAxe }) => Vue.use(VueAxe));
-}
-
-Vue.config.errorHandler = Base.error;
-
-Vue.directive('tooltip-hide-click', HideTooltip);
-
-Vue.use(PiniaVuePlugin);
 const pinia = createPinia();
-
-Vue.use(VueRouter);
 const router = createRouter();
+const toast = useToast();
+const { t } = i18n.global;
 
-export default new Vue({
-  el: '#app',
-  components: { App },
-  pinia,
-  router,
-  i18n
-});
+let app = null;
+
+const setupApp = (app) => {
+  app.use(pinia);
+  app.use(router);
+  app.use(i18n);
+  app.use(PrimeVue);
+  app.directive('tooltip', Tooltip);
+  app.directive('styleclass', StyleClass);
+  app.use(ConfirmationService);
+  app.use(Toast);
+
+  app.config.errorHandler = (err, vm, info) => {
+    toast.error(t('app.flash.client_error'));
+    console.error(err);
+  };
+
+  app.provide('$router', app.config.globalProperties.$router);
+  app.provide('$route', app.config.globalProperties.$route);
+
+  app.mount('#app');
+};
+
+if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
+  import('vue-axe').then((VueAxe) => {
+    app = createApp({
+      render: () => h(Fragment, [h(App), h(VueAxe.VueAxePopup)])
+    });
+    app.use(VueAxe.default);
+    setupApp(app);
+  });
+} else {
+  app = createApp(App);
+  setupApp(app);
+}

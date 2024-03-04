@@ -34,7 +34,7 @@ class Role extends JsonResource
         return [
             'id'            => $this->id,
             'name'          => $this->name,
-            'default'       => $this->default,
+            'superuser'     => $this->superuser,
             'updated_at'    => $this->updated_at,
             'permissions'   => $this->when($this->withPermissions, function () {
                 return Permission::collection($this->permissions);

@@ -25,7 +25,7 @@ return [
     'email'       => 'E-mail',
     'enable'      => 'Activer',
     'enabled'     => 'Activé',
-    'error'       => 'Une erreur est survenue !',
+    'error'       => 'Une erreur est survenue',
     'errors'      => [
         'attendance_agreement_missing' => 'Le consentement à l\'enregistrement des présences est requis.',
         'file_not_found'               => 'Le fichier n\'a pas pu être trouvé.',
@@ -84,7 +84,7 @@ return [
     'next'        => 'Suivant',
     'next_page'   => 'Page suivante',
     'no'          => 'Non',
-    'not_found'   => '404 | Cette resource n\'a pas été trouvé !',
+    'not_found'   => '404 | Cette resource n\'a pas été trouvé',
     'overwrite'   => 'Écraser',
     'permissions' => [
         'application_settings' => [
@@ -151,10 +151,6 @@ return [
     'profile'       => 'Profil',
     'reload'        => 'Recharger',
     'reset'         => 'Réinitialiser',
-    'role_lables'   => [
-        'admin' => 'Administrateur',
-        'user'  => 'Utilisateur',
-    ],
     'roles'         => 'Rôles',
     'room_limit'    => 'Limitation de salle',
     'room_types'    => 'Types de salle',
@@ -167,6 +163,8 @@ return [
     'server_pool'   => 'Groupe de serveurs',
     'server_pools'  => 'Groupes de serveurs',
     'servers'       => 'Serveurs',
+    'undo_delete'   => 'Annuler la suppression',
+    'unlimited'     => 'Illimité',
     'user'          => 'Utilisateur',
     'user_name'     => 'Nom',
     'users'         => 'Utilisateurs',

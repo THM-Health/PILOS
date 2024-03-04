@@ -1,50 +1,32 @@
 <template>
   <div class="container">
-    <div class="row mt-4 mb-5">
-      <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
-        <b-card
-          :title="$t('auth.logout')"
-          bg-variant="white"
-        >
-          <b-alert
-            v-if="message==null"
-            variant="success"
-            show
-          >
-            {{ $t('auth.logout_success') }}
-          </b-alert>
-
-          <b-alert
-            v-if="message === 'session_expired'"
-            variant="warning"
-            show
-          >
-            {{ $t('auth.session_expired') }}
-          </b-alert>
-
+    <div class="grid mt-4 mb-5">
+      <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
+        <Card>
+          <template #title> {{ $t('auth.logout') }} </template>
+          <template #content>
+            <Message v-if="props.message==null" severity="success" :closable="false" >{{ $t('auth.logout_success') }}</Message>
+            <Message v-if="props.message === 'session_expired'" severity="warning" :closable="false">{{ $t('auth.session_expired') }}</Message>
+          </template>
           <template #footer>
-            <b-button
-              variant="success"
-              block
+            <router-link
               :to="{ name: 'home'}"
+              class="p-button"
             >
               {{ $t('app.home') }}
-            </b-button>
+            </router-link>
           </template>
-        </b-card>
+        </Card>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-
-  props: {
-    message: {
-      type: String,
-      default: null
-    }
+<script setup>
+const props = defineProps({
+  message: {
+    type: String,
+    default: null
   }
-};
+});
 </script>

@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
-import auth from '@/api/auth';
-import PermissionService from '@/services/PermissionService';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
+import { useApi } from '@/composables/useApi';
 
 export const useAuthStore = defineStore('auth', {
   state: () => {
@@ -15,12 +14,22 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     login: async function (credentials, method) {
-      await auth.login(credentials, method);
+      const api = useApi();
+
+      await api.call('login/' + method, {
+        method: 'post',
+        data: credentials
+      }, true);
+
       await this.getCurrentUser();
     },
 
     async getCurrentUser () {
-      let currentUser = await auth.getCurrentUser();
+      const api = useApi();
+
+      let currentUser = await api.call('currentUser').then(response => {
+        return response.data.data;
+      });
       if (_.isEmpty(currentUser)) {
         currentUser = null;
       }
@@ -37,7 +46,11 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout () {
-      const response = await auth.logout();
+      const api = useApi();
+
+      const response = await api.call('logout', {
+        method: 'post'
+      });
 
       // logout successfull, clear current user
       this.setCurrentUser(null, false);
@@ -50,7 +63,6 @@ export const useAuthStore = defineStore('auth', {
 
     setCurrentUser (currentUser, emit = true) {
       this.currentUser = currentUser;
-      PermissionService.setCurrentUser(this.currentUser, emit);
     }
   }
 });

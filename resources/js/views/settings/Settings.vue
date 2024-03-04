@@ -1,28 +1,29 @@
 <template>
-  <b-container class="mt-3 mb-5">
-    <h2>
-      <b-button
+  <div class="container mt-3 mb-5">
+    <div class="flex flex-row align-items-center gap-4">
+      <router-link
         v-if="$route.name!=='settings'"
-        v-b-tooltip
-        class="mr-3"
-        variant="secondary"
-        :title="$t('settings.home_button')"
+        v-tooltip="$t('settings.home_button')"
+        :aria-label="$t('settings.home_button')"
+        class="p-button p-button-icon-only p-button-secondary"
         :to="{ name: 'settings'}"
       >
-        <i class="fa-solid fa-arrow-left" />
-      </b-button> {{ $t('settings.title') }}
-    </h2>
-    <hr>
-    <b-card class="p-3 border bg-white">
-      <router-view />
-    </b-card>
-  </b-container>
+        <i class="fa-solid fa-home" />
+      </router-link>
+      <h1 class="m-0 text-3xl text-color">
+        {{ $t('settings.title') }}
+      </h1>
+    </div>
+
+    <Divider/>
+    <Card
+      :pt="{content:{class:'p-0'}}"
+    >
+      <template #content>
+        <router-view :key="$route.fullPath" />
+      </template>
+    </Card>
+  </div>
 </template>
-
-<script>
-export default {
-
-};
+<script setup>
 </script>
-<style scoped>
-</style>

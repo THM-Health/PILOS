@@ -1,312 +1,130 @@
 <template>
   <div>
-    <h3>
-      {{ $t('app.room_types') }}
-      <can
-        method="create"
-        policy="RoomTypePolicy"
+    <div class="flex justify-content-between align-items-center">
+      <h2>{{ $t('app.room_types') }}</h2>
+      <router-link
+        v-if="userPermissions.can('create', 'RoomTypePolicy')"
+        v-tooltip="$t('settings.room_types.new')"
+        class="p-button p-button-success p-button-icon-only"
+        :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
       >
-        <b-button
-          v-b-tooltip.hover
-          v-tooltip-hide-click
-          class="float-right"
-          variant="success"
-          :title="$t('settings.room_types.new')"
-          :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
-        >
-          <i class="fa-solid fa-plus" />
-        </b-button>
-      </can>
-    </h3>
-    <hr>
+        <i class="fa-solid fa-plus" />
+      </router-link>
+    </div>
 
-    <b-table
-      id="roomTypes-table"
-      fixed
-      hover
-      stacked="lg"
-      show-empty
-      :busy.sync="isBusy"
-      :fields="tableFields"
-      :items="roomTypes"
-      :per-page="getSetting('pagination_page_size')"
-      :current-page="currentPage"
+    <div class="flex flex-column md:flex-row">
+      <div>
+        <InputGroup>
+          <InputText
+            v-model="nameSearch"
+            :placeholder="$t('app.search')"
+            @keyup.enter="filters['name'].value = nameSearch"
+          />
+          <Button
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            icon="fa-solid fa-magnifying-glass"
+            severity="primary"
+            @click="filters['name'].value = nameSearch"
+          />
+        </InputGroup>
+      </div>
+    </div>
+
+    <Divider/>
+
+    <DataTable
+      :value="roomTypes"
+      sort-field="name"
+      :sort-order="1"
+      paginator
+      stripedRows
+      row-hover
+      :loading="isBusy"
+      :rows="settingsStore.getSetting('pagination_page_size')"
+      v-model:filters="filters"
+      class="table-auto lg:table-fixed"
     >
       <template #empty>
-        <i>{{ $t('settings.room_types.no_data') }}</i>
+        <InlineNote v-if="roomTypes.length === 0">{{ $t('settings.room_types.no_data') }}</InlineNote>
+        <InlineNote v-else>{{ $t('settings.room_types.no_data_filtered') }}</InlineNote>
       </template>
-
-      <template #table-busy>
-        <div class="text-center my-2">
-          <b-spinner class="align-middle" />
-        </div>
-      </template>
-
-      <template #cell(description)="data">
-        <text-truncate>
-          {{ data.item.description }}
-        </text-truncate>
-      </template>
-
-      <template #cell(actions)="data">
-        <b-button-group>
-          <can
-            method="view"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              :title="$t('settings.room_types.view', { name: data.item.description })"
+      <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true">
+        <template #body="slotProps">
+          <TextTruncate>{{slotProps.data.name}}</TextTruncate>
+        </template>
+      </Column>
+      <Column field="actions" :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
+        <template #body="slotProps">
+          <div class="flex flex-row gap-2">
+            <router-link
+              v-if="userPermissions.can('view', slotProps.data)"
+              class="p-button p-button-icon-only p-button-info"
+              v-tooltip="$t('settings.room_types.view', { name: slotProps.data.name })"
+              :aria-label="$t('settings.room_types.view', { name: slotProps.data.name })"
               :disabled="isBusy"
-              variant="info"
-              :to="{ name: 'settings.room_types.view', params: { id: data.item.id }, query: { view: '1' } }"
+              :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
             >
               <i class="fa-solid fa-eye" />
-            </b-button>
-          </can>
-          <can
-            method="update"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              :title="$t('settings.room_types.edit', { name: data.item.description })"
+            </router-link>
+            <router-link
+              v-if="userPermissions.can('update', slotProps.data)"
+              class="p-button p-button-icon-only p-button-secondary"
+              v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.name })"
+              :aria-label="$t('settings.room_types.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
-              variant="secondary"
-              :to="{ name: 'settings.room_types.view', params: { id: data.item.id } }"
+              :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id } }"
             >
               <i class="fa-solid fa-edit" />
-            </b-button>
-          </can>
-          <can
-            method="delete"
-            :policy="data.item"
-          >
-            <b-button
-              v-b-tooltip.hover
-              v-tooltip-hide-click
-              :title="$t('settings.room_types.delete.item', { id: data.item.description })"
-              :disabled="isBusy"
-              variant="danger"
-              @click="showDeleteModal(data.item)"
-            >
-              <i class="fa-solid fa-trash" />
-            </b-button>
-          </can>
-        </b-button-group>
-      </template>
-    </b-table>
-
-    <b-pagination
-      v-model="currentPage"
-      :total-rows="roomTypes.length"
-      :per-page="getSetting('pagination_page_size')"
-      aria-controls="roomTypes-table"
-      align="center"
-      :disabled="isBusy"
-    />
-
-    <b-modal
-      ref="delete-roomType-modal"
-      :busy="isBusy"
-      ok-variant="danger"
-      cancel-variant="secondary"
-      :cancel-title="$t('app.no')"
-      :static="modalStatic"
-      :no-close-on-esc="isBusy"
-      :no-close-on-backdrop="isBusy"
-      :hide-header-close="isBusy"
-      @ok="deleteRoomType"
-      @cancel="clearRoomTypeToDelete"
-      @close="clearRoomTypeToDelete"
-    >
-      <template #modal-title>
-        {{ $t('settings.room_types.delete.title') }}
-      </template>
-      <template #modal-ok>
-        <b-spinner
-          v-if="isBusy"
-          small
-        />  {{ $t('app.yes') }}
-      </template>
-      <span v-if="roomTypeToDelete">
-        {{ $t('settings.room_types.delete.confirm', { name: roomTypeToDelete.description }) }}
-      </span>
-      <hr>
-      <b-form-group
-        v-if="roomTypeToDelete"
-        label-for="replacement-room-type"
-        :description="$t('settings.room_types.delete.replacement_info')"
-        :state="fieldState('replacement_room_type')"
-        :label="$t('settings.room_types.delete.replacement')"
-      >
-        <b-form-select
-          id="replacement-room-type"
-          v-model.number="replacement"
-          :disabled="isBusy"
-          :state="fieldState('replacement_room_type')"
-          :options="roomTypeSelect"
-        />
-        <template #invalid-feedback>
-          <div v-html="fieldError('replacement_room_type')" />
+            </router-link>
+            <SettingsRoomTypesDeleteButton
+              v-if="userPermissions.can('delete', slotProps.data)"
+              :id="slotProps.data.id"
+              :name="slotProps.data.name"
+              @deleted="fetchRoomTypes"
+            />
+          </div>
         </template>
-      </b-form-group>
-    </b-modal>
+      </Column>
+    </DataTable>
   </div>
 </template>
 
-<script>
-import Base from '@/api/base';
-import Can from '@/components/Permissions/Can.vue';
-import FieldErrors from '@/mixins/FieldErrors';
-import env from '@/env';
-import ActionsColumn from '@/mixins/ActionsColumn';
-import TextTruncate from '@/components/TextTruncate.vue';
-import { mapState } from 'pinia';
+<script setup>
+import { onMounted, ref } from 'vue';
+import { useApi } from '@/composables/useApi.js';
+import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
+import { FilterMatchMode } from 'primevue/api';
+import { useActionColumn } from '@/composables/useActionColumn.js';
 
-export default {
-  components: { TextTruncate, Can },
-  mixins: [FieldErrors, ActionsColumn],
+const api = useApi();
+const settingsStore = useSettingsStore();
+const userPermissions = useUserPermissions();
+const actionColumn = useActionColumn([{ permissions: ['roomTypes.view'] }, { permissions: ['roomTypes.update'] }, { permissions: ['roomTypes.delete'] }]);
 
-  props: {
-    modalStatic: {
-      type: Boolean,
-      default: false
-    }
-  },
+const isBusy = ref(false);
+const roomTypes = ref([]);
+const nameSearch = ref('');
+const filters = ref({
+  name: { value: null, matchMode: FilterMatchMode.CONTAINS }
+});
 
-  data () {
-    return {
-      currentPage: 1,
-      isBusy: false,
-      roomTypeToDelete: undefined,
-      errors: {},
-      replacement: null,
-      roomTypes: [],
-      actionPermissions: ['roomTypes.view', 'roomTypes.update', 'roomTypes.delete']
-    };
-  },
+onMounted(() => {
+  fetchRoomTypes();
+});
 
-  /**
-   * Sets the event listener for current user change to re-evaluate whether the
-   * action column should be shown or not.
-   *
-   * @method mounted
-   * @return undefined
-   */
-  mounted () {
-    this.fetchRoomTypes();
-  },
-
-  methods: {
-    /**
-     * Loads the roles from the backend and calls on finish the callback function.
-     */
-    fetchRoomTypes () {
-      this.isBusy = true;
-      Base.call('roomTypes').then(response => {
-        this.roomTypes = response.data.data;
-      }).catch(error => {
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        this.isBusy = false;
-      });
-    },
-
-    /**
-     * Shows the delete modal with the passed room type.
-     *
-     * @param roomType room type that should be deleted.
-     */
-    showDeleteModal (roomType) {
-      this.roomTypeToDelete = roomType;
-      this.$refs['delete-roomType-modal'].show();
-    },
-
-    /**
-     * Deletes the room type that is set in the property `roomTypeToDelete`.
-     */
-    deleteRoomType (bvModalEvt) {
-      // prevent modal from closing
-      bvModalEvt.preventDefault();
-      this.isBusy = true;
-
-      Base.call(`roomTypes/${this.roomTypeToDelete.id}`, {
-        method: 'delete',
-        data: { replacement_room_type: this.replacement }
-      }).then(() => {
-        this.fetchRoomTypes();
-        this.clearRoomTypeToDelete();
-        this.$refs['delete-roomType-modal'].hide();
-      }).catch(error => {
-        // failed due to form validation errors
-        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.errors = error.response.data.errors;
-        } else {
-          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-            this.fetchRoomTypes();
-          }
-          Base.error(error, this.$root, error.message);
-          this.clearRoomTypeToDelete();
-          this.$refs['delete-roomType-modal'].hide();
-        }
-      }).finally(() => {
-        this.isBusy = false;
-      });
-    },
-
-    /**
-     * Clears the temporary property `roomTypeToDelete` on canceling or
-     * after success delete when the modal gets hidden.
-     */
-    clearRoomTypeToDelete () {
-      this.roomTypeToDelete = undefined;
-    }
-
-  },
-
-  computed: {
-
-    ...mapState(useSettingsStore, ['getSetting']),
-
-    tableFields () {
-      const fields = [
-        { key: 'description', label: this.$t('app.description'), sortable: true, tdClass: 'td-max-width-0-lg' }
-      ];
-
-      if (this.actionColumnVisible) {
-        fields.push(this.actionColumnDefinition);
-      }
-
-      return fields;
-    },
-
-    /**
-     * Calculate the room type selection options
-     * @returns {null|*}
-     */
-    roomTypeSelect () {
-      const noReplacement = {};
-      noReplacement.value = null;
-      noReplacement.text = this.$t('settings.room_types.delete.no_replacement');
-
-      if (this.roomTypes) {
-        const list = this.roomTypes.filter((roomtype) => {
-          return roomtype.id !== this.roomTypeToDelete.id;
-        }).map(roomtype => {
-          return {
-            value: roomtype.id,
-            text: roomtype.description
-          };
-        });
-        list.unshift(noReplacement);
-        return list;
-      }
-      return [];
-    }
-  }
-};
+/**
+ * Loads the roles from the backend and calls on finish the callback function.
+ */
+function fetchRoomTypes () {
+  isBusy.value = true;
+  api.call('roomTypes').then(response => {
+    roomTypes.value = response.data.data;
+  }).catch(error => {
+    api.error(error);
+  }).finally(() => {
+    isBusy.value = false;
+  });
+}
 </script>

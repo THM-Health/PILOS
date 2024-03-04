@@ -209,9 +209,9 @@ class ShibbolethTest extends TestCase
         ]);
 
         $adminRole = Role::where('name', 'admin')->first();
-        $guestrole = Role::where('name', 'guests')->first();
+        $guestRole = Role::where('name', 'guests')->first();
 
-        $user->roles()->sync([$guestrole->id => ['automatic' => true], $adminRole->id]);
+        $user->roles()->sync([$guestRole->id => ['automatic' => true], $adminRole->id]);
 
         setting()->set('default_timezone', 'Europe/Paris');
 
