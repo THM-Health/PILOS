@@ -75,13 +75,13 @@
         </template>
       </Column>
 
-      <Column v-if="userPermissions.can('manageSettings', room)" field="access" :header="$t('rooms.recordings.access')">
+      <Column v-if="showManagementColumns" field="access" :header="$t('rooms.recordings.access')">
         <template #body="slotProps">
           <RoomRecodingAccessBadge :access="slotProps.data.access" />
         </template>
       </Column>
 
-      <Column v-if="userPermissions.can('manageSettings', room)" :header="$t('rooms.recordings.actions')" class="action-column action-column-2">
+      <Column v-if="showManagementColumns" :header="$t('rooms.recordings.actions')" class="action-column action-column-2">
         <template #body="slotProps">
           <div>
             <!-- Edit button -->
@@ -112,7 +112,7 @@
   </div>
 </template>
 <script setup>
-import { onMounted, ref } from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 
@@ -188,6 +188,10 @@ function loadData () {
       isBusy.value = false;
     });
 }
+
+const showManagementColumns = computed(() => {
+  return userPermissions.can('manageSettings', props.room);
+});
 
 function onPage (event) {
   currentPage.value = event.page + 1;
