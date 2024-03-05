@@ -273,7 +273,7 @@ class RoomPolicy
         return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }
 
-    public function downloadRecordingFormat(?User $user, Room $room, RecordingFormat $recordingFormat)
+    public function viewRecordingFormat(?User $user, Room $room, RecordingFormat $recordingFormat)
     {
         if ($user && $user->can('viewAllRecordings', $room)) {
             return true;

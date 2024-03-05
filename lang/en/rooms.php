@@ -246,6 +246,8 @@ return [
         'actions'           => 'Actions',
         'edit_recording'    => 'Edit recording',
         'delete_Recording'  => 'Delete recording',
+        'filename'          => 'Recording',
+        'download'          => 'Download raw recording files',
         'modals'            => [
             'edit' => [
                 'title'  => 'Edit recording',

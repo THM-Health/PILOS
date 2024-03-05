@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Recording;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipStream\ZipStream;
 
 class RecordingController extends Controller
 {
@@ -43,5 +46,42 @@ class RecordingController extends Controller
         return response(null, 200)
             ->header('Content-Type', null)
             ->header('X-Accel-Redirect', $fileAlias);
+    }
+
+    public function download(Recording $recording){
+
+        $this->authorize('manageRecordings', $recording->room);
+
+        // Get all files in the recording directory, remove the root folder and filter the files by the whitelist
+        $files = Collection::make(Storage::disk('recordings')->allFiles($recording->id))
+            ->map(function (string $filename) use ($recording) {
+               return explode($recording->id.'/', $filename, 2)[1];
+            })
+            ->filter(function (string $filename) {
+                return preg_match('/'.config('recording.recording_download_whitelist').'/', $filename);
+            });
+
+        $response = new StreamedResponse(function() use ($recording, $files) {
+            // create a new zip stream
+            $zip = new ZipStream(
+                outputName: __('rooms.recordings.filename').'_'.$recording->meeting->start->format('Y-m-d').'.zip',
+                contentType: 'application/octet-stream',
+            );
+
+            // add all filtered files
+            foreach ($files as $file){
+                $zip->addFileFromPath(
+                    fileName: $file,
+                    path: Storage::disk('recordings')->path($recording->id.'/'.$file),
+                );
+
+            }
+
+            // finish the zip file
+            $zip->finish();
+        });
+        $response->headers->set('X-Accel-Buffering', 'no');
+
+        return $response;
     }
 }

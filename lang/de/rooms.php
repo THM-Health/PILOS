@@ -246,6 +246,8 @@ return [
         'actions'           => 'Aktionen',
         'edit_recording'    => 'Aufzeichnung bearbeiten',
         'delete_recording'  => 'Aufzeichnung löschen',
+        'filename'          => 'Aufzeichnung',
+        'download'          => 'Rohdaten der Aufzeichnung herunterladen',
         'modals'            => [
             'edit' => [
                 'title'  => 'Aufzeichnung bearbeiten',

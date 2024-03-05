@@ -84,6 +84,10 @@
       <Column v-if="showManagementColumns" :header="$t('rooms.recordings.actions')" class="action-column action-column-2">
         <template #body="slotProps">
           <div>
+            <RoomTabRecordingsDownloadButton
+              :recordingId="slotProps.data.id"
+            />
+
             <!-- Edit button -->
             <RoomTabRecordingsEditButton
               :roomId="props.room.id"
@@ -115,6 +119,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
+import RoomTabRecordingsDownloadButton from "./RoomTabRecordingsDownloadButton.vue";
 
 const props = defineProps({
   room: {
