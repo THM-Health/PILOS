@@ -30,13 +30,13 @@
 
     <template #footer>
       <div class="flex justify-content-end gap-2">
-        <Button :label="$t('app.cancel')" outlined @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
+        <Button :label="$t('app.save')" severity="success" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
         </div>
     </template>
 
     <!-- description -->
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-column gap-2">
       <label for="description">{{ $t('rooms.recordings.description') }}</label>
       <InputText id="description" v-model="newDescription" :disabled="isLoadingAction" />
       <p class="p-error" v-html="formErrors.fieldError('description')" />
@@ -76,16 +76,40 @@ import { useFormErrors } from '../composables/useFormErrors.js';
 import { ref } from 'vue';
 import _ from 'lodash';
 
-const props = defineProps([
-  'roomId',
-  'recordingId',
-  'start',
-  'end',
-  'description',
-  'formats',
-  'access',
-  'disabled'
-]);
+const props = defineProps({
+  recordingId: {
+    type: String,
+    required: true
+  },
+  roomId: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  start: {
+    type: String,
+    required: true
+  },
+  end: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  formats: {
+    type: Array,
+    required: true
+  },
+  access: {
+    type: Number,
+    required: true
+  }
+});
 
 const emit = defineEmits(['edited']);
 

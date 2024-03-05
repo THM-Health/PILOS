@@ -1,17 +1,57 @@
 <template>
   <Button
-    :severity="formatDisabled ? 'secondary' : 'primary'"
-    @click="downloadFormat"
-    :disabled="isLoadingAction"
-    :aria-label="$t('rooms.recordings.format_types.'+format)"
-    v-tooltip="$t('rooms.recordings.format_types.'+format)"
-    :loading="isLoadingAction"
-    :icon="formatIcon"
+    v-tooltip="$t('rooms.recordings.view_recording')"
+    :aria-label="$t('rooms.recordings.view_recording')"
+    @click="showModal = true"
+    icon="fa-solid fa-eye"
+    :disabled="props.disabled"
   />
+
+  <!-- edit recording modal -->
+  <Dialog
+    v-model:visible="showModal"
+    modal
+    :style="{ width: '500px' }"
+    :breakpoints="{ '575px': '90vw' }"
+    :draggable="false"
+    :closeOnEscape="!isLoadingAction"
+    :dismissableMask="false"
+    :closable="!isLoadingAction"
+  >
+    <template #header>
+      <div>
+      <span class="p-dialog-title">
+        {{ props.description }}
+      </span>
+        <br/>
+        <small>{{ $d(new Date(props.start),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(props.end),'datetimeShort') }}</small>
+      </div>
+    </template>
+
+    <template #footer>
+      <div class="flex justify-content-end gap-2">
+        <Button :label="$t('app.close')" severity="secondary" icon="fa-solid fa-times" @click="showModal = false" :disabled="isLoadingAction" />
+      </div>
+    </template>
+
+    <div class="flex flex-column gap-2">
+      <Button
+        v-for="format in formats.filter(format => !format.disabled || viewDisabled)"
+        :key="format.format"
+        icon="fa-solid fa-play"
+        @click="downloadFormat(format)"
+        :disabled="isLoadingAction"
+        :label="$t('rooms.recordings.format_types.'+format.format)"
+        :loading="isLoadingAction"
+      />
+    </div>
+
+  </Dialog>
+
 </template>
 <script setup>
 
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import env from '../env.js';
 import { useToast } from '../composables/useToast.js';
@@ -29,29 +69,42 @@ const props = defineProps({
   roomId: {
     required: true
   },
-  formatDisabled: {
+  viewDisabled: {
     type: Boolean,
     default: false
   },
-  format: {
+  description: {
     type: String,
     required: true
   },
-  id: {
-    type: Number,
+  start: {
+    type: String,
     required: true
+  },
+  end: {
+    type: String,
+    required: true
+  },
+  formats: {
+    type: Array,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 
 const emit = defineEmits(['invalidCode', 'invalidToken', 'forbidden', 'notFound']);
 
 const isLoadingAction = ref(false);
+const showModal = ref(false);
 
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
-function downloadFormat () {
+function downloadFormat (format) {
   isLoadingAction.value = true;
 
   // Update value for the setting and the effected file
@@ -63,7 +116,7 @@ function downloadFormat () {
     config.headers = { 'Access-Code': props.accessCode };
   }
 
-  const url = 'rooms/' + props.roomId + '/recordings/' + props.id;
+  const url = 'rooms/' + props.roomId + '/recordings/' + format.id;
 
   // Load data
   api.call(url, config)
@@ -110,22 +163,5 @@ function downloadFormat () {
       isLoadingAction.value = false;
     });
 }
-
-const formatIcon = computed(() => {
-  switch (props.format) {
-    case 'podcast':
-      return 'fa-solid fa-volume-high';
-    case 'screenshare':
-      return 'fa-solid fa-display';
-    case 'presentation':
-      return 'fa-solid fa-person-chalkboard';
-    case 'notes':
-      return 'fa-solid fa-file-lines';
-    case 'video':
-      return 'fa-solid fa-video';
-    default:
-      return '';
-  }
-});
 
 </script>

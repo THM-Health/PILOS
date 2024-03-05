@@ -244,6 +244,7 @@ return [
         'description'       => 'Bezeichnung',
         'access'            => 'Zugriffsrecht',
         'actions'           => 'Aktionen',
+        'view_recording'    => 'Aufzeichnung ansehen',
         'edit_recording'    => 'Aufzeichnung bearbeiten',
         'delete_recording'  => 'Aufzeichnung löschen',
         'filename'          => 'Aufzeichnung',

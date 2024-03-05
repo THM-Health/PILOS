@@ -244,6 +244,7 @@ return [
         'description'       => 'Description',
         'access'            => 'Access',
         'actions'           => 'Actions',
+        'view_recording'    => 'View recording',
         'edit_recording'    => 'Edit recording',
         'delete_Recording'  => 'Delete recording',
         'filename'          => 'Recording',

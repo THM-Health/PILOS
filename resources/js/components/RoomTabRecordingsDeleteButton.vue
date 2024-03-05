@@ -29,7 +29,7 @@
     </template>
 
     <span style="overflow-wrap: break-word;">
-      {{ $t('rooms.recordings.modals.delete.confirm', { filename: filename }) }}
+      {{ $t('rooms.recordings.modals.delete.confirm') }}
     </span>
   </Dialog>
 </template>
@@ -40,12 +40,20 @@ import { ref } from 'vue';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
 
-const props = defineProps([
-  'roomId',
-  'recordingId',
-  'filename',
-  'disabled'
-]);
+const props = defineProps({
+  recordingId: {
+    type: String,
+    required: true
+  },
+  roomId: {
+    type: String,
+    required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits(['deleted']);
 
@@ -73,7 +81,7 @@ function deleteRecording () {
     if (error.response) {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
-        toast.errror(t('rooms.flash.recording_gone'));
+        toast.error(t('rooms.flash.recording_gone'));
         emit('deleted');
         return;
       }

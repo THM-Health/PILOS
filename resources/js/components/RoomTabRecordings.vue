@@ -14,7 +14,7 @@
     </div>
 
     <!-- table with room recordings -->
-    <DataTable
+    <DataView
       :totalRecords="meta.total"
       :rows="meta.per_page"
       :value="recordings"
@@ -35,91 +35,90 @@
         <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.recordings.nodata') }}</InlineNote>
       </template>
 
-      <Column field="start" :header="$t('rooms.recordings.start')">
-        <template #body="slotProps">
-          {{ $d(new Date(slotProps.data.start),'datetimeShort') }}
-        </template>
-      </Column>
+      <template #list="slotProps">
+        <div class="grid grid-nogutter border-top-1 border-bottom-1 surface-border">
+          <div v-for="(item, index) in slotProps.items" :key="index" class="col-12">
+            <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
+              <div class="flex flex-column gap-2">
+                <p class="text-lg font-semibold m-0">{{ item.description }}</p>
+                <div class="flex flex-column gap-2 align-items-start">
+                  <div class="flex flex-row gap-2">
+                    <i class="fa-solid fa-clock" />
+                    <p class="text-sm m-0">{{ $d(new Date(item.start),'datetimeShort') }}</p>
+                  </div>
+                  <div class="flex flex-row gap-2" v-if="showManagementColumns">
+                    <i class="fa-solid fa-lock"></i>
+                    <RoomRecodingAccessBadge :access="item.access" />
+                  </div>
+                </div>
+                <div class="flex flex-row flex-wrap gap-1" v-if="showManagementColumns">
+                  <Tag
+                    v-for="format in item.formats"
+                    :key="format.id"
+                    :value="$t('rooms.recordings.format_types.'+format.format)"
+                    :icon="format.disabled ? 'fa-solid fa-eye-slash' : ''"
+                  />
+                </div>
+              </div>
+              <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" >
 
-      <Column field="end" :header="$t('rooms.recordings.end')">
-        <template #body="slotProps">
-          {{ $d(new Date(slotProps.data.end),'datetimeShort') }}
-        </template>
-      </Column>
+                <RoomTabRecordingsViewButton
+                  :roomId="props.room.id"
+                  :formats="item.formats"
+                  :view-disabled="userPermissions.can('manageSettings', room)"
+                  :token="props.token"
+                  :start="item.start"
+                  :end="item.end"
+                  :description="item.description"
+                  :access-code="props.accessCode"
+                  :disabled="isBusy"
+                  @invalidCode="$emit('invalidCode')"
+                  @invalidToken="$emit('invalidToken')"
+                  @forbidden="loadData"
+                  @notFound="loadData"
+                />
 
-      <Column field="description" :header="$t('rooms.recordings.description')" >
-        <template #body="slotProps">
-          <TextTruncate>{{ slotProps.data.description }}</TextTruncate>
-        </template>
+                <RoomTabRecordingsDownloadButton
+                  :recordingId="item.id"
+                  :disabled="isBusy"
+                  v-if="showManagementColumns"
+                />
 
-      </Column>
+                <!-- Edit button -->
+                <RoomTabRecordingsEditButton
+                  v-if="showManagementColumns"
+                  :roomId="props.room.id"
+                  :recordingId="item.id"
+                  :description="item.description"
+                  :start="item.start"
+                  :end="item.end"
+                  :formats="item.formats"
+                  :access="item.access"
+                  :disabled="isBusy"
+                  @edited="loadData()"
+                />
 
-      <Column field="formats" :header="$t('rooms.recordings.formats')">
-        <template #body="slotProps">
-          <div class="flex flex-row md:flex-wrap gap-1">
-            <!-- View file -->
-            <RoomTabRecordingsViewButton
-              v-for="format in slotProps.data.formats.filter(format => !format.disabled || userPermissions.can('manageSettings', room))" :key="format.id"
-              :roomId="props.room.id"
-              :id="format.id"
-              :format="format.format"
-              :format-disabled="format.disabled"
-              :token="props.token"
-              :access-code="props.accessCode"
-              @invalidCode="$emit('invalidCode')"
-              @invalidToken="$emit('invalidToken')"
-              @forbidden="loadData"
-              @notFound="loadData"
-            />
+                <!-- Delete file -->
+                <RoomTabRecordingsDeleteButton
+                  v-if="showManagementColumns"
+                  :roomId="props.room.id"
+                  :recordingId="item.id"
+                  :disabled="isBusy"
+                  @deleted="loadData()"
+                />
+              </div>
+            </div>
           </div>
-        </template>
-      </Column>
-
-      <Column v-if="showManagementColumns" field="access" :header="$t('rooms.recordings.access')">
-        <template #body="slotProps">
-          <RoomRecodingAccessBadge :access="slotProps.data.access" />
-        </template>
-      </Column>
-
-      <Column v-if="showManagementColumns" :header="$t('rooms.recordings.actions')" class="action-column action-column-2">
-        <template #body="slotProps">
-          <div>
-            <RoomTabRecordingsDownloadButton
-              :recordingId="slotProps.data.id"
-            />
-
-            <!-- Edit button -->
-            <RoomTabRecordingsEditButton
-              :roomId="props.room.id"
-              :recordingId="slotProps.data.id"
-              :description="slotProps.data.description"
-              :start="slotProps.data.start"
-              :end="slotProps.data.end"
-              :formats="slotProps.data.formats"
-              :access="slotProps.data.access"
-              :disabled="isBusy"
-              @edited="loadData()"
-            />
-
-            <!-- Delete file -->
-            <RoomTabRecordingsDeleteButton
-              :roomId="props.room.id"
-              :recordingId="slotProps.data.id"
-              :filename="slotProps.data.description"
-              @deleted="loadData()"
-            />
-          </div>
-        </template>
-      </Column>
-
-    </DataTable>
+        </div>
+      </template>
+    </DataView>
   </div>
 </template>
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
-import RoomTabRecordingsDownloadButton from "./RoomTabRecordingsDownloadButton.vue";
+import RoomTabRecordingsDownloadButton from './RoomTabRecordingsDownloadButton.vue';
 
 const props = defineProps({
   room: {
