@@ -46,25 +46,26 @@
     >
       <template #header>
         <div class="flex justify-content-between gap-2">
-          <span class="p-input-icon-left">
-              <i class="fa-solid fa-search" />
+          <IconField iconPosition="left">
+            <InputIcon class="fa-solid fa-search"> </InputIcon>
               <InputText v-model="filters['global'].value" :placeholder="$t('app.search')" />
-          </span>
+          </IconField>
 
           <a
             target="_blank"
-            :href="'/download/attendance/'+meetingId"
+            :href="downloadUrl"
+            class="p-button p-button-icon-only p-button-secondary"
+            :aria-label="$t('meetings.attendance.download')"
+            v-tooltip:top="$t('meetings.attendance.download')"
           >
-            <Button
-              icon="fa-solid fa-file-excel"
-              :label="$t('meetings.attendance.download')"
-            />
+            <i class="fa-solid fa-file-excel" />
           </a>
         </div>
       </template>
 
       <template #empty>
-        <i>{{ $t('meetings.no_historical_data') }}</i>
+        <InlineNote v-if="attendance.length == 0">{{ $t('meetings.attendance.no_data') }}</InlineNote>
+        <InlineNote v-else>{{ $t('meetings.attendance.no_data_filtered') }}</InlineNote>
       </template>
 
       <Column field="name" sortable :header="$t('app.user_name')">
@@ -100,10 +101,11 @@
 </template>
 <script setup>
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import 'chartjs-adapter-date-fns';
 import { FilterMatchMode } from 'primevue/api';
+import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
   roomId: {
@@ -140,6 +142,7 @@ const filters = ref({
 });
 
 const api = useApi();
+const settingsStore = useSettingsStore();
 
 function showAttendanceModal () {
   showModal.value = true;
@@ -160,4 +163,8 @@ function loadData () {
       isLoadingAction.value = false;
     });
 }
+
+const downloadUrl = computed(() => {
+  return settingsStore.getSetting('base_url') + '/download/attendance/' + props.meetingId;
+});
 </script>

@@ -185,6 +185,7 @@ $contrastMessageIconColor: $contrastMessageTextColor !default;
 // tables
 $tableCellPaddingX: 0.5rem !default;
 $tableCellPaddingY: 0.5rem !default;
+$tableHeaderPadding: $tableCellPaddingX $tableCellPaddingY !default;
 $tableHeaderCellPadding: $tableCellPaddingX $tableCellPaddingY !default;
 $tableBodyCellPadding: $tableCellPaddingX $tableCellPaddingY !default;
 $tableFooterCellPadding: $tableCellPaddingX $tableCellPaddingY !default;
