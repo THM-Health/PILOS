@@ -39,7 +39,7 @@
         "@tiptap/extension-underline": "^2.2.4",
         "@tiptap/starter-kit": "^2.2.4",
         "@tiptap/vue-3": "^2.1.15",
-        "@vitejs/plugin-vue": "^4.4.1",
+        "@vitejs/plugin-vue": "^5.0.4",
         "@vueuse/components": "^10.7.2",
         "@vueuse/core": "^10.7.2",
         "axe-core": "^4.8.4",
