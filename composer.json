@@ -30,7 +30,7 @@
         "symfony/var-exporter": "^6.2"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.7",
+        "barryvdh/laravel-ide-helper": "^3.0",
         "brianium/paratest": "^7.0",
         "fakerphp/faker": "^1.9.1",
         "friendsofphp/php-cs-fixer": "3.*",
