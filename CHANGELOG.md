@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
+- Global attendance recording setting ([#905])
 
 ## [v3.0.1] - 2024-01-09
 ### Fixed
@@ -67,6 +68,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#743]: https://github.com/THM-Health/PILOS/pull/743
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 [#883]: https://github.com/THM-Health/PILOS/pull/883
+[#905]: https://github.com/THM-Health/PILOS/pull/905
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

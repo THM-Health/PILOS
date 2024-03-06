@@ -76,7 +76,6 @@ class BuildHistoryTest extends TestCase
         $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance'=>true]);
         setting(['statistics.servers.enabled' => true]);
         setting(['statistics.meetings.enabled' => true]);
-        setting(['attendance.enabled'=>true]);
 
         // Create fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
@@ -127,7 +126,6 @@ class BuildHistoryTest extends TestCase
         // check with disabled server stats
         setting(['statistics.servers.enabled' => false]);
         setting(['statistics.meetings.enabled' => true]);
-        setting(['attendance.enabled'=>true]);
         $this->travelTo(Carbon::create(2023, 9, 28, 12, 01, 00));
         $this->artisan('history:build');
         $this->assertEquals(1, $meeting->server->stats()->count());
@@ -136,21 +134,10 @@ class BuildHistoryTest extends TestCase
         // check with disabled meeting stats
         setting(['statistics.servers.enabled' => true]);
         setting(['statistics.meetings.enabled' => false]);
-        setting(['attendance.enabled'=>true]);
         $this->travelTo(Carbon::create(2023, 9, 28, 12, 02, 00));
         $this->artisan('history:build');
         $this->assertEquals(2, $meeting->server->stats()->count());
         $this->assertEquals(2, $meeting->stats()->count());
-
-        // check with disabled attendance
-        setting(['statistics.servers.enabled' => true]);
-        setting(['statistics.meetings.enabled' => true]);
-        setting(['attendance.enabled'=>false]);
-        $this->travelTo(Carbon::create(2023, 9, 28, 12, 03, 00));
-        $this->artisan('history:build');
-       
-        $this->assertEquals(3, $meeting->server->stats()->count());
-        $this->assertEquals(3, $meeting->stats()->count());
 
         // Check attendance data
         $attendees = $meeting->attendees->all();
@@ -182,5 +169,38 @@ class BuildHistoryTest extends TestCase
         $this->assertTrue($user99->is($attendees[6]->user));
         $this->assertEquals('2023-09-28 12:02:00', $attendees[6]->join->format('Y-m-d H:i:s'));
         $this->assertNull($attendees[6]->leave);
+    }
+
+    /**
+     * Test if live and archival usage data is created
+     */
+    public function testServerOnlineDisabledAttendanceRecording()
+    {
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance'=>false]);
+
+        // Create fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
+        // Get 4 times the list of meetings and 4 times the API version
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-Start.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-1.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-2.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-3.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
+
+        // Refresh usage and build history
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 00, 00));
+        $this->artisan('history:build');
+
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 01, 00));
+        $this->artisan('history:build');
+
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 02, 00));
+        $this->artisan('history:build');
+
+        // Check attendance data missing
+        $this->assertEquals(0, $meeting->attendees->count());
     }
 }

@@ -48,7 +48,6 @@ class RoomStatisticTest extends TestCase
     {
         setting(['pagination_page_size' => 5]);
         setting(['statistics.meetings.enabled' => true]);
-        setting(['attendance.enabled' => true]);
 
         // create room
         $room = Room::factory()->create();
@@ -149,39 +148,14 @@ class RoomStatisticTest extends TestCase
                 'statistical'       => true
             ]);
 
-        // check with attendance globally disabled
-        setting(['statistics.meetings.enabled' => true]);
-        setting(['attendance.enabled' => false]);
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]).'?page=2')
-            ->assertJsonPath('data.0', [
-                'id'                => $meetings[0]->id,
-                'start'             => $meetings[0]->start->toJson(),
-                'end'               => $meetings[0]->end->toJson(),
-                'attendance'        => false,
-                'statistical'       => true
-            ]);
-
         // check with meeting stats globally disabled
         setting(['statistics.meetings.enabled' => false]);
-        setting(['attendance.enabled' => true]);
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]).'?page=2')
             ->assertJsonPath('data.0', [
                 'id'                => $meetings[0]->id,
                 'start'             => $meetings[0]->start->toJson(),
                 'end'               => $meetings[0]->end->toJson(),
                 'attendance'        => true,
-                'statistical'       => false
-            ]);
-
-        // check with meeting stats and attendance globally disabled
-        setting(['statistics.meetings.enabled' => false]);
-        setting(['attendance.enabled' => false]);
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]).'?page=2')
-            ->assertJsonPath('data.0', [
-                'id'                => $meetings[0]->id,
-                'start'             => $meetings[0]->start->toJson(),
-                'end'               => $meetings[0]->end->toJson(),
-                'attendance'        => false,
                 'statistical'       => false
             ]);
     }
@@ -276,8 +250,6 @@ class RoomStatisticTest extends TestCase
      */
     public function testAttendance()
     {
-        setting(['attendance.enabled' => true]);
-
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
 
@@ -423,11 +395,6 @@ class RoomStatisticTest extends TestCase
         // check with for running meeting
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
             ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
-
-        // check with attendance globally disabled
-        setting(['attendance.enabled' => false]);
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
     }
 
     /**
@@ -435,8 +402,6 @@ class RoomStatisticTest extends TestCase
      */
     public function testAttendanceWithoutGuests()
     {
-        setting(['attendance.enabled' => true]);
-
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>true]);
 
@@ -504,8 +469,6 @@ class RoomStatisticTest extends TestCase
      */
     public function testAttendanceDownload()
     {
-        setting(['attendance.enabled' => true]);
-
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
 
@@ -648,10 +611,5 @@ class RoomStatisticTest extends TestCase
         // check with for running meeting
         $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
             ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
-
-        // check with attendance globally disabled
-        setting(['attendance.enabled' => false]);
-        $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
     }
 }

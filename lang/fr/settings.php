@@ -3,7 +3,6 @@
 return [
     'application' => [
         'attendance' => [
-            'enabled_title'          => 'Autoriser la journalisation de la présence des participants aux réunions',
             'retention_period_title' => 'Nombre de jours de conservation de la journalisation des présences',
         ],
         'attendance_and_statistics_title' => 'Fréquentation et statistiques',

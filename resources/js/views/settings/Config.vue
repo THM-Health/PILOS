@@ -614,23 +614,6 @@
           </div>
         </div>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.attendance.enabled_title')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
-                inputId="statistics-attendance-enabled"
-                v-model="settings.attendance.enabled"
-                binary
-                :disabled="disabled"
-                :invalid="formErrors.fieldInvalid('attendance.enabled')"
-              />
-              <label for="attendance-enabled">{{ $t('app.enable') }}</label>
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('attendance.enabled')"></p>
-          </div>
-        </fieldset>
-
         <div class="grid">
           <label for="attendance-retention-period" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.attendance.retention_period_title')}}</label>
           <div class="col-12 md:col-8 flex flex-column gap-1">
@@ -865,7 +848,6 @@ function updateSettings () {
   formData.append('statistics[servers][retention_period]', settings.value.statistics.servers.retention_period);
   formData.append('statistics[meetings][enabled]', settings.value.statistics.meetings.enabled ? 1 : 0);
   formData.append('statistics[meetings][retention_period]', settings.value.statistics.meetings.retention_period);
-  formData.append('attendance[enabled]', settings.value.attendance.enabled ? 1 : 0);
   formData.append('attendance[retention_period]', settings.value.attendance.retention_period);
 
   formData.append('room_auto_delete[enabled]', settings.value.room_auto_delete.enabled ? 1 : 0);

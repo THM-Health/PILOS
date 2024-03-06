@@ -4,7 +4,6 @@ return [
     'application' => [
         'application' => 'Application',
         'attendance'  => [
-            'enabled_title'          => 'Allow logging of participant attendance at meetings',
             'retention_period_title' => 'Retention period of the attendance logging in days',
         ],
         'attendance_and_statistics_title' => 'Attendance and statistics',
