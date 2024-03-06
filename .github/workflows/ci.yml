@@ -78,8 +78,8 @@ jobs:
         DB_USERNAME: root
         DB_PASSWORD: password
       run: php artisan migrate --no-interaction -vvv
-    - name: Execute code style check via php-cs-fixer
-      run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
+    - name: Execute code style check via Laravel Pint
+      run: vendor/bin/pint --test
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
       env:

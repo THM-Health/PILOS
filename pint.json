@@ -1,0 +1,12 @@
+{
+  "exclude": [
+    "storage",
+    "node_modules",
+    "resources",
+    "public",
+    "docker",
+    "db",
+    "redis",
+    "coverage"
+  ]
+}
