@@ -184,6 +184,7 @@ class RoomTypeTest extends TestCase
             'require_access_code'     => false,
             'allow_listing'           => 0,
             'allow_record_attendance' => true,
+            'allow_record'            => true,
             'max_duration'            => 90,
             'max_participants'        => 30
         ];
@@ -213,14 +214,15 @@ class RoomTypeTest extends TestCase
                 'roles'                   => new RoleCollection([$role1]),
                 'require_access_code'     => false,
                 'allow_record_attendance' => true,
+                'allow_record'            => true,
                 'max_duration'            => 90,
                 'max_participants'        => 30
             ]);
 
         // Test with invalid data
-        $data = ['color'=>'rgb(255,255,255)','name'=>'','server_pool'=>'','allow_listing'=>'ok', 'restrict' => true, 'require_access_code' => 'no', 'allow_record_attendance' => 'yes', 'max_duration' => -1, 'max_participants' => -1];
+        $data = ['color'=>'rgb(255,255,255)','name'=>'','server_pool'=>'','allow_listing'=>'ok', 'restrict' => true, 'require_access_code' => 'no', 'allow_record_attendance' => 'yes', 'allow_record' => 'yes', 'max_duration' => -1, 'max_participants' => -1];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
-            ->assertJsonValidationErrors(['color','name','allow_listing', 'roles', 'max_duration', 'max_participants', 'require_access_code', 'allow_record_attendance']);
+            ->assertJsonValidationErrors(['color','name','allow_listing', 'roles', 'max_duration', 'max_participants', 'require_access_code', 'allow_record_attendance', 'allow_record']);
 
         $data['roles'] = [1337];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
@@ -244,6 +246,7 @@ class RoomTypeTest extends TestCase
             'allow_listing'           => 1,
             'require_access_code'     => false,
             'allow_record_attendance' => true,
+            'allow_record'            => true,
             'max_duration'            => 90,
             'max_participants'        => 30
         ];
@@ -279,28 +282,33 @@ class RoomTypeTest extends TestCase
                 'allow_listing'           => true,
                 'require_access_code'     => false,
                 'allow_record_attendance' => true,
+                'allow_record'            => true,
                 'max_duration'            => 90,
                 'max_participants'        => 30
             ]);
 
         $roomType->refresh();
         $data['restrict']   = true;
+        $data['allow_record_attendance'] = false;
+        $data['allow_record'] = false;
         $data['updated_at'] = $roomType->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment([
-                'name'          => $roomType->name,
-                'color'         => $roomType->color,
-                'allow_listing' => true,
-                'restrict'      => true,
-                'roles'         => new RoleCollection([$role1])
+                'name'                    => $roomType->name,
+                'color'                   => $roomType->color,
+                'allow_listing'           => true,
+                'restrict'                => true,
+                'allow_record_attendance' => false,
+                'allow_record'            => false,
+                'roles'                   => new RoleCollection([$role1])
             ]);
 
         // Test with invalid data
         $roomType->refresh();
-        $data = ['color'=>'rgb(255,255,255)','name'=>'','server_pool'=>'','updated_at'=>$roomType->updated_at,'allow_listing'=>'ok', 'require_access_code' => 'no', 'allow_record_attendance' => 'yes', 'max_duration' => -1, 'max_participants' => -1];
+        $data = ['color'=>'rgb(255,255,255)','name'=>'','server_pool'=>'','updated_at'=>$roomType->updated_at,'allow_listing'=>'ok', 'require_access_code' => 'no', 'allow_record_attendance' => 'yes', 'allow_record' => 'yes', 'max_duration' => -1, 'max_participants' => -1];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
-            ->assertJsonValidationErrors(['color','name','allow_listing', 'max_duration', 'max_participants', 'require_access_code', 'allow_record_attendance']);
+            ->assertJsonValidationErrors(['color','name','allow_listing', 'max_duration', 'max_participants', 'require_access_code', 'allow_record_attendance', 'allow_record']);
 
         // Test deleted
         $roomType->delete();

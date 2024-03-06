@@ -55,7 +55,7 @@ class RoomTest extends TestCase
         $this->seed(ServerSeeder::class);
 
         // Start meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Check guests
@@ -96,7 +96,7 @@ class RoomTest extends TestCase
         $this->seed(ServerSeeder::class);
 
         // Start meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Check guests
@@ -137,7 +137,7 @@ class RoomTest extends TestCase
         // login as user is not guest
         $request = $user == null ? $this : $this->actingAs($user);
         // join meeting
-        $response = $request->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->access_code,'name'=>$this->faker->name,'record_attendance' => 1]))
+        $response = $request->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->access_code,'name'=>$this->faker->name, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         // check if response has a join url
         $this->assertIsString($response->json('url'));
