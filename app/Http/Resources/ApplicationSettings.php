@@ -108,7 +108,6 @@ class ApplicationSettings extends JsonResource
                 ],
             ],
             'attendance' => [
-                'enabled'           => boolval(setting('attendance.enabled')),
                 'retention_period'  => intval(setting('attendance.retention_period')),
             ],
             'room_token_expiration' => intval(setting('room_token_expiration')),

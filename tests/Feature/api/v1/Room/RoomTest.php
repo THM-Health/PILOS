@@ -1359,9 +1359,6 @@ class RoomTest extends TestCase
      */
     public function testStartWithServer()
     {
-        // Allow attendance recording
-        setting(['attendance.enabled' => true]);
-
         $room = Room::factory()->create(['record_attendance' => true, 'delete_inactive'=> now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
 
@@ -1401,14 +1398,7 @@ class RoomTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertJsonValidationErrors(['record_attendance']);
 
-        // Create meeting with attendance globally disabled
-        setting(['attendance.enabled' => false]);
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
-            ->assertSuccessful();
-        (new MeetingService($room->runningMeeting()))->end();
-
         // Create meeting with attendance disabled
-        setting(['attendance.enabled' => true]);
         $room->record_attendance = false;
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
@@ -1522,14 +1512,15 @@ class RoomTest extends TestCase
         // Create meeting
         $bbbfaker->addCreateMeetingRequest();
         // Get meeting info
-        $bbbfaker->addRequest(function (Request $request) {
-            $uri = $request->toPsrRequest()->getUri();
-            parse_str($uri->getQuery(), $params);
-            $xml = '
+        for ($i = 0; $i < 4; $i++) {
+            $bbbfaker->addRequest(function (Request $request) {
+                $uri = $request->toPsrRequest()->getUri();
+                parse_str($uri->getQuery(), $params);
+                $xml = '
                 <response>
                     <returncode>SUCCESS</returncode>
                     <meetingName>test</meetingName>
-                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <meetingID>' . $params['meetingID'] . '</meetingID>
                     <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
                     <createTime>1624606850899</createTime>
                     <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
@@ -1551,8 +1542,9 @@ class RoomTest extends TestCase
                     <isBreakout>false</isBreakout>
                 </response>';
 
-            return Http::response($xml);
-        });
+                return Http::response($xml);
+            });
+        }
 
         $meeting = Meeting::factory()->create(['room_id'=> $room->id, 'start' => null, 'end' => null, 'server_id' => Server::all()->first()]);
         $room->latestMeeting()->associate($meeting);
@@ -1564,9 +1556,22 @@ class RoomTest extends TestCase
         $meeting->refresh();
         $this->assertNotNull($meeting->end);
 
-        // Start room without recording acceptance, but a room with attendance recording is already running
-        setting(['attendance.enabled' => true]);
+        // Reset, make room running in db
+        $meeting->end = null;
+        $meeting->save();
+
+        // Start room with recording acceptance enabled, but a room without attendance recording is already running
         $room->record_attendance = true;
+        $room->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+            ->assertSuccessful();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            ->assertSuccessful();
+
+        // Start room with recording acceptance disabled, but a room with attendance recording is already running
+        $meeting->record_attendance = true;
+        $meeting->save();
+        $room->record_attendance = false;
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
             ->assertSuccessful();
@@ -1615,28 +1620,28 @@ class RoomTest extends TestCase
 
         // Create Fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
         // Create 3 meetings
         $bbbfaker->addCreateMeetingRequest();
         $bbbfaker->addCreateMeetingRequest();
         $bbbfaker->addCreateMeetingRequest();
 
-        // Create meeting with attendance allowed globally
-        setting(['attendance.enabled' => true]);
+        // Create meeting
         $this->actingAs($room1->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room1,'record_attendance' => 1]))
             ->assertSuccessful();
         $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2,'record_attendance' => 1]))
             ->assertSuccessful();
-        // Create meeting with attendance  globally forbidden
-        setting(['attendance.enabled' => false]);
-        $this->actingAs($room3->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room3,'record_attendance' => 1]))
+
+        // Create meeting with attendance in room type forbidden
+        $room3->roomType->allow_record_attendance = false;
+        $room3->roomType->save();
+        $this->actingAs($room3->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room3,'record_attendance' => 0]))
             ->assertSuccessful();
 
         // check correct record attendance after start
         $this->assertTrue($room1->runningMeeting()->record_attendance);
         $this->assertFalse($room2->runningMeeting()->record_attendance);
         $this->assertFalse($room3->runningMeeting()->record_attendance);
-
-        setting(['attendance.enabled' => true]);
 
         // check if api returns correct record attendance status
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
@@ -1660,17 +1665,6 @@ class RoomTest extends TestCase
             ])
             ->assertJsonPath('last_meeting.end', null);
 
-        // check with attendance globally disabled, after starting meeting
-        setting(['attendance.enabled' => false]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        setting(['attendance.enabled' => true]);
-
         // check if api return the record attendance status of the currently running meeting, not the room
         $room1->record_attendance = false;
         $room1->save();
@@ -1691,12 +1685,13 @@ class RoomTest extends TestCase
             ])
             ->assertJsonPath('last_meeting.end', null);
 
-        // check with attendance globally disabled
-        setting(['attendance.enabled' => false]);
+        // check with attendance disabled in room type
+        $room1->roomType->allow_record_attendance = false;
+        $room1->roomType->save();
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'record_attendance' => false
+                'record_attendance' => true
             ]);
     }
 
@@ -1705,9 +1700,6 @@ class RoomTest extends TestCase
      */
     public function testJoin()
     {
-        // Allow attendance recording
-        setting(['attendance.enabled' => true]);
-
         $room = Room::factory()->create([
             'allow_guests'       => true,
             'access_code'        => $this->faker->numberBetween(111111111, 999999999),
@@ -1756,7 +1748,7 @@ class RoomTest extends TestCase
 
             return Http::response($xml);
         };
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 11; $i++) {
             $bbbfaker->addRequest($meetingInfoRequest);
         }
 
@@ -1908,12 +1900,21 @@ class RoomTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 0]))
             ->assertSuccessful();
 
-        // Not accepting attendance recording, but globally attendance recording is disabled
+        // Not accepting attendance recording, but room attendance is disabled
         $runningMeeting->record_attendance = true;
         $runningMeeting->save();
-        setting(['attendance.enabled' => false]);
+        $room->record_attendance = false;
+        $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 0]))
-            ->assertSuccessful();
+            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING);
+
+        // Not accepting attendance recording, but room type rec. attendance is disabled
+        $room->record_attendance = true;
+        $room->save();
+        $room->roomType->allow_record_attendance = false;
+        $room->roomType->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 0]))
+            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING);
 
         // Check with invalid values for record_attendance parameter
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 'test']))

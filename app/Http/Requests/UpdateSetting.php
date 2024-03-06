@@ -47,7 +47,6 @@ class UpdateSetting extends FormRequest
             'statistics.servers.retention_period'       => 'required|numeric|min:1|max:365',
             'statistics.meetings.enabled'               => 'required|boolean',
             'statistics.meetings.retention_period'      => 'required|numeric|min:1|max:365',
-            'attendance.enabled'                        => 'required|boolean',
             'attendance.retention_period'               => 'required|numeric|min:1|max:365',
             'bbb.logo'                                  => 'string|max:255',
             'bbb.logo_file'                             => 'image|max:500',

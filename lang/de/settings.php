@@ -4,7 +4,6 @@ return [
     'application' => [
         'application' => 'Anwendung',
         'attendance'  => [
-            'enabled_title'          => 'Protokollierung der Teilnehmeranwesenheit in Meetings zulassen',
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
         ],
         'attendance_and_statistics_title' => 'Aufzeichnung und Statistik',
