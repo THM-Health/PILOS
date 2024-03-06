@@ -36,10 +36,10 @@ class EnsureModelNotStale
             }
 
             return response()->json([
-                'error'     => CustomStatusCodes::STALE_MODEL,
+                'error'     => CustomStatusCodes::STALE_MODEL->value,
                 'message'   => __('app.errors.stale_model', ['model' => __('app.model.' . $model->getTable())]),
                 'new_model' => $resource
-            ], CustomStatusCodes::STALE_MODEL);
+            ], CustomStatusCodes::STALE_MODEL->value);
         }
 
         return $next($request);

@@ -143,9 +143,9 @@ class ServerController extends Controller
             return response()->noContent();
         } else {
             return response()->json([
-                'error'     => CustomStatusCodes::STALE_MODEL,
+                'error'     => CustomStatusCodes::STALE_MODEL->value,
                 'message'   => __('app.errors.server_delete_failed'),
-            ], CustomStatusCodes::STALE_MODEL);
+            ], CustomStatusCodes::STALE_MODEL->value);
         }
     }
 

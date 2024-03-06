@@ -240,7 +240,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => trans($response)
-        ], $response === Password::RESET_LINK_SENT ? 200 : CustomStatusCodes::PASSWORD_RESET_FAILED);
+        ], $response === Password::RESET_LINK_SENT ? 200 : CustomStatusCodes::PASSWORD_RESET_FAILED->value);
     }
 
     public function changeEmail(ChangeEmailRequest $request, User $user)
@@ -258,7 +258,7 @@ class UserController extends Controller
                     return response()->noContent(202);
                 } else {
                     Log::warning('Reached throttle limit for email change', ['email' => $request->email]);
-                    abort(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
+                    abort(CustomStatusCodes::EMAIL_CHANGE_THROTTLE->value);
                 }
             }
             // Admin is changing the email of another user, no verification required

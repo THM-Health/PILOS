@@ -266,18 +266,17 @@ class MeetingService
         $userId         = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
         $roomUserRole   = $this->meeting->room->getRole(Auth::user(), $token);
 
-        $bbbRole = Role::VIEWER;
-
-        if ($roomUserRole->is(RoomUserRole::MODERATOR) || $roomUserRole->is(RoomUserRole::CO_OWNER) || $roomUserRole->is(RoomUserRole::OWNER)) {
-            $bbbRole = Role::MODERATOR;
-        }
+        $bbbRole = match ($roomUserRole) {
+            RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER, RoomUserRole::OWNER => Role::MODERATOR,
+            default => Role::VIEWER,
+        };
 
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setErrorRedirectUrl(url('rooms/'.$this->meeting->room->id));
         $joinMeetingParams->setUserID($userId);
         $joinMeetingParams->setAvatarURL(Auth::user() ? Auth::user()->imageUrl : null);
-        if ($roomUserRole->is(RoomUserRole::GUEST)) {
+        if ($roomUserRole == RoomUserRole::GUEST) {
             $joinMeetingParams->setGuest(true);
         }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);

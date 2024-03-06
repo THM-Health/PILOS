@@ -152,7 +152,7 @@ class RoomTest extends TestCase
 
         // Create second room, expect reach of limit
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_2)
-            ->assertStatus(CustomStatusCodes::ROOM_LIMIT_EXCEEDED);
+            ->assertStatus(CustomStatusCodes::ROOM_LIMIT_EXCEEDED->value);
     }
 
     /**
@@ -1107,7 +1107,7 @@ class RoomTest extends TestCase
         $settings['webcams_only_for_moderator']         = $this->faker->boolean;
         $settings['default_role']                       = $this->faker->randomElement([RoomUserRole::MODERATOR,RoomUserRole::USER]);
         $settings['allow_guests']                       = $this->faker->boolean;
-        $settings['lobby']                              = $this->faker->randomElement(RoomLobby::getValues());
+        $settings['lobby']                              = $this->faker->randomElement(RoomLobby::cases());
         $settings['room_type']                          = $roomType->id;
         $settings['name']                               = RoomFactory::createValidRoomName();
         $settings['welcome']                            = $this->faker->text;
@@ -1224,12 +1224,12 @@ class RoomTest extends TestCase
         // Testing member as moderator
         $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         // Testing member as co-owner
         $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         // Reset room membership
         $room->members()->sync([]);
@@ -1245,12 +1245,12 @@ class RoomTest extends TestCase
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->managePermission);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
         $this->role->permissions()->detach($this->managePermission);
 
         // Testing owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
     }
 
     /**
@@ -1293,7 +1293,7 @@ class RoomTest extends TestCase
             ]);
 
         $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>$this->faker->name,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         $this->flushHeaders();
 
@@ -1303,18 +1303,18 @@ class RoomTest extends TestCase
         $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertUnauthorized();
         $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         $this->flushHeaders();
 
         // Testing owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         // Testing member
         $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
     }
 
     public function testStartAndJoinWithWrongServerDetails()
@@ -1327,14 +1327,14 @@ class RoomTest extends TestCase
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
 
         $server->refresh();
         $this->assertEquals(ServerStatus::OFFLINE, $server->status);
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
     }
 
     public function testStartServerErrors()
@@ -1351,7 +1351,7 @@ class RoomTest extends TestCase
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
     }
 
     /**
@@ -1390,7 +1390,7 @@ class RoomTest extends TestCase
 
         // Create meeting without agreement to record attendance
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
-            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING);
+            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Create meeting without invalid record attendance values
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 'test']))
@@ -1478,20 +1478,20 @@ class RoomTest extends TestCase
         }
         $room2 = Room::factory()->create(['room_type_id'=>$room->roomType->id]);
         $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
 
         // Owner with invalid room type
         $room->roomType->roles()->attach($this->role);
         $room->roomType->update(['restrict' => true]);
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID);
+            ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID->value);
 
         // User with invalid room type
         $room->everyone_can_start = true;
         $room->save();
         $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID);
+            ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID->value);
     }
 
     /**
@@ -1754,14 +1754,14 @@ class RoomTest extends TestCase
 
         // Testing join with meeting not running
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
 
         // Testing join with meeting that is starting, but not ready yet
         $meeting               = $room->meetings()->create();
         $meeting->server()->associate($server);
         $meeting->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
         $meeting->delete();
 
         // Check no request was send to the bbb server
@@ -1775,7 +1775,7 @@ class RoomTest extends TestCase
         $room->latestMeeting()->associate($meeting);
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
         $meeting->refresh();
         $this->assertNotNull($meeting->end);
 
@@ -1892,7 +1892,7 @@ class RoomTest extends TestCase
 
         // Not accepting attendance recording, but meeting is recorded
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 0]))
-            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING);
+            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Not accepting attendance recording, but meeting is not recorded
         $runningMeeting->record_attendance = false;
@@ -1906,7 +1906,7 @@ class RoomTest extends TestCase
         $room->record_attendance = false;
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 0]))
-            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING);
+            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Not accepting attendance recording, but room type rec. attendance is disabled
         $room->record_attendance = true;
@@ -1914,7 +1914,7 @@ class RoomTest extends TestCase
         $room->roomType->allow_record_attendance = false;
         $room->roomType->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 0]))
-            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING);
+            ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Check with invalid values for record_attendance parameter
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 'test']))
@@ -1937,7 +1937,7 @@ class RoomTest extends TestCase
         $meeting->room->save();
 
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$meeting->room,'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
 
         $this->assertEquals(ServerStatus::OFFLINE, $meeting->server->status);
     }

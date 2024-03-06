@@ -47,14 +47,14 @@ class RoomService
                 if ($this->room->roomTypeInvalid) {
                     $lock->release();
                     Log::warning('Failed to create meeting for room {room}; invalid room type', ['room' => $this->room->getLogLabel() ]);
-                    abort(CustomStatusCodes::ROOM_TYPE_INVALID, __('app.errors.room_type_invalid'));
+                    abort(CustomStatusCodes::ROOM_TYPE_INVALID->value, __('app.errors.room_type_invalid'));
                 }
 
                 // Check if user didn't see the attendance recording note, but the attendance is recorded
                 if ($this->room->roomType->allow_record_attendance && $this->room->record_attendance && !$agreedToAttendance) {
                     $lock->release();
                     Log::warning('Failed to create meeting for room {room}; attendance agreement missing', ['room' => $this->room->getLogLabel() ]);
-                    abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+                    abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value, __('app.errors.attendance_agreement_missing'));
                 }
 
                 Log::info('Finding server with lowest usage for room {room}', ['room' => $this->room->getLogLabel() ]);
@@ -69,7 +69,7 @@ class RoomService
                 if ($server == null) {
                     $lock->release();
                     Log::error('Failed to create meeting for room {room}; no servers found', ['room' => $this->room->getLogLabel() ]);
-                    abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
+                    abort(CustomStatusCodes::NO_SERVER_AVAILABLE->value, __('app.errors.no_server_available'));
                 }
 
                 // Create new meeting
@@ -85,7 +85,7 @@ class RoomService
                 if (!$meetingService->start()) {
                     $lock->release();
                     Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()  ]);
-                    abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+                    abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
                 }
 
                 Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel() ]);
@@ -112,19 +112,19 @@ class RoomService
                     $meetingService->setEnd();
                     $lock->release();
                     Log::warning('Failed to join meeting for room {room}; meeting is not running', ['room' => $this->room->getLogLabel() ]);
-                    abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+                    abort(CustomStatusCodes::MEETING_NOT_RUNNING->value, __('app.errors.not_running'));
                 }
 
                 // Check if user didn't see the attendance recording note, but the attendance is recorded
                 if ($meeting->record_attendance && !$agreedToAttendance) {
                     $lock->release();
                     Log::warning('Failed to join meeting for room {room}; attendance agreement missing', ['room' => $this->room->getLogLabel() ]);
-                    abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+                    abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value, __('app.errors.attendance_agreement_missing'));
                 }
                 $lock->release();
             }
         } catch (LockTimeoutException $e) {
-            abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+            abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
         }
 
         $this->room->delete_inactive = null;
@@ -148,7 +148,7 @@ class RoomService
         // no meeting found
         if ($meeting == null || $meeting->end != null) {
             Log::warning('Failed to join meeting for room {room}; no running meeting found', ['room' => $this->room->getLogLabel() ]);
-            abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+            abort(CustomStatusCodes::MEETING_NOT_RUNNING->value, __('app.errors.not_running'));
         }
 
         $meetingService = new MeetingService($meeting);
@@ -159,7 +159,7 @@ class RoomService
         if (!$meetingService->isRunning() ) {
             $meetingService->setEnd();
             Log::warning('Meeting for room {room} is not running on the BBB server', ['room' => $this->room->getLogLabel() ]);
-            abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+            abort(CustomStatusCodes::MEETING_NOT_RUNNING->value, __('app.errors.not_running'));
         }
 
         Log::info('Meeting for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel() ]);
@@ -167,7 +167,7 @@ class RoomService
         // Check if user didn't see the attendance recording note, but the attendance is recorded
         if ($meeting->record_attendance && !$agreedToAttendance) {
             Log::warning('Failed to join meeting for room {room}; attendance agreement missing', ['room' => $this->room->getLogLabel() ]);
-            abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+            abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value, __('app.errors.attendance_agreement_missing'));
         }
 
         return $meetingService;

@@ -107,9 +107,9 @@ class RoleController extends Controller
                 $role->permissions()->sync($old_role_permissions);
 
                 return response()->json([
-                    'error'   => CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST,
+                    'error'   => CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST->value,
                     'message' => __('app.errors.role_update_permission_lost')
-                ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
+                ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST->value);
             }
 
             // Ensure updated refreshed even if nothing was changed!
@@ -136,9 +136,9 @@ class RoleController extends Controller
         $role->loadCount('users');
         if ($role->users_count != 0) {
             return response()->json([
-                'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
+                'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS->value,
                 'message' => __('app.errors.role_delete_linked_users')
-            ], CustomStatusCodes::ROLE_DELETE_LINKED_USERS);
+            ], CustomStatusCodes::ROLE_DELETE_LINKED_USERS->value);
         }
 
         $role->delete();

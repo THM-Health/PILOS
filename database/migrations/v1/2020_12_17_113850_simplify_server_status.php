@@ -10,7 +10,7 @@ class SimplifyServerStatus extends Migration
     public function up()
     {
         Schema::table('servers', function (Blueprint $table) {
-            $table->smallInteger('status')->default(ServerStatus::DISABLED)->change();
+            $table->smallInteger('status')->default(ServerStatus::DISABLED->value)->change();
         });
 
         foreach (\App\Models\Server::all() as $server){

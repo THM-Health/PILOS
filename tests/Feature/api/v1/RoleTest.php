@@ -149,7 +149,7 @@ class RoleTest extends TestCase
         $superuserRole->permissions()->attach($permission_ids);
 
         $this->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         $changes['updated_at'] = Carbon::now();
 
@@ -224,7 +224,7 @@ class RoleTest extends TestCase
             'name'        => $roleA->name,
             'permissions' => [$permission_ids[0], $permission_ids[1], $new_permission],
             'updated_at'  => $roleA->updated_at
-        ])->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
+        ])->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST->value);
 
         $roleA->unsetRelation('permissions');
         $this->assertEquals($permission_ids, $roleA->permissions()->pluck('permissions.id')->toArray());
@@ -274,7 +274,7 @@ class RoleTest extends TestCase
 
         // check if role with linked users cannot be deleted
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))
-            ->assertStatus(CustomStatusCodes::ROLE_DELETE_LINKED_USERS)
+            ->assertStatus(CustomStatusCodes::ROLE_DELETE_LINKED_USERS->value)
             ->assertJsonFragment([
                 'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
                 'message' => __('app.errors.role_delete_linked_users')

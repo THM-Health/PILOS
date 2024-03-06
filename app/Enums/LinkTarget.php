@@ -2,14 +2,12 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * Possible link targets
  * @package App\Enums
  */
-final class LinkTarget extends Enum
+enum LinkTarget : string
 {
-    public const BLANK  = 'blank';
-    public const SELF   = 'self';
+    case BLANK = 'blank';
+    case SELF  = 'self';
 }

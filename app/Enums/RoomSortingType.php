@@ -2,15 +2,13 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * Room sorting types
  * @package App\Enums
  */
-final class RoomSortingType extends Enum
+enum RoomSortingType : string
 {
-    public const ALPHA         =   'alpha';
-    public const LAST_STARTED  =   'last_started';
-    public const ROOM_TYPE     =   'room_type';
+    case ALPHA        = 'alpha';
+    case LAST_STARTED = 'last_started';
+    case ROOM_TYPE    = 'room_type';
 }

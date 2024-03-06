@@ -122,7 +122,7 @@ class MeetingController extends Controller
         // check if statistical data is globally enabled
         if (!setting('statistics.meetings.enabled')) {
             Log::info('Failed to show statistics for meeting {meeting} of room {room}; statistics are disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
-            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_statistics_disabled'));
+            abort(CustomStatusCodes::FEATURE_DISABLED->value, __('app.errors.meeting_statistics_disabled'));
         }
 
         return MeetingStat::collection($meeting->stats()->orderBy('created_at')->get());
@@ -145,13 +145,13 @@ class MeetingController extends Controller
         // check if attendance recording is enabled for this meeting
         if (!$meeting->record_attendance) {
             Log::info('Failed to show attendace for meeting {meeting} of room {room}; attendance is disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
-            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
+            abort(CustomStatusCodes::FEATURE_DISABLED->value, __('app.errors.meeting_attendance_disabled'));
         }
 
         // check if meeting is ended
         if ($meeting->end == null) {
             Log::info('Failed to show attendace for meeting {meeting} of room {room}; meeting is still running', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
-            abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
+            abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value, __('app.errors.meeting_attendance_not_ended'));
         }
 
         return Attendee::collection($meetingService->attendance());

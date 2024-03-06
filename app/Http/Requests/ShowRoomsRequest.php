@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enums\RoomSortingType;
-use BenSampo\Enum\Rules\EnumValue;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ShowRoomsRequest extends FormRequest
 {
@@ -17,7 +17,7 @@ class ShowRoomsRequest extends FormRequest
             'filter_all'      => ['required', 'boolean'],
             'only_favorites'  => ['required', 'boolean'],
             'room_type'       => ['nullable', 'exists:App\Models\RoomType,id'],
-            'sort_by'         => ['required', new EnumValue(RoomSortingType::class)],
+            'sort_by'         => ['required', Rule::enum(RoomSortingType::class)],
             'search'          => ['string'],
             'page'            => ['required','integer']
             ];

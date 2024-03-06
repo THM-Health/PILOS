@@ -10,7 +10,6 @@
         "ext-json": "*",
         "ext-simplexml": "*",
         "anlutro/l4-settings": "^1.0.0",
-        "bensampo/laravel-enum": "^6.0",
         "directorytree/ldaprecord-laravel": "^3.0",
         "doctrine/dbal": "^3.0",
         "goldspecdigital/laravel-eloquent-uuid": "^10",

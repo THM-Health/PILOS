@@ -242,7 +242,7 @@ class RoomStatisticTest extends TestCase
         // check with meeting stats globally disabled
         setting(['statistics.meetings.enabled' => false]);
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
     }
 
     /**
@@ -297,19 +297,19 @@ class RoomStatisticTest extends TestCase
         // check room co-owner
         $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::CO_OWNER]);
         $this->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $meeting->room->members()->detach($this->user);
 
         // check view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->actingAs($this->user)->role->permissions()->attach($this->viewAllPermission);
         $this->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // check as owner
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
 
         // enable record attendance for meeting
         $meeting->record_attendance = true;
@@ -394,7 +394,7 @@ class RoomStatisticTest extends TestCase
 
         // check with for running meeting
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value);
     }
 
     /**
@@ -516,19 +516,19 @@ class RoomStatisticTest extends TestCase
         // check room co-owner
         $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::CO_OWNER]);
         $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $meeting->room->members()->detach($this->user);
 
         // check view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->actingAs($this->user)->role->permissions()->attach($this->viewAllPermission);
         $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // check as owner
         $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
 
         // enable record attendance for meeting
         $meeting->record_attendance = true;
@@ -610,6 +610,6 @@ class RoomStatisticTest extends TestCase
 
         // check with for running meeting
         $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value);
     }
 }

@@ -60,7 +60,7 @@ class RoomMemberController extends Controller
 
         $member = User::find($request->user);
 
-        Log::info('Added member {member} with role {role} to room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'member' => $member->getLogLabel() ]);
+        Log::info('Added member {member} with role {role} to room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label(), 'member' => $member->getLogLabel() ]);
 
         return response()->noContent();
     }
@@ -79,7 +79,7 @@ class RoomMemberController extends Controller
             $room->members()->attach($user, ['role' => $request->role]);
         }
 
-        Log::info('Added {count} member(s) with role {role} to room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'count' => count($request->user_emails) ]);
+        Log::info('Added {count} member(s) with role {role} to room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label(), 'count' => count($request->user_emails) ]);
 
         return response()->noContent();
     }
@@ -99,7 +99,7 @@ class RoomMemberController extends Controller
         }
         $room->members()->updateExistingPivot($user, ['role' => $request->role]);
 
-        Log::info('Changed role for member {member} to {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'member' => $user->getLogLabel() ]);
+        Log::info('Changed role for member {member} to {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label(), 'member' => $user->getLogLabel() ]);
 
         return response()->noContent();
     }
@@ -117,7 +117,7 @@ class RoomMemberController extends Controller
             $room->members()->updateExistingPivot($user, ['role' => $request->role]);
         }
 
-        Log::info('Changed role for {count} member(s) to role {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'count' => count($request->users) ]);
+        Log::info('Changed role for {count} member(s) to role {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label(), 'count' => count($request->users) ]);
 
         return response()->noContent();
     }

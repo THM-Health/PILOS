@@ -276,7 +276,7 @@ class ServerPoolTest extends TestCase
 
         // Test with authorized user, without updated at
         $this->actingAs($this->user)->putJson(route('api.v1.serverPools.update', ['serverPool'=>$serverPool->id]), $data)
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         $data['updated_at'] = $serverPool->updated_at;
 
@@ -362,7 +362,7 @@ class ServerPoolTest extends TestCase
 
         // Test delete with room type attached
         $this->actingAs($this->user)->deleteJson(route('api.v1.serverPools.destroy', ['serverPool'=>$serverPool->id]))
-            ->assertStatus(CustomStatusCodes::STALE_MODEL)
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value)
             ->assertJsonCount(2, 'room_types')
             ->assertJsonFragment(['id'=>$roomTypes[0]->id, 'name'=>$roomTypes[0]->name]);
         $roomTypes[0]->delete();

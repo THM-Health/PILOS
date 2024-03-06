@@ -48,11 +48,11 @@ class EnsureModelNotStaleTest extends TestCase
         $role = Role::factory()->create();
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $role->updated_at->sub(new DateInterval('P1D'))])
-            ->assertStatus(CustomStatusCodes::STALE_MODEL)
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value)
             ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->withPermissions()->toJson(), true)]);
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => null])
-            ->assertStatus(CustomStatusCodes::STALE_MODEL)
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value)
             ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->withPermissions()->toJson(), true)]);
     }
 
