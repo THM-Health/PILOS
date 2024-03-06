@@ -82,7 +82,7 @@ class RoomService
                 // Create new meeting
                 $meeting                     = new Meeting();
                 $meeting->record_attendance  = $this->room->roomType->allow_record_attendance && $this->room->record_attendance;
-		        $meeting->record             = $this->room->roomType->allow_record && $this->room->record;
+                $meeting->record             = $this->room->roomType->allow_record && $this->room->record;
                 $meeting->server()->associate($server);
                 $meeting->room()->associate($this->room);
                 $meeting->save();
