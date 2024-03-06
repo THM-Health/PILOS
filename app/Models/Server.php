@@ -17,12 +17,14 @@ class Server extends Model
 
     protected $casts = [
         'strength'                  => 'integer',
-        'status'                    => 'integer',
+        'status'                    => ServerStatus::class,
         'participant_count'         => 'integer',
         'listener_count'            => 'integer',
         'voice_participant_count'   => 'integer',
         'video_count'               => 'integer',
         'meeting_count'             => 'integer',
+        'error_count'               => 'integer',
+        'recover_count'             => 'integer',
     ];
 
     /**

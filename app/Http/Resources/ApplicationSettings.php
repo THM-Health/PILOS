@@ -82,8 +82,8 @@ class ApplicationSettings extends JsonResource
                 ])
             ],
             $this->mergeWhen($this->allSettings, [
-                'link_btn_styles'            => LinkButtonStyle::getValues(),
-                'link_targets'               => LinkTarget::getValues(),
+                'link_btn_styles'            => LinkButtonStyle::cases(),
+                'link_targets'               => LinkTarget::cases(),
                 'room_auto_delete'           => [
                     'enabled'              => boolval(setting('room_auto_delete.enabled')),
                     'inactive_period'      => intval(setting('room_auto_delete.inactive_period')),

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Exceptions\RoomIdGenerationFailed;
 use App\Services\RoomAuthService;
@@ -66,8 +67,8 @@ class Room extends Model
         'allow_guests'                       => 'boolean',
         'lock_settings_lock_on_join'         => 'boolean',
         'lock_settings_hide_user_list'       => 'boolean',
-        'default_role'                       => 'integer',
-        'lobby'                              => 'integer',
+        'default_role'                       => RoomUserRole::class,
+        'lobby'                              => RoomLobby::class,
         'access_code'                        => 'integer',
         'listed'                             => 'boolean',
         'record_attendance'                  => 'boolean',
@@ -127,7 +128,7 @@ class Room extends Model
      */
     public function members()
     {
-        return $this->belongsToMany(User::class)->withPivot('role');
+        return $this->belongsToMany(User::class)->using(RoomUser::class)->withPivot('role');
     }
 
     /**
@@ -228,22 +229,22 @@ class Room extends Model
     {
         if ($user == null) {
             if ($token) {
-                return RoomUserRole::fromValue($token->role);
+                return $token->role;
             }
 
-            return RoomUserRole::GUEST();
+            return RoomUserRole::GUEST;
         }
 
         if ($this->owner->is($user) || $user->can('rooms.manage')) {
-            return RoomUserRole::OWNER();
+            return RoomUserRole::OWNER;
         }
 
         $member = $this->members()->find($user);
         if ($member) {
-            return RoomUserRole::fromValue($member->pivot->role);
+            return $member->pivot->role;
         }
 
-        return RoomUserRole::fromValue($this->default_role);
+        return $this->default_role;
     }
 
     /**

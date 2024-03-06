@@ -116,22 +116,11 @@ class RoomController extends Controller
             }
         }
         // sort rooms by different strategies
-        switch($request->sort_by) {
-            case RoomSortingType::ALPHA:
-                $collection = $collection->orderBy('rooms.name');
-
-                break;
-            case RoomSortingType::ROOM_TYPE:
-                $collection = $collection->orderBy('room_types.name')->orderBy('rooms.name');
-
-                break;
-            case RoomSortingType::LAST_STARTED:
-            default:
-                // 1. Sort by running state, 2. Sort by last meeting start date, 3. Sort by room name
-                $collection = $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name');
-
-                break;
-        }
+        $collection = match ($request->sort_by) {
+            RoomSortingType::ALPHA->value => $collection->orderBy('rooms.name'),
+            RoomSortingType::ROOM_TYPE->value => $collection->orderBy('room_types.name')->orderBy('rooms.name'),
+            default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name'),
+        };
 
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
@@ -150,7 +139,7 @@ class RoomController extends Controller
     public function store(CreateRoom $request)
     {
         if (Auth::user()->hasRoomLimitExceeded()) {
-            abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED, __('app.errors.room_limit_exceeded'));
+            abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED->value, __('app.errors.room_limit_exceeded'));
         }
 
         $room              = new Room();
@@ -356,7 +345,7 @@ class RoomController extends Controller
             if ($room->members->contains($newOwner)) {
                 $room->members()->detach($newOwner);
             }
-            
+
             $room->owner()->associate($newOwner);
             $room->save();
 
@@ -368,7 +357,7 @@ class RoomController extends Controller
             DB::commit();
             Log::info('Transferred room ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
             if ($request->role) {
-                Log::info('Changed role of previous owner {oldOwner} of the room {room} to the role {role}', ['oldOwner' => $oldOwner->getLogLabel(), 'room'=> $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role)]);
+                Log::info('Changed role of previous owner {oldOwner} of the room {room} to the role {role}', ['oldOwner' => $oldOwner->getLogLabel(), 'room'=> $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label()]);
             }
 
             return response()->noContent();
