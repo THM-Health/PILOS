@@ -23,22 +23,20 @@ class ExtendRoomId extends Migration
         Schema::table('room_user', function (Blueprint $table) {
             $table->dropForeign(['room_id']);
         });
-       
 
         // Change column type
         Schema::table('rooms', function (Blueprint $table) {
-            $table->string('id',15)->change();
+            $table->string('id', 15)->change();
         });
         Schema::table('meetings', function (Blueprint $table) {
-            $table->string('room_id',15)->change();
+            $table->string('room_id', 15)->change();
         });
         Schema::table('room_files', function (Blueprint $table) {
-            $table->string('room_id',15)->change();
+            $table->string('room_id', 15)->change();
         });
         Schema::table('room_user', function (Blueprint $table) {
-            $table->string('room_id',15)->change();
+            $table->string('room_id', 15)->change();
         });
-
 
         // Re-add foreign keys
         Schema::table('meetings', function (Blueprint $table) {
@@ -61,16 +59,16 @@ class ExtendRoomId extends Migration
     {
         Schema::disableForeignKeyConstraints();
         Schema::table('rooms', function (Blueprint $table) {
-            $table->string('id',11)->change();
+            $table->string('id', 11)->change();
         });
         Schema::table('meetings', function (Blueprint $table) {
-            $table->string('room_id',11)->change();
+            $table->string('room_id', 11)->change();
         });
         Schema::table('room_files', function (Blueprint $table) {
-            $table->string('room_id',11)->change();
+            $table->string('room_id', 11)->change();
         });
         Schema::table('room_user', function (Blueprint $table) {
-            $table->string('room_id',11)->change();
+            $table->string('room_id', 11)->change();
         });
         Schema::enableForeignKeyConstraints();
     }

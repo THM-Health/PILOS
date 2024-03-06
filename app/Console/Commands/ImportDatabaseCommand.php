@@ -14,11 +14,9 @@ class ImportDatabaseCommand extends Command
     protected $description = 'Import database dump file';
 
     protected bool $error = false;
+
     protected $bar;
 
-    /**
-     * @param bool $error
-     */
     public function setError(bool $error): void
     {
         $this->error = $error;
@@ -29,7 +27,7 @@ class ImportDatabaseCommand extends Command
         // Get path of sql file
         $file = realpath($this->argument('file'));
         // Check if file exists
-        if (!$file) {
+        if (! $file) {
             $this->error('File not found');
 
             return 1;
@@ -41,14 +39,14 @@ class ImportDatabaseCommand extends Command
         $db = DB::connection()->getConfig();
 
         // Build command with pv to show progress of import
-        switch($db['driver']) {
+        switch ($db['driver']) {
             case 'mysql':
                 $command = "pv -n -f $file | mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --port={$db['port']} --database {$db['database']}";
 
                 break;
             case 'pgsql':
                 $connectionURI = "postgresql://{$db['username']}:{$db['password']}@{$db['host']}:{$db['port']}/{$db['database']}";
-                $command       = "pv -n -f $file | psql {$connectionURI}";
+                $command = "pv -n -f $file | psql {$connectionURI}";
 
                 break;
             default:
@@ -56,7 +54,7 @@ class ImportDatabaseCommand extends Command
 
                 return 1;
         }
-       
+
         $this->bar = $this->output->createProgressBar(100);
 
         // Run command and show output in realtime

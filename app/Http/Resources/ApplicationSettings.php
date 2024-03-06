@@ -31,92 +31,92 @@ class ApplicationSettings extends JsonResource
     }
 
     /**
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'version'                        => config('app.version'),
-            'whitelabel'                     => config('app.whitelabel'),
-            'base_url'                       => config('app.url'),
-            'name'                           => setting('name'),
-            'logo'                           => setting('logo'),
-            'favicon'                        => setting('favicon'),
-            'room_limit'                     => intval(setting('room_limit')),
-            'pagination_page_size'           => intval(setting('pagination_page_size')),
-            'room_pagination_page_size'      => intval(setting('room_pagination_page_size')),
-            'password_change_allowed'        => boolval(setting('password_change_allowed')),
-            'default_locale'                 => config('app.locale'),
-            'enabled_locales'                => array_map(function ($locale) {
+            'version' => config('app.version'),
+            'whitelabel' => config('app.whitelabel'),
+            'base_url' => config('app.url'),
+            'name' => setting('name'),
+            'logo' => setting('logo'),
+            'favicon' => setting('favicon'),
+            'room_limit' => intval(setting('room_limit')),
+            'pagination_page_size' => intval(setting('pagination_page_size')),
+            'room_pagination_page_size' => intval(setting('room_pagination_page_size')),
+            'password_change_allowed' => boolval(setting('password_change_allowed')),
+            'default_locale' => config('app.locale'),
+            'enabled_locales' => array_map(function ($locale) {
                 return $locale['name'];
             }, config('app.enabled_locales')),
-            'default_timezone'               => setting('default_timezone'),
-            'bbb'                            => [
-                'file_mimes'            => config('bigbluebutton.allowed_file_mimes'),
-                'max_filesize'          => intval(config('bigbluebutton.max_filesize')),
-                'room_name_limit'       => intval(config('bigbluebutton.room_name_limit')),
+            'default_timezone' => setting('default_timezone'),
+            'bbb' => [
+                'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
+                'max_filesize' => intval(config('bigbluebutton.max_filesize')),
+                'room_name_limit' => intval(config('bigbluebutton.room_name_limit')),
                 'welcome_message_limit' => intval(config('bigbluebutton.welcome_message_limit')),
                 $this->mergeWhen($this->allSettings, [
                     'style' => setting('bbb_style'),
-                    'logo'  => setting('bbb_logo'),
-                ])
+                    'logo' => setting('bbb_logo'),
+                ]),
             ],
             'monitor' => [
-                'horizon'   => true,
-                'pulse'     => true,
+                'horizon' => true,
+                'pulse' => true,
                 'telescope' => config('telescope.enabled'),
             ],
             'banner' => [
-                'enabled'    => boolval(setting('banner.enabled')),
+                'enabled' => boolval(setting('banner.enabled')),
                 $this->mergeWhen(boolval(setting('banner.enabled')) || $this->allSettings, [
-                    'message'     => setting('banner.message'),
-                    'link'        => setting('banner.link'),
-                    'icon'        => setting('banner.icon'),
-                    'color'       => setting('banner.color'),
-                    'background'  => setting('banner.background'),
-                    'title'       => setting('banner.title'),
-                    'link_style'  => setting('banner.link_style'),
-                    'link_text'   => setting('banner.link_text'),
+                    'message' => setting('banner.message'),
+                    'link' => setting('banner.link'),
+                    'icon' => setting('banner.icon'),
+                    'color' => setting('banner.color'),
+                    'background' => setting('banner.background'),
+                    'title' => setting('banner.title'),
+                    'link_style' => setting('banner.link_style'),
+                    'link_text' => setting('banner.link_text'),
                     'link_target' => setting('banner.link_target'),
-                ])
+                ]),
             ],
             $this->mergeWhen($this->allSettings, [
-                'link_btn_styles'            => LinkButtonStyle::cases(),
-                'link_targets'               => LinkTarget::cases(),
-                'room_auto_delete'           => [
-                    'enabled'              => boolval(setting('room_auto_delete.enabled')),
-                    'inactive_period'      => intval(setting('room_auto_delete.inactive_period')),
-                    'never_used_period'    => intval(setting('room_auto_delete.never_used_period')),
-                    'deadline_period'      => intval(setting('room_auto_delete.deadline_period'))
-                ]
+                'link_btn_styles' => LinkButtonStyle::cases(),
+                'link_targets' => LinkTarget::cases(),
+                'room_auto_delete' => [
+                    'enabled' => boolval(setting('room_auto_delete.enabled')),
+                    'inactive_period' => intval(setting('room_auto_delete.inactive_period')),
+                    'never_used_period' => intval(setting('room_auto_delete.never_used_period')),
+                    'deadline_period' => intval(setting('room_auto_delete.deadline_period')),
+                ],
             ]),
-            'default_presentation' => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
-            'help_url'             => setting('help_url'),
-            'legal_notice_url'     => setting('legal_notice_url'),
-            'privacy_policy_url'   => setting('privacy_policy_url'),
-            'statistics'           => [
+            'default_presentation' => $this->when(! empty(setting('default_presentation')), setting('default_presentation')),
+            'help_url' => setting('help_url'),
+            'legal_notice_url' => setting('legal_notice_url'),
+            'privacy_policy_url' => setting('privacy_policy_url'),
+            'statistics' => [
                 $this->mergeWhen($this->allSettings, [
                     'servers' => [
-                        'enabled'           => boolval(setting('statistics.servers.enabled')),
-                        'retention_period'  => intval(setting('statistics.servers.retention_period')),
-                    ]
+                        'enabled' => boolval(setting('statistics.servers.enabled')),
+                        'retention_period' => intval(setting('statistics.servers.retention_period')),
+                    ],
                 ]),
                 'meetings' => [
-                    'enabled'           => boolval(setting('statistics.meetings.enabled')),
-                    'retention_period'  => intval(setting('statistics.meetings.retention_period')),
+                    'enabled' => boolval(setting('statistics.meetings.enabled')),
+                    'retention_period' => intval(setting('statistics.meetings.retention_period')),
                 ],
             ],
             'attendance' => [
-                'retention_period'  => intval(setting('attendance.retention_period')),
+                'retention_period' => intval(setting('attendance.retention_period')),
             ],
             'room_token_expiration' => intval(setting('room_token_expiration')),
-            'auth'                  => [
-                'local'                  => config('auth.local.enabled'),
-                'ldap'                   => config('ldap.enabled'),
-                'shibboleth'             => config('services.shibboleth.enabled'),
+            'auth' => [
+                'local' => config('auth.local.enabled'),
+                'ldap' => config('ldap.enabled'),
+                'shibboleth' => config('services.shibboleth.enabled'),
             ],
-            'room_refresh_rate'     => floatval(config('bigbluebutton.room_refresh_rate')),
+            'room_refresh_rate' => floatval(config('bigbluebutton.room_refresh_rate')),
         ];
     }
 }

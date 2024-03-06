@@ -18,14 +18,14 @@ class ValidRoomTypeTest extends TestCase
     {
         $roleA = Role::factory()->create();
         $roleB = Role::factory()->create();
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $user->roles()->sync([$roleB->id]);
         $roomTypeA = RoomType::factory()->create([
-            'restrict' => true
+            'restrict' => true,
         ]);
         $roomTypeA->roles()->sync([$roleA->id]);
         $roomTypeB = RoomType::factory()->create([
-            'restrict' => true
+            'restrict' => true,
         ]);
         $roomTypeB->roles()->sync([$roleB->id]);
         $roomTypeC = RoomType::factory()->create();
@@ -42,7 +42,7 @@ class ValidRoomTypeTest extends TestCase
 
     public function testMessage()
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $this->assertEquals(__('validation.custom.invalid_room_type'), (new ValidRoomType($user))->message());
     }
 }

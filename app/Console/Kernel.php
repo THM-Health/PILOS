@@ -2,10 +2,10 @@
 
 namespace App\Console;
 
+use App\Console\Commands\BuildHistory;
 use App\Console\Commands\CleanupAttendance;
 use App\Console\Commands\CleanupRooms;
 use App\Console\Commands\CleanupStatistics;
-use App\Console\Commands\BuildHistory;
 use App\Console\Commands\CreateSuperuser;
 use App\Console\Commands\DeleteObsoleteTokens;
 use App\Console\Commands\DeleteUnverifiedNewUsers;
@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
         CleanupAttendance::class,
         CleanupStatistics::class,
         DeleteObsoleteTokens::class,
-        CleanupRooms::class
+        CleanupRooms::class,
     ];
 
     /**
@@ -50,7 +50,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

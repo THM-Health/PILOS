@@ -2,9 +2,9 @@
 
 namespace Tests;
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use Illuminate\Contracts\Console\Kernel;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -24,7 +24,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function setUp(): void
     {
-        if (!defined('LARAVEL_START')) {
+        if (! defined('LARAVEL_START')) {
             define('LARAVEL_START', microtime(true));
         }
 

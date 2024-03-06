@@ -4,10 +4,9 @@ namespace App\Enums;
 
 /**
  * Possible link targets
- * @package App\Enums
  */
-enum LinkTarget : string
+enum LinkTarget: string
 {
     case BLANK = 'blank';
-    case SELF  = 'self';
+    case SELF = 'self';
 }

@@ -27,13 +27,13 @@ class ServerPoolController extends Controller
     public function index(Request $request)
     {
         $additionalMeta = [];
-        $resource       = ServerPool::withCount('servers');
+        $resource = ServerPool::withCount('servers');
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by  = $request->query('sort_by');
+            $by = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['id', 'name','servers_count']) && in_array($dir, ['asc', 'desc'])) {
+            if (in_array($by, ['id', 'name', 'servers_count']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
         }
@@ -53,7 +53,6 @@ class ServerPoolController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  ServerPool         $serverPool
      * @return ServerPoolResource
      */
     public function show(ServerPool $serverPool)
@@ -64,14 +63,13 @@ class ServerPoolController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  ServerPoolRequest  $request
-     * @param  Server             $server
+     * @param  Server  $server
      * @return ServerPoolResource
      */
     public function update(ServerPoolRequest $request, ServerPool $serverPool)
     {
-        $serverPool->description  = $request->description;
-        $serverPool->name         = $request->name;
+        $serverPool->description = $request->description;
+        $serverPool->name = $request->name;
         $serverPool->save();
         $serverPool->servers()->sync($request->servers);
 
@@ -81,14 +79,13 @@ class ServerPoolController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  ServerPoolRequest  $request
      * @return ServerPoolResource
      */
     public function store(ServerPoolRequest $request)
     {
-        $serverPool               = new ServerPool();
-        $serverPool->description  = $request->description;
-        $serverPool->name         = $request->name;
+        $serverPool = new ServerPool();
+        $serverPool->description = $request->description;
+        $serverPool->name = $request->name;
         $serverPool->save();
         $serverPool->servers()->sync($request->servers);
 
@@ -98,9 +95,8 @@ class ServerPoolController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Request                                $request
-     * @param  ServerPool                             $serverPool
      * @return \Illuminate\Http\JsonResponse|Response
+     *
      * @throws \Exception
      */
     public function destroy(Request $request, ServerPool $serverPool)
@@ -112,9 +108,9 @@ class ServerPoolController extends Controller
             return response()->noContent();
         } else {
             return response()->json([
-                'error'      => CustomStatusCodes::STALE_MODEL->value,
-                'message'    => __('app.errors.server_pool_delete_failed'),
-                'room_types' => \App\Http\Resources\RoomType::collection($serverPool->roomTypes)
+                'error' => CustomStatusCodes::STALE_MODEL->value,
+                'message' => __('app.errors.server_pool_delete_failed'),
+                'room_types' => \App\Http\Resources\RoomType::collection($serverPool->roomTypes),
             ], CustomStatusCodes::STALE_MODEL->value);
         }
     }

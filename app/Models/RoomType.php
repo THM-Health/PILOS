@@ -12,15 +12,15 @@ class RoomType extends Model
     use AddsModelNameTrait, HasFactory;
 
     protected $casts = [
-        'allow_listing'           => 'boolean',
-        'restrict'                => 'boolean',
-        'max_participants'        => 'integer',
-        'max_duration'            => 'integer',
-        'require_access_code'     => 'boolean',
+        'allow_listing' => 'boolean',
+        'restrict' => 'boolean',
+        'max_participants' => 'integer',
+        'max_duration' => 'integer',
+        'require_access_code' => 'boolean',
         'allow_record_attendance' => 'boolean',
     ];
 
-    protected $fillable = ['name','color', 'restrict'];
+    protected $fillable = ['name', 'color', 'restrict'];
 
     public function rooms()
     {

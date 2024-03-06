@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Permission
- * @package App
  */
 class Permission extends Model
 {
@@ -33,6 +32,7 @@ class Permission extends Model
 
     /**
      * Permissions that are included in this permission
+     *
      * @return BelongsToMany
      */
     public function includedPermissions()
@@ -42,13 +42,14 @@ class Permission extends Model
 
     /**
      * Setup the permission include
-     * @param string   $permissionName          Name of the permission
-     * @param string[] $includedPermissionNames Names of the permissions that should be included
+     *
+     * @param  string  $permissionName  Name of the permission
+     * @param  string[]  $includedPermissionNames  Names of the permissions that should be included
      */
     public static function setIncludedPermissions($permissionName, $includedPermissionNames)
     {
-        $permission             = self::where('name', $permissionName)->firstOrFail();
-        $includedPermissions    = [];
+        $permission = self::where('name', $permissionName)->firstOrFail();
+        $includedPermissions = [];
         foreach ($includedPermissionNames as $includedPermissionName) {
             $includedPermission = self::where('name', $includedPermissionName)->firstOrFail();
             array_push($includedPermissions, $includedPermission->id);

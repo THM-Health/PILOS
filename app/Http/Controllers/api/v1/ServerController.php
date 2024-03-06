@@ -42,13 +42,13 @@ class ServerController extends Controller
         }
 
         $additionalMeta = [];
-        $resource       = Server::query();
+        $resource = Server::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by  = $request->query('sort_by');
+            $by = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['id', 'name','participant_count','video_count','meeting_count','status', 'version']) && in_array($dir, ['asc', 'desc'])) {
+            if (in_array($by, ['id', 'name', 'participant_count', 'video_count', 'meeting_count', 'status', 'version']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
         }
@@ -68,7 +68,6 @@ class ServerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  Server         $server
      * @return ServerResource
      */
     public function show(Server $server)
@@ -79,18 +78,16 @@ class ServerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  ServerRequest  $request
-     * @param  Server         $server
      * @return ServerResource
      */
     public function update(ServerRequest $request, Server $server)
     {
-        $server->name         = $request->name;
-        $server->description  = $request->description;
-        $server->base_url     = $request->base_url;
-        $server->secret       = $request->secret;
-        $server->strength     = $request->strength;
-        $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
+        $server->name = $request->name;
+        $server->description = $request->description;
+        $server->base_url = $request->base_url;
+        $server->secret = $request->secret;
+        $server->strength = $request->strength;
+        $server->status = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
         // Check if server is online/offline and update usage data
         $serverService = new ServerService($server);
@@ -104,18 +101,17 @@ class ServerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  ServerRequest  $request
      * @return ServerResource
      */
     public function store(ServerRequest $request)
     {
-        $server               = new Server();
-        $server->name         = $request->name;
-        $server->description  = $request->description;
-        $server->base_url     = $request->base_url;
-        $server->secret       = $request->secret;
-        $server->strength     = $request->strength;
-        $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
+        $server = new Server();
+        $server->name = $request->name;
+        $server->description = $request->description;
+        $server->base_url = $request->base_url;
+        $server->secret = $request->secret;
+        $server->strength = $request->strength;
+        $server->status = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
         // Check if server is online/offline and update usage data
         $serverService = new ServerService($server);
@@ -129,9 +125,8 @@ class ServerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Request               $request
-     * @param  Server                $server
      * @return JsonResponse|Response
+     *
      * @throws \Exception
      */
     public function destroy(Request $request, Server $server)
@@ -143,8 +138,8 @@ class ServerController extends Controller
             return response()->noContent();
         } else {
             return response()->json([
-                'error'     => CustomStatusCodes::STALE_MODEL->value,
-                'message'   => __('app.errors.server_delete_failed'),
+                'error' => CustomStatusCodes::STALE_MODEL->value,
+                'message' => __('app.errors.server_delete_failed'),
             ], CustomStatusCodes::STALE_MODEL->value);
         }
     }
@@ -152,42 +147,39 @@ class ServerController extends Controller
     /**
      * Panic server, change status of the server to disabled and
      * end all meetings running on this server
-     *
-     * @param Request $request
-     * @param Server  $server
      */
     public function panic(Request $request, Server $server)
     {
         $serverService = new ServerService($server);
-        $result        = $serverService->panic();
+        $result = $serverService->panic();
 
         return \response()->json($result);
     }
 
     /**
      * Check if this backend can connect to a bbb server with the api credentials in this request
-     * @param  ServerConnectionCheckRequest $request
+     *
      * @return JsonResponse
      */
     public function check(ServerConnectionCheckRequest $request)
     {
-        $connectionOk   = false;
-        $secretOk       = false;
+        $connectionOk = false;
+        $secretOk = false;
 
         try {
-            $bbb      = new BigBlueButton($request->base_url, $request->secret, new LaravelHTTPClient());
+            $bbb = new BigBlueButton($request->base_url, $request->secret, new LaravelHTTPClient());
             $response = $bbb->getMeetings();
 
             if ($response->success()) {
-                $connectionOk   = true;
-                $secretOk       = true;
+                $connectionOk = true;
+                $secretOk = true;
             } elseif ($response->hasChecksumError()) {
-                $connectionOk   = true;
-                $secretOk       = false;
+                $connectionOk = true;
+                $secretOk = false;
             }
         } catch (\Exception $e) {
         }
 
-        return \response()->json(['connection_ok'=>$connectionOk,'secret_ok'=>$secretOk]);
+        return \response()->json(['connection_ok' => $connectionOk, 'secret_ok' => $secretOk]);
     }
 }

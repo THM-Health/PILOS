@@ -40,7 +40,7 @@ class RolesAndPermissionsSeederTest extends TestCase
     public function testUserRoleNotCreatedIfAlreadyChanged()
     {
         // Change user role
-        $userRole       = Role::where('name', 'user')->first();
+        $userRole = Role::where('name', 'user')->first();
         $userRole->name = 'user2';
         $userRole->save();
 

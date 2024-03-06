@@ -22,8 +22,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('meetings', function (Blueprint $table) {
-            $table->string('attendee_pw',64)->nullable();
-            $table->string('moderator_pw',64)->nullable();
+            $table->string('attendee_pw', 64)->nullable();
+            $table->string('moderator_pw', 64)->nullable();
         });
     }
 };

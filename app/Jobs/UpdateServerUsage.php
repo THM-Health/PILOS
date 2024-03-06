@@ -15,7 +15,7 @@ class UpdateServerUsage implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected Server $server;
-    
+
     /**
      * Create a new job instance.
      */

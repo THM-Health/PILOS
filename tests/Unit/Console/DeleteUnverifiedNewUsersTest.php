@@ -31,34 +31,34 @@ class DeleteUnverifiedNewUsersTest extends TestCase
     {
         // Newly created user with expired token
         User::factory()->create([
-            'email'                => 'john@doe.com',
+            'email' => 'john@doe.com',
             'initial_password_set' => true,
-            'authenticator'        => 'local'
+            'authenticator' => 'local',
         ]);
         DB::table('password_resets')
             ->insert([
-                'token'      => 'foo',
-                'email'      => 'john@doe.com',
-                'created_at' => Carbon::now()->subMinutes(config('auth.passwords.new_users.expire') + 1)
+                'token' => 'foo',
+                'email' => 'john@doe.com',
+                'created_at' => Carbon::now()->subMinutes(config('auth.passwords.new_users.expire') + 1),
             ]);
 
         // LDAP user with same email
         User::factory()->create([
-            'email'                => 'john@doe.com',
+            'email' => 'john@doe.com',
             'initial_password_set' => true, // accidentally set to true
-            'authenticator'        => 'ldap'
+            'authenticator' => 'ldap',
         ]);
 
         // Registered user with expired password reset token
         User::factory()->create([
-            'email'         => 'max@muster.de',
-            'authenticator' => 'local'
+            'email' => 'max@muster.de',
+            'authenticator' => 'local',
         ]);
         DB::table('password_resets')
             ->insert([
-                'token'      => 'bar',
-                'email'      => 'max@muster.de',
-                'created_at' => Carbon::now()->subMinutes(config('auth.passwords.new_users.expire') + 1)
+                'token' => 'bar',
+                'email' => 'max@muster.de',
+                'created_at' => Carbon::now()->subMinutes(config('auth.passwords.new_users.expire') + 1),
             ]);
 
         $this->assertDatabaseCount('password_resets', 2);

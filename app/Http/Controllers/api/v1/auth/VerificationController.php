@@ -25,13 +25,13 @@ class VerificationController extends Controller
 
     /**
      * Process the email verification request.
-     * @param  VerifyEmailRequest $request
+     *
      * @return Response
      */
     public function verify(VerifyEmailRequest $request)
     {
         $emailVerificationService = new EmailVerificationService(Auth::user());
-        $success                  = $emailVerificationService->processVerification($request->input('token'), $request->input('email'));
+        $success = $emailVerificationService->processVerification($request->input('token'), $request->input('email'));
         if ($success) {
             return response('', 200);
         } else {

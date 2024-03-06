@@ -10,7 +10,6 @@ use Illuminate\Database\Seeder;
 
 class ServerSeeder extends Seeder
 {
-
     /**
      * Run the database seeds.
      *
@@ -21,15 +20,12 @@ class ServerSeeder extends Seeder
         $faker = Factory::create();
         $servers = config('bigbluebutton.testserver');
 
-        foreach ($servers as $server){
-            $server = Server::create(['base_url' => $server->url,'secret' => $server->secret,'name' => $faker->unique()->word, 'status' => ServerStatus::ONLINE]);
-            foreach(ServerPool::all() as $serverPool){
+        foreach ($servers as $server) {
+            $server = Server::create(['base_url' => $server->url, 'secret' => $server->secret, 'name' => $faker->unique()->word, 'status' => ServerStatus::ONLINE]);
+            foreach (ServerPool::all() as $serverPool) {
                 $serverPool->servers()->attach($server);
             }
         }
-
-
-
 
     }
 }

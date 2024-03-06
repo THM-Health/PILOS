@@ -10,8 +10,6 @@ use Illuminate\Notifications\Notification;
 
 /**
  * This class provides the notification for newly created users with generated passwords.
- *
- * @package App\Notifications
  */
 class UserWelcome extends Notification implements ShouldQueue
 {
@@ -33,20 +31,17 @@ class UserWelcome extends Notification implements ShouldQueue
 
     /**
      * Create a new notification instance.
-     *
-     * @param string $token
-     * @param Carbon $expireDate
      */
     public function __construct(string $token, Carbon $expireDate)
     {
-        $this->token      = $token;
+        $this->token = $token;
         $this->expireDate = $expireDate;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -57,15 +52,15 @@ class UserWelcome extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed       $notifiable
+     * @param  mixed  $notifiable
      * @return MailMessage
      */
     public function toMail($notifiable)
     {
-        $url = url('/reset_password?') . \Arr::query([
-            'token'   => $this->token,
-            'email'   => $notifiable->getEmailForPasswordReset(),
-            'welcome' => true
+        $url = url('/reset_password?').\Arr::query([
+            'token' => $this->token,
+            'email' => $notifiable->getEmailForPasswordReset(),
+            'welcome' => true,
         ]);
 
         $date = $this->expireDate

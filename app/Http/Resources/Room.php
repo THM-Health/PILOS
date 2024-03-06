@@ -35,50 +35,50 @@ class Room extends JsonResource
     /**
      * Create a new resource instance.
      *
-     * @param mixed $resource
+     * @param  mixed  $resource
      */
     public function __construct($resource)
     {
         parent::__construct($resource);
 
-        $roomAuthService     = app()->make(RoomAuthService::class);
-        $this->token         = $roomAuthService->getRoomToken($resource);
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $this->token = $roomAuthService->getRoomToken($resource);
         $this->authenticated = $roomAuthService->isAuthenticated($resource);
     }
 
     public function getDetails($latestMeeting)
     {
-        if (!$this->withDetails) {
+        if (! $this->withDetails) {
             return [];
         }
 
         return [
-            'username'          => $this->when(!empty($this->token), !empty($this->token) ? $this->token->fullname : null),
-            'authenticated'     => $this->authenticated,
-            'description'       => $this->when($this->authenticated, $this->description),
-            'allow_membership'  => $this->allow_membership,
-            'is_member'         => $this->resource->isMember(Auth::user()),
-            'is_moderator'      => $this->resource->isModerator(Auth::user(), $this->token),
-            'is_co_owner'       => $this->resource->isCoOwner(Auth::user()),
-            'can_start'         => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
-            'access_code'       => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
+            'username' => $this->when(! empty($this->token), ! empty($this->token) ? $this->token->fullname : null),
+            'authenticated' => $this->authenticated,
+            'description' => $this->when($this->authenticated, $this->description),
+            'allow_membership' => $this->allow_membership,
+            'is_member' => $this->resource->isMember(Auth::user()),
+            'is_moderator' => $this->resource->isModerator(Auth::user(), $this->token),
+            'is_co_owner' => $this->resource->isCoOwner(Auth::user()),
+            'can_start' => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
+            'access_code' => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
             'record_attendance' => ($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record_attendance : ($this->resource->record_attendance && $this->roomType->allow_record_attendance),
-            'current_user'      => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles()
+            'current_user' => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles(),
         ];
     }
 
     public function getLastMeeting($latestMeeting)
     {
-        if (!$latestMeeting) {
+        if (! $latestMeeting) {
             return null;
         }
 
         return [
             'start' => $latestMeeting->start,
-            'end'   => $latestMeeting->end,
+            'end' => $latestMeeting->end,
             'usage' => $this->when($latestMeeting->end == null, [
-                'participant_count'           => $this->participant_count
+                'participant_count' => $this->participant_count,
             ]),
         ];
     }
@@ -86,7 +86,7 @@ class Room extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
@@ -94,18 +94,18 @@ class Room extends JsonResource
         $latestMeeting = $this->resource->latestMeeting;
 
         return [
-            'id'                => $this->id,
-            'name'              => $this->name,
-            'owner'             => [
-                'id'   => $this->owner->id,
+            'id' => $this->id,
+            'name' => $this->name,
+            'owner' => [
+                'id' => $this->owner->id,
                 'name' => $this->owner->fullname,
             ],
-            'last_meeting'          => $this->getLastMeeting($latestMeeting),
-            'type'                  => new RoomType($this->roomType),
-            'model_name'            => $this->model_name,
-            'short_description'     => $this->short_description,
-            'is_favorite'           => Auth::user() ? Auth::user()->roomFavorites->contains($this->id) : false,
-            $this->mergeWhen($this->withDetails, $this->getDetails($latestMeeting))
+            'last_meeting' => $this->getLastMeeting($latestMeeting),
+            'type' => new RoomType($this->roomType),
+            'model_name' => $this->model_name,
+            'short_description' => $this->short_description,
+            'is_favorite' => Auth::user() ? Auth::user()->roomFavorites->contains($this->id) : false,
+            $this->mergeWhen($this->withDetails, $this->getDetails($latestMeeting)),
         ];
     }
 }

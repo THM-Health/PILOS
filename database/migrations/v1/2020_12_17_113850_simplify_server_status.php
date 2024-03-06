@@ -13,16 +13,15 @@ class SimplifyServerStatus extends Migration
             $table->smallInteger('status')->default(ServerStatus::DISABLED->value)->change();
         });
 
-        foreach (\App\Models\Server::all() as $server){
-            if($server->status == 0){
+        foreach (\App\Models\Server::all() as $server) {
+            if ($server->status == 0) {
                 $server->status = ServerStatus::DISABLED;
-            }
-            else{
-                if($server->offline == 1){
+            } else {
+                if ($server->offline == 1) {
                     $server->status = ServerStatus::OFFLINE;
-                }
-                else
+                } else {
                     $server->status = ServerStatus::ONLINE;
+                }
             }
             $server->save();
         }
@@ -39,17 +38,15 @@ class SimplifyServerStatus extends Migration
 
         });
 
-        foreach (\App\Models\Server::all() as $server){
-            if($server->status == ServerStatus::DISABLED){
+        foreach (\App\Models\Server::all() as $server) {
+            if ($server->status == ServerStatus::DISABLED) {
                 $server->status = false;
                 $server->offline = true;
-            }
-            else{
-                if($server->status == ServerStatus::OFFLINE){
+            } else {
+                if ($server->status == ServerStatus::OFFLINE) {
                     $server->status = true;
                     $server->offline = true;
-                }
-                else {
+                } else {
                     $server->status = true;
                     $server->offline = false;
                 }

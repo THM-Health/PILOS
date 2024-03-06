@@ -16,13 +16,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('download/file/{roomFile}/{filename?}', [FileController::class,'show'])->name('download.file')->middleware('signed');
-Route::get('download/attendance/{meeting}', [MeetingController::class,'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
+Route::get('download/file/{roomFile}/{filename?}', [FileController::class, 'show'])->name('download.file')->middleware('signed');
+Route::get('download/attendance/{meeting}', [MeetingController::class, 'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 
 Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
-    Route::get('auth/shibboleth/redirect', [ShibbolethController::class,'redirect'])->name('auth.shibboleth.redirect');
-    Route::get('auth/shibboleth/callback', [ShibbolethController::class,'callback'])->name('auth.shibboleth.callback');
-    Route::match(['get', 'post'],'auth/shibboleth/logout', [ShibbolethController::class, 'logout'])->name('auth.shibboleth.logout');
+    Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');
+    Route::get('auth/shibboleth/callback', [ShibbolethController::class, 'callback'])->name('auth.shibboleth.callback');
+    Route::match(['get', 'post'], 'auth/shibboleth/logout', [ShibbolethController::class, 'logout'])->name('auth.shibboleth.logout');
 });
 
 if (config('greenlight.compatibility')) {
@@ -42,6 +42,6 @@ if (config('greenlight.compatibility')) {
     });
 }
 
-if (!env('DISABLE_CATCHALL_ROUTES')) {
-    Route::any('/{any}', [ApplicationController::class,'index'])->where('any', '.*');
+if (! env('DISABLE_CATCHALL_ROUTES')) {
+    Route::any('/{any}', [ApplicationController::class, 'index'])->where('any', '.*');
 }

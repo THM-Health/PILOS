@@ -18,23 +18,22 @@ class ServerService
 {
     protected BigBlueButton $bbb;
 
-    /**
-     * @return BigBlueButton
-     */
     public function getBigBlueButton(): BigBlueButton
     {
         return $this->bbb;
     }
+
     protected Server $server;
 
     public function __construct(Server $server)
     {
         $this->server = $server;
-        $this->bbb    = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient());
+        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient());
     }
 
     /**
      * Get list of currently running meeting from the api
+     *
      * @return \BigBlueButton\Core\Meeting[]|null
      */
     public function getMeetings()
@@ -59,7 +58,6 @@ class ServerService
 
     /**
      * Get list of currently running meeting from the api
-     * @return string|null
      */
     public function getBBBVersion(): ?string
     {
@@ -83,11 +81,12 @@ class ServerService
 
     /**
      * A call to the api failed, mark server as offline
+     *
      * @todo Could be used in the future to trigger alarms, notifications, etc.
      */
     public function handleApiCallFailed()
     {
-        $this->server->status     = ServerStatus::OFFLINE;
+        $this->server->status = ServerStatus::OFFLINE;
         $this->server->timestamps = false;
         $this->server->save();
     }
@@ -102,11 +101,11 @@ class ServerService
             (new MeetingService($meeting))->setEnd();
 
             // If no other meeting is running for this room, reset live room usage
-            if (!$meeting->room->latestMeeting || $meeting->room->latestMeeting->end != null) {
-                $meeting->room->participant_count       = null;
-                $meeting->room->listener_count          = null;
+            if (! $meeting->room->latestMeeting || $meeting->room->latestMeeting->end != null) {
+                $meeting->room->participant_count = null;
+                $meeting->room->listener_count = null;
                 $meeting->room->voice_participant_count = null;
-                $meeting->room->video_count             = null;
+                $meeting->room->video_count = null;
                 $meeting->room->save();
             }
         }
@@ -120,8 +119,8 @@ class ServerService
         $this->server->status = ServerStatus::DISABLED;
         $this->server->save();
 
-        $query   = $this->server->meetings()->whereNull('end');
-        $total   = $query->count();
+        $query = $this->server->meetings()->whereNull('end');
+        $total = $query->count();
         $success = 0;
         foreach ($query->get() as $meeting) {
             try {
@@ -132,11 +131,11 @@ class ServerService
                 $this->server->status = ServerStatus::DISABLED;
                 $this->server->save();
 
-                return ['total'=>$total,'success'=>$total];
+                return ['total' => $total, 'success' => $total];
             }
         }
 
-        return ['total'=>$total,'success'=>$success];
+        return ['total' => $total, 'success' => $success];
     }
 
     /**
@@ -147,7 +146,7 @@ class ServerService
     {
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb      = $this->server->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
+        $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
         $allRunningMeetingsOnServers = new Collection();
 
         if ($this->server->status != ServerStatus::DISABLED) {
@@ -161,16 +160,16 @@ class ServerService
                     $this->server->stats()->save($serverStat);
                 }
             } else {
-                $serverStat                          = new ServerStat();
-                $serverStat->participant_count       = 0;
-                $serverStat->listener_count          = 0;
+                $serverStat = new ServerStat();
+                $serverStat->participant_count = 0;
+                $serverStat->listener_count = 0;
                 $serverStat->voice_participant_count = 0;
-                $serverStat->video_count             = 0;
-                $serverStat->meeting_count           = 0;
+                $serverStat->video_count = 0;
+                $serverStat->meeting_count = 0;
 
                 foreach ($bbbMeetings as $bbbMeeting) {
                     // Get usage for archival server statistics
-                    if (!$bbbMeeting->isBreakout()) {
+                    if (! $bbbMeeting->isBreakout()) {
                         // exclude breakout room to prevent users to be counted twice:
                         // first in the main room, second on the breakout room
                         $serverStat->participant_count += $bbbMeeting->getParticipantCount();
@@ -189,16 +188,16 @@ class ServerService
                     }
 
                     // Save current live room status and build archival data
-                    $meetingStat                            = new MeetingStat();
-                    $meeting->room->participant_count       = $meetingStat->participant_count       = $bbbMeeting->getParticipantCount();
-                    $meeting->room->listener_count          = $meetingStat->listener_count          = $bbbMeeting->getListenerCount();
+                    $meetingStat = new MeetingStat();
+                    $meeting->room->participant_count = $meetingStat->participant_count = $bbbMeeting->getParticipantCount();
+                    $meeting->room->listener_count = $meetingStat->listener_count = $bbbMeeting->getListenerCount();
                     $meeting->room->voice_participant_count = $meetingStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
-                    $meeting->room->video_count             = $meetingStat->video_count             = $bbbMeeting->getVideoCount();
+                    $meeting->room->video_count = $meetingStat->video_count = $bbbMeeting->getVideoCount();
 
                     // Record meeting attendance if enabled for this running meeting
                     if ($meeting->record_attendance) {
                         // Get collection of all attendees, remove duplicated (user joins twice)
-                        $collection      = collect($bbbMeeting->getAttendees());
+                        $collection = collect($bbbMeeting->getAttendees());
                         $uniqueAttendees = $collection->unique(function ($attendee) {
                             return $attendee->getUserId();
                         });
@@ -208,7 +207,7 @@ class ServerService
                         foreach ($uniqueAttendees as $attendee) {
                             // Split user id in prefix and user_id (users) / session_id (guests)
                             $prefix = substr($attendee->getUserId(), 0, 1);
-                            $id     = substr($attendee->getUserId(), 1);
+                            $id = substr($attendee->getUserId(), 1);
 
                             switch ($prefix) {
                                 case 'u': // users, identified by their id
@@ -230,7 +229,7 @@ class ServerService
                                         array_push($newAndExistingAttendees, $meetingAttendee->id);
                                     } else {
                                         // user was not found in database
-                                        Log::notice('Attendee user not found.', ['user' => $id,'meeting'=> $meeting->id]);
+                                        Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $meeting->id]);
                                     }
 
                                     break;
@@ -241,9 +240,9 @@ class ServerService
                                     if ($meetingAttendee == null) {
                                         $meetingAttendee = new MeetingAttendee();
                                         $meetingAttendee->meeting()->associate($meeting);
-                                        $meetingAttendee->name       = $attendee->getFullName();
+                                        $meetingAttendee->name = $attendee->getFullName();
                                         $meetingAttendee->session_id = $id;
-                                        $meetingAttendee->join       = now();
+                                        $meetingAttendee->join = now();
                                         $meetingAttendee->save();
                                     }
                                     // add found or created record to list of new or existing attendances
@@ -252,7 +251,7 @@ class ServerService
                                     break;
                                 default:
                                     // some other not supported prefix was found
-                                    Log::notice('Unknown prefix for attendee found.', ['prefix' => $prefix,'meeting'=> $meeting->id]);
+                                    Log::notice('Unknown prefix for attendee found.', ['prefix' => $prefix, 'meeting' => $meeting->id]);
 
                                     break;
                             }
@@ -262,7 +261,7 @@ class ServerService
                         $allAttendees = MeetingAttendee::where('meeting_id', $meeting->id)->whereNull('leave')->get();
                         // remove added or found attendees, to only have attendees left that are no longer active
                         $leftAttendees = $allAttendees->filter(function ($attendee, $key) use ($newAndExistingAttendees) {
-                            return !in_array($attendee->id, $newAndExistingAttendees);
+                            return ! in_array($attendee->id, $newAndExistingAttendees);
                         });
                         // set end time of left attendees to current datetime
                         foreach ($leftAttendees as $leftAttendee) {
@@ -280,14 +279,14 @@ class ServerService
                 }
 
                 // Save current live server status
-                $this->server->participant_count       = $serverStat->participant_count;
-                $this->server->listener_count          = $serverStat->listener_count;
+                $this->server->participant_count = $serverStat->participant_count;
+                $this->server->listener_count = $serverStat->listener_count;
                 $this->server->voice_participant_count = $serverStat->voice_participant_count;
-                $this->server->video_count             = $serverStat->video_count;
-                $this->server->meeting_count           = $serverStat->meeting_count;
-                $this->server->status                  = ServerStatus::ONLINE;
-                $this->server->timestamps              = false;
-                $this->server->version                 = $this->getBBBVersion();
+                $this->server->video_count = $serverStat->video_count;
+                $this->server->meeting_count = $serverStat->meeting_count;
+                $this->server->status = ServerStatus::ONLINE;
+                $this->server->timestamps = false;
+                $this->server->version = $this->getBBBVersion();
                 $this->server->save();
 
                 // Save server statistics if enabled

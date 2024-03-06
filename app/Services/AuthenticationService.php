@@ -18,23 +18,19 @@ class AuthenticationService
         $this->user = $user;
     }
 
-    /**
-     * @return string
-     */
     public function sendResetLink(): string
     {
         return Password::broker('users')->sendResetLink([
             'authenticator' => 'local',
-            'email'         => $this->user->email
+            'email' => $this->user->email,
         ]);
     }
 
     /**
-     * @param  string      $newPassword
-     * @param  string|null $session     Session to keep alive
+     * @param  string|null  $session  Session to keep alive
      * @return void
      */
-    public function changePassword(string $newPassword, string $session = null)
+    public function changePassword(string $newPassword, ?string $session = null)
     {
         $this->user->password = Hash::make($newPassword);
         $this->user->setRememberToken(Str::random(60));

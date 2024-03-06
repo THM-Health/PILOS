@@ -19,17 +19,17 @@ class RoomAuthService
     /**
      * Get the value of a specific attribute for a room.
      *
-     * @param  Room       $room      The room object.
-     * @param  string     $attribute The name of the attribute to retrieve.
+     * @param  Room  $room  The room object.
+     * @param  string  $attribute  The name of the attribute to retrieve.
      * @return mixed|null The value of the attribute or null if not found.
      */
     protected function getRoomAttributes(Room $room, string $attribute): mixed
     {
-        if (!isset($this->rooms[$room->id])) {
+        if (! isset($this->rooms[$room->id])) {
             return null;
         }
 
-        if (!isset($this->rooms[$room->id][$attribute])) {
+        if (! isset($this->rooms[$room->id][$attribute])) {
             return null;
         }
 
@@ -39,14 +39,14 @@ class RoomAuthService
     /**
      * Set the value of a specific attribute for a room.
      *
-     * @param  Room   $room      The room object.
-     * @param  string $attribute The name of the attribute to set.
-     * @param  mixed  $value     The value to set for the attribute.
+     * @param  Room  $room  The room object.
+     * @param  string  $attribute  The name of the attribute to set.
+     * @param  mixed  $value  The value to set for the attribute.
      * @return void
      */
     protected function setRoomAttributes(Room $room, string $attribute, mixed $value)
     {
-        if (!isset($this->rooms[$room->id])) {
+        if (! isset($this->rooms[$room->id])) {
             $this->rooms[$room->id] = [];
         }
 
@@ -56,9 +56,8 @@ class RoomAuthService
     /**
      * Set the authentication status of a user for a room.
      *
-     * @param  Room $room          The room object.
-     * @param  bool $authenticated The authentication status (true or false).
-     * @return void
+     * @param  Room  $room  The room object.
+     * @param  bool  $authenticated  The authentication status (true or false).
      */
     public function setAuthenticated(Room $room, bool $authenticated): void
     {
@@ -68,7 +67,7 @@ class RoomAuthService
     /**
      * Check if a user is authenticated for a room.
      *
-     * @param  Room $room The room object.
+     * @param  Room  $room  The room object.
      * @return bool Returns true if user is authenticated for the room, otherwise false.
      */
     public function isAuthenticated(Room $room): bool
@@ -79,9 +78,8 @@ class RoomAuthService
     /**
      * Set the room token for a room.
      *
-     * @param  Room           $room      The room object.
-     * @param  RoomToken|null $roomToken The RoomToken object or null to unset the token.
-     * @return void
+     * @param  Room  $room  The room object.
+     * @param  RoomToken|null  $roomToken  The RoomToken object or null to unset the token.
      */
     public function setRoomToken(Room $room, ?RoomToken $roomToken): void
     {
@@ -91,7 +89,7 @@ class RoomAuthService
     /**
      * Get the room token of the current request for a room.
      *
-     * @param  Room           $room The room object.
+     * @param  Room  $room  The room object.
      * @return RoomToken|null Returns the RoomToken object or null if the token is not set.
      */
     public function getRoomToken(Room $room): ?RoomToken

@@ -42,8 +42,8 @@ class ShibbolethProvider
     {
         // Create SOAP server config
         $wsdlTemplate = file_get_contents(__DIR__.'/LogoutNotification.wsdl');
-        $wsdlConfig   = str_replace('LOCATION_PLACEHOLDER', url()->current(), $wsdlTemplate);
-        $uri          = 'data://text/plain;base64,'.base64_encode($wsdlConfig);
+        $wsdlConfig = str_replace('LOCATION_PLACEHOLDER', url()->current(), $wsdlTemplate);
+        $uri = 'data://text/plain;base64,'.base64_encode($wsdlConfig);
 
         // Create SOAP server
         $server = new SoapServer($uri);
@@ -56,10 +56,10 @@ class ShibbolethProvider
         ob_end_clean();
 
         return response($response, 200, [
-            'Content-Type' => 'text/xml'
+            'Content-Type' => 'text/xml',
         ]);
     }
-    
+
     /**
      * Redirect to Shibboleth for authentication with an optional redirect back to a specific URL
      */
@@ -75,7 +75,7 @@ class ShibbolethProvider
 
     /**
      * Handle login request
-     * 
+     *
      * @throws MissingAttributeException
      * @throws ShibbolethSessionDuplicateException
      */
@@ -83,7 +83,7 @@ class ShibbolethProvider
     {
         // Create new shibboleth user
         $saml_user = new ShibbolethUser($request);
-       
+
         // Get eloquent user (existing or new)
         $user = $saml_user->createOrFindEloquentModel('shibboleth');
 
@@ -92,10 +92,10 @@ class ShibbolethProvider
 
         // Get shibboleth session id
         $hashedShibbolethSessionId = $this->hashShibbolethSessionId($request->header(config('services.shibboleth.session_id_header')));
-        $expiresShibbolethSession  = $request->header(config('services.shibboleth.session_expires_header'));
-        
+        $expiresShibbolethSession = $request->header(config('services.shibboleth.session_expires_header'));
+
         // Cache key and expiration time to prevent duplicate login attempts with the same shibboleth session id
-        $cacheKey     = 'shibboleth_session_'.$hashedShibbolethSessionId;
+        $cacheKey = 'shibboleth_session_'.$hashedShibbolethSessionId;
         $cacheExpires = Carbon::createFromTimestamp($expiresShibbolethSession);
 
         // Check if shibboleth session id is already in use by other sessions
@@ -122,7 +122,7 @@ class ShibbolethProvider
         // The session is not yet stored in the database (stored after this request),
         // therefore we cannot create a new SessionData model here but use the StoreSessionData middleware
         session(['session_data' => [
-            ['key'=>'shibboleth_session_id', 'value' => $hashedShibbolethSessionId],
+            ['key' => 'shibboleth_session_id', 'value' => $hashedShibbolethSessionId],
         ]]);
 
         // Store shibboleth session id in session

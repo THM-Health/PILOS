@@ -32,25 +32,26 @@ class ImportGreenlight2Test extends TestCase
         parent::setUp();
 
         Role::firstOrCreate([
-            'name' => 'admin'
+            'name' => 'admin',
         ]);
 
         Role::firstOrCreate([
-            'name' => 'student'
+            'name' => 'student',
         ]);
     }
 
     /**
      * Mock DB with fake response of the postgres database
-     * @param bool       $roomAuth       Authentication feature flag
-     * @param Collection $users          Collection of Users
-     * @param Collection $rooms          Collection Collection of Rooms
-     * @param Collection $sharedAccesses Collection Collection of SharedAccesses
+     *
+     * @param  bool  $roomAuth  Authentication feature flag
+     * @param  Collection  $users  Collection of Users
+     * @param  Collection  $rooms  Collection Collection of Rooms
+     * @param  Collection  $sharedAccesses  Collection Collection of SharedAccesses
      */
     private function fakeDatabase(bool $roomAuth, Collection $users, Collection $rooms, Collection $sharedAccesses)
     {
         // preserve DB default
-        $connection     = DB::connection();
+        $connection = DB::connection();
 
         DB::shouldReceive('connection')
             ->with(null)
@@ -81,7 +82,7 @@ class ImportGreenlight2Test extends TestCase
                             ->with('deleted', false)
                             ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
                                 $mock->shouldReceive('get')
-                                    ->with(['id','provider','username', 'social_uid', 'email','name','password_digest'])
+                                    ->with(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest'])
                                     ->andReturn($users);
                             }));
                     }));
@@ -94,7 +95,7 @@ class ImportGreenlight2Test extends TestCase
                             ->with('deleted', false)
                             ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($rooms) {
                                 $mock->shouldReceive('get')
-                                    ->with(['id','uid','user_id','name','room_settings','access_code'])
+                                    ->with(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code'])
                                     ->andReturn($rooms);
                             }));
                     }));
@@ -104,7 +105,7 @@ class ImportGreenlight2Test extends TestCase
                     ->once()
                     ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($sharedAccesses) {
                         $mock->shouldReceive('get')
-                            ->with(['room_id','user_id'])
+                            ->with(['room_id', 'user_id'])
                             ->andReturn($sharedAccesses);
                     }));
 
@@ -116,15 +117,15 @@ class ImportGreenlight2Test extends TestCase
                             ->with('provider')
                             ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
                                 $mock->shouldReceive('whereNotIn')
-                                    ->with('provider', ['greenlight','ldap'])
+                                    ->with('provider', ['greenlight', 'ldap'])
                                     ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
                                         $mock->shouldReceive('distinct')
-                                        ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
-                                            $mock->shouldReceive('get')
-                                                ->andReturn($users->unique('provider')->whereNotIn('provider', ['greenlight','ldap'])->map(function ($user) {
-                                                    return (object) ['provider' => $user->provider];
-                                                }));
-                                        }));
+                                            ->andReturn(Mockery::mock('Illuminate\Database\Query\Builder', function ($mock) use ($users) {
+                                                $mock->shouldReceive('get')
+                                                    ->andReturn($users->unique('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->map(function ($user) {
+                                                        return (object) ['provider' => $user->provider];
+                                                    }));
+                                            }));
                                     }));
                             }));
                     }));
@@ -141,42 +142,42 @@ class ImportGreenlight2Test extends TestCase
         $password = Hash::make('secret');
 
         // create user that exists before import
-        $existingUser            = new User();
+        $existingUser = new User();
         $existingUser->firstname = 'John';
-        $existingUser->lastname  = 'Doe';
-        $existingUser->email     = 'john.doe@domain.tld';
-        $existingUser->password  = $password;
+        $existingUser->lastname = 'Doe';
+        $existingUser->email = 'john.doe@domain.tld';
+        $existingUser->password = $password;
         $existingUser->save();
 
         // create ldap user that exists before import
-        $existingLdapUser                = new User();
+        $existingLdapUser = new User();
         $existingLdapUser->authenticator = 'ldap';
-        $existingLdapUser->external_id   = 'djohn';
-        $existingLdapUser->firstname     = 'John';
-        $existingLdapUser->lastname      = 'Doe';
-        $existingLdapUser->email         = 'john.doe@domain.tld';
-        $existingLdapUser->password      = $password;
+        $existingLdapUser->external_id = 'djohn';
+        $existingLdapUser->firstname = 'John';
+        $existingLdapUser->lastname = 'Doe';
+        $existingLdapUser->email = 'john.doe@domain.tld';
+        $existingLdapUser->password = $password;
         $existingLdapUser->save();
 
         // create shibboleth user that exists before import
-        $existingLdapUser                = new User();
+        $existingLdapUser = new User();
         $existingLdapUser->authenticator = 'shibboleth';
-        $existingLdapUser->external_id   = 'djohn';
-        $existingLdapUser->firstname     = 'John';
-        $existingLdapUser->lastname      = 'Doe';
-        $existingLdapUser->email         = 'john.doe@domain.tld';
-        $existingLdapUser->password      = $password;
+        $existingLdapUser->external_id = 'djohn';
+        $existingLdapUser->firstname = 'John';
+        $existingLdapUser->lastname = 'Doe';
+        $existingLdapUser->email = 'john.doe@domain.tld';
+        $existingLdapUser->password = $password;
         $existingLdapUser->save();
 
         // create room that exists before import
-        $existingRoom       = new Room();
+        $existingRoom = new Room();
         $existingRoom->name = 'Existing room 1';
         $existingRoom->roomType()->associate(RoomType::all()->first());
         $existingRoom->owner()->associate($existingUser);
         $existingRoom->save();
 
         // Create fake users, ldap users and social users
-        $users   = [];
+        $users = [];
         $users[] = new GreenlightUser(1, 'greenlight', 'John Doe', null, null, 'john.doe@domain.tld', $password);
         $users[] = new GreenlightUser(2, 'greenlight', 'John Doe', null, null, 'john@domain.tld', $password);
         $users[] = new GreenlightUser(3, 'ldap', 'John Doe', 'djohn', 'uid=djohn,ou=People,dc=university,dc=org', 'john.doe@domain.tld', null);
@@ -185,33 +186,33 @@ class ImportGreenlight2Test extends TestCase
         $users[] = new GreenlightUser(6, 'google', 'John Doe', null, '4696234782348234734', 'john@domain.tld', null);
 
         // Create fake rooms
-        $rooms          = [];
-        $rooms[]        = new GreenlightRoom(1, $users[0]->id, 'Test Room 1', 'abc-def-xyz-123');
-        $rooms[]        = new GreenlightRoom(2, $users[1]->id, 'Test Room 2', 'abc-def-xyz-234');
-        $rooms[]        = new GreenlightRoom(3, $users[2]->id, 'Test Room 3', 'abc-def-xyz-345');
-        $rooms[]        = new GreenlightRoom(4, $users[3]->id, 'Test Room 4', 'abc-def-xyz-456');
-        $rooms[]        = new GreenlightRoom(5, $users[4]->id, 'Test Room 5', 'abc-def-xyz-567');
-        $rooms[]        = new GreenlightRoom(6, $users[5]->id, 'Test Room 6', 'abc-def-xyz-678');
+        $rooms = [];
+        $rooms[] = new GreenlightRoom(1, $users[0]->id, 'Test Room 1', 'abc-def-xyz-123');
+        $rooms[] = new GreenlightRoom(2, $users[1]->id, 'Test Room 2', 'abc-def-xyz-234');
+        $rooms[] = new GreenlightRoom(3, $users[2]->id, 'Test Room 3', 'abc-def-xyz-345');
+        $rooms[] = new GreenlightRoom(4, $users[3]->id, 'Test Room 4', 'abc-def-xyz-456');
+        $rooms[] = new GreenlightRoom(5, $users[4]->id, 'Test Room 5', 'abc-def-xyz-567');
+        $rooms[] = new GreenlightRoom(6, $users[5]->id, 'Test Room 6', 'abc-def-xyz-678');
 
-        $rooms[]        = new GreenlightRoom(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', 123456, ['muteOnStart' => false,'requireModeratorApproval' => true,'anyoneCanStart' => false,'joinModerator' => true]);
-        $rooms[]        = new GreenlightRoom(8, $users[0]->id, 'Test Room 8', 'hij-klm-xyz-234', null, ['muteOnStart' => true,'requireModeratorApproval' => false,'anyoneCanStart' => true,'joinModerator' => false]);
-        $rooms[]        = new GreenlightRoom(9, 99, 'Test Room 9', 'hij-klm-xyz-456', 123456);
-        $rooms[]        = new GreenlightRoom(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
+        $rooms[] = new GreenlightRoom(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', 123456, ['muteOnStart' => false, 'requireModeratorApproval' => true, 'anyoneCanStart' => false, 'joinModerator' => true]);
+        $rooms[] = new GreenlightRoom(8, $users[0]->id, 'Test Room 8', 'hij-klm-xyz-234', null, ['muteOnStart' => true, 'requireModeratorApproval' => false, 'anyoneCanStart' => true, 'joinModerator' => false]);
+        $rooms[] = new GreenlightRoom(9, 99, 'Test Room 9', 'hij-klm-xyz-456', 123456);
+        $rooms[] = new GreenlightRoom(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
 
         // Create fake shared accesses
-        $sharedAccesses    = [];
-        $sharedAccesses[]  = new GreenlightSharedAccess(1, 1, 2);
-        $sharedAccesses[]  = new GreenlightSharedAccess(2, 1, 3);  // shared access should be applied for existing users
-        $sharedAccesses[]  = new GreenlightSharedAccess(2, 1, 4);
-        $sharedAccesses[]  = new GreenlightSharedAccess(3, 1, 99); // invalid user id
-        $sharedAccesses[]  = new GreenlightSharedAccess(6, 9, 1);  // room that has an invalid owner
-        $sharedAccesses[]  = new GreenlightSharedAccess(7, 10, 1);  // room that already exists should not be modified
+        $sharedAccesses = [];
+        $sharedAccesses[] = new GreenlightSharedAccess(1, 1, 2);
+        $sharedAccesses[] = new GreenlightSharedAccess(2, 1, 3);  // shared access should be applied for existing users
+        $sharedAccesses[] = new GreenlightSharedAccess(2, 1, 4);
+        $sharedAccesses[] = new GreenlightSharedAccess(3, 1, 99); // invalid user id
+        $sharedAccesses[] = new GreenlightSharedAccess(6, 9, 1);  // room that has an invalid owner
+        $sharedAccesses[] = new GreenlightSharedAccess(7, 10, 1);  // room that already exists should not be modified
 
         // mock database connections with fake data
         $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses));
 
         $roomType = RoomType::where('name', 'Lecture')->first();
-        $role     = Role::where('name', 'student')->first();
+        $role = Role::where('name', 'student')->first();
 
         // run artisan command and text questions and outputs
         $this->artisan('import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678')
@@ -243,13 +244,13 @@ class ImportGreenlight2Test extends TestCase
 
         // check if all rooms are created
         $this->assertEqualsCanonicalizing(
-            [$existingRoom->id,'abc-def-xyz-123','abc-def-xyz-234','abc-def-xyz-345','abc-def-xyz-456', 'abc-def-xyz-567', 'abc-def-xyz-678','hij-klm-xyz-123','hij-klm-xyz-234'],
+            [$existingRoom->id, 'abc-def-xyz-123', 'abc-def-xyz-234', 'abc-def-xyz-345', 'abc-def-xyz-456', 'abc-def-xyz-567', 'abc-def-xyz-678', 'hij-klm-xyz-123', 'hij-klm-xyz-234'],
             Room::all()->pluck('id')->toArray()
         );
 
         // check if allow guest setting is correct
         foreach (Room::where('id', '!=', $existingRoom->id)->get() as $room) {
-            $this->assertEquals(!$roomAuth, $room->allow_guests);
+            $this->assertEquals(! $roomAuth, $room->allow_guests);
         }
 
         // check access code
@@ -289,22 +290,22 @@ class ImportGreenlight2Test extends TestCase
         $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'shibboleth')->where('external_id', '4696234782348234734')->first(), Room::find('abc-def-xyz-678')->owner);
 
         // Testing users
-        $this->assertNotNull(User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first());
-        $this->assertNotNull(User::where([['authenticator', 'ldap'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', 'doejohn']])->first());
-        $this->assertNotNull(User::where([['authenticator', 'shibboleth'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first());
-        $this->assertNotNull(User::where([['authenticator', 'shibboleth'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', '4696234782348234734']])->first());
-        $this->assertNotNull(User::where([['authenticator', 'local'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', null],['password', $password]])->first());
-        $this->assertNotNull(User::where([['authenticator', 'local'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', null],['password', $password]])->first());
+        $this->assertNotNull(User::where([['authenticator', 'ldap'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'ldap'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', 'doejohn']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'shibboleth'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'shibboleth'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', '4696234782348234734']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'local'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', null], ['password', $password]])->first());
+        $this->assertNotNull(User::where([['authenticator', 'local'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', null], ['password', $password]])->first());
 
         // Testing user roles for new non ldap-users
-        $this->assertEquals(['student'], User::where([['authenticator', 'local'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', null],['password', $password]])->first()->roles->pluck('name')->toArray());
+        $this->assertEquals(['student'], User::where([['authenticator', 'local'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', null], ['password', $password]])->first()->roles->pluck('name')->toArray());
 
         // Testing ldap, social users and existing users dont get a default role assigned
-        $this->assertCount(0, User::where([['authenticator', 'ldap'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', 'doejohn']])->first()->roles);
-        $this->assertCount(0, User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first()->roles);
-        $this->assertCount(0, User::where([['authenticator', 'shibboleth'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', 'djohn']])->first()->roles);
-        $this->assertCount(0, User::where([['authenticator', 'shibboleth'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['external_id', '4696234782348234734']])->first()->roles);
-        $this->assertCount(0, User::where([['authenticator', 'local'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['external_id', null],['password', $password]])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'ldap'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', 'doejohn']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'ldap'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'shibboleth'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', 'djohn']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'shibboleth'], ['firstname', 'John Doe'], ['lastname', ''], ['email', 'john@domain.tld'], ['external_id', '4696234782348234734']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'local'], ['firstname', 'John'], ['lastname', 'Doe'], ['email', 'john.doe@domain.tld'], ['external_id', null], ['password', $password]])->first()->roles);
 
         // Testing room memberships (should be moderator, as that is the greenlight equivalent)
         $this->assertCount(3, Room::find('abc-def-xyz-123')->members);

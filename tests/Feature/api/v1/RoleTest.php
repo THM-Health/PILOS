@@ -27,15 +27,15 @@ class RoleTest extends TestCase
         $page_size = 1;
         setting(['pagination_page_size' => $page_size]);
 
-        $user       = User::factory()->create();
-        $roleA      = Role::factory()->create(['name' => 'Administrator']);
-        $roleB      = Role::factory()->create(['name' => 'User']);
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create(['name' => 'Administrator']);
+        $roleB = Role::factory()->create(['name' => 'User']);
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         $this->getJson(route('api.v1.roles.index'))->assertUnauthorized();
         $this->actingAs($user)->getJson(route('api.v1.roles.index'))->assertStatus(403);
 
-        $roleA->permissions()->attach(Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id);
+        $roleA->permissions()->attach(Permission::firstOrCreate(['name' => 'roles.viewAny'])->id);
 
         $this->getJson(route('api.v1.roles.index'))
             ->assertSuccessful()
@@ -44,25 +44,25 @@ class RoleTest extends TestCase
             ->assertJsonFragment(['per_page' => $page_size])
             ->assertJsonFragment(['total' => 2]);
 
-        $this->getJson(route('api.v1.roles.index') . '?page=2')
+        $this->getJson(route('api.v1.roles.index').'?page=2')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleB->name]);
 
-        $this->getJson(route('api.v1.roles.index') . '?page=2&sort_by=id&sort_direction=desc')
+        $this->getJson(route('api.v1.roles.index').'?page=2&sort_by=id&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleA->name]);
 
         // Wrong data for sort gets ignored and sorting doesn't get applied
-        $this->getJson(route('api.v1.roles.index') . '?page=2&sort_by=test&sort_direction=foo')
+        $this->getJson(route('api.v1.roles.index').'?page=2&sort_by=test&sort_direction=foo')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['name' => $roleB->name]);
 
         // Test search
         setting(['pagination_page_size' => 10]);
-        $this->getJson(route('api.v1.roles.index') . '?name=Admin')
+        $this->getJson(route('api.v1.roles.index').'?name=Admin')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['name' => $roleA->name])
@@ -72,8 +72,8 @@ class RoleTest extends TestCase
 
     public function testCreate()
     {
-        $user       = User::factory()->create();
-        $roleA      = Role::factory()->create();
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create();
         $user->roles()->attach([$roleA->id]);
 
         $role = ['name' => $roleA->name, 'superuser' => true, 'permissions' => 'test', 'room_limit' => -2];
@@ -81,26 +81,26 @@ class RoleTest extends TestCase
         $this->postJson(route('api.v1.roles.store', $role))->assertUnauthorized();
         $this->actingAs($user)->postJson(route('api.v1.roles.store', $role))->assertStatus(403);
 
-        $permission_id = Permission::firstOrCreate([ 'name' => 'roles.create' ])->id;
+        $permission_id = Permission::firstOrCreate(['name' => 'roles.create'])->id;
         $roleA->permissions()->attach([$permission_id]);
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions', 'room_limit']);
 
-        $role['name']        = str_repeat('a', 256);
+        $role['name'] = str_repeat('a', 256);
         $role['permissions'] = ['test'];
-        $role['room_limit']  = 10;
+        $role['room_limit'] = 10;
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions.0']);
 
-        $role['name']        = 'Test';
+        $role['name'] = 'Test';
         $role['permissions'] = [self::INVALID_ID];
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['permissions.0']);
 
-        $role['name']        = 'Test';
+        $role['name'] = 'Test';
         $role['permissions'] = [$permission_id];
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertSuccessful();
@@ -115,45 +115,45 @@ class RoleTest extends TestCase
 
     public function testUpdate()
     {
-        $user               = User::factory()->create();
-        $superuserRole      = Role::factory()->create(['superuser' => true, 'room_limit' => -1]);
-        $role               = Role::factory()->create(['room_limit' => 20]);
+        $user = User::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true, 'room_limit' => -1]);
+        $role = Role::factory()->create(['room_limit' => 20]);
         $user->roles()->attach([$superuserRole->id]);
 
-        $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
+        $new_permission = Permission::firstOrCreate(['name' => 'users.viewAny'])->id;
 
         $permission_ids = [
-            Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id,
-            Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id,
-            Permission::firstOrCreate([ 'name' => 'roles.view' ])->id,
-            Permission::firstOrCreate([ 'name' => 'roles.update' ])->id,
-            Permission::firstOrCreate([ 'name' => 'users.create' ])->id
+            Permission::firstOrCreate(['name' => 'settings.manage'])->id,
+            Permission::firstOrCreate(['name' => 'roles.viewAny'])->id,
+            Permission::firstOrCreate(['name' => 'roles.view'])->id,
+            Permission::firstOrCreate(['name' => 'roles.update'])->id,
+            Permission::firstOrCreate(['name' => 'users.create'])->id,
         ];
 
         $changes = [
-            'name'        => 'NewSuperuser',
+            'name' => 'NewSuperuser',
             'permissions' => [$permission_ids[0], $permission_ids[1], $permission_ids[2], $permission_ids[3], $new_permission],
-            'superuser'   => false,
-            'room_limit'  => 10
+            'superuser' => false,
+            'room_limit' => 10,
         ];
 
         // Test update superuser role unauthorized
-        $this->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role' => $superuserRole]), $changes)
             ->assertUnauthorized();
 
         // Test update superuser role authorized, but without permissions
-        $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
+        $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role' => $superuserRole]), $changes)
             ->assertStatus(403);
 
         // Test update superuser role with permissions
         $superuserRole->permissions()->attach($permission_ids);
 
-        $this->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role' => $superuserRole]), $changes)
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         $changes['updated_at'] = Carbon::now();
 
-        $this->putJson(route('api.v1.roles.update', ['role'=>$superuserRole]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role' => $superuserRole]), $changes)
             ->assertSuccessful();
 
         $superuserRole->refresh();
@@ -171,14 +171,14 @@ class RoleTest extends TestCase
         // Test editing with empty permissions
         $role->permissions()->attach($permission_ids);
         $changes = [
-            'name'        => 'NewUser',
+            'name' => 'NewUser',
             'permissions' => [],
-            'superuser'   => true,
-            'room_limit'  => -1,
-            'updated_at'  => $role->updated_at
+            'superuser' => true,
+            'room_limit' => -1,
+            'updated_at' => $role->updated_at,
         ];
 
-        $this->putJson(route('api.v1.roles.update', ['role'=>$role]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role' => $role]), $changes)
             ->assertSuccessful();
         $role->refresh();
 
@@ -192,38 +192,38 @@ class RoleTest extends TestCase
 
         // Test invalid / missing
         $changes = [
-            'name'        => $superuserRole->name,
-            'superuser'   => false,
-            'room_limit'  => -10,
-            'updated_at'  => $role->updated_at
+            'name' => $superuserRole->name,
+            'superuser' => false,
+            'room_limit' => -10,
+            'updated_at' => $role->updated_at,
         ];
-        $this->putJson(route('api.v1.roles.update', ['role'=>$role]), $changes)
+        $this->putJson(route('api.v1.roles.update', ['role' => $role]), $changes)
             ->assertStatus(422)
             ->assertJsonValidationErrors(['permissions', 'name', 'room_limit']);
     }
 
     public function testUpdatePermissionLost()
     {
-        $user       = User::factory()->create();
-        $roleA      = Role::factory()->create();
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create();
         $user->roles()->attach([$roleA->id]);
 
-        $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
+        $new_permission = Permission::firstOrCreate(['name' => 'users.viewAny'])->id;
 
         $permission_ids = [
-            Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id,
-            Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id,
-            Permission::firstOrCreate([ 'name' => 'roles.view' ])->id,
-            Permission::firstOrCreate([ 'name' => 'roles.update' ])->id,
-            Permission::firstOrCreate([ 'name' => 'users.create' ])->id
+            Permission::firstOrCreate(['name' => 'settings.manage'])->id,
+            Permission::firstOrCreate(['name' => 'roles.viewAny'])->id,
+            Permission::firstOrCreate(['name' => 'roles.view'])->id,
+            Permission::firstOrCreate(['name' => 'roles.update'])->id,
+            Permission::firstOrCreate(['name' => 'users.create'])->id,
         ];
 
         $roleA->permissions()->attach($permission_ids);
 
-        $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role'=>$roleA]), [
-            'name'        => $roleA->name,
+        $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role' => $roleA]), [
+            'name' => $roleA->name,
             'permissions' => [$permission_ids[0], $permission_ids[1], $new_permission],
-            'updated_at'  => $roleA->updated_at
+            'updated_at' => $roleA->updated_at,
         ])->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST->value);
 
         $roleA->unsetRelation('permissions');
@@ -232,15 +232,15 @@ class RoleTest extends TestCase
 
     public function testShow()
     {
-        $user       = User::factory()->create();
-        $roleA      = Role::factory()->create();
-        $roleB      = Role::factory()->create();
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create();
+        $roleB = Role::factory()->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))->assertUnauthorized();
         $this->actingAs($user)->getJson(route('api.v1.roles.show', ['role' => $roleA]))->assertStatus(403);
 
-        $permission = Permission::firstOrCreate([ 'name' => 'roles.view' ]);
+        $permission = Permission::firstOrCreate(['name' => 'roles.view']);
         $roleA->permissions()->attach($permission->id);
 
         $this->actingAs($user)->getJson(route('api.v1.roles.show', ['role' => self::INVALID_ID]))
@@ -248,22 +248,22 @@ class RoleTest extends TestCase
         $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'name'        => $roleA->name,
-                'permissions' => [['name' => $permission->name, 'id' => $permission->id]]
+                'name' => $roleA->name,
+                'permissions' => [['name' => $permission->name, 'id' => $permission->id]],
             ]);
     }
 
     public function testDelete()
     {
-        $user               = User::factory()->create();
-        $role               = Role::factory()->create();
-        $superuserRole      = Role::factory()->create(['superuser' => true]);
+        $user = User::factory()->create();
+        $role = Role::factory()->create();
+        $superuserRole = Role::factory()->create(['superuser' => true]);
         $user->roles()->attach([$role->id, $superuserRole->id]);
 
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))->assertUnauthorized();
         $this->actingAs($user)->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))->assertStatus(403);
 
-        $permission = Permission::firstOrCreate([ 'name' => 'roles.delete' ]);
+        $permission = Permission::firstOrCreate(['name' => 'roles.delete']);
         $superuserRole->permissions()->attach($permission->id);
         $role->permissions()->attach($permission->id);
 
@@ -276,8 +276,8 @@ class RoleTest extends TestCase
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $role]))
             ->assertStatus(CustomStatusCodes::ROLE_DELETE_LINKED_USERS->value)
             ->assertJsonFragment([
-                'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
-                'message' => __('app.errors.role_delete_linked_users')
+                'error' => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
+                'message' => __('app.errors.role_delete_linked_users'),
             ]);
 
         $role->users()->detach([$user->id]);

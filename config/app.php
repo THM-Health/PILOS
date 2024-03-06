@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Facade;
 use App\Services\LocaleService;
+use Illuminate\Support\Facades\Facade;
 
 // Directories to search for locale files
 $defaultLocaleDir = base_path('lang');

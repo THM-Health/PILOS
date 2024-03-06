@@ -60,7 +60,7 @@ class RoutingTest extends TestCase
         $response = $this->getJson('/api/v1/rooms');
         $response->assertUnauthorized();
         $response->assertJson([
-            'message' => 'Unauthenticated.'
+            'message' => 'Unauthenticated.',
         ]);
     }
 }

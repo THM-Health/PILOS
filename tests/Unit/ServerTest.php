@@ -23,7 +23,7 @@ class ServerTest extends TestCase
      */
     public function testGetMeetingsWithStatusAndOffline()
     {
-        $server        = Server::factory()->create();
+        $server = Server::factory()->create();
         $serverService = new ServerService($server);
 
         // Server marked as inactive
@@ -52,14 +52,14 @@ class ServerTest extends TestCase
     public function testGetMeetingsWithResponse()
     {
         Http::fake([
-            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-3.xml'))
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-3.xml')),
         ]);
 
-        $server        = Server::factory()->create();
+        $server = Server::factory()->create();
         $serverService = new ServerService($server);
 
         $server->offline = 0;
-        $server->status  = 1;
+        $server->status = 1;
 
         $meetings = $serverService->getMeetings();
         self::assertCount(2, $meetings);
@@ -73,10 +73,10 @@ class ServerTest extends TestCase
     public function testGetMeetingsWithFailedResponse()
     {
         Http::fake([
-            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Failed.xml'))
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Failed.xml')),
         ]);
 
-        $server        = Server::factory()->create();
+        $server = Server::factory()->create();
         $serverService = new ServerService($server);
 
         $server->status = ServerStatus::ONLINE;
@@ -90,16 +90,16 @@ class ServerTest extends TestCase
     public function testUsageClearedOnOffline()
     {
         // Create new fake server
-        $server                          = Server::factory()->create();
+        $server = Server::factory()->create();
 
         // Set the live usage data of server
-        $server->participant_count       = 1;
-        $server->listener_count          = 2;
+        $server->participant_count = 1;
+        $server->listener_count = 2;
         $server->voice_participant_count = 3;
-        $server->video_count             = 4;
-        $server->meeting_count           = 5;
-        $server->version                 = '2.4.5';
-        $server->status                  = ServerStatus::ONLINE;
+        $server->video_count = 4;
+        $server->meeting_count = 5;
+        $server->version = '2.4.5';
+        $server->status = ServerStatus::ONLINE;
         $server->save();
 
         $server->refresh();
@@ -111,7 +111,7 @@ class ServerTest extends TestCase
         $this->assertEquals(5, $server->meeting_count);
         $this->assertEquals('2.4.5', $server->version);
 
-        $server->status                  = ServerStatus::OFFLINE;
+        $server->status = ServerStatus::OFFLINE;
         $server->save();
 
         // Reload data and check if everything is reset, as the server is offline
@@ -131,20 +131,20 @@ class ServerTest extends TestCase
     public function testUsageClearedOnDisabled()
     {
         // Create new fake server
-        $server                          = Server::factory()->create();
+        $server = Server::factory()->create();
 
         // Set the live usage data of server
-        $server->participant_count       = 1;
-        $server->listener_count          = 2;
+        $server->participant_count = 1;
+        $server->listener_count = 2;
         $server->voice_participant_count = 3;
-        $server->video_count             = 4;
-        $server->meeting_count           = 5;
-        $server->version                 = '2.4.5';
-        $server->status                  = ServerStatus::ONLINE;
+        $server->video_count = 4;
+        $server->meeting_count = 5;
+        $server->version = '2.4.5';
+        $server->status = ServerStatus::ONLINE;
         $server->save();
 
         $server->refresh();
-        $server->status                  = ServerStatus::DISABLED;
+        $server->status = ServerStatus::DISABLED;
         $server->save();
 
         // Reload data and check if everything is reset, as the server is disabled
@@ -167,21 +167,21 @@ class ServerTest extends TestCase
 
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
-            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
-            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-1.xml'))
-            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-2.xml'))
-            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-1.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-2.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
         ]);
 
-        $server        = Server::factory()->create();
+        $server = Server::factory()->create();
         $serverService = new ServerService($server);
 
-        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true]);
+        $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'start' => '2021-06-25 09:24:25', 'end' => null, 'record_attendance' => true]);
         $meeting->server()->associate($server);
         $meeting->save();
 
-        $userA = User::factory()->create(['id'=>99,'firstname'=> 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
-        $userB = User::factory()->create(['id'=>100,'firstname'=> 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
+        $userA = User::factory()->create(['id' => 99, 'firstname' => 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
+        $userB = User::factory()->create(['id' => 100, 'firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
 
         $serverService->updateUsage();
         $meeting->refresh();
@@ -208,16 +208,14 @@ class ServerTest extends TestCase
 
         // Check if errors are logged
         Log::assertLogged(
-            fn (LogEntry $log) =>
-            $log->level === 'notice'
+            fn (LogEntry $log) => $log->level === 'notice'
             && $log->message == 'Unknown prefix for attendee found.'
-            && $log->context == ['prefix' => '2','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d']
+            && $log->context == ['prefix' => '2', 'meeting' => '409e94ee-e317-4040-8cb2-8000a289b49d']
         );
         Log::assertLogged(
-            fn (LogEntry $log) =>
-            $log->level === 'notice'
+            fn (LogEntry $log) => $log->level === 'notice'
             && $log->message == 'Attendee user not found.'
-            && $log->context == ['user' => '101','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d']
+            && $log->context == ['user' => '101', 'meeting' => '409e94ee-e317-4040-8cb2-8000a289b49d']
         );
 
         $serverService->updateUsage();
@@ -276,11 +274,11 @@ class ServerTest extends TestCase
             'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
         ]);
 
-        $server        = Server::factory()->create();
+        $server = Server::factory()->create();
         $serverService = new ServerService($server);
 
         // Check if attendance is not logged if disabled for this meeting
-        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>false]);
+        $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'start' => '2021-06-25 09:24:25', 'end' => null, 'record_attendance' => false]);
         $meeting->server()->associate($server);
         $meeting->save();
         $serverService->updateUsage();
@@ -293,13 +291,13 @@ class ServerTest extends TestCase
      */
     public function testVersionUpdate()
     {
-        $server        = Server::factory()->create(['version' => '2.3.0']);
+        $server = Server::factory()->create(['version' => '2.3.0']);
 
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
-            'test.notld/bigbluebutton/api/?checksum=*'  => Http::sequence()
-                                                            ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion.xml'))
-                                                            ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml'))
+            'test.notld/bigbluebutton/api/?checksum=*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml')),
         ]);
 
         $serverService = new ServerService($server);

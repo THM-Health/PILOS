@@ -22,12 +22,9 @@ use Log;
 class MeetingService
 {
     private Meeting $meeting;
+
     private ServerService $serverService;
 
-    /**
-     * @param  ServerService  $serverService
-     * @return MeetingService
-     */
     public function setServerService(ServerService $serverService): self
     {
         $this->serverService = $serverService;
@@ -37,7 +34,7 @@ class MeetingService
 
     public function __construct(Meeting $meeting)
     {
-        $this->meeting       = $meeting;
+        $this->meeting = $meeting;
         $this->serverService = new ServerService($meeting->server);
     }
 
@@ -46,7 +43,7 @@ class MeetingService
      */
     protected function getCallbackSalt(): string
     {
-        return $this->meeting->id . $this->meeting->server->secret;
+        return $this->meeting->id.$this->meeting->server->secret;
     }
 
     public function validateCallbackSalt(string $salt): bool
@@ -56,7 +53,7 @@ class MeetingService
 
     public function getCallbackUrl(): string
     {
-        return url()->route('api.v1.meetings.endcallback', ['meeting'=>$this->meeting,'salt'=> Hash::make($this->getCallbackSalt())]);
+        return url()->route('api.v1.meetings.endcallback', ['meeting' => $this->meeting, 'salt' => Hash::make($this->getCallbackSalt())]);
     }
 
     /**
@@ -94,7 +91,7 @@ class MeetingService
             $meetingParams->addPresentation((new RoomFileService($file))->url(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
-        if (empty($meetingParams->getPresentations()) && !empty(setting('default_presentation'))) {
+        if (empty($meetingParams->getPresentations()) && ! empty(setting('default_presentation'))) {
             $meetingParams->addPresentation(setting('default_presentation'));
         }
 
@@ -124,7 +121,7 @@ class MeetingService
         }
 
         // Check server response for meeting creation
-        if (!$result->success()) {
+        if (! $result->success()) {
             // Meeting creation failed, remove meeting
             $this->meeting->forceDelete();
             // Check for some errors
@@ -158,7 +155,7 @@ class MeetingService
             $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
         } // Catch exceptions, e.g. network connection issues
         catch (\Exception $exception) {
-            Log::warning('Checking if room {room} is running on server {server} failed', ['room' => $this->meeting->room->getLogLabel(), 'server' => $this->meeting->server->getLogLabel() ]);
+            Log::warning('Checking if room {room} is running on server {server} failed', ['room' => $this->meeting->room->getLogLabel(), 'server' => $this->meeting->server->getLogLabel()]);
 
             // Remove meeting and set server to offline
             $this->meeting->forceDelete();
@@ -172,6 +169,7 @@ class MeetingService
 
     /**
      * End meeting
+     *
      * @throws \Exception e.g. Connection error
      */
     public function end(): void
@@ -206,17 +204,17 @@ class MeetingService
     {
         // Load guest and user attendances, group by session or user_id
         $guests = $this->meeting->attendees()->whereNotNull('session_id')->get()->groupBy('session_id');
-        $users  = $this->meeting->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
+        $users = $this->meeting->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
 
         // create array of guest attendees
-        $guests       = $guests->map(function ($guest) {
+        $guests = $guests->map(function ($guest) {
             $sessions = $this->mapAttendanceSessions($guest);
 
             return ['name' => $guest[0]->name, 'email' => null, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
         });
 
         // create array of user attendees
-        $users        = $users->map(function ($user) {
+        $users = $users->map(function ($user) {
             $sessions = $this->mapAttendanceSessions($user);
 
             return ['name' => $user[0]->user->firstname.' '.$user[0]->user->lastname, 'email' => $user[0]->user->email, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
@@ -233,25 +231,22 @@ class MeetingService
 
     /**
      * Helper function for attendance(), map each attendance database entry to an attendance session array
-     * @param $sessions
      */
     private function mapAttendanceSessions($sessions): mixed
     {
         return $sessions->map(function ($session) {
-            return ['id'=> $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
+            return ['id' => $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
         });
     }
 
     /**
-     * @param  mixed            $token
-     * @param  StartJoinMeeting $request
-     * @param  Room             $room
-     * @return string
+     * @param  mixed  $token
+     * @param  Room  $room
      */
     public function getJoinUrl(StartJoinMeeting $request): string
     {
         $roomAuthService = app()->make(RoomAuthService::class);
-        $token           = $roomAuthService->getRoomToken($this->meeting->room);
+        $token = $roomAuthService->getRoomToken($this->meeting->room);
 
         if (Auth::guest()) {
             if ($token) {
@@ -263,8 +258,8 @@ class MeetingService
             $name = Auth::user()->fullname;
         }
 
-        $userId         = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
-        $roomUserRole   = $this->meeting->room->getRole(Auth::user(), $token);
+        $userId = Auth::guest() ? 's'.session()->getId() : 'u'.Auth::user()->id;
+        $roomUserRole = $this->meeting->room->getRole(Auth::user(), $token);
 
         $bbbRole = match ($roomUserRole) {
             RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER, RoomUserRole::OWNER => Role::MODERATOR,

@@ -20,9 +20,9 @@ class LDAPUser extends ExternalUser
         $attributeMap = config('ldap.mapping')->attributes;
 
         // Loop through the attribute mapping
-        foreach ($attributeMap as $attribute=>$ldap_attribute) {
+        foreach ($attributeMap as $attribute => $ldap_attribute) {
             // Loop through the LDAP user attributes
-            foreach ($raw_attributes as $attribute_name=>$attribute_values) {
+            foreach ($raw_attributes as $attribute_name => $attribute_values) {
                 // If the current LDAP attribute matches the name of the LDAP attribute in the mapping
                 // add all values to the attribute of the user
                 if (strcasecmp($ldap_attribute, $attribute_name) == 0) {

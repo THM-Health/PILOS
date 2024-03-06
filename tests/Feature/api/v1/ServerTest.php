@@ -18,7 +18,6 @@ use Tests\Utils\BigBlueButtonServerFaker;
 
 /**
  * General server api feature tests
- * @package Tests\Feature\api\v1\Server
  */
 class ServerTest extends TestCase
 {
@@ -44,9 +43,9 @@ class ServerTest extends TestCase
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
 
-        $servers  = Server::factory()->count(8)->create(['description'=>'test', 'version' => '2.4.5']);
-        $server01 = Server::factory()->create(['name'=>'server01','status'=>ServerStatus::DISABLED, 'version' => null]);
-        $server02 = Server::factory()->create(['name'=>'server02','status'=>ServerStatus::OFFLINE, 'version' => null]);
+        $servers = Server::factory()->count(8)->create(['description' => 'test', 'version' => '2.4.5']);
+        $server01 = Server::factory()->create(['name' => 'server01', 'status' => ServerStatus::DISABLED, 'version' => null]);
+        $server02 = Server::factory()->create(['name' => 'server02', 'status' => ServerStatus::OFFLINE, 'version' => null]);
 
         $servers[3]->version = '2.4.4';
         $servers[3]->save();
@@ -62,8 +61,8 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role       = Role::factory()->create();
-        $permission = Permission::firstOrCreate([ 'name' => 'servers.viewAny' ]);
+        $role = Role::factory()->create();
+        $permission = Permission::firstOrCreate(['name' => 'servers.viewAny']);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);
 
@@ -92,34 +91,34 @@ class ServerTest extends TestCase
                         'meeting_count',
                         'version',
                         'updated_at',
-                        'model_name'
-                    ]
-                ]
+                        'model_name',
+                    ],
+                ],
             ])
-        ->assertDontSee('base_url')
-        ->assertDontSee('secret');
+            ->assertDontSee('base_url')
+            ->assertDontSee('secret');
 
         // Pagination
-        $this->getJson(route('api.v1.servers.index') . '?page=2')
+        $this->getJson(route('api.v1.servers.index').'?page=2')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => $servers[5]->id]);
 
         // Filtering by name
-        $this->getJson(route('api.v1.servers.index') . '?name=server01')
+        $this->getJson(route('api.v1.servers.index').'?name=server01')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $server01->id]);
 
         // Filtering by name
-        $this->getJson(route('api.v1.servers.index') . '?name=server')
+        $this->getJson(route('api.v1.servers.index').'?name=server')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['id' => $server01->id])
             ->assertJsonFragment(['id' => $server02->id]);
 
         // Sorting status asc
-        $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=asc')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=status&sort_direction=asc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals(ServerStatus::DISABLED->value, $response->json('data.0.status'));
@@ -127,27 +126,27 @@ class ServerTest extends TestCase
         $this->assertEquals(ServerStatus::ONLINE->value, $response->json('data.2.status'));
 
         // Sorting status desc
-        $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=status&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals(ServerStatus::ONLINE->value, $response->json('data.0.status'));
 
         // Sorting name asc
-        $this->getJson(route('api.v1.servers.index') . '?sort_by=name&sort_direction=asc')
+        $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => Server::orderBy('name')->first()->id])
             ->assertJsonMissing(['id' => Server::orderByDesc('name')->first()->id]);
 
         // Sorting name desc
-        $this->getJson(route('api.v1.servers.index') . '?sort_by=name&sort_direction=desc')
+        $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => Server::orderByDesc('name')->first()->id])
             ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
 
         // Sorting version asc
-        $response =  $this->getJson(route('api.v1.servers.index') . '?sort_by=version&sort_direction=asc')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=version&sort_direction=asc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertNull($response->json('data.0.version'));
@@ -156,14 +155,14 @@ class ServerTest extends TestCase
         $this->assertEquals('2.4.5', $response->json('data.3.version'));
 
         // Sorting version desc
-        $response =  $this->getJson(route('api.v1.servers.index') . '?sort_by=version&sort_direction=desc')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=version&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals('2.4.6', $response->json('data.0.version'));
         $this->assertEquals('2.4.5', $response->json('data.1.version'));
 
         // Request with forced usage update, should see that the online servers are now offline (cause it's fake data)
-        $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc&update_usage=true')
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=status&sort_direction=desc&update_usage=true')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals(ServerStatus::OFFLINE->value, $response->json('data.0.status'));
@@ -185,7 +184,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.view']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -196,22 +195,22 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.servers.show', ['server' => $server->id]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'id'                      => $server->id,
-                'name'                    => $server->name,
-                'description'             => $server->description,
-                'base_url'                => $server->base_url,
-                'secret'                  => $server->secret,
-                'strength'                => $server->strength,
-                'status'                  => $server->status,
-                'participant_count'       => $server->participant_count,
-                'listener_count'          => $server->listener_count,
+                'id' => $server->id,
+                'name' => $server->name,
+                'description' => $server->description,
+                'base_url' => $server->base_url,
+                'secret' => $server->secret,
+                'strength' => $server->strength,
+                'status' => $server->status,
+                'participant_count' => $server->participant_count,
+                'listener_count' => $server->listener_count,
                 'voice_participant_count' => $server->voice_participant_count,
-                'video_count'             => $server->video_count,
-                'own_meeting_count'       => $server->meetings()->count(),
-                'meeting_count'           => $server->meeting_count,
-                'version'                 => $server->version,
-                'updated_at'              => $server->updated_at,
-                'model_name'              => $server->model_name,
+                'video_count' => $server->video_count,
+                'own_meeting_count' => $server->meetings()->count(),
+                'meeting_count' => $server->meeting_count,
+                'version' => $server->version,
+                'updated_at' => $server->updated_at,
+                'model_name' => $server->model_name,
             ]);
 
         // Test deleted
@@ -228,13 +227,13 @@ class ServerTest extends TestCase
     public function testCreate()
     {
         $server = Server::factory()->make();
-        $data   = [
-            'name'        => $server->name,
+        $data = [
+            'name' => $server->name,
             'description' => $server->description,
-            'base_url'    => $server->base_url,
-            'secret'      => $server->secret,
-            'strength'    => 5,
-            'disabled'    => false,
+            'base_url' => $server->base_url,
+            'secret' => $server->secret,
+            'strength' => 5,
+            'disabled' => false,
         ];
 
         // Test guests
@@ -246,7 +245,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -255,7 +254,7 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url'=>$server->base_url,'description'=>$server->description,'secret'=>$server->secret,'strength'=>5,'status'=>ServerStatus::OFFLINE->value]
+                ['base_url' => $server->base_url, 'description' => $server->description, 'secret' => $server->secret, 'strength' => 5, 'status' => ServerStatus::OFFLINE->value]
             );
 
         // Test with some existing base url
@@ -263,13 +262,13 @@ class ServerTest extends TestCase
             ->assertJsonValidationErrors(['base_url']);
 
         // Test with invalid data
-        $data['base_url']      = 'test';
-        $data['name']          = '';
-        $data['secret']        = '';
-        $data['strength']      = 1000;
-        $data['disabled']      = 10;
+        $data['base_url'] = 'test';
+        $data['name'] = '';
+        $data['secret'] = '';
+        $data['strength'] = 1000;
+        $data['disabled'] = 10;
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url','secret','name','strength','disabled']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'disabled']);
     }
 
     /**
@@ -277,78 +276,78 @@ class ServerTest extends TestCase
      */
     public function testUpdate()
     {
-        $server  = Server::factory()->create(['base_url'=>'https://host1.notld/bigbluebutton/','status'=>ServerStatus::DISABLED]);
-        $server2 = Server::factory()->create(['base_url'=>'https://host2.notld/bigbluebutton/','status'=>ServerStatus::DISABLED]);
+        $server = Server::factory()->create(['base_url' => 'https://host1.notld/bigbluebutton/', 'status' => ServerStatus::DISABLED]);
+        $server2 = Server::factory()->create(['base_url' => 'https://host2.notld/bigbluebutton/', 'status' => ServerStatus::DISABLED]);
 
         $data = [
-            'name'        => $server->name,
+            'name' => $server->name,
             'description' => $server->description,
-            'base_url'    => $server->base_url,
-            'secret'      => $server->secret,
-            'strength'    => $server->strength,
-            'disabled'    => true,
+            'base_url' => $server->base_url,
+            'secret' => $server->secret,
+            'strength' => $server->strength,
+            'disabled' => true,
         ];
 
         // Test guests
-        $this->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
+        $this->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertUnauthorized();
 
         // Test logged in users
-        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertForbidden();
 
         // Authorize user
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         // Test with authorized user, without updated at
-        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         $data['updated_at'] = $server->updated_at;
 
         // Test with authorized user, with updated at
-        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url'=>$server->base_url,'secret'=>$server->secret,'status'=>$server->status]
+                ['base_url' => $server->base_url, 'secret' => $server->secret, 'status' => $server->status]
             );
 
         // Change status to offline if server is not reachable
         $server->refresh();
-        $data['disabled']     = false;
-        $data['updated_at']   = $server->updated_at;
-        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
+        $data['disabled'] = false;
+        $data['updated_at'] = $server->updated_at;
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['status'=>ServerStatus::OFFLINE->value]
+                ['status' => ServerStatus::OFFLINE->value]
             );
 
         // Test with base url of an other server
         $server->refresh();
-        $data['base_url']   = $server2->base_url;
+        $data['base_url'] = $server2->base_url;
         $data['updated_at'] = $server->updated_at;
-        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertJsonValidationErrors(['base_url']);
 
         // Test with invalid data
         $server->refresh();
-        $data['base_url']      = 'test';
-        $data['name']          = '';
-        $data['secret']        = '';
-        $data['strength']      = 1000;
-        $data['disabled']      = 10;
-        $data['updated_at']    = $server->updated_at;
-        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
-            ->assertJsonValidationErrors(['base_url','secret','name','strength','disabled']);
+        $data['base_url'] = 'test';
+        $data['name'] = '';
+        $data['secret'] = '';
+        $data['strength'] = 1000;
+        $data['disabled'] = 10;
+        $data['updated_at'] = $server->updated_at;
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'disabled']);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;
         $server->save();
         $server->delete();
-        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
+        $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertNotFound();
     }
 
@@ -360,21 +359,21 @@ class ServerTest extends TestCase
         $server = Server::factory()->create();
 
         // Test guests
-        $this->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+        $this->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
             ->assertUnauthorized();
 
         // Test logged in users
-        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
             ->assertForbidden();
 
         // Authorize user
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.delete']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         // Try delete while status is not disabled
-        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         // Disable server
@@ -382,10 +381,10 @@ class ServerTest extends TestCase
         $server->save();
 
         // Create new running meeting on the server
-        $meeting = Meeting::factory()->create(['server_id'=>$server->id,'end'=>null]);
+        $meeting = Meeting::factory()->create(['server_id' => $server->id, 'end' => null]);
 
         // Try delete while meeting still running
-        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
             ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         // End meeting
@@ -393,14 +392,14 @@ class ServerTest extends TestCase
         $meeting->save();
 
         // Test delete
-        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
             ->assertSuccessful();
 
         // Test delete again
-        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server' => $server->id]))
             ->assertNotFound();
 
-        $this->assertDatabaseMissing('servers', ['id'=>$server->id]);
+        $this->assertDatabaseMissing('servers', ['id' => $server->id]);
     }
 
     /**
@@ -409,16 +408,16 @@ class ServerTest extends TestCase
     public function testCheck()
     {
         $invalidSecret = 't64e8rtefererrg43erbgffrgz';
-        $validSecret   = '8d8e8rtefererrg43erbgffrgz';
+        $validSecret = '8d8e8rtefererrg43erbgffrgz';
 
-        $validHost   = 'https://bbb-valid.notld/bigbluebutton/';
+        $validHost = 'https://bbb-valid.notld/bigbluebutton/';
         $invalidHost = 'https://bbb-invalid.notld/bigbluebutton/';
 
         // Create Fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($validHost, $validSecret);
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/Attendance/GetMeetings-1.xml')));
 
-        $data = ['base_url'=> $invalidHost,'secret'=> $invalidSecret];
+        $data = ['base_url' => $invalidHost, 'secret' => $invalidSecret];
 
         // Test guests
         $this->postJson(route('api.v1.servers.check'), $data)
@@ -429,29 +428,29 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         // Test with invalid api details
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>false,'secret_ok'=>false]);
+            ->assertJson(['connection_ok' => false, 'secret_ok' => false]);
 
         // Test with invalid secret
-        $data = ['base_url'=>$validHost,'secret'=>$invalidSecret];
+        $data = ['base_url' => $validHost, 'secret' => $invalidSecret];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>true,'secret_ok'=>false]);
+            ->assertJson(['connection_ok' => true, 'secret_ok' => false]);
 
         // Test with valid api details
-        $data = ['base_url'=>$validHost,'secret'=>$validSecret];
+        $data = ['base_url' => $validHost, 'secret' => $validSecret];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJson(['connection_ok'=>true,'secret_ok'=>true]);
+            ->assertJson(['connection_ok' => true, 'secret_ok' => true]);
 
         // Test with invalid data
-        $data = ['base_url'=>'test','secret'=>''];
+        $data = ['base_url' => 'test', 'secret' => ''];
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
-            ->assertJsonValidationErrors(['base_url','secret']);
+            ->assertJsonValidationErrors(['base_url', 'secret']);
     }
 
     /**
@@ -462,33 +461,33 @@ class ServerTest extends TestCase
         $server = Server::factory()->create();
 
         // Test guests
-        $this->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+        $this->getJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertUnauthorized();
 
         // Test logged in users
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertForbidden();
 
         // Authorize user for view servers
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         // Test without update permission
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertForbidden();
 
         // Give update permission
         $permission = Permission::firstOrCreate(['name' => 'servers.update']);
         $role->permissions()->attach($permission);
 
-        $meeting = Meeting::factory()->create(['server_id'=>$server->id,'end'=>null]);
+        $meeting = Meeting::factory()->create(['server_id' => $server->id, 'end' => null]);
 
         // Test without update permission
-        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertSuccessful()
-            ->assertJson(['total'=>1,'success'=>1]);
+            ->assertJson(['total' => 1, 'success' => 1]);
 
         $meeting->refresh();
         $server->refresh();

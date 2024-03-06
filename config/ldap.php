@@ -4,9 +4,7 @@ $ldapEnabled = env('LDAP_ENABLED', false);
 
 return [
 
-    'enabled'   => $ldapEnabled,
-
-    
+    'enabled' => $ldapEnabled,
 
     'connection' => [
         'hosts' => [env('LDAP_HOST', '127.0.0.1')],
@@ -54,7 +52,7 @@ return [
 
     'filter' => env('LDAP_FILTER', ''),
 
-    'object_classes' => explode(",",env('LDAP_OBJECT_CLASSES', 'top,person,organizationalperson,inetorgperson')),
+    'object_classes' => explode(',', env('LDAP_OBJECT_CLASSES', 'top,person,organizationalperson,inetorgperson')),
 
     'login_attribute' => env('LDAP_LOGIN_ATTRIBUTE', 'uid'),
 

@@ -20,17 +20,17 @@ class UserTest extends TestCase
 
         $this->users[] = User::factory()->create([
             'firstname' => 'Max',
-            'lastname'  => 'Mustermann'
+            'lastname' => 'Mustermann',
         ]);
 
         $this->users[] = User::factory()->create([
             'firstname' => 'John',
-            'lastname'  => 'Doe'
+            'lastname' => 'Doe',
         ]);
 
         $this->users[] = User::factory()->create([
             'firstname' => 'Erika',
-            'lastname'  => 'Mustermann'
+            'lastname' => 'Mustermann',
         ]);
     }
 
@@ -117,9 +117,9 @@ class UserTest extends TestCase
      */
     public function testUniquePermissionNames()
     {
-        $user       = User::factory()->create();
-        $roleA      = Role::factory()->create();
-        $roleB      = Role::factory()->create();
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create();
+        $roleB = Role::factory()->create();
         $permission = Permission::factory()->create();
         $roleA->permissions()->attach($permission->id);
         $roleB->permissions()->attach($permission->id);
@@ -133,9 +133,9 @@ class UserTest extends TestCase
      */
     public function testRoomLimitCalc()
     {
-        $user       = User::factory()->create();
-        $roleA      = Role::factory()->create();
-        $roleB      = Role::factory()->create();
+        $user = User::factory()->create();
+        $roleA = Role::factory()->create();
+        $roleB = Role::factory()->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         // Only global limit, unlimited

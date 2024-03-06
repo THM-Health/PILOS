@@ -14,8 +14,7 @@ class SetApplicationLocale
      * Otherwise the locale of the session or the locale from the 'Accept-Language'-Header will be used if set. For the
      * last instance the fallback locale of the application will be used.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -36,7 +35,7 @@ class SetApplicationLocale
             $locale = session()->get('locale');
         }
 
-        if (!in_array($locale, array_keys(config('app.enabled_locales')))) {
+        if (! in_array($locale, array_keys(config('app.enabled_locales')))) {
             $locale = config('app.fallback_locale');
         }
 

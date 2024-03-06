@@ -26,13 +26,13 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'firstname'         => fake()->firstName,
-            'lastname'          => fake()->lastName,
-            'external_id'       => fake()->userName,
-            'email'             => fake()->unique()->safeEmail,
+            'firstname' => fake()->firstName,
+            'lastname' => fake()->lastName,
+            'external_id' => fake()->userName,
+            'email' => fake()->unique()->safeEmail,
             'email_verified_at' => now(),
-            'password'          => fake()->password,
-            'remember_token'    => Str::random(10)
+            'password' => fake()->password,
+            'remember_token' => Str::random(10),
         ];
     }
 }

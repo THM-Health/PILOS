@@ -13,6 +13,7 @@ class ImportDatabaseTest extends TestCase
 
     /**
      * Test importing missing file
+     *
      * @return void
      */
     public function testMissingFile()
@@ -31,6 +32,7 @@ class ImportDatabaseTest extends TestCase
 
     /**
      * Test importing invalid file
+     *
      * @return void
      */
     public function testInvalidFile()
@@ -55,6 +57,7 @@ class ImportDatabaseTest extends TestCase
 
     /**
      * Test importing valid file
+     *
      * @return void
      */
     public function testValidFile()

@@ -24,22 +24,22 @@ class BuildHistoryTest extends TestCase
     public function testServerOffline()
     {
         // Create new meeting with fake server
-        $meeting                         = Meeting::factory()->create(['end'=>null]);
-        $server                          = $meeting->server;
-        $room                            = $meeting->room;
+        $meeting = Meeting::factory()->create(['end' => null]);
+        $server = $meeting->server;
+        $room = $meeting->room;
 
         // Set the live usage data of server and parent room
-        $server->participant_count       = 5;
-        $server->listener_count          = 5;
+        $server->participant_count = 5;
+        $server->listener_count = 5;
         $server->voice_participant_count = 5;
-        $server->video_count             = 5;
-        $server->meeting_count           = 5;
+        $server->video_count = 5;
+        $server->meeting_count = 5;
         $server->save();
 
-        $room->participant_count       = 5;
-        $room->listener_count          = 5;
+        $room->participant_count = 5;
+        $room->listener_count = 5;
         $room->voice_participant_count = 5;
-        $room->video_count             = 5;
+        $room->video_count = 5;
         $room->save();
 
         // Refresh usage and build history
@@ -69,11 +69,11 @@ class BuildHistoryTest extends TestCase
      */
     public function testServerOnline()
     {
-        $user99  = User::factory()->create(['id' => 99]);
+        $user99 = User::factory()->create(['id' => 99]);
         $user100 = User::factory()->create(['id' => 100]);
         $user101 = User::factory()->create(['id' => 101]);
 
-        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance'=>true]);
+        $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance' => true]);
         setting(['statistics.servers.enabled' => true]);
         setting(['statistics.meetings.enabled' => true]);
 
@@ -176,7 +176,7 @@ class BuildHistoryTest extends TestCase
      */
     public function testServerOnlineDisabledAttendanceRecording()
     {
-        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance'=>false]);
+        $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance' => false]);
 
         // Create fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);

@@ -26,13 +26,13 @@ class RoomExpires extends Notification implements ShouldQueue
      */
     public function __construct(Room $room)
     {
-        $this->room      = $room;
+        $this->room = $room;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -43,7 +43,7 @@ class RoomExpires extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed                                          $notifiable
+     * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
@@ -70,16 +70,16 @@ class RoomExpires extends Notification implements ShouldQueue
 
         // If room has no meeting, room will deleted due to creating but never using the room
         if ($lastMeeting == null) {
-            $message->line(__('mail.room_expires.no_meeting', ['name' => $this->room->name,'date' => $createdAt]));
+            $message->line(__('mail.room_expires.no_meeting', ['name' => $this->room->name, 'date' => $createdAt]));
         }
         // If room has a meeting, that was too long ago
         else {
             $days = now()->diffInDays($lastMeeting->start);
-            $message->line(__('mail.room_expires.inactivity', ['name' => $this->room->name,'date' => $createdAt, 'days' => $days]));
+            $message->line(__('mail.room_expires.inactivity', ['name' => $this->room->name, 'date' => $createdAt, 'days' => $days]));
         }
 
         return $message
-            ->action(__('mail.room_expires.open', ), $url)
+            ->action(__('mail.room_expires.open'), $url)
             ->line(__('mail.room_expires.expire', ['date' => $date]))
             ->line(__('mail.room_expires.keep'))
             ->line(__('mail.room_expires.delete'))

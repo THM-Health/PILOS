@@ -27,7 +27,7 @@ class Users implements ResolvesUsers
     /**
      * Eager load the users with the given keys.
      *
-     * @param Collection<int, int|string|null> $keys
+     * @param  Collection<int, int|string|null>  $keys
      */
     public function load(Collection $keys): ResolvesUsers
     {
@@ -46,8 +46,8 @@ class Users implements ResolvesUsers
         $user = $this->resolvedUsers->first(fn ($user) => $this->key($user) == $key);
 
         return (object) [
-            'name'   => $user->fullname ?? "ID: $key",
-            'extra'  => $user->email ?? '',
+            'name' => $user->fullname ?? "ID: $key",
+            'extra' => $user->email ?? '',
             'avatar' => $user->imageUrl ?? url('images/default_profile.png'),
         ];
     }

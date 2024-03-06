@@ -8,14 +8,14 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class RoomFileCollection extends ResourceCollection
 {
     /**
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
             'data' => [
-                'files' => $this->resource
+                'files' => $this->resource,
             ],
         ];
     }

@@ -14,10 +14,10 @@ class CreateRoomsTable extends Migration
     public function up()
     {
         Schema::create('rooms', function (Blueprint $table) {
-            $table->string('id',11);
+            $table->string('id', 11);
             $table->primary('id');
-            $table->string('name',256);
-            $table->string('welcome',5000)->nullable();
+            $table->string('name', 256);
+            $table->string('welcome', 5000)->nullable();
             $table->integer('maxParticipants')->nullable();
             $table->integer('duration')->nullable();
             $table->boolean('webcamsOnlyForModerator')->default(false);

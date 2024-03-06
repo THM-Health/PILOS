@@ -33,7 +33,7 @@ class ShibbolethController extends Controller
         }
 
         // Back channel logout
-        if (!empty($request->getContent())) {
+        if (! empty($request->getContent())) {
             return $this->provider->backChannelLogout($request->getContent());
         }
     }
@@ -45,9 +45,9 @@ class ShibbolethController extends Controller
     {
         try {
             $user = $this->provider->login($request);
-        } catch(MissingAttributeException $e) {
+        } catch (MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
-        } catch(ShibbolethSessionDuplicateException $e) {
+        } catch (ShibbolethSessionDuplicateException $e) {
             // Prevented login attempt with duplicate shibboleth session, redirect to logout to kill SP session
             return redirect($this->provider->logout(url('/external_login?error=shibboleth_session_duplicate_exception')));
         }
@@ -55,7 +55,7 @@ class ShibbolethController extends Controller
         Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'shibboleth']);
 
         // Redirect to the external login page in the frontend, optionally with a redirect back to a specific URL
-        $url         = '/external_login';
+        $url = '/external_login';
         $redirectUrl = $request->get('redirect');
 
         return redirect($redirectUrl ? ($url.'?redirect='.urlencode($redirectUrl)) : $url);

@@ -16,12 +16,12 @@ class StoreSessionData
     /**
      * Handle an incoming request.
      *
-     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         // Check if any session data is stored in the session
-        if (!Auth::guest() && $request->session()->has('session_data')) {
+        if (! Auth::guest() && $request->session()->has('session_data')) {
             $dataSets = $request->session()->get('session_data');
 
             // Store the data in the database
@@ -29,8 +29,8 @@ class StoreSessionData
                 SessionData::updateOrCreate(
                     [
                         'session_id' => $request->session()->getId(),
-                        'key'        => $dataSet['key'],
-                        'value'      => $dataSet['value']
+                        'key' => $dataSet['key'],
+                        'value' => $dataSet['value'],
                     ]
                 );
             }

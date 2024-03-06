@@ -33,13 +33,13 @@ class DeleteObsoleteTokens extends Command
         if (setting('room_token_expiration') > -1) {
             $expiredTokens = RoomToken::where(function ($query) {
                 $query->whereNull('last_usage')
-                        ->where('created_at', '<', Carbon::now()->subMinutes(setting('room_token_expiration')));
+                    ->where('created_at', '<', Carbon::now()->subMinutes(setting('room_token_expiration')));
             })
-            ->orWhere(function ($query) {
-                $query->whereNotNull('last_usage')
-                    ->where('last_usage', '<', Carbon::now()->subMinutes(setting('room_token_expiration')));
-            })
-            ->pluck('token');
+                ->orWhere(function ($query) {
+                    $query->whereNotNull('last_usage')
+                        ->where('last_usage', '<', Carbon::now()->subMinutes(setting('room_token_expiration')));
+                })
+                ->pluck('token');
 
             Log::info('Deleting '.count($expiredTokens).' expired room tokens');
 
