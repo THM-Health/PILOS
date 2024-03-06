@@ -1,7 +1,7 @@
 <template>
   <label
     :for="inputId"
-    class="flex-shrink-0 p-button p-component lg:border-noround-right border-round"
+    class="flex-shrink-0 p-button p-component border-round"
     :class="{'p-disabled': disabled}"
     tabindex="0"
     @keyup.enter="fileInputRef.click()"
