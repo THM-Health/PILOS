@@ -339,7 +339,7 @@ class UserTest extends TestCase
 
         // Try to update user without timestamp
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         // Check with timestamp and invalid data
         $changes['updated_at']           = Carbon::now();
@@ -642,7 +642,7 @@ class UserTest extends TestCase
         // Check if email can be changed immediately
         $changes['email'] = $this->faker->email;
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
-            ->assertStatus(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
+            ->assertStatus(CustomStatusCodes::EMAIL_CHANGE_THROTTLE->value);
 
         // Check if email can be changed after throttle time
         Carbon::setTestNow(Carbon::now()->addMinutes(6));
@@ -1296,7 +1296,7 @@ class UserTest extends TestCase
         // Check if requesting reset immediately after another reset request is not possible
         Notification::fake();
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
-            ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED);
+            ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED->value);
         Notification::assertNotSentTo($resetUser, PasswordReset::class);
 
         // Check if disabled if local authenticator is disabled

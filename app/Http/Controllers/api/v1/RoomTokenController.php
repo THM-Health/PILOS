@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\api\v1;
 
-use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTokenRequest;
 use App\Http\Resources\RoomToken as RoomTokenResource;
@@ -40,7 +39,7 @@ class RoomTokenController extends Controller
         $token->role      = $request->role;
         $room->tokens()->save($token);
 
-        Log::info('Created new room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($token->role)->label(), 'name' => $token->firstname.' '.$token->lastname]);
+        Log::info('Created new room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $token->role->label(), 'name' => $token->firstname.' '.$token->lastname]);
 
         return new RoomTokenResource($token);
     }
@@ -64,7 +63,7 @@ class RoomTokenController extends Controller
         $token->role      = $request->role;
         $token->save();
 
-        Log::info('Updated room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($token->role)->label(), 'name' => $token->firstname.' '.$token->lastname]);
+        Log::info('Updated room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $token->role->label(), 'name' => $token->firstname.' '.$token->lastname]);
 
         return new RoomTokenResource($token);
     }
@@ -85,7 +84,7 @@ class RoomTokenController extends Controller
 
         $token->delete();
 
-        Log::info('Removed room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::from($token->role)->label(), 'name' => $token->firstname.' '.$token->lastname]);
+        Log::info('Removed room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $token->role->label(), 'name' => $token->firstname.' '.$token->lastname]);
 
         return response()->noContent();
     }

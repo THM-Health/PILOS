@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Rules\ValidRoomType;
-use BenSampo\Enum\Rules\EnumValue;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +27,7 @@ class UpdateRoomSettings extends FormRequest
             'webcams_only_for_moderator'         => 'required|boolean',
             'default_role'                       => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR])],
             'allow_guests'                       => 'required|boolean',
-            'lobby'                              => ['required',new EnumValue(RoomLobby::class)],
+            'lobby'                              => ['required',Rule::enum(RoomLobby::class)],
             'room_type'                          => ['bail','required', 'exists:App\Models\RoomType,id', new ValidRoomType($this->room->owner)],
             'name'                               => 'required|string|min:2|max:'.config('bigbluebutton.room_name_limit'),
             'welcome'                            => 'nullable|string|max:'.config('bigbluebutton.welcome_message_limit'),

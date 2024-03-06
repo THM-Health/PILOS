@@ -2,8 +2,6 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * Possible link targets
  * @package App\Enums
@@ -11,5 +9,5 @@ use BenSampo\Enum\Enum;
 enum LinkTarget : string
 {
     case BLANK = 'blank';
-    case SELF = 'self';
+    case SELF  = 'self';
 }

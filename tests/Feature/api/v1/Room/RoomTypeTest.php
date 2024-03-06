@@ -264,7 +264,7 @@ class RoomTypeTest extends TestCase
 
         // Test with authorized user, without updated at
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         $data['updated_at'] = $roomType->updated_at;
 

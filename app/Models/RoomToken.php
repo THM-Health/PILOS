@@ -15,7 +15,7 @@ class RoomToken extends Model
 
     protected $casts = [
         'last_usage' => 'datetime',
-        'role' => RoomUserRole::class,
+        'role'       => RoomUserRole::class,
     ];
 
     /**

@@ -122,15 +122,15 @@ class ServerTest extends TestCase
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=asc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
-        $this->assertEquals(ServerStatus::DISABLED, $response->json('data.0.status'));
-        $this->assertEquals(ServerStatus::OFFLINE, $response->json('data.1.status'));
-        $this->assertEquals(ServerStatus::ONLINE, $response->json('data.2.status'));
+        $this->assertEquals(ServerStatus::DISABLED->value, $response->json('data.0.status'));
+        $this->assertEquals(ServerStatus::OFFLINE->value, $response->json('data.1.status'));
+        $this->assertEquals(ServerStatus::ONLINE->value, $response->json('data.2.status'));
 
         // Sorting status desc
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
-        $this->assertEquals(ServerStatus::ONLINE, $response->json('data.0.status'));
+        $this->assertEquals(ServerStatus::ONLINE->value, $response->json('data.0.status'));
 
         // Sorting name asc
         $this->getJson(route('api.v1.servers.index') . '?sort_by=name&sort_direction=asc')
@@ -166,7 +166,7 @@ class ServerTest extends TestCase
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc&update_usage=true')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
-        $this->assertEquals(ServerStatus::OFFLINE, $response->json('data.0.status'));
+        $this->assertEquals(ServerStatus::OFFLINE->value, $response->json('data.0.status'));
     }
 
     /**
@@ -255,7 +255,7 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url'=>$server->base_url,'description'=>$server->description,'secret'=>$server->secret,'strength'=>5,'status'=>ServerStatus::OFFLINE]
+                ['base_url'=>$server->base_url,'description'=>$server->description,'secret'=>$server->secret,'strength'=>5,'status'=>ServerStatus::OFFLINE->value]
             );
 
         // Test with some existing base url
@@ -305,7 +305,7 @@ class ServerTest extends TestCase
 
         // Test with authorized user, without updated at
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         $data['updated_at'] = $server->updated_at;
 
@@ -323,7 +323,7 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['status'=>ServerStatus::OFFLINE]
+                ['status'=>ServerStatus::OFFLINE->value]
             );
 
         // Test with base url of an other server
@@ -375,7 +375,7 @@ class ServerTest extends TestCase
 
         // Try delete while status is not disabled
         $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         // Disable server
         $server->status = ServerStatus::DISABLED;
@@ -386,7 +386,7 @@ class ServerTest extends TestCase
 
         // Try delete while meeting still running
         $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         // End meeting
         $meeting->end = date('Y-m-d H:i:s');

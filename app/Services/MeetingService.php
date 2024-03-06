@@ -266,7 +266,7 @@ class MeetingService
         $userId         = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
         $roomUserRole   = $this->meeting->room->getRole(Auth::user(), $token);
 
-        $bbbRole = match($roomUserRole) {
+        $bbbRole = match ($roomUserRole) {
             RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER, RoomUserRole::OWNER => Role::MODERATOR,
             default => Role::VIEWER,
         };

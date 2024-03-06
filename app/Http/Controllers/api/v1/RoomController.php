@@ -117,9 +117,9 @@ class RoomController extends Controller
         }
         // sort rooms by different strategies
         $collection = match ($request->sort_by) {
-            RoomSortingType::ALPHA->value => $collection->orderBy('rooms.name'),
+            RoomSortingType::ALPHA->value     => $collection->orderBy('rooms.name'),
             RoomSortingType::ROOM_TYPE->value => $collection->orderBy('room_types.name')->orderBy('rooms.name'),
-            default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name'),
+            default                           => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name'),
         };
 
         // count own rooms

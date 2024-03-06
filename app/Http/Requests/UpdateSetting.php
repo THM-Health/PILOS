@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
-use BenSampo\Enum\Rules\EnumValue;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

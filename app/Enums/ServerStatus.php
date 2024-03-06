@@ -2,8 +2,6 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * Custom status response codes of the api
  * @package App\Enums
@@ -11,6 +9,6 @@ use BenSampo\Enum\Enum;
 enum ServerStatus : int
 {
     case DISABLED = -1;
-    case OFFLINE = 0;
-    case ONLINE = 1;
+    case OFFLINE  = 0;
+    case ONLINE   = 1;
 }
