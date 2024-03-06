@@ -142,8 +142,8 @@ class MeetingController extends Controller
 
         $meetingService = new MeetingService($meeting);
 
-        // check if attendance recording is enabled for this meeting and globally enabled
-        if (!$meeting->record_attendance || !setting('attendance.enabled')) {
+        // check if attendance recording is enabled for this meeting
+        if (!$meeting->record_attendance) {
             Log::info('Failed to show attendace for meeting {meeting} of room {room}; attendance is disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
         }

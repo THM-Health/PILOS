@@ -195,8 +195,8 @@ class ServerService
                     $meeting->room->voice_participant_count = $meetingStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
                     $meeting->room->video_count             = $meetingStat->video_count             = $bbbMeeting->getVideoCount();
 
-                    // Record meeting attendance if enabled globally and for this running meeting
-                    if ($meeting->record_attendance && setting('attendance.enabled')) {
+                    // Record meeting attendance if enabled for this running meeting
+                    if ($meeting->record_attendance) {
                         // Get collection of all attendees, remove duplicated (user joins twice)
                         $collection      = collect($bbbMeeting->getAttendees());
                         $uniqueAttendees = $collection->unique(function ($attendee) {

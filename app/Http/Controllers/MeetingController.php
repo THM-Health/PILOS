@@ -29,7 +29,7 @@ class MeetingController extends Controller
         Log::info('Download attendance list for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
 
         // check if attendance recording is enabled for this meeting
-        if (!$meeting->record_attendance || !setting('attendance.enabled')) {
+        if (!$meeting->record_attendance) {
             Log::info('Failed to download attendance list for meeting {meeting} of room {room}; attendance is disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
         }

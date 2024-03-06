@@ -164,7 +164,6 @@ class ServerTest extends TestCase
     public function testLogAttendance()
     {
         Log::swap(new LogFake);
-        setting(['attendance.enabled'=>true]);
 
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
@@ -273,8 +272,6 @@ class ServerTest extends TestCase
      */
     public function testLogAttendanceDisabled()
     {
-        setting(['attendance.enabled'=>false]);
-
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
         ]);
@@ -282,18 +279,9 @@ class ServerTest extends TestCase
         $server        = Server::factory()->create();
         $serverService = new ServerService($server);
 
-        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true]);
+        // Check if attendance is not logged if disabled for this meeting
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>false]);
         $meeting->server()->associate($server);
-        $meeting->save();
-
-        // Check if attendance is not logged if enabled for this meeting, but disabled globally
-        $serverService->updateUsage();
-        $meeting->refresh();
-        $this->assertCount(0, $meeting->attendees);
-
-        // Check if attendance is not logged if disabled for this meeting, but enabled globally
-        setting(['attendance.enabled'=>true]);
-        $meeting->record_attendance = false;
         $meeting->save();
         $serverService->updateUsage();
         $meeting->refresh();

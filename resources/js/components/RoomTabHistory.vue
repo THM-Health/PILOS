@@ -51,7 +51,6 @@
       <Column
         :header="$t('app.actions')"
         class="action-column action-column-2"
-        v-if="settingsStore.getSetting('attendance.enabled') || settingsStore.getSetting('statistics.meetings.enabled')"
       >
         <template #body="slotProps">
           <div>
@@ -76,13 +75,12 @@
       </Column>
     </DataTable>
     <div
-      v-if="settingsStore.getSetting('attendance.enabled') || settingsStore.getSetting('statistics.meetings.enabled')"
       id="retentionPeriodInfo"
     >
       <Divider/>
       <b>{{ $t('meetings.retention_period') }}</b><br>
       <span v-if="settingsStore.getSetting('statistics.meetings.enabled')">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('statistics.meetings.retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('attendance.enabled')">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('attendance.retention_period')}) }}</span><br>
+      <span>{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('attendance.retention_period')}) }}</span><br>
     </div>
   </div>
 </template>

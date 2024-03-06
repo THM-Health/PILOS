@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\api\v1;
 
-use App\Models\Meeting;
-use App\Models\MeetingAttendee;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -67,7 +65,6 @@ class SettingsTest extends TestCase
         ]]);
 
         setting(['attendance' => [
-            'enabled'           => false,
             'retention_period'  => 14
         ]]);
 
@@ -100,7 +97,6 @@ class SettingsTest extends TestCase
                         ]
                     ],
                     'attendance' => [
-                        'enabled'           => false,
                         'retention_period'  => 14
                     ],
                     'room_token_expiration' => -1,
@@ -137,7 +133,6 @@ class SettingsTest extends TestCase
         config(['app.whitelabel' => true]);
 
         setting(['attendance' => [
-            'enabled'           => true,
             'retention_period'  => 14
         ]]);
 
@@ -169,7 +164,6 @@ class SettingsTest extends TestCase
                         ]
                     ],
                     'attendance' => [
-                        'enabled'           => true,
                         'retention_period'  => 14
                     ],
                     'room_token_expiration' => 100,
@@ -226,7 +220,6 @@ class SettingsTest extends TestCase
         ]]);
 
         setting(['attendance' => [
-            'enabled'           => true,
             'retention_period'  => 14
         ]]);
 
@@ -282,7 +275,6 @@ class SettingsTest extends TestCase
                         ]
                     ],
                     'attendance' => [
-                        'enabled'           => true,
                         'retention_period'  => 14
                     ],
                     'room_auto_delete' => [
@@ -317,7 +309,6 @@ class SettingsTest extends TestCase
         ]]);
 
         setting(['attendance' => [
-            'enabled'           => false,
             'retention_period'  => 14
         ]]);
 
@@ -355,7 +346,6 @@ class SettingsTest extends TestCase
                         ]
                     ],
                     'attendance' => [
-                        'enabled'           => false,
                         'retention_period'  => 14
                     ],
                     'room_auto_delete' => [
@@ -409,7 +399,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => false,
                 'retention_period'  => 14
             ],
             'room_auto_delete'           => [
@@ -464,7 +453,6 @@ class SettingsTest extends TestCase
                         ]
                     ],
                     'attendance' => [
-                        'enabled'           => false,
                         'retention_period'  => 14
                     ],
                     'room_auto_delete' => [
@@ -528,7 +516,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => false,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -589,7 +576,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => false,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -658,7 +644,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => false,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -726,7 +711,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => 90,
                 'retention_period'  => 'test'
             ],
             'room_auto_delete' => [
@@ -759,7 +743,6 @@ class SettingsTest extends TestCase
                 'statistics.servers.retention_period',
                 'statistics.meetings.enabled',
                 'statistics.meetings.retention_period',
-                'attendance.enabled',
                 'attendance.retention_period',
                 'room_token_expiration',
                 'bbb.logo',
@@ -796,7 +779,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => true,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -912,7 +894,6 @@ class SettingsTest extends TestCase
                     ]
                 ],
                 'attendance' => [
-                    'enabled'           => true,
                     'retention_period'  => 0
                 ],
                 'room_auto_delete' => [
@@ -958,7 +939,6 @@ class SettingsTest extends TestCase
                     ]
                 ],
                 'attendance' => [
-                    'enabled'           => true,
                     'retention_period'  => 366
                 ],
                 'room_auto_delete' => [
@@ -1016,7 +996,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => true,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -1118,7 +1097,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => true,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -1201,7 +1179,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => true,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -1231,76 +1208,6 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertSuccessful();
         $this->assertEmpty(setting('bbb_logo'));
-    }
-
-    /**
-     * Test if the attendance recording is getting disabled for a running meeting and attendance data removed, if the global setting is changed
-     * After the global setting is disabled new attendees would not see a warning, but are recorded if this global setting is re-enabled during the meeting
-     * To prevent this, the attendance recording is disabled until the end of the meeting
-     */
-    public function testRecordAttendanceIsDisabledForRunningMeetings()
-    {
-        // Enable attendance record
-        setting(['attendance.enabled'=>true]);
-
-        // Create two fake meetings
-        $meetingRunning = Meeting::factory()->create(['end'=>null,'record_attendance'=>true]);
-        $meetingEnded   = Meeting::factory()->create(['record_attendance'=>true]);
-
-        $meetingRunning->attendees()->save(new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']));
-
-        // Payload to disable attendance recording
-        $payload = [
-            'name'                           => 'test',
-            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
-            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => false,
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
-                'servers' => [
-                    'enabled'           => false,
-                    'retention_period'  => 7
-                ],
-                'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
-            ],
-            'attendance' => [
-                'enabled'           => false,
-                'retention_period'  => 14
-            ],
-            'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
-        ];
-
-        // Add necessary role and permission to user to update application settings
-        $role       = Role::factory()->create();
-        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
-        $role->permissions()->attach($permission);
-        $this->user->roles()->attach($role);
-
-        // Update global settings
-        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
-            ->assertSuccessful();
-
-        // Check if record attendance was disabled for running meetings
-        $meetingRunning->refresh();
-        $meetingEnded->refresh();
-        $this->assertFalse($meetingRunning->record_attendance);
-        $this->assertTrue($meetingEnded->record_attendance);
-
-        // Check if all attendance data is removed
-        $this->assertCount(0, $meetingRunning->attendees);
     }
 
     /**
@@ -1336,7 +1243,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => false,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
@@ -1375,7 +1281,6 @@ class SettingsTest extends TestCase
                 ]
             ],
             'attendance' => [
-                'enabled'           => false,
                 'retention_period'  => 14
             ],
             'room_auto_delete' => [
