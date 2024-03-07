@@ -13,6 +13,7 @@ class ApplicationController extends Controller
 {
     /**
      * Load basic application data, like settings
+     *
      * @return ApplicationSettings
      */
     public function settings()
@@ -30,7 +31,7 @@ class ApplicationController extends Controller
 
     /**
      * Update application settings data
-     * @param  UpdateSetting       $request
+     *
      * @return ApplicationSettings
      */
     public function updateSettings(UpdateSetting $request)
@@ -38,7 +39,7 @@ class ApplicationController extends Controller
         // Logo for frontend
         if ($request->has('logo_file')) {
             $path = $request->file('logo_file')->store('images', 'public');
-            $url  = Storage::url($path);
+            $url = Storage::url($path);
             $logo = $url;
         } else {
             $logo = $request->logo;
@@ -46,8 +47,8 @@ class ApplicationController extends Controller
 
         // Favicon for frontend
         if ($request->has('favicon_file')) {
-            $path    = $request->file('favicon_file')->store('images', 'public');
-            $url     = Storage::url($path);
+            $path = $request->file('favicon_file')->store('images', 'public');
+            $url = Storage::url($path);
             $favicon = $url;
         } else {
             $favicon = $request->favicon;
@@ -55,12 +56,12 @@ class ApplicationController extends Controller
 
         // Default presentation for BBB
         if ($request->has('default_presentation')) {
-            if (!empty(setting('default_presentation'))) {
+            if (! empty(setting('default_presentation'))) {
                 Storage::deleteDirectory('public/default_presentation');
             }
-            if (!empty($request->file('default_presentation'))) {
+            if (! empty($request->file('default_presentation'))) {
                 $file = $request->file('default_presentation');
-                $path = $file->storeAs('default_presentation', 'default.' . $file->clientExtension(), 'public');
+                $path = $file->storeAs('default_presentation', 'default.'.$file->clientExtension(), 'public');
                 setting()->set('default_presentation', Storage::disk('public')->url($path));
             } else {
                 setting()->forget('default_presentation');
@@ -70,7 +71,7 @@ class ApplicationController extends Controller
         // Logo for BBB
         if ($request->has('bbb.logo_file')) {
             $path = $request->file('bbb.logo_file')->store('images', 'public');
-            $url  = Storage::url($path);
+            $url = Storage::url($path);
             setting()->set('bbb_logo', url($url));
         } elseif ($request->has('bbb.logo') && trim($request->bbb['logo']) != '') {
             setting()->set('bbb_logo', $request->bbb['logo']);
@@ -80,9 +81,9 @@ class ApplicationController extends Controller
 
         // Custom style file for BBB
         if ($request->has('bbb.style')) {
-            if (!empty($request->file('bbb.style'))) {
+            if (! empty($request->file('bbb.style'))) {
                 $path = $request->file('bbb.style')->storeAs('styles', 'bbb.css', 'public');
-                $url  = Storage::url($path);
+                $url = Storage::url($path);
                 setting()->set('bbb_style', url($url));
             } else {
                 Storage::disk('public')->delete('styles/bbb.css');
@@ -109,24 +110,24 @@ class ApplicationController extends Controller
         setting()->set('statistics.meetings.retention_period', $request->statistics['meetings']['retention_period']);
         setting()->set('attendance.retention_period', $request->attendance['retention_period']);
 
-        setting()->set('room_auto_delete.enabled', $request->room_auto_delete['enabled'] && !($request->room_auto_delete['inactive_period'] == -1 && $request->room_auto_delete['never_used_period'] == -1));
+        setting()->set('room_auto_delete.enabled', $request->room_auto_delete['enabled'] && ! ($request->room_auto_delete['inactive_period'] == -1 && $request->room_auto_delete['never_used_period'] == -1));
         setting()->set('room_auto_delete.inactive_period', $request->room_auto_delete['inactive_period']);
         setting()->set('room_auto_delete.never_used_period', $request->room_auto_delete['never_used_period']);
         setting()->set('room_auto_delete.deadline_period', $request->room_auto_delete['deadline_period']);
 
-        if (!empty($request->help_url)) {
+        if (! empty($request->help_url)) {
             setting()->set('help_url', $request->help_url);
         } else {
             setting()->forget('help_url');
         }
 
-        if (!empty($request->legal_notice_url)) {
+        if (! empty($request->legal_notice_url)) {
             setting()->set('legal_notice_url', $request->legal_notice_url);
         } else {
             setting()->forget('legal_notice_url');
         }
 
-        if (!empty($request->privacy_policy_url)) {
+        if (! empty($request->privacy_policy_url)) {
             setting()->set('privacy_policy_url', $request->privacy_policy_url);
         } else {
             setting()->forget('privacy_policy_url');
@@ -139,6 +140,7 @@ class ApplicationController extends Controller
 
     /**
      * Load current user
+     *
      * @return UserResource
      */
     public function currentUser()

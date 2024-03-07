@@ -16,13 +16,13 @@ class CreateMeetingsTable extends Migration
         Schema::create('meetings', function (Blueprint $table) {
             $table->string('id');
             $table->primary('id');
-            $table->string('room_id',11);
+            $table->string('room_id', 11);
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->unsignedBigInteger('server_id')->nullable();
             $table->foreign('server_id')->references('id')->on('servers')->onDelete('cascade');
             $table->unique('id');
-            $table->string('attendeePW',64)->nullable();
-            $table->string('moderatorPW',64)->nullable();
+            $table->string('attendeePW', 64)->nullable();
+            $table->string('moderatorPW', 64)->nullable();
             $table->boolean('isBreakout')->default(false);
             $table->integer('sequence')->default(0);
             $table->dateTime('start')->nullable();

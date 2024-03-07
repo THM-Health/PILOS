@@ -23,16 +23,16 @@ class ResetPasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param  Request                       $request
      * @return RedirectResponse|JsonResponse
+     *
      * @throws ValidationException
      */
     public function reset(Request $request)
     {
         $request->validate([
-            'token'    => 'required',
-            'email'    => 'required|email',
-            'password' => ['required', 'string', 'min:8', 'confirmed', new Password()]
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => ['required', 'string', 'min:8', 'confirmed', new Password()],
         ]);
 
         $user = User::where('authenticator', '=', 'local')
@@ -50,7 +50,7 @@ class ResetPasswordController extends Controller
 
                     if ($initial_password_set) {
                         $user->update([
-                            'initial_password_set' => false
+                            'initial_password_set' => false,
                         ]);
                     }
                 }
@@ -64,8 +64,7 @@ class ResetPasswordController extends Controller
     /**
      * Get the broker to be used during password reset.
      *
-     * @param  string         $name
-     * @return PasswordBroker
+     * @param  string  $name
      */
     public function broker($name): PasswordBroker
     {
@@ -74,8 +73,6 @@ class ResetPasswordController extends Controller
 
     /**
      * Get the guard to be used during password reset.
-     *
-     * @return StatefulGuard
      */
     protected function guard(): StatefulGuard
     {

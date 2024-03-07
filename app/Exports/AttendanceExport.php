@@ -14,14 +14,14 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * Class AttendanceExport
- * @package App\Exports
  */
-class AttendanceExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class AttendanceExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
 {
     /**
      * @var Meeting Meeting the attendance should be exported for
      */
     private $meeting;
+
     /**
      * @var string Timezone the datetimes should be shown in
      */
@@ -29,17 +29,19 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
 
     /**
      * AttendanceExport constructor.
-     * @param Meeting $meeting  Meeting the attendance should be exported for
-     * @param string  $timezone Timezone the datetimes should be shown in
+     *
+     * @param  Meeting  $meeting  Meeting the attendance should be exported for
+     * @param  string  $timezone  Timezone the datetimes should be shown in
      */
     public function __construct(Meeting $meeting, string $timezone)
     {
-        $this->meeting  = $meeting;
+        $this->meeting = $meeting;
         $this->timezone = $timezone;
     }
 
     /**
      * Collection of the data to export into the excel file
+     *
      * @return \Illuminate\Database\Eloquent\Collection|Collection
      */
     public function collection()
@@ -49,7 +51,6 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
 
     /**
      * Set style of the excel sheet
-     * @param Worksheet $sheet
      */
     public function styles(Worksheet $sheet)
     {
@@ -61,7 +62,6 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
 
     /**
      * Heading of the spreadsheet, inserted before the data
-     * @return array
      */
     public function headings(): array
     {
@@ -84,13 +84,13 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
                 __('app.email'),
                 __('meetings.attendance.duration'),
                 __('meetings.attendance.sessions'),
-        ]];
+            ]];
     }
 
     /**
      * Map attendance collection row to data for each row
-     * @param  mixed $row
-     * @return array
+     *
+     * @param  mixed  $row
      */
     public function map($row): array
     {

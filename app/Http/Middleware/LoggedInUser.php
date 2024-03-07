@@ -12,9 +12,8 @@ class LoggedInUser extends Middleware
      * Required on routes that should be used by guests and authentication users,
      * to use Auth::user
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return void
-     *
      */
     protected function authenticate($request, array $guards)
     {

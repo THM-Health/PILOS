@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * Command class that makes it possible to create an new superuser.
- * @package App\Console\Commands
  */
 class CreateSuperuser extends Command
 {
@@ -49,7 +48,7 @@ class CreateSuperuser extends Command
     public function handle()
     {
         // Check if local login is enabled
-        if (!config('auth.local.enabled')) {
+        if (! config('auth.local.enabled')) {
             $this->error('Local login is not enabled. Please enable it in the .env with the option LOCAL_AUTH_ENABLED and then retry!');
 
             return 1;
@@ -65,17 +64,17 @@ class CreateSuperuser extends Command
 
         $this->info('Creating an new superuser, please notify your inputs.');
 
-        $data                          = [];
-        $data['firstname']             = $this->ask('Firstname');
-        $data['lastname']              = $this->ask('Lastname');
-        $data['email']                 = $this->ask('E-Mail');
-        $data['user_locale']           = $this->ask('Locale (possible values: ' . join(',', array_keys(config('app.enabled_locales'))) . ')');
-        $data['password']              = $this->secret('Password');
+        $data = [];
+        $data['firstname'] = $this->ask('Firstname');
+        $data['lastname'] = $this->ask('Lastname');
+        $data['email'] = $this->ask('E-Mail');
+        $data['user_locale'] = $this->ask('Locale (possible values: '.implode(',', array_keys(config('app.enabled_locales'))).')');
+        $data['password'] = $this->secret('Password');
         $data['password_confirmation'] = $this->secret('Password Confirmation');
-        $data['generate_password']     = false;
-        $data['bbb_skip_check_audio']  = false;
-        $data['roles']                 = [$superuserRole->id];
-        $data['timezone']              = 'UTC';
+        $data['generate_password'] = false;
+        $data['bbb_skip_check_audio'] = false;
+        $data['roles'] = [$superuserRole->id];
+        $data['timezone'] = 'UTC';
 
         $validator = Validator::make($data, (new UserRequest())->rules());
 
@@ -91,11 +90,11 @@ class CreateSuperuser extends Command
 
         $user = new User();
 
-        $user->firstname         = $data['firstname'];
-        $user->lastname          = $data['lastname'];
-        $user->email             = $data['email'];
-        $user->locale            = $data['user_locale'];
-        $user->password          = Hash::make($data['password']);
+        $user->firstname = $data['firstname'];
+        $user->lastname = $data['lastname'];
+        $user->email = $data['email'];
+        $user->locale = $data['user_locale'];
+        $user->password = Hash::make($data['password']);
         $user->email_verified_at = $user->freshTimestamp();
 
         $user->save();

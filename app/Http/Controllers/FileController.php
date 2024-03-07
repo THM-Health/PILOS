@@ -9,14 +9,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Class FileController
  * Handle file management for rooms
- * @package App\Http\Controllers
  */
 class FileController extends Controller
 {
     /**
      * Display/Download a file
      *
-     * @param  RoomFile         $roomFile
      * @return StreamedResponse
      */
     public function show(RoomFile $roomFile)

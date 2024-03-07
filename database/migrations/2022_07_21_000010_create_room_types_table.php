@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      *
@@ -14,9 +15,9 @@ return new class extends Migration {
     {
         Schema::create('room_types', function (Blueprint $table) {
             $table->id();
-            $table->string('short',2);
+            $table->string('short', 2);
             $table->string('description');
-            $table->string('color',7);
+            $table->string('color', 7);
             $table->boolean('allow_listing')->default(false);
             $table->boolean('restrict')->default(false);
             $table->foreignId('server_pool_id')->constrained()->onDelete('restrict');

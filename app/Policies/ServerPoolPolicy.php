@@ -13,7 +13,6 @@ class ServerPoolPolicy
     /**
      * Determine whether the user can view any server pools.
      *
-     * @param  User $user
      * @return bool
      */
     public function viewAny(User $user)
@@ -24,8 +23,6 @@ class ServerPoolPolicy
     /**
      * Determine whether the user can view the server pool.
      *
-     * @param  User       $user
-     * @param  ServerPool $serverPool
      * @return bool
      */
     public function view(User $user, ServerPool $serverPool)
@@ -36,7 +33,6 @@ class ServerPoolPolicy
     /**
      * Determine whether the user can create server pools.
      *
-     * @param  User $user
      * @return bool
      */
     public function create(User $user)
@@ -47,8 +43,6 @@ class ServerPoolPolicy
     /**
      * Determine whether the user can update the server pool.
      *
-     * @param  User       $user
-     * @param  ServerPool $serverPool
      * @return bool
      */
     public function update(User $user, ServerPool $serverPool)
@@ -59,8 +53,6 @@ class ServerPoolPolicy
     /**
      * Determine whether the user can delete the server pool.
      *
-     * @param  User       $user
-     * @param  ServerPool $serverPool
      * @return bool
      */
     public function delete(User $user, ServerPool $serverPool)

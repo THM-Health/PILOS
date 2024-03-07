@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Meeting extends Model
 {
-    use Uuid, HasFactory;
+    use HasFactory, Uuid;
 
     /**
      * The "type" of the auto-incrementing ID.
@@ -32,13 +32,14 @@ class Meeting extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'start'              => 'datetime',
-        'end'                => 'datetime',
-        'record_attendance'  => 'boolean'
+        'start' => 'datetime',
+        'end' => 'datetime',
+        'record_attendance' => 'boolean',
     ];
 
     /**
      * Server the meeting is/should be running on
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function server()
@@ -48,6 +49,7 @@ class Meeting extends Model
 
     /**
      * Room this meeting belongs to
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function room()
@@ -57,6 +59,7 @@ class Meeting extends Model
 
     /**
      * Statistical data of this meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function stats()
@@ -66,6 +69,7 @@ class Meeting extends Model
 
     /**
      * Attendees of this meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function attendees()

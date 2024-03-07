@@ -15,7 +15,7 @@ class RoomToken extends Model
 
     protected $casts = [
         'last_usage' => 'datetime',
-        'role'       => RoomUserRole::class,
+        'role' => RoomUserRole::class,
     ];
 
     /**
@@ -54,6 +54,7 @@ class RoomToken extends Model
 
     /**
      * Room the token belongs to
+     *
      * @return BelongsTo
      */
     public function room()
@@ -71,6 +72,7 @@ class RoomToken extends Model
 
     /**
      * Full name of the token owner.
+     *
      * @return string
      */
     public function getFullnameAttribute()
@@ -80,6 +82,7 @@ class RoomToken extends Model
 
     /**
      * Expire datetime of the token
+     *
      * @return null
      */
     public function getExpiresAttribute()

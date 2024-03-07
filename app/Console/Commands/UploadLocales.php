@@ -29,7 +29,7 @@ class UploadLocales extends Command
     {
         $locales = config('app.default_locales');
         foreach ($locales as $locale => $metadata) {
-            $this->info('Processing locale ' . $metadata['name'].' ('.$locale.')');
+            $this->info('Processing locale '.$metadata['name'].' ('.$locale.')');
 
             $localeJson = $localeService->buildJsonLocale($locale, false, false);
 
@@ -37,28 +37,28 @@ class UploadLocales extends Command
             $this->info('Waiting '.$delay.' seconds before upload');
             sleep($delay);
 
-            $this->info('Uploading locale '. $metadata['name'].' ('.$locale.')');
+            $this->info('Uploading locale '.$metadata['name'].' ('.$locale.')');
 
             $response = Http::attach(
                 'file',
                 $localeJson,
-                $locale . '.json'
+                $locale.'.json'
             )->post('https://api.poeditor.com/v2/projects/upload', [
-                'api_token'     => config('services.poeditor.token'),
-                'id'            => config('services.poeditor.project'),
-                'updating'      => 'terms_translations',
-                'overwrite'     => 1,
-                'sync_terms'    => config('app.fallback_locale') == $locale ? 1 : 0,
+                'api_token' => config('services.poeditor.token'),
+                'id' => config('services.poeditor.project'),
+                'updating' => 'terms_translations',
+                'overwrite' => 1,
+                'sync_terms' => config('app.fallback_locale') == $locale ? 1 : 0,
                 'fuzzy_trigger' => 1,
-                'language'      => $locale
+                'language' => $locale,
             ]);
 
             $apiResponse = $response->json('response');
             if ($apiResponse['status'] == 'success') {
-                $this->info('Locale ' .$metadata['name'].' ('.$locale.') uploaded successfully');
+                $this->info('Locale '.$metadata['name'].' ('.$locale.') uploaded successfully');
             } else {
                 $this->error('Error uploading locale '.$metadata['name'].' ('.$locale.')');
-                $this->error('Error code: ' . $apiResponse['code'].', message: '.$apiResponse['message']);
+                $this->error('Error code: '.$apiResponse['code'].', message: '.$apiResponse['message']);
             }
         }
     }

@@ -20,7 +20,7 @@ class ForgotPasswordTest extends TestCase
         parent::setUp();
 
         config([
-            'auth.local.enabled'    => true
+            'auth.local.enabled' => true,
         ]);
     }
 
@@ -28,34 +28,34 @@ class ForgotPasswordTest extends TestCase
     {
         // Check if the route is disabled when the password self reset is disabled
         config([
-            'auth.local.enabled'    => true
+            'auth.local.enabled' => true,
         ]);
-        setting(['password_change_allowed' => false ]);
+        setting(['password_change_allowed' => false]);
         $this->postJson(route('api.v1.password.email'), [
-            'email' => 'test@test.de'
+            'email' => 'test@test.de',
         ])->assertNotFound();
-        
+
         // Check if the route is disabled when the local provider is disabled
         config([
-            'auth.local.enabled'    => false
+            'auth.local.enabled' => false,
         ]);
-        setting(['password_change_allowed' => true ]);
+        setting(['password_change_allowed' => true]);
         $this->postJson(route('api.v1.password.email'), [
-            'email' => 'test@test.de'
+            'email' => 'test@test.de',
         ])->assertNotFound();
     }
 
     public function testForgotPassword()
     {
-        $user         = User::factory()->create();
+        $user = User::factory()->create();
         $externalUser = User::factory()->create([
-            'authenticator' => 'ldap'
+            'authenticator' => 'ldap',
         ]);
         $newUser = User::factory()->create([
-            'initial_password_set' => true
+            'initial_password_set' => true,
         ]);
 
-        setting(['password_change_allowed' => true ]);
+        setting(['password_change_allowed' => true]);
         $this->actingAs($user)->postJson(route('api.v1.password.email'))
             ->assertStatus(420);
 

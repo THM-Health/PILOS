@@ -20,39 +20,39 @@ class CleanupStatisticsTest extends TestCase
         setting()->set('statistics.meetings.retention_period', 20);
 
         // Create fake data
-        $server  = Server::factory()->create();
+        $server = Server::factory()->create();
         $meeting = Meeting::factory()->create();
 
-        $serverStat1                          = new ServerStat();
-        $serverStat1->created_at              = now()->subDays(11)->toDateString();
-        $serverStat1->participant_count       = 5;
-        $serverStat1->listener_count          = 5;
+        $serverStat1 = new ServerStat();
+        $serverStat1->created_at = now()->subDays(11)->toDateString();
+        $serverStat1->participant_count = 5;
+        $serverStat1->listener_count = 5;
         $serverStat1->voice_participant_count = 5;
-        $serverStat1->video_count             = 5;
-        $serverStat1->meeting_count           = 5;
+        $serverStat1->video_count = 5;
+        $serverStat1->meeting_count = 5;
         $server->stats()->save($serverStat1);
 
-        $serverStat2                          = new ServerStat();
-        $serverStat2->participant_count       = 1;
-        $serverStat2->listener_count          = 1;
+        $serverStat2 = new ServerStat();
+        $serverStat2->participant_count = 1;
+        $serverStat2->listener_count = 1;
         $serverStat2->voice_participant_count = 1;
-        $serverStat2->video_count             = 1;
-        $serverStat2->meeting_count           = 1;
+        $serverStat2->video_count = 1;
+        $serverStat2->meeting_count = 1;
         $server->stats()->save($serverStat2);
 
-        $meetingStat1                          = new MeetingStat();
-        $meetingStat1->created_at              = now()->subDays(21)->toDateString();
-        $meetingStat1->participant_count       = 5;
-        $meetingStat1->listener_count          = 5;
+        $meetingStat1 = new MeetingStat();
+        $meetingStat1->created_at = now()->subDays(21)->toDateString();
+        $meetingStat1->participant_count = 5;
+        $meetingStat1->listener_count = 5;
         $meetingStat1->voice_participant_count = 5;
-        $meetingStat1->video_count             = 5;
+        $meetingStat1->video_count = 5;
         $meeting->stats()->save($meetingStat1);
 
-        $meetingStat2                          = new MeetingStat();
-        $meetingStat2->participant_count       = 1;
-        $meetingStat2->listener_count          = 1;
+        $meetingStat2 = new MeetingStat();
+        $meetingStat2->participant_count = 1;
+        $meetingStat2->listener_count = 1;
         $meetingStat2->voice_participant_count = 1;
-        $meetingStat2->video_count             = 1;
+        $meetingStat2->video_count = 1;
         $meeting->stats()->save($meetingStat2);
 
         // Check if the datasets exit

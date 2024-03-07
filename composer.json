@@ -32,7 +32,7 @@
         "barryvdh/laravel-ide-helper": "^3.0",
         "brianium/paratest": "^7.0",
         "fakerphp/faker": "^1.9.1",
-        "friendsofphp/php-cs-fixer": "3.*",
+        "laravel/pint": "^1.14",
         "mockery/mockery": "^1.4.2",
         "php-coveralls/php-coveralls": "^2.3.0",
         "phpunit/phpunit": "^10.0",
@@ -89,7 +89,7 @@
         "test": "php artisan test --parallel",
         "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
         "test-integration": "php artisan test --parallel --testsuite=Integration",
-        "fix-cs": "php-cs-fixer fix --allow-risky=yes"
+        "fix-cs": "pint"
 
     }
 }

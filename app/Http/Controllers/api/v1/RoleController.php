@@ -30,10 +30,10 @@ class RoleController extends Controller
     public function index(Request $request)
     {
         $additionalMeta = [];
-        $resource       = Role::query();
+        $resource = Role::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by  = $request->query('sort_by');
+            $by = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
             if (in_array($by, ['id', 'name', 'default']) && in_array($dir, ['asc', 'desc'])) {
@@ -56,15 +56,14 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  RoleRequest  $request
      * @return RoleResource
      */
     public function store(RoleRequest $request)
     {
-        $role             = new Role;
-        $role->name       = $request->name;
+        $role = new Role;
+        $role->name = $request->name;
         $role->room_limit = $request->room_limit;
-        $role->superuser  = false;
+        $role->superuser = false;
 
         $role->save();
         $role->permissions()->sync($request->permissions);
@@ -75,7 +74,6 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  Role         $role
      * @return RoleResource
      */
     public function show(Role $role)
@@ -86,29 +84,27 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  RoleRequest               $request
-     * @param  Role                      $role
      * @return RoleResource|JsonResponse
      */
     public function update(RoleRequest $request, Role $role)
     {
         // Cannot change room_limit or permissions for superuser role
-        if (!$role->superuser) {
+        if (! $role->superuser) {
             $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
 
             $role->permissions()->sync($request->permissions);
 
             $user = Auth::user();
 
-            if (!($user->hasPermission('settings.manage')
+            if (! ($user->hasPermission('settings.manage')
                 && $user->hasPermission('roles.viewAny')
                 && $user->hasPermission('roles.view')
                 && $user->hasPermission('roles.update'))) {
                 $role->permissions()->sync($old_role_permissions);
 
                 return response()->json([
-                    'error'   => CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST->value,
-                    'message' => __('app.errors.role_update_permission_lost')
+                    'error' => CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST->value,
+                    'message' => __('app.errors.role_update_permission_lost'),
                 ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST->value);
             }
 
@@ -118,7 +114,7 @@ class RoleController extends Controller
             $role->room_limit = $request->room_limit;
         }
 
-        $role->name       = $request->name;
+        $role->name = $request->name;
         $role->save();
 
         return (new RoleResource($role))->withPermissions();
@@ -127,8 +123,8 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Role                  $role
      * @return JsonResponse|Response
+     *
      * @throws Exception
      */
     public function destroy(Role $role)
@@ -136,8 +132,8 @@ class RoleController extends Controller
         $role->loadCount('users');
         if ($role->users_count != 0) {
             return response()->json([
-                'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS->value,
-                'message' => __('app.errors.role_delete_linked_users')
+                'error' => CustomStatusCodes::ROLE_DELETE_LINKED_USERS->value,
+                'message' => __('app.errors.role_delete_linked_users'),
             ], CustomStatusCodes::ROLE_DELETE_LINKED_USERS->value);
         }
 

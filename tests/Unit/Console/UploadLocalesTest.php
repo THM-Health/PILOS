@@ -3,10 +3,10 @@
 namespace Tests\Unit\Console;
 
 use App\Services\LocaleService;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class UploadLocalesTest extends TestCase
@@ -22,37 +22,37 @@ class UploadLocalesTest extends TestCase
             'api.poeditor.com/v2/projects/upload' => Http::sequence()
                 ->push([
                     'response' => [
-                        'status'  => 'success',
-                        'code'    => '200',
+                        'status' => 'success',
+                        'code' => '200',
                         'message' => 'OK',
                     ],
                     'result' => [
-                      'terms' => [
-                        'parsed'  => 1,
-                        'added'   => 1,
-                        'deleted' => 0
-                      ],
-                      'translations' => [
-                        'parsed'  => 1,
-                        'added'   => 1,
-                        'updated' => 0
-                      ]
-                    ]
-                  ], 200)
-                  ->push([
+                        'terms' => [
+                            'parsed' => 1,
+                            'added' => 1,
+                            'deleted' => 0,
+                        ],
+                        'translations' => [
+                            'parsed' => 1,
+                            'added' => 1,
+                            'updated' => 0,
+                        ],
+                    ],
+                ], 200)
+                ->push([
                     'response' => [
-                      'status'  => 'fail',
-                      'code'    => '4048',
-                      'message' => 'Too many upload requests in a short period of time'
-                    ]
-                  ], 200),
+                        'status' => 'fail',
+                        'code' => '4048',
+                        'message' => 'Too many upload requests in a short period of time',
+                    ],
+                ], 200),
 
         ]);
 
         config([
-            'app.default_locales'            => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
-            'services.poeditor.token'        => 'token123',
-            'services.poeditor.project'      => 'project123',
+            'app.default_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
+            'services.poeditor.token' => 'token123',
+            'services.poeditor.project' => 'project123',
             'services.poeditor.upload_delay' => 0,
         ]);
 
@@ -60,25 +60,25 @@ class UploadLocalesTest extends TestCase
             ->mock(LocaleService::class);
 
         $mock->shouldReceive('buildJsonLocale')
-        ->once()
-        ->with('de', false, false)
-        ->andReturn('{"key_1":"wert_1"}');
+            ->once()
+            ->with('de', false, false)
+            ->andReturn('{"key_1":"wert_1"}');
 
         $mock->shouldReceive('buildJsonLocale')
-        ->once()
-        ->with('en', false, false)
-        ->andReturn('{"key_1":"value_1"}');
+            ->once()
+            ->with('en', false, false)
+            ->andReturn('{"key_1":"value_1"}');
 
         $this->artisan('locales:upload')
-        ->expectsOutput('Processing locale Deutsch (de)')
-        ->expectsOutput('Waiting 0 seconds before upload')
-        ->expectsOutput('Uploading locale Deutsch (de)')
-        ->expectsOutput('Locale Deutsch (de) uploaded successfully')
-        ->expectsOutput('Processing locale English (en)')
-        ->expectsOutput('Waiting 0 seconds before upload')
-        ->expectsOutput('Uploading locale English (en)')
-        ->expectsOutput('Error uploading locale English (en)')
-        ->expectsOutput('Error code: 4048, message: Too many upload requests in a short period of time');
+            ->expectsOutput('Processing locale Deutsch (de)')
+            ->expectsOutput('Waiting 0 seconds before upload')
+            ->expectsOutput('Uploading locale Deutsch (de)')
+            ->expectsOutput('Locale Deutsch (de) uploaded successfully')
+            ->expectsOutput('Processing locale English (en)')
+            ->expectsOutput('Waiting 0 seconds before upload')
+            ->expectsOutput('Uploading locale English (en)')
+            ->expectsOutput('Error uploading locale English (en)')
+            ->expectsOutput('Error code: 4048, message: Too many upload requests in a short period of time');
 
         Http::assertSent(function (Request $request) {
             $data = [];

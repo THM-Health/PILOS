@@ -16,8 +16,8 @@ class ChangePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'new_password'     => [ 'required', 'string', 'min:8', 'confirmed', new Password()],
-            'current_password' => $this->user->is(Auth::user()) ? 'required|current_password' : ''
+            'new_password' => ['required', 'string', 'min:8', 'confirmed', new Password()],
+            'current_password' => $this->user->is(Auth::user()) ? 'required|current_password' : '',
         ];
     }
 }

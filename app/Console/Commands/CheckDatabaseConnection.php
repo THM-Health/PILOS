@@ -32,7 +32,7 @@ class CheckDatabaseConnection extends Command
             $this->info('Successfully connected to the database.');
 
             return 0;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $this->error('Connecting to the database failed.');
 
             return 1;

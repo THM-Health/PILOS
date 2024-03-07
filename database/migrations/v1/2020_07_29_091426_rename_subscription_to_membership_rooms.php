@@ -9,14 +9,14 @@ class RenameSubscriptionToMembershipRooms extends Migration
     public function up()
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->renameColumn('allowSubscription','allowMembership');
+            $table->renameColumn('allowSubscription', 'allowMembership');
         });
     }
 
     public function down()
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->renameColumn('allowMembership','allowSubscription');
+            $table->renameColumn('allowMembership', 'allowSubscription');
         });
     }
 }

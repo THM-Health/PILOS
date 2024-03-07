@@ -13,12 +13,13 @@ class UpgradeDatabaseTest extends TestCase
 
     /**
      * Test upgrade with v1 database
+     *
      * @return void
      */
     public function testV1Database()
     {
         // Create fresh v1 database
-        $this->artisan('migrate:fresh', ['--path'=>'database/migrations/v1']);
+        $this->artisan('migrate:fresh', ['--path' => 'database/migrations/v1']);
         $migrations_v1 = DB::table('migrations')->pluck('migration')->toArray();
 
         // Upgrade to v2 database
@@ -50,6 +51,7 @@ class UpgradeDatabaseTest extends TestCase
 
     /**
      * Try to run upgrade on v2 database
+     *
      * @return void
      */
     public function testV2Database()
@@ -64,6 +66,7 @@ class UpgradeDatabaseTest extends TestCase
 
     /**
      * Test update on empty database
+     *
      * @return void
      */
     public function testEmptyDatabase()

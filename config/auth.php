@@ -1,6 +1,5 @@
 <?php
 
-use App\Auth\LDAP\LDAPUserObject;
 use App\Models\User;
 
 return [
@@ -17,7 +16,7 @@ return [
     */
 
     'defaults' => [
-        'guard'     => 'users',
+        'guard' => 'users',
         'passwords' => 'users',
     ],
 
@@ -40,11 +39,11 @@ return [
 
     'guards' => [
         'ldap' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'ldap',
         ],
         'users' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'users',
         ],
     ],
@@ -69,11 +68,11 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => User::class,
+            'model' => User::class,
         ],
 
         'ldap' => [
-            'driver'   => 'ldap',
+            'driver' => 'ldap',
             'model' => User::class,
         ],
 
@@ -110,7 +109,7 @@ return [
             'table' => 'password_resets',
             'expire' => env('NEW_USER_PASSWORD_RESET_EXPIRE', 60),
             'throttle' => env('NEW_USER_PASSWORD_RESET_THROTTLE', 60),
-        ]
+        ],
     ],
 
     /*
@@ -145,7 +144,6 @@ return [
     */
 
     'password_timeout' => 10800,
-
 
     'local' => [
         'enabled' => env('LOCAL_AUTH_ENABLED', true),

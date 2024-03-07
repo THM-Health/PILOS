@@ -21,10 +21,10 @@ class EnsureModelNotStaleTest extends TestCase
 
         \Route::post('api/test/{role}', [
             'middleware' => ['api', 'check.stale:role,\App\Http\Resources\Role,withPermissions'],
-            'as'         => 'test.stale.check',
+            'as' => 'test.stale.check',
             function (Role $role) {
                 return 'OK';
-            }
+            },
         ]);
     }
 

@@ -8,7 +8,6 @@ use Maatwebsite\Excel\Concerns\ToModel;
 /**
  * Class AttendanceExcelImport
  * Helper to validate attendance excel download, used in testAttendanceDownload (tests/Feature/api/v1/Room/RoomStatisticTest.php)
- * @package Tests\Feature\api\v1\Room
  */
 class AttendanceExcelImport implements ToModel
 {

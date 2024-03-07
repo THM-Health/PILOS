@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -13,7 +11,7 @@ return new class extends Migration
     {
         //get value for room pagination page size if it exists with the old name
         $value = Setting::get('own_rooms_pagination_page_size');
-        if($value != null){
+        if ($value != null) {
             //delete setting with the old name and add setting with the new name and the value
             Setting::forget('own_rooms_pagination_page_size');
             Setting::set('room_pagination_page_size', $value);
@@ -28,7 +26,7 @@ return new class extends Migration
     {
         //get value for room pagination page size if it exists with the new name
         $value = Setting::get('room_pagination_page_size');
-        if($value != null){
+        if ($value != null) {
             //delete setting with the new name and add setting with the old name and the value
             Setting::forget('room_pagination_page_size');
             Setting::set('own_rooms_pagination_page_size', $value);

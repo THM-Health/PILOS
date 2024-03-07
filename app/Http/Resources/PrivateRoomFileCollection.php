@@ -16,15 +16,15 @@ class PrivateRoomFileCollection extends ResourceCollection
     }
 
     /**
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
             'data' => [
-                'files'      => $this->resource,
-                'default'    => $this->default ? $this->default->id : null,
+                'files' => $this->resource,
+                'default' => $this->default ? $this->default->id : null,
             ],
         ];
     }

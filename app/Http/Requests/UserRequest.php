@@ -15,19 +15,19 @@ class UserRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'user_locale'           => ['sometimes','required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
-            'bbb_skip_check_audio'  => ['sometimes','required','boolean'],
-            'timezone'              => ['sometimes','required', 'string', Rule::in(timezone_identifiers_list())],
-            'roles'                 => ['sometimes','required','array'],
-            'roles.*'               => ['sometimes','distinct','exists:App\Models\Role,id'],
-            'image'                 => ['sometimes','nullable','mimes:jpg','dimensions:width=100,height=100'],
+            'user_locale' => ['sometimes', 'required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
+            'bbb_skip_check_audio' => ['sometimes', 'required', 'boolean'],
+            'timezone' => ['sometimes', 'required', 'string', Rule::in(timezone_identifiers_list())],
+            'roles' => ['sometimes', 'required', 'array'],
+            'roles.*' => ['sometimes', 'distinct', 'exists:App\Models\Role,id'],
+            'image' => ['sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100'],
         ];
 
-        if (!$this->user || $this->user->authenticator === 'local') {
-            $rules['firstname'] = ['sometimes','required','string','max:255'];
-            $rules['lastname']  = ['sometimes','required','string','max:255'];
-            $rules['email']     = ['sometimes','required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where(function ($query) {
-                $query          = $query->where('authenticator', '=', 'local');
+        if (! $this->user || $this->user->authenticator === 'local') {
+            $rules['firstname'] = ['sometimes', 'required', 'string', 'max:255'];
+            $rules['lastname'] = ['sometimes', 'required', 'string', 'max:255'];
+            $rules['email'] = ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where(function ($query) {
+                $query = $query->where('authenticator', '=', 'local');
 
                 if ($this->user) {
                     $query = $query->where('id', '!=', $this->user->id);

@@ -11,24 +11,21 @@ use Illuminate\Notifications\Notification;
 class VerifyEmail extends Notification implements ShouldQueue
 {
     use Queueable;
-    
+
     private NewVerifyEmailToken $token;
+
     private string $timezone;
 
-    /**
-     * @param NewVerifyEmailToken $token
-     * @param string              $timezone
-     */
     public function __construct(NewVerifyEmailToken $token, string $timezone)
     {
-        $this->token    = $token;
+        $this->token = $token;
         $this->timezone = $timezone;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -38,17 +35,16 @@ class VerifyEmail extends Notification implements ShouldQueue
 
     public function getActionUrl()
     {
-        return url('/verify_email?') . \Arr::query([
-                'token' => $this->token->getPlainTextToken(),
-                'email' => $this->token->getVerifyEmail()->email,
-            ]);
+        return url('/verify_email?').\Arr::query([
+            'token' => $this->token->getPlainTextToken(),
+            'email' => $this->token->getVerifyEmail()->email,
+        ]);
     }
 
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed       $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     public function toMail($notifiable): MailMessage
     {

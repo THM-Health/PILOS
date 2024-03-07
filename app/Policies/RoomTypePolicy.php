@@ -18,7 +18,6 @@ class RoomTypePolicy
     /**
      * Determine whether the user can view any room types.
      *
-     * @param  User $user
      * @return bool
      */
     public function viewAny(User $user)
@@ -29,8 +28,6 @@ class RoomTypePolicy
     /**
      * Determine whether the user can view the room type.
      *
-     * @param  User     $user
-     * @param  RoomType $roomType
      * @return bool
      */
     public function view(User $user, RoomType $roomType)
@@ -41,7 +38,6 @@ class RoomTypePolicy
     /**
      * Determine whether the user can create room types.
      *
-     * @param  User $user
      * @return bool
      */
     public function create(User $user)
@@ -52,8 +48,6 @@ class RoomTypePolicy
     /**
      * Determine whether the user can update the room type.
      *
-     * @param  User     $user
-     * @param  RoomType $roomType
      * @return bool
      */
     public function update(User $user, RoomType $roomType)
@@ -64,8 +58,6 @@ class RoomTypePolicy
     /**
      * Determine whether the user can delete the room type.
      *
-     * @param  User     $user
-     * @param  RoomType $roomType
      * @return bool
      */
     public function delete(User $user, RoomType $roomType)

@@ -22,7 +22,7 @@ class LoginTest extends TestCase
         parent::setUp();
 
         config([
-            'auth.local.enabled'    => true
+            'auth.local.enabled' => true,
         ]);
     }
 
@@ -34,11 +34,11 @@ class LoginTest extends TestCase
     public function testLoginWrongCredentials()
     {
         $user = User::factory()->create([
-            'password' => Hash::make('bar')
+            'password' => Hash::make('bar'),
         ]);
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => 'foo'
+            'email' => $user->email,
+            'password' => 'foo',
         ]);
         $response->assertStatus(422);
         $this->assertGuest();
@@ -51,21 +51,21 @@ class LoginTest extends TestCase
      */
     public function testLoginSuccessUserProvider()
     {
-        $user           = User::factory()->make();
-        $password       = $user->password;
+        $user = User::factory()->make();
+        $password = $user->password;
         $user->password = Hash::make($password);
         $user->save();
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => $password
+            'email' => $user->email,
+            'password' => $password,
         ]);
         $response->assertNoContent();
         $this->assertAuthenticated();
 
         // Authenticated user tries to login again
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => $password
+            'email' => $user->email,
+            'password' => $password,
         ]);
         $response->assertStatus(420);
     }
@@ -89,12 +89,12 @@ class LoginTest extends TestCase
      */
     public function testAuthenticatedCurrentUser()
     {
-        $user     = User::factory()->make();
+        $user = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
         $response->assertOk();
         $response->assertJsonFragment([
             'firstname' => $user->firstname,
-            'lastname'  => $user->lastname
+            'lastname' => $user->lastname,
         ]);
     }
 
@@ -105,8 +105,8 @@ class LoginTest extends TestCase
      */
     public function testCurrentUserPermissions()
     {
-        $permission         = Permission::firstOrCreate([ 'name' => 'test' ]);
-        $includedPermission = Permission::firstOrCreate([ 'name' => 'test2' ]);
+        $permission = Permission::firstOrCreate(['name' => 'test']);
+        $includedPermission = Permission::firstOrCreate(['name' => 'test2']);
 
         $a = Role::firstOrCreate(['name' => 'a']);
         $a->permissions()->attach($permission->id);
@@ -114,14 +114,14 @@ class LoginTest extends TestCase
         $b = Role::firstOrCreate(['name' => 'b']);
         $b->permissions()->attach($permission->id);
 
-        $user     = User::factory()->create();
+        $user = User::factory()->create();
         $user->roles()->attach([$a->id, $b->id]);
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
         $response->assertOk();
         $response->assertJsonFragment([
-            'firstname'   => $user->firstname,
-            'lastname'    => $user->lastname,
-            'permissions' => ['test']
+            'firstname' => $user->firstname,
+            'lastname' => $user->lastname,
+            'permissions' => ['test'],
         ]);
 
         Permission::setIncludedPermissions('test', ['test2']);
@@ -130,9 +130,9 @@ class LoginTest extends TestCase
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
         $response->assertOk();
         $response->assertJsonFragment([
-            'firstname'   => $user->firstname,
-            'lastname'    => $user->lastname,
-            'permissions' => ['test','test2']
+            'firstname' => $user->firstname,
+            'lastname' => $user->lastname,
+            'permissions' => ['test', 'test2'],
         ]);
     }
 
@@ -143,7 +143,7 @@ class LoginTest extends TestCase
      */
     public function testLogoutAuthenticated()
     {
-        $user     = User::factory()->make();
+        $user = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
         $response->assertJson(['redirect' => false]);
         $this->assertGuest();
@@ -159,7 +159,7 @@ class LoginTest extends TestCase
         $response = $this->postJson(route('api.v1.logout'));
         $response->assertUnauthorized();
         $response->assertJson([
-            'message' => 'Unauthenticated.'
+            'message' => 'Unauthenticated.',
         ]);
     }
 
@@ -171,18 +171,17 @@ class LoginTest extends TestCase
     public function testLogging()
     {
         $user = User::factory()->create([
-            'password' => Hash::make('bar')
+            'password' => Hash::make('bar'),
         ]);
 
         // test failed login
         Log::swap(new LogFake);
         $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => 'foo'
+            'email' => $user->email,
+            'password' => 'foo',
         ]);
         Log::assertLogged(
-            fn (LogEntry $log) =>
-                $log->level === 'notice'
+            fn (LogEntry $log) => $log->level === 'notice'
                 && $log->message == 'Local user '.$user->email.' has failed local authentication.'
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['current-user'] == 'guest'
@@ -191,12 +190,11 @@ class LoginTest extends TestCase
         // test successful login
         Log::swap(new LogFake);
         $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => 'bar'
+            'email' => $user->email,
+            'password' => 'bar',
         ]);
         Log::assertLogged(
-            fn (LogEntry $log) =>
-                $log->level === 'info'
+            fn (LogEntry $log) => $log->level === 'info'
                 && $log->message == 'Local user '.$user->email.' has been successfully authenticated.'
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['current-user'] == 'guest'
@@ -211,15 +209,15 @@ class LoginTest extends TestCase
     public function testLoginDisabled()
     {
         config([
-        'auth.local.enabled'    => false
+            'auth.local.enabled' => false,
         ]);
 
         $user = User::factory()->create([
-            'password' => Hash::make('bar')
+            'password' => Hash::make('bar'),
         ]);
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => 'bar'
+            'email' => $user->email,
+            'password' => 'bar',
         ]);
         $response->assertNotFound();
     }

@@ -26,8 +26,8 @@ class MeetingTest extends TestCase
         parent::setUp();
 
         // Create room and meeting
-        $room                              = Room::factory()->create(['access_code'=> 123456789]);
-        $this->meeting                     = new Meeting();
+        $room = Room::factory()->create(['access_code' => 123456789]);
+        $this->meeting = new Meeting();
         $this->meeting->room()->associate($room);
         $this->meeting->save();
     }
@@ -37,10 +37,10 @@ class MeetingTest extends TestCase
      */
     public function testStartParameters()
     {
-        $meeting  = $this->meeting;
+        $meeting = $this->meeting;
 
         Http::fake([
-            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
         ]);
 
         $server = Server::factory()->create();
@@ -52,7 +52,7 @@ class MeetingTest extends TestCase
         $meetingService->setServerService($serverService)->start();
 
         $request = Http::recorded()[0][0];
-        $data    = $request->data();
+        $data = $request->data();
 
         $this->assertEquals($meeting->id, $data['meetingID']);
         $this->assertEquals($meeting->room->name, $data['name']);
@@ -74,10 +74,10 @@ class MeetingTest extends TestCase
     {
         setting()->set('bbb_logo', url('logo.png'));
 
-        $meeting  = $this->meeting;
+        $meeting = $this->meeting;
 
         Http::fake([
-            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
         ]);
 
         $server = Server::factory()->create();
@@ -89,7 +89,7 @@ class MeetingTest extends TestCase
         $meetingService->setServerService($serverService)->start();
 
         $request = Http::recorded()[0][0];
-        $data    = $request->data();
+        $data = $request->data();
 
         $this->assertEquals(url('logo.png'), $data['logo']);
     }
@@ -104,33 +104,33 @@ class MeetingTest extends TestCase
         setting()->set('default_presentation', url('default.pdf'));
 
         Http::fake([
-            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
         ]);
 
         Storage::fake('local');
 
-        $file1                 = new RoomFile();
-        $file1->path           = UploadedFile::fake()->image('file1.pdf')->store($meeting->room->id);
-        $file1->filename       = 'file1';
+        $file1 = new RoomFile();
+        $file1->path = UploadedFile::fake()->image('file1.pdf')->store($meeting->room->id);
+        $file1->filename = 'file1';
         $file1->use_in_meeting = true;
         $meeting->room->files()->save($file1);
 
-        $file2                 = new RoomFile();
-        $file2->path           = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
-        $file2->filename       = 'file2';
+        $file2 = new RoomFile();
+        $file2->path = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
+        $file2->filename = 'file2';
         $file2->use_in_meeting = true;
-        $file2->default        = true;
+        $file2->default = true;
         $meeting->room->files()->save($file2);
 
-        $file3                 = new RoomFile();
-        $file3->path           = UploadedFile::fake()->image('file3.pdf')->store($meeting->room->id);
-        $file3->filename       = 'file3';
+        $file3 = new RoomFile();
+        $file3->path = UploadedFile::fake()->image('file3.pdf')->store($meeting->room->id);
+        $file3->filename = 'file3';
         $file3->use_in_meeting = true;
         $meeting->room->files()->save($file3);
 
-        $file4                 = new RoomFile();
-        $file4->path           = UploadedFile::fake()->image('file4.pdf')->store($meeting->room->id);
-        $file4->filename       = 'file4';
+        $file4 = new RoomFile();
+        $file4->path = UploadedFile::fake()->image('file4.pdf')->store($meeting->room->id);
+        $file4->filename = 'file4';
         $file4->use_in_meeting = false;
         $meeting->room->files()->save($file4);
 
@@ -143,9 +143,9 @@ class MeetingTest extends TestCase
         $meetingService->setServerService($serverService)->start();
 
         $request = Http::recorded()[0][0];
-        $body    = $request->body();
-        $xml     = simplexml_load_string($body);
-        $docs    = $xml->module->document;
+        $body = $request->body();
+        $xml = simplexml_load_string($body);
+        $docs = $xml->module->document;
 
         $this->assertCount(3, $docs);
 
@@ -165,7 +165,7 @@ class MeetingTest extends TestCase
         setting()->set('default_presentation', url('default.pdf'));
 
         Http::fake([
-            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
         ]);
 
         $server = Server::factory()->create();
@@ -177,9 +177,9 @@ class MeetingTest extends TestCase
         $meetingService->setServerService($serverService)->start();
 
         $request = Http::recorded()[0][0];
-        $body    = $request->body();
-        $xml     = simplexml_load_string($body);
-        $docs    = $xml->module->document;
+        $body = $request->body();
+        $xml = simplexml_load_string($body);
+        $docs = $xml->module->document;
 
         $this->assertCount(1, $docs);
 

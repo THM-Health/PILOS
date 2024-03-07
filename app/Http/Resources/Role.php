@@ -26,24 +26,24 @@ class Role extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'superuser'     => $this->superuser,
-            'updated_at'    => $this->updated_at,
-            'permissions'   => $this->when($this->withPermissions, function () {
+            'id' => $this->id,
+            'name' => $this->name,
+            'superuser' => $this->superuser,
+            'updated_at' => $this->updated_at,
+            'permissions' => $this->when($this->withPermissions, function () {
                 return Permission::collection($this->permissions);
             }),
-            'model_name'    => $this->model_name,
-            'room_limit'    => $this->room_limit,
-            'automatic'     => $this->whenPivotLoaded('role_user', function () {
+            'model_name' => $this->model_name,
+            'room_limit' => $this->room_limit,
+            'automatic' => $this->whenPivotLoaded('role_user', function () {
                 return $this->pivot->automatic;
-            })
+            }),
         ];
     }
 }

@@ -19,9 +19,9 @@ class LocalesCacheTest extends TestCase
     {
         $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
             $mock->shouldReceive('buildCache')
-            ->once()
-            ->with()
-            ->andReturn(['de', 'en']);
+                ->once()
+                ->with()
+                ->andReturn(['de', 'en']);
         });
 
         $this->instance(
@@ -30,6 +30,6 @@ class LocalesCacheTest extends TestCase
         );
 
         $this->artisan('locales:cache')
-        ->expectsOutput('Locales [ de, en ] cached successfully');
+            ->expectsOutput('Locales [ de, en ] cached successfully');
     }
 }

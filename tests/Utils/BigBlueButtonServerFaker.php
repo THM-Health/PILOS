@@ -11,7 +11,7 @@ use Illuminate\Http\Client\Request;
 class BigBlueButtonServerFaker
 {
     // List of requests and responses
-    protected $requests     = [];
+    protected $requests = [];
 
     // Number of requests
     protected $requestCount = 0;
@@ -19,8 +19,8 @@ class BigBlueButtonServerFaker
     /**
      * Create a fake BBB-Server to validate checksums and fake responses
      *
-     * @param string $host   Hostname of the BBB-Server
-     * @param string $secret Secret of the BBB-Server
+     * @param  string  $host  Hostname of the BBB-Server
+     * @param  string  $secret  Secret of the BBB-Server
      */
     public function __construct(string $host, string $secret)
     {
@@ -39,11 +39,11 @@ class BigBlueButtonServerFaker
             unset($params['checksum']);
 
             // Create the hash base
-            $query    = http_build_query($params, '', '&', \PHP_QUERY_RFC3986);
-            $hashBase = $apiCallName . $query . $secret;
+            $query = http_build_query($params, '', '&', \PHP_QUERY_RFC3986);
+            $hashBase = $apiCallName.$query.$secret;
 
             // Check what hash algorithm was used in the request and create the hash
-            switch(strlen($requestChecksum)) {
+            switch (strlen($requestChecksum)) {
                 case 40:
                     $checksum = sha1($hashBase);
 
@@ -84,7 +84,6 @@ class BigBlueButtonServerFaker
      * Add a response for a request
      * Requests are returned in the order they are added
      *
-     * @param  mixed $response
      * @return void
      */
     public function addRequest(mixed $response)
@@ -128,7 +127,7 @@ class BigBlueButtonServerFaker
     /**
      * Get the request data for a request
      *
-     * @param  int   $id Number of the request (starting with 0)
+     * @param  int  $id  Number of the request (starting with 0)
      * @return mixed
      */
     public function getRequest(int $id)

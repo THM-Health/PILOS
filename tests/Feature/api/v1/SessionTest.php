@@ -13,41 +13,45 @@ class SessionTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected $user;
+
     protected $otherUser;
+
     protected $currentSession;
+
     protected $otherSession;
+
     protected $otherUserSession;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user      = User::factory()->create();
+        $this->user = User::factory()->create();
         $this->otherUser = User::factory()->create();
 
         // Create sessions in database
-        $this->currentSession                = new Session();
-        $this->currentSession->id            = $this->app['session']->getId();
-        $this->currentSession->user_agent    = 'Agent 1';
-        $this->currentSession->ip_address    = $this->faker->ipv4;
-        $this->currentSession->payload       = '';
+        $this->currentSession = new Session();
+        $this->currentSession->id = $this->app['session']->getId();
+        $this->currentSession->user_agent = 'Agent 1';
+        $this->currentSession->ip_address = $this->faker->ipv4;
+        $this->currentSession->payload = '';
         $this->currentSession->last_activity = now();
         $this->currentSession->user()->associate($this->user);
         $this->currentSession->save();
 
-        $this->otherSession                = new Session();
-        $this->otherSession->id            = \Str::random(40);
-        $this->otherSession->user_agent    = 'Agent 2';
-        $this->otherSession->ip_address    = $this->faker->ipv4;
-        $this->otherSession->payload       = '';
+        $this->otherSession = new Session();
+        $this->otherSession->id = \Str::random(40);
+        $this->otherSession->user_agent = 'Agent 2';
+        $this->otherSession->ip_address = $this->faker->ipv4;
+        $this->otherSession->payload = '';
         $this->otherSession->last_activity = now()->subMinutes(5);
         $this->otherSession->user()->associate($this->user);
         $this->otherSession->save();
 
-        $this->otherUserSession                = new Session();
-        $this->otherUserSession->id            = \Str::random(40);
-        $this->otherUserSession->user_agent    = 'Agent 3';
-        $this->otherUserSession->ip_address    = $this->faker->ipv4;
-        $this->otherUserSession->payload       = '';
+        $this->otherUserSession = new Session();
+        $this->otherUserSession->id = \Str::random(40);
+        $this->otherUserSession->user_agent = 'Agent 3';
+        $this->otherUserSession->ip_address = $this->faker->ipv4;
+        $this->otherUserSession->payload = '';
         $this->otherUserSession->last_activity = now()->subMinutes(5);
         $this->otherUserSession->user()->associate($this->otherUser);
         $this->otherUserSession->save();
@@ -70,21 +74,21 @@ class SessionTest extends TestCase
 
         // Check content of the sessions, hiding session id and showing current session
         $response->assertJson([
-                'data' => [
-                    [
-                        'user_agent'    => 'Agent 1',
-                        'current'       => true,
-                        'ip_address'    => $this->currentSession->ip_address,
-                        'last_activity' => $this->currentSession->last_activity->toJSON(),
-                    ],
-                    [
-                        'user_agent'    => 'Agent 2',
-                        'current'       => false,
-                        'ip_address'    => $this->otherSession->ip_address,
-                        'last_activity' => $this->otherSession->last_activity->toJSON(),
-                    ],
+            'data' => [
+                [
+                    'user_agent' => 'Agent 1',
+                    'current' => true,
+                    'ip_address' => $this->currentSession->ip_address,
+                    'last_activity' => $this->currentSession->last_activity->toJSON(),
                 ],
-            ]);
+                [
+                    'user_agent' => 'Agent 2',
+                    'current' => false,
+                    'ip_address' => $this->otherSession->ip_address,
+                    'last_activity' => $this->otherSession->last_activity->toJSON(),
+                ],
+            ],
+        ]);
     }
 
     /**

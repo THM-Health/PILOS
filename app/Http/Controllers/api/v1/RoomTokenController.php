@@ -16,7 +16,7 @@ class RoomTokenController extends Controller
     /**
      * Return a list with all personalized tokens of the room.
      *
-     * @param  Room                        $room Room for which the tokens should be listed.
+     * @param  Room  $room  Room for which the tokens should be listed.
      * @return AnonymousResourceCollection
      */
     public function index(Room $room)
@@ -27,16 +27,14 @@ class RoomTokenController extends Controller
     /**
      * Add a new personalized room token.
      *
-     * @param  Room              $room
-     * @param  RoomTokenRequest  $request
      * @return RoomTokenResource
      */
     public function store(Room $room, RoomTokenRequest $request)
     {
-        $token            = new RoomToken();
+        $token = new RoomToken();
         $token->firstname = $request->firstname;
-        $token->lastname  = $request->lastname;
-        $token->role      = $request->role;
+        $token->lastname = $request->lastname;
+        $token->role = $request->role;
         $room->tokens()->save($token);
 
         Log::info('Created new room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $token->role->label(), 'name' => $token->firstname.' '.$token->lastname]);
@@ -47,20 +45,17 @@ class RoomTokenController extends Controller
     /**
      * Update personalized room token.
      *
-     * @param  Room              $room
-     * @param  RoomTokenRequest  $request
-     * @param  RoomToken         $token
      * @return RoomTokenResource
      */
     public function update(Room $room, RoomToken $token, RoomTokenRequest $request)
     {
-        if (!$token->room->is($room)) {
+        if (! $token->room->is($room)) {
             abort(404, __('app.errors.token_not_found'));
         }
 
         $token->firstname = $request->firstname;
-        $token->lastname  = $request->lastname;
-        $token->role      = $request->role;
+        $token->lastname = $request->lastname;
+        $token->role = $request->role;
         $token->save();
 
         Log::info('Updated room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => $token->role->label(), 'name' => $token->firstname.' '.$token->lastname]);
@@ -71,14 +66,13 @@ class RoomTokenController extends Controller
     /**
      * Remove personalized room token.
      *
-     * @param  Room       $room
-     * @param  RoomToken  $token
      * @return Response
+     *
      * @throws \Exception
      */
     public function destroy(Room $room, RoomToken $token)
     {
-        if (!$token->room->is($room)) {
+        if (! $token->room->is($room)) {
             abort(404, __('app.errors.token_not_found'));
         }
 

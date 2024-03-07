@@ -4,12 +4,12 @@ namespace Tests\Unit;
 
 use App\Auth\ExternalUser;
 use App\Auth\MissingAttributeException;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Log;
 use Tests\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
-use App\Models\Role;
 
 class ExternalUserTest extends TestCase
 {
@@ -27,7 +27,8 @@ class ExternalUserTest extends TestCase
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: external_id');
 
-        $user = new class extends ExternalUser {
+        $user = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', null);
@@ -39,10 +40,9 @@ class ExternalUserTest extends TestCase
 
         try {
             $user->validate();
-        } catch(MissingAttributeException $e) {
+        } catch (MissingAttributeException $e) {
             Log::assertLogged(
-                fn (LogEntry $log) =>
-                    $log->level === 'error'
+                fn (LogEntry $log) => $log->level === 'error'
                     && $log->message == 'Required attribute missing'
                     && $log->context['attribute'] == 'external_id'
             );
@@ -56,7 +56,8 @@ class ExternalUserTest extends TestCase
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: first_name');
 
-        $user = new class extends ExternalUser {
+        $user = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -65,13 +66,12 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('email', 'john.doe@domain.org');
             }
         };
-            
+
         try {
             $user->validate();
-        } catch(MissingAttributeException $e) {
+        } catch (MissingAttributeException $e) {
             Log::assertLogged(
-                fn (LogEntry $log) =>
-                    $log->level === 'error'
+                fn (LogEntry $log) => $log->level === 'error'
                     && $log->message == 'Required attribute missing'
                     && $log->context['attribute'] == 'first_name'
             );
@@ -85,7 +85,8 @@ class ExternalUserTest extends TestCase
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: last_name');
 
-        $user = new class extends ExternalUser {
+        $user = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -97,10 +98,9 @@ class ExternalUserTest extends TestCase
 
         try {
             $user->validate();
-        } catch(MissingAttributeException $e) {
+        } catch (MissingAttributeException $e) {
             Log::assertLogged(
-                fn (LogEntry $log) =>
-                    $log->level === 'error'
+                fn (LogEntry $log) => $log->level === 'error'
                     && $log->message == 'Required attribute missing'
                     && $log->context['attribute'] == 'last_name'
             );
@@ -114,7 +114,8 @@ class ExternalUserTest extends TestCase
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: email');
 
-        $user = new class extends ExternalUser {
+        $user = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -126,10 +127,9 @@ class ExternalUserTest extends TestCase
 
         try {
             $user->validate();
-        } catch(MissingAttributeException $e) {
+        } catch (MissingAttributeException $e) {
             Log::assertLogged(
-                fn (LogEntry $log) =>
-                    $log->level === 'error'
+                fn (LogEntry $log) => $log->level === 'error'
                     && $log->message == 'Required attribute missing'
                     && $log->context['attribute'] == 'email'
             );
@@ -143,7 +143,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -171,7 +172,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -181,7 +183,7 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('roles', 'administrator');
             }
         };
-        
+
         // Role A is given to all users (wildcard regex)
         $mapping = json_decode('{
             "roles": [
@@ -211,7 +213,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -221,7 +224,7 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('roles', 'administrator');
             }
         };
-        
+
         // Role A is disabled, so it should not be assigned
         $mapping = json_decode('{
             "roles": [
@@ -250,7 +253,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -260,7 +264,7 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('roles', 'administrator');
             }
         };
-        
+
         // Give the user role_a if they have the administrator role and their email is from university.org
         // Give the user role_b if they have the administrator role and their email is from demo.org
         $mapping = json_decode('{
@@ -309,7 +313,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -319,7 +324,7 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('roles', 'administrator');
             }
         };
-        
+
         // Give the user role_a if he has an email from university.org or demo.org
         $mapping = json_decode('{
             "roles": [
@@ -352,7 +357,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -362,7 +368,7 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('roles', 'administrator');
             }
         };
-        
+
         // Give the user role_a if the email is from university.org
         // Give the user role_b if the email is not from university.org
         $mapping = json_decode('{
@@ -402,7 +408,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -413,7 +420,7 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('roles', 'banned');
             }
         };
-        
+
         // Give user role "role_a" if he is not banned (does not have role "banned")
         // Give user role "role_b" if he has any other role than "banned"
         $mapping = json_decode('{
@@ -456,7 +463,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_b']);
         Role::firstOrCreate(['name' => 'role_c']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -468,7 +476,7 @@ class ExternalUserTest extends TestCase
                 $this->addAttributeValue('roles', 'administrator');
             }
         };
-        
+
         // Give user role "role_a" if all his emails are from university.org or university.com
         // Give user role "role_b" if he has at least one email from university.org or university.com
         // Give user role "role_c" if all his emails are from university.org
@@ -522,7 +530,8 @@ class ExternalUserTest extends TestCase
         Role::firstOrCreate(['name' => 'role_b']);
         Role::firstOrCreate(['name' => 'role_c']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');
@@ -588,7 +597,8 @@ class ExternalUserTest extends TestCase
     {
         Role::firstOrCreate(['name' => 'role_a']);
 
-        $externalUser = new class extends ExternalUser {
+        $externalUser = new class extends ExternalUser
+        {
             public function __construct()
             {
                 $this->addAttributeValue('external_id', 'jdoe');

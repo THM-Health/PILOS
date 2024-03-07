@@ -11,8 +11,6 @@ use Log;
 /**
  * Command class that deletes new users that hasn't changed their
  * generated password in the given time.
- *
- * @package App\Console\Commands
  */
 class DeleteUnverifiedNewUsers extends Command
 {
@@ -37,7 +35,7 @@ class DeleteUnverifiedNewUsers extends Command
      */
     public function handle()
     {
-        $broker           = Password::broker('new_users');
+        $broker = Password::broker('new_users');
         $unverified_users = User::join('password_resets', 'password_resets.email', '=', 'users.email')
             ->where('authenticator', '=', 'local')
             ->where('initial_password_set', '=', true)
