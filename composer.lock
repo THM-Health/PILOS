@@ -427,16 +427,16 @@
         },
         {
             "name": "directorytree/ldaprecord-laravel",
-            "version": "v3.2.1",
+            "version": "v3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord-Laravel.git",
-                "reference": "8845a3d4fd0565e85ecb74f4dd59ab61f07a555a"
+                "reference": "628e97857c8ef01e69649a4cd937ad2e51b2f5e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/8845a3d4fd0565e85ecb74f4dd59ab61f07a555a",
-                "reference": "8845a3d4fd0565e85ecb74f4dd59ab61f07a555a",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord-Laravel/zipball/628e97857c8ef01e69649a4cd937ad2e51b2f5e2",
+                "reference": "628e97857c8ef01e69649a4cd937ad2e51b2f5e2",
                 "shasum": ""
             },
             "require": {
@@ -482,7 +482,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/LdapRecord-Laravel/issues",
-                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.2.1"
+                "source": "https://github.com/DirectoryTree/LdapRecord-Laravel/tree/v3.2.2"
             },
             "funding": [
                 {
@@ -490,7 +490,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-04T14:44:02+00:00"
+            "time": "2024-03-07T00:00:23+00:00"
         },
         {
             "name": "doctrine/cache",
