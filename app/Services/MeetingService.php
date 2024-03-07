@@ -15,6 +15,7 @@ use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 use Log;
@@ -145,8 +146,10 @@ class MeetingService
 
     /**
      * Is Meeting running
+     *
+     * @throws Exception Connection Issue
      */
-    public function isRunning(): bool
+    public function isRunning(bool $ignoreFailure = false): bool
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
 
@@ -157,11 +160,11 @@ class MeetingService
         catch (\Exception $exception) {
             Log::warning('Checking if room {room} is running on server {server} failed', ['room' => $this->meeting->room->getLogLabel(), 'server' => $this->meeting->server->getLogLabel()]);
 
-            // Remove meeting and set server to offline
-            $this->meeting->forceDelete();
-            $this->serverService->handleApiCallFailed();
+            if (! $ignoreFailure) {
+                $this->serverService->handleApiCallFailed();
+            }
 
-            return false;
+            throw $exception;
         }
 
         return $response->success();
@@ -174,8 +177,8 @@ class MeetingService
      */
     public function end(): void
     {
-        $endParams = new EndMeetingParameters($this->meeting->id, $this->meeting->moderator_pw);
-        $this->serverService->getBigBlueButton()->endMeeting($endParams)->success();
+        $endParams = new EndMeetingParameters($this->meeting->id);
+        $this->serverService->getBigBlueButton()->endMeeting($endParams);
         $this->setEnd();
     }
 

@@ -40,7 +40,7 @@ class RoomService
             $lock->block($timeout);
 
             $meeting = $this->room->latestMeeting;
-            if (! $meeting || $meeting->end != null) {
+            if (! $meeting || $meeting->end != null || $meeting->detached != null) {
                 Log::info('Room {room} not running, creating a new meeting', ['room' => $this->room->getLogLabel()]);
                 if ($this->room->roomTypeInvalid) {
                     $lock->release();
@@ -105,8 +105,16 @@ class RoomService
 
                 $meetingService = new MeetingService($meeting);
 
+                try {
+                    $meetingRunning = $meetingService->isRunning();
+                } catch (\Exception $e) {
+                    $lock->release();
+                    Log::warning('Error checking if room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
+                    abort(CustomStatusCodes::JOIN_FAILED->value, __('app.errors.join_failed'));
+                }
+
                 // Check if the meeting is actually running on the server
-                if (! $meetingService->isRunning()) {
+                if (! $meetingRunning) {
                     $meetingService->setEnd();
                     $lock->release();
                     Log::warning('Failed to join meeting for room {room}; meeting is not running', ['room' => $this->room->getLogLabel()]);
@@ -153,8 +161,15 @@ class RoomService
 
         Log::info('Check if meeting for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
 
+        try {
+            $meetingRunning = $meetingService->isRunning(true);
+        } catch (\Exception $e) {
+            Log::warning('Error checking if room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
+            abort(CustomStatusCodes::JOIN_FAILED->value, __('app.errors.join_failed'));
+        }
+
         // Check if the meeting is actually running on the server
-        if (! $meetingService->isRunning()) {
+        if (! $meetingRunning) {
             $meetingService->setEnd();
             Log::warning('Meeting for room {room} is not running on the BBB server', ['room' => $this->room->getLogLabel()]);
             abort(CustomStatusCodes::MEETING_NOT_RUNNING->value, __('app.errors.not_running'));

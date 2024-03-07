@@ -20,4 +20,5 @@ enum CustomStatusCodes: int
     case MEETING_ATTENDANCE_NOT_ENDED = 469;
     case ATTENDANCE_AGREEMENT_MISSING = 470;
     case EMAIL_CHANGE_THROTTLE = 471;
+    case JOIN_FAILED = 472;
 }

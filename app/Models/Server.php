@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
 use App\Services\ServerService;
 use App\Traits\AddsModelNameTrait;
@@ -37,7 +38,8 @@ class Server extends Model
         static::updating(function (self $model) {
             /**
              * If status is changed and new status is not online, reset live usage data
-             */
+             *
+             * @TODO
             if ($model->status != $model->getOriginal('status')) {
                 if ($model->status != ServerStatus::ONLINE) {
                     $model->version = null;
@@ -51,7 +53,7 @@ class Server extends Model
                     $serverService = new ServerService($model);
                     $serverService->endMeetings();
                 }
-            }
+            }*/
         });
         static::deleting(function (self $model) {
             // Delete Server, only possible if no meetings from this system are running and the server is disabled
@@ -104,5 +106,17 @@ class Server extends Model
     public function getLogLabel()
     {
         return $this->name.' ('.$this->id.')';
+    }
+
+    public function getHealthAttribute(): ServerHealth
+    {
+        if ($this->recover_count >= config('bigbluebutton.server_healthy_threshold')) {
+            return ServerHealth::ONLINE;
+        }
+        if ($this->error_count >= config('bigbluebutton.server_unhealthy_threshold')) {
+            return ServerHealth::OFFLINE;
+        }
+
+        return ServerHealth::UNHEALTHY;
     }
 }

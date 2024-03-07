@@ -8,6 +8,6 @@ namespace App\Enums;
 enum ServerStatus: int
 {
     case DISABLED = -1;
-    case OFFLINE = 0;
-    case ONLINE = 1;
+    case DRAINING = 0;
+    case ENABLED = 1;
 }

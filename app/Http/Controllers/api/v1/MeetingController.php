@@ -87,7 +87,7 @@ class MeetingController extends Controller
      */
     public function endMeetingCallback(Request $request, Meeting $meeting)
     {
-        Log::info('Recieved end meeting request from BBB sever for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
+        Log::info('Received end meeting request from BBB sever for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
 
         $meetingService = new MeetingService($meeting);
         // Validate request

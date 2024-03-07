@@ -237,6 +237,10 @@ return [
         'no_data' => 'No servers found!',
         'no_data_filtered' => 'For the filter query no servers were found!',
         'offline' => 'Offline',
+        'enabled' => 'Enabled',
+        'unhealthy' => 'Faulty',
+        'draining' => 'Draining',
+        'connection' => 'Connection',
         'offline_reason' => [
             'connection' => 'No connection could be established to the server.',
             'secret' => 'A connection to the server could be established, but the API secret is invalid.',

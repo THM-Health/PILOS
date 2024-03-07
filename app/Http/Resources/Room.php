@@ -77,9 +77,11 @@ class Room extends JsonResource
         return [
             'start' => $latestMeeting->start,
             'end' => $latestMeeting->end,
+            'detached' => $latestMeeting->detached,
             'usage' => $this->when($latestMeeting->end == null, [
                 'participant_count' => $this->participant_count,
             ]),
+            'server_connection_issues' => $latestMeeting->end == null && $latestMeeting->server->error_count > 0,
         ];
     }
 
