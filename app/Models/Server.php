@@ -23,6 +23,8 @@ class Server extends Model
         'voice_participant_count' => 'integer',
         'video_count' => 'integer',
         'meeting_count' => 'integer',
+        'error_count' => 'integer',
+        'recover_count' => 'integer',
     ];
 
     /**

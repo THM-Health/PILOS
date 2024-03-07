@@ -11,4 +11,6 @@ return [
     'server_timeout' => env('BBB_SERVER_TIMEOUT', 10),
     'server_connect_timeout' => env('BBB_SERVER_CONNECT_TIMEOUT', 20),
     'room_refresh_rate' => env('ROOM_REFRESH_RATE', 30),
+    'server_healthy_threshold' => env('BBB_SERVER_HEALTHY_THRESHOLD', 3),
+    'server_unhealthy_threshold' => env('BBB_SERVER_UNHEALTHY_THRESHOLD', 3),
 ];
