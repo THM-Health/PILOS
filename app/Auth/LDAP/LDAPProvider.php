@@ -68,6 +68,11 @@ class LDAPProvider extends EloquentUserProvider
         $this->eloquent->updateRememberToken($user, $token);
     }
 
+    public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): void
+    {
+        $this->eloquent->rehashPasswordIfRequired($user, $credentials, $force);
+    }
+
     /**
      * Retrieve a user by the given credentials.
      *

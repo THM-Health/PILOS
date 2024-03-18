@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Ramsey\Uuid\Uuid;
 
 class Meeting extends Model
 {
-    use HasFactory, Uuid;
+    use HasFactory, HasUuids;
 
     /**
      * The "type" of the auto-incrementing ID.
@@ -36,6 +37,14 @@ class Meeting extends Model
         'end' => 'datetime',
         'record_attendance' => 'boolean',
     ];
+
+    /**
+     * Generate a new UUID for the model.
+     */
+    public function newUniqueId(): string
+    {
+        return (string) Uuid::uuid4();
+    }
 
     /**
      * Server the meeting is/should be running on
