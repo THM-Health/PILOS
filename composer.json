@@ -11,7 +11,6 @@
         "ext-simplexml": "*",
         "anlutro/l4-settings": "^1.0.0",
         "directorytree/ldaprecord-laravel": "^3.0",
-        "doctrine/dbal": "^3.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^11.0",
         "laravel/horizon": "^5.21",
