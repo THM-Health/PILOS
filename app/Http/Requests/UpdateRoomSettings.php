@@ -21,7 +21,6 @@ class UpdateRoomSettings extends FormRequest
             'lock_settings_disable_note' => 'required|boolean',
             'lock_settings_disable_private_chat' => 'required|boolean',
             'lock_settings_disable_public_chat' => 'required|boolean',
-            'lock_settings_lock_on_join' => 'required|boolean',
             'lock_settings_hide_user_list' => 'required|boolean',
             'mute_on_start' => 'required|boolean',
             'webcams_only_for_moderator' => 'required|boolean',

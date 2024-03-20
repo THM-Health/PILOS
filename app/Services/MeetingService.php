@@ -70,16 +70,16 @@ class MeetingService
             ->setMaxParticipants($this->meeting->room->roomType->max_participants)
             ->setWelcome($this->meeting->room->welcome)
             ->setModeratorOnlyMessage($this->meeting->room->getModeratorOnlyMessage())
-            ->setLockSettingsDisableMic($this->meeting->room->lock_settings_disable_mic)
-            ->setLockSettingsDisableCam($this->meeting->room->lock_settings_disable_cam)
-            ->setWebcamsOnlyForModerator($this->meeting->room->webcams_only_for_moderator)
-            ->setLockSettingsDisablePrivateChat($this->meeting->room->lock_settings_disable_private_chat)
-            ->setLockSettingsDisablePublicChat($this->meeting->room->lock_settings_disable_public_chat)
-            ->setLockSettingsDisableNotes($this->meeting->room->lock_settings_disable_note)
-            ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
+            ->setLockSettingsDisableMic($this->meeting->room->getRoomSetting('lock_settings_disable_mic'))
+            ->setLockSettingsDisableCam($this->meeting->room->getRoomSetting('lock_settings_disable_cam'))
+            ->setWebcamsOnlyForModerator($this->meeting->room->getRoomSetting('webcams_only_for_moderator'))
+            ->setLockSettingsDisablePrivateChat($this->meeting->room->getRoomSetting('lock_settings_disable_private_chat'))
+            ->setLockSettingsDisablePublicChat($this->meeting->room->getRoomSetting('lock_settings_disable_public_chat'))
+            ->setLockSettingsDisableNotes($this->meeting->room->getRoomSetting('lock_settings_disable_note'))
+            ->setLockSettingsHideUserList($this->meeting->room->getRoomSetting('lock_settings_hide_user_list'))
             // @TODO refactor: maybe always true or if any of the restrictions is enabled
-            ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
-            ->setMuteOnStart($this->meeting->room->mute_on_start)
+//            ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
+            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
             ->setDisabledFeatures([Feature::LEARNING_DASHBOARD]);
 
@@ -96,10 +96,10 @@ class MeetingService
         }
 
         // set guest policy
-        if ($this->meeting->room->lobby == RoomLobby::ENABLED) {
+        if ($this->meeting->room->getRoomSetting('lobby') == RoomLobby::ENABLED) {
             $meetingParams->setGuestPolicyAskModerator();
         }
-        if ($this->meeting->room->lobby == RoomLobby::ONLY_GUEST) {
+        if ($this->meeting->room->getRoomSetting('lobby') == RoomLobby::ONLY_GUEST) {
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 

@@ -46,6 +46,7 @@
         <LoadingRetryButton :error="modelLoadingError" @reload="loadRoomType"></LoadingRetryButton>
       </template>
       <form @submit.prevent="saveRoomType">
+        <h3>{{ $t('rooms.settings.general.title') }}</h3>
         <div class="field grid">
           <label for="name" class="col-12 md:col-4 md:mb-0">{{$t('app.model_name')}}</label>
           <div class="col-12 md:col-8">
@@ -289,6 +290,431 @@
             <p class="p-error" v-html="formErrors.fieldError('max_duration')"></p>
           </div>
         </div>
+
+        <Divider/>
+        <h3>Default Settings</h3>
+
+<!--    ToDo improve?????   -->
+        <h4>Allgemein</h4>
+        <div class="field grid">
+          <label for="allow_guests_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.security.allow_guests')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="allow_guests_default"
+                v-model="model.allow_guests_default"
+                :invalid="formErrors.fieldInvalid('allow_guests_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('allow_guests_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.allow_guests_enforced"
+                :invalid="formErrors.fieldInvalid('allow_guests_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('allow_guests_enforced')"></p>
+          </div>
+        </div>
+
+        <h4>Videokonferenz</h4>
+        <div class="field grid">
+          <label for="everyone_can_start_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.permissions.everyone_start')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="everyone_can_start_default"
+                v-model="model.everyone_can_start_default"
+                :invalid="formErrors.fieldInvalid('everyone_can_start_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('everyone_can_start_default')"></p>
+          </div>
+          <div class="col-6 md:col-4 ">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.everyone_can_start_enforced"
+                :invalid="formErrors.fieldInvalid('everyone_can_start_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('everyone_can_start_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="mute_on_start_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.permissions.mute_mic')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="webcams_only_for_moderator_default"
+                v-model="model.mute_on_start_default"
+                :invalid="formErrors.fieldInvalid('mute_on_start_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('mute_on_start_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.mute_on_start_enforced"
+                :invalid="formErrors.fieldInvalid('mute_on_start_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('mute_on_start_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="default_role_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('rooms.settings.participants.waiting_room.title') }}</label>
+          <div class="col-6 md:col-4">
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <RadioButton
+                  v-model.number="model.lobby_default"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                  :value="0"
+                  name="lobby"
+                />
+                <label>{{ $t('app.disabled') }}</label>
+              </div>
+              <div class="flex align-items-center gap-2">
+                <RadioButton
+                  v-model.number="model.lobby_default"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                  :value="1"
+                  name="lobby"
+                />
+                <label>{{ $t('app.enabled') }}</label>
+              </div>
+              <div class="flex align-items-center gap-2">
+                <RadioButton
+                  v-model.number="model.lobby_default"
+                  :disabled="isBusy || modelLoadingError || viewOnly"
+                  :value="2"
+                  name="lobby"
+                />
+                <label>{{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('lobby_default')"/>
+            </div>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.lobby_enforced"
+                :invalid="formErrors.fieldInvalid('lobby_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('lobby_enforced')"></p>
+          </div>
+          <div class="col-12">
+            <!-- Alert shown when default role is moderator and waiting room is active -->
+            <InlineMessage
+              class="w-full"
+              v-if="showLobbyAlert"
+              severity="warn"
+            >
+              {{ $t('rooms.settings.participants.waiting_room_alert') }}
+            </InlineMessage>
+          </div>
+        </div>
+
+        <h4>Mitglieder</h4>
+        <div class="field grid">
+          <label for="allow_membership_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.security.allow_new_members')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="allow_membership_default"
+                v-model="model.allow_membership_default"
+                :invalid="formErrors.fieldInvalid('allow_membership_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('allow_membership_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.allow_membership_enforced"
+                :invalid="formErrors.fieldInvalid('allow_membership_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('allow_membership_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="default_role_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('rooms.settings.participants.default_role.title') }} {{ $t('rooms.settings.participants.default_role.only_logged_in') }}</label>
+          <div class="col-6 md:col-4">
+            <SelectButton
+              v-model="model.default_role_default"
+              :allowEmpty="false"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              :invalid="formErrors.fieldInvalid('default_role_default')"
+              :options="[
+                  { role: 1, label: $t('rooms.roles.participant')},
+                  { role: 2, label: $t('rooms.roles.moderator')}
+                ]"
+              class="flex-shrink-0"
+              dataKey="role"
+              input-id="default-role"
+              optionLabel="label"
+              optionValue="role"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('default_role_default')"/>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.default_role_enforced"
+                :invalid="formErrors.fieldInvalid('default_role_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('default_role_enforced')"></p>
+          </div>
+        </div>
+
+        <h4>Einschränkungen</h4>
+        <div class="field grid">
+          <label for="lock_settings_disable_cam_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.restrictions.disable_cam')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="lock_settings_disable_cam_default"
+                v-model="model.lock_settings_disable_cam_default"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_cam_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.lock_settings_disable_cam_enforced"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_cam_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_cam_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="webcams_only_for_moderator_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.restrictions.only_mod_see_cam')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="webcams_only_for_moderator_default"
+                v-model="model.webcams_only_for_moderator_default"
+                :invalid="formErrors.fieldInvalid('webcams_only_for_moderator_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error"  v-html="formErrors.fieldError('webcams_only_for_moderator_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.webcams_only_for_moderator_enforced"
+                :invalid="formErrors.fieldInvalid('webcams_only_for_moderator_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('webcams_only_for_moderator_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="lock_settings_disable_mic_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.restrictions.disable_mic')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="lock_settings_disable_mic_default"
+                v-model="model.lock_settings_disable_mic_default"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_mic_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.lock_settings_disable_mic_enforced"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_mic_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_mic_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="lock_settings_disable_public_chat_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.restrictions.disable_public_chat')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="lock_settings_disable_public_chat_default"
+                v-model="model.lock_settings_disable_public_chat_default"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.lock_settings_disable_public_chat_enforced"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_public_chat_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="lock_settings_disable_private_chat_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.restrictions.disable_private_chat')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="lock_settings_disable_private_chat_default"
+                v-model="model.lock_settings_disable_private_chat_default"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.lock_settings_disable_private_chat_enforced"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_private_chat_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="lock_settings_disable_public_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.restrictions.disable_note_edit')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="lock_settings_disable_public_default"
+                v-model="model.lock_settings_disable_note_default"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_note_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.lock_settings_disable_note_enforced"
+                :invalid="formErrors.fieldInvalid('lock_settings_disable_note_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_note_enforced')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="lock_settings_hide_user_list_default" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('rooms.settings.restrictions.hide_participants_list')}}</label>
+          <div class="col-6 md:col-4">
+            <div>
+              <InputSwitch
+                id="lock_settings_hide_user_list_default"
+                v-model="model.lock_settings_hide_user_list_default"
+                :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list_default')"></p>
+          </div>
+          <div class="col-6 md:col-4">
+            <div class="flex justify-content-end align-items-center">
+              <ToggleButton
+                v-model="model.lock_settings_hide_user_list_enforced"
+                :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_hide_user_list_enforced')"></p>
+          </div>
+        </div>
+        <h4>Erweitert</h4>
+
         <div v-if="!viewOnly">
           <Divider/>
           <div class="flex justify-content-end">
@@ -312,7 +738,7 @@ import env from '@/env.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useFormErrors } from '@/composables/useFormErrors.js';
 import { useApi } from '@/composables/useApi.js';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import _ from 'lodash';
 import { Multiselect } from 'vue-multiselect';
@@ -350,7 +776,33 @@ const model = ref({
   max_duration: null,
   max_participants: null,
   restrict: false,
-  roles: []
+  roles: [],
+  webcams_only_for_moderator_default: false,
+  webcams_only_for_moderator_enforced: false,
+  mute_on_start_default: false,
+  mute_on_start_enforced: false,
+  lock_settings_disable_cam_default: false,
+  lock_settings_disable_cam_enforced: false,
+  lock_settings_disable_mic_default: false,
+  lock_settings_disable_mic_enforced: false,
+  lock_settings_disable_private_chat_default: false,
+  lock_settings_disable_private_chat_enforced: false,
+  lock_settings_disable_public_chat_default: false,
+  lock_settings_disable_public_chat_enforced: false,
+  lock_settings_disable_note_default: false,
+  lock_settings_disable_note_enforced: false,
+  lock_settings_hide_user_list_default: false,
+  lock_settings_hide_user_list_enforced: false,
+  everyone_can_start_default: false,
+  everyone_can_start_enforced: false,
+  allow_guests_default: false,
+  allow_guests_enforced: false,
+  allow_membership_default: false,
+  allow_membership_enforced: false,
+  default_role_default: 1,
+  default_role_enforced: false,
+  lobby_default: 0,
+  lobby_enforced: false
 });
 
 const name = ref('');
@@ -375,6 +827,13 @@ const serverPoolMultiselectRef = ref();
 onMounted(() => {
   loadRoomType();
   loadServerPools();
+});
+
+/**
+ * Show alert if simultaneously default role is moderator and waiting room is active
+ */
+const showLobbyAlert = computed(() => {
+  return model.value.default_role_default === 2 && model.value.lobby_default === 1;
 });
 
 /**

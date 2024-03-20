@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTypeDestroyRequest;
 use App\Http\Requests\RoomTypeRequest;
 use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResourceCollection;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +25,7 @@ class RoomTypeController extends Controller
     /**
      * Return a json array with all room types
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return RoomTypeResourceCollection
      */
     public function index(Request $request)
     {
@@ -58,7 +59,7 @@ class RoomTypeController extends Controller
             }
         }
 
-        return RoomTypeResource::collection($roomTypes->orderBy('name')->get());
+        return (new RoomTypeResourceCollection($roomTypes->orderBy('name')->get()))->withDefaultRoomSettings();
     }
 
     /**
@@ -68,7 +69,8 @@ class RoomTypeController extends Controller
      */
     public function show(RoomType $roomType)
     {
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
     }
 
     /**
@@ -88,12 +90,40 @@ class RoomTypeController extends Controller
         $roomType->require_access_code = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
         $roomType->serverPool()->associate($request->server_pool);
+
+        $roomType->webcams_only_for_moderator_default = $request->webcams_only_for_moderator_default;
+        $roomType->webcams_only_for_moderator_enforced = $request->webcams_only_for_moderator_enforced;
+        $roomType->mute_on_start_default = $request->mute_on_start_default;
+        $roomType->mute_on_start_enforced = $request->mute_on_start_enforced;
+        $roomType->lock_settings_disable_cam_default = $request->lock_settings_disable_cam_default;
+        $roomType->lock_settings_disable_cam_enforced = $request->lock_settings_disable_cam_enforced;
+        $roomType->lock_settings_disable_mic_default = $request->lock_settings_disable_mic_default;
+        $roomType->lock_settings_disable_mic_enforced = $request->lock_settings_disable_mic_enforced;
+        $roomType->lock_settings_disable_private_chat_default = $request->lock_settings_disable_private_chat_default;
+        $roomType->lock_settings_disable_private_chat_enforced = $request->lock_settings_disable_private_chat_enforced;
+        $roomType->lock_settings_disable_public_chat_default = $request->lock_settings_disable_public_chat_default;
+        $roomType->lock_settings_disable_public_chat_enforced = $request->lock_settings_disable_public_chat_enforced;
+        $roomType->lock_settings_disable_note_default = $request->lock_settings_disable_note_default;
+        $roomType->lock_settings_disable_note_enforced = $request->lock_settings_disable_note_enforced;
+        $roomType->lock_settings_hide_user_list_default = $request->lock_settings_hide_user_list_default;
+        $roomType->lock_settings_hide_user_list_enforced = $request->lock_settings_hide_user_list_enforced;
+        $roomType->everyone_can_start_default = $request->everyone_can_start_default;
+        $roomType->everyone_can_start_enforced = $request->everyone_can_start_enforced;
+        $roomType->allow_guests_default = $request->allow_guests_default;
+        $roomType->allow_guests_enforced = $request->allow_guests_enforced;
+        $roomType->allow_membership_default = $request->allow_membership_default;
+        $roomType->allow_membership_enforced = $request->allow_membership_enforced;
+        $roomType->default_role_default = $request->default_role_default;
+        $roomType->default_role_enforced = $request->default_role_enforced;
+        $roomType->lobby_default = $request->lobby_default;
+        $roomType->lobby_enforced = $request->lobby_enforced;
+
         $roomType->save();
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
     }
 
     /**
@@ -114,12 +144,40 @@ class RoomTypeController extends Controller
         $roomType->require_access_code = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
         $roomType->serverPool()->associate($request->server_pool);
+
+        $roomType->webcams_only_for_moderator_default = $request->webcams_only_for_moderator_default;
+        $roomType->webcams_only_for_moderator_enforced = $request->webcams_only_for_moderator_enforced;
+        $roomType->mute_on_start_default = $request->mute_on_start_default;
+        $roomType->mute_on_start_enforced = $request->mute_on_start_enforced;
+        $roomType->lock_settings_disable_cam_default = $request->lock_settings_disable_cam_default;
+        $roomType->lock_settings_disable_cam_enforced = $request->lock_settings_disable_cam_enforced;
+        $roomType->lock_settings_disable_mic_default = $request->lock_settings_disable_mic_default;
+        $roomType->lock_settings_disable_mic_enforced = $request->lock_settings_disable_mic_enforced;
+        $roomType->lock_settings_disable_private_chat_default = $request->lock_settings_disable_private_chat_default;
+        $roomType->lock_settings_disable_private_chat_enforced = $request->lock_settings_disable_private_chat_enforced;
+        $roomType->lock_settings_disable_public_chat_default = $request->lock_settings_disable_public_chat_default;
+        $roomType->lock_settings_disable_public_chat_enforced = $request->lock_settings_disable_public_chat_enforced;
+        $roomType->lock_settings_disable_note_default = $request->lock_settings_disable_note_default;
+        $roomType->lock_settings_disable_note_enforced = $request->lock_settings_disable_note_enforced;
+        $roomType->lock_settings_hide_user_list_default = $request->lock_settings_hide_user_list_default;
+        $roomType->lock_settings_hide_user_list_enforced = $request->lock_settings_hide_user_list_enforced;
+        $roomType->everyone_can_start_default = $request->everyone_can_start_default;
+        $roomType->everyone_can_start_enforced = $request->everyone_can_start_enforced;
+        $roomType->allow_guests_default = $request->allow_guests_default;
+        $roomType->allow_guests_enforced = $request->allow_guests_enforced;
+        $roomType->allow_membership_default = $request->allow_membership_default;
+        $roomType->allow_membership_enforced = $request->allow_membership_enforced;
+        $roomType->default_role_default = $request->default_role_default;
+        $roomType->default_role_enforced = $request->default_role_enforced;
+        $roomType->lobby_default = $request->lobby_default;
+        $roomType->lobby_enforced = $request->lobby_enforced;
+
         $roomType->save();
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
     }
 
     /**

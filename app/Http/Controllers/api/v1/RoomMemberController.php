@@ -159,7 +159,7 @@ class RoomMemberController extends Controller
         }
         // Only add to members, if user isn't already a member or the owner
         if (! $room->members->contains(Auth::user()) && ! $room->owner->is(Auth::user())) {
-            $room->members()->attach(Auth::user()->id, ['role' => $room->default_role]);
+            $room->members()->attach(Auth::user()->id, ['role' => $room->getRoomSetting('default_role')]);
         }
 
         Log::info('Joined membership for room {room}', ['room' => $room->getLogLabel()]);

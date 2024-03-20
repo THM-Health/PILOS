@@ -147,6 +147,7 @@ class RoomController extends Controller
         $room->access_code = rand(111111111, 999999999);
         $room->roomType()->associate($request->room_type);
         $room->owner()->associate(Auth::user());
+
         $room->save();
 
         Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
@@ -214,6 +215,7 @@ class RoomController extends Controller
     public function update(UpdateRoomSettings $request, Room $room)
     {
         $room->name = $request->name;
+        $room->expert_mode = $request->expert_mode;
         $room->welcome = $request->welcome;
         $room->short_description = $request->short_description;
         $room->access_code = $request->access_code;
@@ -226,7 +228,6 @@ class RoomController extends Controller
         $room->lock_settings_disable_private_chat = $request->lock_settings_disable_private_chat;
         $room->lock_settings_disable_public_chat = $request->lock_settings_disable_public_chat;
         $room->lock_settings_disable_note = $request->lock_settings_disable_note;
-        $room->lock_settings_lock_on_join = $request->lock_settings_lock_on_join;
         $room->lock_settings_hide_user_list = $request->lock_settings_hide_user_list;
         $room->everyone_can_start = $request->everyone_can_start;
         $room->allow_membership = $request->allow_membership;
@@ -248,7 +249,7 @@ class RoomController extends Controller
     /**
      * Update room description
      *
-     * @return RoomSettings
+     * @return \Illuminate\Http\Response
      */
     public function updateDescription(UpdateRoomDescription $request, Room $room)
     {
@@ -260,10 +261,11 @@ class RoomController extends Controller
         }
 
         $room->save();
+        $room->refresh();
 
         Log::info('Changed description for room {room}', ['room' => $room->getLogLabel()]);
 
-        return new RoomSettings($room);
+        return response()->noContent();
     }
 
     /**

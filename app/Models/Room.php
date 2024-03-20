@@ -56,6 +56,7 @@ class Room extends Model
     }
 
     protected $casts = [
+        'expert_mode' => 'boolean',
         'mute_on_start' => 'boolean',
         'lock_settings_disable_cam' => 'boolean',
         'webcams_only_for_moderator' => 'boolean',
@@ -248,7 +249,7 @@ class Room extends Model
             return $member->pivot->role;
         }
 
-        return $this->default_role;
+        return $this->getRoomSetting('default_role');
     }
 
     /**
@@ -274,6 +275,12 @@ class Room extends Model
     public function getRoomTypeInvalidAttribute(): bool
     {
         return ! self::roomTypePermitted($this->owner, $this->roomType);
+    }
+
+    public function getRoomSetting(string $settingName)
+    {
+        return ($this->expert_mode && ! $this->roomType[$settingName.'_enforced']) ? $this[$settingName] : $this->roomType[$settingName.'_default'];
+
     }
 
     /**
