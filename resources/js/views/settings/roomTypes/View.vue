@@ -62,6 +62,20 @@
         </div>
 
         <div class="field grid">
+          <label for="description" class="col-12 md:col-4 md:mb-0">{{$t('app.description')}}</label>
+          <div class="col-12 md:col-8">
+            <Textarea
+              class="w-full"
+              id="description"
+              v-model="model.description"
+              :invalid="formErrors.fieldInvalid('description')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
           <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
           <div class="col-12 md:col-8">
             <ColorSelect

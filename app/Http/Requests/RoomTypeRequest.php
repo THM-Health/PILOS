@@ -11,6 +11,7 @@ class RoomTypeRequest extends FormRequest
     {
         $rules = [
             'name' => ['required', 'string', 'max:255', Rule::unique('room_types', 'name')],
+            'description' => ['nullable', 'string', 'max:5000'],
             'color' => ['required', 'string', 'hex_color'],
             'allow_listing' => ['required', 'boolean'],
             'max_duration' => ['present', 'nullable', 'numeric', 'min:1'],
