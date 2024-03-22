@@ -56,7 +56,7 @@
         "pinia": "^2.1.7",
         "popper.js": "^1.12",
         "primeflex": "^3.3.1",
-        "primevue": "^3.49.1",
+        "primevue": "^3.50.0",
         "primevue-sass-theme": "primefaces/primevue-sass-theme#semver:^3.49.1",
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.72.0",
