@@ -71,23 +71,23 @@ return [
         'name' => env('APP_NAME', 'PILOS'),
         'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
         'favicon' => env('DEFAULT_FAVICON', '/images/favicon.ico'),
-        'room_limit' => env('DEFAULT_ROOM_LIMIT', -1),
+        'room_limit' => (int) env('DEFAULT_ROOM_LIMIT', -1),
         //@deprecate OWN_ROOMS_PAGINATION_PAGE_SIZE
-        'room_pagination_page_size' => env('ROOM_PAGINATION_PAGE_SIZE', env('OWN_ROOMS_PAGINATION_PAGE_SIZE', 9)),
-        'pagination_page_size' => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
+        'room_pagination_page_size' => (int) env('ROOM_PAGINATION_PAGE_SIZE', env('OWN_ROOMS_PAGINATION_PAGE_SIZE', 9)),
+        'pagination_page_size' => (int) env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
         'statistics' => [
             'servers' => [
                 'enabled' => env('STATISTICS_SERVERS_ENABLED', false),
-                'retention_period' => env('STATISTICS_SERVERS_RETENTION_PERIOD', 30),
+                'retention_period' => (int) env('STATISTICS_SERVERS_RETENTION_PERIOD', 30),
             ],
             'meetings' => [
                 'enabled' => env('STATISTICS_MEETINGS_ENABLED', false),
-                'retention_period' => env('STATISTICS_MEETINGS_RETENTION_PERIOD', 30),
+                'retention_period' => (int) env('STATISTICS_MEETINGS_RETENTION_PERIOD', 30),
             ],
         ],
         'attendance' => [
             'enabled' => env('ATTENDANCE_ENABLED', false),
-            'retention_period' => env('ATTENDANCE_RETENTION_PERIOD', 14),
+            'retention_period' => (int) env('ATTENDANCE_RETENTION_PERIOD', 14),
         ],
         'banner' => [
             'enabled' => false,
@@ -98,12 +98,12 @@ return [
         'help_url' => env('HELP_URL'),
         'legal_notice_url' => env('LEGAL_NOTICE_URL'),
         'privacy_policy_url' => env('PRIVACY_POLICY_URL'),
-        'room_token_expiration' => env('ROOM_TOKEN_EXPIRATION', -1),
+        'room_token_expiration' => (int) env('ROOM_TOKEN_EXPIRATION', -1),
         'room_auto_delete' => [
             'enabled' => env('ROOM_AUTO_DELETE_ENABLED', false),
-            'inactive_period' => env('ROOM_AUTO_DELETE_INACTIVE_PERIOD', 365),
-            'never_used_period' => env('ROOM_AUTO_DELETE_NEVER_USED_PERIOD', 90),
-            'deadline_period' => env('ROOM_AUTO_DELETE_DEADLINE_PERIOD', 14),
+            'inactive_period' => (int) env('ROOM_AUTO_DELETE_INACTIVE_PERIOD', 365),
+            'never_used_period' => (int) env('ROOM_AUTO_DELETE_NEVER_USED_PERIOD', 90),
+            'deadline_period' => (int) env('ROOM_AUTO_DELETE_DEADLINE_PERIOD', 14),
         ],
     ],
 ];

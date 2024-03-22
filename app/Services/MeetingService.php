@@ -238,7 +238,7 @@ class MeetingService
     private function mapAttendanceSessions($sessions): mixed
     {
         return $sessions->map(function ($session) {
-            return ['id' => $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
+            return ['id' => $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => (int) $session->join->diffInMinutes($session->leave)];
         });
     }
 

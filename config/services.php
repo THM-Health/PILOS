@@ -1,6 +1,6 @@
 <?php
 
-$shibbolethEnabled = env('SHIBBOLETH_ENABLED', false);
+$shibbolethEnabled = (bool) env('SHIBBOLETH_ENABLED', false);
 
 return [
 

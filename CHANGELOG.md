@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHP 8.3 docker base image using alpine ([#704], [#735], [#792])
 - Renamed artisan command `users:create:admin` to `users:create:superuser` ([#883])
 - Refactored frontend from Vue2 to Vue3, replacing BootstrapVue with PrimeVue ([#883])
+- Upgrade to Laravel 11 ([#927])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
@@ -69,6 +70,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 [#883]: https://github.com/THM-Health/PILOS/pull/883
 [#905]: https://github.com/THM-Health/PILOS/pull/905
+[#927]: https://github.com/THM-Health/PILOS/pull/927
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
