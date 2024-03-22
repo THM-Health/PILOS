@@ -22,7 +22,7 @@ class RouteEnableIfSetting
     {
         $settings = explode(',', $settingName);
         foreach ($settings as $setting) {
-            if (! boolval(setting($setting))) {
+            if (! setting($setting)) {
                 abort(404);
             }
         }

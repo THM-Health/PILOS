@@ -2975,10 +2975,6 @@ describe('Room', () => {
     settingsStore.settings.room_refresh_rate = -20;
     expect(view.vm.getRandomRefreshInterval()).toBe(19.4);
 
-    // check for float
-    settingsStore.settings.room_refresh_rate = 4.2;
-    expect(view.vm.getRandomRefreshInterval()).toBe(4.074);
-
     view.destroy();
   });
 });

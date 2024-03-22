@@ -140,7 +140,7 @@ class User extends Authenticatable implements HasLocalePreference
         }
 
         // return highest room limit
-        return intval($role_limits->max());
+        return (int) $role_limits->max();
     }
 
     /**

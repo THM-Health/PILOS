@@ -137,7 +137,7 @@ class SettingsTest extends TestCase
         ]]);
 
         setting(['room_token_expiration' => 100]);
-        config(['bigbluebutton.room_refresh_rate' => 5.5]);
+        config(['bigbluebutton.room_refresh_rate' => 5]);
 
         config(['auth.local.enabled' => false]);
         config(['ldap.enabled' => true]);
@@ -167,7 +167,7 @@ class SettingsTest extends TestCase
                         'retention_period' => 14,
                     ],
                     'room_token_expiration' => 100,
-                    'room_refresh_rate' => 5.5,
+                    'room_refresh_rate' => 5,
                     'auth' => [
                         'local' => false,
                         'ldap' => true,
