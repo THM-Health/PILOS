@@ -87,6 +87,7 @@ jobs:
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
+        LOG_CHANNEL: stack
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Execute tests (Unit, Feature and Integration tests) via PHPUnit
       if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
