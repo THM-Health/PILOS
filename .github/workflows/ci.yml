@@ -96,6 +96,7 @@ jobs:
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
+        LOG_CHANNEL: stack
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Upload coverage
