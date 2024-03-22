@@ -22,7 +22,7 @@ class RouteEnableIfConfig
     {
         $keys = explode(',', $configNames);
         foreach ($keys as $key) {
-            if (! boolval(config($key))) {
+            if (! config($key)) {
                 abort(404);
             }
         }

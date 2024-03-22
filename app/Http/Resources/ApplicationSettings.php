@@ -43,10 +43,10 @@ class ApplicationSettings extends JsonResource
             'name' => setting('name'),
             'logo' => setting('logo'),
             'favicon' => setting('favicon'),
-            'room_limit' => intval(setting('room_limit')),
-            'pagination_page_size' => intval(setting('pagination_page_size')),
-            'room_pagination_page_size' => intval(setting('room_pagination_page_size')),
-            'password_change_allowed' => boolval(setting('password_change_allowed')),
+            'room_limit' => (int) setting('room_limit'),
+            'pagination_page_size' => (int) setting('pagination_page_size'),
+            'room_pagination_page_size' => (int) setting('room_pagination_page_size'),
+            'password_change_allowed' => (bool) setting('password_change_allowed'),
             'default_locale' => config('app.locale'),
             'enabled_locales' => array_map(function ($locale) {
                 return $locale['name'];
@@ -54,9 +54,9 @@ class ApplicationSettings extends JsonResource
             'default_timezone' => setting('default_timezone'),
             'bbb' => [
                 'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
-                'max_filesize' => intval(config('bigbluebutton.max_filesize')),
-                'room_name_limit' => intval(config('bigbluebutton.room_name_limit')),
-                'welcome_message_limit' => intval(config('bigbluebutton.welcome_message_limit')),
+                'max_filesize' => (int) config('bigbluebutton.max_filesize'),
+                'room_name_limit' => (int) config('bigbluebutton.room_name_limit'),
+                'welcome_message_limit' => (int) config('bigbluebutton.welcome_message_limit'),
                 $this->mergeWhen($this->allSettings, [
                     'style' => setting('bbb_style'),
                     'logo' => setting('bbb_logo'),
@@ -68,8 +68,8 @@ class ApplicationSettings extends JsonResource
                 'telescope' => config('telescope.enabled'),
             ],
             'banner' => [
-                'enabled' => boolval(setting('banner.enabled')),
-                $this->mergeWhen(boolval(setting('banner.enabled')) || $this->allSettings, [
+                'enabled' => (bool) setting('banner.enabled'),
+                $this->mergeWhen(setting('banner.enabled') || $this->allSettings, [
                     'message' => setting('banner.message'),
                     'link' => setting('banner.link'),
                     'icon' => setting('banner.icon'),
@@ -85,10 +85,10 @@ class ApplicationSettings extends JsonResource
                 'link_btn_styles' => LinkButtonStyle::cases(),
                 'link_targets' => LinkTarget::cases(),
                 'room_auto_delete' => [
-                    'enabled' => boolval(setting('room_auto_delete.enabled')),
-                    'inactive_period' => intval(setting('room_auto_delete.inactive_period')),
-                    'never_used_period' => intval(setting('room_auto_delete.never_used_period')),
-                    'deadline_period' => intval(setting('room_auto_delete.deadline_period')),
+                    'enabled' => (bool) setting('room_auto_delete.enabled'),
+                    'inactive_period' => (int) setting('room_auto_delete.inactive_period'),
+                    'never_used_period' => (int) setting('room_auto_delete.never_used_period'),
+                    'deadline_period' => (int) setting('room_auto_delete.deadline_period'),
                 ],
             ]),
             'default_presentation' => $this->when(! empty(setting('default_presentation')), setting('default_presentation')),
@@ -98,25 +98,25 @@ class ApplicationSettings extends JsonResource
             'statistics' => [
                 $this->mergeWhen($this->allSettings, [
                     'servers' => [
-                        'enabled' => boolval(setting('statistics.servers.enabled')),
-                        'retention_period' => intval(setting('statistics.servers.retention_period')),
+                        'enabled' => (bool) setting('statistics.servers.enabled'),
+                        'retention_period' => (int) setting('statistics.servers.retention_period'),
                     ],
                 ]),
                 'meetings' => [
-                    'enabled' => boolval(setting('statistics.meetings.enabled')),
-                    'retention_period' => intval(setting('statistics.meetings.retention_period')),
+                    'enabled' => (bool) setting('statistics.meetings.enabled'),
+                    'retention_period' => (int) setting('statistics.meetings.retention_period'),
                 ],
             ],
             'attendance' => [
-                'retention_period' => intval(setting('attendance.retention_period')),
+                'retention_period' => (int) setting('attendance.retention_period'),
             ],
-            'room_token_expiration' => intval(setting('room_token_expiration')),
+            'room_token_expiration' => (int) setting('room_token_expiration'),
             'auth' => [
                 'local' => config('auth.local.enabled'),
                 'ldap' => config('ldap.enabled'),
                 'shibboleth' => config('services.shibboleth.enabled'),
             ],
-            'room_refresh_rate' => floatval(config('bigbluebutton.room_refresh_rate')),
+            'room_refresh_rate' => (int) config('bigbluebutton.room_refresh_rate'),
         ];
     }
 }

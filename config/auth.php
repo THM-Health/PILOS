@@ -101,14 +101,14 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_resets',
-            'expire' => env('PASSWORD_RESET_EXPIRE', 60),
-            'throttle' => env('PASSWORD_RESET_THROTTLE', 60),
+            'expire' => (int) env('PASSWORD_RESET_EXPIRE', 60),
+            'throttle' => (int) env('PASSWORD_RESET_THROTTLE', 60),
         ],
         'new_users' => [
             'provider' => 'users',
             'table' => 'password_resets',
-            'expire' => env('NEW_USER_PASSWORD_RESET_EXPIRE', 60),
-            'throttle' => env('NEW_USER_PASSWORD_RESET_THROTTLE', 60),
+            'expire' => (int) env('NEW_USER_PASSWORD_RESET_EXPIRE', 60),
+            'throttle' => (int) env('NEW_USER_PASSWORD_RESET_THROTTLE', 60),
         ],
     ],
 
@@ -128,8 +128,8 @@ return [
     */
 
     'email_change' => [
-        'expire' => env('EMAIL_CHANGE_EXPIRE', 60),
-        'throttle' => env('EMAIL_CHANGE_THROTTLE', 250),
+        'expire' => (int) env('EMAIL_CHANGE_EXPIRE', 60),
+        'throttle' => (int) env('EMAIL_CHANGE_THROTTLE', 250),
     ],
 
     /*
@@ -146,6 +146,6 @@ return [
     'password_timeout' => 10800,
 
     'local' => [
-        'enabled' => env('LOCAL_AUTH_ENABLED', true),
+        'enabled' => (bool) env('LOCAL_AUTH_ENABLED', true),
     ],
 ];
