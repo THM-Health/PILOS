@@ -45,7 +45,7 @@ return [
 
     'version' => $appVersion,
 
-    'whitelabel' => env('WHITELABEL', false),
+    'whitelabel' => (bool) env('WHITELABEL', false),
 
     /*
     |--------------------------------------------------------------------------

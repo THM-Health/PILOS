@@ -47,6 +47,7 @@ class UpgradeDatabaseCommand extends Command
         $migrations = [
             '2014_10_12_000000_create_users_table',
             '2014_10_12_100000_create_password_resets_table',
+            '2018_08_08_100000_create_telescope_entries_table',
             '2019_08_19_000000_create_failed_jobs_table',
             '2019_12_14_000001_create_personal_access_tokens_table',
             '2022_07_21_000001_create_roles_table',

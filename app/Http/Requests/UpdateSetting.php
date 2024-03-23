@@ -38,7 +38,7 @@ class UpdateSetting extends FormRequest
             'banner.icon' => ['nullable', 'string', 'max:255', 'regex:/^(fas|fa\\-solid) fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/'],
             'banner.color' => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'hex_color'],
             'banner.background' => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'hex_color'],
-            'default_presentation' => ['nullable', 'file', 'max:'.(intval(config('bigbluebutton.max_filesize')) * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],
+            'default_presentation' => ['nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],
             'help_url' => 'nullable|string|url|max:255',
             'legal_notice_url' => 'nullable|string|url|max:255',
             'privacy_policy_url' => 'nullable|string|url|max:255',
