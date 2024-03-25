@@ -5,15 +5,12 @@ namespace App\Services;
 use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
 use App\Models\Meeting;
-use App\Models\MeetingAttendee;
 use App\Models\MeetingStat;
 use App\Models\Server;
 use App\Models\ServerStat;
-use App\Models\User;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class ServerService
 {
@@ -89,10 +86,11 @@ class ServerService
     {
         if ($this->server->health != ServerHealth::OFFLINE) {
             $this->server->error_count++;
-            $this->server->recover_count = 0;
-            $this->server->timestamps = false;
-            $this->server->save();
         }
+
+        $this->server->recover_count = 0;
+        $this->server->timestamps = false;
+        $this->server->save();
 
         if ($this->server->health == ServerHealth::OFFLINE) {
             $this->setMeetingsDetached();
@@ -186,12 +184,8 @@ class ServerService
                 (new MeetingService($meeting))->end();
                 $success++;
             } catch (\Exception $exception) {
-                //@TODO Check this
-                $this->handleApiCallFailed();
-                $this->server->status = ServerStatus::DISABLED;
-                $this->server->save();
-
-                return ['total' => $total, 'success' => $total];
+                // Connection error, but try to continue
+                // as the server should be marked as offline
             }
         }
 
@@ -235,6 +229,15 @@ class ServerService
                 $this->server->version = null;
                 $this->server->timestamps = false;
                 $this->server->save();
+
+                // Clear current live room status
+                foreach ($this->server->meetings as $meeting) {
+                    $meeting->room->participant_count = null;
+                    $meeting->room->listener_count = null;
+                    $meeting->room->voice_participant_count = null;
+                    $meeting->room->video_count = null;
+                    $meeting->room->save();
+                }
             }
 
             return;
@@ -275,80 +278,9 @@ class ServerService
             $meeting->room->voice_participant_count = $meetingStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
             $meeting->room->video_count = $meetingStat->video_count = $bbbMeeting->getVideoCount();
 
-            // Record meeting attendance if enabled for this running meeting
+            // Update meeting attendance if enabled for this running meeting
             if ($meeting->record_attendance) {
-                // Get collection of all attendees, remove duplicated (user joins twice)
-                $collection = collect($bbbMeeting->getAttendees());
-                $uniqueAttendees = $collection->unique(function ($attendee) {
-                    return $attendee->getUserId();
-                });
-
-                // List of all created and found attendees
-                $newAndExistingAttendees = [];
-                foreach ($uniqueAttendees as $attendee) {
-                    // Split user id in prefix and user_id (users) / session_id (guests)
-                    $prefix = substr($attendee->getUserId(), 0, 1);
-                    $id = substr($attendee->getUserId(), 1);
-
-                    switch ($prefix) {
-                        case 'u': // users, identified by their id
-                            // try to find user in database
-                            $user = User::find($id);
-                            // user was found
-                            if ($user != null) {
-                                // check if user is marked in the database as still attending
-                                $meetingAttendee = MeetingAttendee::where('meeting_id', $meeting->id)->where('user_id', $id)->whereNull('leave')->orderBy('join')->first();
-                                // if no previous currently active attendance found in database, create new attendance
-                                if ($meetingAttendee == null) {
-                                    $meetingAttendee = new MeetingAttendee();
-                                    $meetingAttendee->meeting()->associate($meeting);
-                                    $meetingAttendee->user()->associate($user);
-                                    $meetingAttendee->join = now();
-                                    $meetingAttendee->save();
-                                }
-                                // add found or created record to list of new or existing attendances
-                                array_push($newAndExistingAttendees, $meetingAttendee->id);
-                            } else {
-                                // user was not found in database
-                                Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $meeting->id]);
-                            }
-
-                            break;
-                        case 's': // users, identified by their session id
-                            // check if user is marked in the database as still attending
-                            $meetingAttendee = MeetingAttendee::where('meeting_id', $meeting->id)->where('session_id', $id)->whereNull('leave')->orderBy('join')->first();
-                            // if no previous currently active attendance found in database, create new attendance
-                            if ($meetingAttendee == null) {
-                                $meetingAttendee = new MeetingAttendee();
-                                $meetingAttendee->meeting()->associate($meeting);
-                                $meetingAttendee->name = $attendee->getFullName();
-                                $meetingAttendee->session_id = $id;
-                                $meetingAttendee->join = now();
-                                $meetingAttendee->save();
-                            }
-                            // add found or created record to list of new or existing attendances
-                            array_push($newAndExistingAttendees, $meetingAttendee->id);
-
-                            break;
-                        default:
-                            // some other not supported prefix was found
-                            Log::notice('Unknown prefix for attendee found.', ['prefix' => $prefix, 'meeting' => $meeting->id]);
-
-                            break;
-                    }
-                }
-
-                // get all active attendees from database
-                $allAttendees = MeetingAttendee::where('meeting_id', $meeting->id)->whereNull('leave')->get();
-                // remove added or found attendees, to only have attendees left that are no longer active
-                $leftAttendees = $allAttendees->filter(function ($attendee, $key) use ($newAndExistingAttendees) {
-                    return ! in_array($attendee->id, $newAndExistingAttendees);
-                });
-                // set end time of left attendees to current datetime
-                foreach ($leftAttendees as $leftAttendee) {
-                    $leftAttendee->leave = now();
-                    $leftAttendee->save();
-                }
+                (new MeetingService($meeting))->updateAttendance($bbbMeeting);
             }
 
             // Save meeting statistics if enabled
@@ -359,8 +291,6 @@ class ServerService
             $meeting->room->save();
         }
 
-        $this->handleApiCallSuccessful();
-
         // Save current live server status
         $this->server->participant_count = $serverStat->participant_count;
         $this->server->listener_count = $serverStat->listener_count;
@@ -370,6 +300,8 @@ class ServerService
         $this->server->timestamps = false;
         $this->server->version = $this->getBBBVersion();
         $this->server->save();
+
+        $this->handleApiCallSuccessful();
 
         // Save server statistics if enabled
         if (setting('statistics.servers.enabled')) {

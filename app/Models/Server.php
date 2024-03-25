@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
-use App\Services\ServerService;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,12 +35,12 @@ class Server extends Model
     protected static function booted()
     {
         static::updating(function (self $model) {
+
             /**
-             * If status is changed and new status is not online, reset live usage data
-             *
-             * @TODO
+             * If status is changed and new status is disabled, reset live usage data
+             */
             if ($model->status != $model->getOriginal('status')) {
-                if ($model->status != ServerStatus::ONLINE) {
+                if ($model->status == ServerStatus::DISABLED) {
                     $model->version = null;
                     $model->participant_count = null;
                     $model->listener_count = null;
@@ -49,11 +48,7 @@ class Server extends Model
                     $model->video_count = null;
                     $model->meeting_count = null;
                 }
-                if ($model->status == ServerStatus::OFFLINE) {
-                    $serverService = new ServerService($model);
-                    $serverService->endMeetings();
-                }
-            }*/
+            }
         });
         static::deleting(function (self $model) {
             // Delete Server, only possible if no meetings from this system are running and the server is disabled
@@ -108,8 +103,12 @@ class Server extends Model
         return $this->name.' ('.$this->id.')';
     }
 
-    public function getHealthAttribute(): ServerHealth
+    public function getHealthAttribute(): ?ServerHealth
     {
+        if ($this->status == ServerStatus::DISABLED) {
+            return null;
+        }
+
         if ($this->recover_count >= config('bigbluebutton.server_healthy_threshold')) {
             return ServerHealth::ONLINE;
         }

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Process;
 use Storage;
 use Symfony\Component\VarExporter\VarExporter;
 
-class ImportLocales extends Command
+class ImportLocalesCommand extends Command
 {
     /**
      * The name and signature of the console command.

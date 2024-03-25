@@ -136,7 +136,7 @@
             <i class="fa-solid fa-triangle-exclamation"/>
           </Tag>
           <Tag
-            v-else
+            v-else-if="slotProps.data.health === 1"
             v-tooltip="$t('settings.servers.online')"
             :aria-label="$t('settings.servers.online')"
             class="p-2"
@@ -144,6 +144,9 @@
           >
             <i class="fa-solid fa-check"/>
           </Tag>
+          <raw-text v-else>
+            ---
+          </raw-text>
         </template>
       </Column>
       <Column :header="$t('settings.servers.version')" field="version" sortable>

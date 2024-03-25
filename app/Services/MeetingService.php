@@ -6,7 +6,9 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Http\Requests\StartJoinMeeting;
 use App\Models\Meeting;
+use App\Models\MeetingAttendee;
 use App\Models\Room;
+use App\Models\User;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
 use BigBlueButton\Enum\Feature;
@@ -114,7 +116,7 @@ class MeetingService
             $result = $this->serverService->getBigBlueButton()->createMeeting($meetingParams);
         } // Catch exceptions, e.g. network connection issues
         catch (\Exception $exception) {
-            // Remove meeting and set server to offline
+            // Remove meeting and handle failed api call
             $this->meeting->forceDelete();
             $this->serverService->handleApiCallFailed();
 
@@ -127,7 +129,7 @@ class MeetingService
             $this->meeting->forceDelete();
             // Check for some errors
             switch ($result->getMessageKey()) {
-                // checksum error, api token invalid, set server to offline, try to create on other server
+                // checksum error, api token invalid, handle api error, try to create on other server
                 case 'checksumError':
                     $this->serverService->handleApiCallFailed();
 
@@ -196,6 +198,82 @@ class MeetingService
         foreach ($this->meeting->attendees()->whereNull('leave')->get() as $attendee) {
             $attendee->leave = now();
             $attendee->save();
+        }
+    }
+
+    public function updateAttendance(\BigBlueButton\Core\Meeting $bbbMeeting)
+    {
+        // Get collection of all attendees, remove duplicated (user joins twice)
+        $collection = collect($bbbMeeting->getAttendees());
+        $uniqueAttendees = $collection->unique(function ($attendee) {
+            return $attendee->getUserId();
+        });
+
+        // List of all created and found attendees
+        $newAndExistingAttendees = [];
+        foreach ($uniqueAttendees as $attendee) {
+            // Split user id in prefix and user_id (users) / session_id (guests)
+            $prefix = substr($attendee->getUserId(), 0, 1);
+            $id = substr($attendee->getUserId(), 1);
+
+            switch ($prefix) {
+                case 'u': // users, identified by their id
+                    // try to find user in database
+                    $user = User::find($id);
+                    // user was found
+                    if ($user != null) {
+                        // check if user is marked in the database as still attending
+                        $meetingAttendee = MeetingAttendee::where('meeting_id', $this->meeting->id)->where('user_id', $id)->whereNull('leave')->orderBy('join')->first();
+                        // if no previous currently active attendance found in database, create new attendance
+                        if ($meetingAttendee == null) {
+                            $meetingAttendee = new MeetingAttendee();
+                            $meetingAttendee->meeting()->associate($this->meeting);
+                            $meetingAttendee->user()->associate($user);
+                            $meetingAttendee->join = now();
+                            $meetingAttendee->save();
+                        }
+                        // add found or created record to list of new or existing attendances
+                        array_push($newAndExistingAttendees, $meetingAttendee->id);
+                    } else {
+                        // user was not found in database
+                        \Illuminate\Support\Facades\Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
+                    }
+
+                    break;
+                case 's': // users, identified by their session id
+                    // check if user is marked in the database as still attending
+                    $meetingAttendee = MeetingAttendee::where('meeting_id', $this->meeting->id)->where('session_id', $id)->whereNull('leave')->orderBy('join')->first();
+                    // if no previous currently active attendance found in database, create new attendance
+                    if ($meetingAttendee == null) {
+                        $meetingAttendee = new MeetingAttendee();
+                        $meetingAttendee->meeting()->associate($this->meeting);
+                        $meetingAttendee->name = $attendee->getFullName();
+                        $meetingAttendee->session_id = $id;
+                        $meetingAttendee->join = now();
+                        $meetingAttendee->save();
+                    }
+                    // add found or created record to list of new or existing attendances
+                    array_push($newAndExistingAttendees, $meetingAttendee->id);
+
+                    break;
+                default:
+                    // some other not supported prefix was found
+                    Log::notice('Unknown prefix for attendee found.', ['prefix' => $prefix, 'meeting' => $this->meeting->id]);
+
+                    break;
+            }
+        }
+
+        // get all active attendees from database
+        $allAttendees = MeetingAttendee::where('meeting_id', $this->meeting->id)->whereNull('leave')->get();
+        // remove added or found attendees, to only have attendees left that are no longer active
+        $leftAttendees = $allAttendees->filter(function ($attendee, $key) use ($newAndExistingAttendees) {
+            return ! in_array($attendee->id, $newAndExistingAttendees);
+        });
+        // set end time of left attendees to current datetime
+        foreach ($leftAttendees as $leftAttendee) {
+            $leftAttendee->leave = now();
+            $leftAttendee->save();
         }
     }
 

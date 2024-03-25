@@ -162,6 +162,7 @@ class RoomService
         Log::info('Check if meeting for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
 
         try {
+            // Check if meeting is running, if connection to server fails, do not modify the server health
             $meetingRunning = $meetingService->isRunning(true);
         } catch (\Exception $e) {
             Log::warning('Error checking if room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);

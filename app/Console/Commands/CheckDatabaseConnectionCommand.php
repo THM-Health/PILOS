@@ -6,7 +6,7 @@ use DB;
 use Exception;
 use Illuminate\Console\Command;
 
-class CheckDatabaseConnection extends Command
+class CheckDatabaseConnectionCommand extends Command
 {
     /**
      * The name and signature of the console command.

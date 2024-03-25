@@ -31,6 +31,7 @@ class LoadBalancingService
         return $this->servers
             ->where('status', ServerStatus::ENABLED)
             ->where('recover_count', '>=', config('bigbluebutton.server_healthy_threshold'))
+            ->where('error_count', '=', 0)
             ->sortBy(function (Server $server) {
                 // Experimental
                 // Have video factor 3, audio factor 2 and just listening factor 1

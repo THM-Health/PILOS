@@ -7,7 +7,7 @@ use App\Models\ServerStat;
 use Illuminate\Console\Command;
 use Log;
 
-class CleanupStatistics extends Command
+class CleanupStatisticsCommand extends Command
 {
     /**
      * The name and signature of the console command.

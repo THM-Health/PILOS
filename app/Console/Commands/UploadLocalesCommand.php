@@ -6,7 +6,7 @@ use App\Services\LocaleService;
 use Http;
 use Illuminate\Console\Command;
 
-class UploadLocales extends Command
+class UploadLocalesCommand extends Command
 {
     /**
      * The name and signature of the console command.

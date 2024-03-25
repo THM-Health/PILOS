@@ -5,7 +5,7 @@ namespace Tests\Feature\api\v1\Room;
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
-use App\Enums\ServerStatus;
+use App\Enums\ServerHealth;
 use App\Models\Meeting;
 use App\Models\Permission;
 use App\Models\Role;
@@ -959,13 +959,7 @@ class RoomTest extends TestCase
     public function testEndMeetingCallback()
     {
         $room = Room::factory()->create();
-
-        $server = new Server();
-        $server->base_url = $this->faker->url;
-        $server->secret = $this->faker->sha1;
-        $server->status = ServerStatus::ONLINE;
-        $server->name = $this->faker->word;
-        $server->save();
+        $server = Server::factory()->create();
 
         $meeting = $room->meetings()->create();
         $meeting->server()->associate($server);
@@ -1332,12 +1326,14 @@ class RoomTest extends TestCase
         $server = Server::factory()->create();
         $room->roomType->serverPool->servers()->sync([$server->id]);
 
+        $this->assertEquals(ServerHealth::ONLINE, $server->health);
+
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
 
         $server->refresh();
-        $this->assertEquals(ServerStatus::OFFLINE, $server->status);
+        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
@@ -1943,10 +1939,13 @@ class RoomTest extends TestCase
         $meeting->room->latestMeeting()->associate($meeting);
         $meeting->room->save();
 
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room' => $meeting->room, 'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
+        $this->assertEquals(ServerHealth::ONLINE, $meeting->server->health);
 
-        $this->assertEquals(ServerStatus::OFFLINE, $meeting->server->status);
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room' => $meeting->room, 'record_attendance' => 1]))
+            ->assertStatus(CustomStatusCodes::JOIN_FAILED->value);
+
+        $meeting->server->refresh();
+        $this->assertEquals(ServerHealth::ONLINE, $meeting->server->health);
     }
 
     /**

@@ -6,7 +6,7 @@ use App\Services\LocaleService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
-class ExportLocales extends Command
+class ExportLocalesCommand extends Command
 {
     /**
      * The name and signature of the console command.

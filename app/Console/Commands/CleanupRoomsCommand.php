@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Log;
 
-class CleanupRooms extends Command
+class CleanupRoomsCommand extends Command
 {
     protected $signature = 'cleanup:rooms';
 
