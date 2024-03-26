@@ -135,13 +135,13 @@ class ServerServiceTest extends TestCase
         // Check if errors are logged
         Log::assertLogged(
             fn (LogEntry $log) => $log->level === 'notice'
-            && $log->message == 'Unknown prefix for attendee found.'
-            && $log->context == ['prefix' => '2', 'meeting' => '409e94ee-e317-4040-8cb2-8000a289b49d']
+                && $log->message == 'Unknown prefix for attendee found.'
+                && $log->context == ['prefix' => '2', 'meeting' => '409e94ee-e317-4040-8cb2-8000a289b49d']
         );
         Log::assertLogged(
             fn (LogEntry $log) => $log->level === 'notice'
-            && $log->message == 'Attendee user not found.'
-            && $log->context == ['user' => '101', 'meeting' => '409e94ee-e317-4040-8cb2-8000a289b49d']
+                && $log->message == 'Attendee user not found.'
+                && $log->context == ['user' => '101', 'meeting' => '409e94ee-e317-4040-8cb2-8000a289b49d']
         );
 
         $serverService->updateUsage();
@@ -223,15 +223,29 @@ class ServerServiceTest extends TestCase
             'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
             'test.notld/bigbluebutton/api/?checksum=*' => Http::sequence()
                 ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml')),
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml'))
+                ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/ChecksumError.xml')),
         ]);
 
         $serverService = new ServerService($server);
 
+        // Update with response
         $serverService->updateUsage();
         $server->refresh();
         $this->assertEquals('2.4-rc-7', $server->version);
 
+        // Update with disabled response
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertNull($server->version);
+
+        // Update with server timeout
+        $serverService->updateUsage();
+        $server->refresh();
+        $this->assertNull($server->version);
+
+        // Update with checksum error
         $serverService->updateUsage();
         $server->refresh();
         $this->assertNull($server->version);
@@ -533,5 +547,31 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
         $this->assertNull($meeting1->end);
         $this->assertNotNull($meeting2->end);
+    }
+
+    public function testServerDraining()
+    {
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
+        ]);
+
+        $server = Server::factory()->create(['status' => ServerStatus::DRAINING]);
+        $serverService = new ServerService($server);
+
+        // check if server is not disabled if meetings are left
+        Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'end' => null, 'server_id' => $server->id]);
+
+        $serverService->updateUsage();
+
+        $server->refresh();
+        $this->assertEquals(ServerStatus::DRAINING, $server->status);
+
+        // Test if server is disabled on next poll if meeting is ended
+        $serverService->updateUsage();
+
+        $server->refresh();
+        $this->assertEquals(ServerStatus::DISABLED, $server->status);
     }
 }

@@ -57,12 +57,8 @@ class ServerService
     /**
      * Get list of currently running meeting from the api
      */
-    public function getBBBVersion(): ?string
+    private function getBBBVersion(): ?string
     {
-        if ($this->server->status == ServerStatus::DISABLED) {
-            return null;
-        }
-
         try {
             $response = $this->bbb->getApiVersion();
             if ($response->failed()) {
@@ -117,26 +113,6 @@ class ServerService
             if ($this->server->meetings()->whereNull('end')->count() == 0) {
                 $this->server->status = ServerStatus::DISABLED;
                 $this->server->save();
-            }
-        }
-    }
-
-    /**
-     * Mark all meetings still marked as running on this server as ended
-     * and cleanup live usage data for corresponding room
-     */
-    public function endMeetings()
-    {
-        foreach ($this->server->meetings()->whereNull('end')->get() as $meeting) {
-            (new MeetingService($meeting))->setEnd();
-
-            // If no other meeting is running for this room, reset live room usage
-            if (! $meeting->room->latestMeeting || $meeting->room->latestMeeting->end != null) {
-                $meeting->room->participant_count = null;
-                $meeting->room->listener_count = null;
-                $meeting->room->voice_participant_count = null;
-                $meeting->room->video_count = null;
-                $meeting->room->save();
             }
         }
     }
@@ -301,8 +277,6 @@ class ServerService
         $this->server->version = $this->getBBBVersion();
         $this->server->save();
 
-        $this->handleApiCallSuccessful();
-
         // Save server statistics if enabled
         if (setting('statistics.servers.enabled')) {
             $this->server->stats()->save($serverStat);
@@ -317,5 +291,7 @@ class ServerService
                 (new MeetingService($meeting))->setEnd();
             }
         }
+
+        $this->handleApiCallSuccessful();
     }
 }
