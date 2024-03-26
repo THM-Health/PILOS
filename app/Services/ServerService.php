@@ -10,6 +10,7 @@ use App\Models\Server;
 use App\Models\ServerStat;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class ServerService
@@ -84,6 +85,7 @@ class ServerService
             $this->server->error_count++;
         }
 
+        $this->server->load = null;
         $this->server->recover_count = 0;
         $this->server->timestamps = false;
         $this->server->save();
@@ -227,6 +229,8 @@ class ServerService
         $serverStat->video_count = 0;
         $serverStat->meeting_count = 0;
 
+        $load = 0;
+
         foreach ($bbbMeetings as $bbbMeeting) {
             // Get usage for archival server statistics
             if (! $bbbMeeting->isBreakout()) {
@@ -234,6 +238,15 @@ class ServerService
                 // first in the main room, second on the breakout room
                 $serverStat->participant_count += $bbbMeeting->getParticipantCount();
             }
+
+            $createdAt = Carbon::createFromTimestampMsUTC($bbbMeeting->getCreationTime());
+
+            if ($createdAt->diffInMinutes(now()) < config('bigbluebutton.load_new_meeting_min_user_interval')) {
+                $load += max(config('bigbluebutton.load_new_meeting_min_user_count'), $bbbMeeting->getParticipantCount());
+            } else {
+                $load += $bbbMeeting->getParticipantCount();
+            }
+
             $serverStat->listener_count += $bbbMeeting->getListenerCount();
             $serverStat->voice_participant_count += $bbbMeeting->getVoiceParticipantCount();
             $serverStat->video_count += $bbbMeeting->getVideoCount();
@@ -275,6 +288,7 @@ class ServerService
         $this->server->meeting_count = $serverStat->meeting_count;
         $this->server->timestamps = false;
         $this->server->version = $this->getBBBVersion();
+        $this->server->load = $load;
         $this->server->save();
 
         // Save server statistics if enabled
