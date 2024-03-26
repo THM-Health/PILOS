@@ -21,6 +21,7 @@ use Http;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -1509,14 +1510,16 @@ class RoomTest extends TestCase
         $room->roomType->serverPool->servers()->attach($server);
 
         // Create Fake BBB-Server
-        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Server timeout
+        $bbbFaker->addRequest(fn () => throw new ConnectionException('Connection timed out'));
         // Meeting was not found
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/MeetingNotFound.xml')));
+        $bbbFaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/MeetingNotFound.xml')));
         // Create meeting
-        $bbbfaker->addCreateMeetingRequest();
+        $bbbFaker->addCreateMeetingRequest();
         // Get meeting info
         for ($i = 0; $i < 4; $i++) {
-            $bbbfaker->addRequest(function (Request $request) {
+            $bbbFaker->addRequest(function (Request $request) {
                 $uri = $request->toPsrRequest()->getUri();
                 parse_str($uri->getQuery(), $params);
                 $xml = '
@@ -1552,6 +1555,19 @@ class RoomTest extends TestCase
         $meeting = Meeting::factory()->create(['room_id' => $room->id, 'start' => null, 'end' => null, 'server_id' => Server::all()->first()]);
         $room->latestMeeting()->associate($meeting);
         $room->save();
+
+        // Start room that should run on the server but server times out
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            ->assertStatus(472);
+        $meeting->refresh();
+        $this->assertNull($meeting->end);
+
+        // Check if failure effects the server health
+        $server->refresh();
+        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $server->error_count = 0;
+        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+        $server->save();
 
         // Start room that should run on the server but isn't
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))

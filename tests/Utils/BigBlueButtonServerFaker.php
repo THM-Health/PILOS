@@ -57,7 +57,7 @@ class BigBlueButtonServerFaker
 
                     break;
                 case 128:
-                    $checksum = hash('sha384', $hashBase);
+                    $checksum = hash('sha512', $hashBase);
 
                     break;
             }
@@ -70,13 +70,11 @@ class BigBlueButtonServerFaker
             // Save the request for inspection
             $this->requests[$this->requestCount]['request'] = $request;
 
-            // Respond to the request using the stored response for this request
-            $response = call_user_func($this->requests[$this->requestCount]['response'], $request);
-
-            // Increate the request counter
+            // Increase the request counter
             $this->requestCount++;
 
-            return $response;
+            // Respond to the request using the stored response for this request
+            return call_user_func($this->requests[$this->requestCount - 1]['response'], $request);
         });
     }
 
