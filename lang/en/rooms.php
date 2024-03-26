@@ -3,6 +3,10 @@
 return [
     'access_code' => 'Access code',
     'become_member' => 'Become member',
+    'connection_error' => [
+        'reconnecting' => 'Connection to ongoing video conference lost, trying to reconnect.',
+        'detached' => 'Connection to ongoing video conference lost, recovery failed.',
+    ],
     'change_type' => [
         'title' => 'Change room type',
     ],

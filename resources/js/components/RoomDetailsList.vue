@@ -32,6 +32,7 @@
       <div class="room-details__text">
         <span v-if="props.room.last_meeting==null"> {{ $t('rooms.index.room_component.never_started') }}</span>
         <span v-else-if="props.room.last_meeting.end!=null">{{ $t('rooms.index.room_component.last_ran_till', {date:$d(new Date(props.room.last_meeting.end),'datetimeShort')}) }}</span>
+        <span v-else-if="props.room.last_meeting.detached!=null">{{ $t('rooms.index.room_component.last_ran_till', {date:$d(new Date(props.room.last_meeting.detached),'datetimeShort')}) }}</span>
         <span v-else-if="props.room.last_meeting.end==null"> {{ $t('rooms.index.room_component.running_since', {date:$d(new Date(props.room.last_meeting.start),'datetimeShort')}) }}</span>
       </div>
     </div>

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
-use App\Services\ServerService;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +23,8 @@ class Server extends Model
         'voice_participant_count' => 'integer',
         'video_count' => 'integer',
         'meeting_count' => 'integer',
+        'error_count' => 'integer',
+        'recover_count' => 'integer',
     ];
 
     /**
@@ -33,21 +35,18 @@ class Server extends Model
     protected static function booted()
     {
         static::updating(function (self $model) {
+
             /**
-             * If status is changed and new status is not online, reset live usage data
+             * If status is changed and new status is disabled, reset live usage data
              */
             if ($model->status != $model->getOriginal('status')) {
-                if ($model->status != ServerStatus::ONLINE) {
+                if ($model->status == ServerStatus::DISABLED) {
                     $model->version = null;
                     $model->participant_count = null;
                     $model->listener_count = null;
                     $model->voice_participant_count = null;
                     $model->video_count = null;
                     $model->meeting_count = null;
-                }
-                if ($model->status == ServerStatus::OFFLINE) {
-                    $serverService = new ServerService($model);
-                    $serverService->endMeetings();
                 }
             }
         });
@@ -102,5 +101,21 @@ class Server extends Model
     public function getLogLabel()
     {
         return $this->name.' ('.$this->id.')';
+    }
+
+    public function getHealthAttribute(): ?ServerHealth
+    {
+        if ($this->status == ServerStatus::DISABLED) {
+            return null;
+        }
+
+        if ($this->recover_count >= config('bigbluebutton.server_healthy_threshold')) {
+            return ServerHealth::ONLINE;
+        }
+        if ($this->error_count >= config('bigbluebutton.server_unhealthy_threshold')) {
+            return ServerHealth::OFFLINE;
+        }
+
+        return ServerHealth::UNHEALTHY;
     }
 }

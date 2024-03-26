@@ -148,7 +148,7 @@ class Room extends Model
     /**
      * Meetings
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function latestMeeting()
     {

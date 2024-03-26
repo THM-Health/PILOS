@@ -39,6 +39,7 @@ class Server extends JsonResource
             'description' => $this->description,
             'strength' => $this->strength,
             'status' => $this->status,
+            'health' => $this->health,
             'participant_count' => $this->participant_count,
             'listener_count' => $this->listener_count,
             'voice_participant_count' => $this->voice_participant_count,

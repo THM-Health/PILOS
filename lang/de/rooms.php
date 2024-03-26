@@ -3,6 +3,10 @@
 return [
     'access_code' => 'Zugangscode',
     'become_member' => 'Mitglied werden',
+    'connection_error' => [
+        'reconnecting' => 'Verbindung zu laufender Videokonferenz unterbrochen, versuche die Verbindung wiederherzustellen.',
+        'detached' => 'Verbindung zu laufender Videokonferenz verloren, Wiederherstellung fehlgeschlagen.',
+    ],
     'create' => [
         'ok' => 'Erstellen',
         'title' => 'Raum erstellen',

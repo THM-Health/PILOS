@@ -3,6 +3,7 @@
 namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
 use App\Models\Meeting;
 use App\Models\Permission;
@@ -41,11 +42,21 @@ class ServerTest extends TestCase
     public function testIndex()
     {
         $page_size = 5;
-        setting(['pagination_page_size' => $page_size]);
+        setting([
+            'pagination_page_size' => $page_size,
+        ]);
 
-        $servers = Server::factory()->count(8)->create(['description' => 'test', 'version' => '2.4.5']);
-        $server01 = Server::factory()->create(['name' => 'server01', 'status' => ServerStatus::DISABLED, 'version' => null]);
-        $server02 = Server::factory()->create(['name' => 'server02', 'status' => ServerStatus::OFFLINE, 'version' => null]);
+        config([
+            'bigbluebutton.server_healthy_threshold' => 3,
+            'bigbluebutton.server_unhealthy_threshold' => 3,
+        ]);
+
+        $servers = Server::factory()->count(6)->create(['description' => 'test', 'version' => '2.4.5']);
+        $serverOnline = Server::factory()->create(['name' => 'serverOnline', 'version' => '2.4.5']);
+        $serverOffline = Server::factory()->create(['name' => 'serverOffline', 'version' => '2.4.5', 'error_count' => config('bigbluebutton.server_unhealthy_threshold'), 'recover_count' => 0]);
+        $serverUnhealthy = Server::factory()->create(['name' => 'serverUnhealthy', 'version' => '2.4.5', 'error_count' => 1, 'recover_count' => 0]);
+        $serverDisabled = Server::factory()->create(['name' => 'serverDisabled', 'status' => ServerStatus::DISABLED, 'version' => null]);
+        $serverDraining = Server::factory()->create(['name' => 'serverDraining', 'status' => ServerStatus::DRAINING, 'version' => null]);
 
         $servers[3]->version = '2.4.4';
         $servers[3]->save();
@@ -72,7 +83,7 @@ class ServerTest extends TestCase
             ->assertJsonFragment(['id' => $servers[0]->id])
             ->assertJsonFragment(['id' => $servers[4]->id])
             ->assertJsonFragment(['per_page' => $page_size])
-            ->assertJsonFragment(['total' => 10])
+            ->assertJsonFragment(['total' => 11])
             ->assertJsonStructure([
                 'meta',
                 'links',
@@ -82,6 +93,7 @@ class ServerTest extends TestCase
                         'name',
                         'description',
                         'strength',
+                        'health',
                         'status',
                         'participant_count',
                         'listener_count',
@@ -105,31 +117,34 @@ class ServerTest extends TestCase
             ->assertJsonFragment(['id' => $servers[5]->id]);
 
         // Filtering by name
-        $this->getJson(route('api.v1.servers.index').'?name=server01')
+        $this->getJson(route('api.v1.servers.index').'?name=serverDisabled')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
-            ->assertJsonFragment(['id' => $server01->id]);
+            ->assertJsonFragment(['id' => $serverDisabled->id]);
 
         // Filtering by name
         $this->getJson(route('api.v1.servers.index').'?name=server')
             ->assertSuccessful()
-            ->assertJsonCount(2, 'data')
-            ->assertJsonFragment(['id' => $server01->id])
-            ->assertJsonFragment(['id' => $server02->id]);
+            ->assertJsonCount(5, 'data')
+            ->assertJsonFragment(['id' => $serverOnline->id])
+            ->assertJsonFragment(['id' => $serverUnhealthy->id])
+            ->assertJsonFragment(['id' => $serverOffline->id])
+            ->assertJsonFragment(['id' => $serverDisabled->id])
+            ->assertJsonFragment(['id' => $serverDraining->id]);
 
         // Sorting status asc
         $response = $this->getJson(route('api.v1.servers.index').'?sort_by=status&sort_direction=asc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals(ServerStatus::DISABLED->value, $response->json('data.0.status'));
-        $this->assertEquals(ServerStatus::OFFLINE->value, $response->json('data.1.status'));
-        $this->assertEquals(ServerStatus::ONLINE->value, $response->json('data.2.status'));
+        $this->assertEquals(ServerStatus::DRAINING->value, $response->json('data.1.status'));
+        $this->assertEquals(ServerStatus::ENABLED->value, $response->json('data.2.status'));
 
         // Sorting status desc
         $response = $this->getJson(route('api.v1.servers.index').'?sort_by=status&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
-        $this->assertEquals(ServerStatus::ONLINE->value, $response->json('data.0.status'));
+        $this->assertEquals(ServerStatus::ENABLED->value, $response->json('data.0.status'));
 
         // Sorting name asc
         $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc')
@@ -161,11 +176,37 @@ class ServerTest extends TestCase
         $this->assertEquals('2.4.6', $response->json('data.0.version'));
         $this->assertEquals('2.4.5', $response->json('data.1.version'));
 
-        // Request with forced usage update, should see that the online servers are now offline (cause it's fake data)
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=status&sort_direction=desc&update_usage=true')
+        // Check server health
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&name=server')
+            ->assertSuccessful()
+            ->assertJsonCount(5, 'data');
+
+        // Disabled server
+        $this->assertNull($response->json('data.0.health'));
+        // Draining server
+        $this->assertEquals(ServerHealth::ONLINE->value, $response->json('data.1.health'));
+        // Offline server
+        $this->assertEquals(ServerHealth::OFFLINE->value, $response->json('data.2.health'));
+        // Online server
+        $this->assertEquals(ServerHealth::ONLINE->value, $response->json('data.3.health'));
+        // Unhealthy server
+        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.4.health'));
+
+        // Request with forced usage update, should see that the online servers are now unhealthy (because it's fake data)
+        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&name=server&update_usage=true')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
-        $this->assertEquals(ServerStatus::OFFLINE->value, $response->json('data.0.status'));
+
+        // Disabled server
+        $this->assertNull($response->json('data.0.health'));
+        // Draining server
+        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.1.health'));
+        // Offline server
+        $this->assertEquals(ServerHealth::OFFLINE->value, $response->json('data.2.health'));
+        // Online server
+        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.3.health'));
+        // Unhealthy server
+        $this->assertEquals(ServerHealth::UNHEALTHY->value, $response->json('data.4.health'));
     }
 
     /**
@@ -202,6 +243,7 @@ class ServerTest extends TestCase
                 'secret' => $server->secret,
                 'strength' => $server->strength,
                 'status' => $server->status,
+                'health' => $server->health->value,
                 'participant_count' => $server->participant_count,
                 'listener_count' => $server->listener_count,
                 'voice_participant_count' => $server->voice_participant_count,
@@ -233,7 +275,7 @@ class ServerTest extends TestCase
             'base_url' => $server->base_url,
             'secret' => $server->secret,
             'strength' => 5,
-            'disabled' => false,
+            'status' => ServerStatus::ENABLED->value,
         ];
 
         // Test guests
@@ -254,7 +296,7 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url' => $server->base_url, 'description' => $server->description, 'secret' => $server->secret, 'strength' => 5, 'status' => ServerStatus::OFFLINE->value]
+                ['base_url' => $server->base_url, 'description' => $server->description, 'secret' => $server->secret, 'strength' => 5, 'status' => ServerStatus::ENABLED->value, 'health' => ServerHealth::UNHEALTHY]
             );
 
         // Test with some existing base url
@@ -266,9 +308,9 @@ class ServerTest extends TestCase
         $data['name'] = '';
         $data['secret'] = '';
         $data['strength'] = 1000;
-        $data['disabled'] = 10;
+        $data['status'] = 10;
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'disabled']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
     }
 
     /**
@@ -285,7 +327,7 @@ class ServerTest extends TestCase
             'base_url' => $server->base_url,
             'secret' => $server->secret,
             'strength' => $server->strength,
-            'disabled' => true,
+            'status' => ServerStatus::DISABLED->value,
         ];
 
         // Test guests
@@ -312,18 +354,19 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['base_url' => $server->base_url, 'secret' => $server->secret, 'status' => $server->status]
+                ['base_url' => $server->base_url, 'secret' => $server->secret, 'status' => $server->status->value]
             );
 
-        // Change status to offline if server is not reachable
+        // Change health to offline if server is not reachable
         $server->refresh();
-        $data['disabled'] = false;
+        $data['status'] = ServerStatus::ENABLED->value;
         $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
             ->assertSuccessful()
-            ->assertJsonFragment(
-                ['status' => ServerStatus::OFFLINE->value]
-            );
+            ->assertJsonFragment([
+                'status' => ServerStatus::ENABLED->value,
+                'health' => ServerHealth::UNHEALTHY->value,
+            ]);
 
         // Test with base url of an other server
         $server->refresh();
@@ -338,10 +381,10 @@ class ServerTest extends TestCase
         $data['name'] = '';
         $data['secret'] = '';
         $data['strength'] = 1000;
-        $data['disabled'] = 10;
+        $data['status'] = 10;
         $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server' => $server->id]), $data)
-            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'disabled']);
+            ->assertJsonValidationErrors(['base_url', 'secret', 'name', 'strength', 'status']);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;
@@ -484,15 +527,15 @@ class ServerTest extends TestCase
 
         $meeting = Meeting::factory()->create(['server_id' => $server->id, 'end' => null]);
 
-        // Test without update permission
+        // Test with update permission, but as the server is fake, ending the meeting will not work
         $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server' => $server]))
             ->assertSuccessful()
-            ->assertJson(['total' => 1, 'success' => 1]);
+            ->assertJson(['total' => 1, 'success' => 0]);
 
         $meeting->refresh();
         $server->refresh();
 
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
-        $this->assertNotNull($meeting->end);
+        $this->assertNull($meeting->end);
     }
 }

@@ -12,7 +12,7 @@ use Log;
  * Command class that deletes new users that hasn't changed their
  * generated password in the given time.
  */
-class DeleteUnverifiedNewUsers extends Command
+class DeleteUnverifiedNewUsersCommand extends Command
 {
     /**
      * The name and signature of the console command.

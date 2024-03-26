@@ -6,7 +6,7 @@ use App\Models\MeetingAttendee;
 use Illuminate\Console\Command;
 use Log;
 
-class CleanupAttendance extends Command
+class CleanupAttendanceCommand extends Command
 {
     /**
      * The name and signature of the console command.

@@ -20,7 +20,7 @@ use function Laravel\Prompts\progress;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
-class ImportGreenlight2 extends Command
+class ImportGreenlight2Command extends Command
 {
     protected $signature = 'import:greenlight-v2
                              {host : ip or hostname of postgres database server}

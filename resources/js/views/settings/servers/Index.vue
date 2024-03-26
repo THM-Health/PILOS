@@ -91,28 +91,62 @@
             v-tooltip="$t('settings.servers.disabled')"
             :aria-label="$t('settings.servers.disabled')"
             class="p-2"
-            severity="secondary"
-          >
-            <i class="fa-solid fa-pause"/>
-          </Tag>
-          <Tag
-            v-else-if="slotProps.data.status === 0"
-            v-tooltip="$t('settings.servers.offline')"
-            :aria-label="$t('settings.servers.offline')"
-            class="p-2"
             severity="danger"
           >
             <i class="fa-solid fa-stop"/>
           </Tag>
           <Tag
+            v-else-if="slotProps.data.status === 0"
+            v-tooltip="$t('settings.servers.draining')"
+            :aria-label="$t('settings.servers.draining')"
+            class="p-2"
+            severity="info"
+          >
+            <i class="fa-solid fa-pause"/>
+          </Tag>
+          <Tag
             v-else
-            v-tooltip="$t('settings.servers.online')"
-            :aria-label="$t('settings.servers.online')"
+            v-tooltip="$t('settings.servers.enabled')"
+            :aria-label="$t('settings.servers.enabled')"
             class="p-2"
             severity="success"
           >
             <i class="fa-solid fa-play"/>
           </Tag>
+        </template>
+      </Column>
+      <Column :header="$t('settings.servers.connection')" field="health">
+        <template #body="slotProps">
+          <Tag
+            v-if="slotProps.data.health === -1"
+            v-tooltip="$t('settings.servers.offline')"
+            :aria-label="$t('settings.servers.offline')"
+            class="p-2"
+            severity="danger"
+          >
+            <i class="fa-solid fa-xmark"/>
+          </Tag>
+          <Tag
+            v-else-if="slotProps.data.health === 0"
+            v-tooltip="$t('settings.servers.unhealthy')"
+            :aria-label="$t('settings.servers.unhealthy')"
+            class="p-2"
+            severity="warning"
+          >
+            <i class="fa-solid fa-triangle-exclamation"/>
+          </Tag>
+          <Tag
+            v-else-if="slotProps.data.health === 1"
+            v-tooltip="$t('settings.servers.online')"
+            :aria-label="$t('settings.servers.online')"
+            class="p-2"
+            severity="success"
+          >
+            <i class="fa-solid fa-check"/>
+          </Tag>
+          <raw-text v-else>
+            ---
+          </raw-text>
         </template>
       </Column>
       <Column :header="$t('settings.servers.version')" field="version" sortable>

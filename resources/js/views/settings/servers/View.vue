@@ -34,7 +34,7 @@
           <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
         </router-link>
         <SettingsServersDeleteButton
-          v-if="userPermissions.can('delete', model) && model.status===-1"
+          v-if="userPermissions.can('delete', model) && isDisabled"
           :id="model.id"
           :name="name"
           @deleted="$router.push({ name: 'settings.servers' })"
@@ -145,31 +145,32 @@
           </div>
 
           <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="disabled">{{ $t('settings.servers.disabled') }}</label>
+            <label class="col-12 md:col-4 md:mb-0" for="status">{{ $t('settings.servers.status') }}</label>
             <div class="col-12 md:col-8">
               <div>
-                <InputSwitch
-                  id="disabled"
-                  v-model="model.disabled"
+                <Dropdown
+                  id="status"
+                  v-model="model.status"
+                  :options="serverStatusOptions"
+                  option-label="name"
+                  option-value="value"
                   :disabled="isBusy || modelLoadingError || viewOnly"
-                  :invalid="formErrors.fieldInvalid('disabled')"
-                  aria-describedby="disabled-help"
-                  class="align-items-center d-flex mb-3"
-                  name="check-button"
+                  :invalid="formErrors.fieldInvalid('status')"
+                  class="w-full"
+                  name="status"
                 />
               </div>
-              <small id="disabled-help">{{ $t('settings.servers.disabled_description') }}</small>
-              <p class="p-error" v-html="formErrors.fieldError('disabled')"></p>
+              <p class="p-error" v-html="formErrors.fieldError('status')"></p>
             </div>
           </div>
 
           <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="onlineStatus">{{ $t('settings.servers.status') }}</label>
+            <label class="col-12 md:col-4 md:mb-0" for="healthStatus">{{ $t('settings.servers.connection') }}</label>
             <div class="col-12 md:col-8">
               <InputGroup>
                 <InputText
-                  id="onlineStatus"
-                  v-model="onlineStatus"
+                  id="healthStatus"
+                  v-model="healthStatus"
                   :disabled="true"
                   type="text"
                 />
@@ -200,7 +201,7 @@
         </div>
       </form>
       <div
-        v-if="!modelLoadingError && viewOnly && !model.disabled && model.id!==null"
+        v-if="!modelLoadingError && viewOnly && !isDisabled && model.id!==null"
         class="mt-3"
       >
         <div class="grid">
@@ -326,26 +327,36 @@ const props = defineProps({
 });
 
 const model = ref({
-  id: null,
-  disabled: false
+  id: null
 });
 const name = ref('');
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);
 const panicking = ref(false);
-const online = ref(0);
+const health = ref(0);
+const isDisabled = ref(false);
 const offlineReason = ref(null);
 
-const onlineStatus = computed(() => {
-  switch (online.value) {
-    case 0:
+const healthStatus = computed(() => {
+  switch (health.value) {
+    case -1:
       return t('settings.servers.offline');
+    case 0:
+      return t('settings.servers.unhealthy');
     case 1:
       return t('settings.servers.online');
     default:
       return t('settings.servers.unknown');
   }
+});
+
+const serverStatusOptions = computed(() => {
+  return [
+    { name: t('settings.servers.enabled'), value: 1 },
+    { name: t('settings.servers.draining'), value: 0 },
+    { name: t('settings.servers.disabled'), value: -1 }
+  ];
 });
 
 /**
@@ -390,19 +401,19 @@ function testConnection () {
 
   api.call('servers/check', config).then(response => {
     if (response.data.connection_ok && response.data.secret_ok) {
-      online.value = 1;
+      health.value = 1;
       offlineReason.value = null;
     } else {
       if (response.data.connection_ok && !response.data.secret_ok) {
-        online.value = 0;
+        health.value = -1;
         offlineReason.value = 'secret';
       } else {
-        online.value = 0;
+        health.value = -1;
         offlineReason.value = 'connection';
       }
     }
   }).catch(error => {
-    online.value = null;
+    health.value = null;
     offlineReason.value = null;
     api.error(error);
   }).finally(() => {
@@ -421,9 +432,9 @@ function load () {
 
     api.call(`servers/${props.id}`).then(response => {
       model.value = response.data.data;
-      model.value.disabled = model.value.status === -1;
+      isDisabled.value = model.value.status === -1;
       name.value = response.data.data.name;
-      online.value = model.value.status === -1 ? null : model.value.status;
+      health.value = model.value.health;
       offlineReason.value = null;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
@@ -484,9 +495,8 @@ function handleStaleError (staleError) {
     },
     reject: () => {
       model.value = staleError.new_model;
-      model.value.disabled = model.value.status === -1;
       name.value = staleError.new_model.name;
-      online.value = model.value.status === -1 ? null : model.value.status;
+      health.value = model.value.health;
       offlineReason.value = null;
     }
   });

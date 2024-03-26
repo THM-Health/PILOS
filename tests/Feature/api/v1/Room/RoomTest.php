@@ -5,7 +5,7 @@ namespace Tests\Feature\api\v1\Room;
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
-use App\Enums\ServerStatus;
+use App\Enums\ServerHealth;
 use App\Models\Meeting;
 use App\Models\Permission;
 use App\Models\Role;
@@ -21,6 +21,7 @@ use Http;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -486,6 +487,13 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create();
 
+        // Add usage data
+        $room->participant_count = 10;
+        $room->listener_count = 5;
+        $room->voice_participant_count = 3;
+        $room->video_count = 2;
+
+        // Test without any meetings
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJson([
@@ -496,7 +504,7 @@ class RoomTest extends TestCase
                         'id' => $room->owner->id,
                         'name' => $room->owner->fullName,
                     ],
-                    'last_meeting' => $room->latestMeeting,
+                    'last_meeting' => null,
                     'type' => [
                         'id' => $room->roomType->id,
                         'name' => $room->roomType->name,
@@ -523,6 +531,60 @@ class RoomTest extends TestCase
                     ],
                 ],
             ]);
+
+        // Test with ended meeting
+        $meeting = Meeting::factory()->create(['room_id' => $room->id]);
+        $room->latestMeeting()->associate($meeting);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => $meeting->end->toJson(),
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                    ],
+                ],
+            ])
+            ->assertJsonMissingPath('data.last_meeting.usage');
+
+        // Test with running meeting and usage statistics
+        $meeting->end = null;
+        $meeting->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => null,
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                        'usage' => [
+                            'participant_count' => 10,
+                        ],
+                    ],
+                ],
+            ])
+            ->assertJsonCount(1, 'data.last_meeting.usage');
+
+        // Test with server with connection issues
+        $meeting->server->error_count = 1;
+        $meeting->server->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.last_meeting.server_connection_issues', true);
+
+        // Test with detached meeting
+        $meeting->detached = now();
+        $meeting->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.last_meeting.detached', $meeting->detached->toJson());
     }
 
     /**
@@ -959,13 +1021,7 @@ class RoomTest extends TestCase
     public function testEndMeetingCallback()
     {
         $room = Room::factory()->create();
-
-        $server = new Server();
-        $server->base_url = $this->faker->url;
-        $server->secret = $this->faker->sha1;
-        $server->status = ServerStatus::ONLINE;
-        $server->name = $this->faker->word;
-        $server->save();
+        $server = Server::factory()->create();
 
         $meeting = $room->meetings()->create();
         $meeting->server()->associate($server);
@@ -1332,12 +1388,14 @@ class RoomTest extends TestCase
         $server = Server::factory()->create();
         $room->roomType->serverPool->servers()->sync([$server->id]);
 
+        $this->assertEquals(ServerHealth::ONLINE, $server->health);
+
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
 
         $server->refresh();
-        $this->assertEquals(ServerStatus::OFFLINE, $server->status);
+        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
@@ -1513,14 +1571,16 @@ class RoomTest extends TestCase
         $room->roomType->serverPool->servers()->attach($server);
 
         // Create Fake BBB-Server
-        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+        // Server timeout
+        $bbbFaker->addRequest(fn () => throw new ConnectionException('Connection timed out'));
         // Meeting was not found
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/MeetingNotFound.xml')));
+        $bbbFaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/MeetingNotFound.xml')));
         // Create meeting
-        $bbbfaker->addCreateMeetingRequest();
+        $bbbFaker->addCreateMeetingRequest();
         // Get meeting info
         for ($i = 0; $i < 4; $i++) {
-            $bbbfaker->addRequest(function (Request $request) {
+            $bbbFaker->addRequest(function (Request $request) {
                 $uri = $request->toPsrRequest()->getUri();
                 parse_str($uri->getQuery(), $params);
                 $xml = '
@@ -1556,6 +1616,19 @@ class RoomTest extends TestCase
         $meeting = Meeting::factory()->create(['room_id' => $room->id, 'start' => null, 'end' => null, 'server_id' => Server::all()->first()]);
         $room->latestMeeting()->associate($meeting);
         $room->save();
+
+        // Start room that should run on the server but server times out
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            ->assertStatus(472);
+        $meeting->refresh();
+        $this->assertNull($meeting->end);
+
+        // Check if failure effects the server health
+        $server->refresh();
+        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
+        $server->error_count = 0;
+        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+        $server->save();
 
         // Start room that should run on the server but isn't
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
@@ -1943,10 +2016,13 @@ class RoomTest extends TestCase
         $meeting->room->latestMeeting()->associate($meeting);
         $meeting->room->save();
 
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room' => $meeting->room, 'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
+        $this->assertEquals(ServerHealth::ONLINE, $meeting->server->health);
 
-        $this->assertEquals(ServerStatus::OFFLINE, $meeting->server->status);
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room' => $meeting->room, 'record_attendance' => 1]))
+            ->assertStatus(CustomStatusCodes::JOIN_FAILED->value);
+
+        $meeting->server->refresh();
+        $this->assertEquals(ServerHealth::ONLINE, $meeting->server->health);
     }
 
     /**

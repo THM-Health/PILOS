@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Log;
 
-class DeleteObsoleteTokens extends Command
+class DeleteObsoleteTokensCommand extends Command
 {
     /**
      * The name and signature of the console command.
