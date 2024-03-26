@@ -172,7 +172,7 @@ class ServerService
      * Update live and historical usage data for this server and the meetings
      * also detect ghost meetings (marked as running in the db, but not running on the server) and end them
      */
-    public function updateUsage()
+    public function updateUsage($updateServerStatistics = false, $updateMeetingStatistics = false, $updateAttendance = false): void
     {
         // Server is disabled
         if ($this->server->status == ServerStatus::DISABLED) {
@@ -190,7 +190,7 @@ class ServerService
         if ($bbbMeetings === null) {
             $this->handleApiCallFailed();
             // Add server statistics if enabled
-            if (setting('statistics.servers.enabled')) {
+            if ($updateServerStatistics) {
                 $serverStat = new ServerStat();
                 $this->server->stats()->save($serverStat);
             }
@@ -255,12 +255,12 @@ class ServerService
             $meeting->room->video_count = $meetingStat->video_count = $bbbMeeting->getVideoCount();
 
             // Update meeting attendance if enabled for this running meeting
-            if ($meeting->record_attendance) {
+            if ($meeting->record_attendance && $updateAttendance) {
                 (new MeetingService($meeting))->updateAttendance($bbbMeeting);
             }
 
             // Save meeting statistics if enabled
-            if (setting('statistics.meetings.enabled')) {
+            if ($updateMeetingStatistics) {
                 $meeting->stats()->save($meetingStat);
             }
 
@@ -278,7 +278,7 @@ class ServerService
         $this->server->save();
 
         // Save server statistics if enabled
-        if (setting('statistics.servers.enabled')) {
+        if ($updateServerStatistics) {
             $this->server->stats()->save($serverStat);
         }
 

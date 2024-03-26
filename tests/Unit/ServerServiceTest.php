@@ -109,7 +109,7 @@ class ServerServiceTest extends TestCase
         $userA = User::factory()->create(['id' => 99, 'firstname' => 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
         $userB = User::factory()->create(['id' => 100, 'firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
 
-        $serverService->updateUsage();
+        $serverService->updateUsage(updateAttendance: true);
         $meeting->refresh();
 
         // Check attendance data after first run
@@ -144,7 +144,7 @@ class ServerServiceTest extends TestCase
                 && $log->context == ['user' => '101', 'meeting' => '409e94ee-e317-4040-8cb2-8000a289b49d']
         );
 
-        $serverService->updateUsage();
+        $serverService->updateUsage(updateAttendance: true);
         $meeting->refresh();
 
         // Count total attendance datasets
@@ -162,7 +162,7 @@ class ServerServiceTest extends TestCase
         $attendeeGuestA = $meeting->attendees()->where('session_id', 'LQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG')->first();
         $this->assertNull($attendeeGuestA->leave);
 
-        $serverService->updateUsage();
+        $serverService->updateUsage(updateAttendance: true);
         $meeting->refresh();
 
         // Count total attendance datasets, should increase as two new sessions exists
@@ -182,7 +182,7 @@ class ServerServiceTest extends TestCase
         $this->assertNull($attendeeGuestA[1]->leave);
         $this->assertNotNull($attendeeGuestA[1]->join);
 
-        $serverService->updateUsage();
+        $serverService->updateUsage(updateAttendance: true);
         $meeting->refresh();
 
         // Check if end time is set after meeting ended
@@ -207,7 +207,7 @@ class ServerServiceTest extends TestCase
         $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'start' => '2021-06-25 09:24:25', 'end' => null, 'record_attendance' => false]);
         $meeting->server()->associate($server);
         $meeting->save();
-        $serverService->updateUsage();
+        $serverService->updateUsage(updateAttendance: true);
         $meeting->refresh();
         $this->assertCount(0, $meeting->attendees);
     }

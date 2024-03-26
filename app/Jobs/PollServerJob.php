@@ -30,6 +30,10 @@ class PollServerJob implements ShouldQueue
     public function handle(): void
     {
         $serverService = new ServerService($this->server);
-        $serverService->updateUsage();
+
+        $updateServerStatistics = setting('statistics.servers.enabled');
+        $updateMeetingStatistics = setting('statistics.meetings.enabled');
+
+        $serverService->updateUsage($updateServerStatistics, $updateMeetingStatistics, true);
     }
 }
