@@ -40,6 +40,7 @@ class RoomService
             $lock->block($timeout);
 
             $meeting = $this->room->latestMeeting;
+            // If no meeting found, or meeting is already ended or detached, create a new one
             if (! $meeting || $meeting->end != null || $meeting->detached != null) {
                 Log::info('Room {room} not running, creating a new meeting', ['room' => $this->room->getLogLabel()]);
                 if ($this->room->roomTypeInvalid) {
@@ -151,7 +152,7 @@ class RoomService
         // Check if there is a meeting running for this room, accordingly to the local database
         $meeting = $this->room->latestMeeting;
 
-        // no meeting found
+        // No running meeting found
         if ($meeting == null || $meeting->end != null) {
             Log::warning('Failed to join meeting for room {room}; no running meeting found', ['room' => $this->room->getLogLabel()]);
             abort(CustomStatusCodes::MEETING_NOT_RUNNING->value, __('app.errors.not_running'));

@@ -487,6 +487,13 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create();
 
+        // Add usage data
+        $room->participant_count = 10;
+        $room->listener_count = 5;
+        $room->voice_participant_count = 3;
+        $room->video_count = 2;
+
+        // Test without any meetings
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJson([
@@ -497,7 +504,7 @@ class RoomTest extends TestCase
                         'id' => $room->owner->id,
                         'name' => $room->owner->fullName,
                     ],
-                    'last_meeting' => $room->latestMeeting,
+                    'last_meeting' => null,
                     'type' => [
                         'id' => $room->roomType->id,
                         'name' => $room->roomType->name,
@@ -524,6 +531,60 @@ class RoomTest extends TestCase
                     ],
                 ],
             ]);
+
+        // Test with ended meeting
+        $meeting = Meeting::factory()->create(['room_id' => $room->id]);
+        $room->latestMeeting()->associate($meeting);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => $meeting->end->toJson(),
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                    ],
+                ],
+            ])
+            ->assertJsonMissingPath('data.last_meeting.usage');
+
+        // Test with running meeting and usage statistics
+        $meeting->end = null;
+        $meeting->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'last_meeting' => [
+                        'start' => $meeting->start->toJson(),
+                        'end' => null,
+                        'detached' => null,
+                        'server_connection_issues' => false,
+                        'usage' => [
+                            'participant_count' => 10,
+                        ],
+                    ],
+                ],
+            ])
+            ->assertJsonCount(1, 'data.last_meeting.usage');
+
+        // Test with server with connection issues
+        $meeting->server->error_count = 1;
+        $meeting->server->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.last_meeting.server_connection_issues', true);
+
+        // Test with detached meeting
+        $meeting->detached = now();
+        $meeting->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertJsonPath('data.last_meeting.detached', $meeting->detached->toJson());
     }
 
     /**
