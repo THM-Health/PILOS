@@ -8,9 +8,9 @@ use App\Models\Meeting;
 use App\Models\MeetingStat;
 use App\Models\Server;
 use App\Models\ServerStat;
+use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class ServerService
@@ -24,10 +24,13 @@ class ServerService
 
     protected Server $server;
 
+    protected ServerLoadCalculationPluginContract $loadCalculationPlugin;
+
     public function __construct(Server $server)
     {
         $this->server = $server;
         $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient());
+        $this->loadCalculationPlugin = app(ServerLoadCalculationPluginContract::class);
     }
 
     /**
@@ -239,14 +242,6 @@ class ServerService
                 $serverStat->participant_count += $bbbMeeting->getParticipantCount();
             }
 
-            $createdAt = Carbon::createFromTimestampMsUTC($bbbMeeting->getCreationTime());
-
-            if ($createdAt->diffInMinutes(now()) < config('bigbluebutton.load_new_meeting_min_user_interval')) {
-                $load += max(config('bigbluebutton.load_new_meeting_min_user_count'), $bbbMeeting->getParticipantCount());
-            } else {
-                $load += $bbbMeeting->getParticipantCount();
-            }
-
             $serverStat->listener_count += $bbbMeeting->getListenerCount();
             $serverStat->voice_participant_count += $bbbMeeting->getVoiceParticipantCount();
             $serverStat->video_count += $bbbMeeting->getVideoCount();
@@ -279,6 +274,8 @@ class ServerService
 
             $meeting->room->save();
         }
+
+        $load = $this->loadCalculationPlugin->getLoad($bbbMeetings);
 
         // Save current live server status
         $this->server->participant_count = $serverStat->participant_count;

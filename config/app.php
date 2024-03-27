@@ -235,6 +235,8 @@ return [
         App\Auth\Shibboleth\ShibbolethServiceProvider::class,
 
         App\Providers\TranslationServiceProvider::class,
+
+        App\Plugins\PluginServiceProvider::class,
     ],
 
     /*
