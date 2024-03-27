@@ -10,12 +10,6 @@ class LoadBalancingService
 {
     private $servers;
 
-    private int $participantWeight = 1;
-
-    private int $audioWeight = 2;
-
-    private int $videoWeight = 3;
-
     public function setServerPool(ServerPool $serverPool)
     {
         $this->servers = $serverPool->servers;
