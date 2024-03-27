@@ -11,6 +11,11 @@ class ServerLoadCalculationPlugin implements ServerLoadCalculationPluginContract
     {
         $load = 0;
         foreach ($meetings as $meeting) {
+            // Do not count breakout rooms
+            if ($meeting->isBreakout()) {
+                continue;
+            }
+
             $createdAt = Carbon::createFromTimestampMsUTC($meeting->getCreationTime());
 
             if ($createdAt->diffInMinutes(now()) < config('bigbluebutton.load_new_meeting_min_user_interval')) {
