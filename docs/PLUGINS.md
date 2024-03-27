@@ -2,9 +2,8 @@
 
 ## Introduction
 The behavior of PILOS can be customized by plugins.
-Plugins can be installed by mounting the custom plugin directory and adding a custom version of the plugin contract.
 
-## Supported plugins
+We currently have the following plugins:
 - ServerLoadCalculation: Determines the load of a BigBlueButton server used by the load balancer.
 
 ## Installation
