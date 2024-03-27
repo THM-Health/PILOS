@@ -19,3 +19,5 @@ docs
 ssl
 db
 redis
+app/Auth/config
+app/Plugins/Custom

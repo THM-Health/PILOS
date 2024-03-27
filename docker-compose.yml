@@ -7,6 +7,7 @@ x-docker-pilos-volumes: &pilos-volumes
     - './resources/custom:/var/www/html/resources/custom'
     - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
     - './app/Auth/config:/var/www/html/app/Auth/config'
+    - './app/Plugins/Custom:/var/www/html/app/Plugins/Custom'
     - './public/images/custom:/var/www/html/public/images/custom'
     - './public/build:/var/www/html/public/build'
 
