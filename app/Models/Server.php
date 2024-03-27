@@ -25,6 +25,7 @@ class Server extends Model
         'meeting_count' => 'integer',
         'error_count' => 'integer',
         'recover_count' => 'integer',
+        'load' => 'integer',
     ];
 
     /**

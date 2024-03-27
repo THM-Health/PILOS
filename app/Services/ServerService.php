@@ -8,6 +8,7 @@ use App\Models\Meeting;
 use App\Models\MeetingStat;
 use App\Models\Server;
 use App\Models\ServerStat;
+use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Support\Collection;
@@ -23,10 +24,13 @@ class ServerService
 
     protected Server $server;
 
+    protected ServerLoadCalculationPluginContract $loadCalculationPlugin;
+
     public function __construct(Server $server)
     {
         $this->server = $server;
         $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient());
+        $this->loadCalculationPlugin = app(ServerLoadCalculationPluginContract::class);
     }
 
     /**
@@ -84,6 +88,7 @@ class ServerService
             $this->server->error_count++;
         }
 
+        $this->server->load = null;
         $this->server->recover_count = 0;
         $this->server->timestamps = false;
         $this->server->save();
@@ -227,6 +232,8 @@ class ServerService
         $serverStat->video_count = 0;
         $serverStat->meeting_count = 0;
 
+        $load = 0;
+
         foreach ($bbbMeetings as $bbbMeeting) {
             // Get usage for archival server statistics
             if (! $bbbMeeting->isBreakout()) {
@@ -234,6 +241,7 @@ class ServerService
                 // first in the main room, second on the breakout room
                 $serverStat->participant_count += $bbbMeeting->getParticipantCount();
             }
+
             $serverStat->listener_count += $bbbMeeting->getListenerCount();
             $serverStat->voice_participant_count += $bbbMeeting->getVoiceParticipantCount();
             $serverStat->video_count += $bbbMeeting->getVideoCount();
@@ -267,6 +275,8 @@ class ServerService
             $meeting->room->save();
         }
 
+        $load = $this->loadCalculationPlugin->getLoad($bbbMeetings);
+
         // Save current live server status
         $this->server->participant_count = $serverStat->participant_count;
         $this->server->listener_count = $serverStat->listener_count;
@@ -275,6 +285,7 @@ class ServerService
         $this->server->meeting_count = $serverStat->meeting_count;
         $this->server->timestamps = false;
         $this->server->version = $this->getBBBVersion();
+        $this->server->load = $load;
         $this->server->save();
 
         // Save server statistics if enabled

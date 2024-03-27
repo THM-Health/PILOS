@@ -52,7 +52,7 @@ class ServerServiceTest extends TestCase
     public function testGetMeetingsWithResponse()
     {
         Http::fake([
-            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-3.xml')),
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-3.xml')),
         ]);
 
         $server = Server::factory()->create();
@@ -93,10 +93,10 @@ class ServerServiceTest extends TestCase
 
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-1.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-2.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-1.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-2.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-End.xml')),
         ]);
 
         $server = Server::factory()->create();
@@ -197,7 +197,7 @@ class ServerServiceTest extends TestCase
     public function testLogAttendanceDisabled()
     {
         Http::fake([
-            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
         ]);
 
         $server = Server::factory()->create();
@@ -220,7 +220,7 @@ class ServerServiceTest extends TestCase
         $server = Server::factory()->create(['version' => '2.3.0']);
 
         Http::fake([
-            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-End.xml')),
             'test.notld/bigbluebutton/api/?checksum=*' => Http::sequence()
                 ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion.xml'))
                 ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml'))
@@ -261,7 +261,7 @@ class ServerServiceTest extends TestCase
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out')),
         ]);
@@ -305,9 +305,9 @@ class ServerServiceTest extends TestCase
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
         ]);
 
         // Create server
@@ -348,11 +348,11 @@ class ServerServiceTest extends TestCase
 
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
         ]);
 
         // Create server
@@ -400,7 +400,7 @@ class ServerServiceTest extends TestCase
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out')),
         ]);
@@ -455,7 +455,7 @@ class ServerServiceTest extends TestCase
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
                 ->pushResponse(fn () => throw new ConnectionException('Connection timed out'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
             'test.notld/bigbluebutton/api/end?meetingID=409e94ee-e317-4040-8cb2-8000a289b49d&checksum=*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/EndMeeting.xml')),
         ]);
 
@@ -553,8 +553,8 @@ class ServerServiceTest extends TestCase
     {
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
-                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-End.xml')),
         ]);
 
         $server = Server::factory()->create(['status' => ServerStatus::DRAINING]);
@@ -573,5 +573,53 @@ class ServerServiceTest extends TestCase
 
         $server->refresh();
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
+    }
+
+    public function testServerLoad()
+    {
+        config([
+            'plugins.enabled' => [''],
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
+        ]);
+
+        // Create server
+        $server = Server::factory()->create();
+        $serverService = new ServerService($server);
+
+        // Update server load
+        $serverService->updateUsage();
+
+        // Check if load is correctly calculated (amount of participants)
+        $server->refresh();
+        $this->assertEquals(6, $server->load);
+    }
+
+    public function testServerLoadWithPlugin()
+    {
+        config([
+            'plugins.enabled' => ['ServerLoadCalculationPlugin'],
+            'plugins.namespaces.custom' => 'Tests\Utils',
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
+        ]);
+
+        // Create server
+        $server = Server::factory()->create();
+        $serverService = new ServerService($server);
+
+        // Update server load
+        $serverService->updateUsage();
+
+        // Check if load is correctly calculated (amount of participants)
+        $server->refresh();
+        $this->assertEquals(12, $server->load);
     }
 }
