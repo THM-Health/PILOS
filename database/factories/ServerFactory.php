@@ -30,6 +30,7 @@ class ServerFactory extends Factory
             'recover_count' => config('bigbluebutton.server_healthy_threshold'),
             'version' => '2.4.5',
             'strength' => 1,
+            'load' => 0,
         ];
     }
 }
