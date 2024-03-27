@@ -31,8 +31,8 @@ class ServerPoolTest extends TestCase
         $offline->save();
         $draining = Server::factory()->create(['status' => ServerStatus::DRAINING]);
         $disabled = Server::factory()->create(['status' => ServerStatus::DISABLED]);
-        $lightUsage = Server::factory()->create(['video_count' => 5, 'participant_count' => 20, 'voice_participant_count' => 10, 'strength' => 1]);
-        $heavyUsage = Server::factory()->create(['video_count' => 20, 'participant_count' => 100, 'voice_participant_count' => 50, 'strength' => 1]);
+        $lightUsage = Server::factory()->create(['load' => 5, 'strength' => 1]);
+        $heavyUsage = Server::factory()->create(['load' => 20, 'strength' => 1]);
 
         $serverPool = ServerPool::factory()->create();
         $serverPool->servers()->sync([$unhealthy->id, $offline->id, $draining->id, $disabled->id, $offline->id, $lightUsage->id, $heavyUsage->id]);

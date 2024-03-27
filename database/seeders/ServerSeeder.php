@@ -28,6 +28,7 @@ class ServerSeeder extends Seeder
                 'status' => ServerStatus::ENABLED,
                 'error_count' => 0,
                 'recover_count' => config('bigbluebutton.server_healthy_threshold'),
+                'load' => 0,
             ]);
             foreach (ServerPool::all() as $serverPool) {
                 $serverPool->servers()->attach($server);
