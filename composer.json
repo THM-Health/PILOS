@@ -5,40 +5,37 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-curl": "*",
         "ext-json": "*",
         "ext-simplexml": "*",
         "ext-zip": "*",
         "anlutro/l4-settings": "^1.0.0",
-        "bensampo/laravel-enum": "^6.0",
         "directorytree/ldaprecord-laravel": "^3.0",
-        "doctrine/dbal": "^3.0",
-        "goldspecdigital/laravel-eloquent-uuid": "^10",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^10.0",
+        "laravel/framework": "^11.0",
         "laravel/horizon": "^5.21",
         "laravel/prompts": "^0.1.13",
         "laravel/pulse": "^1.0@beta",
-        "laravel/sanctum": "^v3.2",
-        "laravel/telescope": "^4.15",
+        "laravel/sanctum": "^v4.0",
+        "laravel/telescope": "^5.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^4.3",
         "littleredbutton/bigbluebutton-api-php": "^5.3.0",
         "maatwebsite/excel": "^3.1",
+        "nunomaduro/collision": "^8.1",
         "maennchen/zipstream-php": "^3.1",
-        "nunomaduro/collision": "^7.0",
         "spatie/laravel-ignition": "^2.0",
-        "symfony/var-exporter": "^6.2"
+        "symfony/var-exporter": "^7.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0",
         "brianium/paratest": "^7.0",
         "fakerphp/faker": "^1.9.1",
-        "friendsofphp/php-cs-fixer": "3.*",
+        "laravel/pint": "^1.14",
         "mockery/mockery": "^1.4.2",
         "php-coveralls/php-coveralls": "^2.3.0",
-        "phpunit/phpunit": "^10.0",
+        "phpunit/phpunit": "^11.0",
         "squizlabs/php_codesniffer": "3.*",
         "timacdonald/log-fake": "^2.0.1"
     },
@@ -46,9 +43,6 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
-        "platform": {
-          "php": "8.1"
-        },
         "allow-plugins": {
             "php-http/discovery": true
         }
@@ -62,6 +56,7 @@
         }
     },
     "autoload": {
+        "exclude-from-classmap": ["app/Plugins/Custom/"],
         "psr-4": {
           "App\\": "app/",
           "Database\\Factories\\": "database/factories/",
@@ -92,7 +87,7 @@
         "test": "php artisan test --parallel",
         "test-ci": "php artisan test --parallel --testsuite=Unit,Feature",
         "test-integration": "php artisan test --parallel --testsuite=Integration",
-        "fix-cs": "php-cs-fixer fix --allow-risky=yes"
+        "fix-cs": "pint"
 
     }
 }

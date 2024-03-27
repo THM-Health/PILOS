@@ -9,8 +9,6 @@ use Illuminate\Notifications\Notification;
 
 /**
  * This class provides the notification for password reset emails.
- *
- * @package App\Notifications
  */
 class PasswordChanged extends Notification implements ShouldQueue
 {
@@ -19,7 +17,7 @@ class PasswordChanged extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -30,8 +28,7 @@ class PasswordChanged extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed       $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     public function toMail($notifiable): MailMessage
     {

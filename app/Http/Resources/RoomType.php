@@ -43,30 +43,30 @@ class RoomType extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'color'         => $this->color,
+            'id' => $this->id,
+            'name' => $this->name,
+            'color' => $this->color,
             'allow_listing' => $this->allow_listing,
-            'server_pool'   => $this->when($this->withServerPool, function () {
+            'server_pool' => $this->when($this->withServerPool, function () {
                 return new ServerPool($this->serverPool);
             }),
-            'model_name'              => $this->model_name,
-            'updated_at'              => $this->updated_at,
-            'restrict'                => $this->restrict,
-            'max_participants'        => $this->max_participants,
-            'max_duration'            => $this->max_duration,
-            'require_access_code'     => $this->require_access_code,
+            'model_name' => $this->model_name,
+            'updated_at' => $this->updated_at,
+            'restrict' => $this->restrict,
+            'max_participants' => $this->max_participants,
+            'max_duration' => $this->max_duration,
+            'require_access_code' => $this->require_access_code,
             'allow_record_attendance' => $this->allow_record_attendance,
-            'allow_record'            => $this->allow_record,
-            'roles'                   => $this->when($this->withRoles, function () {
+            'allow_record' => $this->allow_record,
+            'roles' => $this->when($this->withRoles, function () {
                 return new RoleCollection($this->roles);
-            })
+            }),
         ];
     }
 }

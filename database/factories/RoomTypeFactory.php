@@ -25,7 +25,7 @@ class RoomTypeFactory extends Factory
         return [
             'name' => $this->faker->word,
             'color' => $this->faker->hexColor,
-            'server_pool_id' => ServerPool::factory()
+            'server_pool_id' => ServerPool::factory(),
         ];
     }
 }

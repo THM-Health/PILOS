@@ -16,7 +16,7 @@ class RoomFileController extends Controller
 {
     /**
      * Return a list of all files of a room and id of the default file
-     * @param  Room                                         $room
+     *
      * @return PrivateRoomFileCollection|RoomFileCollection
      */
     public function index(Room $room)
@@ -33,8 +33,6 @@ class RoomFileController extends Controller
     /**
      * Store a new file in the storage
      *
-     * @param  StoreRoomFile                                $request
-     * @param  Room                                         $room
      * @return PrivateRoomFileCollection|RoomFileCollection
      */
     public function store(Room $room, StoreRoomFile $request)
@@ -42,13 +40,13 @@ class RoomFileController extends Controller
         $name = $request->file('file')->getClientOriginalName();
         $path = $request->file('file')->store($room->id);
 
-        $file               = new RoomFile();
-        $file->path         = $path;
-        $file->filename     = $name;
+        $file = new RoomFile();
+        $file->path = $path;
+        $file->filename = $name;
         $room->files()->save($file);
         $room->updateDefaultFile();
 
-        Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel() ]);
+        Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
         return $this->index($room);
     }
@@ -56,19 +54,17 @@ class RoomFileController extends Controller
     /**
      * Get url to download the specified file
      *
-     * @param  UpdateRoomFile                $request
-     * @param  Room                          $room
-     * @param  RoomFile                      $file
+     * @param  UpdateRoomFile  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Room $room, RoomFile $file)
     {
-        if (!$file->room->is($room)) {
+        if (! $file->room->is($room)) {
             abort(404, __('app.errors.file_not_found'));
         }
 
         $roomFileService = new RoomFileService($file);
-        $url             = $roomFileService->setTimeLimit(1)->url();
+        $url = $roomFileService->setTimeLimit(1)->url();
 
         return response()->json(['url' => $url]);
     }
@@ -76,21 +72,18 @@ class RoomFileController extends Controller
     /**
      * Update the specified file attributes
      *
-     * @param  UpdateRoomFile                               $request
-     * @param  Room                                         $room
-     * @param  RoomFile                                     $file
      * @return PrivateRoomFileCollection|RoomFileCollection
      */
     public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
     {
-        if (!$file->room->is($room)) {
+        if (! $file->room->is($room)) {
             abort(404, __('app.errors.file_not_found'));
         }
 
         if ($request->has('use_in_meeting')) {
             $file->use_in_meeting = $request->use_in_meeting;
             // If no default file for this room is set, set this file as default
-            if (!$room->files()->where('default', true)->exists()) {
+            if (! $room->files()->where('default', true)->exists()) {
                 $file->default = true;
             }
         }
@@ -119,21 +112,20 @@ class RoomFileController extends Controller
     /**
      * Remove the specified file from storage and database.
      *
-     * @param  Room                                         $room
-     * @param  RoomFile                                     $file
      * @return PrivateRoomFileCollection|RoomFileCollection
+     *
      * @throws \Exception
      */
     public function destroy(Room $room, RoomFile $file)
     {
-        if (!$file->room->is($room)) {
+        if (! $file->room->is($room)) {
             abort(404, __('app.errors.file_not_found'));
         }
 
         $file->delete();
         $room->updateDefaultFile();
 
-        Log::info('Deleted file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel() ]);
+        Log::info('Deleted file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
         return $this->index($room);
     }

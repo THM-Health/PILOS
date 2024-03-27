@@ -36,21 +36,21 @@ class UserTest extends TestCase
         setting(['pagination_page_size' => $page_size]);
 
         // Create Users + Ldap User with roles
-        $users  = User::factory()->count(10)->create([
+        $users = User::factory()->count(10)->create([
             'firstname' => 'Darth',
-            'lastname'  => 'Vader'
+            'lastname' => 'Vader',
         ]);
-        $user   = User::factory()->create([
+        $user = User::factory()->create([
             'firstname' => 'John',
-            'lastname'  => 'Doe'
+            'lastname' => 'Doe',
         ]);
 
         $externalUser = User::factory()->create([
-            'external_id'   => $this->faker->unique()->userName,
+            'external_id' => $this->faker->unique()->userName,
             'authenticator' => 'ldap',
-            'email'         => $this->faker->unique()->safeEmail,
-            'firstname'     => 'Jane',
-            'lastname'      => 'Doe'
+            'email' => $this->faker->unique()->safeEmail,
+            'firstname' => 'Jane',
+            'lastname' => 'Doe',
         ]);
 
         $this->assertDatabaseCount('users', 12);
@@ -64,7 +64,7 @@ class UserTest extends TestCase
         // Authenticated user with permission
         $role = Role::factory()->create();
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ]);
+        $permission = Permission::firstOrCreate(['name' => 'users.viewAny']);
         $role->permissions()->attach($permission->id);
         $role->users()->attach([$externalUser->id, $user->id]);
 
@@ -93,82 +93,82 @@ class UserTest extends TestCase
                         'updated_at',
                         'room_limit',
                         'model_name',
-                        'image'
-                    ]
-                ]
+                        'image',
+                    ],
+                ],
             ]);
 
         // Pagination
-        $this->getJson(route('api.v1.users.index') . '?page=2')
+        $this->getJson(route('api.v1.users.index').'?page=2')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $users[5]->firstname]);
 
         // Sorting
-        $this->getJson(route('api.v1.users.index') . '?sort_by=firstname&sort_direction=desc')
+        $this->getJson(route('api.v1.users.index').'?sort_by=firstname&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         // Sorting wrong direction and field
-        $this->getJson(route('api.v1.users.index') . '?sort_by=external_id&sort_direction=desc')
+        $this->getJson(route('api.v1.users.index').'?sort_by=external_id&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonMissingExact(['firstname' => $user->firstname])
             ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index') . '?sort_by=firstname')
+        $this->getJson(route('api.v1.users.index').'?sort_by=firstname')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonMissingExact(['firstname' => $user->firstname])
             ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index') . '?sort_direction=desc')
+        $this->getJson(route('api.v1.users.index').'?sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonMissingExact(['firstname' => $user->firstname])
             ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index') . '?sort_by=foo&sort_direction=desc')
+        $this->getJson(route('api.v1.users.index').'?sort_by=foo&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonMissingExact(['firstname' => $user->firstname])
             ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
 
-        $this->getJson(route('api.v1.users.index') . '?sort_by=firstname&sort_direction=foo')
+        $this->getJson(route('api.v1.users.index').'?sort_by=firstname&sort_direction=foo')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonMissingExact(['firstname' => $user->firstname])
             ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
 
         // Filtering by name
-        $this->getJson(route('api.v1.users.index') . '?name=J%20Doe')
+        $this->getJson(route('api.v1.users.index').'?name=J%20Doe')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         // Filtering by role
-        $this->getJson(route('api.v1.users.index') . '?role='.$role2->id)
+        $this->getJson(route('api.v1.users.index').'?role='.$role2->id)
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['id' => $users[0]->id])
             ->assertJsonFragment(['id' => $user->id]);
 
         // Filtering by invalid role
-        $this->getJson(route('api.v1.users.index') . '?role=0')
+        $this->getJson(route('api.v1.users.index').'?role=0')
             ->assertJsonValidationErrors(['role']);
 
         // Filtering by name
-        $this->getJson(route('api.v1.users.index') . '?name=J%20Doe')
+        $this->getJson(route('api.v1.users.index').'?name=J%20Doe')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         // Filtering by role and name
-        $this->getJson(route('api.v1.users.index') . '?name=John&role='.$role2->id)
+        $this->getJson(route('api.v1.users.index').'?name=John&role='.$role2->id)
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $user->id]);
@@ -179,13 +179,13 @@ class UserTest extends TestCase
         $searchLimit = 5;
         config(['bigbluebutton.user_search_limit' => $searchLimit]);
 
-        $users   = [];
-        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname'  => 'Dumas']);
-        $users[] = User::factory()->create(['firstname' => 'Mable', 'lastname'  => 'Torres']);
-        $users[] = User::factory()->create(['firstname' => 'Bertha', 'lastname'  => 'Luff']);
-        $users[] = User::factory()->create(['firstname' => 'Marie', 'lastname'  => 'Walker']);
-        $users[] = User::factory()->create(['firstname' => 'Connie', 'lastname'  => 'Braun']);
-        $users[] = User::factory()->create(['firstname' => 'Deborah', 'lastname'  => 'Braun']);
+        $users = [];
+        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas']);
+        $users[] = User::factory()->create(['firstname' => 'Mable', 'lastname' => 'Torres']);
+        $users[] = User::factory()->create(['firstname' => 'Bertha', 'lastname' => 'Luff']);
+        $users[] = User::factory()->create(['firstname' => 'Marie', 'lastname' => 'Walker']);
+        $users[] = User::factory()->create(['firstname' => 'Connie', 'lastname' => 'Braun']);
+        $users[] = User::factory()->create(['firstname' => 'Deborah', 'lastname' => 'Braun']);
 
         // Unauthenticated user
         $this->getJson(route('api.v1.users.search'))->assertUnauthorized();
@@ -207,7 +207,7 @@ class UserTest extends TestCase
 
         // check only the four attributes are returned
         foreach ($result->json('data') as $user) {
-            $this->assertEquals(array_keys($user), ['id','firstname','lastname','email']);
+            $this->assertEquals(array_keys($user), ['id', 'firstname', 'lastname', 'email']);
         }
 
         // check with multiple words
@@ -240,17 +240,17 @@ class UserTest extends TestCase
         // Invalid request
         $role = Role::factory()->create();
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
+        $permission = Permission::firstOrCreate(['name' => 'users.create']);
         $role->permissions()->attach($permission->id);
 
         $role->users()->attach([$user->id]);
 
         $externalUser = User::factory()->create([
-            'external_id'   => $this->faker->unique()->userName,
+            'external_id' => $this->faker->unique()->userName,
             'authenticator' => 'ldap',
-            'email'         => $this->faker->unique()->safeEmail,
-            'firstname'     => 'Jane',
-            'lastname'      => 'Doe'
+            'email' => $this->faker->unique()->safeEmail,
+            'firstname' => 'Jane',
+            'lastname' => 'Doe',
         ]);
 
         // Empty request
@@ -259,14 +259,14 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors(['firstname', 'generate_password', 'email', 'lastname', 'user_locale', 'roles']);
 
         $request = [
-            'firstname'         => str_repeat('a', 256),
-            'lastname'          => str_repeat('a', 256),
-            'user_locale'       => 451,
-            'email'             => 'test',
+            'firstname' => str_repeat('a', 256),
+            'lastname' => str_repeat('a', 256),
+            'user_locale' => 451,
+            'email' => 'test',
             'generate_password' => 0,
-            'new_password'      => 'aT2wqw_2',
-            'roles'             => [self::INVALID_ID],
-            'timezone'          => 'Europe/Berlin'
+            'new_password' => 'aT2wqw_2',
+            'roles' => [self::INVALID_ID],
+            'timezone' => 'Europe/Berlin',
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
@@ -278,34 +278,34 @@ class UserTest extends TestCase
         ]);
 
         $request = [
-            'firstname'                 => $this->faker->firstName,
-            'lastname'                  => $this->faker->lastName,
-            'user_locale'               => 'hr',
-            'email'                     => $user->email,
-            'generate_password'         => false,
-            'new_password'              => 'aT2wqw_2',
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'hr',
+            'email' => $user->email,
+            'generate_password' => false,
+            'new_password' => 'aT2wqw_2',
             'new_password_confirmation' => 'aT2wqw_2',
-            'roles'                     => [$role->id],
-            'authenticator'             => 'ldap',
-            'timezone'                  => 'UTC'
+            'roles' => [$role->id],
+            'authenticator' => 'ldap',
+            'timezone' => 'UTC',
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['email', 'user_locale']);
 
-        $request['email']                   = $externalUser->email;
-        $request['user_locale']             = 'de';
+        $request['email'] = $externalUser->email;
+        $request['user_locale'] = 'de';
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'firstname'            => $request['firstname'],
-                'lastname'             => $request['lastname'],
-                'user_locale'          => $request['user_locale'],
-                'email'                => $request['email'],
-                'roles'                => [[ 'id' => $role->id, 'name' => $role->name, 'automatic' => false ]],
-                'authenticator'        => 'local',
+                'firstname' => $request['firstname'],
+                'lastname' => $request['lastname'],
+                'user_locale' => $request['user_locale'],
+                'email' => $request['email'],
+                'roles' => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]],
+                'authenticator' => 'local',
             ]);
     }
 
@@ -325,12 +325,12 @@ class UserTest extends TestCase
         $user->roles()->sync([$roleA->id, $roleB->id]);
 
         $changes = [
-            'firstname'            => $this->faker->firstName,
-            'lastname'             => $this->faker->lastName,
-            'user_locale'          => 'de',
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'de',
             'bbb_skip_check_audio' => true,
-            'timezone'             => 'Foo/Bar',
-            'roles'                => [$roleA->id],
+            'timezone' => 'Foo/Bar',
+            'roles' => [$roleA->id],
         ];
 
         // Unauthenticated user
@@ -339,10 +339,10 @@ class UserTest extends TestCase
 
         // Try to update user without timestamp
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+            ->assertStatus(CustomStatusCodes::STALE_MODEL->value);
 
         // Check with timestamp and invalid data
-        $changes['updated_at']           = Carbon::now();
+        $changes['updated_at'] = Carbon::now();
         $changes['bbb_skip_check_audio'] = 'test';
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(422)
@@ -350,7 +350,7 @@ class UserTest extends TestCase
 
         // Check with valid data
         $changes['bbb_skip_check_audio'] = 0;
-        $changes['timezone']             = 'Europe/Berlin';
+        $changes['timezone'] = 'Europe/Berlin';
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
         $user->refresh();
@@ -393,7 +393,7 @@ class UserTest extends TestCase
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
 
-        $roleA      = Role::factory()->create();
+        $roleA = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'users.updateOwnAttributes']);
         $roleA->permissions()->attach($permission->id);
 
@@ -403,12 +403,12 @@ class UserTest extends TestCase
         $user->roles()->sync([$roleA->id, $roleB->id]);
 
         $changes = [
-            'firstname'            => $this->faker->firstName,
-            'lastname'             => $this->faker->lastName,
-            'user_locale'          => 'de',
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'de',
             'bbb_skip_check_audio' => true,
-            'timezone'             => 'Europe/Berlin',
-            'roles'                => [$roleA->id],
+            'timezone' => 'Europe/Berlin',
+            'roles' => [$roleA->id],
         ];
 
         // Check if the attributes firstname and lastname cannot be changed even with special permission
@@ -430,27 +430,27 @@ class UserTest extends TestCase
      */
     public function testUpdate()
     {
-        $roleA     = Role::factory()->create();
-        $roleB     = Role::factory()->create();
+        $roleA = Role::factory()->create();
+        $roleB = Role::factory()->create();
         $adminRole = Role::factory()->create();
 
         $permission = Permission::firstOrCreate(['name' => 'users.update']);
         $adminRole->permissions()->attach($permission->id);
 
-        $user      = User::factory()->create(['locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $user = User::factory()->create(['locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
         $otherUser = User::factory()->create();
-        $admin     = User::factory()->create();
+        $admin = User::factory()->create();
 
         $user->roles()->sync([$roleA->id, $roleB->id]);
         $admin->roles()->sync([$adminRole->id]);
 
         $changes = [
-            'firstname'            => $this->faker->firstName,
-            'lastname'             => $this->faker->lastName,
-            'user_locale'          => 'de',
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'de',
             'bbb_skip_check_audio' => true,
-            'timezone'             => 'Europe/Berlin',
-            'roles'                => [$roleA->id],
+            'timezone' => 'Europe/Berlin',
+            'roles' => [$roleA->id],
         ];
 
         // Unauthorized
@@ -481,26 +481,26 @@ class UserTest extends TestCase
      */
     public function testUpdateLdap()
     {
-        $roleA     = Role::factory()->create();
-        $roleB     = Role::factory()->create();
+        $roleA = Role::factory()->create();
+        $roleB = Role::factory()->create();
         $adminRole = Role::factory()->create();
 
         $permission = Permission::firstOrCreate(['name' => 'users.update']);
         $adminRole->permissions()->attach($permission->id);
 
-        $user  = User::factory()->create(['authenticator' => 'ldap', 'external_id' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $user = User::factory()->create(['authenticator' => 'ldap', 'external_id' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
         $admin = User::factory()->create();
 
         $user->roles()->sync([$roleA->id => ['automatic' => true], $roleB->id]);
         $admin->roles()->sync([$adminRole->id]);
 
         $changes = [
-            'firstname'            => $this->faker->firstName,
-            'lastname'             => $this->faker->lastName,
-            'user_locale'          => 'de',
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'de',
             'bbb_skip_check_audio' => true,
-            'timezone'             => 'Europe/Berlin',
-            'roles'                => [$roleB->id],
+            'timezone' => 'Europe/Berlin',
+            'roles' => [$roleB->id],
         ];
 
         // Check as admin
@@ -527,7 +527,7 @@ class UserTest extends TestCase
      */
     public function testPartialUpdate()
     {
-        $user    = User::factory()->create(['firstname'=> 'John', 'lastname' => 'Doe', 'bbb_skip_check_audio' => false]);
+        $user = User::factory()->create(['firstname' => 'John', 'lastname' => 'Doe', 'bbb_skip_check_audio' => false]);
         $newRole = Role::factory()->create();
         $user->roles()->attach($newRole);
 
@@ -535,7 +535,7 @@ class UserTest extends TestCase
         $this->assertFalse($user->bbb_skip_check_audio);
         $changes = [
             'bbb_skip_check_audio' => true,
-            'updated_at'           => $user->updated_at,
+            'updated_at' => $user->updated_at,
         ];
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
@@ -546,9 +546,9 @@ class UserTest extends TestCase
         $this->assertSame('John', $user->firstname);
         $this->assertSame('Doe', $user->lastname);
         $changes = [
-            'firstname'            => 'Max',
-            'lastname'             => 'Mustermann',
-            'updated_at'           => $user->updated_at,
+            'firstname' => 'Max',
+            'lastname' => 'Mustermann',
+            'updated_at' => $user->updated_at,
         ];
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
@@ -557,11 +557,11 @@ class UserTest extends TestCase
         $this->assertSame('Doe', $user->lastname);
 
         // Check if updating firstname and lastname with special permissions results in change
-        $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
+        $permission = Permission::firstOrCreate(['name' => 'users.updateOwnAttributes']);
         $newRole->permissions()->attach($permission->id);
         $changes = [
-            'firstname'  => 'Max',
-            'lastname'   => 'Mustermann',
+            'firstname' => 'Max',
+            'lastname' => 'Mustermann',
             'updated_at' => $user->updated_at,
         ];
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
@@ -580,16 +580,16 @@ class UserTest extends TestCase
         config(['auth.email_change.throttle' => 250]);
         config(['auth.email_change.expire' => 60]);
 
-        $password               = $this->faker->password;
-        $otherUserPassword      = $this->faker->password;
-        $email                  = $this->faker->email;
-        $user                   = User::factory()->create(['password' => Hash::make($password), 'email' => $email]);
-        $otherUser              = User::factory()->create(['password' => Hash::make($otherUserPassword)]);
-        $externalUser           = User::factory()->create(['authenticator' => 'ldap']);
+        $password = $this->faker->password;
+        $otherUserPassword = $this->faker->password;
+        $email = $this->faker->email;
+        $user = User::factory()->create(['password' => Hash::make($password), 'email' => $email]);
+        $otherUser = User::factory()->create(['password' => Hash::make($otherUserPassword)]);
+        $externalUser = User::factory()->create(['authenticator' => 'ldap']);
 
         $newEmail = $this->faker->email;
-        $changes  = [
-            'email'      => $newEmail,
+        $changes = [
+            'email' => $newEmail,
             'updated_at' => $user->updated_at,
         ];
 
@@ -609,8 +609,8 @@ class UserTest extends TestCase
         Cache::clear();
 
         // Give user permission to change own email
-        $role       = Role::factory()->create();
-        $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
+        $role = Role::factory()->create();
+        $permission = Permission::firstOrCreate(['name' => 'users.updateOwnAttributes']);
         $role->permissions()->attach($permission->id);
         $user->roles()->attach($role);
         $otherUser->roles()->attach($role);
@@ -625,7 +625,7 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors(['current_password']);
 
         // Check changing email to existing email of other user
-        $changes['email']            = $otherUser->email;
+        $changes['email'] = $otherUser->email;
         $changes['current_password'] = $password;
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertJsonValidationErrors(['email']);
@@ -642,7 +642,7 @@ class UserTest extends TestCase
         // Check if email can be changed immediately
         $changes['email'] = $this->faker->email;
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
-            ->assertStatus(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
+            ->assertStatus(CustomStatusCodes::EMAIL_CHANGE_THROTTLE->value);
 
         // Check if email can be changed after throttle time
         Carbon::setTestNow(Carbon::now()->addMinutes(6));
@@ -743,15 +743,15 @@ class UserTest extends TestCase
         $this->actingAs($user)->withServerVariables(['REMOTE_ADDR' => '10.1.0.2'])->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertStatus(200);
         // Check if other user is not affected by rate limiter
-        $changes['email']            = $otherUser->email;
+        $changes['email'] = $otherUser->email;
         $changes['current_password'] = $otherUserPassword;
         $this->actingAs($otherUser)->withServerVariables(['REMOTE_ADDR' => '10.1.0.1'])->putJson(route('api.v1.users.email.change', ['user' => $otherUser]), $changes)
             ->assertStatus(200);
         Cache::clear();
 
         // Try to change email for different authenticator
-        $user->authenticator    = 'ldap';
-        $user->external_id      = $this->faker->unique()->userName;
+        $user->authenticator = 'ldap';
+        $user->external_id = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertForbidden();
@@ -766,14 +766,14 @@ class UserTest extends TestCase
 
         Notification::fake();
         $email = $this->faker->email;
-        $user  = User::factory()->create([ 'email' => $email ]);
+        $user = User::factory()->create(['email' => $email]);
 
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::where('superuser', true)->first());
 
         $newEmail = $this->faker->email;
-        $changes  = [
-            'email'      => $newEmail
+        $changes = [
+            'email' => $newEmail,
         ];
         $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertSuccessful();
@@ -795,16 +795,16 @@ class UserTest extends TestCase
         }
 
         // Try to change email for user with different authenticator
-        $user->authenticator    = 'ldap';
-        $user->external_id      = $this->faker->unique()->userName;
+        $user->authenticator = 'ldap';
+        $user->external_id = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertForbidden();
 
         // Check if admin can change own email without verification
         $newAdminEmail = $this->faker->email;
-        $changes       = [
-            'email'      => $newAdminEmail
+        $changes = [
+            'email' => $newAdminEmail,
         ];
         $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $admin]), $changes)
             ->assertJsonValidationErrors('current_password');
@@ -818,13 +818,13 @@ class UserTest extends TestCase
         Notification::fake();
         setting(['password_change_allowed' => false]);
 
-        $password    = $this->faker->password;
+        $password = $this->faker->password;
         $newPassword = '!SuperSecretPassword123';
-        $user        = User::factory()->create(['password' => Hash::make($password)]);
-        $otherUser   = User::factory()->create(['password' => Hash::make($newPassword)]);
+        $user = User::factory()->create(['password' => Hash::make($password)]);
+        $otherUser = User::factory()->create(['password' => Hash::make($newPassword)]);
 
         $changes = [
-            'new_password'              => $newPassword,
+            'new_password' => $newPassword,
             'new_password_confirmation' => $newPassword,
         ];
 
@@ -853,7 +853,7 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors('current_password');
 
         // Check with invalid password confirmation
-        $changes['current_password']          = $password;
+        $changes['current_password'] = $password;
         $changes['new_password_confirmation'] = 'wrong_password';
         $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertJsonValidationErrors('new_password');
@@ -862,29 +862,29 @@ class UserTest extends TestCase
         $changes['new_password_confirmation'] = $newPassword;
 
         // Create new sessions in database
-        $currentSession                = new Session();
-        $currentSession->id            = $this->app['session']->getId();
-        $currentSession->user_agent    = $this->faker->userAgent;
-        $currentSession->ip_address    = $this->faker->ipv4;
-        $currentSession->payload       = '';
+        $currentSession = new Session();
+        $currentSession->id = $this->app['session']->getId();
+        $currentSession->user_agent = $this->faker->userAgent;
+        $currentSession->ip_address = $this->faker->ipv4;
+        $currentSession->payload = '';
         $currentSession->last_activity = now();
         $currentSession->user()->associate($user);
         $currentSession->save();
 
-        $otherSession                = new Session();
-        $otherSession->id            = \Str::random(40);
-        $otherSession->user_agent    = $this->faker->userAgent;
-        $otherSession->ip_address    = $this->faker->ipv4;
-        $otherSession->payload       = '';
+        $otherSession = new Session();
+        $otherSession->id = \Str::random(40);
+        $otherSession->user_agent = $this->faker->userAgent;
+        $otherSession->ip_address = $this->faker->ipv4;
+        $otherSession->payload = '';
         $otherSession->last_activity = now();
         $otherSession->user()->associate($user);
         $otherSession->save();
 
-        $otherUserSession                = new Session();
-        $otherUserSession->id            = \Str::random(40);
-        $otherUserSession->user_agent    = $this->faker->userAgent;
-        $otherUserSession->ip_address    = $this->faker->ipv4;
-        $otherUserSession->payload       = '';
+        $otherUserSession = new Session();
+        $otherUserSession->id = \Str::random(40);
+        $otherUserSession->user_agent = $this->faker->userAgent;
+        $otherUserSession->ip_address = $this->faker->ipv4;
+        $otherUserSession->payload = '';
         $otherUserSession->last_activity = now();
         $otherUserSession->user()->associate($otherUser);
         $otherUserSession->save();
@@ -907,8 +907,8 @@ class UserTest extends TestCase
 
         // Clear cache (and rate limiter)
         Cache::clear();
-        $changes['current_password']          = $newPassword;
-        $changes['new_password']              = $newPassword;
+        $changes['current_password'] = $newPassword;
+        $changes['new_password'] = $newPassword;
         $changes['new_password_confirmation'] = $newPassword;
 
         // Check rate limiter for same user and ip
@@ -928,8 +928,8 @@ class UserTest extends TestCase
         Cache::clear();
 
         // Try to change password for user with different authenticator
-        $user->authenticator    = 'ldap';
-        $user->external_id      = $this->faker->unique()->userName;
+        $user->authenticator = 'ldap';
+        $user->external_id = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertForbidden();
@@ -945,8 +945,8 @@ class UserTest extends TestCase
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $newPassword = '!SuperSecretPassword123';
-        $user        = User::factory()->create();
-        $otherUser   = User::factory()->create();
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
 
         // Create admin user
         $admin = User::factory()->create();
@@ -959,44 +959,44 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors('new_password');
 
         // Check with invalid password confirmation
-        $changes['new_password']              = $newPassword;
+        $changes['new_password'] = $newPassword;
         $changes['new_password_confirmation'] = 'wrong_password';
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertJsonValidationErrors('new_password');
 
         // Create new sessions in database
-        $adminSession                = new Session();
-        $adminSession->id            = $this->app['session']->getId();
-        $adminSession->user_agent    = $this->faker->userAgent;
-        $adminSession->ip_address    = $this->faker->ipv4;
-        $adminSession->payload       = '';
+        $adminSession = new Session();
+        $adminSession->id = $this->app['session']->getId();
+        $adminSession->user_agent = $this->faker->userAgent;
+        $adminSession->ip_address = $this->faker->ipv4;
+        $adminSession->payload = '';
         $adminSession->last_activity = now();
         $adminSession->user()->associate($admin);
         $adminSession->save();
 
-        $otherAdminSession                = new Session();
-        $otherAdminSession->id            = \Str::random(40);
-        $otherAdminSession->user_agent    = $this->faker->userAgent;
-        $otherAdminSession->ip_address    = $this->faker->ipv4;
-        $otherAdminSession->payload       = '';
+        $otherAdminSession = new Session();
+        $otherAdminSession->id = \Str::random(40);
+        $otherAdminSession->user_agent = $this->faker->userAgent;
+        $otherAdminSession->ip_address = $this->faker->ipv4;
+        $otherAdminSession->payload = '';
         $otherAdminSession->last_activity = now();
         $otherAdminSession->user()->associate($admin);
         $otherAdminSession->save();
 
-        $userSession                = new Session();
-        $userSession->id            = \Str::random(40);
-        $userSession->user_agent    = $this->faker->userAgent;
-        $userSession->ip_address    = $this->faker->ipv4;
-        $userSession->payload       = '';
+        $userSession = new Session();
+        $userSession->id = \Str::random(40);
+        $userSession->user_agent = $this->faker->userAgent;
+        $userSession->ip_address = $this->faker->ipv4;
+        $userSession->payload = '';
         $userSession->last_activity = now();
         $userSession->user()->associate($user);
         $userSession->save();
 
-        $otherUserSession                = new Session();
-        $otherUserSession->id            = \Str::random(40);
-        $otherUserSession->user_agent    = $this->faker->userAgent;
-        $otherUserSession->ip_address    = $this->faker->ipv4;
-        $otherUserSession->payload       = '';
+        $otherUserSession = new Session();
+        $otherUserSession->id = \Str::random(40);
+        $otherUserSession->user_agent = $this->faker->userAgent;
+        $otherUserSession->ip_address = $this->faker->ipv4;
+        $otherUserSession->payload = '';
         $otherUserSession->last_activity = now();
         $otherUserSession->user()->associate($otherUser);
         $otherUserSession->save();
@@ -1026,15 +1026,15 @@ class UserTest extends TestCase
         }
 
         // Try to change password for user with different authenticator
-        $user->authenticator    = 'ldap';
-        $user->external_id      = $this->faker->unique()->userName;
+        $user->authenticator = 'ldap';
+        $user->external_id = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertForbidden();
 
         // Check if admin cannot change own password if self reset is disabled
         $changes = [
-            'new_password'              => $newPassword,
+            'new_password' => $newPassword,
             'new_password_confirmation' => $newPassword,
         ];
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $admin]), $changes)
@@ -1052,22 +1052,22 @@ class UserTest extends TestCase
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
 
-        $user       = User::factory()->create(['locale' => 'de', 'timezone' => 'Europe/Berlin' ,'bbb_skip_check_audio' => false]);
-        $role       = Role::factory()->create();
-        $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
+        $user = User::factory()->create(['locale' => 'de', 'timezone' => 'Europe/Berlin', 'bbb_skip_check_audio' => false]);
+        $role = Role::factory()->create();
+        $permission = Permission::firstOrCreate(['name' => 'users.delete']);
         $role->permissions()->attach($permission->id);
         $role->users()->attach([$user->id]);
 
         $changes = [
-            'firstname'            => $user->firstname,
-            'lastname'             => $user->lastname,
-            'email'                => $user->email,
-            'roles'                => [$role->id],
-            'user_locale'          => $user->locale,
+            'firstname' => $user->firstname,
+            'lastname' => $user->lastname,
+            'email' => $user->email,
+            'roles' => [$role->id],
+            'user_locale' => $user->locale,
             'bbb_skip_check_audio' => $user->bbb_skip_check_audio,
-            'timezone'             => $user->timezone,
-            'image'                => 'test',
-            'updated_at'           => $user->updated_at,
+            'timezone' => $user->timezone,
+            'image' => 'test',
+            'updated_at' => $user->updated_at,
         ];
 
         // Try with invalid type, string not image
@@ -1091,9 +1091,9 @@ class UserTest extends TestCase
         Storage::fake('public');
 
         // Create fake files
-        $file  = UploadedFile::fake()->image('avatar.jpg', 100, 100);
+        $file = UploadedFile::fake()->image('avatar.jpg', 100, 100);
         $file2 = UploadedFile::fake()->image('avatar2.jpg', 100, 100);
-        $path  = 'profile_images/'.$file->hashName();
+        $path = 'profile_images/'.$file->hashName();
         $path2 = 'profile_images/'.$file2->hashName();
 
         // Upload first image
@@ -1109,7 +1109,7 @@ class UserTest extends TestCase
         $this->assertEquals($path, $user->image);
 
         // Upload a new image
-        $changes['image']      = $file2;
+        $changes['image'] = $file2;
         $changes['updated_at'] = $user->updated_at;
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
@@ -1125,7 +1125,7 @@ class UserTest extends TestCase
         Storage::disk('public')->assertMissing($path);
 
         // Delete image
-        $changes['image']      = null;
+        $changes['image'] = null;
         $changes['updated_at'] = $user->updated_at;
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
@@ -1143,11 +1143,11 @@ class UserTest extends TestCase
         $user = User::factory()->create();
 
         $externalUser = User::factory()->create([
-            'external_id'   => $this->faker->unique()->userName,
+            'external_id' => $this->faker->unique()->userName,
             'authenticator' => 'ldap',
-            'email'         => $this->faker->unique()->safeEmail,
-            'firstname'     => $this->faker->firstName,
-            'lastname'      => $this->faker->lastName
+            'email' => $this->faker->unique()->safeEmail,
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
         ]);
 
         $this->assertDatabaseCount('users', 2);
@@ -1163,16 +1163,16 @@ class UserTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $user]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'firstname'     => $user->firstname,
-                'lastname'      => $user->lastname,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
                 'authenticator' => 'local',
-                'image'         => null,
+                'image' => null,
             ]);
 
         // Not existing user
         $role = Role::factory()->create();
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.view' ]);
+        $permission = Permission::firstOrCreate(['name' => 'users.view']);
         $role->permissions()->attach($permission->id);
 
         $role->users()->attach([$externalUser->id, $user->id]);
@@ -1184,10 +1184,10 @@ class UserTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $externalUser]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'firstname'     => $externalUser->firstname,
-                'lastname'      => $externalUser->lastname,
+                'firstname' => $externalUser->firstname,
+                'lastname' => $externalUser->lastname,
                 'authenticator' => 'ldap',
-                'roles'         => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]]
+                'roles' => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]],
             ]);
 
         // Check user image path
@@ -1196,24 +1196,24 @@ class UserTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $user]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'firstname'     => $user->firstname,
-                'lastname'      => $user->lastname,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
                 'authenticator' => 'local',
-                'image'         => $user->imageUrl,
+                'image' => $user->imageUrl,
             ]);
     }
 
     public function testDelete()
     {
         $userToDelete = User::factory()->create();
-        $user         = User::factory()->create();
+        $user = User::factory()->create();
 
         $externalUser = User::factory()->create([
-            'external_id'   => $this->faker->unique()->userName,
+            'external_id' => $this->faker->unique()->userName,
             'authenticator' => 'ldap',
-            'email'         => $this->faker->unique()->safeEmail,
-            'firstname'     => $this->faker->firstName,
-            'lastname'      => $this->faker->lastName
+            'email' => $this->faker->unique()->safeEmail,
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
         ]);
 
         $this->assertDatabaseCount('users', 3);
@@ -1236,7 +1236,7 @@ class UserTest extends TestCase
         $role = Role::factory()->create();
         $role->users()->attach([$userToDelete->id, $user->id]);
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
+        $permission = Permission::firstOrCreate(['name' => 'users.delete']);
         $role->permissions()->attach($permission->id);
 
         $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => $userToDelete]))
@@ -1252,13 +1252,13 @@ class UserTest extends TestCase
     public function testResetPassword()
     {
         config([
-            'auth.local.enabled'    => true
+            'auth.local.enabled' => true,
         ]);
 
         $resetUser = User::factory()->create([
             'initial_password_set' => true,
-            'authenticator'        => 'ldap',
-            'locale'               => 'de'
+            'authenticator' => 'ldap',
+            'locale' => 'de',
         ]);
         $user = User::factory()->create();
 
@@ -1270,7 +1270,7 @@ class UserTest extends TestCase
 
         $role = Role::factory()->create();
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
         $role->permissions()->attach($permission->id);
 
         $role->users()->attach([$user->id]);
@@ -1296,15 +1296,15 @@ class UserTest extends TestCase
         // Check if requesting reset immediately after another reset request is not possible
         Notification::fake();
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
-            ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED);
+            ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED->value);
         Notification::assertNotSentTo($resetUser, PasswordReset::class);
 
         // Check if disabled if local authenticator is disabled
         config([
-            'auth.local.enabled'    => false
+            'auth.local.enabled' => false,
         ]);
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
-        ->assertNotFound();
+            ->assertNotFound();
     }
 
     public function testCreateUserWithGeneratedPassword()
@@ -1312,22 +1312,22 @@ class UserTest extends TestCase
         $user = User::factory()->create();
         $role = Role::factory()->create();
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
+        $permission = Permission::firstOrCreate(['name' => 'users.create']);
         $role->permissions()->attach($permission->id);
 
         $role->users()->attach([$user->id]);
 
         Notification::fake();
         $response = $this->actingAs($user)->postJson(route('api.v1.users.store', [
-            'firstname'             => $this->faker->firstName,
-            'lastname'              => $this->faker->lastName,
-            'user_locale'           => 'de',
-            'email'                 => $this->faker->email,
-            'generate_password'     => true,
-            'roles'                 => [$role->id],
-            'authenticator'         => 'local',
-            'bbb_skip_check_audio'  => false,
-            'timezone'              => 'UTC'
+            'firstname' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'user_locale' => 'de',
+            'email' => $this->faker->email,
+            'generate_password' => true,
+            'roles' => [$role->id],
+            'authenticator' => 'local',
+            'bbb_skip_check_audio' => false,
+            'timezone' => 'UTC',
         ]))
             ->assertSuccessful();
         $newUser = User::find($response->json('data.id'));

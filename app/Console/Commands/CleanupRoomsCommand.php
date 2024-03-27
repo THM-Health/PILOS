@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Log;
 
-class CleanupRooms extends Command
+class CleanupRoomsCommand extends Command
 {
     protected $signature = 'cleanup:rooms';
 
@@ -16,13 +16,13 @@ class CleanupRooms extends Command
 
     public function handle()
     {
-        if (!setting('room_auto_delete.enabled') || (setting('room_auto_delete.inactive_period') == -1 && setting('room_auto_delete.never_used_period') == -1)) {
+        if (! setting('room_auto_delete.enabled') || (setting('room_auto_delete.inactive_period') == -1 && setting('room_auto_delete.never_used_period') == -1)) {
             return;
         }
 
-        $lastStartDate     = now()->subDays(setting('room_auto_delete.inactive_period'));
-        $createdDate       = now()->subDays(setting('room_auto_delete.never_used_period'));
-        $timeToDeleteDate  = now()->addDays(setting('room_auto_delete.deadline_period'));
+        $lastStartDate = now()->subDays(setting('room_auto_delete.inactive_period'));
+        $createdDate = now()->subDays(setting('room_auto_delete.never_used_period'));
+        $timeToDeleteDate = now()->addDays(setting('room_auto_delete.deadline_period'));
 
         // Find ids of rooms that have never been used of the last meeting was a long time ago
         $inactiveRoomIDs = DB::table('rooms')
@@ -36,19 +36,19 @@ class CleanupRooms extends Command
                         $query->where('meetings.start', '<', $lastStartDate);
                     }
                 })
-                ->orWhere(function ($query) use ($createdDate) {
-                    if (setting('room_auto_delete.never_used_period') != -1) {
-                        $query->where('rooms.created_at', '<', $createdDate)
-                               ->whereNull('meetings.start');
-                    }
-                });
+                    ->orWhere(function ($query) use ($createdDate) {
+                        if (setting('room_auto_delete.never_used_period') != -1) {
+                            $query->where('rooms.created_at', '<', $createdDate)
+                                ->whereNull('meetings.start');
+                        }
+                    });
             })
             ->pluck('rooms.id');
 
         // Load rooms, set delete date and send an email notification to the room owner
         Log::info('Notifying '.count($inactiveRoomIDs).' room owners about their unused rooms');
         foreach ($inactiveRoomIDs as $inactiveRoomID) {
-            $room                  = Room::find($inactiveRoomID);
+            $room = Room::find($inactiveRoomID);
             $room->delete_inactive = $timeToDeleteDate;
             $room->save();
 

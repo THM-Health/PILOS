@@ -26,8 +26,7 @@ class LDAPProvider extends EloquentUserProvider
     /**
      * Create a new ldap user provider.
      *
-     * @param  \Illuminate\Contracts\Hashing\Hasher $hasher
-     * @param  string                               $model
+     * @param  string  $model
      * @return void
      */
     public function __construct(Hasher $hasher, $model)
@@ -38,7 +37,7 @@ class LDAPProvider extends EloquentUserProvider
     /**
      * Retrieve a user by their unique identifier.
      *
-     * @param  mixed                                           $identifier
+     * @param  mixed  $identifier
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveById($identifier)
@@ -49,8 +48,8 @@ class LDAPProvider extends EloquentUserProvider
     /**
      * Retrieve a user by their unique identifier and "remember me" token.
      *
-     * @param  mixed                                           $identifier
-     * @param  string                                          $token
+     * @param  mixed  $identifier
+     * @param  string  $token
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveByToken($identifier, $token)
@@ -61,8 +60,7 @@ class LDAPProvider extends EloquentUserProvider
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable $user
-     * @param  string                                     $token
+     * @param  string  $token
      * @return void
      */
     public function updateRememberToken(Authenticatable $user, $token)
@@ -70,17 +68,21 @@ class LDAPProvider extends EloquentUserProvider
         $this->eloquent->updateRememberToken($user, $token);
     }
 
+    public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): void
+    {
+        $this->eloquent->rehashPasswordIfRequired($user, $credentials, $force);
+    }
+
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param  array                                           $credentials
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveByCredentials(array $credentials)
     {
         // Find ldap user by username
         $user = LDAPUserObject::where(config('ldap.login_attribute'), $credentials['username'])->first();
-    
+
         // User not found
         if (! $user) {
             return null;
@@ -98,8 +100,6 @@ class LDAPProvider extends EloquentUserProvider
     /**
      * Validate a user against the given credentials.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable $user
-     * @param  array                                      $credentials
      * @return bool
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
@@ -108,7 +108,7 @@ class LDAPProvider extends EloquentUserProvider
         if (! $this->user->getConnection()->auth()->attempt($this->user->getDn(), $credentials['password'], true)) {
             return false;
         }
-        
+
         // If attributes should be loaded as user, refresh the user model
         // The previous bind (with the user's credentials) will be used
         if (config('ldap.load_attributes_as_user')) {

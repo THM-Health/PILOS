@@ -20,7 +20,7 @@ class User extends JsonResource
     /**
      * User resource constructor.
      *
-     * @param \App\Models\User $resource The user model that should be transformed.
+     * @param  \App\Models\User  $resource  The user model that should be transformed.
      */
     public function __construct($resource)
     {
@@ -54,7 +54,7 @@ class User extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
@@ -64,26 +64,26 @@ class User extends JsonResource
         }
 
         return [
-            'id'            => $this->id,
+            'id' => $this->id,
             'authenticator' => $this->authenticator,
-            'image'         => $this->imageUrl,
-            'email'         => $this->email,
-            'external_id'   => $this->external_id,
-            'firstname'     => $this->firstname,
-            'lastname'      => $this->lastname,
-            'user_locale'   => $this->locale,
-            'permissions'   => $this->when($this->withPermissions, function () {
+            'image' => $this->imageUrl,
+            'email' => $this->email,
+            'external_id' => $this->external_id,
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'user_locale' => $this->locale,
+            'permissions' => $this->when($this->withPermissions, function () {
                 return $this->permissions;
             }),
-            'model_name'    => $this->model_name,
-            'room_limit'    => $this->room_limit,
-            'updated_at'    => $this->updated_at,
-            'roles'         => $this->when(!$this->withoutRoles, function () {
+            'model_name' => $this->model_name,
+            'room_limit' => $this->room_limit,
+            'updated_at' => $this->updated_at,
+            'roles' => $this->when(! $this->withoutRoles, function () {
                 return new RoleCollection($this->roles);
             }),
             'bbb_skip_check_audio' => $this->bbb_skip_check_audio,
             'initial_password_set' => $this->initial_password_set,
-            'timezone'             => $this->timezone
+            'timezone' => $this->timezone,
         ];
     }
 }

@@ -25,12 +25,13 @@ class Recording extends Model
     public $incrementing = false;
 
     protected $casts = [
-        'start'  => 'datetime',
-        'end'    => 'datetime'
+        'start' => 'datetime',
+        'end' => 'datetime',
     ];
 
     /**
      * Meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function room()
@@ -40,6 +41,7 @@ class Recording extends Model
 
     /**
      * Meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function meeting()
@@ -49,6 +51,7 @@ class Recording extends Model
 
     /**
      * Meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function formats()
@@ -58,7 +61,9 @@ class Recording extends Model
 
     /**
      * Delete recording from database and storage
+     *
      * @return bool|null
+     *
      * @throws \Exception
      */
     public function delete()

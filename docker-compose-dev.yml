@@ -39,6 +39,8 @@ services:
             condition: service_healthy
     cron:
       <<: *app-image
+      env_file:
+        - .env      
       entrypoint: [ 'pilos-cli', 'run:cron' ]
       volumes:
         - './:/var/www/html/'
@@ -47,6 +49,8 @@ services:
           condition: service_healthy
     horizon:
       <<: *app-image
+      env_file:
+        - .env      
       entrypoint: [ 'pilos-cli', 'run:horizon' ]
       volumes:
         - './:/var/www/html/'

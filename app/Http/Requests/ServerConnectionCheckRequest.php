@@ -9,8 +9,8 @@ class ServerConnectionCheckRequest extends FormRequest
     public function rules()
     {
         return [
-            'base_url'      => ['required', 'url', 'string', 'max:255'],
-            'secret'        => ['required', 'string', 'max:255'],
+            'base_url' => ['required', 'url', 'string', 'max:255'],
+            'secret' => ['required', 'string', 'max:255'],
         ];
     }
 }

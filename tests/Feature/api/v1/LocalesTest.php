@@ -41,9 +41,9 @@ class LocalesTest extends TestCase
         $this->withoutMix();
 
         config([
-            'app.enabled_locales'   => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
-            'app.fallback_locale'   => 'ru',
-            'app.locale'            => 'en'
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []], 'fr' => ['name' => 'Français', 'dateTimeFormat' => []]],
+            'app.fallback_locale' => 'ru',
+            'app.locale' => 'en',
         ]);
     }
 
@@ -55,7 +55,7 @@ class LocalesTest extends TestCase
     public function testNotExistingLocaleInAcceptHeader()
     {
         $response = $this->withHeaders([
-            'Accept-Language' => 'foo'
+            'Accept-Language' => 'foo',
         ])->get('/');
         $response->assertSee('<html lang="ru">', false);
     }
@@ -69,14 +69,14 @@ class LocalesTest extends TestCase
     public function testLocaleOfAuthenticatedUser()
     {
         $user = User::factory()->create([
-            'password' => Hash::make('bar')
+            'password' => Hash::make('bar'),
         ]);
         $response = $this->actingAs($user)->withHeaders([
-            'Accept-Language' => ''
+            'Accept-Language' => '',
         ])->get('/');
         $response->assertSee('<html lang="ru">', false);
 
-        $user->update(['locale' => 'de' ]);
+        $user->update(['locale' => 'de']);
         $response = $this->actingAs($user)->get('/');
         $response->assertSee('<html lang="de">', false);
     }
@@ -89,7 +89,7 @@ class LocalesTest extends TestCase
     public function testLocalePersistedInSession()
     {
         $response = $this->session([
-            'locale' => 'de'
+            'locale' => 'de',
         ])->get('/');
         $response->assertSee('<html lang="de">', false);
     }
@@ -103,9 +103,9 @@ class LocalesTest extends TestCase
     public function testLocaleInHeaderAndSession()
     {
         $response = $this->session([
-            'locale' => 'de'
+            'locale' => 'de',
         ])->withHeaders([
-            'Accept-Language' => 'fr'
+            'Accept-Language' => 'fr',
         ])->get('/');
         $response->assertSee('<html lang="de">', false);
     }
@@ -120,7 +120,7 @@ class LocalesTest extends TestCase
     public function testLocaleInHeader()
     {
         $response = $this->withHeaders([
-            'Accept-Language' => 'de'
+            'Accept-Language' => 'de',
         ])->get('/');
         $response->assertSee('<html lang="de">', false);
     }
@@ -135,12 +135,12 @@ class LocalesTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => Hash::make('bar'),
-            'locale'   => 'fr'
+            'locale' => 'fr',
         ]);
         $response = $this->actingAs($user)->session([
-            'locale' => 'es'
+            'locale' => 'es',
         ])->withHeaders([
-            'Accept-Language' => 'be'
+            'Accept-Language' => 'be',
         ])->get('/');
         $response->assertSee('<html lang="fr">', false);
     }
@@ -155,18 +155,18 @@ class LocalesTest extends TestCase
     public function testSetLocale()
     {
         $response = $this->withHeaders([
-            'Accept-Language' => ''
+            'Accept-Language' => '',
         ])->get('/');
         $response->assertSee('<html lang="ru">', false);
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
-            'locale' => 'us'
+            'locale' => 'us',
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['locale']);
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
-            'locale' => 'fr'
+            'locale' => 'fr',
         ]);
         $response->assertOk();
 
@@ -184,25 +184,25 @@ class LocalesTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => Hash::make('bar'),
-            'locale'   => 'fr'
+            'locale' => 'fr',
         ]);
         $response = $this->actingAs($user)->session([
-            'locale' => 'es'
+            'locale' => 'es',
         ])->withHeaders([
-            'Accept-Language' => 'be'
+            'Accept-Language' => 'be',
         ])->from(config('app.url'))->get('/');
         $response->assertSee('<html lang="fr">', false);
 
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
-            'locale' => 'de'
+            'locale' => 'de',
         ]);
         $response->assertOk();
 
         $response = $this->actingAs($user)->from(config('app.url'))->get('/');
         $response->assertSee('<html lang="de">', false);
         $this->assertDatabaseHas('users', [
-            'id'     => $user->id,
-            'locale' => 'de'
+            'id' => $user->id,
+            'locale' => 'de',
         ]);
     }
 
@@ -211,20 +211,20 @@ class LocalesTest extends TestCase
         $fake = DirectoryEmulator::setup('default');
 
         $externalUser = LdapUser::create([
-            'givenName'              => $this->faker->firstName,
-            'sn'                     => $this->faker->lastName,
-            'cn'                     => $this->faker->name,
-            'mail'                   => $this->faker->unique()->safeEmail,
-            'uid'                    => $this->faker->unique()->userName,
-            'entryuuid'              => $this->faker->uuid,
-            'password'
+            'givenName' => $this->faker->firstName,
+            'sn' => $this->faker->lastName,
+            'cn' => $this->faker->name,
+            'mail' => $this->faker->unique()->safeEmail,
+            'uid' => $this->faker->unique()->userName,
+            'entryuuid' => $this->faker->uuid,
+            'password',
         ]);
 
         $fake->actingAs($externalUser);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $externalUser->uid[0],
-            'password' => 'secret'
+            'password' => 'secret',
         ]);
 
         $externalUser = User::where(['authenticator' => 'ldap'])->first();
@@ -235,24 +235,24 @@ class LocalesTest extends TestCase
     public function testLocaleDataInvalid()
     {
         $this->getJson(route('api.v1.locale.get', [
-            'locale' => 'invalid'
+            'locale' => 'invalid',
         ]))->assertNotFound();
     }
 
     public function testLocaleData()
     {
         $content = [
-            'key1' => 'value1'
+            'key1' => 'value1',
         ];
 
         $this->mock(LocaleService::class)
-        ->shouldReceive('getJsonLocale')
+            ->shouldReceive('getJsonLocale')
             ->once()
             ->with('de')
             ->andReturn(json_encode($content));
 
         $response = $this->getJson(route('api.v1.locale.get', [
-            'locale' => 'de'
+            'locale' => 'de',
         ]));
 
         $this->assertEquals($content, $response->json('data'));

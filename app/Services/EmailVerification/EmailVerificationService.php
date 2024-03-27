@@ -2,8 +2,8 @@
 
 namespace App\Services\EmailVerification;
 
-use App\Models\VerifyEmail;
 use App\Models\User;
+use App\Models\VerifyEmail;
 use App\Notifications\EmailChanged;
 use App\Notifications\VerifyEmail as VerifyEmailNotification;
 use Illuminate\Support\Carbon;
@@ -32,7 +32,7 @@ class EmailVerificationService
         $token = $this->createToken($newEmail);
 
         Notification::route('mail', [
-            $newEmail => $this->user->fullname
+            $newEmail => $this->user->fullname,
         ])->notifyNow((new VerifyEmailNotification($token, $this->user->timezone))->locale($this->user->locale));
 
         return true;
@@ -40,8 +40,6 @@ class EmailVerificationService
 
     /**
      * Determine if the given user recently created an email change request.
-     *
-     * @return bool
      */
     public function recentlyCreated(): bool
     {
@@ -65,7 +63,7 @@ class EmailVerificationService
             return false;
         }
 
-        if (!Hash::check($token, $emailChange->token)) {
+        if (! Hash::check($token, $emailChange->token)) {
             return false;
         }
 
@@ -76,14 +74,14 @@ class EmailVerificationService
 
     public function changeEmail(string $newEmail)
     {
-        $oldEmail          = $this->user->email;
+        $oldEmail = $this->user->email;
         $this->user->email = $newEmail;
         $this->user->save();
 
         $this->user->verifyEmails()->delete();
 
         Notification::route('mail', [
-            $oldEmail => $this->user->fullname
+            $oldEmail => $this->user->fullname,
         ])->notify((new EmailChanged($this->user->email, $this->user->fullname))->locale($this->user->locale));
     }
 
@@ -96,8 +94,8 @@ class EmailVerificationService
         $this->user->verifyEmails()->delete();
 
         $clearTextToken = Str::random(40);
-        $token          = Hash::make($clearTextToken);
-        $verifyEmail    = new VerifyEmail();
+        $token = Hash::make($clearTextToken);
+        $verifyEmail = new VerifyEmail();
         $verifyEmail->user()->associate($this->user);
         $verifyEmail->email = $newEmail;
         $verifyEmail->token = $token;

@@ -3,9 +3,9 @@
 namespace Tests\Unit;
 
 use App\Services\LocaleService;
+use Cache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Cache;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
@@ -16,19 +16,19 @@ class LocaleServiceTest extends TestCase
     public function testBuildCache()
     {
         config([
-            'app.enabled_locales'   => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
 
         $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
             $mock->shouldReceive('buildJsonLocale')
-             ->once()
-             ->with('de')
-             ->andReturn("{ 'key1': 'value1' }");
+                ->once()
+                ->with('de')
+                ->andReturn("{ 'key1': 'value1' }");
 
             $mock->shouldReceive('buildJsonLocale')
-            ->once()
-            ->with('en')
-            ->andReturn("{ 'key2': 'value2' }");
+                ->once()
+                ->with('en')
+                ->andReturn("{ 'key2': 'value2' }");
         });
 
         $this->instance(
@@ -54,15 +54,15 @@ class LocaleServiceTest extends TestCase
     public function testJsonLocale()
     {
         config([
-            'app.enabled_locales'   => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
+            'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
         ]);
 
         // Mock the result of building the locale for the german locale
         $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
             $mock->shouldReceive('buildJsonLocale')
-             ->once()
-             ->with('de')
-             ->andReturn("{ 'key1': 'wert_1' }");
+                ->once()
+                ->with('de')
+                ->andReturn("{ 'key1': 'wert_1' }");
         });
 
         $this->instance(
@@ -101,8 +101,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJson()
     {
         config([
-            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir' => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir' => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);
@@ -115,8 +115,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJsonWithCustom()
     {
         config([
-            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir' => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir' => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);
@@ -129,8 +129,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJsonWithFallback()
     {
         config([
-            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir' => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir' => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);
@@ -143,8 +143,8 @@ class LocaleServiceTest extends TestCase
     public function testBuildJsonWithFallbackAndCustom()
     {
         config([
-            'app.default_locale_dir'        => base_path('tests/Fixtures/Locales/default'),
-            'app.custom_locale_dir'         => base_path('tests/Fixtures/Locales/custom'),
+            'app.default_locale_dir' => base_path('tests/Fixtures/Locales/default'),
+            'app.custom_locale_dir' => base_path('tests/Fixtures/Locales/custom'),
         ]);
 
         $localeService = $this->app->make(LocaleService::class);

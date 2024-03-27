@@ -17,6 +17,7 @@ class RoomTokenTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected $user;
+
     protected $room;
 
     /**
@@ -36,11 +37,11 @@ class RoomTokenTest extends TestCase
 
         RoomToken::query()->delete();
         RoomToken::factory()->count(10)->create([
-            'room_id' => $this->room
+            'room_id' => $this->room,
         ]);
         $moderatorToken = RoomToken::factory()->create([
             'room_id' => $this->room,
-            'role'    => RoomUserRole::MODERATOR
+            'role' => RoomUserRole::MODERATOR,
         ]);
 
         RoomToken::factory()->count(10)->create();
@@ -55,12 +56,12 @@ class RoomTokenTest extends TestCase
             ->assertUnauthorized();
 
         // Testing moderator member
-        $this->room->members()->sync([$this->user->id =>  ['role' => RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))
             ->assertForbidden();
 
         // Testing co-owner member
-        $this->room->members()->sync([$this->user->id =>  ['role' => RoomUserRole::CO_OWNER]]);
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))
             ->assertSuccessful()
             ->assertJsonStructure(['data' => [
@@ -69,8 +70,8 @@ class RoomTokenTest extends TestCase
                     'firstname',
                     'lastname',
                     'role',
-                    'expires'
-                ]
+                    'expires',
+                ],
             ]])
             ->assertJsonCount(11, 'data');
 
@@ -86,8 +87,8 @@ class RoomTokenTest extends TestCase
                     'firstname',
                     'lastname',
                     'role',
-                    'expires'
-                ]
+                    'expires',
+                ],
             ]])
             ->assertJsonCount(11, 'data');
 
@@ -102,14 +103,14 @@ class RoomTokenTest extends TestCase
                     'firstname',
                     'lastname',
                     'role',
-                    'expires'
-                ]
+                    'expires',
+                ],
             ]])
             ->assertJsonCount(11, 'data');
 
         // Check expire date
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
-        $token   = RoomToken::find($results[0]['token']);
+        $token = RoomToken::find($results[0]['token']);
         self::assertEquals($token->created_at->addMinutes(90)->toISOString(), $results[0]['expires']);
 
         setting(['room_token_expiration' => -1]);
@@ -122,12 +123,12 @@ class RoomTokenTest extends TestCase
         RoomToken::query()->delete();
         $moderatorToken = RoomToken::factory()->create([
             'room_id' => $this->room,
-            'role'    => RoomUserRole::MODERATOR
+            'role' => RoomUserRole::MODERATOR,
         ]);
         $payload = [
             'firstname' => 1,
-            'lastname'  => 1,
-            'role'      => 'test'
+            'lastname' => 1,
+            'role' => 'test',
         ];
 
         // Create as guest
@@ -152,21 +153,21 @@ class RoomTokenTest extends TestCase
             ->assertJsonValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
 
         // Create as co-owner valid data
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname'  => $this->faker->lastName,
-            'role'      => RoomUserRole::USER
+            'lastname' => $this->faker->lastName,
+            'role' => RoomUserRole::USER,
         ];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.tokens.add', ['room' => $this->room]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
 
         // Create as owner
@@ -175,7 +176,7 @@ class RoomTokenTest extends TestCase
             ->assertJsonMissingValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
 
         // Create with viewAllPermission
@@ -186,7 +187,7 @@ class RoomTokenTest extends TestCase
             ->assertJsonMissingValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
     }
 
@@ -197,16 +198,16 @@ class RoomTokenTest extends TestCase
 
         $token = RoomToken::factory()->create([
             'room_id' => $this->room,
-            'role'    => RoomUserRole::MODERATOR
+            'role' => RoomUserRole::MODERATOR,
         ]);
         $moderatorToken = RoomToken::factory()->create([
             'room_id' => $this->room,
-            'role'    => RoomUserRole::MODERATOR
+            'role' => RoomUserRole::MODERATOR,
         ]);
         $payload = [
             'firstname' => 1,
-            'lastname'  => 1,
-            'role'      => 'test'
+            'lastname' => 1,
+            'role' => 'test',
         ];
 
         // Update as guest
@@ -231,44 +232,44 @@ class RoomTokenTest extends TestCase
             ->assertJsonValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
 
         // Update as co-owner valid data
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname'  => $this->faker->lastName,
-            'role'      => RoomUserRole::USER
+            'lastname' => $this->faker->lastName,
+            'role' => RoomUserRole::USER,
         ];
         $response = $this->actingAs($this->user)->putJson(route('api.v1.rooms.tokens.update', ['room' => $this->room, 'token' => $token]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
         $token = RoomToken::find($response['data']['token']);
 
         // Update as owner
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname'  => $this->faker->lastName,
-            'role'      => RoomUserRole::USER
+            'lastname' => $this->faker->lastName,
+            'role' => RoomUserRole::USER,
         ];
         $response = $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.tokens.update', ['room' => $this->room, 'token' => $token]), $payload)
             ->assertSuccessful()
             ->assertJsonMissingValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
         $token = RoomToken::find($response['data']['token']);
 
         // Update with viewAllPermission
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname'  => $this->faker->lastName,
-            'role'      => RoomUserRole::USER
+            'lastname' => $this->faker->lastName,
+            'role' => RoomUserRole::USER,
         ];
         $this->room->members()->sync([]);
         $this->user->roles()->attach(Role::where(['superuser' => true])->first());
@@ -277,7 +278,7 @@ class RoomTokenTest extends TestCase
             ->assertJsonMissingValidationErrors([
                 'firstname',
                 'lastname',
-                'role'
+                'role',
             ]);
 
         // Check trying to update with wrong room id
@@ -290,11 +291,11 @@ class RoomTokenTest extends TestCase
         $otherRoom = Room::factory()->create();
         RoomToken::query()->delete();
         $token = RoomToken::factory()->create([
-            'room_id' => $this->room
+            'room_id' => $this->room,
         ]);
         $moderatorToken = RoomToken::factory()->create([
             'room_id' => $this->room,
-            'role'    => RoomUserRole::MODERATOR
+            'role' => RoomUserRole::MODERATOR,
         ]);
 
         // Delete as guest
@@ -307,7 +308,7 @@ class RoomTokenTest extends TestCase
             ->assertUnauthorized();
 
         // Delete as moderator
-        $this->room->members()->sync([$this->user->id =>['role' => RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertForbidden();
 
@@ -322,7 +323,7 @@ class RoomTokenTest extends TestCase
 
         // Delete as owner
         $token = RoomToken::factory()->create([
-            'room_id' => $this->room
+            'room_id' => $this->room,
         ]);
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertSuccessful();
@@ -333,7 +334,7 @@ class RoomTokenTest extends TestCase
         $this->room->members()->sync([]);
         $this->user->roles()->attach(Role::where(['superuser' => true])->first());
         $token = RoomToken::factory()->create([
-            'room_id' => $this->room
+            'room_id' => $this->room,
         ]);
 
         // Check trying to delete with wrong room id

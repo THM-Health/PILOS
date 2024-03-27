@@ -20,7 +20,7 @@ use function Laravel\Prompts\progress;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
-class ImportGreenlight2 extends Command
+class ImportGreenlight2Command extends Command
 {
     protected $signature = 'import:greenlight-v2
                              {host : ip or hostname of postgres database server}
@@ -34,26 +34,26 @@ class ImportGreenlight2 extends Command
     public function handle()
     {
         Config::set('database.connections.greenlight', [
-            'driver'         => 'pgsql',
-            'host'           => $this->argument('host'),
-            'database'       => $this->argument('database'),
-            'username'       => $this->argument('username'),
-            'password'       => $this->argument('password'),
-            'port'           => $this->argument('port'),
-            'charset'        => 'utf8',
-            'prefix'         => '',
+            'driver' => 'pgsql',
+            'host' => $this->argument('host'),
+            'database' => $this->argument('database'),
+            'username' => $this->argument('username'),
+            'password' => $this->argument('password'),
+            'port' => $this->argument('port'),
+            'charset' => 'utf8',
+            'prefix' => '',
             'prefix_indexes' => true,
-            'schema'         => 'public',
-            'sslmode'        => 'prefer',
+            'schema' => 'public',
+            'sslmode' => 'prefer',
         ]);
 
-        $requireAuth    = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')?->value == true;
-        $users          = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest']);
-        $rooms          = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
+        $requireAuth = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')?->value == true;
+        $users = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest']);
+        $rooms = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
-        $availableAuthenticators  = ['shibboleth'];
-        $socialProviders          = DB::connection('greenlight')->table('users')->select('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->distinct()->get();
+        $availableAuthenticators = ['shibboleth'];
+        $socialProviders = DB::connection('greenlight')->table('users')->select('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->distinct()->get();
         $providerAuthenticatorMap = [];
 
         foreach ($socialProviders as $socialProvider) {
@@ -91,7 +91,7 @@ class ImportGreenlight2 extends Command
 
         try {
             $userMap = $this->importUsers($users, $defaultRole, $providerAuthenticatorMap);
-            $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth, $prefix);
+            $roomMap = $this->importRooms($rooms, $roomType, $userMap, ! $requireAuth, $prefix);
             $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
 
             if (confirm('Do you wish to commit the import?')) {
@@ -101,7 +101,7 @@ class ImportGreenlight2 extends Command
                 DB::rollBack();
                 $this->warn('Import canceled; nothing was imported');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             $this->error('Import failed: '.$e->getMessage());
         }
@@ -110,14 +110,14 @@ class ImportGreenlight2 extends Command
     /**
      * Process greenlight user collection and try to import users
      *
-     * @param  Collection $users       Collection with all users found in the greenlight database
-     * @param  int        $defaultRole IDs of the role that should be assigned to new non-ldap users
-     * @return array      Array map of greenlight user ids as key and id of the found/created user as value
+     * @param  Collection  $users  Collection with all users found in the greenlight database
+     * @param  int  $defaultRole  IDs of the role that should be assigned to new non-ldap users
+     * @return array Array map of greenlight user ids as key and id of the found/created user as value
      */
     protected function importUsers(Collection $users, int $defaultRole, array $providerAuthenticatorMap): array
     {
         $this->line('Importing users');
-        $userMap  = [];
+        $userMap = [];
 
         $bar = progress(label: 'Importing users', steps: $users->count());
         $bar->start();
@@ -139,16 +139,16 @@ class ImportGreenlight2 extends Command
                     $bar->advance();
                 } else {
                     // create new user
-                    $dbUser                = new User();
+                    $dbUser = new User();
                     $dbUser->authenticator = 'local';
-                    $dbUser->email         = $user->email;
+                    $dbUser->email = $user->email;
                     // as greenlight doesn't split the name in first and lastname,
                     // we have to import it as firstname and ask the users or admins to correct it later if desired
-                    $dbUser->firstname     = $user->name;
-                    $dbUser->lastname      = '';
-                    $dbUser->password      = $user->password_digest;
-                    $dbUser->locale        = config('app.locale');
-                    $dbUser->timezone      = setting('default_timezone');
+                    $dbUser->firstname = $user->name;
+                    $dbUser->lastname = '';
+                    $dbUser->password = $user->password_digest;
+                    $dbUser->locale = config('app.locale');
+                    $dbUser->timezone = setting('default_timezone');
                     $dbUser->save();
 
                     $dbUser->roles()->attach($defaultRole);
@@ -170,17 +170,17 @@ class ImportGreenlight2 extends Command
                     $bar->advance();
                 } else {
                     // create new user
-                    $dbUser                = new User();
+                    $dbUser = new User();
                     $dbUser->authenticator = 'ldap';
-                    $dbUser->email         = $user->email;
-                    $dbUser->external_id   = $user->username;
+                    $dbUser->email = $user->email;
+                    $dbUser->external_id = $user->username;
                     // as greenlight doesn't split the name in first and lastname,
                     // we have to import it as firstname, should be corrected during next login
-                    $dbUser->firstname     = $user->name;
-                    $dbUser->lastname      = '';
-                    $dbUser->password      = Hash::make(Str::random());
-                    $dbUser->locale        = config('app.locale');
-                    $dbUser->timezone      = setting('default_timezone');
+                    $dbUser->firstname = $user->name;
+                    $dbUser->lastname = '';
+                    $dbUser->password = Hash::make(Str::random());
+                    $dbUser->locale = config('app.locale');
+                    $dbUser->timezone = setting('default_timezone');
                     $dbUser->save();
 
                     // user was successfully imported, link greenlight user id to id of new user
@@ -198,17 +198,17 @@ class ImportGreenlight2 extends Command
                     $bar->advance();
                 } else {
                     // create new user
-                    $dbUser                = new User();
+                    $dbUser = new User();
                     $dbUser->authenticator = $providerAuthenticatorMap[$user->provider];
-                    $dbUser->email         = $user->email;
-                    $dbUser->external_id   = $user->social_uid;
+                    $dbUser->email = $user->email;
+                    $dbUser->external_id = $user->social_uid;
                     // as greenlight doesn't split the name in first and lastname,
                     // we have to import it as firstname, should be corrected during next login
-                    $dbUser->firstname     = $user->name;
-                    $dbUser->lastname      = '';
-                    $dbUser->password      = Hash::make(Str::random());
-                    $dbUser->locale        = config('app.locale');
-                    $dbUser->timezone      = setting('default_timezone');
+                    $dbUser->firstname = $user->name;
+                    $dbUser->lastname = '';
+                    $dbUser->password = Hash::make(Str::random());
+                    $dbUser->locale = config('app.locale');
+                    $dbUser->timezone = setting('default_timezone');
                     $dbUser->save();
 
                     // user was successfully imported, link greenlight user id to id of new user
@@ -223,7 +223,7 @@ class ImportGreenlight2 extends Command
 
         // show import results
         $this->line('');
-        $this->info($created. ' created, '.$existed. ' skipped (already existed)');
+        $this->info($created.' created, '.$existed.' skipped (already existed)');
 
         $this->line('');
 
@@ -233,12 +233,12 @@ class ImportGreenlight2 extends Command
     /**
      *  Process greenlight room collection and create the rooms if not already existing
      *
-     * @param  Collection  $rooms       Collection with rooms users found in the greenlight database
-     * @param  int         $roomType    ID of the roomtype the rooms should be assigned to
-     * @param  array       $userMap     Array map of greenlight user ids as key and id of the found/created user as value
-     * @param  bool        $allowGuests Are guests allowed to access the room
-     * @param  string|null $prefix      Prefix to add to room names
-     * @return array       Array map of greenlight room ids as key and id of the created room as value
+     * @param  Collection  $rooms  Collection with rooms users found in the greenlight database
+     * @param  int  $roomType  ID of the roomtype the rooms should be assigned to
+     * @param  array  $userMap  Array map of greenlight user ids as key and id of the found/created user as value
+     * @param  bool  $allowGuests  Are guests allowed to access the room
+     * @param  string|null  $prefix  Prefix to add to room names
+     * @return array Array map of greenlight room ids as key and id of the created room as value
      */
     protected function importRooms(Collection $rooms, int $roomType, array $userMap, bool $allowGuests, ?string $prefix): array
     {
@@ -254,7 +254,7 @@ class ImportGreenlight2 extends Command
         // list of rooms that could not be created, e.g. room owner not found
         $failed = [];
         // array with the key being the greenlight id and value the new object id
-        $roomMap  = [];
+        $roomMap = [];
 
         // walk through all found greenlight rooms
         foreach ($rooms as $room) {
@@ -274,24 +274,24 @@ class ImportGreenlight2 extends Command
             }
 
             // try to find owner of this room
-            if (!isset($userMap[$room->user_id])) {
+            if (! isset($userMap[$room->user_id])) {
                 // if owner was not found, eg. missing in the greenlight db or user import failed, don't import room
-                array_push($failed, [$room->name,$room->uid,$room->access_code]);
+                array_push($failed, [$room->name, $room->uid, $room->access_code]);
                 $bar->advance();
 
                 continue;
             }
 
             // create room with same id, same name, access code
-            $dbRoom               = new Room();
-            $dbRoom->id           = $room->uid;
-            $dbRoom->name         = Str::limit(($prefix != null ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
-            $dbRoom->access_code  = $room->access_code == '' ? null : $room->access_code;
+            $dbRoom = new Room();
+            $dbRoom->id = $room->uid;
+            $dbRoom->name = Str::limit(($prefix != null ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
+            $dbRoom->access_code = $room->access_code == '' ? null : $room->access_code;
             $dbRoom->allow_guests = $allowGuests;
 
             // set room settings
             if (isset($room->room_settings->muteOnStart)) {
-                $dbRoom->mute_on_start      = $room->room_settings->muteOnStart;
+                $dbRoom->mute_on_start = $room->room_settings->muteOnStart;
             }
             if (isset($room->room_settings->anyoneCanStart)) {
                 $dbRoom->everyone_can_start = $room->room_settings->anyoneCanStart;
@@ -299,11 +299,11 @@ class ImportGreenlight2 extends Command
 
             if (isset($room->room_settings->joinModerator)) {
                 // in greenlight all shared accesses result in the users being moderators in the meeting
-                $dbRoom->default_role      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
+                $dbRoom->default_role = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
             }
             if (isset($room->room_settings->requireModeratorApproval)) {
                 // in greenlight the lobby setting applies to all non-moderator users
-                $dbRoom->lobby      = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
+                $dbRoom->lobby = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
             }
 
             // associate room with the imported or found user
@@ -320,13 +320,13 @@ class ImportGreenlight2 extends Command
 
         // show import results
         $this->line('');
-        $this->info($created. ' created, '.$existed. ' skipped (already existed)');
+        $this->info($created.' created, '.$existed.' skipped (already existed)');
 
         // if any room imports failed, show room name, id and access code
         if (count($failed) > 0) {
             $this->line('');
 
-            $this->error('Room import failed for the following ' . count($failed) . ' rooms, because no room owner was found:');
+            $this->error('Room import failed for the following '.count($failed).' rooms, because no room owner was found:');
             $this->table(
                 ['Name', 'ID', 'Access code'],
                 $failed
@@ -341,9 +341,9 @@ class ImportGreenlight2 extends Command
      * Process greenlight shared room access collection and try to create the room membership for the users and rooms
      * Each user get the moderator role, as that is the greenlight equivalent
      *
-     * @param Collection $sharedAccesses Collection of user and room ids for shared room access
-     * @param array      $roomMap        Array map of greenlight room ids as key and id of the created room as value
-     * @param array      $userMap        Array map of greenlight user ids as key and id of the found/created user as value
+     * @param  Collection  $sharedAccesses  Collection of user and room ids for shared room access
+     * @param  array  $roomMap  Array map of greenlight room ids as key and id of the created room as value
+     * @param  array  $userMap  Array map of greenlight user ids as key and id of the found/created user as value
      */
     protected function importSharedAccesses(Collection $sharedAccesses, array $roomMap, array $userMap)
     {
@@ -355,7 +355,7 @@ class ImportGreenlight2 extends Command
         // counter of shared accesses that are created
         $created = 0;
         // counter of shared accesses that could not be created, eg. room or user not imported
-        $failed  = 0;
+        $failed = 0;
 
         // walk through all found greenlight shared accesses
         foreach ($sharedAccesses as $sharedAccess) {
@@ -363,7 +363,7 @@ class ImportGreenlight2 extends Command
             $user = $sharedAccess->user_id;
 
             // check if user id and room id are found in the imported rooms
-            if (!isset($userMap[$user]) || !isset($roomMap[$room])) {
+            if (! isset($userMap[$user]) || ! isset($roomMap[$room])) {
                 // one or both are not found
                 $bar->advance();
                 $failed++;
@@ -380,6 +380,6 @@ class ImportGreenlight2 extends Command
 
         // show import result
         $this->line('');
-        $this->info($created. ' created, '. $failed. ' skipped (user or room not found)');
+        $this->info($created.' created, '.$failed.' skipped (user or room not found)');
     }
 }

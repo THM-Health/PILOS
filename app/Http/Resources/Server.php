@@ -26,28 +26,29 @@ class Server extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'id'                         => $this->id,
-            'base_url'                   => $this->when($this->withApi, $this->base_url),
-            'secret'                     => $this->when($this->withApi, $this->secret),
-            'name'                       => $this->name,
-            'description'                => $this->description,
-            'strength'                   => $this->strength,
-            'status'                     => $this->status,
-            'participant_count'          => $this->participant_count,
-            'listener_count'             => $this->listener_count,
-            'voice_participant_count'    => $this->voice_participant_count,
-            'video_count'                => $this->video_count,
-            'meeting_count'              => $this->meeting_count,
-            'own_meeting_count'          => $this->meetings()->whereNull('end')->count(),
-            'version'                    => $this->version,
-            'model_name'                 => $this->model_name,
-            'updated_at'                 => $this->updated_at
+            'id' => $this->id,
+            'base_url' => $this->when($this->withApi, $this->base_url),
+            'secret' => $this->when($this->withApi, $this->secret),
+            'name' => $this->name,
+            'description' => $this->description,
+            'strength' => $this->strength,
+            'status' => $this->status,
+            'health' => $this->health,
+            'participant_count' => $this->participant_count,
+            'listener_count' => $this->listener_count,
+            'voice_participant_count' => $this->voice_participant_count,
+            'video_count' => $this->video_count,
+            'meeting_count' => $this->meeting_count,
+            'own_meeting_count' => $this->meetings()->whereNull('end')->count(),
+            'version' => $this->version,
+            'model_name' => $this->model_name,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

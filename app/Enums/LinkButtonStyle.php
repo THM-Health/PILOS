@@ -2,21 +2,18 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * Possible link button styles
- * @package App\Enums
  */
-final class LinkButtonStyle extends Enum
+enum LinkButtonStyle: string
 {
-    public const PRIMARY   = 'primary';
-    public const SECONDARY = 'secondary';
-    public const SUCCESS   = 'success';
-    public const DANGER    = 'danger';
-    public const WARNING   = 'warning';
-    public const INFO      = 'info';
-    public const HELP      = 'help';
-    public const CONTRAST  = 'contrast';
-    public const LINK      = 'link';
+    case PRIMARY = 'primary';
+    case SECONDARY = 'secondary';
+    case SUCCESS = 'success';
+    case DANGER = 'danger';
+    case WARNING = 'warning';
+    case INFO = 'info';
+    case HELP = 'help';
+    case CONTRAST = 'contrast';
+    case LINK = 'link';
 }

@@ -16,7 +16,7 @@ class UpgradeDatabaseCommand extends Command
     public function handle()
     {
         // Check for clear database by checking migration tables doesn't exist or no migration run yet
-        if (!Schema::hasTable('migrations') || DB::table('migrations')->count() == 0) {
+        if (! Schema::hasTable('migrations') || DB::table('migrations')->count() == 0) {
             $this->error('Database is missing');
             $this->info('Please run: php artisan migrate');
 
@@ -47,6 +47,7 @@ class UpgradeDatabaseCommand extends Command
         $migrations = [
             '2014_10_12_000000_create_users_table',
             '2014_10_12_100000_create_password_resets_table',
+            '2018_08_08_100000_create_telescope_entries_table',
             '2019_08_19_000000_create_failed_jobs_table',
             '2019_12_14_000001_create_personal_access_tokens_table',
             '2022_07_21_000001_create_roles_table',
@@ -67,12 +68,12 @@ class UpgradeDatabaseCommand extends Command
             '2022_07_21_000016_create_meetings_table',
             '2022_07_21_000017_create_meeting_attendees_table',
             '2022_07_21_000018_create_meeting_stats_table',
-            '2022_07_21_000019_create_server_stats_table'
+            '2022_07_21_000019_create_server_stats_table',
         ];
         foreach ($migrations as $migration) {
             DB::table('migrations')->insert([
                 'migration' => $migration,
-                'batch'     => 1
+                'batch' => 1,
             ]);
         }
         $this->info('Created new migrations table');

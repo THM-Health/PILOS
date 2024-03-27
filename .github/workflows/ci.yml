@@ -78,8 +78,8 @@ jobs:
         DB_USERNAME: root
         DB_PASSWORD: password
       run: php artisan migrate --no-interaction -vvv
-    - name: Execute code style check via php-cs-fixer
-      run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
+    - name: Execute code style check via Laravel Pint
+      run: vendor/bin/pint --test
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
       env:
@@ -87,6 +87,7 @@ jobs:
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
+        LOG_CHANNEL: stack
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Execute tests (Unit, Feature and Integration tests) via PHPUnit
       if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
@@ -95,6 +96,7 @@ jobs:
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
+        LOG_CHANNEL: stack
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Upload coverage

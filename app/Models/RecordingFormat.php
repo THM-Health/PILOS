@@ -11,11 +11,11 @@ class RecordingFormat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'url','format'
+        'url', 'format',
     ];
 
     protected $casts = [
-        'disabled'  => 'boolean',
+        'disabled' => 'boolean',
     ];
 
     public static function createFromRecordingXML(SimpleXMLElement $xml)
@@ -23,11 +23,11 @@ class RecordingFormat extends Model
         $recordingId = (string) $xml->id;
 
         $startTimestamp = (int) $xml->start_time;
-        $start          = \Date::createFromTimestampUTC($startTimestamp / 1000);
-        $endTimestamp   = (int) $xml->end_time;
-        $end            = \Date::createFromTimestampUTC($endTimestamp / 1000);
+        $start = \Date::createFromTimestampUTC($startTimestamp / 1000);
+        $endTimestamp = (int) $xml->end_time;
+        $end = \Date::createFromTimestampUTC($endTimestamp / 1000);
 
-        $meetingId   = (string) $xml->meta->meetingId;
+        $meetingId = (string) $xml->meta->meetingId;
         $meetingName = (string) $xml->meta->meetingName;
 
         $meeting = Meeting::where('id', $meetingId)->first();
@@ -47,11 +47,11 @@ class RecordingFormat extends Model
         // Check if the recording already exists, if not create recording
         $recording = Recording::where('id', $recordingId)->first();
         if ($recording == null) {
-            $recording              = new Recording();
-            $recording->id          = $recordingId;
+            $recording = new Recording();
+            $recording->id = $recordingId;
             $recording->description = $meetingName;
-            $recording->start       = $start;
-            $recording->end         = $end;
+            $recording->start = $start;
+            $recording->end = $end;
             $recording->room()->associate($room);
             $recording->meeting()->associate($meeting);
             $recording->save();
@@ -59,9 +59,9 @@ class RecordingFormat extends Model
 
         $format = (string) $xml->playback->format;
         $rawUrl = (string) $xml->playback->link;
-        
+
         $urlParts = parse_url($rawUrl);
-        $url      = $urlParts['path'] . (isset($urlParts['query']) ? '?'.$urlParts['query'] : '') . (isset($urlParts['fragment']) ? '#'.$urlParts['fragment'] : '') ;
+        $url = $urlParts['path'].(isset($urlParts['query']) ? '?'.$urlParts['query'] : '').(isset($urlParts['fragment']) ? '#'.$urlParts['fragment'] : '');
 
         return $recording->formats()->updateOrCreate(
             ['format' => $format],

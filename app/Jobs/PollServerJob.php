@@ -10,12 +10,12 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateServerUsage implements ShouldQueue
+class PollServerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected Server $server;
-    
+
     /**
      * Create a new job instance.
      */
@@ -30,6 +30,10 @@ class UpdateServerUsage implements ShouldQueue
     public function handle(): void
     {
         $serverService = new ServerService($this->server);
-        $serverService->updateUsage();
+
+        $updateServerStatistics = setting('statistics.servers.enabled');
+        $updateMeetingStatistics = setting('statistics.meetings.enabled');
+
+        $serverService->updateUsage($updateServerStatistics, $updateMeetingStatistics, true);
     }
 }

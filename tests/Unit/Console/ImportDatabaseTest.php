@@ -2,9 +2,10 @@
 
 namespace Tests\Unit\Console;
 
-use DB;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class ImportDatabaseTest extends TestCase
@@ -13,6 +14,7 @@ class ImportDatabaseTest extends TestCase
 
     /**
      * Test importing missing file
+     *
      * @return void
      */
     public function testMissingFile()
@@ -31,6 +33,7 @@ class ImportDatabaseTest extends TestCase
 
     /**
      * Test importing invalid file
+     *
      * @return void
      */
     public function testInvalidFile()
@@ -46,7 +49,7 @@ class ImportDatabaseTest extends TestCase
             ->assertExitCode(1);
 
         // Check if database is empty
-        $tables = DB::connection()->getDoctrineSchemaManager()->listTableNames();
+        $tables = Arr::pluck(Schema::getTables(), 'name');
         $this->assertCount(0, $tables);
 
         // Restore database
@@ -55,6 +58,7 @@ class ImportDatabaseTest extends TestCase
 
     /**
      * Test importing valid file
+     *
      * @return void
      */
     public function testValidFile()
@@ -70,7 +74,7 @@ class ImportDatabaseTest extends TestCase
             ->assertExitCode(0);
 
         // Check if migration was successful
-        $tables = DB::connection()->getDoctrineSchemaManager()->listTableNames();
+        $tables = Arr::pluck(Schema::getTables(), 'name');
         $this->assertCount(1, $tables);
         $this->assertEquals('test', $tables[0]);
 

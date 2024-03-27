@@ -26,24 +26,23 @@ class RoomAuthenticate
      *
      * If an access code is provided, but is invalid an error is return and the request isn't continued.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
-     * @param  bool                     $allowUnAuthenticated Allow users that are unauthenticated to pass
+     * @param  \Illuminate\Http\Request  $request
+     * @param  bool  $allowUnAuthenticated  Allow users that are unauthenticated to pass
      * @return mixed
      */
     public function handle($request, Closure $next, $allowUnAuthenticated = false)
     {
         $authenticated = false;
-        $room          = $request->route('room');
-        $token         = null;
+        $room = $request->route('room');
+        $token = null;
 
         // requested user is the owner or a member of the room
         if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
             $authenticated = true;
         }
 
-        if (!Auth::user() && $request->headers->has('Token')) {
-            $token             = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->first();
+        if (! Auth::user() && $request->headers->has('Token')) {
+            $token = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->first();
 
             if ($token == null) {
                 abort(401, 'invalid_token');
@@ -55,7 +54,7 @@ class RoomAuthenticate
         }
 
         // user is not authenticated and room is not allowed for guests
-        if (!$room->allow_guests && !$authenticated && !Auth::user()) {
+        if (! $room->allow_guests && ! $authenticated && ! Auth::user()) {
             abort(403, 'guests_not_allowed');
         }
 
@@ -77,7 +76,7 @@ class RoomAuthenticate
         }
 
         // user is not  authenticated and should not continue with the request
-        if (!$allowUnAuthenticated && !$authenticated) {
+        if (! $allowUnAuthenticated && ! $authenticated) {
             abort(403, 'require_code');
         }
 

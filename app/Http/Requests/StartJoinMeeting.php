@@ -14,15 +14,15 @@ class StartJoinMeeting extends FormRequest
     {
         $this->roomAuthService = $roomAuthService;
     }
-    
+
     public function rules()
     {
         return [
             // require name if not logged in or not using a room token
-            'name'              => auth()->check() || $this->roomAuthService->getRoomToken($this->room) ? '' : ['required','min:2','max:50',  new ValidName() ],
+            'name' => auth()->check() || $this->roomAuthService->getRoomToken($this->room) ? '' : ['required', 'min:2', 'max:50',  new ValidName()],
             'record_attendance' => 'required|boolean',
-            'record'            => 'required|boolean', // Consent to join meeting with recording enabled
-            'record_video'      => 'required|boolean', // Permission to record own video
+            'record' => 'required|boolean', // Consent to join meeting with recording enabled
+            'record_video' => 'required|boolean', // Permission to record own video
         ];
     }
 }

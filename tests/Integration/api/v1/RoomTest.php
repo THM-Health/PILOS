@@ -20,7 +20,6 @@ use Tests\TestCase;
 
 /**
  * General room api feature tests
- * @package Tests\Feature\api\v1\Room
  */
 class RoomTest extends TestCase
 {
@@ -35,7 +34,7 @@ class RoomTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create([
-            'bbb_skip_check_audio' => true
+            'bbb_skip_check_audio' => true,
         ]);
 
         $this->seed(RolesAndPermissionsSeeder::class);
@@ -48,14 +47,14 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'lobby'        => RoomLobby::ENABLED,
+            'lobby' => RoomLobby::ENABLED,
         ]);
 
         // Adding server(s)
         $this->seed(ServerSeeder::class);
 
         // Start meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Check guests
@@ -68,15 +67,15 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $room->owner));
 
         // Testing member
-        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
         $this->assertTrue($this->checkGuestWaitPage($room, $this->user));
 
         // Testing moderator member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Testing co-owner member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
@@ -90,13 +89,13 @@ class RoomTest extends TestCase
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
-            'lobby'        => RoomLobby::ONLY_GUEST,
+            'lobby' => RoomLobby::ONLY_GUEST,
         ]);
         // Adding server(s)
         $this->seed(ServerSeeder::class);
 
         // Start meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Check guests
@@ -109,15 +108,15 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $room->owner));
 
         // Testing member
-        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Testing moderator member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Testing co-owner member
-        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
@@ -126,7 +125,8 @@ class RoomTest extends TestCase
 
     /**
      * Check if user or guest enters room or lobby
-     * @param Room $room Room
+     *
+     * @param  Room  $room  Room
      * @param  User|null User or guest
      * @return bool is entering lobby
      */
@@ -137,12 +137,12 @@ class RoomTest extends TestCase
         // login as user is not guest
         $request = $user == null ? $this : $this->actingAs($user);
         // join meeting
-        $response = $request->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->access_code,'name'=>$this->faker->name, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+        $response = $request->getJson(route('api.v1.rooms.join', ['room' => $room, 'code' => $room->access_code, 'name' => $this->faker->name, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         // check if response has a join url
         $this->assertIsString($response->json('url'));
         // check if join url is working
-        $response        = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' =>['track_redirects' => true]])->get($response->json('url'));
+        $response = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' => ['track_redirects' => true]])->get($response->json('url'));
         $headersRedirect = $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER);
         $this->assertNotEmpty($headersRedirect);
 

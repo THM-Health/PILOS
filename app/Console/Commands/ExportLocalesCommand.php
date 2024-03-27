@@ -6,7 +6,7 @@ use App\Services\LocaleService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
-class ExportLocales extends Command
+class ExportLocalesCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -29,17 +29,17 @@ class ExportLocales extends Command
     {
         $disk = Storage::build([
             'driver' => 'local',
-            'root'   => 'tests/Fixtures/Locales',
+            'root' => 'tests/Fixtures/Locales',
         ]);
 
         $locales = config('app.default_locales');
 
         foreach ($locales as $locale => $metadata) {
-            $this->info('Processing locale ' . $metadata['name'].' ('.$locale.')');
+            $this->info('Processing locale '.$metadata['name'].' ('.$locale.')');
 
             $localeJson = $localeService->buildJsonLocale($locale, false, false);
 
-            $disk->put($locale . '.json', $localeJson);
+            $disk->put($locale.'.json', $localeJson);
         }
     }
 }

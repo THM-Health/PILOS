@@ -45,7 +45,7 @@ class RoomController extends Controller
         if ($request->only_favorites) {
             //list if room favorites
             $roomFavorites = Auth::user()->roomFavorites->modelKeys();
-            $collection    = Room::whereIn('rooms.id', $roomFavorites);
+            $collection = Room::whereIn('rooms.id', $roomFavorites);
         } else {
             // all rooms without limitation (always include own rooms, shared rooms and public rooms)
             if ($request->filter_all && Auth::user()->can('viewAll', Room::class)) {
@@ -60,7 +60,7 @@ class RoomController extends Controller
                     // rooms where the user is member
                     if ($request->filter_shared) {
                         // list of room ids where the user is member
-                        $roomMemberships             = Auth::user()->sharedRooms->modelKeys();
+                        $roomMemberships = Auth::user()->sharedRooms->modelKeys();
                         $query->orWhereIn('rooms.id', $roomMemberships);
                     }
 
@@ -76,7 +76,7 @@ class RoomController extends Controller
                     }
 
                     // prevent request with no filter (would return all rooms)
-                    if (!$request->filter_own && !$request->filter_shared && !$request->filter_public) {
+                    if (! $request->filter_own && ! $request->filter_shared && ! $request->filter_public) {
                         abort(400);
                     }
                 });
@@ -92,46 +92,35 @@ class RoomController extends Controller
         $collection->select('rooms.*');
 
         // eager load relationships
-        $collection->with(['owner','roomType','latestMeeting']);
+        $collection->with(['owner', 'roomType', 'latestMeeting']);
 
         // count all available rooms before search
         $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
         // filter by specific room Type if not only favorites
-        if ($request->has('room_type') && !$request->only_favorites) {
+        if ($request->has('room_type') && ! $request->only_favorites) {
             $collection->where('room_type_id', $request->room_type);
         }
 
         // rooms that can be found with the search
         if ($request->has('search') && trim($request->search) != '') {
-            $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $collection = $collection->where(function ($query) use ($searchQuery) {
-                    $query->where('rooms.name', 'like', '%' . $searchQuery . '%')
+                    $query->where('rooms.name', 'like', '%'.$searchQuery.'%')
                         ->orWhereHas('owner', function ($query2) use ($searchQuery) {
-                            $query2->where('users.firstname', 'like', '%' . $searchQuery . '%')
-                                ->orWhere('users.lastname', 'like', '%' . $searchQuery . '%');
+                            $query2->where('users.firstname', 'like', '%'.$searchQuery.'%')
+                                ->orWhere('users.lastname', 'like', '%'.$searchQuery.'%');
                         });
                 });
             }
         }
         // sort rooms by different strategies
-        switch($request->sort_by) {
-            case RoomSortingType::ALPHA:
-                $collection = $collection->orderBy('rooms.name');
-
-                break;
-            case RoomSortingType::ROOM_TYPE:
-                $collection = $collection->orderBy('room_types.name')->orderBy('rooms.name');
-
-                break;
-            case RoomSortingType::LAST_STARTED:
-            default:
-                // 1. Sort by running state, 2. Sort by last meeting start date, 3. Sort by room name
-                $collection = $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name');
-
-                break;
-        }
+        $collection = match ($request->sort_by) {
+            RoomSortingType::ALPHA->value => $collection->orderBy('rooms.name'),
+            RoomSortingType::ROOM_TYPE->value => $collection->orderBy('room_types.name')->orderBy('rooms.name'),
+            default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name'),
+        };
 
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
@@ -144,17 +133,17 @@ class RoomController extends Controller
     /**
      * Store a new created room
      *
-     * @param  \Illuminate\Http\Request              $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \App\Http\Resources\Room|JsonResponse
      */
     public function store(CreateRoom $request)
     {
         if (Auth::user()->hasRoomLimitExceeded()) {
-            abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED, __('app.errors.room_limit_exceeded'));
+            abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED->value, __('app.errors.room_limit_exceeded'));
         }
 
-        $room              = new Room();
-        $room->name        = $request->name;
+        $room = new Room();
+        $room->name = $request->name;
         $room->access_code = rand(111111111, 999999999);
         $room->roomType()->associate($request->room_type);
         $room->owner()->associate(Auth::user());
@@ -168,7 +157,6 @@ class RoomController extends Controller
     /**
      * Return all general room details
      *
-     * @param  Room                     $room
      * @return \App\Http\Resources\Room
      */
     public function show(Room $room, RoomAuthService $roomAuthService)
@@ -178,7 +166,7 @@ class RoomController extends Controller
 
     /**
      * Return all room settings
-     * @param  Room         $room
+     *
      * @return RoomSettings
      */
     public function getSettings(Room $room)
@@ -190,9 +178,9 @@ class RoomController extends Controller
 
     /**
      * Start a new meeting
-     * @param  Room                   $room
-     * @param  StartJoinMeeting       $request
+     *
      * @return JsonResponse
+     *
      * @throws AuthorizationException
      */
     public function start(Room $room, StartJoinMeeting $request, RoomAuthService $roomAuthService)
@@ -200,71 +188,68 @@ class RoomController extends Controller
         $this->authorize('start', [$room, $roomAuthService->getRoomToken($room)]);
 
         $roomService = new RoomService($room);
-        $url         = $roomService->start($request->record_attendance, $request->record)->getJoinUrl($request);
+        $url = $roomService->start($request->record_attendance, $request->record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
 
     /**
      * Join a running meeting
-     * @param  Room             $room
-     * @param  StartJoinMeeting $request
+     *
      * @return JsonResponse
      */
     public function join(Room $room, StartJoinMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url         = $roomService->join($request->record_attendance, $request->record)->getJoinUrl($request);
+        $url = $roomService->join($request->record_attendance, $request->record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
 
     /**
      * Update room settings
-     * @param  UpdateRoomSettings $request
-     * @param  Room               $room
+     *
      * @return RoomSettings
      */
     public function update(UpdateRoomSettings $request, Room $room)
     {
-        $room->name             = $request->name;
-        $room->welcome          = $request->welcome;
-        $room->short_description= $request->short_description;
-        $room->access_code      = $request->access_code;
-        $room->listed           = $request->listed;
+        $room->name = $request->name;
+        $room->welcome = $request->welcome;
+        $room->short_description = $request->short_description;
+        $room->access_code = $request->access_code;
+        $room->listed = $request->listed;
 
-        $room->mute_on_start                      = $request->mute_on_start;
-        $room->lock_settings_disable_cam          = $request->lock_settings_disable_cam;
-        $room->webcams_only_for_moderator         = $request->webcams_only_for_moderator;
-        $room->lock_settings_disable_mic          = $request->lock_settings_disable_mic;
+        $room->mute_on_start = $request->mute_on_start;
+        $room->lock_settings_disable_cam = $request->lock_settings_disable_cam;
+        $room->webcams_only_for_moderator = $request->webcams_only_for_moderator;
+        $room->lock_settings_disable_mic = $request->lock_settings_disable_mic;
         $room->lock_settings_disable_private_chat = $request->lock_settings_disable_private_chat;
-        $room->lock_settings_disable_public_chat  = $request->lock_settings_disable_public_chat;
-        $room->lock_settings_disable_note         = $request->lock_settings_disable_note;
-        $room->lock_settings_lock_on_join         = $request->lock_settings_lock_on_join;
-        $room->lock_settings_hide_user_list       = $request->lock_settings_hide_user_list;
-        $room->everyone_can_start                 = $request->everyone_can_start;
-        $room->allow_membership                   = $request->allow_membership;
-        $room->allow_guests                       = $request->allow_guests;
+        $room->lock_settings_disable_public_chat = $request->lock_settings_disable_public_chat;
+        $room->lock_settings_disable_note = $request->lock_settings_disable_note;
+        $room->lock_settings_lock_on_join = $request->lock_settings_lock_on_join;
+        $room->lock_settings_hide_user_list = $request->lock_settings_hide_user_list;
+        $room->everyone_can_start = $request->everyone_can_start;
+        $room->allow_membership = $request->allow_membership;
+        $room->allow_guests = $request->allow_guests;
 
-        $room->record_attendance              = $request->record_attendance;
-        $room->record                         = $request->record;
-        $room->auto_start_recording           = $request->auto_start_recording;
+        $room->record_attendance = $request->record_attendance;
+        $room->record = $request->record;
+        $room->auto_start_recording = $request->auto_start_recording;
 
         $room->default_role = $request->default_role;
-        $room->lobby        = $request->lobby;
+        $room->lobby = $request->lobby;
         $room->roomType()->associate($request->room_type);
 
         $room->save();
 
-        Log::info('Changed settings for room {room}', ['room' => $room->getLogLabel() ]);
+        Log::info('Changed settings for room {room}', ['room' => $room->getLogLabel()]);
 
         return new RoomSettings($room);
     }
 
     /**
      * Update room description
-     * @param  UpdateRoomDescription $request
-     * @param  Room                  $room
+     *
      * @return RoomSettings
      */
     public function updateDescription(UpdateRoomDescription $request, Room $room)
@@ -278,7 +263,7 @@ class RoomController extends Controller
 
         $room->save();
 
-        Log::info('Changed description for room {room}', ['room' => $room->getLogLabel() ]);
+        Log::info('Changed description for room {room}', ['room' => $room->getLogLabel()]);
 
         return new RoomSettings($room);
     }
@@ -286,14 +271,13 @@ class RoomController extends Controller
     /**
      * Delete a room and all related data
      *
-     * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
     public function destroy(Room $room)
     {
         $room->delete();
 
-        Log::info('Deleted room {room}', ['room' => $room->getLogLabel() ]);
+        Log::info('Deleted room {room}', ['room' => $room->getLogLabel()]);
 
         return response()->noContent();
     }
@@ -301,8 +285,8 @@ class RoomController extends Controller
     /**
      * List of all meeting of the given room
      *
-     * @param  Room                                                        $room
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     *
      * @throws AuthorizationException
      */
     public function meetings(Room $room)
@@ -316,7 +300,6 @@ class RoomController extends Controller
     /**
      * add a room to the users favorites
      *
-     * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
     public function addToFavorites(Room $room)
@@ -329,7 +312,6 @@ class RoomController extends Controller
     /**
      * delete a room from the users favorites
      *
-     * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
     public function deleteFromFavorites(Room $room)
@@ -342,8 +324,6 @@ class RoomController extends Controller
     /**
      * transfer the room ownership to another user
      *
-     * @param  Room                      $room
-     * @param  TransferOwnershipRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function transferOwnership(Room $room, TransferOwnershipRequest $request)
@@ -358,7 +338,7 @@ class RoomController extends Controller
             if ($room->members->contains($newOwner)) {
                 $room->members()->detach($newOwner);
             }
-            
+
             $room->owner()->associate($newOwner);
             $room->save();
 
@@ -370,11 +350,11 @@ class RoomController extends Controller
             DB::commit();
             Log::info('Transferred room ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
             if ($request->role) {
-                Log::info('Changed role of previous owner {oldOwner} of the room {room} to the role {role}', ['oldOwner' => $oldOwner->getLogLabel(), 'room'=> $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role)]);
+                Log::info('Changed role of previous owner {oldOwner} of the room {room} to the role {role}', ['oldOwner' => $oldOwner->getLogLabel(), 'room' => $room->getLogLabel(), 'role' => RoomUserRole::from($request->role)->label()]);
             }
 
             return response()->noContent();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to transfer ownership of the room {room} from previous owner {oldOwner} to new owner {newOwner}', ['room' => $room->getLogLabel(), 'oldOwner' => $oldOwner->getLogLabel(), 'newOwner' => $newOwner->getLogLabel()]);
 

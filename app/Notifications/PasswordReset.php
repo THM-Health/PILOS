@@ -10,8 +10,6 @@ use Illuminate\Notifications\Notification;
 
 /**
  * This class provides the notification for password reset emails.
- *
- * @package App\Notifications
  */
 class PasswordReset extends Notification implements ShouldQueue
 {
@@ -33,20 +31,17 @@ class PasswordReset extends Notification implements ShouldQueue
 
     /**
      * Create a new notification instance.
-     *
-     * @param string $token
-     * @param Carbon $expireDate
      */
     public function __construct(string $token, Carbon $expireDate)
     {
-        $this->token      = $token;
+        $this->token = $token;
         $this->expireDate = $expireDate;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -56,17 +51,16 @@ class PasswordReset extends Notification implements ShouldQueue
 
     public function getActionUrl($notifiable)
     {
-        return url('/reset_password?') . \Arr::query([
-                'token' => $this->token,
-                'email' => $notifiable->getEmailForPasswordReset()
-            ]);
+        return url('/reset_password?').\Arr::query([
+            'token' => $this->token,
+            'email' => $notifiable->getEmailForPasswordReset(),
+        ]);
     }
 
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed       $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     public function toMail($notifiable): MailMessage
     {

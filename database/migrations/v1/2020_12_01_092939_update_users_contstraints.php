@@ -28,7 +28,7 @@ class UpdateUsersContstraints extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('username')->change();
+            $table->string('username')->nullable(false)->change();
             $table->dropUnique('users_email_authenticator_unique');
             $table->unique('email');
         });

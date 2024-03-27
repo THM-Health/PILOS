@@ -8,14 +8,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class RecordingFormatResource extends JsonResource
 {
     /**
-     * @param  Request $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'id'       => $this->id,
-            'format'   => $this->format,
+            'id' => $this->id,
+            'format' => $this->format,
             'disabled' => $this->disabled,
         ];
     }

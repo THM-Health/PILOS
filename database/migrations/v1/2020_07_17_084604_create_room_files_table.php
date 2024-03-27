@@ -20,7 +20,7 @@ class CreateRoomFilesTable extends Migration
             $table->boolean('default')->default(false);
             $table->boolean('download')->default(false);
             $table->boolean('useinmeeting')->default(false);
-            $table->string('room_id',11);
+            $table->string('room_id', 11);
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->timestamps();
         });

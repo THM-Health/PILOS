@@ -16,9 +16,6 @@ class ForgotPasswordController extends Controller
 
     /**
      * Send a reset link to the given user.
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function sendResetLinkEmail(Request $request): JsonResponse
     {
@@ -29,21 +26,19 @@ class ForgotPasswordController extends Controller
             ->where('email', '=', $request->email)
             ->first();
 
-        if (!empty($user)) {
+        if (! empty($user)) {
             $this->broker()->sendResetLink(
                 array_merge(['authenticator' => 'local'], $this->credentials($request))
             );
         }
 
         return response()->json([
-            'message' => trans(Password::RESET_LINK_SENT)
+            'message' => trans(Password::RESET_LINK_SENT),
         ]);
     }
 
     /**
      * Get the broker to be used during password reset.
-     *
-     * @return PasswordBroker
      */
     public function broker(): PasswordBroker
     {

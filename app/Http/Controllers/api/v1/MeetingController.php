@@ -14,7 +14,6 @@ use Log;
 
 /**
  * Class MeetingController
- * @package App\Http\Controllers\api\v1
  */
 class MeetingController extends Controller
 {
@@ -47,18 +46,18 @@ class MeetingController extends Controller
 
         // And-search, sub queries split by space
         if ($request->has('search') && trim($request->search) != '') {
-            $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {
                     $query->whereHas('room', function ($subQuery) use ($searchQuery) {
-                        $subQuery->where('name', 'like', '%' . $searchQuery . '%');
+                        $subQuery->where('name', 'like', '%'.$searchQuery.'%');
                     })
                         ->orWhereHas('room.owner', function ($subQuery) use ($searchQuery) {
-                            $subQuery->where('firstname', 'like', '%' . $searchQuery . '%')
-                                ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
+                            $subQuery->where('firstname', 'like', '%'.$searchQuery.'%')
+                                ->orWhere('lastname', 'like', '%'.$searchQuery.'%');
                         })
                         ->orWhereHas('server', function ($subQuery) use ($searchQuery) {
-                            $subQuery->where('name', 'like', '%' . $searchQuery . '%');
+                            $subQuery->where('name', 'like', '%'.$searchQuery.'%');
                         });
                 });
             }
@@ -66,10 +65,10 @@ class MeetingController extends Controller
 
         // Sort table with allowed columns
         if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by  = $request->query('sort_by');
+            $by = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['start','room.participant_count','room.listener_count','room.voice_participant_count','room.video_count']) && in_array($dir, ['asc', 'desc'])) {
+            if (in_array($by, ['start', 'room.participant_count', 'room.listener_count', 'room.voice_participant_count', 'room.video_count']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
         } else {
@@ -85,17 +84,14 @@ class MeetingController extends Controller
 
     /**
      * Callback from bbb-server to notify about the end of the meeting
-     *
-     * @param Request $request
-     * @param Meeting $meeting
      */
     public function endMeetingCallback(Request $request, Meeting $meeting)
     {
-        Log::info('Recieved end meeting request from BBB sever for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
+        Log::info('Received end meeting request from BBB sever for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
 
         $meetingService = new MeetingService($meeting);
         // Validate request
-        if (!$meetingService->validateCallbackSalt($request->salt)) {
+        if (! $meetingService->validateCallbackSalt($request->salt)) {
             Log::warning('Invalid end meeting request; invalid salt');
             abort(401);
         }
@@ -109,8 +105,9 @@ class MeetingController extends Controller
 
     /**
      * Usage statistics for this meeting (count of participants, voices, videos)
-     * @param  Meeting                                                     $meeting
+     *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function stats(Meeting $meeting)
@@ -120,9 +117,9 @@ class MeetingController extends Controller
         Log::info('Show statistics for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
 
         // check if statistical data is globally enabled
-        if (!setting('statistics.meetings.enabled')) {
+        if (! setting('statistics.meetings.enabled')) {
             Log::info('Failed to show statistics for meeting {meeting} of room {room}; statistics are disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
-            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_statistics_disabled'));
+            abort(CustomStatusCodes::FEATURE_DISABLED->value, __('app.errors.meeting_statistics_disabled'));
         }
 
         return MeetingStat::collection($meeting->stats()->orderBy('created_at')->get());
@@ -130,8 +127,9 @@ class MeetingController extends Controller
 
     /**
      * Attendance of users and guests during a meeting
-     * @param  Meeting                                                     $meeting
+     *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function attendance(Meeting $meeting)
@@ -143,15 +141,15 @@ class MeetingController extends Controller
         $meetingService = new MeetingService($meeting);
 
         // check if attendance recording is enabled for this meeting
-        if (!$meeting->record_attendance) {
+        if (! $meeting->record_attendance) {
             Log::info('Failed to show attendace for meeting {meeting} of room {room}; attendance is disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
-            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
+            abort(CustomStatusCodes::FEATURE_DISABLED->value, __('app.errors.meeting_attendance_disabled'));
         }
 
         // check if meeting is ended
         if ($meeting->end == null) {
             Log::info('Failed to show attendace for meeting {meeting} of room {room}; meeting is still running', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
-            abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
+            abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value, __('app.errors.meeting_attendance_not_ended'));
         }
 
         return Attendee::collection($meetingService->attendance());

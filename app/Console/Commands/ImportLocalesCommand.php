@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Process;
 use Storage;
 use Symfony\Component\VarExporter\VarExporter;
 
-class ImportLocales extends Command
+class ImportLocalesCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -31,20 +31,20 @@ class ImportLocales extends Command
     {
         $disk = Storage::build([
             'driver' => 'local',
-            'root'   => config('app.default_locale_dir'),
+            'root' => config('app.default_locale_dir'),
         ]);
 
         $this->info('Importing locales from POEditor');
         $this->info('Fetching languages list');
         $response = Http::asForm()->post('https://api.poeditor.com/v2/languages/list', [
             'api_token' => config('services.poeditor.token'),
-            'id'        => config('services.poeditor.project'),
+            'id' => config('services.poeditor.project'),
         ]);
 
         $apiResponse = $response->json('response');
         if ($apiResponse['status'] == 'fail') {
             $this->error('Failed to fetch languages list');
-            $this->error('Error code: ' . $apiResponse['code'].', message: '.$apiResponse['message']);
+            $this->error('Error code: '.$apiResponse['code'].', message: '.$apiResponse['message']);
 
             return;
         }
@@ -55,15 +55,15 @@ class ImportLocales extends Command
             $this->info('Fetching translation for '.$lang['code']);
             $response = Http::asForm()->post('https://api.poeditor.com/v2/projects/export', [
                 'api_token' => config('services.poeditor.token'),
-                'id'        => config('services.poeditor.project'),
-                'language'  => $lang['code'],
-                'type'      => 'key_value_json'
+                'id' => config('services.poeditor.project'),
+                'language' => $lang['code'],
+                'type' => 'key_value_json',
             ]);
 
             $apiResponse = $response->json('response');
             if ($apiResponse['status'] == 'fail') {
                 $this->error('Failed to fetch translation for '.$lang['code']);
-                $this->error('Error code: ' . $apiResponse['code'].', message: '.$apiResponse['message']);
+                $this->error('Error code: '.$apiResponse['code'].', message: '.$apiResponse['message']);
 
                 return;
             }
@@ -71,14 +71,14 @@ class ImportLocales extends Command
             $url = $response->json('result.url');
 
             $this->info('Downloading translation for '.$lang['code']);
-            
+
             $response = Http::get($url)->json();
-           
+
             // Check if response is an error
             if (isset($response['response']['status'])) {
                 if ($response['response']['status'] == 'fail') {
                     $this->error('Failed to download translation for '.$lang['code']);
-                    $this->error('Error code: ' . $response['response']['code'].', message: '.$response['response']['message']);
+                    $this->error('Error code: '.$response['response']['code'].', message: '.$response['response']['message']);
 
                     return;
                 }
@@ -94,7 +94,7 @@ class ImportLocales extends Command
                 $exported = VarExporter::export($response[$group]);
 
                 // Write the PHP array to the language file
-                $disk->put($lang['code'] . '/' . $group . '.php', '<?php return ' . $exported . ';');
+                $disk->put($lang['code'].'/'.$group.'.php', '<?php return '.$exported.';');
             }
         }
 
@@ -105,7 +105,7 @@ class ImportLocales extends Command
     /**
      * Recursively sort the locale array by key.
      *
-     * @param  array $array Locale data
+     * @param  array  $array  Locale data
      * @return void
      */
     public function recur_ksort(&$array)

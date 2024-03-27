@@ -13,7 +13,7 @@ class ServerPool extends Model
 {
     use AddsModelNameTrait, HasFactory;
 
-    protected $fillable = ['name','description'];
+    protected $fillable = ['name', 'description'];
 
     /**
      * The "booted" method of the model.
@@ -32,7 +32,6 @@ class ServerPool extends Model
 
     /**
      * Servers that are port of this server pool
-     * @return BelongsToMany
      */
     public function servers(): BelongsToMany
     {
@@ -41,6 +40,7 @@ class ServerPool extends Model
 
     /**
      * RoomTypes that are using this server pool
+     *
      * @return HasMany
      */
     public function roomTypes()
@@ -51,12 +51,12 @@ class ServerPool extends Model
     /**
      * Scope a query to only get server pools that have a name like the passed one.
      *
-     * @param  Builder $query Query that should be scoped
-     * @param  String  $name  Name to search for
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
     public function scopeWithName(Builder $query, $name)
     {
-        return $query->where('name', 'like', '%' . $name . '%');
+        return $query->where('name', 'like', '%'.$name.'%');
     }
 }

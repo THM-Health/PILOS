@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Facade;
 use App\Services\LocaleService;
+use Illuminate\Support\Facades\Facade;
 
 // Directories to search for locale files
 $defaultLocaleDir = base_path('lang');
@@ -45,7 +45,7 @@ return [
 
     'version' => $appVersion,
 
-    'whitelabel' => env('WHITELABEL', false),
+    'whitelabel' => (bool) env('WHITELABEL', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -235,6 +235,8 @@ return [
         App\Auth\Shibboleth\ShibbolethServiceProvider::class,
 
         App\Providers\TranslationServiceProvider::class,
+
+        App\Plugins\PluginServiceProvider::class,
     ],
 
     /*

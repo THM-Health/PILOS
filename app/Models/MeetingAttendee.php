@@ -14,14 +14,15 @@ class MeetingAttendee extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'join'  => 'datetime',
-        'leave' => 'datetime'
+        'join' => 'datetime',
+        'leave' => 'datetime',
     ];
 
     public $timestamps = false;
 
     /**
      * Meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function meeting()
@@ -31,6 +32,7 @@ class MeetingAttendee extends Model
 
     /**
      * Authenticated user
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()

@@ -44,31 +44,30 @@ class LoginController extends Controller
     protected function credentials(Request $request)
     {
         return [
-            'password'      => $request->get('password'),
+            'password' => $request->get('password'),
             'authenticator' => 'local',
-            'email'         => $request->get('email')
+            'email' => $request->get('email'),
         ];
     }
 
     /**
      * The user has been authenticated.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  mixed                    $user
+     * @param  mixed  $user
      * @return mixed
      */
     protected function authenticated(Request $request, $user)
     {
-        Log::info('Local user '. $user->email .' has been successfully authenticated.');
+        Log::info('Local user '.$user->email.' has been successfully authenticated.');
     }
 
     public function logout(Request $request)
     {
         // Redirect url after logout
-        $redirect        = false;
+        $redirect = false;
 
         // Logout from external authentication provider
-        switch(\Auth::user()->authenticator) {
+        switch (\Auth::user()->authenticator) {
             case 'shibboleth':
                 $redirect = app(ShibbolethProvider::class)->logout(url('/logout'));
 
@@ -79,7 +78,7 @@ class LoginController extends Controller
         $this->logoutApplication($request);
 
         return response()->json([
-            'redirect'          => $redirect
+            'redirect' => $redirect,
         ]);
     }
 }

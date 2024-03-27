@@ -26,21 +26,21 @@ class ServerPool extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'id'                          => $this->id,
-            'name'                        => $this->name,
-            'description'                 => $this->description,
-            'servers_count'               => $this->servers()->count(),
-            'servers'                     => $this->when($this->withServers, function () {
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'servers_count' => $this->servers()->count(),
+            'servers' => $this->when($this->withServers, function () {
                 return Server::collection($this->servers);
             }),
-            'model_name'                 => $this->model_name,
-            'updated_at'                 => $this->updated_at
+            'model_name' => $this->model_name,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Exceptions\RoomIdGenerationFailed;
 use App\Services\RoomAuthService;
@@ -16,7 +17,8 @@ class Room extends Model
     use AddsModelNameTrait, HasFactory;
 
     public $incrementing = false;
-    protected $keyType   = 'string';
+
+    protected $keyType = 'string';
 
     /**
      * The "booted" method of the model.
@@ -29,9 +31,9 @@ class Room extends Model
             // if the meeting has no ID yet, create a unique id
             // 36^9 possible room ids ≈ 10^14
 
-            if (!$model->id) {
+            if (! $model->id) {
                 $count_tries = 0;
-                $newId       = null;
+                $newId = null;
                 while (true) {
                     $count_tries++;
                     if ($count_tries >= config('bigbluebutton.room_id_max_tries')) {
@@ -54,26 +56,26 @@ class Room extends Model
     }
 
     protected $casts = [
-        'mute_on_start'                      => 'boolean',
-        'lock_settings_disable_cam'          => 'boolean',
-        'webcams_only_for_moderator'         => 'boolean',
-        'lock_settings_disable_mic'          => 'boolean',
+        'mute_on_start' => 'boolean',
+        'lock_settings_disable_cam' => 'boolean',
+        'webcams_only_for_moderator' => 'boolean',
+        'lock_settings_disable_mic' => 'boolean',
         'lock_settings_disable_private_chat' => 'boolean',
-        'lock_settings_disable_public_chat'  => 'boolean',
-        'lock_settings_disable_note'         => 'boolean',
-        'everyone_can_start'                 => 'boolean',
-        'allow_membership'                   => 'boolean',
-        'allow_guests'                       => 'boolean',
-        'lock_settings_lock_on_join'         => 'boolean',
-        'lock_settings_hide_user_list'       => 'boolean',
-        'default_role'                       => 'integer',
-        'lobby'                              => 'integer',
-        'access_code'                        => 'integer',
-        'listed'                             => 'boolean',
-        'record_attendance'                  => 'boolean',
-        'record'                             => 'boolean',
-        'auto_start_recording'               => 'boolean',
-        'delete_inactive'                    => 'datetime'
+        'lock_settings_disable_public_chat' => 'boolean',
+        'lock_settings_disable_note' => 'boolean',
+        'everyone_can_start' => 'boolean',
+        'allow_membership' => 'boolean',
+        'allow_guests' => 'boolean',
+        'lock_settings_lock_on_join' => 'boolean',
+        'lock_settings_hide_user_list' => 'boolean',
+        'default_role' => RoomUserRole::class,
+        'lobby' => RoomLobby::class,
+        'access_code' => 'integer',
+        'listed' => 'boolean',
+        'record_attendance' => 'boolean',
+        'record' => 'boolean',
+        'auto_start_recording' => 'boolean',
+        'delete_inactive' => 'datetime',
     ];
 
     /**
@@ -87,6 +89,7 @@ class Room extends Model
 
     /**
      * Room owner
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function owner()
@@ -125,6 +128,7 @@ class Room extends Model
 
     /**
      * Room type
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function roomType()
@@ -134,15 +138,17 @@ class Room extends Model
 
     /**
      * Members of the room
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function members()
     {
-        return $this->belongsToMany(User::class)->withPivot('role');
+        return $this->belongsToMany(User::class)->using(RoomUser::class)->withPivot('role');
     }
 
     /**
      * Meetings
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function meetings()
@@ -152,7 +158,8 @@ class Room extends Model
 
     /**
      * Meetings
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function latestMeeting()
     {
@@ -161,6 +168,7 @@ class Room extends Model
 
     /**
      * Files
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function files()
@@ -170,6 +178,7 @@ class Room extends Model
 
     /**
      * Personalized tokens.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function tokens()
@@ -179,6 +188,7 @@ class Room extends Model
 
     /**
      * Get the newest running meeting
+     *
      * @return Meeting|null
      */
     public function runningMeeting()
@@ -187,14 +197,13 @@ class Room extends Model
     }
 
     /** Check if user is moderator of this room
-     * @param  User|null      $user
-     * @param  RoomToken|null $token
+     * @param  RoomToken|null  $token
      * @return bool
      */
     public function isModerator(?User $user)
     {
         $roomAuthService = app()->make(RoomAuthService::class);
-        $token           = $roomAuthService->getRoomToken($this);
+        $token = $roomAuthService->getRoomToken($this);
 
         if ($user == null && $token != null) {
             return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
@@ -204,7 +213,6 @@ class Room extends Model
     }
 
     /** Check if user is co owner of this room
-     * @param  User|null $user
      * @return bool
      */
     public function isCoOwner(?User $user)
@@ -214,13 +222,13 @@ class Room extends Model
 
     /**
      * Check if user is member of this room
-     * @param  User|null $user
+     *
      * @return bool
      */
     public function isMember(?User $user)
     {
         $roomAuthService = app()->make(RoomAuthService::class);
-        $token           = $roomAuthService->getRoomToken($this);
+        $token = $roomAuthService->getRoomToken($this);
 
         if ($user == null && $token != null) {
             return $token->room->is($this) && ($token->role == RoomUserRole::USER || $token->role == RoomUserRole::MODERATOR);
@@ -231,39 +239,37 @@ class Room extends Model
 
     /**
      * Get role of the user
-     * @param  User|null    $user
-     * @param  RoomToken    $token
-     * @return RoomUserRole
      */
     public function getRole(?User $user, ?RoomToken $token): RoomUserRole
     {
         if ($user == null) {
             if ($token) {
-                return RoomUserRole::fromValue($token->role);
+                return $token->role;
             }
 
-            return RoomUserRole::GUEST();
+            return RoomUserRole::GUEST;
         }
 
         if ($this->owner->is($user) || $user->can('rooms.manage')) {
-            return RoomUserRole::OWNER();
+            return RoomUserRole::OWNER;
         }
 
         $member = $this->members()->find($user);
         if ($member) {
-            return RoomUserRole::fromValue($member->pivot->role);
+            return $member->pivot->role;
         }
 
-        return RoomUserRole::fromValue($this->default_role);
+        return $this->default_role;
     }
 
     /**
      * Generate message for moderators inside the meeting
+     *
      * @return string
      */
     public function getModeratorOnlyMessage()
     {
-        $message =  __('rooms.invitation.room', ['roomname'=>$this->name, 'platform' => setting('name')]).'<br>';
+        $message = __('rooms.invitation.room', ['roomname' => $this->name, 'platform' => setting('name')]).'<br>';
         $message .= __('rooms.invitation.link').': '.config('app.url').'/rooms/'.$this->id;
         if ($this->access_code != null) {
             $message .= '<br>'.__('rooms.invitation.code').': '.implode('-', str_split($this->access_code, 3));
@@ -275,20 +281,18 @@ class Room extends Model
     /**
      * Indicates whether the type of the room is restricted for
      * specific roles and the room owner doesn't has this role.
-     * @return bool
      */
     public function getRoomTypeInvalidAttribute(): bool
     {
-        return !self::roomTypePermitted($this->owner, $this->roomType);
+        return ! self::roomTypePermitted($this->owner, $this->roomType);
     }
 
     /**
      * Returns true if the passed owner has rights to create a room
      * with the passed room type.
      *
-     * @param       $owner    User
-     * @param       $roomType RoomType
-     * @return bool
+     * @param  $owner  User
+     * @param  $roomType  RoomType
      */
     public static function roomTypePermitted(User $owner, ?RoomType $roomType): bool
     {
@@ -296,7 +300,7 @@ class Room extends Model
             return false;
         }
 
-        if (!$roomType->restrict) {
+        if (! $roomType->restrict) {
             return true;
         }
 

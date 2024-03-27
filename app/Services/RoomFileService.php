@@ -10,20 +10,14 @@ use Log;
 class RoomFileService
 {
     private RoomFile $file;
+
     private ?int $timeLimit = null;
 
-    /**
-     * @return int
-     */
     public function getTimeLimit(): int
     {
         return $this->timeLimit;
     }
 
-    /**
-     * @param  int|null        $timeLimit
-     * @return RoomFileService
-     */
     public function setTimeLimit(?int $timeLimit): self
     {
         $this->timeLimit = $timeLimit;
@@ -39,9 +33,9 @@ class RoomFileService
     protected function checkFileExists(): bool
     {
         // Handle missing file on drive
-        if (!Storage::exists($this->file->path)) {
+        if (! Storage::exists($this->file->path)) {
             try {
-                Log::error('Room file {file} not found', ['file' => $this->file->getLogLabel() ]);
+                Log::error('Room file {file} not found', ['file' => $this->file->getLogLabel()]);
                 $this->file->delete();
             } catch (\Exception $exception) {
             }
@@ -54,20 +48,20 @@ class RoomFileService
 
     public function download(): \Illuminate\Http\Response
     {
-        Log::info('Download room file {file}', ['file' => $this->file->getLogLabel() ]);
+        Log::info('Download room file {file}', ['file' => $this->file->getLogLabel()]);
 
-        if (!$this->checkFileExists()) {
+        if (! $this->checkFileExists()) {
             abort(404);
         }
 
         $fileAlias = config('filesystems.x-accel.url_prefix').'/'.$this->file->path;
-        $fileName  = $this->file->filename;
-        $fileSize  = Storage::size($this->file->path);
-        $fileMime  = Storage::mimeType($this->file->path);
+        $fileName = $this->file->filename;
+        $fileSize = Storage::size($this->file->path);
+        $fileMime = Storage::mimeType($this->file->path);
 
         return response(null, 200)
             ->header('Content-Type', $fileMime)
-            ->header('Content-Length', $fileSize )
+            ->header('Content-Length', $fileSize)
             ->header('Content-Disposition', 'inline; filename='.$fileName)
             ->header('Content-Transfer-Encoding', 'binary')
             ->header('X-Accel-Redirect', $fileAlias);
@@ -75,15 +69,14 @@ class RoomFileService
 
     /**
      * Create download link
-     * @return string
      */
     public function url(): string
     {
-        Log::info('Create download url for room file {file}', ['file' => $this->file->getLogLabel() ]);
-        $params     = ['roomFile' => $this->file->id,'filename'=>$this->file->filename];
-        $routeName  = 'download.file';
+        Log::info('Create download url for room file {file}', ['file' => $this->file->getLogLabel()]);
+        $params = ['roomFile' => $this->file->id, 'filename' => $this->file->filename];
+        $routeName = 'download.file';
 
-        if (!$this->checkFileExists()) {
+        if (! $this->checkFileExists()) {
             abort(404);
         }
 

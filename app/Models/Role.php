@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Role
- * @package App
  */
 class Role extends Model
 {
@@ -24,7 +23,7 @@ class Role extends Model
     protected $fillable = ['name'];
 
     protected $casts = [
-        'superuser' => 'boolean'
+        'superuser' => 'boolean',
     ];
 
     /**
@@ -60,12 +59,12 @@ class Role extends Model
     /**
      * Scope a query to only get roles that have a name like the passed one.
      *
-     * @param  Builder $query Query that should be scoped
-     * @param  String  $name  Name to search for
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
     public function scopeWithName(Builder $query, $name)
     {
-        return $query->where('name', 'like', '%' . $name . '%');
+        return $query->where('name', 'like', '%'.$name.'%');
     }
 }

@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 use PharData;
 use Storage;
 
-class ProcessRecording implements ShouldQueue, ShouldBeUnique
+class ProcessRecording implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -26,6 +26,7 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
     public $timeout = 120;
 
     protected string $file;
+
     protected string $tempPath;
 
     /**
@@ -34,8 +35,8 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
     public function __construct(string $file)
     {
         $this->onQueue('recordings');
-        $this->file     = $file;
-        $filename       = pathinfo($this->file, PATHINFO_FILENAME);
+        $this->file = $file;
+        $filename = pathinfo($this->file, PATHINFO_FILENAME);
         $this->tempPath = 'temp/'.$filename;
     }
 
@@ -93,12 +94,12 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
     {
         try {
             // Extract the tar file to a temp directory
-            $phar     = new PharData(Storage::disk('recordings-spool')->path($this->file));
-            $result   = $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
+            $phar = new PharData(Storage::disk('recordings-spool')->path($this->file));
+            $result = $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
 
             // If the extraction failed, retry the job later (.tar file might be incomplete yet)
             // Cleanup any files that might have been extracted
-            if (!$result) {
+            if (! $result) {
                 \Log::error('Extraction failed for '.$this->file);
                 $this->release($this->attempts() * $this->tryAgainAfter);
                 $this->cleanup();
@@ -106,7 +107,7 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
                 return;
             }
 
-            # Find metadata.xml files
+            // Find metadata.xml files
             $metadataFiles = array_filter(Storage::disk('recordings')->allFiles($this->tempPath), function ($file) {
                 return str_ends_with($file, 'metadata.xml');
             });
@@ -116,7 +117,7 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
                 // and files with the actual recording
 
                 $xmlContent = Storage::disk('recordings')->get($metadataFile);
-                $xml        = simplexml_load_string($xmlContent);
+                $xml = simplexml_load_string($xmlContent);
 
                 // Create or update the recording format in the database
                 $recordingFormat = RecordingFormat::createFromRecordingXML($xml);
@@ -142,7 +143,7 @@ class ProcessRecording implements ShouldQueue, ShouldBeUnique
 
         // Remove .tar file as extraction was successful
         $delete = Storage::disk('recordings-spool')->delete($this->file);
-        if (!$delete) {
+        if (! $delete) {
             \Log::error('Failed to delete '.$this->file);
         }
 

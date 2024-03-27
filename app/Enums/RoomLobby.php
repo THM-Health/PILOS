@@ -2,15 +2,12 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * Lobby/Waiting room settings enum
- * @package App\Enums
  */
-final class RoomLobby extends Enum
+enum RoomLobby: int
 {
-    public const DISABLED      =   0;
-    public const ENABLED       =   1;
-    public const ONLY_GUEST    =   2;
+    case DISABLED = 0;
+    case ENABLED = 1;
+    case ONLY_GUEST = 2;
 }

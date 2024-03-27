@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ServerHealth;
 use App\Enums\ServerStatus;
-use App\Services\ServerService;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,13 +16,16 @@ class Server extends Model
     use AddsModelNameTrait, HasFactory;
 
     protected $casts = [
-        'strength'                  => 'integer',
-        'status'                    => 'integer',
-        'participant_count'         => 'integer',
-        'listener_count'            => 'integer',
-        'voice_participant_count'   => 'integer',
-        'video_count'               => 'integer',
-        'meeting_count'             => 'integer',
+        'strength' => 'integer',
+        'status' => ServerStatus::class,
+        'participant_count' => 'integer',
+        'listener_count' => 'integer',
+        'voice_participant_count' => 'integer',
+        'video_count' => 'integer',
+        'meeting_count' => 'integer',
+        'error_count' => 'integer',
+        'recover_count' => 'integer',
+        'load' => 'integer',
     ];
 
     /**
@@ -33,21 +36,18 @@ class Server extends Model
     protected static function booted()
     {
         static::updating(function (self $model) {
+
             /**
-             * If status is changed and new status is not online, reset live usage data
+             * If status is changed and new status is disabled, reset live usage data
              */
             if ($model->status != $model->getOriginal('status')) {
-                if ($model->status != ServerStatus::ONLINE) {
-                    $model->version                 = null;
-                    $model->participant_count       = null;
-                    $model->listener_count          = null;
+                if ($model->status == ServerStatus::DISABLED) {
+                    $model->version = null;
+                    $model->participant_count = null;
+                    $model->listener_count = null;
                     $model->voice_participant_count = null;
-                    $model->video_count             = null;
-                    $model->meeting_count           = null;
-                }
-                if ($model->status == ServerStatus::OFFLINE) {
-                    $serverService = new ServerService($model);
-                    $serverService->endMeetings();
+                    $model->video_count = null;
+                    $model->meeting_count = null;
                 }
             }
         });
@@ -61,6 +61,7 @@ class Server extends Model
 
     /**
      * Meetings that (have) run on this server
+     *
      * @return HasMany
      */
     public function meetings()
@@ -70,7 +71,6 @@ class Server extends Model
 
     /**
      * Server pools the server is part of
-     * @return BelongsToMany
      */
     public function pools(): BelongsToMany
     {
@@ -79,6 +79,7 @@ class Server extends Model
 
     /**
      * Statistical data of this server
+     *
      * @return HasMany
      */
     public function stats()
@@ -89,17 +90,33 @@ class Server extends Model
     /**
      * Scope a query to only get servers that have a name like the passed one.
      *
-     * @param  Builder $query Query that should be scoped
-     * @param  String  $name  Name to search for
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
     public function scopeWithName(Builder $query, $name)
     {
-        return $query->where('name', 'like', '%' . $name . '%');
+        return $query->where('name', 'like', '%'.$name.'%');
     }
 
     public function getLogLabel()
     {
         return $this->name.' ('.$this->id.')';
+    }
+
+    public function getHealthAttribute(): ?ServerHealth
+    {
+        if ($this->status == ServerStatus::DISABLED) {
+            return null;
+        }
+
+        if ($this->recover_count >= config('bigbluebutton.server_healthy_threshold')) {
+            return ServerHealth::ONLINE;
+        }
+        if ($this->error_count >= config('bigbluebutton.server_unhealthy_threshold')) {
+            return ServerHealth::OFFLINE;
+        }
+
+        return ServerHealth::UNHEALTHY;
     }
 }

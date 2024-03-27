@@ -64,7 +64,6 @@ class RoomTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  RoomType         $roomType
      * @return RoomTypeResource
      */
     public function show(RoomType $roomType)
@@ -75,21 +74,19 @@ class RoomTypeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  RoomTypeRequest  $request
-     * @param  RoomType         $roomType
      * @return RoomTypeResource
      */
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
-        $roomType->name                    = $request->name;
-        $roomType->color                   = $request->color;
-        $roomType->allow_listing           = $request->allow_listing;
-        $roomType->restrict                = $request->restrict;
-        $roomType->max_participants        = $request->max_participants;
-        $roomType->max_duration            = $request->max_duration;
-        $roomType->require_access_code     = $request->require_access_code;
+        $roomType->name = $request->name;
+        $roomType->color = $request->color;
+        $roomType->allow_listing = $request->allow_listing;
+        $roomType->restrict = $request->restrict;
+        $roomType->max_participants = $request->max_participants;
+        $roomType->max_duration = $request->max_duration;
+        $roomType->require_access_code = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
-        $roomType->allow_record            = $request->allow_record;
+        $roomType->allow_record = $request->allow_record;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {
@@ -102,21 +99,20 @@ class RoomTypeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  RoomTypeRequest  $request
      * @return RoomTypeResource
      */
     public function store(RoomTypeRequest $request)
     {
-        $roomType                          = new RoomType();
-        $roomType->name                    = $request->name;
-        $roomType->color                   = $request->color;
-        $roomType->allow_listing           = $request->allow_listing;
-        $roomType->restrict                = $request->restrict;
-        $roomType->max_participants        = $request->max_participants;
-        $roomType->max_duration            = $request->max_duration;
-        $roomType->require_access_code     = $request->require_access_code;
+        $roomType = new RoomType();
+        $roomType->name = $request->name;
+        $roomType->color = $request->color;
+        $roomType->allow_listing = $request->allow_listing;
+        $roomType->restrict = $request->restrict;
+        $roomType->max_participants = $request->max_participants;
+        $roomType->max_duration = $request->max_duration;
+        $roomType->require_access_code = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
-        $roomType->allow_record            = $request->allow_record;
+        $roomType->allow_record = $request->allow_record;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {
@@ -129,9 +125,8 @@ class RoomTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  RoomTypeDestroyRequest $request
-     * @param  RoomType               $roomType
      * @return JsonResponse|Response
+     *
      * @throws \Exception
      */
     public function destroy(RoomTypeDestroyRequest $request, RoomType $roomType)

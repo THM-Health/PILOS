@@ -13,13 +13,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->renameColumn('username','external_id');
+            $table->renameColumn('username', 'external_id');
             $table->string('authenticator')->default('local')->change();
 
-            $table->dropColumn(['guid','domain']);
+            $table->dropColumn(['guid', 'domain']);
 
             $table->dropUnique('users_email_authenticator_unique');
-            $table->unique(['email', 'authenticator','external_id']);
+            $table->unique(['email', 'authenticator', 'external_id']);
         });
 
         User::where('authenticator', 'users')->update(['authenticator' => 'local']);

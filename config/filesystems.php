@@ -86,7 +86,7 @@ return [
     ],
 
     'x-accel' => [
-        'url_prefix' => '/private-storage'
-    ]
+        'url_prefix' => '/private-storage',
+    ],
 
 ];

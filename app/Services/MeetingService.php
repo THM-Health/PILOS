@@ -6,7 +6,9 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Http\Requests\StartJoinMeeting;
 use App\Models\Meeting;
+use App\Models\MeetingAttendee;
 use App\Models\Room;
+use App\Models\User;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
 use BigBlueButton\Enum\Feature;
@@ -15,6 +17,7 @@ use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 use Log;
@@ -22,12 +25,9 @@ use Log;
 class MeetingService
 {
     private Meeting $meeting;
+
     private ServerService $serverService;
 
-    /**
-     * @param  ServerService  $serverService
-     * @return MeetingService
-     */
     public function setServerService(ServerService $serverService): self
     {
         $this->serverService = $serverService;
@@ -37,7 +37,7 @@ class MeetingService
 
     public function __construct(Meeting $meeting)
     {
-        $this->meeting       = $meeting;
+        $this->meeting = $meeting;
         $this->serverService = new ServerService($meeting->server);
     }
 
@@ -46,7 +46,7 @@ class MeetingService
      */
     protected function getCallbackSalt(): string
     {
-        return $this->meeting->id . $this->meeting->server->secret;
+        return $this->meeting->id.$this->meeting->server->secret;
     }
 
     public function validateCallbackSalt(string $salt): bool
@@ -56,7 +56,7 @@ class MeetingService
 
     public function getCallbackUrl(): string
     {
-        return url()->route('api.v1.meetings.endcallback', ['meeting'=>$this->meeting,'salt'=> Hash::make($this->getCallbackSalt())]);
+        return url()->route('api.v1.meetings.endcallback', ['meeting' => $this->meeting, 'salt' => Hash::make($this->getCallbackSalt())]);
     }
 
     /**
@@ -99,7 +99,7 @@ class MeetingService
             $meetingParams->addPresentation((new RoomFileService($file))->url(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
-        if (empty($meetingParams->getPresentations()) && !empty(setting('default_presentation'))) {
+        if (empty($meetingParams->getPresentations()) && ! empty(setting('default_presentation'))) {
             $meetingParams->addPresentation(setting('default_presentation'));
         }
 
@@ -121,7 +121,7 @@ class MeetingService
             $result = $this->serverService->getBigBlueButton()->createMeeting($meetingParams);
         } // Catch exceptions, e.g. network connection issues
         catch (\Exception $exception) {
-            // Remove meeting and set server to offline
+            // Remove meeting and handle failed api call
             $this->meeting->forceDelete();
             $this->serverService->handleApiCallFailed();
 
@@ -129,12 +129,12 @@ class MeetingService
         }
 
         // Check server response for meeting creation
-        if (!$result->success()) {
+        if (! $result->success()) {
             // Meeting creation failed, remove meeting
             $this->meeting->forceDelete();
             // Check for some errors
             switch ($result->getMessageKey()) {
-                // checksum error, api token invalid, set server to offline, try to create on other server
+                // checksum error, api token invalid, handle api error, try to create on other server
                 case 'checksumError':
                     $this->serverService->handleApiCallFailed();
 
@@ -153,8 +153,10 @@ class MeetingService
 
     /**
      * Is Meeting running
+     *
+     * @throws Exception Connection Issue
      */
-    public function isRunning(): bool
+    public function isRunning(bool $ignoreFailure = false): bool
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
 
@@ -163,13 +165,13 @@ class MeetingService
             $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
         } // Catch exceptions, e.g. network connection issues
         catch (\Exception $exception) {
-            Log::warning('Checking if room {room} is running on server {server} failed', ['room' => $this->meeting->room->getLogLabel(), 'server' => $this->meeting->server->getLogLabel() ]);
+            Log::warning('Checking if room {room} is running on server {server} failed', ['room' => $this->meeting->room->getLogLabel(), 'server' => $this->meeting->server->getLogLabel()]);
 
-            // Remove meeting and set server to offline
-            $this->meeting->forceDelete();
-            $this->serverService->handleApiCallFailed();
+            if (! $ignoreFailure) {
+                $this->serverService->handleApiCallFailed();
+            }
 
-            return false;
+            throw $exception;
         }
 
         return $response->success();
@@ -177,12 +179,13 @@ class MeetingService
 
     /**
      * End meeting
+     *
      * @throws \Exception e.g. Connection error
      */
     public function end(): void
     {
-        $endParams = new EndMeetingParameters($this->meeting->id, $this->meeting->moderator_pw);
-        $this->serverService->getBigBlueButton()->endMeeting($endParams)->success();
+        $endParams = new EndMeetingParameters($this->meeting->id);
+        $this->serverService->getBigBlueButton()->endMeeting($endParams);
         $this->setEnd();
     }
 
@@ -203,6 +206,82 @@ class MeetingService
         }
     }
 
+    public function updateAttendance(\BigBlueButton\Core\Meeting $bbbMeeting)
+    {
+        // Get collection of all attendees, remove duplicated (user joins twice)
+        $collection = collect($bbbMeeting->getAttendees());
+        $uniqueAttendees = $collection->unique(function ($attendee) {
+            return $attendee->getUserId();
+        });
+
+        // List of all created and found attendees
+        $newAndExistingAttendees = [];
+        foreach ($uniqueAttendees as $attendee) {
+            // Split user id in prefix and user_id (users) / session_id (guests)
+            $prefix = substr($attendee->getUserId(), 0, 1);
+            $id = substr($attendee->getUserId(), 1);
+
+            switch ($prefix) {
+                case 'u': // users, identified by their id
+                    // try to find user in database
+                    $user = User::find($id);
+                    // user was found
+                    if ($user != null) {
+                        // check if user is marked in the database as still attending
+                        $meetingAttendee = MeetingAttendee::where('meeting_id', $this->meeting->id)->where('user_id', $id)->whereNull('leave')->orderBy('join')->first();
+                        // if no previous currently active attendance found in database, create new attendance
+                        if ($meetingAttendee == null) {
+                            $meetingAttendee = new MeetingAttendee();
+                            $meetingAttendee->meeting()->associate($this->meeting);
+                            $meetingAttendee->user()->associate($user);
+                            $meetingAttendee->join = now();
+                            $meetingAttendee->save();
+                        }
+                        // add found or created record to list of new or existing attendances
+                        array_push($newAndExistingAttendees, $meetingAttendee->id);
+                    } else {
+                        // user was not found in database
+                        \Illuminate\Support\Facades\Log::notice('Attendee user not found.', ['user' => $id, 'meeting' => $this->meeting->id]);
+                    }
+
+                    break;
+                case 's': // users, identified by their session id
+                    // check if user is marked in the database as still attending
+                    $meetingAttendee = MeetingAttendee::where('meeting_id', $this->meeting->id)->where('session_id', $id)->whereNull('leave')->orderBy('join')->first();
+                    // if no previous currently active attendance found in database, create new attendance
+                    if ($meetingAttendee == null) {
+                        $meetingAttendee = new MeetingAttendee();
+                        $meetingAttendee->meeting()->associate($this->meeting);
+                        $meetingAttendee->name = $attendee->getFullName();
+                        $meetingAttendee->session_id = $id;
+                        $meetingAttendee->join = now();
+                        $meetingAttendee->save();
+                    }
+                    // add found or created record to list of new or existing attendances
+                    array_push($newAndExistingAttendees, $meetingAttendee->id);
+
+                    break;
+                default:
+                    // some other not supported prefix was found
+                    Log::notice('Unknown prefix for attendee found.', ['prefix' => $prefix, 'meeting' => $this->meeting->id]);
+
+                    break;
+            }
+        }
+
+        // get all active attendees from database
+        $allAttendees = MeetingAttendee::where('meeting_id', $this->meeting->id)->whereNull('leave')->get();
+        // remove added or found attendees, to only have attendees left that are no longer active
+        $leftAttendees = $allAttendees->filter(function ($attendee, $key) use ($newAndExistingAttendees) {
+            return ! in_array($attendee->id, $newAndExistingAttendees);
+        });
+        // set end time of left attendees to current datetime
+        foreach ($leftAttendees as $leftAttendee) {
+            $leftAttendee->leave = now();
+            $leftAttendee->save();
+        }
+    }
+
     /**
      * Collection of the attendance of users and guests
      * Multiple sessions of the same user/guest are grouped and the length of each session summed
@@ -211,17 +290,17 @@ class MeetingService
     {
         // Load guest and user attendances, group by session or user_id
         $guests = $this->meeting->attendees()->whereNotNull('session_id')->get()->groupBy('session_id');
-        $users  = $this->meeting->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
+        $users = $this->meeting->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
 
         // create array of guest attendees
-        $guests       = $guests->map(function ($guest) {
+        $guests = $guests->map(function ($guest) {
             $sessions = $this->mapAttendanceSessions($guest);
 
             return ['name' => $guest[0]->name, 'email' => null, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
         });
 
         // create array of user attendees
-        $users        = $users->map(function ($user) {
+        $users = $users->map(function ($user) {
             $sessions = $this->mapAttendanceSessions($user);
 
             return ['name' => $user[0]->user->firstname.' '.$user[0]->user->lastname, 'email' => $user[0]->user->email, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
@@ -238,25 +317,22 @@ class MeetingService
 
     /**
      * Helper function for attendance(), map each attendance database entry to an attendance session array
-     * @param $sessions
      */
     private function mapAttendanceSessions($sessions): mixed
     {
         return $sessions->map(function ($session) {
-            return ['id'=> $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
+            return ['id' => $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => (int) $session->join->diffInMinutes($session->leave)];
         });
     }
 
     /**
-     * @param  mixed            $token
-     * @param  StartJoinMeeting $request
-     * @param  Room             $room
-     * @return string
+     * @param  mixed  $token
+     * @param  Room  $room
      */
     public function getJoinUrl(StartJoinMeeting $request): string
     {
         $roomAuthService = app()->make(RoomAuthService::class);
-        $token           = $roomAuthService->getRoomToken($this->meeting->room);
+        $token = $roomAuthService->getRoomToken($this->meeting->room);
 
         if (Auth::guest()) {
             if ($token) {
@@ -268,21 +344,20 @@ class MeetingService
             $name = Auth::user()->fullname;
         }
 
-        $userId         = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
-        $roomUserRole   = $this->meeting->room->getRole(Auth::user(), $token);
+        $userId = Auth::guest() ? 's'.session()->getId() : 'u'.Auth::user()->id;
+        $roomUserRole = $this->meeting->room->getRole(Auth::user(), $token);
 
-        $bbbRole = Role::VIEWER;
-
-        if ($roomUserRole->is(RoomUserRole::MODERATOR) || $roomUserRole->is(RoomUserRole::CO_OWNER) || $roomUserRole->is(RoomUserRole::OWNER)) {
-            $bbbRole = Role::MODERATOR;
-        }
+        $bbbRole = match ($roomUserRole) {
+            RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER, RoomUserRole::OWNER => Role::MODERATOR,
+            default => Role::VIEWER,
+        };
 
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $bbbRole);
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setErrorRedirectUrl(url('rooms/'.$this->meeting->room->id));
         $joinMeetingParams->setUserID($userId);
         $joinMeetingParams->setAvatarURL(Auth::user() ? Auth::user()->imageUrl : null);
-        if ($roomUserRole->is(RoomUserRole::GUEST)) {
+        if ($roomUserRole == RoomUserRole::GUEST) {
             $joinMeetingParams->setGuest(true);
         }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);

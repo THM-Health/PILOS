@@ -2,11 +2,11 @@
 
 use App\Auth\LDAP\LDAPController;
 use App\Http\Controllers\api\v1\ApplicationController;
-use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
 use App\Http\Controllers\api\v1\auth\ResetPasswordController;
 use App\Http\Controllers\api\v1\auth\VerificationController;
+use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\MeetingController;
 use App\Http\Controllers\api\v1\PermissionController;
 use App\Http\Controllers\api\v1\RecordingController;
@@ -20,10 +20,7 @@ use App\Http\Controllers\api\v1\ServerController;
 use App\Http\Controllers\api\v1\ServerPoolController;
 use App\Http\Controllers\api\v1\SessionController;
 use App\Http\Controllers\api\v1\UserController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\Rule;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,61 +37,61 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('locale/{locale}', [LocaleController::class, 'show'])->name('locale.get');
     Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
 
-    Route::get('settings', [ApplicationController::class,'settings'])->name('application');
-    Route::get('currentUser', [ApplicationController::class,'currentUser'])->name('currentUser');
+    Route::get('settings', [ApplicationController::class, 'settings'])->name('application');
+    Route::get('currentUser', [ApplicationController::class, 'currentUser'])->name('currentUser');
 
-    Route::post('login/local', [LoginController::class,'login'])->name('login.local')->middleware(['enable_if_config:auth.local.enabled']);
-    Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap')->middleware(['enable_if_config:ldap.enabled']);
+    Route::post('login/local', [LoginController::class, 'login'])->name('login.local')->middleware(['enable_if_config:auth.local.enabled']);
+    Route::post('login/ldap', [LDAPController::class, 'login'])->name('login.ldap')->middleware(['enable_if_config:ldap.enabled']);
 
-    Route::post('logout', [LoginController::class,'logout'])->name('logout');
-    Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.reset')->middleware(['enable_if_config:auth.local.enabled','guest', 'throttle:password_reset']);
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+    Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset')->middleware(['enable_if_config:auth.local.enabled', 'guest', 'throttle:password_reset']);
 
     // TODO: Implement or remove this completely
     // Route::post('register', 'RegisterController@register');
 
-    Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if_config:auth.local.enabled', 'enable_if_setting:password_change_allowed', 'guest', 'throttle:password_email']);
+    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if_config:auth.local.enabled', 'enable_if_setting:password_change_allowed', 'guest', 'throttle:password_email']);
 
     Route::middleware('auth:users,ldap')->group(function () {
-        Route::get('settings/all', [ApplicationController::class,'allSettings'])->name('application.complete')->middleware('can:applicationSettings.viewAny');
-        Route::put('settings', [ApplicationController::class,'updateSettings'])->name('application.update')->middleware('can:applicationSettings.update');
+        Route::get('settings/all', [ApplicationController::class, 'allSettings'])->name('application.complete')->middleware('can:applicationSettings.viewAny');
+        Route::put('settings', [ApplicationController::class, 'updateSettings'])->name('application.update')->middleware('can:applicationSettings.update');
 
         Route::apiResource('roles', RoleController::class);
         Route::apiResource('roomTypes', RoomTypeController::class);
 
-        Route::get('permissions', [PermissionController::class,'index'])->name('permissions.index');
+        Route::get('permissions', [PermissionController::class, 'index'])->name('permissions.index');
 
-        Route::get('rooms', [RoomController::class,'index'])->name('rooms.index');
-        Route::post('rooms', [RoomController::class,'store'])->name('rooms.store');
+        Route::get('rooms', [RoomController::class, 'index'])->name('rooms.index');
+        Route::post('rooms', [RoomController::class, 'store'])->name('rooms.store');
         Route::post('rooms/{room}/favorites', [RoomController::class, 'addToFavorites'])->name('rooms.favorites.add');
         Route::delete('rooms/{room}/favorites', [RoomController::class, 'deleteFromFavorites'])->name('rooms.favorites.delete');
-        Route::put('rooms/{room}', [RoomController::class,'update'])->name('rooms.update');
-        Route::delete('rooms/{room}', [RoomController::class,'destroy'])->name('rooms.destroy');
+        Route::put('rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
+        Route::delete('rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
 
-        Route::get('rooms/{room}/settings', [RoomController::class,'getSettings'])->name('rooms.settings');
+        Route::get('rooms/{room}/settings', [RoomController::class, 'getSettings'])->name('rooms.settings');
 
-        Route::put('rooms/{room}/description', [RoomController::class,'updateDescription'])->name('rooms.description.update')->middleware('can:update,room');
+        Route::put('rooms/{room}/description', [RoomController::class, 'updateDescription'])->name('rooms.description.update')->middleware('can:update,room');
 
-        Route::post('rooms/{room}/transfer', [RoomController::class,'transferOwnership'])->name('rooms.transfer')->middleware('can:transfer,room');
+        Route::post('rooms/{room}/transfer', [RoomController::class, 'transferOwnership'])->name('rooms.transfer')->middleware('can:transfer,room');
 
         // Membership user self add/remove
-        Route::post('rooms/{room}/membership', [RoomMemberController::class,'join'])->name('rooms.membership.join');
-        Route::delete('rooms/{room}/membership', [RoomMemberController::class,'leave'])->name('rooms.membership.leave');
+        Route::post('rooms/{room}/membership', [RoomMemberController::class, 'join'])->name('rooms.membership.join');
+        Route::delete('rooms/{room}/membership', [RoomMemberController::class, 'leave'])->name('rooms.membership.leave');
 
         // Membership users for mass update & delete
-        Route::post('rooms/{room}/member/bulk', [RoomMemberController::class,'bulkImport'])->name('rooms.member.bulkImport')->middleware('can:manageMembers,room');
+        Route::post('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkImport'])->name('rooms.member.bulkImport')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
 
         // Membership operations by room owner
-        Route::get('rooms/{room}/member', [RoomMemberController::class,'index'])->name('rooms.member.get')->middleware('can:viewMembers,room');
-        Route::post('rooms/{room}/member', [RoomMemberController::class,'store'])->name('rooms.member.add')->middleware('can:manageMembers,room');
-        Route::put('rooms/{room}/member/{user}', [RoomMemberController::class,'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
-        Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class,'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
+        Route::get('rooms/{room}/member', [RoomMemberController::class, 'index'])->name('rooms.member.get')->middleware('can:viewMembers,room');
+        Route::post('rooms/{room}/member', [RoomMemberController::class, 'store'])->name('rooms.member.add')->middleware('can:manageMembers,room');
+        Route::put('rooms/{room}/member/{user}', [RoomMemberController::class, 'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class, 'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
 
         // Recording operations by room owner
         Route::middleware('can:manageRecordings,room')->group(function () {
-            Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class,'update'])->name('rooms.recordings.update');
-            Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class,'destroy'])->name('rooms.recordings.remove');
+            Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class, 'update'])->name('rooms.recordings.update');
+            Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class, 'destroy'])->name('rooms.recordings.remove');
         });
 
         // Personalized room tokens
@@ -105,61 +102,57 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {
-            Route::post('rooms/{room}/files', [RoomFileController::class,'store'])->name('rooms.files.add');
+            Route::post('rooms/{room}/files', [RoomFileController::class, 'store'])->name('rooms.files.add');
 
-            Route::put('rooms/{room}/files/{file}', [RoomFileController::class,'update'])->name('rooms.files.update');
-            Route::delete('rooms/{room}/files/{file}', [RoomFileController::class,'destroy'])->name('rooms.files.destroy');
+            Route::put('rooms/{room}/files/{file}', [RoomFileController::class, 'update'])->name('rooms.files.update');
+            Route::delete('rooms/{room}/files/{file}', [RoomFileController::class, 'destroy'])->name('rooms.files.destroy');
         });
 
-        Route::get('users/search', [UserController::class,'search'])->name('users.search');
+        Route::get('users/search', [UserController::class, 'search'])->name('users.search');
         Route::apiResource('users', UserController::class);
 
         // User profile changes
         // If editing own profile current password is required, this middleware should prevent brute forcing of the current password
         Route::middleware('throttle:current_password')->group(function () {
-            Route::put('users/{user}/email', [UserController::class,'changeEmail'])->name('users.email.change')->middleware('can:updateAttributes,user');
-            Route::put('users/{user}/password', [UserController::class,'changePassword'])->name('users.password.change')->middleware('can:changePassword,user');
+            Route::put('users/{user}/email', [UserController::class, 'changeEmail'])->name('users.email.change')->middleware('can:updateAttributes,user');
+            Route::put('users/{user}/password', [UserController::class, 'changePassword'])->name('users.password.change')->middleware('can:changePassword,user');
         });
-        Route::post('email/verify', [VerificationController::class,'verify'])->name('email.verify')->middleware('throttle:verify_email');
+        Route::post('email/verify', [VerificationController::class, 'verify'])->name('email.verify')->middleware('throttle:verify_email');
 
-        Route::post('users/{user}/resetPassword', [UserController::class,'resetPassword'])->name('users.password.reset')->middleware(['enable_if_config:auth.local.enabled', 'can:resetPassword,user']);
+        Route::post('users/{user}/resetPassword', [UserController::class, 'resetPassword'])->name('users.password.reset')->middleware(['enable_if_config:auth.local.enabled', 'can:resetPassword,user']);
 
+        Route::get('sessions', [SessionController::class, 'index'])->name('sessions.index');
+        Route::delete('sessions', [SessionController::class, 'destroy'])->name('sessions.destroy');
 
-        Route::get('sessions', [SessionController::class,'index'])->name('sessions.index');
-        Route::delete('sessions', [SessionController::class,'destroy'])->name('sessions.destroy');
-
-        Route::post('servers/check', [ServerController::class,'check'])->name('servers.check')->middleware('can:viewAny,App\Models\Server');
-        Route::get('servers/{server}/panic', [ServerController::class,'panic'])->name('servers.panic')->middleware('can:update,server');
+        Route::post('servers/check', [ServerController::class, 'check'])->name('servers.check')->middleware('can:viewAny,App\Models\Server');
+        Route::get('servers/{server}/panic', [ServerController::class, 'panic'])->name('servers.panic')->middleware('can:update,server');
         Route::apiResource('servers', ServerController::class);
         Route::apiResource('serverPools', ServerPoolController::class);
 
-
-        Route::get('meetings/{meeting}/attendance', [MeetingController::class,'attendance'])->name('meetings.attendance');
-        Route::get('meetings/{meeting}/stats', [MeetingController::class,'stats'])->name('meetings.stats');
-        Route::get('meetings', [MeetingController::class,'index'])->name('meetings.index');
-        Route::get('rooms/{room}/meetings', [RoomController::class,'meetings'])->name('rooms.meetings');
+        Route::get('meetings/{meeting}/attendance', [MeetingController::class, 'attendance'])->name('meetings.attendance');
+        Route::get('meetings/{meeting}/stats', [MeetingController::class, 'stats'])->name('meetings.stats');
+        Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
+        Route::get('rooms/{room}/meetings', [RoomController::class, 'meetings'])->name('rooms.meetings');
 
         Route::get('getTimezones', function () {
-            return response()->json([ 'data' => timezone_identifiers_list() ]);
+            return response()->json(['data' => timezone_identifiers_list()]);
         });
     });
 
+    Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
+    Route::get('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('room.authenticate');
+    Route::get('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join')->middleware('room.authenticate');
+    Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get')->middleware('room.authenticate');
+    Route::get('rooms/{room}/files/{file}', [RoomFileController::class, 'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
 
-    Route::get('rooms/{room}', [RoomController::class,'show'])->name('rooms.show')->middleware('room.authenticate:true');
-    Route::get('rooms/{room}/start', [RoomController::class,'start'])->name('rooms.start')->middleware('room.authenticate');
-    Route::get('rooms/{room}/join', [RoomController::class,'join'])->name('rooms.join')->middleware('room.authenticate');
-    Route::get('rooms/{room}/files', [RoomFileController::class,'index'])->name('rooms.files.get')->middleware('room.authenticate');
-    Route::get('rooms/{room}/files/{file}', [RoomFileController::class,'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
+    Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index')->middleware('room.authenticate');
+    Route::get('rooms/{room}/recordings/{format}', [RecordingController::class, 'show'])->name('rooms.recordings.get')->middleware(['can:viewRecordingFormat,room,format', 'room.authenticate']);
 
-    Route::get('rooms/{room}/recordings', [RecordingController::class,'index'])->name('rooms.recordings.index')->middleware('room.authenticate');
-    Route::get('rooms/{room}/recordings/{format}', [RecordingController::class,'show'])->name('rooms.recordings.get')->middleware(['can:viewRecordingFormat,room,format', 'room.authenticate']);
-
-
-    Route::get('meetings/{meeting}/endCallback', [MeetingController::class,'endMeetingCallback'])->name('meetings.endcallback');
+    Route::get('meetings/{meeting}/endCallback', [MeetingController::class, 'endMeetingCallback'])->name('meetings.endcallback');
 });
 
-if (!env('DISABLE_CATCHALL_ROUTES')) {
+if (! env('DISABLE_CATCHALL_ROUTES')) {
     Route::any('/{any}', function () {
-        return response()->json([ 'message' => 'Not found!' ], 404);
+        return response()->json(['message' => 'Not found!'], 404);
     })->where('any', '.*');
 }

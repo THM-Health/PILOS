@@ -16,14 +16,14 @@ use Str;
 abstract class ExternalUser
 {
     /**
-     * @var array $attributes An associative array to store attribute names and their values.
+     * @var array An associative array to store attribute names and their values.
      */
     private array $attributes = [];
 
     /**
      * Create or find an Eloquent User model based on the external_id attribute.
      * New users will be created with default values for locale and timezone.
-     * 
+     *
      * @return User The User Eloquent model.
      */
     public function createOrFindEloquentModel(string $authenticator): User
@@ -31,12 +31,12 @@ abstract class ExternalUser
         return User::firstOrNew(
             [
                 'authenticator' => $authenticator,
-                'external_id'   => $this->getFirstAttributeValue('external_id')
+                'external_id' => $this->getFirstAttributeValue('external_id'),
             ],
             [
                 'password' => Hash::make(Str::random()),
-                'locale'   => config('app.locale'),
-                'timezone' => setting('default_timezone')
+                'locale' => config('app.locale'),
+                'timezone' => setting('default_timezone'),
             ]
         );
     }
@@ -44,12 +44,12 @@ abstract class ExternalUser
     /**
      * Add a value to an attribute.
      *
-     * @param string $name  The name of the attribute.
-     * @param mixed  $value The value to add to the attribute.
+     * @param  string  $name  The name of the attribute.
+     * @param  mixed  $value  The value to add to the attribute.
      */
     public function addAttributeValue($name, $value)
     {
-        if (!isset($this->attributes[$name])) {
+        if (! isset($this->attributes[$name])) {
             $this->attributes[$name] = [];
         }
         $this->attributes[$name][] = $value;
@@ -68,7 +68,7 @@ abstract class ExternalUser
     /**
      * Get the first value of an attribute.
      *
-     * @param  string     $name The name of the attribute.
+     * @param  string  $name  The name of the attribute.
      * @return mixed|null The first value of the attribute, or null if not set.
      */
     public function getFirstAttributeValue($name)
@@ -79,7 +79,7 @@ abstract class ExternalUser
     /**
      * Get all values of an attribute.
      *
-     * @param  string     $name The name of the attribute.
+     * @param  string  $name  The name of the attribute.
      * @return array|null The array of values for the attribute, or null if not set.
      */
     public function getAttributeValues($name)
@@ -97,7 +97,7 @@ abstract class ExternalUser
             'external_id',
             'first_name',
             'last_name',
-            'email'
+            'email',
         ];
 
         foreach ($requiredAttributes as $attribute) {
@@ -116,8 +116,8 @@ abstract class ExternalUser
 
         // Sync attributes
         $eloquentUser->firstname = $this->getFirstAttributeValue('first_name');
-        $eloquentUser->lastname  = $this->getFirstAttributeValue('last_name');
-        $eloquentUser->email     = $this->getFirstAttributeValue('email');
+        $eloquentUser->lastname = $this->getFirstAttributeValue('last_name');
+        $eloquentUser->email = $this->getFirstAttributeValue('email');
 
         // Save/update user
         $eloquentUser->save();
@@ -131,8 +131,8 @@ abstract class ExternalUser
     /**
      * Maps user attributes to roles based on the provided config
      *
-     * @param User  $user  The user the roles should be applied to
-     * @param array $roles The configuration object containing the roles and rules
+     * @param  User  $user  The user the roles should be applied to
+     * @param  array  $roles  The configuration object containing the roles and rules
      */
     public function mapRoles(User $eloquentUser, array $roles)
     {
@@ -153,13 +153,13 @@ abstract class ExternalUser
         }
 
         Log::info('Roles found for user ({user}): {roles}.', ['user' => $eloquentUser->external_id, 'roles' => implode(', ', $matchedRoles)]);
-        
-        $roleIds   = [];
+
+        $roleIds = [];
 
         foreach ($matchedRoles as $roleName) {
             $role = Role::where('name', $roleName)->first();
 
-            if (!empty($role)) {
+            if (! empty($role)) {
                 $roleIds[$role->id] = ['automatic' => true];
             }
         }
@@ -168,10 +168,6 @@ abstract class ExternalUser
         $eloquentUser->roles()->detach($eloquentUser->roles()->wherePivot('automatic', '=', true)->whereNotIn('role_id', array_keys($roleIds))->pluck('role_id')->toArray());
     }
 
-    /**
-     * @param  mixed $role
-     * @return bool
-     */
     private function areRulesFulfilled(mixed $role): bool
     {
         // Results of checking each rule
@@ -198,7 +194,7 @@ abstract class ExternalUser
             }
         } else {
             // If any rules must be fulfilled, check if any rule is fulfilled
-            if (!in_array(true, $rulesFulfilled)) {
+            if (! in_array(true, $rulesFulfilled)) {
                 // No rule is fulfilled, therefore the role should not be applied
                 return false;
             }
@@ -208,9 +204,7 @@ abstract class ExternalUser
     }
 
     /**
-     * @param  array $values
-     * @param  mixed $rule
-     * @return bool
+     * @param  array  $values
      */
     private function isRuleFulfilled($values, mixed $rule): bool
     {
@@ -226,11 +220,11 @@ abstract class ExternalUser
         if ($rule->all ?? false) {
             // If the rule is negated, check if regex never matches any of the entries (no entry is true)
             if ($rule->not ?? false) {
-                return !in_array(true, $matches);
+                return ! in_array(true, $matches);
             }
 
             // Check if regex matches all the entries (no entry is false)
-            return !in_array(false, $matches);
+            return ! in_array(false, $matches);
         } // Check if regex has to (not) match with any array entries
         else {
             // If the rule is negated, check if regex doesn't match on any entry (any entry is false)

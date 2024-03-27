@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Session extends Model
 {
-    protected $keyType   = 'string';
+    protected $keyType = 'string';
+
     public $incrementing = false;
 
     public $timestamps = false;
@@ -19,6 +20,7 @@ class Session extends Model
 
     /**
      * User this session belongs to
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()

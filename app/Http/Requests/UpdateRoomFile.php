@@ -10,8 +10,8 @@ class UpdateRoomFile extends FormRequest
     {
         return [
             'use_in_meeting' => 'sometimes|required|boolean',
-            'download'       => 'sometimes|required|boolean',
-            'default'        => 'sometimes|required|boolean',
+            'download' => 'sometimes|required|boolean',
+            'default' => 'sometimes|required|boolean',
         ];
     }
 }

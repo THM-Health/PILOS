@@ -14,14 +14,15 @@ class MeetingStat extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'participant_count'       => 'integer',
-        'listener_count'          => 'integer',
+        'participant_count' => 'integer',
+        'listener_count' => 'integer',
         'voice_participant_count' => 'integer',
-        'video_count'             => 'integer'
+        'video_count' => 'integer',
     ];
 
     /**
      * Meeting the statistical data belongs to
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function meeting()

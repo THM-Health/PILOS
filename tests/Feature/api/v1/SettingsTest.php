@@ -38,13 +38,13 @@ class SettingsTest extends TestCase
         setting(['room_pagination_page_size' => '123']);
         setting(['room_limit' => '-1']);
         setting(['banner' => [
-            'enabled'    => true,
-            'message'    => 'Welcome to Test!',
-            'title'      => 'Welcome',
-            'color'      => '#fff',
+            'enabled' => true,
+            'message' => 'Welcome to Test!',
+            'title' => 'Welcome',
+            'color' => '#fff',
             'background' => '#4a5c66',
-            'link'       => 'http://localhost',
-            'icon'       => 'fas fa-door-open',
+            'link' => 'http://localhost',
+            'icon' => 'fas fa-door-open',
         ]]);
         setting(['help_url' => 'http://localhost']);
         setting(['legal_notice_url' => 'http://localhost']);
@@ -59,64 +59,64 @@ class SettingsTest extends TestCase
 
         setting(['statistics' => [
             'meetings' => [
-                'enabled'           => true,
-                'retention_period'  => 90
+                'enabled' => true,
+                'retention_period' => 90,
             ],
         ]]);
 
         setting(['attendance' => [
-            'retention_period'  => 14
+            'retention_period' => 14,
         ]]);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
-                    'version'                        => 'v1.0.0',
-                    'whitelabel'                     => false,
-                    'base_url'                       => 'https://domain.tld',
-                    'logo'                           => 'testlogo.svg',
-                    'pagination_page_size'           => '123',
-                    'room_pagination_page_size'      => '123',
-                    'room_limit'                     => '-1',
-                    'banner'                         => [
-                        'enabled'    => true,
-                        'message'    => 'Welcome to Test!',
-                        'title'      => 'Welcome',
-                        'color'      => '#fff',
+                    'version' => 'v1.0.0',
+                    'whitelabel' => false,
+                    'base_url' => 'https://domain.tld',
+                    'logo' => 'testlogo.svg',
+                    'pagination_page_size' => '123',
+                    'room_pagination_page_size' => '123',
+                    'room_limit' => '-1',
+                    'banner' => [
+                        'enabled' => true,
+                        'message' => 'Welcome to Test!',
+                        'title' => 'Welcome',
+                        'color' => '#fff',
                         'background' => '#4a5c66',
-                        'link'       => 'http://localhost',
-                        'icon'       => 'fas fa-door-open',
+                        'link' => 'http://localhost',
+                        'icon' => 'fas fa-door-open',
                     ],
-                    'help_url'           => 'http://localhost',
-                    'legal_notice_url'   => 'http://localhost',
+                    'help_url' => 'http://localhost',
+                    'legal_notice_url' => 'http://localhost',
                     'privacy_policy_url' => 'http://localhost',
-                    'statistics'         => [
+                    'statistics' => [
                         'meetings' => [
-                            'enabled'           => true,
-                            'retention_period'  => 90
-                        ]
+                            'enabled' => true,
+                            'retention_period' => 90,
+                        ],
                     ],
                     'attendance' => [
-                        'retention_period'  => 14
+                        'retention_period' => 14,
                     ],
                     'room_token_expiration' => -1,
-                    'room_refresh_rate'     => 20,
-                    'auth'                  => [
+                    'room_refresh_rate' => 20,
+                    'auth' => [
                         'local' => true,
-                        'ldap'  => false
-                    ]
-                ]
+                        'ldap' => false,
+                    ],
+                ],
             ])
             ->assertSuccessful();
 
         setting(['banner' => [
-            'enabled'    => false,
-            'message'    => 'Welcome to Test!',
-            'title'      => 'Welcome',
-            'color'      => '#fff',
+            'enabled' => false,
+            'message' => 'Welcome to Test!',
+            'title' => 'Welcome',
+            'color' => '#fff',
             'background' => '#4a5c66',
-            'link'       => 'http://localhost',
-            'icon'       => 'fas fa-door-open',
+            'link' => 'http://localhost',
+            'icon' => 'fas fa-door-open',
         ]]);
         setting(['help_url' => null]);
         setting(['legal_notice_url' => null]);
@@ -124,8 +124,8 @@ class SettingsTest extends TestCase
 
         setting(['statistics' => [
             'meetings' => [
-                'enabled'           => false,
-                'retention_period'  => 90
+                'enabled' => false,
+                'retention_period' => 90,
             ],
         ]]);
 
@@ -133,11 +133,11 @@ class SettingsTest extends TestCase
         config(['app.whitelabel' => true]);
 
         setting(['attendance' => [
-            'retention_period'  => 14
+            'retention_period' => 14,
         ]]);
 
         setting(['room_token_expiration' => 100]);
-        config(['bigbluebutton.room_refresh_rate' => 5.5]);
+        config(['bigbluebutton.room_refresh_rate' => 5]);
 
         config(['auth.local.enabled' => false]);
         config(['ldap.enabled' => true]);
@@ -145,34 +145,34 @@ class SettingsTest extends TestCase
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
-                    'version'                        => null,
-                    'whitelabel'                     => true,
-                    'logo'                           => 'testlogo.svg',
-                    'pagination_page_size'           => '123',
-                    'room_pagination_page_size'      => '123',
-                    'room_limit'                     => '-1',
-                    'banner'                         => [
-                        'enabled'    => false
+                    'version' => null,
+                    'whitelabel' => true,
+                    'logo' => 'testlogo.svg',
+                    'pagination_page_size' => '123',
+                    'room_pagination_page_size' => '123',
+                    'room_limit' => '-1',
+                    'banner' => [
+                        'enabled' => false,
                     ],
-                    'help_url'            => null,
-                    'legal_notice_url'    => null,
-                    'privacy_policy_url'  => null,
-                    'statistics'          => [
+                    'help_url' => null,
+                    'legal_notice_url' => null,
+                    'privacy_policy_url' => null,
+                    'statistics' => [
                         'meetings' => [
-                            'enabled'           => false,
-                            'retention_period'  => 90
-                        ]
+                            'enabled' => false,
+                            'retention_period' => 90,
+                        ],
                     ],
                     'attendance' => [
-                        'retention_period'  => 14
+                        'retention_period' => 14,
                     ],
                     'room_token_expiration' => 100,
-                    'room_refresh_rate'     => 5.5,
-                    'auth'                  => [
+                    'room_refresh_rate' => 5,
+                    'auth' => [
                         'local' => false,
-                        'ldap'  => true
-                    ]
-                ]
+                        'ldap' => true,
+                    ],
+                ],
             ])
             ->assertSuccessful();
     }
@@ -190,13 +190,13 @@ class SettingsTest extends TestCase
         setting(['room_pagination_page_size' => '123']);
         setting(['room_limit' => '-1']);
         setting(['banner' => [
-            'enabled'    => true,
-            'message'    => 'Welcome to Test!',
-            'title'      => 'Welcome',
-            'color'      => '#fff',
+            'enabled' => true,
+            'message' => 'Welcome to Test!',
+            'title' => 'Welcome',
+            'color' => '#fff',
             'background' => '#4a5c66',
-            'link'       => 'http://localhost',
-            'icon'       => 'fas fa-door-open',
+            'link' => 'http://localhost',
+            'icon' => 'fas fa-door-open',
         ]]);
 
         setting(['bbb_style' => url('style.css')]);
@@ -210,30 +210,30 @@ class SettingsTest extends TestCase
 
         setting(['statistics' => [
             'servers' => [
-                'enabled'           => true,
-                'retention_period'  => 7
+                'enabled' => true,
+                'retention_period' => 7,
             ],
             'meetings' => [
-                'enabled'           => false,
-                'retention_period'  => 90
+                'enabled' => false,
+                'retention_period' => 90,
             ],
         ]]);
 
         setting(['attendance' => [
-            'retention_period'  => 14
+            'retention_period' => 14,
         ]]);
 
         setting(['room_auto_delete' => [
-            'enabled'            => false,
-            'inactive_period'    => 7,
-            'never_used_period'  => 14,
-            'deadline_period'    => 30
+            'enabled' => false,
+            'inactive_period' => 7,
+            'never_used_period' => 14,
+            'deadline_period' => 30,
         ]]);
 
         $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
 
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -241,120 +241,120 @@ class SettingsTest extends TestCase
         $this->getJson(route('api.v1.application.complete'))
             ->assertJson([
                 'data' => [
-                    'base_url'                       => 'https://domain.tld',
-                    'logo'                           => 'testlogo.svg',
-                    'pagination_page_size'           => '123',
-                    'room_pagination_page_size'      => '123',
-                    'room_limit'                     => '-1',
-                    'room_refresh_rate'              => 20,
-                    'banner'                         => [
-                        'enabled'    => true,
-                        'message'    => 'Welcome to Test!',
-                        'title'      => 'Welcome',
-                        'color'      => '#fff',
+                    'base_url' => 'https://domain.tld',
+                    'logo' => 'testlogo.svg',
+                    'pagination_page_size' => '123',
+                    'room_pagination_page_size' => '123',
+                    'room_limit' => '-1',
+                    'room_refresh_rate' => 20,
+                    'banner' => [
+                        'enabled' => true,
+                        'message' => 'Welcome to Test!',
+                        'title' => 'Welcome',
+                        'color' => '#fff',
                         'background' => '#4a5c66',
-                        'link'       => 'http://localhost',
-                        'icon'       => 'fas fa-door-open',
+                        'link' => 'http://localhost',
+                        'icon' => 'fas fa-door-open',
                     ],
                     'bbb' => [
-                        'file_mimes'            => 'pdf,doc,docx,xls',
-                        'max_filesize'          => 10,
-                        'room_name_limit'       => 20,
+                        'file_mimes' => 'pdf,doc,docx,xls',
+                        'max_filesize' => 10,
+                        'room_name_limit' => 20,
                         'welcome_message_limit' => 100,
-                        'style'                 => url('style.css'),
-                        'logo'                  => url('logo.png'),
+                        'style' => url('style.css'),
+                        'logo' => url('logo.png'),
                     ],
                     'statistics' => [
                         'servers' => [
-                            'enabled'           => true,
-                            'retention_period'  => 7
+                            'enabled' => true,
+                            'retention_period' => 7,
                         ],
                         'meetings' => [
-                            'enabled'           => false,
-                            'retention_period'  => 90
-                        ]
+                            'enabled' => false,
+                            'retention_period' => 90,
+                        ],
                     ],
                     'attendance' => [
-                        'retention_period'  => 14
+                        'retention_period' => 14,
                     ],
                     'room_auto_delete' => [
-                        'enabled'            => false,
-                        'inactive_period'    => 7,
-                        'never_used_period'  => 14,
-                        'deadline_period'    => 30
+                        'enabled' => false,
+                        'inactive_period' => 7,
+                        'never_used_period' => 14,
+                        'deadline_period' => 30,
                     ],
-                ]
+                ],
             ])
             ->assertSuccessful();
 
         setting(['banner' => [
-            'enabled'    => false,
-            'message'    => 'Welcome to Test!',
-            'title'      => 'Welcome',
-            'color'      => '#fff',
+            'enabled' => false,
+            'message' => 'Welcome to Test!',
+            'title' => 'Welcome',
+            'color' => '#fff',
             'background' => '#4a5c66',
-            'link'       => 'http://localhost',
-            'icon'       => 'fas fa-door-open',
+            'link' => 'http://localhost',
+            'icon' => 'fas fa-door-open',
         ]]);
 
         setting(['statistics' => [
             'servers' => [
-                'enabled'           => false,
-                'retention_period'  => 7
+                'enabled' => false,
+                'retention_period' => 7,
             ],
             'meetings' => [
-                'enabled'           => true,
-                'retention_period'  => 90
+                'enabled' => true,
+                'retention_period' => 90,
             ],
         ]]);
 
         setting(['attendance' => [
-            'retention_period'  => 14
+            'retention_period' => 14,
         ]]);
 
         setting(['room_auto_delete' => [
-            'enabled'            => true,
-            'inactive_period'    => 14,
-            'never_used_period'  => 7,
-            'deadline_period'    => 2
+            'enabled' => true,
+            'inactive_period' => 14,
+            'never_used_period' => 7,
+            'deadline_period' => 2,
         ]]);
 
         $this->getJson(route('api.v1.application.complete'))
             ->assertJson([
                 'data' => [
-                    'logo'                           => 'testlogo.svg',
-                    'pagination_page_size'           => '123',
-                    'room_pagination_page_size'      => '123',
-                    'room_limit'                     => '-1',
-                    'banner'                         => [
-                        'enabled'    => false,
-                        'message'    => 'Welcome to Test!',
-                        'title'      => 'Welcome',
-                        'color'      => '#fff',
+                    'logo' => 'testlogo.svg',
+                    'pagination_page_size' => '123',
+                    'room_pagination_page_size' => '123',
+                    'room_limit' => '-1',
+                    'banner' => [
+                        'enabled' => false,
+                        'message' => 'Welcome to Test!',
+                        'title' => 'Welcome',
+                        'color' => '#fff',
                         'background' => '#4a5c66',
-                        'link'       => 'http://localhost',
-                        'icon'       => 'fas fa-door-open',
+                        'link' => 'http://localhost',
+                        'icon' => 'fas fa-door-open',
                     ],
                     'statistics' => [
                         'servers' => [
-                            'enabled'           => false,
-                            'retention_period'  => 7
+                            'enabled' => false,
+                            'retention_period' => 7,
                         ],
                         'meetings' => [
-                            'enabled'           => true,
-                            'retention_period'  => 90
-                        ]
+                            'enabled' => true,
+                            'retention_period' => 90,
+                        ],
                     ],
                     'attendance' => [
-                        'retention_period'  => 14
+                        'retention_period' => 14,
                     ],
                     'room_auto_delete' => [
-                        'enabled'            => true,
-                        'inactive_period'    => 14,
-                        'never_used_period'  => 7,
-                        'deadline_period'    => 2
+                        'enabled' => true,
+                        'inactive_period' => 14,
+                        'never_used_period' => 7,
+                        'deadline_period' => 2,
                     ],
-                ]
+                ],
             ])
             ->assertSuccessful();
     }
@@ -362,54 +362,54 @@ class SettingsTest extends TestCase
     public function testAllApplicationSettingsReturnedOnUpdate()
     {
         $payload = [
-            'name'                           => 'test',
-            'logo'                           => 'testlogo.svg',
-            'favicon'                        => 'favicon.ico',
-            'bbb'                            => [
+            'name' => 'test',
+            'logo' => 'testlogo.svg',
+            'favicon' => 'favicon.ico',
+            'bbb' => [
                 'logo' => 'bbblogo.png',
             ],
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => [
-                'enabled'     => false,
-                'message'     => 'Welcome to Test!',
-                'title'       => 'Welcome',
-                'color'       => '#fff',
-                'background'  => '#4a5c66',
-                'link'        => 'http://localhost',
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => [
+                'enabled' => false,
+                'message' => 'Welcome to Test!',
+                'title' => 'Welcome',
+                'color' => '#fff',
+                'background' => '#4a5c66',
+                'link' => 'http://localhost',
                 'link_target' => 'self',
-                'link_style'  => 'primary',
-                'icon'        => 'fas fa-door-open',
+                'link_style' => 'primary',
+                'icon' => 'fas fa-door-open',
             ],
-            'password_change_allowed'     => '1',
-            'default_timezone'            => 'Europe/Berlin',
-            'help_url'                    => 'http://localhost',
-            'legal_notice_url'            => 'http://localhost',
-            'privacy_policy_url'          => 'http://localhost',
-            'room_token_expiration'       => -1,
-            'statistics'                  => [
+            'password_change_allowed' => '1',
+            'default_timezone' => 'Europe/Berlin',
+            'help_url' => 'http://localhost',
+            'legal_notice_url' => 'http://localhost',
+            'privacy_policy_url' => 'http://localhost',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => false,
-                    'retention_period'  => 7
+                    'enabled' => false,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
-            'room_auto_delete'           => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
+            'room_auto_delete' => [
+                'enabled' => true,
+                'inactive_period' => 14,
+                'never_used_period' => 30,
+                'deadline_period' => 7,
+            ],
         ];
 
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -418,50 +418,50 @@ class SettingsTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'data' => [
-                    'name'                           => 'test',
-                    'logo'                           => 'testlogo.svg',
-                    'favicon'                        => 'favicon.ico',
-                    'pagination_page_size'           => 10,
-                    'room_pagination_page_size'      => 15,
-                    'room_limit'                     => -1,
-                    'bbb'                            => [
-                      'logo' => 'bbblogo.png'
+                    'name' => 'test',
+                    'logo' => 'testlogo.svg',
+                    'favicon' => 'favicon.ico',
+                    'pagination_page_size' => 10,
+                    'room_pagination_page_size' => 15,
+                    'room_limit' => -1,
+                    'bbb' => [
+                        'logo' => 'bbblogo.png',
                     ],
-                    'banner'                         => [
-                        'enabled'    => false,
-                        'message'    => 'Welcome to Test!',
-                        'title'      => 'Welcome',
-                        'color'      => '#fff',
+                    'banner' => [
+                        'enabled' => false,
+                        'message' => 'Welcome to Test!',
+                        'title' => 'Welcome',
+                        'color' => '#fff',
                         'background' => '#4a5c66',
-                        'link'       => 'http://localhost',
-                        'icon'       => 'fas fa-door-open',
+                        'link' => 'http://localhost',
+                        'icon' => 'fas fa-door-open',
                     ],
-                    'password_change_allowed'     => true,
-                    'default_timezone'            => 'Europe/Berlin',
-                    'help_url'                    => 'http://localhost',
-                    'legal_notice_url'            => 'http://localhost',
-                    'privacy_policy_url'          => 'http://localhost',
-                    'room_token_expiration'       => -1,
-                    'statistics'                  => [
+                    'password_change_allowed' => true,
+                    'default_timezone' => 'Europe/Berlin',
+                    'help_url' => 'http://localhost',
+                    'legal_notice_url' => 'http://localhost',
+                    'privacy_policy_url' => 'http://localhost',
+                    'room_token_expiration' => -1,
+                    'statistics' => [
                         'servers' => [
-                            'enabled'           => false,
-                            'retention_period'  => 7
+                            'enabled' => false,
+                            'retention_period' => 7,
                         ],
                         'meetings' => [
-                            'enabled'           => true,
-                            'retention_period'  => 90
-                        ]
+                            'enabled' => true,
+                            'retention_period' => 90,
+                        ],
                     ],
                     'attendance' => [
-                        'retention_period'  => 14
+                        'retention_period' => 14,
                     ],
                     'room_auto_delete' => [
-                        'enabled'           => true,
-                        'inactive_period'   => 14,
+                        'enabled' => true,
+                        'inactive_period' => 14,
                         'never_used_period' => 30,
-                        'deadline_period'   => 7
+                        'deadline_period' => 7,
                     ],
-                ]
+                ],
             ]);
         $this->assertTrue(setting()->has('help_url'));
         $this->assertEquals('http://localhost', setting('help_url'));
@@ -472,8 +472,8 @@ class SettingsTest extends TestCase
         $this->assertTrue(setting()->has('privacy_policy_url'));
         $this->assertEquals('http://localhost', setting('privacy_policy_url'));
 
-        $payload['help_url']           = '';
-        $payload['legal_notice_url']   = '';
+        $payload['help_url'] = '';
+        $payload['legal_notice_url'] = '';
         $payload['privacy_policy_url'] = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -492,38 +492,38 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithValidInputsImageFile()
     {
         $payload = [
-            'name'                           => 'test',
-            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
-            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
-            'bbb'                            => [
+            'name' => 'test',
+            'logo_file' => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'bbb' => [
                 'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
             ],
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => false,
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => false,
+            'default_timezone' => 'Europe/Berlin',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => false,
-                    'retention_period'  => 7
+                    'enabled' => false,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => 14,
+                'never_used_period' => 30,
+                'deadline_period' => 7,
+            ],
         ];
 
         // Unauthorized Test
@@ -535,7 +535,7 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -552,38 +552,38 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithValidInputsImageUrl()
     {
         $payload = [
-            'name'                           => 'test',
-            'favicon'                        => '/storage/image/testfavicon.ico',
-            'logo'                           => '/storage/image/testlogo.svg',
-            'bbb'                            => [
-                'logo'                           => '/storage/image/testbbblogo.png',
-             ],
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => '1',
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'name' => 'test',
+            'favicon' => '/storage/image/testfavicon.ico',
+            'logo' => '/storage/image/testlogo.svg',
+            'bbb' => [
+                'logo' => '/storage/image/testbbblogo.png',
+            ],
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => '1',
+            'default_timezone' => 'Europe/Berlin',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => false,
-                    'retention_period'  => 7
+                    'enabled' => false,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => 14,
+                'never_used_period' => 30,
+                'deadline_period' => 7,
+            ],
         ];
 
         // Unauthorized Test
@@ -595,7 +595,7 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -617,45 +617,45 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithValidInputsImageFileAndUrl()
     {
         $payload = [
-            'name'                           => 'test',
-            'logo'                           => '/storage/image/testfile.svg',
-            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
-            'favicon'                        => '/storage/image/favicon.ico',
-            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
-            'bbb'                            => [
-                'logo'      => '/storage/image/bbbtestlogo.png',
+            'name' => 'test',
+            'logo' => '/storage/image/testfile.svg',
+            'logo_file' => UploadedFile::fake()->image('logo.svg'),
+            'favicon' => '/storage/image/favicon.ico',
+            'favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'bbb' => [
+                'logo' => '/storage/image/bbbtestlogo.png',
                 'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
             ],
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => '1',
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => '1',
+            'default_timezone' => 'Europe/Berlin',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => false,
-                    'retention_period'  => 7
+                    'enabled' => false,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => 14,
+                'never_used_period' => 30,
+                'deadline_period' => 7,
+            ],
         ];
 
         // Add necessary role and permission to user to update application settings
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -676,49 +676,49 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithInvalidInputs()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         $payload = [
-            'name'                           => '',
-            'favicon'                        => '',
-            'favicon_file'                   => 'notimagefile',
-            'logo'                           => '',
-            'logo_file'                      => 'notimagefile',
-            'bbb'                            => [
-                'logo'                           => '',
-                'logo_file'                      => 'notimagefile',
-             ],
-            'pagination_page_size'           => 'notnumber',
-            'room_pagination_page_size'      => 'notnumber',
-            'room_limit'                     => 'notnumber',
-            'password_change_allowed'        => 'foo',
-            'default_timezone'               => 'timezone',
-            'help_url'                       => 33,
-            'legal_notice_url'               => 44,
-            'privacy_policy_url'             => 55,
-            'room_token_expiration'          => 123,
-            'statistics'                     => [
+            'name' => '',
+            'favicon' => '',
+            'favicon_file' => 'notimagefile',
+            'logo' => '',
+            'logo_file' => 'notimagefile',
+            'bbb' => [
+                'logo' => '',
+                'logo_file' => 'notimagefile',
+            ],
+            'pagination_page_size' => 'notnumber',
+            'room_pagination_page_size' => 'notnumber',
+            'room_limit' => 'notnumber',
+            'password_change_allowed' => 'foo',
+            'default_timezone' => 'timezone',
+            'help_url' => 33,
+            'legal_notice_url' => 44,
+            'privacy_policy_url' => 55,
+            'room_token_expiration' => 123,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => 'test',
-                    'retention_period'  => false
+                    'enabled' => 'test',
+                    'retention_period' => false,
                 ],
                 'meetings' => [
-                    'enabled'           => null,
-                    'retention_period'  => true
-                ]
+                    'enabled' => null,
+                    'retention_period' => true,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 'test'
+                'retention_period' => 'test',
             ],
             'room_auto_delete' => [
-                'enabled'              => 'test',
-                'inactive_period'      => false,
-                'never_used_period'    => false,
-                'deadline_period'      => false,
-            ]
+                'enabled' => 'test',
+                'inactive_period' => false,
+                'never_used_period' => false,
+                'deadline_period' => false,
+            ],
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
@@ -755,38 +755,38 @@ class SettingsTest extends TestCase
             ]);
 
         $payload = [
-            'name'                           => 'test',
-            'favicon'                        => '/storage/image/favicon.ico',
-            'logo'                           => '/storage/image/testfile.svg',
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => false,
-            'password_change_allowed'        => '1',
-            'default_timezone'               => 'Europe/Berlin',
-            'help_url'                       => 'http://localhost',
-            'legal_notice_url'               => 'http://localhost',
-            'privacy_policy_url'             => 'http://localhost',
-            'room_token_expiration'          => -2,
-            'statistics'                     => [
+            'name' => 'test',
+            'favicon' => '/storage/image/favicon.ico',
+            'logo' => '/storage/image/testfile.svg',
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => false,
+            'password_change_allowed' => '1',
+            'default_timezone' => 'Europe/Berlin',
+            'help_url' => 'http://localhost',
+            'legal_notice_url' => 'http://localhost',
+            'privacy_policy_url' => 'http://localhost',
+            'room_token_expiration' => -2,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => true,
-                    'retention_period'  => 7
+                    'enabled' => true,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 30,
-                'never_used_period'    => 7,
-                'deadline_period'      => 14,
-            ]
+                'enabled' => true,
+                'inactive_period' => 30,
+                'never_used_period' => 7,
+                'deadline_period' => 14,
+            ],
         ];
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -794,36 +794,36 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'banner',
                 'banner.enabled',
-                'room_token_expiration'
-            ])
-            ->assertJsonMissingValidationErrors([
-                'help_url',
-                'legal_notice_url',
-                'privacy_policy_url'
-            ]);
-
-        $payload['banner'] = [
-            'enabled' => 'foo'
-        ];
-        $payload['room_token_expiration'] = 1440;
-        $payload['help_url']              = '';
-        $payload['legal_notice_url']      = '';
-        $payload[ 'privacy_policy_url']   = '';
-
-        $this->putJson(route('api.v1.application.update'), $payload)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors([
-                'banner.enabled'
+                'room_token_expiration',
             ])
             ->assertJsonMissingValidationErrors([
                 'help_url',
                 'legal_notice_url',
                 'privacy_policy_url',
-                'room_token_expiration'
             ]);
 
         $payload['banner'] = [
-            'enabled' => true
+            'enabled' => 'foo',
+        ];
+        $payload['room_token_expiration'] = 1440;
+        $payload['help_url'] = '';
+        $payload['legal_notice_url'] = '';
+        $payload['privacy_policy_url'] = '';
+
+        $this->putJson(route('api.v1.application.update'), $payload)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'banner.enabled',
+            ])
+            ->assertJsonMissingValidationErrors([
+                'help_url',
+                'legal_notice_url',
+                'privacy_policy_url',
+                'room_token_expiration',
+            ]);
+
+        $payload['banner'] = [
+            'enabled' => true,
         ];
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -835,13 +835,13 @@ class SettingsTest extends TestCase
             ]);
 
         $payload['banner'] = [
-            'enabled'    => true,
-            'title'      => str_repeat('a', 256),
-            'message'    => str_repeat('a', 501),
-            'link'       => 'test',
+            'enabled' => true,
+            'title' => str_repeat('a', 256),
+            'message' => str_repeat('a', 501),
+            'link' => 'test',
             'link_style' => 'test',
-            'icon'       => 'test-test',
-            'color'      => 'test-test',
+            'icon' => 'test-test',
+            'color' => 'test-test',
             'background' => 'test-test',
         ];
 
@@ -867,7 +867,7 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsMinMax()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -876,32 +876,32 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(
             route('api.v1.application.update'),
             [
-                'name'                           => 'test',
-                'favicon'                        => '/storage/image/favicon.ico',
-                'logo'                           => '/storage/image/testfile.svg',
-                'pagination_page_size'           => '0',
-                'room_pagination_page_size'      => '0',
-                'room_limit'                     => '-2',
-                'banner'                         => ['enabled' => false],
-                'statistics'                     => [
+                'name' => 'test',
+                'favicon' => '/storage/image/favicon.ico',
+                'logo' => '/storage/image/testfile.svg',
+                'pagination_page_size' => '0',
+                'room_pagination_page_size' => '0',
+                'room_limit' => '-2',
+                'banner' => ['enabled' => false],
+                'statistics' => [
                     'servers' => [
-                        'enabled'           => true,
-                        'retention_period'  => 0
+                        'enabled' => true,
+                        'retention_period' => 0,
                     ],
                     'meetings' => [
-                        'enabled'           => true,
-                        'retention_period'  => 0
-                    ]
+                        'enabled' => true,
+                        'retention_period' => 0,
+                    ],
                 ],
                 'attendance' => [
-                    'retention_period'  => 0
+                    'retention_period' => 0,
                 ],
                 'room_auto_delete' => [
-                    'enabled'              => true,
-                    'inactive_period'      => 1,
-                    'never_used_period'    => 1,
-                    'deadline_period'      => 1,
-                ]
+                    'enabled' => true,
+                    'inactive_period' => 1,
+                    'never_used_period' => 1,
+                    'deadline_period' => 1,
+                ],
             ]
         )
             ->assertStatus(422)
@@ -921,32 +921,32 @@ class SettingsTest extends TestCase
         $this->putJson(
             route('api.v1.application.update'),
             [
-                'name'                           => 'test',
-                'favicon'                        => '/storage/image/favicon.ico',
-                'logo'                           => '/storage/image/testfile.svg',
-                'pagination_page_size'           => '101',
-                'room_pagination_page_size'      => '26',
-                'room_limit'                     => '101',
-                'banner'                         => ['enabled' => false],
-                'statistics'                     => [
+                'name' => 'test',
+                'favicon' => '/storage/image/favicon.ico',
+                'logo' => '/storage/image/testfile.svg',
+                'pagination_page_size' => '101',
+                'room_pagination_page_size' => '26',
+                'room_limit' => '101',
+                'banner' => ['enabled' => false],
+                'statistics' => [
                     'servers' => [
-                        'enabled'           => true,
-                        'retention_period'  => 366
+                        'enabled' => true,
+                        'retention_period' => 366,
                     ],
                     'meetings' => [
-                        'enabled'           => true,
-                        'retention_period'  => 366
-                    ]
+                        'enabled' => true,
+                        'retention_period' => 366,
+                    ],
                 ],
                 'attendance' => [
-                    'retention_period'  => 366
+                    'retention_period' => 366,
                 ],
                 'room_auto_delete' => [
-                    'enabled'              => true,
-                    'inactive_period'      => 1000,
-                    'never_used_period'    => 1000,
-                    'deadline_period'      => 365,
-                ]
+                    'enabled' => true,
+                    'inactive_period' => 1000,
+                    'never_used_period' => 1000,
+                    'deadline_period' => 365,
+                ],
             ]
         )
             ->assertStatus(422)
@@ -965,7 +965,7 @@ class SettingsTest extends TestCase
 
     public function testApplicationSettingsDefaultPresentation()
     {
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -974,43 +974,43 @@ class SettingsTest extends TestCase
         config(['bigbluebutton.max_filesize' => 5]);
 
         $request = [
-            'name'                           => 'test',
-            'favicon'                        => '/storage/image/favicon.ico',
-            'logo'                           => '/storage/image/testfile.svg',
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => '1',
-            'default_timezone'               => 'Europe/Berlin',
-            'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'name' => 'test',
+            'favicon' => '/storage/image/favicon.ico',
+            'logo' => '/storage/image/testfile.svg',
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => '1',
+            'default_timezone' => 'Europe/Berlin',
+            'default_presentation' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => true,
-                    'retention_period'  => 7
+                    'enabled' => true,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => 14,
+                'never_used_period' => 30,
+                'deadline_period' => 7,
+            ],
         ];
 
         // Invalid mime
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(422)
             ->assertJsonValidationErrors([
-                'default_presentation'
+                'default_presentation',
             ]);
 
         // Too big file
@@ -1018,7 +1018,7 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(422)
             ->assertJsonValidationErrors([
-                'default_presentation'
+                'default_presentation',
             ]);
 
         // Not a file
@@ -1026,26 +1026,26 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(422)
             ->assertJsonValidationErrors([
-                'default_presentation'
+                'default_presentation',
             ]);
 
         // Valid file
-        $valid_file1                     = UploadedFile::fake()->create('default_presentation.pdf', 200, 'application/pdf');
+        $valid_file1 = UploadedFile::fake()->create('default_presentation.pdf', 200, 'application/pdf');
         $request['default_presentation'] = $valid_file1;
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(200)
             ->assertJsonFragment([
-                'default_presentation' => Storage::disk('public')->url('default_presentation/default.pdf')
+                'default_presentation' => Storage::disk('public')->url('default_presentation/default.pdf'),
             ]);
         Storage::disk('public')->assertExists('default_presentation/default.pdf');
 
         // Update old file gets deleted
-        $valid_file2                     = UploadedFile::fake()->create('default_presentation.jpg', str_repeat('a', 200), 'image/jpg');
+        $valid_file2 = UploadedFile::fake()->create('default_presentation.jpg', str_repeat('a', 200), 'image/jpg');
         $request['default_presentation'] = $valid_file2;
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(200)
             ->assertJsonFragment([
-                'default_presentation' => Storage::disk('public')->url('default_presentation/default.jpg')
+                'default_presentation' => Storage::disk('public')->url('default_presentation/default.jpg'),
             ]);
         Storage::disk('public')->assertExists('default_presentation/default.jpg');
         Storage::disk('public')->assertMissing('default_presentation/default.pdf');
@@ -1060,51 +1060,52 @@ class SettingsTest extends TestCase
 
     /**
      * Test to update the custom bbb style sheet
+     *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function testApplicationSettingsBBBStyle()
     {
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
-        $style =  UploadedFile::fake()->create('style.css');
+        $style = UploadedFile::fake()->create('style.css');
         file_put_contents($style->getRealPath(), 'body { background-color: #273035; }');
 
         $request = [
             'bbb' => [
                 'style' => $style,
             ],
-            'name'                           => 'test',
-            'favicon'                        => '/storage/image/favicon.ico',
-            'logo'                           => '/storage/image/testfile.svg',
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => '1',
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'name' => 'test',
+            'favicon' => '/storage/image/favicon.ico',
+            'logo' => '/storage/image/testfile.svg',
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => '1',
+            'default_timezone' => 'Europe/Berlin',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => true,
-                    'retention_period'  => 7
+                    'enabled' => true,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => 14,
+                'never_used_period' => 30,
+                'deadline_period' => 7,
+            ],
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
@@ -1115,7 +1116,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('body { background-color: #273035; }', Storage::disk('public')->get('styles/bbb.css'));
 
         // Update old file gets deleted
-        $style2 =  UploadedFile::fake()->create('style.css');
+        $style2 = UploadedFile::fake()->create('style.css');
         file_put_contents($style2->getRealPath(), 'body { background-color: #000; }');
 
         $request['bbb']['style'] = $style2;
@@ -1143,50 +1144,51 @@ class SettingsTest extends TestCase
 
     /**
      * Test to update the bbb logo
+     *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function testApplicationSettingsBBBLogo()
     {
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
-        $logo =  UploadedFile::fake()->create('logo.png');
+        $logo = UploadedFile::fake()->create('logo.png');
 
         $request = [
             'bbb' => [
                 'logo_file' => $logo,
             ],
-            'name'                           => 'test',
-            'favicon'                        => '/storage/image/favicon.ico',
-            'logo'                           => '/storage/image/testfile.svg',
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => '1',
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'name' => 'test',
+            'favicon' => '/storage/image/favicon.ico',
+            'logo' => '/storage/image/testfile.svg',
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => '1',
+            'default_timezone' => 'Europe/Berlin',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => true,
-                    'retention_period'  => 7
+                    'enabled' => true,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 14,
-                'never_used_period'    => 30,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => 14,
+                'never_used_period' => 30,
+                'deadline_period' => 7,
+            ],
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
@@ -1196,7 +1198,7 @@ class SettingsTest extends TestCase
         $path = setting('bbb_logo');
 
         // Update logo
-        $logo2                       =  UploadedFile::fake()->create('logo.png');
+        $logo2 = UploadedFile::fake()->create('logo.png');
         $request['bbb']['logo_file'] = $logo2;
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(200)
@@ -1215,42 +1217,42 @@ class SettingsTest extends TestCase
      */
     public function testRoomDeletionDisabled()
     {
-        $role       = Role::factory()->create();
+        $role = Role::factory()->create();
         $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         // Payload with booth time periods disabled
         $payload = [
-            'name'                           => 'test',
-            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
-            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => false,
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'name' => 'test',
+            'logo_file' => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => false,
+            'default_timezone' => 'Europe/Berlin',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => false,
-                    'retention_period'  => 7
+                    'enabled' => false,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => -1,
-                'never_used_period'    => -1,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => -1,
+                'never_used_period' => -1,
+                'deadline_period' => 7,
+            ],
         ];
 
         // Update global settings and check result
@@ -1260,35 +1262,35 @@ class SettingsTest extends TestCase
 
         // Payload with only one time period disabled
         $payload = [
-            'name'                           => 'test',
-            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
-            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
-            'pagination_page_size'           => '10',
-            'room_pagination_page_size'      => '15',
-            'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false],
-            'password_change_allowed'        => false,
-            'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1,
-            'statistics'                     => [
+            'name' => 'test',
+            'logo_file' => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size' => '10',
+            'room_pagination_page_size' => '15',
+            'room_limit' => '-1',
+            'banner' => ['enabled' => false],
+            'password_change_allowed' => false,
+            'default_timezone' => 'Europe/Berlin',
+            'room_token_expiration' => -1,
+            'statistics' => [
                 'servers' => [
-                    'enabled'           => false,
-                    'retention_period'  => 7
+                    'enabled' => false,
+                    'retention_period' => 7,
                 ],
                 'meetings' => [
-                    'enabled'           => true,
-                    'retention_period'  => 90
-                ]
+                    'enabled' => true,
+                    'retention_period' => 90,
+                ],
             ],
             'attendance' => [
-                'retention_period'  => 14
+                'retention_period' => 14,
             ],
             'room_auto_delete' => [
-                'enabled'              => true,
-                'inactive_period'      => 7,
-                'never_used_period'    => -1,
-                'deadline_period'      => 7
-            ]
+                'enabled' => true,
+                'inactive_period' => 7,
+                'never_used_period' => -1,
+                'deadline_period' => 7,
+            ],
         ];
 
         // Update global settings and check result

@@ -18,13 +18,18 @@ use Tests\TestCase;
 
 /**
  * Testing the statistical features of a room
- * @package Tests\Feature\api\v1\Room
  */
 class RoomStatisticTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected $user, $role, $managePermission, $viewAllPermission;
+    protected $user;
+
+    protected $role;
+
+    protected $managePermission;
+
+    protected $viewAllPermission;
 
     /**
      * Setup resources for all tests
@@ -36,9 +41,9 @@ class RoomStatisticTest extends TestCase
 
         $this->seed(RolesAndPermissionsSeeder::class);
 
-        $this->role                 = Role::factory()->create();
-        $this->managePermission     = Permission::where('name', 'rooms.manage')->first();
-        $this->viewAllPermission    = Permission::where('name', 'rooms.viewAll')->first();
+        $this->role = Role::factory()->create();
+        $this->managePermission = Permission::where('name', 'rooms.manage')->first();
+        $this->viewAllPermission = Permission::where('name', 'rooms.viewAll')->first();
     }
 
     /**
@@ -53,7 +58,7 @@ class RoomStatisticTest extends TestCase
         $room = Room::factory()->create();
 
         // create meetings for room
-        $meetings   = [];
+        $meetings = [];
         $meetings[] = new Meeting(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23']);
         $meetings[] = new Meeting(['start' => '2020-01-05 09:13:10', 'end' => '2020-01-05 09:54:31']);
         $meetings[] = new Meeting(['start' => '2020-01-07 16:58:22', 'end' => '2020-01-07 17:05:33']);
@@ -65,43 +70,43 @@ class RoomStatisticTest extends TestCase
 
         // create meetings for room
         $meetings[0]->stats()->save(new MeetingStat(['participant_count' => 1, 'listener_count' => 0, 'voice_participant_count' => 0, 'video_count' => 0, 'created_at' => '2020-01-01 08:13:00']));
-        $meetings[0]->attendees()->save(new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']));
+        $meetings[0]->attendees()->save(new MeetingAttendee(['name' => 'Marie Walker', 'session_id' => 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb', 'join' => '2020-01-01 08:13:11', 'leave' => '2020-01-01 08:15:51']));
 
         // check guests
-        $this->getJson(route('api.v1.rooms.meetings', ['room'=>$room]))
+        $this->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertUnauthorized();
 
         // check authorized users
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertForbidden();
 
         // check room user
-        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]))
+        $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertForbidden();
         $room->members()->detach($this->user);
 
         // check room moderator
-        $room->members()->attach($this->user, ['role'=>RoomUserRole::MODERATOR]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]))
+        $room->members()->attach($this->user, ['role' => RoomUserRole::MODERATOR]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertForbidden();
         $room->members()->detach($this->user);
 
         // check room co-owner
-        $room->members()->attach($this->user, ['role'=>RoomUserRole::CO_OWNER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]))
+        $room->members()->attach($this->user, ['role' => RoomUserRole::CO_OWNER]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertSuccessful();
         $room->members()->detach($this->user);
 
         // check view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertSuccessful();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // check content and sort order of response
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertSuccessful()
             ->assertJsonCount(5, 'data')
             ->assertJsonFragment(['per_page' => 5])
@@ -115,48 +120,48 @@ class RoomStatisticTest extends TestCase
                         'start',
                         'end',
                         'attendance',
-                        'statistical'
-                    ]
-                ]
+                        'statistical',
+                    ],
+                ],
             ])
             ->assertJsonPath('data.0', [
-                'id'                => $meetings[5]->id,
-                'start'             => $meetings[5]->start->toJson(),
-                'end'               => null,
-                'attendance'        => false,
-                'statistical'       => false
+                'id' => $meetings[5]->id,
+                'start' => $meetings[5]->start->toJson(),
+                'end' => null,
+                'attendance' => false,
+                'statistical' => false,
             ])
             ->assertJsonPath('data.1', [
-                'id'                => $meetings[4]->id,
-                'start'             => $meetings[4]->start->toJson(),
-                'end'               => $meetings[4]->end->toJson(),
-                'attendance'        => false,
-                'statistical'       => false
+                'id' => $meetings[4]->id,
+                'start' => $meetings[4]->start->toJson(),
+                'end' => $meetings[4]->end->toJson(),
+                'attendance' => false,
+                'statistical' => false,
             ]);
 
         // check pagination
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]).'?page=2')
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?page=2')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['per_page' => 5])
             ->assertJsonFragment(['total' => 6])
             ->assertJsonPath('data.0', [
-                'id'                => $meetings[0]->id,
-                'start'             => $meetings[0]->start->toJson(),
-                'end'               => $meetings[0]->end->toJson(),
-                'attendance'        => true,
-                'statistical'       => true
+                'id' => $meetings[0]->id,
+                'start' => $meetings[0]->start->toJson(),
+                'end' => $meetings[0]->end->toJson(),
+                'attendance' => true,
+                'statistical' => true,
             ]);
 
         // check with meeting stats globally disabled
         setting(['statistics.meetings.enabled' => false]);
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room'=>$room]).'?page=2')
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?page=2')
             ->assertJsonPath('data.0', [
-                'id'                => $meetings[0]->id,
-                'start'             => $meetings[0]->start->toJson(),
-                'end'               => $meetings[0]->end->toJson(),
-                'attendance'        => true,
-                'statistical'       => false
+                'id' => $meetings[0]->id,
+                'start' => $meetings[0]->start->toJson(),
+                'end' => $meetings[0]->end->toJson(),
+                'attendance' => true,
+                'statistical' => false,
             ]);
     }
 
@@ -172,7 +177,7 @@ class RoomStatisticTest extends TestCase
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:18:23']);
 
         // create meetings for room
-        $stats   = [];
+        $stats = [];
         $stats[] = new MeetingStat(['participant_count' => 1, 'listener_count' => 0, 'voice_participant_count' => 0, 'video_count' => 0, 'created_at' => '2020-01-01 08:13:00']);
         $stats[] = new MeetingStat(['participant_count' => 2, 'listener_count' => 1, 'voice_participant_count' => 1, 'video_count' => 0, 'created_at' => '2020-01-01 08:14:00']);
         $stats[] = new MeetingStat(['participant_count' => 3, 'listener_count' => 2, 'voice_participant_count' => 2, 'video_count' => 1, 'created_at' => '2020-01-01 08:15:00']);
@@ -182,40 +187,40 @@ class RoomStatisticTest extends TestCase
         $meeting->stats()->saveMany($stats);
 
         // check guests
-        $this->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
+        $this->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertUnauthorized();
 
         // check authorized users
-        $this->actingAs($this->user)->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
+        $this->actingAs($this->user)->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertForbidden();
 
         // check room user
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->actingAs($this->user)->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertForbidden();
         $meeting->room->members()->detach($this->user);
 
         // check room moderator
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::MODERATOR]);
-        $this->actingAs($this->user)->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::MODERATOR]);
+        $this->actingAs($this->user)->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertForbidden();
         $meeting->room->members()->detach($this->user);
 
         // check room co-owner
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::CO_OWNER]);
-        $this->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::CO_OWNER]);
+        $this->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertSuccessful();
         $meeting->room->members()->detach($this->user);
 
         // check view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->actingAs($this->user)->role->permissions()->attach($this->viewAllPermission);
-        $this->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
+        $this->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertSuccessful();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // check content and sort order of response
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertSuccessful()
             ->assertJsonCount(6, 'data')
             ->assertJsonStructure([
@@ -227,22 +232,22 @@ class RoomStatisticTest extends TestCase
                         'voice_participant_count',
                         'video_count',
                         'created_at',
-                    ]
-                ]
+                    ],
+                ],
             ])
             ->assertJsonPath('data.0', [
-                'id'                      => $stats[0]->id,
-                'participant_count'       => 1,
-                'listener_count'          => 0,
+                'id' => $stats[0]->id,
+                'participant_count' => 1,
+                'listener_count' => 0,
                 'voice_participant_count' => 0,
-                'video_count'             => 0,
-                'created_at'              => $stats[0]->created_at->toJson(),
+                'video_count' => 0,
+                'created_at' => $stats[0]->created_at->toJson(),
             ]);
 
         // check with meeting stats globally disabled
         setting(['statistics.meetings.enabled' => false]);
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.stats', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
     }
 
     /**
@@ -251,65 +256,65 @@ class RoomStatisticTest extends TestCase
     public function testAttendance()
     {
         // create room
-        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
+        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23', 'record_attendance' => false]);
 
         // set firstname, lastname and email to fixes values to make api output predictable
         $this->user->firstname = 'Mable';
-        $this->user->lastname  = 'Torres';
-        $this->user->email     = 'm.torres@example.net';
+        $this->user->lastname = 'Torres';
+        $this->user->email = 'm.torres@example.net';
         $this->user->save();
         $meeting->room->owner->firstname = 'Gregory';
-        $meeting->room->owner->lastname  = 'Dumas';
-        $meeting->room->owner->email     = 'g.dumas@example.net';
+        $meeting->room->owner->lastname = 'Dumas';
+        $meeting->room->owner->email = 'g.dumas@example.net';
         $meeting->room->owner->save();
 
         // add attendance data
         // one and multiple sessions for guests and users each
-        $attendees   = [];
-        $attendees[] = new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']);
-        $attendees[] = new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:17:23','leave'=>'2020-01-01 08:29:05']);
-        $attendees[] = new MeetingAttendee(['name'=>'Bertha Luff','session_id'=>'LQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG','join'=>'2020-01-01 08:15:11','leave'=>'2020-01-01 08:32:09']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:14:15','leave'=>'2020-01-01 08:30:40']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:31:07','leave'=>'2020-01-01 08:35:23']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$meeting->room->owner->id,'join'=>'2020-01-01 08:12:45','leave'=>'2020-01-01 08:35:23']);
+        $attendees = [];
+        $attendees[] = new MeetingAttendee(['name' => 'Marie Walker', 'session_id' => 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb', 'join' => '2020-01-01 08:13:11', 'leave' => '2020-01-01 08:15:51']);
+        $attendees[] = new MeetingAttendee(['name' => 'Marie Walker', 'session_id' => 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb', 'join' => '2020-01-01 08:17:23', 'leave' => '2020-01-01 08:29:05']);
+        $attendees[] = new MeetingAttendee(['name' => 'Bertha Luff', 'session_id' => 'LQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG', 'join' => '2020-01-01 08:15:11', 'leave' => '2020-01-01 08:32:09']);
+        $attendees[] = new MeetingAttendee(['user_id' => $this->user->id, 'join' => '2020-01-01 08:14:15', 'leave' => '2020-01-01 08:30:40']);
+        $attendees[] = new MeetingAttendee(['user_id' => $this->user->id, 'join' => '2020-01-01 08:31:07', 'leave' => '2020-01-01 08:35:23']);
+        $attendees[] = new MeetingAttendee(['user_id' => $meeting->room->owner->id, 'join' => '2020-01-01 08:12:45', 'leave' => '2020-01-01 08:35:23']);
         $meeting->attendees()->saveMany($attendees);
 
         // check guests
-        $this->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
+        $this->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
             ->assertUnauthorized();
 
         // check authorized users
-        $this->actingAs($this->user)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
+        $this->actingAs($this->user)->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
             ->assertForbidden();
 
         // check room user
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->actingAs($this->user)->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
             ->assertForbidden();
         $meeting->room->members()->detach($this->user);
 
         // check room moderator
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::MODERATOR]);
-        $this->actingAs($this->user)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::MODERATOR]);
+        $this->actingAs($this->user)->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
             ->assertForbidden();
         $meeting->room->members()->detach($this->user);
 
         // check room co-owner
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::CO_OWNER]);
-        $this->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::CO_OWNER]);
+        $this->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $meeting->room->members()->detach($this->user);
 
         // check view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->actingAs($this->user)->role->permissions()->attach($this->viewAllPermission);
-        $this->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+        $this->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // check as owner
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
 
         // enable record attendance for meeting
         $meeting->record_attendance = true;
@@ -317,70 +322,70 @@ class RoomStatisticTest extends TestCase
 
         // check with enabled record attendance
         // check content and order by name
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
             ->assertSuccessful()
             ->assertJson([
                 'data' => [
                     [
-                        'name'     => 'Bertha Luff',
-                        'email'    => null,
+                        'name' => 'Bertha Luff',
+                        'email' => null,
                         'duration' => 16,
                         'sessions' => [
                             [
-                                'id'       => $attendees[2]->id,
-                                'join'     => '2020-01-01T08:15:11.000000Z',
-                                'leave'    => '2020-01-01T08:32:09.000000Z',
+                                'id' => $attendees[2]->id,
+                                'join' => '2020-01-01T08:15:11.000000Z',
+                                'leave' => '2020-01-01T08:32:09.000000Z',
                                 'duration' => 16,
                             ],
                         ],
                     ],
                     [
-                        'name'     => 'Gregory Dumas',
-                        'email'    => 'g.dumas@example.net',
+                        'name' => 'Gregory Dumas',
+                        'email' => 'g.dumas@example.net',
                         'duration' => 22,
                         'sessions' => [
                             [
-                                'id'       => $attendees[5]->id,
-                                'join'     => '2020-01-01T08:12:45.000000Z',
-                                'leave'    => '2020-01-01T08:35:23.000000Z',
+                                'id' => $attendees[5]->id,
+                                'join' => '2020-01-01T08:12:45.000000Z',
+                                'leave' => '2020-01-01T08:35:23.000000Z',
                                 'duration' => 22,
                             ],
                         ],
                     ],
                     [
-                        'name'     => 'Mable Torres',
-                        'email'    => 'm.torres@example.net',
+                        'name' => 'Mable Torres',
+                        'email' => 'm.torres@example.net',
                         'duration' => 20,
                         'sessions' => [
                             [
-                                'id'       => $attendees[3]->id,
-                                'join'     => '2020-01-01T08:14:15.000000Z',
-                                'leave'    => '2020-01-01T08:30:40.000000Z',
+                                'id' => $attendees[3]->id,
+                                'join' => '2020-01-01T08:14:15.000000Z',
+                                'leave' => '2020-01-01T08:30:40.000000Z',
                                 'duration' => 16,
                             ],
                             [
-                                'id'       => $attendees[4]->id,
-                                'join'     => '2020-01-01T08:31:07.000000Z',
-                                'leave'    => '2020-01-01T08:35:23.000000Z',
+                                'id' => $attendees[4]->id,
+                                'join' => '2020-01-01T08:31:07.000000Z',
+                                'leave' => '2020-01-01T08:35:23.000000Z',
                                 'duration' => 4,
                             ],
                         ],
                     ],
                     [
-                        'name'     => 'Marie Walker',
-                        'email'    => null,
+                        'name' => 'Marie Walker',
+                        'email' => null,
                         'duration' => 13,
                         'sessions' => [
                             [
-                                'id'       => $attendees[0]->id,
-                                'join'     => '2020-01-01T08:13:11.000000Z',
-                                'leave'    => '2020-01-01T08:15:51.000000Z',
+                                'id' => $attendees[0]->id,
+                                'join' => '2020-01-01T08:13:11.000000Z',
+                                'leave' => '2020-01-01T08:15:51.000000Z',
                                 'duration' => 2,
                             ],
                             [
-                                'id'       => $attendees[1]->id,
-                                'join'     => '2020-01-01T08:17:23.000000Z',
-                                'leave'    => '2020-01-01T08:29:05.000000Z',
+                                'id' => $attendees[1]->id,
+                                'join' => '2020-01-01T08:17:23.000000Z',
+                                'leave' => '2020-01-01T08:29:05.000000Z',
                                 'duration' => 11,
                             ],
                         ],
@@ -393,8 +398,8 @@ class RoomStatisticTest extends TestCase
         $meeting->save();
 
         // check with for running meeting
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value);
     }
 
     /**
@@ -403,59 +408,59 @@ class RoomStatisticTest extends TestCase
     public function testAttendanceWithoutGuests()
     {
         // create room
-        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>true]);
+        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23', 'record_attendance' => true]);
 
         // set firstname, lastname and email to fixes values to make api output predictable
         $this->user->firstname = 'Mable';
-        $this->user->lastname  = 'Torres';
-        $this->user->email     = 'm.torres@example.net';
+        $this->user->lastname = 'Torres';
+        $this->user->email = 'm.torres@example.net';
         $this->user->save();
         $meeting->room->owner->firstname = 'Gregory';
-        $meeting->room->owner->lastname  = 'Dumas';
-        $meeting->room->owner->email     = 'g.dumas@example.net';
+        $meeting->room->owner->lastname = 'Dumas';
+        $meeting->room->owner->email = 'g.dumas@example.net';
         $meeting->room->owner->save();
 
         // add attendance data
         // one and multiple sessions
-        $attendees   = [];
-        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:14:15','leave'=>'2020-01-01 08:30:40']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:31:07','leave'=>'2020-01-01 08:35:23']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$meeting->room->owner->id,'join'=>'2020-01-01 08:12:45','leave'=>'2020-01-01 08:35:23']);
+        $attendees = [];
+        $attendees[] = new MeetingAttendee(['user_id' => $this->user->id, 'join' => '2020-01-01 08:14:15', 'leave' => '2020-01-01 08:30:40']);
+        $attendees[] = new MeetingAttendee(['user_id' => $this->user->id, 'join' => '2020-01-01 08:31:07', 'leave' => '2020-01-01 08:35:23']);
+        $attendees[] = new MeetingAttendee(['user_id' => $meeting->room->owner->id, 'join' => '2020-01-01 08:12:45', 'leave' => '2020-01-01 08:35:23']);
         $meeting->attendees()->saveMany($attendees);
 
         // check content and order by name
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting' => $meeting]))
             ->assertSuccessful()
             ->assertJson([
                 'data' => [
                     [
-                        'name'     => 'Gregory Dumas',
-                        'email'    => 'g.dumas@example.net',
+                        'name' => 'Gregory Dumas',
+                        'email' => 'g.dumas@example.net',
                         'duration' => 22,
                         'sessions' => [
                             [
-                                'id'       => $attendees[2]->id,
-                                'join'     => '2020-01-01T08:12:45.000000Z',
-                                'leave'    => '2020-01-01T08:35:23.000000Z',
+                                'id' => $attendees[2]->id,
+                                'join' => '2020-01-01T08:12:45.000000Z',
+                                'leave' => '2020-01-01T08:35:23.000000Z',
                                 'duration' => 22,
                             ],
                         ],
                     ],
                     [
-                        'name'     => 'Mable Torres',
-                        'email'    => 'm.torres@example.net',
+                        'name' => 'Mable Torres',
+                        'email' => 'm.torres@example.net',
                         'duration' => 20,
                         'sessions' => [
                             [
-                                'id'       => $attendees[0]->id,
-                                'join'     => '2020-01-01T08:14:15.000000Z',
-                                'leave'    => '2020-01-01T08:30:40.000000Z',
+                                'id' => $attendees[0]->id,
+                                'join' => '2020-01-01T08:14:15.000000Z',
+                                'leave' => '2020-01-01T08:30:40.000000Z',
                                 'duration' => 16,
                             ],
                             [
-                                'id'       => $attendees[1]->id,
-                                'join'     => '2020-01-01T08:31:07.000000Z',
-                                'leave'    => '2020-01-01T08:35:23.000000Z',
+                                'id' => $attendees[1]->id,
+                                'join' => '2020-01-01T08:31:07.000000Z',
+                                'leave' => '2020-01-01T08:35:23.000000Z',
                                 'duration' => 4,
                             ],
                         ],
@@ -470,65 +475,65 @@ class RoomStatisticTest extends TestCase
     public function testAttendanceDownload()
     {
         // create room
-        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
+        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23', 'record_attendance' => false]);
 
         // set firstname, lastname and email to fixes values to make api output predictable
         $this->user->firstname = 'Mable';
-        $this->user->lastname  = 'Torres';
-        $this->user->email     = 'm.torres@example.net';
+        $this->user->lastname = 'Torres';
+        $this->user->email = 'm.torres@example.net';
         $this->user->save();
         $meeting->room->owner->firstname = 'Gregory';
-        $meeting->room->owner->lastname  = 'Dumas';
-        $meeting->room->owner->email     = 'g.dumas@example.net';
+        $meeting->room->owner->lastname = 'Dumas';
+        $meeting->room->owner->email = 'g.dumas@example.net';
         $meeting->room->owner->save();
 
         // add attendance data
         // one and multiple sessions for guests and users each
-        $attendees   = [];
-        $attendees[] = new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']);
-        $attendees[] = new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:17:23','leave'=>'2020-01-01 08:29:05']);
-        $attendees[] = new MeetingAttendee(['name'=>'Bertha Luff','session_id'=>'LQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG','join'=>'2020-01-01 08:15:11','leave'=>'2020-01-01 08:32:09']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:14:15','leave'=>'2020-01-01 08:30:40']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:31:07','leave'=>'2020-01-01 08:35:23']);
-        $attendees[] = new MeetingAttendee(['user_id'=>$meeting->room->owner->id,'join'=>'2020-01-01 08:12:45','leave'=>'2020-01-01 08:35:23']);
+        $attendees = [];
+        $attendees[] = new MeetingAttendee(['name' => 'Marie Walker', 'session_id' => 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb', 'join' => '2020-01-01 08:13:11', 'leave' => '2020-01-01 08:15:51']);
+        $attendees[] = new MeetingAttendee(['name' => 'Marie Walker', 'session_id' => 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb', 'join' => '2020-01-01 08:17:23', 'leave' => '2020-01-01 08:29:05']);
+        $attendees[] = new MeetingAttendee(['name' => 'Bertha Luff', 'session_id' => 'LQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG', 'join' => '2020-01-01 08:15:11', 'leave' => '2020-01-01 08:32:09']);
+        $attendees[] = new MeetingAttendee(['user_id' => $this->user->id, 'join' => '2020-01-01 08:14:15', 'leave' => '2020-01-01 08:30:40']);
+        $attendees[] = new MeetingAttendee(['user_id' => $this->user->id, 'join' => '2020-01-01 08:31:07', 'leave' => '2020-01-01 08:35:23']);
+        $attendees[] = new MeetingAttendee(['user_id' => $meeting->room->owner->id, 'join' => '2020-01-01 08:12:45', 'leave' => '2020-01-01 08:35:23']);
         $meeting->attendees()->saveMany($attendees);
 
         // check guests
-        $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
+        $this->getJson(route('download.attendance', ['meeting' => $meeting]))
             ->assertUnauthorized();
 
         // check authorized users
-        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting' => $meeting]))
             ->assertForbidden();
 
         // check room user
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting' => $meeting]))
             ->assertForbidden();
         $meeting->room->members()->detach($this->user);
 
         // check room moderator
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::MODERATOR]);
-        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::MODERATOR]);
+        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting' => $meeting]))
             ->assertForbidden();
         $meeting->room->members()->detach($this->user);
 
         // check room co-owner
-        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::CO_OWNER]);
-        $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+        $meeting->room->members()->attach($this->user, ['role' => RoomUserRole::CO_OWNER]);
+        $this->getJson(route('download.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $meeting->room->members()->detach($this->user);
 
         // check view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->actingAs($this->user)->role->permissions()->attach($this->viewAllPermission);
-        $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+        $this->getJson(route('download.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // check as owner
-        $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+        $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
 
         // enable record attendance for meeting
         $meeting->record_attendance = true;
@@ -536,7 +541,7 @@ class RoomStatisticTest extends TestCase
 
         // check with enabled record attendance
         // check successful download
-        $response = $this->actingAs($meeting->room->owner)->get(route('download.attendance', ['meeting'=>$meeting]))
+        $response = $this->actingAs($meeting->room->owner)->get(route('download.attendance', ['meeting' => $meeting]))
             ->assertSuccessful();
 
         // Validate headers
@@ -544,7 +549,7 @@ class RoomStatisticTest extends TestCase
         $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
         // Get file from download response and parse file back to array
-        $file  = $response->getFile();
+        $file = $response->getFile();
         $array = (new AttendanceExcelImport)->toArray($file->getPathname());
 
         // Assert if the excel file content is correct
@@ -555,21 +560,21 @@ class RoomStatisticTest extends TestCase
                         __('rooms.name'),
                         $meeting->room->name,
                         null,
-                        null
+                        null,
                     ],
                     [
                         __('meetings.start'),
                         '01.01.2020 08:12:45',
                         null,
-                        null
+                        null,
                     ],
                     [
                         __('meetings.end'),
                         '01.01.2020 08:35:23',
                         null,
-                        null
+                        null,
                     ],
-                    [null,null,null,null],
+                    [null, null, null, null],
                     [
                         __('app.user_name'),
                         __('app.email'),
@@ -579,7 +584,7 @@ class RoomStatisticTest extends TestCase
                         'Bertha Luff',
                         null,
                         __('meetings.attendance.duration_minute', ['duration' => 16]),
-                        '01.01.2020 08:15:11 -  01.01.2020 08:32:09 ('.__('meetings.attendance.duration_minute', ['duration' => 16]).')'
+                        '01.01.2020 08:15:11 -  01.01.2020 08:32:09 ('.__('meetings.attendance.duration_minute', ['duration' => 16]).')',
                     ],
                     [
                         'Gregory Dumas',
@@ -595,8 +600,8 @@ class RoomStatisticTest extends TestCase
                         'Marie Walker',
                         null,
                         __('meetings.attendance.duration_minute', ['duration' => 13]),
-                        '01.01.2020 08:13:11 -  01.01.2020 08:15:51 ('.__('meetings.attendance.duration_minute', ['duration' => 2]).")\n01.01.2020 08:17:23 -  01.01.2020 08:29:05 (".__('meetings.attendance.duration_minute', ['duration' => 11]).')']
-                ]
+                        '01.01.2020 08:13:11 -  01.01.2020 08:15:51 ('.__('meetings.attendance.duration_minute', ['duration' => 2]).")\n01.01.2020 08:17:23 -  01.01.2020 08:29:05 (".__('meetings.attendance.duration_minute', ['duration' => 11]).')'],
+                ],
             ],
             $array
         );
@@ -609,7 +614,7 @@ class RoomStatisticTest extends TestCase
         $meeting->save();
 
         // check with for running meeting
-        $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
-            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
+        $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting' => $meeting]))
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED->value);
     }
 }

@@ -7,7 +7,6 @@ use App\Models\Room;
 use App\Models\RoomToken;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class RoomTokenFactory extends Factory
 {
     /**

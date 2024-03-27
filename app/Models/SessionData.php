@@ -11,7 +11,7 @@ class SessionData extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['key','value','session_id'];
+    protected $fillable = ['key', 'value', 'session_id'];
 
     public function session()
     {

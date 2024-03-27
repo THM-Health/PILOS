@@ -17,7 +17,7 @@ class RecordingController extends Controller
     {
         $resource = $room->recordings()->with('formats');
 
-        if (!\Gate::allows('viewAllRecordings', $room)) {
+        if (! \Gate::allows('viewAllRecordings', $room)) {
             $allowedAccess = [RecordingAccess::EVERYONE];
 
             if ($room->isModerator(\Auth::user())) {
@@ -37,13 +37,13 @@ class RecordingController extends Controller
 
     public function show(Room $room, RecordingFormat $format)
     {
-        if (!$format->recording->room->is($room)) {
+        if (! $format->recording->room->is($room)) {
             abort(404, __('app.errors.recording_not_found'));
         }
 
         $recordingId = $format->recording->id;
 
-        session()->push($recordingId.'-'.$format->format, true );
+        session()->push($recordingId.'-'.$format->format, true);
 
         if ($format->format === 'presentation') {
             return response()->json(['url' => config('recording.player').'/'.$recordingId.'/']);
@@ -51,7 +51,7 @@ class RecordingController extends Controller
 
         $resource = explode($recordingId.'/', $format->url, 2)[1];
 
-        $resourceRoute = route('recording.resource', ['format' => $format->format, 'recording' => $recordingId, 'resource' => $resource]) . ($resource == '' ? '/' : '');
+        $resourceRoute = route('recording.resource', ['format' => $format->format, 'recording' => $recordingId, 'resource' => $resource]).($resource == '' ? '/' : '');
 
         return response()->json(['url' => $resourceRoute]);
 
@@ -60,16 +60,16 @@ class RecordingController extends Controller
 
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)
     {
-        if (!$recording->room->is($room)) {
+        if (! $recording->room->is($room)) {
             abort(404, __('app.errors.recording_not_found'));
         }
 
         $recording->description = $request->description;
-        $recording->access      = $request->access;
+        $recording->access = $request->access;
         $recording->save();
 
         foreach ($request->formats as $formatRequest) {
-            $format           = $recording->formats()->findOrFail($formatRequest['id']);
+            $format = $recording->formats()->findOrFail($formatRequest['id']);
             $format->disabled = $formatRequest['disabled'];
             $format->save();
         }
@@ -81,7 +81,7 @@ class RecordingController extends Controller
 
     public function destroy(Room $room, Recording $recording)
     {
-        if (!$recording->room->is($room)) {
+        if (! $recording->room->is($room)) {
             abort(404, __('app.errors.recording_not_found'));
         }
 

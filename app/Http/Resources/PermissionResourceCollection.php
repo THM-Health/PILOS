@@ -8,15 +8,15 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class PermissionResourceCollection extends ResourceCollection
 {
     /**
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'data' => $this->collection->map(function (\App\Models\Permission $resource) use ($request) {
+            'data' => $this->collection->map(function (\App\Models\Permission $resource) {
                 return (new Permission($resource))->withIncludedPermissions();
-            })->all()
+            })->all(),
         ];
     }
 }

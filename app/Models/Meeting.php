@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Ramsey\Uuid\Uuid;
 
 class Meeting extends Model
 {
-    use Uuid, HasFactory;
+    use HasFactory, HasUuids;
 
     /**
      * The "type" of the auto-incrementing ID.
@@ -32,14 +33,24 @@ class Meeting extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'start'              => 'datetime',
-        'end'                => 'datetime',
-        'record_attendance'  => 'boolean',
-        'record'             => 'boolean'
+        'start' => 'datetime',
+        'end' => 'datetime',
+        'record_attendance' => 'boolean',
+        'record' => 'boolean',
+        'detached' => 'datetime',
     ];
 
     /**
+     * Generate a new UUID for the model.
+     */
+    public function newUniqueId(): string
+    {
+        return (string) Uuid::uuid4();
+    }
+
+    /**
      * Server the meeting is/should be running on
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function server()
@@ -49,6 +60,7 @@ class Meeting extends Model
 
     /**
      * Room this meeting belongs to
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function room()
@@ -58,6 +70,7 @@ class Meeting extends Model
 
     /**
      * Statistical data of this meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function stats()
@@ -67,6 +80,7 @@ class Meeting extends Model
 
     /**
      * Attendees of this meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function attendees()
