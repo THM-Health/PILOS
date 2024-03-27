@@ -574,4 +574,52 @@ class ServerServiceTest extends TestCase
         $server->refresh();
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
     }
+
+    public function testServerLoad()
+    {
+        config([
+            'plugins.enabled' => [''],
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
+        ]);
+
+        // Create server
+        $server = Server::factory()->create();
+        $serverService = new ServerService($server);
+
+        // Update server load
+        $serverService->updateUsage();
+
+        // Check if load is correctly calculated (amount of participants)
+        $server->refresh();
+        $this->assertEquals(6, $server->load);
+    }
+
+    public function testServerLoadWithPlugin()
+    {
+        config([
+            'plugins.enabled' => ['ServerLoadCalculationPlugin'],
+            'plugins.namespaces.custom' => 'Tests\Utils',
+        ]);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
+        ]);
+
+        // Create server
+        $server = Server::factory()->create();
+        $serverService = new ServerService($server);
+
+        // Update server load
+        $serverService->updateUsage();
+
+        // Check if load is correctly calculated (amount of participants)
+        $server->refresh();
+        $this->assertEquals(12, $server->load);
+    }
 }

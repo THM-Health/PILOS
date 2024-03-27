@@ -2,33 +2,34 @@
 
 namespace App\Plugins;
 
-use App\Plugins\Defaults\ServerLoadCalculationPlugin;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use ReflectionClass;
 
 class PluginServiceProvider extends ServiceProvider
 {
-    protected array $plugins = [
-        ServerLoadCalculationPlugin::class,
-    ];
-
     /**
      * Register services.
      */
     public function register(): void
     {
-        foreach ($this->plugins as $plugin) {
-            $reflect = new ReflectionClass($plugin);
+        $contracts = config('plugins.contracts');
 
-            $className = $reflect->getShortName();
-            $contract = "App\Plugins\Contracts\\{$className}Contract";
-            $custom = "App\Plugins\Custom\\{$className}";
+        foreach ($contracts as $contract) {
 
-            if (class_exists($custom)) {
-                $this->app->bind($contract, $custom);
-            } else {
-                $this->app->bind($contract, $plugin);
-            }
+            $this->app->bind($contract, function (Application $app) use ($contract) {
+                $reflect = new ReflectionClass($contract);
+                $contractName = $reflect->getShortName();
+
+                $pluginName = preg_replace('/Contract$/', '', $contractName);
+
+                $enabledPlugins = config('plugins.enabled');
+                $namespace = in_array($pluginName, $enabledPlugins) ? config('plugins.namespaces.custom') : config('plugins.namespaces.defaults');
+
+                $pluginClass = "{$namespace}\\{$pluginName}";
+
+                return new $pluginClass();
+            });
         }
     }
 }

@@ -54,6 +54,7 @@
         }
     },
     "autoload": {
+        "exclude-from-classmap": ["app/Plugins/Custom/"],
         "psr-4": {
           "App\\": "app/",
           "Database\\Factories\\": "database/factories/",

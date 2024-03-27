@@ -13,6 +13,11 @@ In `app/Plugins/Defaults` you can find the default implementation of each plugin
 
 To override the default implementation of a plugin, you have to create a new class with the same name that implements the corresponding contract in the `app/Plugins/Custom` namespace/folder.
 
+Next you have to register the class name of the plugin in the `.env` file. Multiple plugins can be registered by separating them with a comma.
+```env
+PLUGINS=ServerLoadCalculationPlugin
+```
+
 ## ServerLoadCalculation
 The `ServerLoadCalculation` plugin is used to determine the load of a BigBlueButton server used by the load balancer. The plugin has to implement the `ServerLoadCalculationContract` contract.
 
