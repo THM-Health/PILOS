@@ -458,7 +458,7 @@ class ServerTest extends TestCase
 
         // Create Fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($validHost, $validSecret);
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/Attendance/GetMeetings-1.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../Fixtures/GetMeetings-1.xml')));
 
         $data = ['base_url' => $invalidHost, 'secret' => $invalidSecret];
 

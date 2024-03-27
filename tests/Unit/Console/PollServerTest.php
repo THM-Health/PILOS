@@ -97,13 +97,13 @@ class PollServerTest extends TestCase
         // Create fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
         // Get 4 times the list of meetings and 4 times the API version
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-Start.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-Start.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-1.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-1.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-2.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-2.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-3.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-3.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
 
         // Refresh usage and build history
@@ -198,13 +198,13 @@ class PollServerTest extends TestCase
         // Create fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
         // Get 4 times the list of meetings and 4 times the API version
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-Start.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-Start.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-1.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-1.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-2.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-2.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
-        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/Attendance/GetMeetings-3.xml')));
+        $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetMeetings-3.xml')));
         $bbbfaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../Fixtures/GetApiVersion.xml')));
 
         // Refresh usage and build history
