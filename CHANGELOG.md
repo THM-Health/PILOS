@@ -50,6 +50,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Max. participants and max. duration from room settings ([#883])
 - Global attendance recording setting ([#905])
 
+## [v3.0.2] - 2024-03-28
+### Changed
+- Bump Dependencies
+
 ## [v3.0.1] - 2024-01-09
 ### Fixed
 - Docker compose volume mapping framework folder
@@ -82,6 +86,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#927]: https://github.com/THM-Health/PILOS/pull/927
 [#956]: https://github.com/THM-Health/PILOS/pull/956
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
+[v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
