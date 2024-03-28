@@ -9,6 +9,7 @@ use App\Http\Controllers\api\v1\auth\VerificationController;
 use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\MeetingController;
 use App\Http\Controllers\api\v1\PermissionController;
+use App\Http\Controllers\api\v1\RecordingController;
 use App\Http\Controllers\api\v1\RoleController;
 use App\Http\Controllers\api\v1\RoomController;
 use App\Http\Controllers\api\v1\RoomFileController;
@@ -87,6 +88,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::put('rooms/{room}/member/{user}', [RoomMemberController::class, 'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class, 'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
 
+        // Recording operations by room owner
+        Route::middleware('can:manageRecordings,room')->group(function () {
+            Route::put('rooms/{room}/recordings/{recording}', [RecordingController::class, 'update'])->name('rooms.recordings.update');
+            Route::delete('rooms/{room}/recordings/{recording}', [RecordingController::class, 'destroy'])->name('rooms.recordings.remove');
+        });
+
         // Personalized room tokens
         Route::get('rooms/{room}/tokens', [RoomTokenController::class, 'index'])->name('rooms.tokens.get')->middleware('can:viewTokens,room');
         Route::post('rooms/{room}/tokens', [RoomTokenController::class, 'store'])->name('rooms.tokens.add')->middleware('can:manageTokens,room');
@@ -137,6 +144,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join')->middleware('room.authenticate');
     Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get')->middleware('room.authenticate');
     Route::get('rooms/{room}/files/{file}', [RoomFileController::class, 'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
+
+    Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index')->middleware('room.authenticate');
+    Route::get('rooms/{room}/recordings/{format}', [RecordingController::class, 'show'])->name('rooms.recordings.get')->middleware(['can:viewRecordingFormat,room,format', 'room.authenticate']);
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class, 'endMeetingCallback'])->name('meetings.endcallback');
 });

@@ -18,6 +18,7 @@ class RoomType extends Model
         'max_duration' => 'integer',
         'require_access_code' => 'boolean',
         'allow_record_attendance' => 'boolean',
+        'allow_record' => 'boolean',
     ];
 
     protected $fillable = ['name', 'color', 'restrict'];

@@ -86,6 +86,7 @@ class RoomTypeController extends Controller
         $roomType->max_duration = $request->max_duration;
         $roomType->require_access_code = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
+        $roomType->allow_record = $request->allow_record;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {
@@ -111,6 +112,7 @@ class RoomTypeController extends Controller
         $roomType->max_duration = $request->max_duration;
         $roomType->require_access_code = $request->require_access_code;
         $roomType->allow_record_attendance = $request->allow_record_attendance;
+        $roomType->allow_record = $request->allow_record;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
         if ($roomType->restrict) {

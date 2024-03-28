@@ -65,9 +65,6 @@ fi
 if [ "$DEV_MODE" == "true" ]; then
     echo "** DEVELOPMENT MODE ENABLED **"
 
-    echo "Enabling opcache timestamps"
-    sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
-
     echo "Clearing all caches"
     pilos-cli optimize:clear
 
@@ -76,6 +73,9 @@ if [ "$DEV_MODE" == "true" ]; then
         echo "Enabling xdebug"
         docker-php-ext-enable xdebug
     fi
+else
+    echo "Disable opcache timestamps"
+    sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=0/' /usr/local/etc/php/conf.d/opcache.ini
 fi
 
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

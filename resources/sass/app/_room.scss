@@ -130,3 +130,24 @@
         background-color: $secondary;
     }
 }
+
+.room-recording-access-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-access-everyone {
+        background-color: $info;
+    }
+
+    &.room-access-participant {
+        background-color: $success;
+    }
+
+    &.room-access-moderator {
+        background-color: $danger;
+    }
+
+    &.room-access-owner {
+        background-color: $secondary;
+    }
+}

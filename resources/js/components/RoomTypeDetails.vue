@@ -17,6 +17,11 @@
           <span>{{ $t('rooms.room_types.restrictions.no_attendace_recording') }}</span>
         </div>
 
+        <div v-if="!roomType.allow_record" class="flex align-items-start gap-2">
+          <i class="fa-solid fa-circle-play"></i>
+          <span>{{ $t('rooms.room_types.restrictions.no_recording') }}</span>
+        </div>
+
         <div v-if="roomType.require_access_code" class="flex align-items-start gap-2">
           <i class="fa-solid fa-lock"></i>
           <span>{{ $t('rooms.room_types.restrictions.require_access_code') }}</span>
@@ -54,6 +59,7 @@ const props = defineProps({
 const hasRestrictions = computed(() => {
   return !props.roomType.allow_listing ||
     !props.roomType.allow_record_attendance ||
+    !props.roomType.allow_record ||
     props.roomType.require_access_code ||
     props.roomType.max_participants ||
     props.roomType.max_duration;

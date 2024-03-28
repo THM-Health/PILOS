@@ -219,6 +219,21 @@
         </div>
 
         <div class="field grid">
+          <label for="allow_record" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_record')}}</label>
+          <div class="col-12 md:col-8">
+            <div>
+              <InputSwitch
+                id="allow_record"
+                v-model="model.allow_record"
+                :invalid="formErrors.fieldInvalid('allow_record')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('allow_record')"></p>
+          </div>
+        </div>
+
+        <div class="field grid">
           <label for="require_access_code" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.require_access_code')}}</label>
           <div class="col-12 md:col-8">
             <div>
@@ -332,6 +347,7 @@ const model = ref({
   server_pool: null,
   allow_listing: false,
   allow_record_attendance: false,
+  allow_record: false,
   require_access_code: false,
   max_duration: null,
   max_participants: null,

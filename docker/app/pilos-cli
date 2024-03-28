@@ -28,6 +28,10 @@ case $ACTION in
     su-exec www-data /usr/local/etc/frontend/run.sh --pre-build
     ;;
 
+  playback-player:build)
+    su-exec www-data /usr/local/etc/playback-player/build.sh $2
+    ;;
+
   change-permissions)
     echo "Change permissions"
     chown -R :www-data /var/www/html/resources/custom
@@ -43,6 +47,14 @@ case $ACTION in
     find /var/www/html/storage/ -type d -exec chmod 775 {} \;
     find /var/www/html/public/build/ -type f -exec chmod 664 {} \;
     find /var/www/html/public/build/ -type d -exec chmod 775 {} \;
+    ;;
+
+  create-spool-group)
+    # Create spool group and add www-data to it
+    # PILOS_SPOOL_GID is 2000 by default
+    echo "Creating spool group with GID $PILOS_SPOOL_GID"
+    addgroup pilos-spool --gid ${PILOS_SPOOL_GID}
+    adduser www-data pilos-spool
     ;;
 
   optimize)
@@ -64,8 +76,19 @@ case $ACTION in
 
   init)
     pilos-cli change-permissions
+    pilos-cli create-spool-group
     pilos-cli frontend:load
     pilos-cli optimize
+    ;;
+
+  run:horizon)
+    pilos-cli create-spool-group
+    su-exec www-data php artisan horizon
+    ;;
+
+  run:cron)
+    pilos-cli create-spool-group
+    /usr/sbin/crond -f
     ;;
 
   *)

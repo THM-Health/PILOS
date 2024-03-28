@@ -170,6 +170,7 @@ return [
         'allow_listing' => 'Raumsuche erlaubt',
         'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
         'allow_record_attendance' => 'Anwesenheitsprotokollierung erlauben',
+        'allow_record' => 'Video-Konferenz Aufzeichnung erlauben',
         'require_access_code' => 'Zugangscode erforderlich',
         'max_duration' => 'Maximale Dauer',
         'max_participants' => 'Maximale Teilnehmeranzahl',

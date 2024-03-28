@@ -9,6 +9,7 @@ use App\Console\Commands\CreateSuperuserCommand;
 use App\Console\Commands\DeleteObsoleteTokensCommand;
 use App\Console\Commands\DeleteUnverifiedNewUsersCommand;
 use App\Console\Commands\ImportGreenlight2Command;
+use App\Console\Commands\ImportRecordingsCommand;
 use App\Console\Commands\PollServerCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -28,6 +29,7 @@ class Kernel extends ConsoleKernel
         CleanupStatisticsCommand::class,
         DeleteObsoleteTokensCommand::class,
         CleanupRoomsCommand::class,
+        ImportRecordingsCommand::class,
     ];
 
     /**
@@ -43,6 +45,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(DeleteObsoleteTokensCommand::class)->daily()->onOneServer();
         $schedule->command('telescope:prune')->daily()->onOneServer();
         $schedule->command('horizon:snapshot')->everyFiveMinutes()->onOneServer();
+        $schedule->command(ImportRecordingsCommand::class)->everyMinute()->onOneServer();
     }
 
     /**

@@ -17,6 +17,23 @@ Additionally, we provide images for the latest commit on the `master` and the re
 We **don't** recommend using the `latest` tag for production, as breaking changes can cause you some trouble.
 **Always** check the changelog before changing the major version!
 
+### Building custom image
+You can build your own images from source by cloning this repository/your fork.
+Next, checkout the branch you want to build the image from.
+If you like, you can now modify the source code.
+
+Then run this command in the source directory to create a new container with the tag `pilos/pilos:custom-version'.
+```bash
+docker build -f docker/app/Dockerfile -t pilos/pilos:custom-version .
+```
+
+If you don't want to modify the source, you can also build directly from Github.
+In this example, we will use the code from the `2.x` branch and create a new image with the tag `pilos/pilos:custom-version`.
+```bash
+docker build -f docker/app/Dockerfile -t pilos/pilos:custom-version https://github.com/THM-Health/PILOS.git#2.x
+```
+To learn more about this syntax, check out the [Docker docs](https://docs.docker.com/engine/reference/commandline/image_build/#git-repositories).
+
 ## Requirements
 - fully qualified hostname
 - valid SSL certificate (HTTPS)
