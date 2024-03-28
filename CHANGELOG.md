@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [v2.4.3] - 2024-03-28
+### Changed
+- Bump Dependencies
 
 ## [v2.4.2] - 2024-01-09
 ### Fixed
@@ -711,7 +714,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#701]: https://github.com/THM-Health/PILOS/pull/701
 [#747]: https://github.com/THM-Health/PILOS/pull/747
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.2...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.3...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -750,3 +753,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.0
 [v2.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.1
 [v2.4.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.2
+[v2.4.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.3

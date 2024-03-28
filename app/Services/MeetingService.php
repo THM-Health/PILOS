@@ -9,6 +9,7 @@ use App\Models\Meeting;
 use App\Models\Room;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
+use BigBlueButton\Enum\Feature;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
@@ -77,12 +78,12 @@ class MeetingService
             ->setWebcamsOnlyForModerator($this->meeting->room->webcams_only_for_moderator)
             ->setLockSettingsDisablePrivateChat($this->meeting->room->lock_settings_disable_private_chat)
             ->setLockSettingsDisablePublicChat($this->meeting->room->lock_settings_disable_public_chat)
-            ->setLockSettingsDisableNote($this->meeting->room->lock_settings_disable_note)
+            ->setLockSettingsDisableNotes($this->meeting->room->lock_settings_disable_note)
             ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->mute_on_start)
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setLearningDashboardEnabled(false);
+            ->setDisabledFeatures([Feature::LEARNING_DASHBOARD]);
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
