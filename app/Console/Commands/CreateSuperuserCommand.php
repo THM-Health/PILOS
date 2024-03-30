@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 /**
  * Command class that makes it possible to create an new superuser.
  */
-class CreateSuperuser extends Command
+class CreateSuperuserCommand extends Command
 {
     /**
      * The name and signature of the console command.

@@ -41,6 +41,8 @@ services:
       env_file:
         - .env
       entrypoint: [ '/usr/sbin/crond','-f' ]
+      volumes:
+        - './:/var/www/html/'
       depends_on:
         app:
           condition: service_healthy
@@ -49,6 +51,8 @@ services:
       env_file:
         - .env
       entrypoint: [ 'pilos-cli', 'horizon' ]
+      volumes:
+        - './:/var/www/html/'
       depends_on:
         app:
           condition: service_healthy

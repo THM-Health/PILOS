@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added room type restrictions (max. participants, max. duration, require access code, allow record attendance) ([#883])
 - Limit results in user search ([#883])
 - Allow changing the default admin role ([#883])
+- Option to drain a server ([#911])
+- Show server connection status in server list ([#911])
+- End detached meetings after server failure ([#911])
+- Added config options for server health `BBB_SERVER_HEALTHY_THRESHOLD` and `BBB_SERVER_UNHEALTHY_THRESHOLD` ([#911])
+- Added config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
+- Added plugin to customize the server load calculation ([#956])
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
@@ -33,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed artisan command `users:create:admin` to `users:create:superuser` ([#883])
 - Refactored frontend from Vue2 to Vue3, replacing BootstrapVue with PrimeVue ([#883])
 - Upgrade to Laravel 11 ([#927])
+- Refactor server health, making it more robust against temporary connection issues ([#911])
+- Calculation of server load uses the participants amount, during starting phase using a configurable min. amount ([#956])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
@@ -41,6 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
 - Global attendance recording setting ([#905])
+
+## [v3.0.2] - 2024-03-28
+### Changed
+- Bump Dependencies
 
 ## [v3.0.1] - 2024-01-09
 ### Fixed
@@ -70,8 +82,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 [#883]: https://github.com/THM-Health/PILOS/pull/883
 [#905]: https://github.com/THM-Health/PILOS/pull/905
+[#911]: https://github.com/THM-Health/PILOS/pull/911
 [#927]: https://github.com/THM-Health/PILOS/pull/927
+[#956]: https://github.com/THM-Health/PILOS/pull/956
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
+[v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2

@@ -237,6 +237,10 @@ return [
         'no_data' => 'Es sind keine Server vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Server gefunden!',
         'offline' => 'Offline',
+        'enabled' => 'Aktiviert',
+        'unhealthy' => 'Fehlerhaft',
+        'draining' => 'Auslaufend',
+        'connection' => 'Verbindung',
         'offline_reason' => [
             'connection' => 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
             'secret' => 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.',

@@ -431,7 +431,7 @@ function login () {
 }
 
 const running = computed(() => {
-  return room.value.last_meeting != null && room.value.last_meeting.end == null;
+  return room.value.last_meeting != null && room.value.last_meeting.end == null && room.value.last_meeting.detached == null;
 });
 
 /**

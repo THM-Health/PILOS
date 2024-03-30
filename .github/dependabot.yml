@@ -17,6 +17,10 @@ updates:
       primevue:
         patterns:
         - "primevue*"  
+      vitest:
+        patterns:
+        - "vitest*"
+        - "@vitest*"
 
   # Maintain dependencies for Composer
   - package-ecosystem: "composer"

@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Services\LocaleService;
 use Illuminate\Console\Command;
 
-class LocalesCache extends Command
+class CacheLocalesCommand extends Command
 {
     /**
      * The name and signature of the console command.

@@ -36,6 +36,7 @@ class Meeting extends Model
         'start' => 'datetime',
         'end' => 'datetime',
         'record_attendance' => 'boolean',
+        'detached' => 'datetime',
     ];
 
     /**

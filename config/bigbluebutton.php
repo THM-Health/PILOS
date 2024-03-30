@@ -11,4 +11,9 @@ return [
     'server_timeout' => (int) env('BBB_SERVER_TIMEOUT', 10),
     'server_connect_timeout' => (int) env('BBB_SERVER_CONNECT_TIMEOUT', 20),
     'room_refresh_rate' => (int) env('ROOM_REFRESH_RATE', 30),
+    'server_healthy_threshold' => (int) env('BBB_SERVER_HEALTHY_THRESHOLD', 3),
+    'server_unhealthy_threshold' => (int) env('BBB_SERVER_UNHEALTHY_THRESHOLD', 3),
+
+    'load_new_meeting_min_user_count' => (int) env('BBB_LOAD_MIN_USER_COUNT', 15),
+    'load_new_meeting_min_user_interval' => (int) env('BBB_LOAD_MIN_USER_INTERVAL', 15),
 ];
