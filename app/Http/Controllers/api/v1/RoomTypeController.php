@@ -58,8 +58,14 @@ class RoomTypeController extends Controller
                     });
             }
         }
+        //Todo check and think about creating Request (ShowRoomTypesRequest??)
+        if($request->boolean('with_room_settings')){
+            return (new RoomTypeResourceCollection($roomTypes->orderBy('name')->get()))->withDefaultRoomSettings();
+        }
+        else{
+            return new RoomTypeResourceCollection($roomTypes->orderBy('name')->get());
+        }
 
-        return (new RoomTypeResourceCollection($roomTypes->orderBy('name')->get()))->withDefaultRoomSettings();
     }
 
     /**

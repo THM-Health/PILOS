@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            //ToDo???
             $table->boolean('expert_mode')->default(false);
         });
     }

@@ -1,5 +1,6 @@
 <template>
 
+<!--  ToDo fix width problems with long texts-->
   <div v-if="modelLoadingError" class="flex flex-column gap-2 align-items-start">
     <Message
       severity="error"
@@ -96,7 +97,8 @@ function reloadRoomTypes () {
   isLoadingAction.value = true;
   const config = {
     params: {
-      filter: props.roomId === undefined ? 'own' : props.roomId
+      filter: props.roomId === undefined ? 'own' : props.roomId,
+      with_room_settings: true
     }
   };
 

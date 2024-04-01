@@ -356,7 +356,7 @@
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
-                input-id="webcams_only_for_moderator_default"
+                input-id="mute_on_start_default"
                 v-model="model.mute_on_start_default"
                 :invalid="formErrors.fieldInvalid('mute_on_start_default')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
@@ -428,79 +428,14 @@
           </div>
           <div class="col-12">
             <!-- Alert shown when default role is moderator and waiting room is active -->
-            <InlineMessage
+            <InlineNote
               class="w-full"
               v-if="showLobbyAlert"
               severity="warn"
             >
               {{ $t('rooms.settings.participants.waiting_room_alert') }}
-            </InlineMessage>
+            </InlineNote>
           </div>
-        </div>
-
-        <h4>Mitglieder</h4>
-        <div class="field grid">
-          <label for="allow_membership_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.security.allow_new_members')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
-              <InputSwitch
-                input-id="allow_membership_default"
-                v-model="model.allow_membership_default"
-                :invalid="formErrors.fieldInvalid('allow_membership_default')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-              />
-
-              <ToggleButton
-                v-model="model.allow_membership_enforced"
-                :invalid="formErrors.fieldInvalid('allow_membership_enforced')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
-                on-icon="fa-solid fa-lock"
-                off-icon="fa-solid fa-lock-open"
-              />
-            </div>
-            <div class="flex justify-content-between gap-4">
-              <p class="p-error" v-html="formErrors.fieldError('allow_membership_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('allow_membership_enforced')"></p>
-            </div>
-          </div>
-        </div>
-
-        <div class="field grid">
-          <label for="default_role_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.participants.default_role.title') }} {{ $t('rooms.settings.participants.default_role.only_logged_in') }}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
-              <SelectButton
-                v-model="model.default_role_default"
-                :allowEmpty="false"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-                :invalid="formErrors.fieldInvalid('default_role_default')"
-                :options="[
-                    { role: 1, label: $t('rooms.roles.participant')},
-                    { role: 2, label: $t('rooms.roles.moderator')}
-                  ]"
-                class="flex-shrink-0"
-                dataKey="role"
-                input-id="default-role"
-                optionLabel="label"
-                optionValue="role"
-              />
-              <ToggleButton
-                v-model="model.default_role_enforced"
-                :invalid="formErrors.fieldInvalid('default_role_enforced')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
-                on-icon="fa-solid fa-lock"
-                off-icon="fa-solid fa-lock-open"
-              />
-            </div>
-            <div class="flex justify-content-between gap-4">
-              <p class="p-error" v-html="formErrors.fieldError('default_role_default')"/>
-              <p class="p-error text-right" v-html="formErrors.fieldError('default_role_enforced')"></p>
-            </div>
-            </div>
         </div>
 
         <h4>Einschränkungen</h4>
@@ -694,6 +629,71 @@
             <div class="flex justify-content-between gap-4">
               <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_hide_user_list_enforced')"></p>
+            </div>
+          </div>
+        </div>
+
+        <h4>{{ $t('rooms.settings.participants.title') }}</h4>
+        <div class="field grid">
+          <label for="allow_membership_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.security.allow_new_members')}}</label>
+          <div class="col-12 md:col-8">
+            <div class="flex justify-content-between align-items-center">
+              <InputSwitch
+                input-id="allow_membership_default"
+                v-model="model.allow_membership_default"
+                :invalid="formErrors.fieldInvalid('allow_membership_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+
+              <ToggleButton
+                v-model="model.allow_membership_enforced"
+                :invalid="formErrors.fieldInvalid('allow_membership_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <div class="flex justify-content-between gap-4">
+              <p class="p-error" v-html="formErrors.fieldError('allow_membership_default')"></p>
+              <p class="p-error text-right" v-html="formErrors.fieldError('allow_membership_enforced')"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="default_role_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.participants.default_role.title') }} {{ $t('rooms.settings.participants.default_role.only_logged_in') }}</label>
+          <div class="col-12 md:col-8">
+            <div class="flex justify-content-between align-items-start md:align-items-center flex-column md:flex-row gap-2">
+              <SelectButton
+                v-model="model.default_role_default"
+                :allowEmpty="false"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :invalid="formErrors.fieldInvalid('default_role_default')"
+                :options="[
+                    { role: 1, label: $t('rooms.roles.participant')},
+                    { role: 2, label: $t('rooms.roles.moderator')}
+                  ]"
+                class="flex-shrink-0"
+                dataKey="role"
+                input-id="default-role"
+                optionLabel="label"
+                optionValue="role"
+              />
+              <ToggleButton
+                v-model="model.default_role_enforced"
+                :invalid="formErrors.fieldInvalid('default_role_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <div class="flex justify-content-between gap-4">
+              <p class="p-error" v-html="formErrors.fieldError('default_role_default')"/>
+              <p class="p-error text-right" v-html="formErrors.fieldError('default_role_enforced')"></p>
             </div>
           </div>
         </div>

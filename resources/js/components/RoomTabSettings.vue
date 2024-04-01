@@ -15,7 +15,8 @@
           <!-- General settings tab -->
           <div class="col-12 md:col-3 flex flex-column">
                 <label for="room-type" class="mb-2">{{ $t('rooms.settings.general.type') }}</label>
-                <RoomTypeChangeButton
+<!--                ToDo change-->
+            <RoomTypeChangeButton
                   v-model="settings.room_type"
                   :disabled="disabled"
                   :invalid="formErrors.fieldInvalid('room_type')"
@@ -76,11 +77,18 @@
 
               <!-- Checkbox allow guests to access the room -->
               <div class="col-12 md:col-3 flex flex-column">
-                <label for="allow-guests" class="mb-2">Zugriff durch Gäste</label>
+                <label for="allow-guests" class="mb-2">Zugriff durch Gäste
+                  <span
+                    v-if="settings.room_type.allow_guests_enforced"
+                    class="fa-solid fa-lock ml-1"
+                    v-tooltip="'Erzwungener Wert'"
+                    aria-label="Erzwungener Wert"
+                  />
+                </label>
                 <div class="flex align-items-center gap-2">
                   <InputSwitch
                     v-model="settings.allow_guests"
-                    :disabled="disabled"
+                    :disabled="disabled || settings.room_type.allow_guests_enforced"
                     :invalid="formErrors.fieldInvalid('allow_guests')"
                     class="flex-shrink-0"
                     input-id="allow-guests"
@@ -248,67 +256,11 @@
 
           <Divider/>
 
-          <!-- Participants settings tab -->
-            <div class="col-12">
-              <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.participants.title') }}</p>
-            </div>
-              <!-- Checkbox allow users to become room members -->
-              <div class="col-12 md:col-3">
-                <div class="flex align-items-center gap-2">
-                  <InputSwitch
-                    v-model="settings.allow_membership"
-                    :disabled="disabled ||settings.room_type.allow_membership_enforced"
-                    :invalid="formErrors.fieldInvalid('allow_membership')"
-                    class="flex-shrink-0"
-                    input-id="allow-membership"
-                  />
-                  <label for="allow-membership">{{ $t('rooms.settings.security.allow_new_members') }}</label>
-                  <span
-                    v-if="settings.room_type.allow_membership_enforced"
-                    class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
-                  />
-                </div>
-                <p class="p-error" v-html="formErrors.fieldError('allow_membership')"/>
-              </div>
-
-              <!-- Radio default user role for logged in users only -->
-              <div class="col-12 md:col-3 flex flex-column">
-                <label for="default-role">{{ $t('rooms.settings.participants.default_role.title') }}
-                  <span
-                    v-if="settings.room_type.default_role_enforced"
-                    class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
-                  />
-                </label>
-
-                <small>
-                  {{ $t('rooms.settings.participants.default_role.only_logged_in') }}
-                </small>
-                <SelectButton
-                  v-model="settings.default_role"
-                  :allowEmpty="false"
-                  :disabled="disabled || settings.room_type.default_role_enforced"
-                  :invalid="formErrors.fieldInvalid('default_role')"
-                  :options="[
-                  { role: 1, label: $t('rooms.roles.participant')},
-                  { role: 2, label: $t('rooms.roles.moderator')}
-                ]"
-                  class="flex-shrink-0"
-                  dataKey="role"
-                  input-id="default-role"
-                  optionLabel="label"
-                  optionValue="role"
-                />
-                <p class="p-error" v-html="formErrors.fieldError('default_role')"/>
-              </div>
-          <Divider/>
           <!-- Permissions & Restrictions tab -->
             <!--            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.permissions.title') }}</p>-->
 
             <!--            <Divider class="my-0"/>-->
+<!--            ToDo change-->
             <div class="col-12">
               <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.restrictions.title') }}</p>
             </div>
@@ -463,6 +415,63 @@
               </div>
 
           <Divider/>
+            <!-- Participants settings tab -->
+            <div class="col-12">
+              <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.participants.title') }}</p>
+            </div>
+            <!-- Checkbox allow users to become room members -->
+            <div class="col-12 md:col-3">
+              <div class="flex align-items-center gap-2">
+                <InputSwitch
+                  v-model="settings.allow_membership"
+                  :disabled="disabled ||settings.room_type.allow_membership_enforced"
+                  :invalid="formErrors.fieldInvalid('allow_membership')"
+                  class="flex-shrink-0"
+                  input-id="allow-membership"
+                />
+                <label for="allow-membership">{{ $t('rooms.settings.security.allow_new_members') }}</label>
+                <span
+                  v-if="settings.room_type.allow_membership_enforced"
+                  class="fa-solid fa-lock ml-1"
+                  v-tooltip="'Erzwungener Wert'"
+                  aria-label="Erzwungener Wert"
+                />
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('allow_membership')"/>
+            </div>
+
+            <!-- Radio default user role for logged in users only -->
+            <div class="col-12 md:col-3 flex flex-column">
+              <label for="default-role">{{ $t('rooms.settings.participants.default_role.title') }}
+                <span
+                  v-if="settings.room_type.default_role_enforced"
+                  class="fa-solid fa-lock ml-1"
+                  v-tooltip="'Erzwungener Wert'"
+                  aria-label="Erzwungener Wert"
+                />
+              </label>
+
+              <small>
+                {{ $t('rooms.settings.participants.default_role.only_logged_in') }}
+              </small>
+              <SelectButton
+                v-model="settings.default_role"
+                :allowEmpty="false"
+                :disabled="disabled || settings.room_type.default_role_enforced"
+                :invalid="formErrors.fieldInvalid('default_role')"
+                :options="[
+                  { role: 1, label: $t('rooms.roles.participant')},
+                  { role: 2, label: $t('rooms.roles.moderator')}
+                ]"
+                class="flex-shrink-0"
+                dataKey="role"
+                input-id="default-role"
+                optionLabel="label"
+                optionValue="role"
+              />
+              <p class="p-error" v-html="formErrors.fieldError('default_role')"/>
+            </div>
+            <Divider/>
           <div class="col-12">
             <p class="text-lg font-semibold text-color m-0">Erweitert</p>
           </div>
@@ -496,10 +505,11 @@
             :room="room"
             @transferredOwnership="emit('settingsChanged');"
           />
+<!--      ToDo Think about moving outside-->
           <Button
             severity="secondary"
             label="Expertenmodus"
-            @click="settings.expert_mode = !settings.expert_mode"
+            @click="toggleExpertMode"
           />
         </div>
         <div class="flex">
@@ -535,9 +545,39 @@ const props = defineProps({
 
 const emit = defineEmits(['settingsChanged']);
 
-const settings = ref({});
+const settings = ref({
+  room_type: {
+    webcams_only_for_moderator_default: false,
+    webcams_only_for_moderator_enforced: false,
+    mute_on_start_default: false,
+    mute_on_start_enforced: false,
+    lock_settings_disable_cam_default: false,
+    lock_settings_disable_cam_enforced: false,
+    lock_settings_disable_mic_default: false,
+    lock_settings_disable_mic_enforced: false,
+    lock_settings_disable_private_chat_default: false,
+    lock_settings_disable_private_chat_enforced: false,
+    lock_settings_disable_public_chat_default: false,
+    lock_settings_disable_public_chat_enforced: false,
+    lock_settings_disable_note_default: false,
+    lock_settings_disable_note_enforced: false,
+    lock_settings_hide_user_list_default: false,
+    lock_settings_hide_user_list_enforced: false,
+    everyone_can_start_default: false,
+    everyone_can_start_enforced: false,
+    allow_guests_default: false,
+    allow_guests_enforced: false,
+    allow_membership_default: false,
+    allow_membership_enforced: false,
+    default_role_default: 1,
+    default_role_enforced: false,
+    lobby_default: 0,
+    lobby_enforced: false
+  }
+});
 const isBusy = ref(false);
 const loadingError = ref(false);
+// ToDo delete?
 const roomTypeSelectBusy = ref(false);
 const roomTypeSelectLoadingError = ref(false);
 
@@ -605,6 +645,36 @@ function load () {
 
 function createAccessCode () {
   settings.value.access_code = (Math.floor(Math.random() * (999999999 - 111111112)) + 111111111);
+}
+
+function toggleExpertMode () {
+  settings.value.expert_mode = !settings.value.expert_mode;
+
+  if (settings.value.expert_mode) {
+    resetSettings(true);
+  }
+}
+
+function resetSettings (resetAll = false) {
+  resetSetting('allow_guests', resetAll);
+  resetSetting('allow_membership', resetAll);
+  resetSetting('default_role', resetAll);
+  resetSetting('everyone_can_start', resetAll);
+  resetSetting('lobby', resetAll);
+  resetSetting('lock_settings_disable_cam', resetAll);
+  resetSetting('lock_settings_disable_mic', resetAll);
+  resetSetting('lock_settings_disable_note', resetAll);
+  resetSetting('lock_settings_disable_private_chat', resetAll);
+  resetSetting('lock_settings_disable_public_chat', resetAll);
+  resetSetting('lock_settings_hide_user_list', resetAll);
+  resetSetting('mute_on_start', resetAll);
+  resetSetting('webcams_only_for_moderator', resetAll);
+}
+
+function resetSetting (settingName, forceReset = false) {
+  if (forceReset || settings.value.room_type[settingName + '_enforced']) {
+    settings.value[settingName] = settings.value.room_type[settingName + '_default'];
+  }
 }
 
 /**
