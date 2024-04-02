@@ -36,17 +36,17 @@ class DeleteObsoleteTokensTest extends TestCase
         RoomToken::factory()->count(2)->create();
 
         RoomToken::factory()->create([
-            'created_at' => Carbon::now()->subMinutes(11),
+            'created_at' => Carbon::now()->subDays(11),
         ]);
 
         RoomToken::factory()->create([
-            'created_at' => Carbon::now()->subMinutes(11),
-            'last_usage' => Carbon::now()->subMinutes(5),
+            'created_at' => Carbon::now()->subDays(11),
+            'last_usage' => Carbon::now()->subDays(5),
         ]);
 
         RoomToken::factory()->create([
-            'created_at' => Carbon::now()->subMinutes(20),
-            'last_usage' => Carbon::now()->subMinutes(11),
+            'created_at' => Carbon::now()->subDays(20),
+            'last_usage' => Carbon::now()->subDays(11),
         ]);
 
         $this->assertDatabaseCount('room_tokens', 5);

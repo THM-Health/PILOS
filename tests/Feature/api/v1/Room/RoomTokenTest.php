@@ -111,7 +111,7 @@ class RoomTokenTest extends TestCase
         // Check expire date
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
         $token = RoomToken::find($results[0]['token']);
-        self::assertEquals($token->created_at->addMinutes(90)->toISOString(), $results[0]['expires']);
+        self::assertEquals($token->created_at->addDays(90)->toISOString(), $results[0]['expires']);
 
         setting(['room_token_expiration' => -1]);
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
+use App\Enums\TimePeriod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -43,18 +44,18 @@ class UpdateSetting extends FormRequest
             'legal_notice_url' => 'nullable|string|url|max:255',
             'privacy_policy_url' => 'nullable|string|url|max:255',
             'statistics.servers.enabled' => 'required|boolean',
-            'statistics.servers.retention_period' => 'required|numeric|min:1|max:365',
+            'statistics.servers.retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'statistics.meetings.enabled' => 'required|boolean',
-            'statistics.meetings.retention_period' => 'required|numeric|min:1|max:365',
-            'attendance.retention_period' => 'required|numeric|min:1|max:365',
+            'statistics.meetings.retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
+            'attendance.retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'bbb.logo' => 'string|max:255',
             'bbb.logo_file' => 'image|max:500',
             'bbb.style' => 'nullable|file|max:500',
-            'room_token_expiration' => 'required|numeric|in:,-1,1440,10080,43200,129600,262800,525600',
+            'room_token_expiration' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete.enabled' => 'required|boolean',
-            'room_auto_delete.inactive_period' => 'required|numeric|in:-1,7,14,30,90,180,365,730',
-            'room_auto_delete.never_used_period' => 'required|numeric|in:-1,7,14,30,90,180,365,730',
-            'room_auto_delete.deadline_period' => 'required|numeric|in:7,14,30',
+            'room_auto_delete.inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
+            'room_auto_delete.never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
+            'room_auto_delete.deadline_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)->only([TimePeriod::ONE_WEEK, TimePeriod::TWO_WEEKS, TimePeriod::ONE_MONTH])],
         ];
     }
 

@@ -805,7 +805,7 @@ class SettingsTest extends TestCase
         $payload['banner'] = [
             'enabled' => 'foo',
         ];
-        $payload['room_token_expiration'] = 1440;
+        $payload['room_token_expiration'] = 7;
         $payload['help_url'] = '';
         $payload['legal_notice_url'] = '';
         $payload['privacy_policy_url'] = '';
