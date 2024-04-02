@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade to Laravel 11 ([#927])
 - Refactor server health, making it more robust against temporary connection issues ([#911])
 - Calculation of server load uses the participants amount, during starting phase using a configurable min. amount ([#956])
+- Layout of room features tab view ([#967])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
@@ -49,6 +50,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
 - Global attendance recording setting ([#905])
+
+## [v3.0.2] - 2024-03-28
+### Changed
+- Bump Dependencies
 
 ## [v3.0.1] - 2024-01-09
 ### Fixed
@@ -81,7 +86,9 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#911]: https://github.com/THM-Health/PILOS/pull/911
 [#927]: https://github.com/THM-Health/PILOS/pull/927
 [#956]: https://github.com/THM-Health/PILOS/pull/956
+[#967]: https://github.com/THM-Health/PILOS/pull/967
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.1...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
+[v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
