@@ -1,90 +1,78 @@
 <template>
       <Card
         :pt="{
-          body: { class: 'p-0' }
+          body: { class: 'p-4' }
         }"
       >
         <template #content>
-          <TabView
-            :lazy="true"
-            :pt="{
-              navContent: { class: 'border-round-top' }
-            }"
-          >
-            <!-- Room description tab -->
-            <TabPanel v-if="userPermissions.can('viewSettings', room) || room.description" >
-              <template #header>
-                <i class="fa-solid fa-file-lines mr-2" /> <span>{{ $t('rooms.description.title') }}</span>
-              </template>
-              <RoomTabDescription
-                :room="props.room"
-                @settings-changed="$emit('settingsChanged')"
-              />
-            </TabPanel>
-            <!-- Membership tab -->
-            <TabPanel v-if="userPermissions.can('viewSettings', room)">
-              <template #header>
-                <i class="fa-solid fa-users mr-2" /> <span>{{ $t('rooms.members.title') }}</span>
-              </template>
-              <RoomTabMembers
-                :room="props.room"
-              />
-            </TabPanel>
-            <!-- Personal room links tab -->
-            <TabPanel
-              v-if="userPermissions.can('viewSettings', room)"
-              :pt="{
-              headerAction: { class: 'white-space-nowrap' }
-              }"
+          <div>
+            <div role="tablist" class="flex flex-row justify-content-between m-0 p-0 border-0">
+              <div class="flex flex-row gap-2 align-items-center">
+                <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>
+              </div>
+              <div v-if="availableTabs.length > 1">
+                <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
+                  <Button
+                    v-for="tab in availableTabs"
+                    :key="tab.key"
+                    :severity="tab.active ? 'primary' : 'secondary'"
+                    @click="tab.command"
+                    :icon="tab.icon"
+                    v-tooltip.bottom="tab.label"
+                    :aria-label="tab.label"
+                    role="tab"
+                    :id="'tab-'+tab.key"
+                    :aria-selected="tab.active"
+                    :aria-controls="'panel-'+tab.key"
+                    :tabindex="tab.active ? 0 : -1"
+                  />
+                </div>
+
+                <div class="block md:hidden">
+                  <Button type="button" severity="secondary" text icon="fa-solid fa-ellipsis-vertical" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" />
+                  <Menu ref="menu" id="overlay_menu" :model="availableTabs" :popup="true" role="tablist" />
+                </div>
+              </div>
+            </div>
+            <Divider />
+            <div
+              v-for="tab in availableTabs"
+              :key="tab.key"
+              :id="'panel-'+tab.key"
+              role="tabpanel"
+              :aria-labelledby="'tab-'+tab.key"
+              :hidden="!tab.active"
+              tabindex="0"
             >
-              <template #header>
-                <i class="fa-solid fa-link mr-2" /> <span>{{ $t('rooms.tokens.title') }}</span>
-              </template>
-              <RoomTabPersonalizedLinks
-                :room="props.room"
-              />
-            </TabPanel>
-            <!-- File management tab -->
-            <TabPanel>
-              <template #header>
-                <i class="fa-solid fa-folder-open mr-2" /> <span>{{ $t('rooms.files.title') }}</span>
-              </template>
-              <RoomTabFiles
+              <component
+                :is="tab.component"
+                v-if="tab.active"
                 :room="props.room"
                 :access-code="props.accessCode"
                 :token="props.token"
-                :require-agreement="!userPermissions.can('viewSettings', room)"
 
                 @invalid-code="$emit('invalidCode')"
                 @invalid-token="$emit('invalidToken')"
                 @guests-not-allowed="$emit('guestsNotAllowed')"
-              />
-            </TabPanel>
-            <!-- Statistics tab -->
-            <TabPanel v-if="userPermissions.can('viewSettings', room)">
-              <template #header>
-                <i class="fa-solid fa-history mr-2" /> <span>{{ $t('rooms.meeting_history.title') }}</span>
-              </template>
-              <RoomTabHistory
-                :room="props.room"
-              />
-            </TabPanel>
-            <!-- Room settings tab -->
-            <TabPanel v-if="userPermissions.can('viewSettings', room)">
-              <template #header>
-                <i class="fa-solid fa-cog mr-2" /> <span>{{ $t('rooms.settings.title') }}</span>
-              </template>
-              <RoomTabSettings
-                :room="props.room"
                 @settings-changed="$emit('settingsChanged')"
               />
-            </TabPanel>
-          </TabView>
+            </div>
+          </div>
         </template>
       </Card>
 </template>
 <script setup>
 import { useUserPermissions } from '../composables/useUserPermission.js';
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import RoomTabDescription from './RoomTabDescription.vue';
+import RoomTabMembers from './RoomTabMembers.vue';
+import RoomTabPersonalizedLinks from './RoomTabPersonalizedLinks.vue';
+import RoomTabFiles from './RoomTabFiles.vue';
+import RoomTabHistory from './RoomTabHistory.vue';
+import RoomTabSettings from './RoomTabSettings.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({
   room: Object,
@@ -92,5 +80,83 @@ const props = defineProps({
   token: String
 });
 
+const menu = ref();
+const toggle = (event) => {
+  menu.value.toggle(event);
+};
+
+onMounted(() => {
+  activeTabKey.value = availableTabs.value[0].key;
+});
+
+const activeTabKey = ref('');
+
+const activeTab = computed(() => {
+  return availableTabs.value.find(tab => tab.key === activeTabKey.value);
+});
+
+const availableTabs = computed(() => {
+  const tabs = [];
+
+  if (userPermissions.can('viewSettings', props.room) || props.room.description) {
+    tabs.push({ key: 'description', label: t('rooms.description.title'), icon: 'fa-solid fa-file-lines', component: RoomTabDescription });
+  }
+
+  if (userPermissions.can('viewSettings', props.room)) {
+    tabs.push({ key: 'members', label: t('rooms.members.title'), icon: 'fa-solid fa-users', component: RoomTabMembers });
+    tabs.push({ key: 'tokens', label: t('rooms.tokens.title'), icon: 'fa-solid fa-link', component: RoomTabPersonalizedLinks });
+  }
+
+  tabs.push({ key: 'files', label: t('rooms.files.title'), icon: 'fa-solid fa-folder-open', component: RoomTabFiles });
+
+  if (userPermissions.can('viewSettings', props.room)) {
+    tabs.push({ key: 'history', label: t('rooms.meeting_history.title'), icon: 'fa-solid fa-history', component: RoomTabHistory });
+    tabs.push({ key: 'settings', label: t('rooms.settings.title'), icon: 'fa-solid fa-cog', component: RoomTabSettings });
+  }
+
+  return tabs.map(tab => {
+    return {
+      key: tab.key,
+      active: tab.key === activeTabKey.value,
+      class: tab.key === activeTabKey.value ? 'active-menu-item' : '',
+      label: tab.label,
+      icon: tab.icon,
+      component: tab.component,
+      command: () => {
+        activeTabKey.value = tab.key;
+      }
+    };
+  });
+});
+
 const userPermissions = useUserPermissions();
+
+const tabFocus = ref(0);
+const keydownHandler = function (event) {
+  switch (event.key) {
+    case 'ArrowLeft':
+      if (tabFocus.value - 1 < 0) {
+        tabFocus.value = availableTabs.value.length - 1;
+      } else {
+        tabFocus.value--;
+      }
+      focusTab(tabFocus.value);
+      break;
+    case 'ArrowRight':
+      if (tabFocus.value + 1 > availableTabs.value.length - 1) {
+        tabFocus.value = 0;
+      } else {
+        tabFocus.value++;
+      }
+      focusTab(tabFocus.value);
+      break;
+    default:
+  }
+};
+
+const focusTab = function (newTab) {
+  newTab = availableTabs.value[newTab];
+  document.getElementById('tab-' + newTab.key).focus();
+};
+
 </script>
