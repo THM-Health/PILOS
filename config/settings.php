@@ -99,6 +99,9 @@ return [
         'legal_notice_url' => env('LEGAL_NOTICE_URL'),
         'privacy_policy_url' => env('PRIVACY_POLICY_URL'),
         'room_token_expiration' => (int) env('ROOM_TOKEN_EXPIRATION', -1),
+        'recording' => [
+            'retention_period' => env('RECORDING_RETENTION_PERIOD', -1),
+        ],
         'room_auto_delete' => [
             'enabled' => env('ROOM_AUTO_DELETE_ENABLED', false),
             'inactive_period' => (int) env('ROOM_AUTO_DELETE_INACTIVE_PERIOD', 365),

@@ -253,6 +253,11 @@ return [
         'delete_Recording' => 'Delete recording',
         'filename' => 'Recording',
         'download' => 'Download raw recording files',
+        'retention_period' => [
+            'title' => 'Retention period',
+            'days' => 'The recordings are stored for :days days.',
+            'unlimited' => 'The recordings are stored indefinitely.',
+        ],
         'modals' => [
             'edit' => [
                 'title' => 'Edit recording',

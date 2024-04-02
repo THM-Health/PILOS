@@ -107,6 +107,10 @@ class ApplicationSettings extends JsonResource
                     'retention_period' => (int) setting('statistics.meetings.retention_period'),
                 ],
             ],
+            'recording' => [
+                'retention_period' => intval(setting('recording.retention_period')),
+                'max_retention_period' => intval(config('recording.max_retention_period')),
+            ],
             'attendance' => [
                 'retention_period' => (int) setting('attendance.retention_period'),
             ],

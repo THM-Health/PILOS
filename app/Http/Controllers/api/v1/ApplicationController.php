@@ -109,6 +109,7 @@ class ApplicationController extends Controller
         setting()->set('statistics.meetings.enabled', $request->statistics['meetings']['enabled']);
         setting()->set('statistics.meetings.retention_period', $request->statistics['meetings']['retention_period']);
         setting()->set('attendance.retention_period', $request->attendance['retention_period']);
+        setting()->set('recording.retention_period', $request->recording['retention_period']);
 
         setting()->set('room_auto_delete.enabled', $request->room_auto_delete['enabled'] && ! ($request->room_auto_delete['inactive_period'] == -1 && $request->room_auto_delete['never_used_period'] == -1));
         setting()->set('room_auto_delete.inactive_period', $request->room_auto_delete['inactive_period']);

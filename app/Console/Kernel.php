@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\CleanupAttendanceCommand;
+use App\Console\Commands\CleanupRecordingsCommand;
 use App\Console\Commands\CleanupRoomsCommand;
 use App\Console\Commands\CleanupStatisticsCommand;
 use App\Console\Commands\CreateSuperuserCommand;
@@ -29,6 +30,7 @@ class Kernel extends ConsoleKernel
         CleanupStatisticsCommand::class,
         DeleteObsoleteTokensCommand::class,
         CleanupRoomsCommand::class,
+        CleanupRecordingsCommand::class,
         ImportRecordingsCommand::class,
     ];
 
@@ -42,6 +44,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(CleanupStatisticsCommand::class)->daily()->onOneServer();
         $schedule->command(CleanupAttendanceCommand::class)->daily()->onOneServer();
         $schedule->command(CleanupRoomsCommand::class)->daily()->onOneServer();
+        $schedule->command(CleanupRecordingsCommand::class)->daily()->onOneServer();
         $schedule->command(DeleteObsoleteTokensCommand::class)->daily()->onOneServer();
         $schedule->command('telescope:prune')->daily()->onOneServer();
         $schedule->command('horizon:snapshot')->everyFiveMinutes()->onOneServer();

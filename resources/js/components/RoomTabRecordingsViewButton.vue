@@ -34,17 +34,19 @@
       </div>
     </template>
 
-    <div class="flex flex-column gap-2">
-      <Button
-        v-for="format in formats.filter(format => !format.disabled || viewDisabled)"
-        :key="format.format"
-        icon="fa-solid fa-play"
-        @click="downloadFormat(format)"
-        :disabled="isLoadingAction"
-        :label="$t('rooms.recordings.format_types.'+format.format)"
-        :loading="isLoadingAction"
-      />
-    </div>
+    <OverlayComponent :show="isLoadingAction">
+      <div class="flex flex-column gap-2">
+
+          <Button
+            v-for="format in formats.filter(format => !format.disabled || viewDisabled)"
+            :key="format.format"
+            icon="fa-solid fa-play"
+            @click="downloadFormat(format)"
+            :disabled="isLoadingAction"
+            :label="$t('rooms.recordings.format_types.'+format.format)"
+          />
+      </div>
+    </OverlayComponent>
 
   </Dialog>
 

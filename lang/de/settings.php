@@ -86,6 +86,9 @@ return [
             'description' => 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.',
             'title' => 'URL zur Datenschutzerklärung',
         ],
+        'recording' => [
+            'retention_period_title' => 'Speicherdauer der Aufzeichnungen in Tagen',
+        ],
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Zeitraum zwischen Zustellung der Informations-E-Mail und der Löschung',

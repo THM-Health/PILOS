@@ -253,6 +253,11 @@ return [
         'delete_recording' => 'Aufzeichnung löschen',
         'filename' => 'Aufzeichnung',
         'download' => 'Rohdaten der Aufzeichnung herunterladen',
+        'retention_period' => [
+            'title' => 'Aufbewahrungsfristen',
+            'days' => 'Die Aufzeichnungen werden für :days Tage gespeichert.',
+            'unlimited' => 'Die Aufzeichnungen werden zeitlich unbegrenzt gespeichert.',
+        ],
         'modals' => [
             'edit' => [
                 'title' => 'Aufzeichnung bearbeiten',

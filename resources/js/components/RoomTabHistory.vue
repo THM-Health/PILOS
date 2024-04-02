@@ -74,9 +74,7 @@
         </template>
       </Column>
     </DataTable>
-    <div
-      id="retentionPeriodInfo"
-    >
+    <div id="retentionPeriodInfo">
       <Divider/>
       <b>{{ $t('meetings.retention_period') }}</b><br>
       <span v-if="settingsStore.getSetting('statistics.meetings.enabled') && settingsStore.getSetting('statistics.meetings.retention_period') !== -1">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('statistics.meetings.retention_period')}) }}</span><br>

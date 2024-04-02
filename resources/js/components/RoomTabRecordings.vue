@@ -21,6 +21,7 @@
       lazy
       dataKey="id"
       paginator
+      :alwaysShowPaginator="false"
       :loading="isBusy"
       rowHover
       v-model:sortField="sortField"
@@ -32,7 +33,9 @@
 
       <!-- Show message on empty recording list -->
       <template #empty>
-        <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.recordings.nodata') }}</InlineNote>
+        <div>
+          <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.recordings.nodata') }}</InlineNote>
+        </div>
       </template>
 
       <template #list="slotProps">
@@ -112,6 +115,12 @@
         </div>
       </template>
     </DataView>
+    <div id="retentionPeriodInfo">
+      <Divider/>
+      <b>{{ $t('rooms.recordings.retention_period.title') }}</b><br>
+      <span v-if="settingsStore.getSetting('recording.retention_period') !== -1">{{ $t('rooms.recordings.retention_period.days', {'days': settingsStore.getSetting('recording.retention_period')}) }}</span><br>
+      <span v-if="settingsStore.getSetting('recording.retention_period') === -1">{{ $t('rooms.recordings.retention_period.unlimited') }}</span><br>
+    </div>
   </div>
 </template>
 <script setup>
@@ -119,6 +128,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import RoomTabRecordingsDownloadButton from './RoomTabRecordingsDownloadButton.vue';
+import {useSettingsStore} from "../stores/settings.js";
 
 const props = defineProps({
   room: {
@@ -137,6 +147,7 @@ const props = defineProps({
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const settingsStore = useSettingsStore();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
