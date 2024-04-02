@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\MeetingStat;
 use App\Models\Recording;
-use App\Models\ServerStat;
 use Illuminate\Console\Command;
 use Log;
 

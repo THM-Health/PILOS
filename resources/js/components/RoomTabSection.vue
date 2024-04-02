@@ -76,7 +76,7 @@ import RoomTabPersonalizedLinks from './RoomTabPersonalizedLinks.vue';
 import RoomTabFiles from './RoomTabFiles.vue';
 import RoomTabHistory from './RoomTabHistory.vue';
 import RoomTabSettings from './RoomTabSettings.vue';
-import RoomTabRecordings from "./RoomTabRecordings.vue";
+import RoomTabRecordings from './RoomTabRecordings.vue';
 
 const props = defineProps({
   room: Object,

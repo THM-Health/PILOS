@@ -128,7 +128,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import RoomTabRecordingsDownloadButton from './RoomTabRecordingsDownloadButton.vue';
-import {useSettingsStore} from "../stores/settings.js";
+import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
   room: {

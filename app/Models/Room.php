@@ -80,6 +80,7 @@ class Room extends Model
 
     /**
      * Meeting
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function recordings()
