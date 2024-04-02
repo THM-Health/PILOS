@@ -1268,30 +1268,30 @@ class RoomTest extends TestCase
         ]);
 
         // Testing guests
-        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
-        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'code' => $room->access_code, 'record_attendance' => 1]))
+        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'code' => $room->access_code, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
 
         // Testing authorized users
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
-        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'code' => $room->access_code, 'record_attendance' => 1]))
+        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'code' => $room->access_code, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
 
         // Testing member
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
 
         // Testing member as moderator
         $room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         // Testing member as co-owner
         $room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         // Reset room membership
@@ -1300,19 +1300,19 @@ class RoomTest extends TestCase
         // Try with view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Try with manage all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
         $this->role->permissions()->detach($this->managePermission);
 
         // Testing owner
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
     }
 
@@ -1328,14 +1328,14 @@ class RoomTest extends TestCase
         ]);
 
         // Testing guests
-        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertUnauthorized();
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertJsonValidationErrors('name');
         // Join as guest with invalid/dangerous name
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => '<script>alert("HI");</script>', 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => '<script>alert("HI");</script>', 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
                 'errors' => [
@@ -1345,7 +1345,7 @@ class RoomTest extends TestCase
                 ],
             ]);
         // Join as guest with invalid/dangerous name that contains non utf8 chars
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => '§´`', 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => '§´`', 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
                 'errors' => [
@@ -1355,28 +1355,28 @@ class RoomTest extends TestCase
                 ],
             ]);
 
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => $this->faker->name, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => $this->faker->name, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         $this->flushHeaders();
 
         // Testing authorized users
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertUnauthorized();
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         $this->flushHeaders();
 
         // Testing owner
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
 
         // Testing member
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
     }
 
@@ -1391,14 +1391,14 @@ class RoomTest extends TestCase
         $this->assertEquals(ServerHealth::ONLINE, $server->health);
 
         // Create meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
 
         $server->refresh();
         $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
 
         // Create meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
     }
 
@@ -1415,7 +1415,7 @@ class RoomTest extends TestCase
         $room->roomType->serverPool->servers()->sync([$server->id]);
 
         // Create meeting
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
     }
 
@@ -1439,7 +1439,7 @@ class RoomTest extends TestCase
         }
 
         // Create meeting
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
         $queryParams = [];
@@ -1454,11 +1454,11 @@ class RoomTest extends TestCase
         (new MeetingService($room->runningMeeting()))->end();
 
         // Create meeting without agreement to record attendance
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Create meeting without invalid record attendance values
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 'test']))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 'test', 'record' => 0, 'record_video' => 0]))
             ->assertJsonValidationErrors(['record_attendance']);
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room]))
             ->assertJsonValidationErrors(['record_attendance']);
@@ -1466,7 +1466,7 @@ class RoomTest extends TestCase
         // Create meeting with attendance disabled
         $room->record_attendance = false;
         $room->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         (new MeetingService($room->runningMeeting()))->end();
 
@@ -1481,7 +1481,7 @@ class RoomTest extends TestCase
         ]);
 
         $response = $this->withHeaders(['Token' => $moderatorToken->token])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]));
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
@@ -1494,7 +1494,7 @@ class RoomTest extends TestCase
         $room->save();
 
         $this->withHeaders(['Token' => 'Test'])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertUnauthorized();
 
         $this->flushHeaders();
@@ -1508,7 +1508,7 @@ class RoomTest extends TestCase
         ]);
 
         $this->withHeaders(['Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
 
         $this->flushHeaders();
@@ -1517,7 +1517,7 @@ class RoomTest extends TestCase
         $room->save();
 
         $response = $this->withHeaders(['Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]));
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]));
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
@@ -1528,7 +1528,7 @@ class RoomTest extends TestCase
         // Token with authenticated user
         $response = $this->withHeaders(['Token' => $userToken->token])
             ->actingAs($this->user)
-            ->getJson(route('api.v1.rooms.start', ['room' => $room,  'record_attendance' => 0]));
+            ->getJson(route('api.v1.rooms.start', ['room' => $room,  'record_attendance' => 0, 'record' => 0, 'record_video' => 0]));
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
@@ -1542,20 +1542,20 @@ class RoomTest extends TestCase
             $server->save();
         }
         $room2 = Room::factory()->create(['room_type_id' => $room->roomType->id]);
-        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 1]))
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED->value);
 
         // Owner with invalid room type
         $room->roomType->roles()->attach($this->role);
         $room->roomType->update(['restrict' => true]);
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID->value);
 
         // User with invalid room type
         $room->everyone_can_start = true;
         $room->save();
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID->value);
     }
 
@@ -1618,7 +1618,7 @@ class RoomTest extends TestCase
         $room->save();
 
         // Start room that should run on the server but server times out
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(472);
         $meeting->refresh();
         $this->assertNull($meeting->end);
@@ -1631,7 +1631,7 @@ class RoomTest extends TestCase
         $server->save();
 
         // Start room that should run on the server but isn't
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(460);
         $meeting->refresh();
         $this->assertNotNull($meeting->end);
@@ -1643,9 +1643,9 @@ class RoomTest extends TestCase
         // Start room with recording acceptance enabled, but a room without attendance recording is already running
         $room->record_attendance = true;
         $room->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Start room with recording acceptance disabled, but a room with attendance recording is already running
@@ -1653,9 +1653,9 @@ class RoomTest extends TestCase
         $meeting->save();
         $room->record_attendance = false;
         $room->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(470);
     }
 
@@ -1675,7 +1675,7 @@ class RoomTest extends TestCase
             $lock->block($timeout);
 
             // Try to start the room
-            $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
                 ->assertStatus(462);
 
             $lock->release();
@@ -1707,15 +1707,15 @@ class RoomTest extends TestCase
         $bbbfaker->addCreateMeetingRequest();
 
         // Create meeting
-        $this->actingAs($room1->owner)->getJson(route('api.v1.rooms.start', ['room' => $room1, 'record_attendance' => 1]))
+        $this->actingAs($room1->owner)->getJson(route('api.v1.rooms.start', ['room' => $room1, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
-        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 1]))
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Create meeting with attendance in room type forbidden
         $room3->roomType->allow_record_attendance = false;
         $room3->roomType->save();
-        $this->actingAs($room3->owner)->getJson(route('api.v1.rooms.start', ['room' => $room3, 'record_attendance' => 0]))
+        $this->actingAs($room3->owner)->getJson(route('api.v1.rooms.start', ['room' => $room3, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // check correct record attendance after start
@@ -1833,14 +1833,14 @@ class RoomTest extends TestCase
         }
 
         // Testing join with meeting not running
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
 
         // Testing join with meeting that is starting, but not ready yet
         $meeting = $room->meetings()->create();
         $meeting->server()->associate($server);
         $meeting->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
         $meeting->delete();
 
@@ -1854,7 +1854,7 @@ class RoomTest extends TestCase
         $meeting->save();
         $room->latestMeeting()->associate($meeting);
         $room->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
         $meeting->refresh();
         $this->assertNotNull($meeting->end);
@@ -1863,7 +1863,7 @@ class RoomTest extends TestCase
         $this->assertEquals('/bigbluebutton/api/getMeetingInfo', $bbbfaker->getRequest(0)->toPsrRequest()->getUri()->getPath());
 
         // Start meeting
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
         $queryParams = [];
@@ -1878,15 +1878,15 @@ class RoomTest extends TestCase
             ->assertJsonPath('latest_meeting.end', null);
 
         // Join as guest, without required access code
-        $this->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
 
         // Join as guest without name
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertJsonValidationErrors('name');
 
         // Join as guest with invalid/dangerous name
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => '<script>alert("HI");</script>', 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => '<script>alert("HI");</script>', 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertJsonValidationErrors('name')
             ->assertJsonFragment([
                 'errors' => [
@@ -1897,7 +1897,7 @@ class RoomTest extends TestCase
             ]);
 
         // Join as guest
-        $response = $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => $this->faker->name, 'record_attendance' => 1]))
+        $response = $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => $this->faker->name, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -1916,7 +1916,7 @@ class RoomTest extends TestCase
         ]);
 
         $response = $this->withHeaders(['Token' => $moderatorToken->token])
-            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 1]))
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
@@ -1932,7 +1932,7 @@ class RoomTest extends TestCase
         ]);
 
         $response = $this->withHeaders(['Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
@@ -1941,7 +1941,7 @@ class RoomTest extends TestCase
 
         // Join as authorized users with token
         $response = $this->actingAs($this->user)->withHeaders(['Access-Code' => $room->access_code, 'Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
@@ -1950,34 +1950,34 @@ class RoomTest extends TestCase
         Auth::logout();
 
         // Join as authorized users
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
-        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertUnauthorized();
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         $this->flushHeaders();
 
         // Testing owner
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Testing member
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         $runningMeeting = $room->runningMeeting();
 
         // Not accepting attendance recording, but meeting is recorded
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Not accepting attendance recording, but meeting is not recorded
         $runningMeeting->record_attendance = false;
         $runningMeeting->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
         // Not accepting attendance recording, but room attendance is disabled
@@ -1985,7 +1985,7 @@ class RoomTest extends TestCase
         $runningMeeting->save();
         $room->record_attendance = false;
         $room->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Not accepting attendance recording, but room type rec. attendance is disabled
@@ -1993,11 +1993,11 @@ class RoomTest extends TestCase
         $room->save();
         $room->roomType->allow_record_attendance = false;
         $room->roomType->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Check with invalid values for record_attendance parameter
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 'test']))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 'test', 'record' => 0, 'record_video' => 0]))
             ->assertJsonValidationErrors(['record_attendance']);
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room]))
             ->assertJsonValidationErrors(['record_attendance']);
@@ -2018,7 +2018,7 @@ class RoomTest extends TestCase
 
         $this->assertEquals(ServerHealth::ONLINE, $meeting->server->health);
 
-        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room' => $meeting->room, 'record_attendance' => 1]))
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room' => $meeting->room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::JOIN_FAILED->value);
 
         $meeting->server->refresh();
@@ -2084,7 +2084,7 @@ class RoomTest extends TestCase
         }
 
         // Start meeting
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $runningMeeting = $room->runningMeeting();
 
@@ -2092,7 +2092,7 @@ class RoomTest extends TestCase
 
         // Join as guest
         $guestName = $this->faker->name;
-        $response = $this->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => $guestName, 'record_attendance' => 1]))
+        $response = $this->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => $guestName, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -2105,7 +2105,7 @@ class RoomTest extends TestCase
         setting()->set('bbb_style', null);
 
         // Join as authorized users
-        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -2117,7 +2117,7 @@ class RoomTest extends TestCase
         $this->assertArrayNotHasKey('userdata-bbb_custom_style_url', $queryParams);
 
         // Testing owner
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -2127,7 +2127,7 @@ class RoomTest extends TestCase
 
         // Testing member user
         $room->members()->sync([$this->user->id => ['role' => RoomUserRole::USER]]);
-        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -2135,7 +2135,7 @@ class RoomTest extends TestCase
 
         // Testing member moderator
         $room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
-        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -2143,7 +2143,7 @@ class RoomTest extends TestCase
 
         // Testing member co-owner
         $room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -2155,7 +2155,7 @@ class RoomTest extends TestCase
         // Testing with view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
@@ -2165,7 +2165,7 @@ class RoomTest extends TestCase
         // Testing with manage rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->managePermission);
-        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
