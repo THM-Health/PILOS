@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added config options for server health `BBB_SERVER_HEALTHY_THRESHOLD` and `BBB_SERVER_UNHEALTHY_THRESHOLD` ([#911])
 - Added config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
 - Added plugin to customize the server load calculation ([#956])
+- Recording management ([#31], [#896]) 
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
@@ -69,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 You can find the changelog for older versions there [here](https://github.com/THM-Health/PILOS/blob/2.x/CHANGELOG.md)
 
 
+[#31]: https://github.com/THM-Health/PILOS/issues/31
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
 [#532]: https://github.com/THM-Health/PILOS/issues/532
@@ -83,6 +85,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#743]: https://github.com/THM-Health/PILOS/pull/743
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 [#883]: https://github.com/THM-Health/PILOS/pull/883
+[#896]: https://github.com/THM-Health/PILOS/pull/896
 [#905]: https://github.com/THM-Health/PILOS/pull/905
 [#911]: https://github.com/THM-Health/PILOS/pull/911
 [#927]: https://github.com/THM-Health/PILOS/pull/927
