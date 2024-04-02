@@ -1,0 +1,9 @@
+.active-menu-item {
+    .p-menuitem-content {
+        background: $primary;
+
+        .p-menuitem-icon, .p-menuitem-text {
+            color: $primaryTextColor;
+        }
+    }
+}
