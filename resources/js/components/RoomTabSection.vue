@@ -5,58 +5,63 @@
         }"
       >
         <template #content>
-          <div>
-            <div role="tablist" class="flex flex-row justify-content-between m-0 p-0 border-0">
-              <div class="flex flex-row gap-2 align-items-center">
-                <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>
+          <!-- Tab header -->
+          <div role="tablist" class="flex flex-row justify-content-between m-0 p-0 border-0">
+            <!-- Current tab -->
+            <div class="flex flex-row gap-2 align-items-center">
+              <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>
+            </div>
+            <!-- Tab navigation -->
+            <div v-if="availableTabs.length > 1">
+              <!-- Desktop layout, icons only-->
+              <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
+                <Button
+                  v-for="tab in availableTabs"
+                  :key="tab.key"
+                  :severity="tab.active ? 'primary' : 'secondary'"
+                  @click="tab.command"
+                  :icon="tab.icon"
+                  v-tooltip.bottom="tab.label"
+                  :aria-label="tab.label"
+                  role="tab"
+                  :id="'tab-'+tab.key"
+                  :aria-selected="tab.active"
+                  :aria-controls="'panel-'+tab.key"
+                  :tabindex="tab.active ? 0 : -1"
+                />
               </div>
-              <div v-if="availableTabs.length > 1">
-                <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
-                  <Button
-                    v-for="tab in availableTabs"
-                    :key="tab.key"
-                    :severity="tab.active ? 'primary' : 'secondary'"
-                    @click="tab.command"
-                    :icon="tab.icon"
-                    v-tooltip.bottom="tab.label"
-                    :aria-label="tab.label"
-                    role="tab"
-                    :id="'tab-'+tab.key"
-                    :aria-selected="tab.active"
-                    :aria-controls="'panel-'+tab.key"
-                    :tabindex="tab.active ? 0 : -1"
-                  />
-                </div>
-
-                <div class="block md:hidden">
-                  <Button type="button" severity="secondary" text icon="fa-solid fa-ellipsis-vertical" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" />
-                  <Menu ref="menu" id="overlay_menu" :model="availableTabs" :popup="true" role="tablist" />
-                </div>
+              <!-- Mobile layout, dropdown menu -->
+              <div class="block md:hidden">
+                <Button type="button" severity="secondary" text icon="fa-solid fa-ellipsis-vertical" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" />
+                <Menu ref="menu" id="overlay_menu" :model="availableTabs" :popup="true" role="tablist" />
               </div>
             </div>
-            <Divider />
-            <div
-              v-for="tab in availableTabs"
-              :key="tab.key"
-              :id="'panel-'+tab.key"
-              role="tabpanel"
-              :aria-labelledby="'tab-'+tab.key"
-              :hidden="!tab.active"
-              tabindex="0"
-            >
-              <component
-                :is="tab.component"
-                v-if="tab.active"
-                :room="props.room"
-                :access-code="props.accessCode"
-                :token="props.token"
+          </div>
+          <Divider />
+          <!-- Tab content -->
+          <div
+            v-for="tab in availableTabs"
+            :key="tab.key"
+            :id="'panel-'+tab.key"
+            role="tabpanel"
+            :aria-labelledby="'tab-'+tab.key"
+            :hidden="!tab.active"
+            tabindex="0"
+          >
+            <!-- Dynamic component, mounting only when tab is active -->
+            <!-- Each tab can use this kind of api, with are the props and events defined here -->
+            <component
+              :is="tab.component"
+              v-if="tab.active"
+              :room="props.room"
+              :access-code="props.accessCode"
+              :token="props.token"
 
-                @invalid-code="$emit('invalidCode')"
-                @invalid-token="$emit('invalidToken')"
-                @guests-not-allowed="$emit('guestsNotAllowed')"
-                @settings-changed="$emit('settingsChanged')"
-              />
-            </div>
+              @invalid-code="$emit('invalidCode')"
+              @invalid-token="$emit('invalidToken')"
+              @guests-not-allowed="$emit('guestsNotAllowed')"
+              @settings-changed="$emit('settingsChanged')"
+            />
           </div>
         </template>
       </Card>
@@ -72,25 +77,30 @@ import RoomTabFiles from './RoomTabFiles.vue';
 import RoomTabHistory from './RoomTabHistory.vue';
 import RoomTabSettings from './RoomTabSettings.vue';
 
-const { t } = useI18n();
-
 const props = defineProps({
   room: Object,
   accessCode: Number,
   token: String
 });
 
+const userPermissions = useUserPermissions();
+const { t } = useI18n();
+
+// Dropdown menu for mobile layout
 const menu = ref();
 const toggle = (event) => {
   menu.value.toggle(event);
 };
 
+// Current active tab
+const activeTabKey = ref('');
+
+// Initial tab selection
 onMounted(() => {
   activeTabKey.value = availableTabs.value[0].key;
 });
 
-const activeTabKey = ref('');
-
+// Array of all tabs available to the user
 const activeTab = computed(() => {
   return availableTabs.value.find(tab => tab.key === activeTabKey.value);
 });
@@ -129,8 +139,7 @@ const availableTabs = computed(() => {
   });
 });
 
-const userPermissions = useUserPermissions();
-
+// Keyboard navigation
 const tabFocus = ref(0);
 const keydownHandler = function (event) {
   switch (event.key) {
