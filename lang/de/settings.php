@@ -12,6 +12,7 @@ return [
             'banner_title' => 'Überschrift',
             'color' => 'Textfarbe des Banners',
             'enabled' => 'Anzeigen',
+            'preview' => 'Vorschau',
             'icon' => 'Icon',
             'icon_description' => 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fa-solid fa-door-open`). Das Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
             'link' => 'Anzuzeigender Link nach der Mitteilung',

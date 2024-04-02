@@ -178,8 +178,11 @@
           </div>
         </div>
 
+        <Divider/>
+        <h4 class="text-xl">{{ $t('settings.application.banner.title') }}</h4>
+
         <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.title')}}</legend>
+          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.enabled')}}</legend>
           <div class="col-12 md:col-8 flex flex-column gap-1">
             <div class="flex align-items-center gap-2">
               <InputSwitch
@@ -189,176 +192,177 @@
                 :disabled="disabled"
                 :invalid="formErrors.fieldInvalid('banner.enabled')"
               />
-              <label for="banner-enabled">{{ $t('settings.application.banner.enabled') }}</label>
+              <label for="banner-enabled">{{ $t('app.enable') }}</label>
             </div>
             <p class="p-error" v-html="formErrors.fieldError('banner.enabled')"></p>
-
-            <div v-if="settings.banner.enabled" class="border-1 border-200 border-round p-3 flex flex-column gap-2" >
-              <AppBanner
-                :background="settings.banner.background"
-                :color="settings.banner.color"
-                :enabled="settings.banner.enabled"
-                :icon="settings.banner.icon"
-                :link="settings.banner.link"
-                :message="settings.banner.message"
-                :title="settings.banner.title"
-                :link-target="settings.banner.link_target"
-                :link-text="settings.banner.link_text"
-                :link-style="settings.banner.link_style"
-              />
-
-              <Divider class="my-2"/>
-
-              <div class="grid">
-                <label for="banner-title" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.banner_title')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <InputText
-                    id="banner-title"
-                    v-model="settings.banner.title"
-                    type="text"
-                    :invalid="formErrors.fieldInvalid('banner.title')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.title')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-icon" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.icon')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <InputText
-                    id="banner-icon"
-                    v-model="settings.banner.icon"
-                    type="text"
-                    :invalid="formErrors.fieldInvalid('banner.icon')"
-                    :disabled="disabled"
-                    aria-describedby="banner-icon-help"
-                  />
-                  <small id="banner-icon-help">{{ $t('settings.application.banner.icon_description') }}</small>
-                  <p class="p-error" v-html="formErrors.fieldError('banner.icon')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-message" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.message')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <Textarea
-                    id="banner-message"
-                    v-model="settings.banner.message"
-                    rows="3"
-                    :invalid="formErrors.fieldInvalid('banner.message')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.message')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-link" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <InputText
-                    id="banner-link"
-                    v-model="settings.banner.link"
-                    type="text"
-                    :invalid="formErrors.fieldInvalid('banner.link')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.link')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-link-text" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_text')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <InputText
-                    id="banner-link-text"
-                    v-model="settings.banner.link_text"
-                    type="text"
-                    :invalid="formErrors.fieldInvalid('banner.link_text')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.link_text')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-link-style" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_style')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <Dropdown
-                    input-id="banner-link-style"
-                    v-model="settings.banner.link_style"
-                    :options="linkBtnStyles"
-                    :placeholder="$t('settings.application.banner.select_link_style')"
-                    optionLabel="text"
-                    optionValue="value"
-                    :invalid="formErrors.fieldInvalid('banner.link_style')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.link_style')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-link-target" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_target')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <Dropdown
-                    input-id="banner-link-target"
-                    v-model="settings.banner.link_target"
-                    :options="linkTargets"
-                    :placeholder="$t('settings.application.banner.select_link_target')"
-                    optionLabel="text"
-                    optionValue="value"
-                    :invalid="formErrors.fieldInvalid('banner.link_target')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.link_target')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-color" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.color')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <ColorSelect
-                    class="my-2"
-                    :disabled='disabled'
-                    :colors="textColors"
-                    v-model="settings.banner.color"
-                  />
-                  <label for="banner-color">{{ $t('settings.room_types.custom_color') }}</label>
-                  <InputText
-                    id="banner-color"
-                    v-model="settings.banner.color"
-                    type="text"
-                    :invalid="formErrors.fieldInvalid('banner.color')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.color')"></p>
-                </div>
-              </div>
-
-              <div class="grid">
-                <label for="banner-background" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.background')}}</label>
-                <div class="col-12 md:col-8 flex flex-column gap-1">
-                  <ColorSelect
-                    class="my-2"
-                    :disabled='disabled'
-                    :colors="backgroundColors"
-                    v-model="settings.banner.background"
-                  />
-                  <label for="banner-background">{{ $t('settings.room_types.custom_color') }}</label>
-                  <InputText
-                    id="banner-background"
-                    v-model="settings.banner.background"
-                    type="text"
-                    :invalid="formErrors.fieldInvalid('banner.background')"
-                    :disabled="disabled"
-                  />
-                  <p class="p-error" v-html="formErrors.fieldError('banner.background')"></p>
-                </div>
-              </div>
-            </div>
           </div>
         </fieldset>
+
+        <fieldset class="grid">
+          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.preview')}}</legend>
+          <div class="col-12 md:col-8">
+            <AppBanner
+              :background="settings.banner.background"
+              :color="settings.banner.color"
+              :enabled="settings.banner.enabled"
+              :icon="settings.banner.icon"
+              :link="settings.banner.link"
+              :message="settings.banner.message"
+              :title="settings.banner.title"
+              :link-target="settings.banner.link_target"
+              :link-text="settings.banner.link_text"
+              :link-style="settings.banner.link_style"
+            />
+          </div>
+        </fieldset>
+
+        <div class="grid">
+          <label for="banner-title" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.banner_title')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <InputText
+              id="banner-title"
+              v-model="settings.banner.title"
+              type="text"
+              :invalid="formErrors.fieldInvalid('banner.title')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.title')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-icon" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.icon')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <InputText
+              id="banner-icon"
+              v-model="settings.banner.icon"
+              type="text"
+              :invalid="formErrors.fieldInvalid('banner.icon')"
+              :disabled="disabled"
+              aria-describedby="banner-icon-help"
+            />
+            <small id="banner-icon-help">{{ $t('settings.application.banner.icon_description') }}</small>
+            <p class="p-error" v-html="formErrors.fieldError('banner.icon')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-message" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.message')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <Textarea
+              id="banner-message"
+              v-model="settings.banner.message"
+              rows="3"
+              :invalid="formErrors.fieldInvalid('banner.message')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.message')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-link" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <InputText
+              id="banner-link"
+              v-model="settings.banner.link"
+              type="text"
+              :invalid="formErrors.fieldInvalid('banner.link')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.link')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-link-text" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_text')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <InputText
+              id="banner-link-text"
+              v-model="settings.banner.link_text"
+              type="text"
+              :invalid="formErrors.fieldInvalid('banner.link_text')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.link_text')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-link-style" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_style')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <Dropdown
+              input-id="banner-link-style"
+              v-model="settings.banner.link_style"
+              :options="linkBtnStyles"
+              :placeholder="$t('settings.application.banner.select_link_style')"
+              optionLabel="text"
+              optionValue="value"
+              :invalid="formErrors.fieldInvalid('banner.link_style')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.link_style')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-link-target" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_target')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <Dropdown
+              input-id="banner-link-target"
+              v-model="settings.banner.link_target"
+              :options="linkTargets"
+              :placeholder="$t('settings.application.banner.select_link_target')"
+              optionLabel="text"
+              optionValue="value"
+              :invalid="formErrors.fieldInvalid('banner.link_target')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.link_target')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-color" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.color')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <ColorSelect
+              class="my-2"
+              :disabled='disabled'
+              :colors="textColors"
+              v-model="settings.banner.color"
+            />
+            <label for="banner-color">{{ $t('settings.room_types.custom_color') }}</label>
+            <InputText
+              id="banner-color"
+              v-model="settings.banner.color"
+              type="text"
+              :invalid="formErrors.fieldInvalid('banner.color')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.color')"></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <label for="banner-background" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.background')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <ColorSelect
+              class="my-2"
+              :disabled='disabled'
+              :colors="backgroundColors"
+              v-model="settings.banner.background"
+            />
+            <label for="banner-background">{{ $t('settings.room_types.custom_color') }}</label>
+            <InputText
+              id="banner-background"
+              v-model="settings.banner.background"
+              type="text"
+              :invalid="formErrors.fieldInvalid('banner.background')"
+              :disabled="disabled"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('banner.background')"></p>
+          </div>
+        </div>
 
         <Divider/>
         <h4 class="text-xl">{{ $t('app.rooms') }}</h4>
@@ -423,7 +427,7 @@
           <div class="col-12 md:col-8 flex flex-column gap-1">
             <Dropdown
               v-model="settings.room_token_expiration"
-              :options="roomTokenExpirationOptions"
+              :options="timePeriods"
               optionLabel="text"
               optionValue="value"
               :invalid="formErrors.fieldInvalid('room_token_expiration')"
@@ -484,7 +488,7 @@
           <div class="col-12 md:col-8 flex flex-column gap-1">
             <Dropdown
               v-model="settings.room_auto_delete.inactive_period"
-              :options="roomDeleteNotificationOptions"
+              :options="timePeriods"
               optionLabel="text"
               optionValue="value"
               :invalid="formErrors.fieldInvalid('room_auto_delete.inactive_period')"
@@ -506,7 +510,7 @@
           <div class="col-12 md:col-8 flex flex-column gap-1">
             <Dropdown
               v-model="settings.room_auto_delete.never_used_period"
-              :options="roomDeleteNotificationOptions"
+              :options="timePeriods"
               optionLabel="text"
               optionValue="value"
               :invalid="formErrors.fieldInvalid('room_auto_delete.never_used_period')"
@@ -564,17 +568,16 @@
         </fieldset>
 
         <div class="grid">
-          <label for="statistics-servers-retention-period" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.servers.retention_period_title')}}</label>
+          <label id="statistics-servers-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.servers.retention_period_title')}}</label>
           <div class="col-12 md:col-8 flex flex-column gap-1">
-            <InputText
-              id="statistics-servers-retention-period"
-              v-model.number="settings.statistics.servers.retention_period"
-              required
-              min="1"
-              max="365"
-              type="number"
+            <Dropdown
+              v-model="settings.statistics.servers.retention_period"
+              :options="timePeriods"
+              optionLabel="text"
+              optionValue="value"
               :invalid="formErrors.fieldInvalid('statistics.servers.retention_period')"
               :disabled="disabled"
+              aria-labelledby="statistics-servers-retention-period-label"
             />
             <p class="p-error" v-html="formErrors.fieldError('statistics.servers.retention_period')"></p>
           </div>
@@ -598,34 +601,32 @@
         </fieldset>
 
         <div class="grid">
-          <label for="statistics-meetings-retention-period" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.meetings.retention_period_title')}}</label>
+          <label id="statistics-meetings-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.meetings.retention_period_title')}}</label>
           <div class="col-12 md:col-8 flex flex-column gap-1">
-            <InputText
-              id="statistics-meetings-retention-period"
-              v-model.number="settings.statistics.meetings.retention_period"
-              required
-              min="1"
-              max="365"
-              type="number"
+            <Dropdown
+              v-model="settings.statistics.meetings.retention_period"
+              :options="timePeriods"
+              optionLabel="text"
+              optionValue="value"
               :invalid="formErrors.fieldInvalid('statistics.meetings.retention_period')"
               :disabled="disabled"
+              aria-labelledby="statistics-meetings-retention-period-label"
             />
             <p class="p-error" v-html="formErrors.fieldError('statistics.meetings.retention_period')"></p>
           </div>
         </div>
 
         <div class="grid">
-          <label for="attendance-retention-period" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.attendance.retention_period_title')}}</label>
+          <label id="attendance-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.attendance.retention_period_title')}}</label>
           <div class="col-12 md:col-8 flex flex-column gap-1">
-            <InputText
-              id="attendance-retention-period"
-              v-model.number="settings.attendance.retention_period"
-              required
-              min="1"
-              max="365"
-              type="number"
+            <Dropdown
+              v-model="settings.attendance.retention_period"
+              :options="timePeriods"
+              optionLabel="text"
+              optionValue="value"
               :invalid="formErrors.fieldInvalid('attendance.retention_period')"
               :disabled="disabled"
+              aria-labelledby="attendance-retention-period-label"
             />
             <p class="p-error" v-html="formErrors.fieldError('attendance.retention_period')"></p>
           </div>
@@ -935,24 +936,9 @@ function roomLimitModeChanged (value) {
 }
 
 /**
- * Options for the room token expiration mode radio button group.
+ * Options for time period selects (room token expiration, room auto delete, etc.)
  */
-const roomTokenExpirationOptions = computed(() => {
-  return [
-    { value: 1440, text: t('settings.application.one_day') },
-    { value: 10080, text: t('settings.application.one_week') },
-    { value: 43200, text: t('settings.application.one_month') },
-    { value: 129600, text: t('settings.application.three_month') },
-    { value: 262800, text: t('settings.application.six_month') },
-    { value: 525600, text: t('settings.application.one_year') },
-    { value: -1, text: t('app.unlimited') }
-  ];
-});
-
-/**
- * Options for the room auto deletion never used and inactive selects.
- */
-const roomDeleteNotificationOptions = computed(() => {
+const timePeriods = computed(() => {
   return [
     { value: 7, text: t('settings.application.one_week') },
     { value: 14, text: t('settings.application.two_weeks') },
@@ -961,19 +947,15 @@ const roomDeleteNotificationOptions = computed(() => {
     { value: 180, text: t('settings.application.six_month') },
     { value: 365, text: t('settings.application.one_year') },
     { value: 730, text: t('settings.application.two_years') },
-    { value: -1, text: t('settings.application.never') }
+    { value: -1, text: t('app.unlimited') }
   ];
 });
 
 /**
- * Options for the room auto deletion deadline.
+ * Options for the room auto deletion deadline select.
  */
 const roomDeleteDeadlineOptions = computed(() => {
-  return [
-    { value: 7, text: t('settings.application.one_week') },
-    { value: 14, text: t('settings.application.two_weeks') },
-    { value: 30, text: t('settings.application.one_month') }
-  ];
+  return timePeriods.value.filter((period) => period.value <= 30 && period.value !== -1);
 });
 
 onMounted(() => {
