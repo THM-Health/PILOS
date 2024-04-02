@@ -12,6 +12,7 @@ return [
             'banner_title' => 'Title',
             'color' => 'Text color of the banner',
             'enabled' => 'Show',
+            'preview' => 'Preview',
             'icon' => 'Icon',
             'icon_description' => 'The CSS class of the Fontawesome-Icon (e. g. `fa-solid fa-door-open`). The icon will only be visible, if a title is supplied.',
             'link' => 'Link to show after the message',
