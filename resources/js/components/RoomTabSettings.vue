@@ -226,7 +226,7 @@
                 <div class="flex align-items-center gap-2">
                   <InputSwitch
                     v-model="settings.record_attendance"
-                    :disabled="disabled || (settings.room_type && !settings.room_type.allow_record_attendance) || !settingsStore.getSetting('attendance.enabled')"
+                    :disabled="disabled || (settings.room_type && !settings.room_type.allow_record_attendance)"
                     :invalid="formErrors.fieldInvalid('record_attendance')"
                     class="flex-shrink-0"
                     input-id="record-attendance"

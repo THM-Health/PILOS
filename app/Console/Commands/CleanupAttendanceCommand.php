@@ -30,8 +30,10 @@ class CleanupAttendanceCommand extends Command
     public function handle()
     {
         // Remove all attendance data older than the retention period
-        $day = now()->subDays(setting('attendance.retention_period'))->toDateString();
-        Log::info('Removing attendance data older than '.$day);
-        MeetingAttendee::where('join', '<', $day)->delete();
+        if (setting('attendance.retention_period') != -1) {
+            $day = now()->subDays(setting('attendance.retention_period'))->toDateString();
+            Log::info('Removing attendance data older than '.$day);
+            MeetingAttendee::where('join', '<', $day)->delete();
+        }
     }
 }
