@@ -13,7 +13,7 @@
           @limit-reached="onReachLimit"
         />
         <Tag v-if="showLimit" severity="info" class="w-full" >
-          {{ $t('rooms.room_limit',{has:rooms.meta.total_own,max: authStore.currentUser.room_limit}) }}
+          {{ $t('rooms.room_limit',{has:meta.total_own,max: authStore.currentUser.room_limit}) }}
         </Tag>
       </div>
     </div>
@@ -188,58 +188,67 @@
       </template>
 
       <!--show room skeleton during loading or error-->
-      <div v-if="loadingRooms || loadingRoomsError">
-        <div class="grid p-1">
-          <div
-            class="col-12 md:col-6 lg:col-4 p-2"
-            v-for="i in rooms?.data?.length || 3"
-            :key="i"
-          >
-            <RoomCardSkeleton :animation="loadingRooms ? 'wave' : (loadingRoomsError ? 'none' : null)" />
-          </div>
+      <div class="grid p-1" v-if="loadingRooms || loadingRoomsError">
+        <div
+          class="col-12 md:col-6 lg:col-4 p-2"
+          v-for="i in rooms?.length || 3"
+          :key="i"
+        >
+          <RoomCardSkeleton :animation="loadingRooms ? 'wave' : (loadingRoomsError ? 'none' : null)" />
         </div>
       </div>
 
-      <!--rooms and pagination-->
-      <div v-if="rooms && !loadingRooms && !loadingRoomsError">
-        <div class="text-center">
-          <InlineMessage severity="info" v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
-          <InlineMessage severity="info" v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
-          <InlineMessage severity="info" v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
-        </div>
-        <div class="grid p-1">
-          <div
-            class="col-12 md:col-6 lg:col-4 p-2"
-            v-for="room in rooms.data"
-            :key="room.id"
-          >
-            <RoomCard
-              :room="room"
-              @favorites-changed="loadRooms()"
-            />
-          </div>
-        </div>
-        <Paginator
-          :alwaysShow="false"
-          v-model="rooms.meta.current_page"
+        <DataView
+          :totalRecords="meta.total"
+          :rows="meta.per_page"
+          :value="rooms"
+          lazy
+          dataKey="id"
+          :paginator="!loadingRooms && !loadingRoomsError"
+          :always-show-paginator="false"
+          rowHover
           class="mt-4"
-          :totalRecords="rooms.meta.total"
-          :rows="rooms.meta.per_page"
-          :template="{
-            '576px': 'FirstPageLink PrevPageLink NextPageLink LastPageLink',
-            default: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
-          }"
+          @page="onPage"
           :pt="{
-            root: {
+            content: {
               class: 'bg-transparent'
             },
-            pageButton: ({ props, state, context }) => ({
+            paginator: {
+              root: {
+                class: 'bg-transparent'
+              },
+              pageButton: ({ props, state, context }) => ({
                 class: context.active ? 'bg-primary' : undefined
-            })
+              })
+            }
           }"
-          @page="(event) => loadRooms(event.page+1)"
-        />
-      </div>
+        >
+          <!-- Show message on empty room list -->
+          <template #empty>
+            <div>
+              <div class="text-center" v-if="rooms && !loadingRooms && !loadingRoomsError">
+                <InlineMessage severity="info" v-if="onlyShowFavorites && meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
+                <InlineMessage severity="info" v-else-if="meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
+                <InlineMessage severity="info" v-else-if="!rooms.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
+              </div>
+            </div>
+          </template>
+
+          <template #list="slotProps">
+            <div v-if="!loadingRooms && !loadingRoomsError" class="grid p-1">
+              <div
+                class="col-12 md:col-6 lg:col-4 p-2"
+                v-for="(room, index) in slotProps.items"
+                :key="index"
+              >
+                <RoomCard
+                  :room="room"
+                  @favorites-changed="loadRooms()"
+                />
+              </div>
+            </div>
+          </template>
+        </DataView>
     </OverlayComponent>
     <div
       v-else
@@ -288,12 +297,27 @@ const roomTypes = ref([]);
 const roomTypesBusy = ref(false);
 const roomTypesLoadingError = ref(false);
 
+const meta = ref({
+  current_page: 0,
+  from: 0,
+  last_page: 0,
+  per_page: 0,
+  to: 0,
+  total: 0,
+  total_own: 0,
+  total_no_filter: 0
+});
+
+function onPage (event) {
+  loadRooms(event.page + 1);
+}
+
 const showLimit = computed(() => {
   return authStore.currentUser && authStore.currentUser.room_limit !== -1 && rooms.value !== null;
 });
 
 const limitReached = computed(() => {
-  return authStore.currentUser && authStore.currentUser.room_limit !== -1 && rooms.value !== null && rooms.value.meta.total_own >= authStore.currentUser.room_limit;
+  return authStore.currentUser && authStore.currentUser.room_limit !== -1 && rooms.value !== null && meta.value.total_own >= authStore.currentUser.room_limit;
 });
 
 // t('rooms.index.sorting.select_sorting')
@@ -379,8 +403,8 @@ function loadRoomTypes () {
 }
 
 /**
-     * Load the rooms of the current user based on the given inputs
-     */
+ * Load the rooms of the current user based on the given inputs
+ */
 function loadRooms (page = null) {
   console.log('page', page);
   if (roomFilter.value.length === 0 && roomFilterAll.value === false) {
@@ -389,7 +413,7 @@ function loadRooms (page = null) {
   }
   showNoFilterMessage.value = false;
   if (page === null) {
-    page = rooms.value !== null ? rooms.value.meta.current_page : 1;
+    page = rooms.value !== null ? meta.value.current_page : 1;
   }
   loadingRooms.value = true;
 
@@ -408,10 +432,11 @@ function loadRooms (page = null) {
     }
   }).then(response => {
     // operation successful, set rooms and reset loadingRoomsError
-    rooms.value = response.data;
+    rooms.value = response.data.data;
+    meta.value = response.data.meta;
     loadingRoomsError.value = false;
-    if (rooms.value.meta.current_page > 1 && rooms.value.data.length === 0) {
-      loadRooms(rooms.value.meta.last_page);
+    if (meta.value.current_page > 1 && rooms.value.length === 0) {
+      loadRooms(meta.value.last_page);
     }
   }).catch(error => {
     // failed
