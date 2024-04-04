@@ -100,6 +100,7 @@ const activeTabKey = ref('');
 
 // Initial tab selection
 onMounted(() => {
+  // Check if tab selection is saved in URL hash and try to select it if it exists
   if (route.hash) {
     const savedTab = route.hash.replace('#', '');
     if (availableTabs.value.find(tab => tab.key === savedTab)) {
@@ -107,7 +108,7 @@ onMounted(() => {
       return;
     }
   }
-
+  // Default and fallback to first tab
   activeTabKey.value = availableTabs.value[0].key;
 });
 
@@ -144,8 +145,9 @@ const availableTabs = computed(() => {
       icon: tab.icon,
       component: tab.component,
       command: () => {
-        router.replace({ hash: '#' + tab.key });
         activeTabKey.value = tab.key;
+        // Save tab selection in URL hash
+        router.replace({ hash: '#' + tab.key });
       }
     };
   });
