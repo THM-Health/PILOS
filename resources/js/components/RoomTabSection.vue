@@ -76,6 +76,7 @@ import RoomTabPersonalizedLinks from './RoomTabPersonalizedLinks.vue';
 import RoomTabFiles from './RoomTabFiles.vue';
 import RoomTabHistory from './RoomTabHistory.vue';
 import RoomTabSettings from './RoomTabSettings.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
   room: Object,
@@ -85,6 +86,8 @@ const props = defineProps({
 
 const userPermissions = useUserPermissions();
 const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
 
 // Dropdown menu for mobile layout
 const menu = ref();
@@ -97,6 +100,14 @@ const activeTabKey = ref('');
 
 // Initial tab selection
 onMounted(() => {
+  if (route.hash) {
+    const savedTab = route.hash.replace('#', '');
+    if (availableTabs.value.find(tab => tab.key === savedTab)) {
+      activeTabKey.value = savedTab;
+      return;
+    }
+  }
+
   activeTabKey.value = availableTabs.value[0].key;
 });
 
@@ -133,6 +144,7 @@ const availableTabs = computed(() => {
       icon: tab.icon,
       component: tab.component,
       command: () => {
+        router.replace({ hash: '#' + tab.key });
         activeTabKey.value = tab.key;
       }
     };
