@@ -8,7 +8,6 @@ return [
         'filename' => 'Liste_de_presence',
         'modal_title' => 'Présence dans :room',
         'no_breakout_support' => 'La participation aux salles de sous-groupes n\'est actuellement pas prise en charge. Seule la présence dans la salle principale est enregistrée.',
-        'nodata' => 'Aucune participation enregistrée.',
         'retention_period' => 'Les données de présences sont conservées pendant :days jours.',
         'sessions' => 'Sessions',
         'view' => 'Voir les présences',

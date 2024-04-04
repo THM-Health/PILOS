@@ -8,14 +8,12 @@ return [
         'title' => 'Créer une nouvelle salle',
     ],
     'description' => [
-        'cancel' => 'Annuler',
         'color' => [
             'black' => 'Noir',
             'blue' => 'Bleu',
             'green' => 'Vert',
             'red' => 'Rouge',
         ],
-        'edit' => 'Modifier',
         'external_link_warning' => [
             'description' => 'Vous allez être redirigé vers l\'adresse :link',
             'title' => 'Lien externe',
@@ -113,13 +111,13 @@ return [
     ],
     'invalid_personal_link' => 'Le lien personnalisé d\'accès à la salle est invalide.',
     'invitation' => [
-        'share' => 'Share',
-        'title' => 'Accès pour les participants',
-        'copy' => 'Copier',
         'code' => 'Code d\'accès',
         'copied' => 'Copié les informations d\'accès des participants dans le presse-papier.',
+        'copy' => 'Copier',
         'link' => 'Link',
         'room' => 'Rejoindre ":roomname" avec :platform',
+        'share' => 'Share',
+        'title' => 'Accès pour les participants',
     ],
     'join' => 'Rejoindre',
     'join_room' => 'Rejoindre la salle',
@@ -235,8 +233,8 @@ return [
             'title' => 'Permissions',
         ],
         'recordings' => [
-            'title' => 'Enregistrements',
             'record_attendance' => 'Journaliser la présence des participants',
+            'title' => 'Enregistrements',
         ],
         'restrictions' => [
             'disable_cam' => 'Désactiver la webcam',

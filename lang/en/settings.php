@@ -12,7 +12,6 @@ return [
             'banner_title' => 'Title',
             'color' => 'Text color of the banner',
             'enabled' => 'Show',
-            'preview' => 'Preview',
             'icon' => 'Icon',
             'icon_description' => 'The CSS class of the Fontawesome-Icon (e. g. `fa-solid fa-door-open`). The icon will only be visible, if a title is supplied.',
             'link' => 'Link to show after the message',
@@ -20,6 +19,7 @@ return [
             'link_target' => 'Link target',
             'link_text' => 'Link text',
             'message' => 'Message',
+            'preview' => 'Preview',
             'select_link_style' => 'Select link style',
             'select_link_target' => 'Select link target',
             'title' => 'Banner for messages',
@@ -73,10 +73,6 @@ return [
         'one_month' => '1 Month (30 Days)',
         'one_week' => '1 Week (7 Day)',
         'one_year' => '1 Year (365 Days)',
-        'room_pagination_page_size' => [
-            'description' => 'Number of rooms displayed simultaneously on the home page',
-            'title' => 'Room pagination page size',
-        ],
         'pagination_page_size' => [
             'description' => 'Number of records displayed simultaneously in tables',
             'title' => 'Pagination page size',
@@ -106,6 +102,10 @@ return [
         'room_limit' => [
             'description' => 'Limits the number of rooms that a user can have. This setting does not apply to administrators.        Enter the value -1 for unlimited number of rooms',
             'title' => 'Number of rooms per user',
+        ],
+        'room_pagination_page_size' => [
+            'description' => 'Number of rooms displayed simultaneously on the home page',
+            'title' => 'Room pagination page size',
         ],
         'room_token_expiration' => [
             'description' => 'Time period since last usage, after which personalized room links gets automatically removed.',
@@ -143,9 +143,9 @@ return [
         'has_included_permission' => 'The permission ":name" was either explicitly selected or is included in another selected permission.',
         'has_not_included_permission' => 'The permission ":name" was neither explicitly selected nor is it included in another selected permission.',
         'new' => 'Create new role',
-        'no_options' => 'No permissions found!',
         'no_data' => 'No roles found!',
         'no_data_filtered' => 'For the filter query no roles were found!',
+        'no_options' => 'No permissions found!',
         'permission_explicit' => 'Explicit',
         'permission_included' => 'Included',
         'permission_included_help' => 'Permissions that have been selected and permissions that are included in the selected permissions.',
@@ -171,9 +171,6 @@ return [
         'allow_listing' => 'Room search allowed',
         'allow_listing_description' => 'In the room settings the rooms can be made visible for the room search.',
         'allow_record_attendance' => 'Allow attendance recording',
-        'require_access_code' => 'Access code required',
-        'max_duration' => 'Maximum duration',
-        'max_participants' => 'Maximum number of participants',
         'color' => 'Color',
         'custom_color' => 'Custom color',
         'delete' => [
@@ -185,10 +182,13 @@ return [
             'title' => 'Delete room type?',
         ],
         'edit' => 'Edit room type :name',
+        'max_duration' => 'Maximum duration',
+        'max_participants' => 'Maximum number of participants',
         'new' => 'Create new room type',
         'no_data' => 'No room types found!',
         'no_data_filtered' => 'For the filter query no room types were found!',
         'preview' => 'Preview',
+        'require_access_code' => 'Access code required',
         'restrict' => 'Restrict usage',
         'restrict_description' => 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
         'select_roles' => 'Select roles',
@@ -216,6 +216,7 @@ return [
     ],
     'servers' => [
         'base_url' => 'API endpoint',
+        'connection' => 'Connection',
         'current_usage' => 'Current usage',
         'delete' => [
             'confirm' => 'Do you really want to delete the server :name?',
@@ -224,7 +225,9 @@ return [
         ],
         'disabled' => 'Disabled',
         'disabled_description' => 'Currently running meetings are not stopped if server gets disabled, but no new meetings are started',
+        'draining' => 'Draining',
         'edit' => 'Edit server :name',
+        'enabled' => 'Enabled',
         'flash' => [
             'panic' => [
                 'description' => ':total meetings were found and :success were successfully stopped.',
@@ -238,10 +241,6 @@ return [
         'no_data' => 'No servers found!',
         'no_data_filtered' => 'For the filter query no servers were found!',
         'offline' => 'Offline',
-        'enabled' => 'Enabled',
-        'unhealthy' => 'Faulty',
-        'draining' => 'Draining',
-        'connection' => 'Connection',
         'offline_reason' => [
             'connection' => 'No connection could be established to the server.',
             'secret' => 'A connection to the server could be established, but the API secret is invalid.',
@@ -261,6 +260,7 @@ return [
         'strength_description' => 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
         'test_connection' => 'Test connection',
         'tile_description' => 'The servers provide the BBB infrastructure for the meetings.',
+        'unhealthy' => 'Faulty',
         'unknown' => 'Unknown',
         'usage_info' => 'The usage (meetings, participants, videos) also contains meetings that are managed by other systems.',
         'version' => 'Version',
