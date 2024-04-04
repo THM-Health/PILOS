@@ -175,16 +175,6 @@ class Room extends Model
         return $this->hasMany(RoomToken::class);
     }
 
-    /**
-     * Get the newest running meeting
-     *
-     * @return Meeting|null
-     */
-    public function runningMeeting()
-    {
-        return $this->meetings()->whereNull('end')->orderByDesc('created_at')->first();
-    }
-
     /** Check if user is moderator of this room
      * @param  RoomToken|null  $token
      * @return bool
