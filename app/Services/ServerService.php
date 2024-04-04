@@ -186,7 +186,7 @@ class ServerService
 
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
+        $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start');
         $allRunningMeetingsOnServers = new Collection();
 
         $bbbMeetings = $this->getMeetings();
@@ -212,7 +212,12 @@ class ServerService
                 $this->server->save();
 
                 // Clear current live room status
-                foreach ($this->server->meetings as $meeting) {
+                foreach ($allRunningMeetingsInDb->get() as $meeting) {
+                    // Double check if the meeting is the latest meeting in the room
+                    if (! $meeting->is($meeting->room->latestMeeting)) {
+                        continue;
+                    }
+
                     $meeting->room->participant_count = null;
                     $meeting->room->listener_count = null;
                     $meeting->room->voice_participant_count = null;
@@ -295,7 +300,7 @@ class ServerService
 
         // find meetings that are marked as running in the database, but have not been found on the servers
         // fix the end date in the database to current timestamp
-        $meetingsNotRunningOnServers = $allRunningMeetingsInDb->diff($allRunningMeetingsOnServers);
+        $meetingsNotRunningOnServers = $allRunningMeetingsInDb->pluck('id')->diff($allRunningMeetingsOnServers);
         foreach ($meetingsNotRunningOnServers as $meetingId) {
             $meeting = Meeting::find($meetingId);
             if ($meeting != null && $meeting->end == null) {
