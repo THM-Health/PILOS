@@ -177,8 +177,8 @@ return [
     'user_name' => 'Name',
     'users' => 'Users',
     'validation' => [
-        'too_large' => 'The selected file is too large.',
         'invalid_type' => 'The file type is not allowed.',
+        'too_large' => 'The selected file is too large.',
     ],
     'verify_email' => [
         'fail' => 'Your email address could not be verified!',

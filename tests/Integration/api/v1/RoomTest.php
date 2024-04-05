@@ -79,7 +79,8 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        (new MeetingService($room->runningMeeting()))->end();
+        $room->refresh();
+        (new MeetingService($room->latestMeeting))->end();
     }
 
     /**
@@ -120,7 +121,8 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        (new MeetingService($room->runningMeeting()))->end();
+        $room->refresh();
+        (new MeetingService($room->latestMeeting))->end();
     }
 
     /**

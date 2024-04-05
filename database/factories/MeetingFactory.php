@@ -33,4 +33,15 @@ class MeetingFactory extends Factory
             'end' => date('Y-m-d H:i:s', $end),
         ];
     }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Meeting $meeting) {
+            $meeting->room->latestMeeting()->associate($meeting);
+            $meeting->room->save();
+        });
+    }
 }
