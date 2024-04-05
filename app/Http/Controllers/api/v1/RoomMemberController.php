@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateRoomMember;
 use App\Http\Resources\RoomUser;
 use App\Models\Room;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Auth;
 use Illuminate\Http\Request;
 use Log;
@@ -42,7 +43,7 @@ class RoomMemberController extends Controller
             default => 'asc',
         };
 
-        $members = $room->members()->orderBy($sortBy, $sortOrder)->paginate(setting('pagination_page_size'));
+        $members = $room->members()->orderBy($sortBy, $sortOrder)->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return RoomUser::collection($members);
     }

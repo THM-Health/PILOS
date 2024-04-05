@@ -139,7 +139,8 @@ class UserTest extends TestCase
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         // Only global limit, unlimited
-        setting(['room_limit' => '-1']);
+        $this->roomSettings->limit = -1;
+        $this->roomSettings->save();
         $roleA->room_limit = null;
         $roleA->save();
         $roleB->room_limit = null;
@@ -147,7 +148,8 @@ class UserTest extends TestCase
         $this->assertEquals(-1, $user->room_limit);
 
         // Only global limit, limited
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = null;
         $roleA->save();
         $roleB->room_limit = null;
@@ -155,7 +157,8 @@ class UserTest extends TestCase
         $this->assertEquals(10, $user->room_limit);
 
         // Limit on one group, other has none, global unlimited
-        setting(['room_limit' => '-1']);
+        $this->roomSettings->limit = -1;
+        $this->roomSettings->save();
         $roleA->room_limit = 1;
         $roleA->save();
         $roleB->room_limit = null;
@@ -163,7 +166,8 @@ class UserTest extends TestCase
         $this->assertEquals(-1, $user->room_limit);
 
         // Limit on one group, other has none, global limit
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = 1;
         $roleA->save();
         $roleB->room_limit = null;
@@ -171,7 +175,8 @@ class UserTest extends TestCase
         $this->assertEquals(10, $user->room_limit);
 
         // Limit of zero on one group, other has none, global limit
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = 0;
         $roleA->save();
         $roleB->room_limit = null;
@@ -179,7 +184,8 @@ class UserTest extends TestCase
         $this->assertEquals(10, $user->room_limit);
 
         // Limit of zero on one group, other has none, global unlimited
-        setting(['room_limit' => '-1']);
+        $this->roomSettings->limit = -1;
+        $this->roomSettings->save();
         $roleA->room_limit = 0;
         $roleA->save();
         $roleB->room_limit = null;
@@ -187,7 +193,8 @@ class UserTest extends TestCase
         $this->assertEquals(-1, $user->room_limit);
 
         // Limit of zero on both, global limit
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = 0;
         $roleA->save();
         $roleB->room_limit = 0;
@@ -195,7 +202,8 @@ class UserTest extends TestCase
         $this->assertEquals(0, $user->room_limit);
 
         // Limit of zero on both, global unlimited
-        setting(['room_limit' => '-1']);
+        $this->roomSettings->limit = -1;
+        $this->roomSettings->save();
         $roleA->room_limit = 0;
         $roleA->save();
         $roleB->room_limit = 0;
@@ -203,7 +211,8 @@ class UserTest extends TestCase
         $this->assertEquals(0, $user->room_limit);
 
         // Limit of zero in one group, other has higher, global limit
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = 0;
         $roleA->save();
         $roleB->room_limit = 5;
@@ -211,7 +220,8 @@ class UserTest extends TestCase
         $this->assertEquals(5, $user->room_limit);
 
         // Global limit, unlimited one group
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = -1;
         $roleA->save();
         $roleB->room_limit = null;
@@ -219,7 +229,8 @@ class UserTest extends TestCase
         $this->assertEquals(-1, $user->room_limit);
 
         // Global limit, unlimited one group
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = -1;
         $roleA->save();
         $roleB->room_limit = 5;
@@ -227,7 +238,8 @@ class UserTest extends TestCase
         $this->assertEquals(-1, $user->room_limit);
 
         // Different high limits
-        setting(['room_limit' => '10']);
+        $this->roomSettings->limit = 10;
+        $this->roomSettings->save();
         $roleA->room_limit = 20;
         $roleA->save();
         $roleB->room_limit = 30;

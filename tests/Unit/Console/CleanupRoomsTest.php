@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Console;
 
+use App\Enums\TimePeriod;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Notifications\RoomExpires;
@@ -24,10 +25,10 @@ class CleanupRoomsTest extends TestCase
         Notification::fake();
 
         // Set time periods
-        setting()->set('room_auto_delete.enabled', true);
-        setting()->set('room_auto_delete.inactive_period', 90);
-        setting()->set('room_auto_delete.never_used_period', 30);
-        setting()->set('room_auto_delete.deadline_period', 7);
+        $this->roomSettings->auto_delete_inactive_period = TimePeriod::THREE_MONTHS;
+        $this->roomSettings->auto_delete_never_used_period = TimePeriod::ONE_MONTH;
+        $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_WEEK;
+        $this->roomSettings->save();
 
         // Create room that has been inactive too long
         $roomInactiveTooLong = Room::factory()->create();
@@ -96,10 +97,10 @@ class CleanupRoomsTest extends TestCase
         Notification::fake();
 
         // Set time periods
-        setting()->set('room_auto_delete.enabled', true);
-        setting()->set('room_auto_delete.inactive_period', 90);
-        setting()->set('room_auto_delete.never_used_period', -1);
-        setting()->set('room_auto_delete.deadline_period', 7);
+        $this->roomSettings->auto_delete_inactive_period = TimePeriod::THREE_MONTHS;
+        $this->roomSettings->auto_delete_never_used_period = TimePeriod::UNLIMITED;
+        $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_WEEK;
+        $this->roomSettings->save();
 
         // Create room that has been inactive too long
         $roomInactiveTooLong = Room::factory()->create();
@@ -162,10 +163,10 @@ class CleanupRoomsTest extends TestCase
         Notification::fake();
 
         // Set time periods
-        setting()->set('room_auto_delete.enabled', true);
-        setting()->set('room_auto_delete.inactive_period', -1);
-        setting()->set('room_auto_delete.never_used_period', 30);
-        setting()->set('room_auto_delete.deadline_period', 7);
+        $this->roomSettings->auto_delete_inactive_period = TimePeriod::UNLIMITED;
+        $this->roomSettings->auto_delete_never_used_period = TimePeriod::ONE_MONTH;
+        $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_WEEK;
+        $this->roomSettings->save();
 
         // Create room that has been inactive too long
         $roomInactiveTooLong = Room::factory()->create();
@@ -218,87 +219,11 @@ class CleanupRoomsTest extends TestCase
     }
 
     /**
-     * Check if command not run if auto delete is disabled or both periods are disabled
-     *
-     * @throws \Exception
-     */
-    public function testSetExpireDateAndSendEmailDisabled()
-    {
-        // Set time periods
-        setting()->set('room_auto_delete.enabled', true);
-        setting()->set('room_auto_delete.inactive_period', 90);
-        setting()->set('room_auto_delete.never_used_period', 30);
-        setting()->set('room_auto_delete.deadline_period', 7);
-
-        // Create room that has been inactive too long
-        $roomInactiveTooLong = Room::factory()->create();
-        $meetingInactiveTooLong = Meeting::factory()->create(['room_id' => $roomInactiveTooLong->id, 'start' => now()->subDays(91), 'end' => now()->subDays(91)->addMinutes(10)]);
-        Meeting::factory()->create(['room_id' => $roomInactiveTooLong->id, 'start' => now()->subDays(95), 'end' => now()->subDays(95)->addMinutes(10)]);
-        $roomInactiveTooLong->latestMeeting()->associate($meetingInactiveTooLong);
-        $roomInactiveTooLong->save();
-
-        // Create room that has not been inactive too long
-        $roomInactiveNotTooLong = Room::factory()->create();
-        $meetingInactiveNotTooLong = Meeting::factory()->create(['room_id' => $roomInactiveNotTooLong->id, 'start' => now()->subDays(89), 'end' => now()->subDays(89)->addMinutes(10)]);
-        Meeting::factory()->create(['room_id' => $roomInactiveTooLong->id, 'start' => now()->subDays(95), 'end' => now()->subDays(95)->addMinutes(10)]);
-        $roomInactiveNotTooLong->latestMeeting()->associate($meetingInactiveNotTooLong);
-        $roomInactiveNotTooLong->save();
-
-        // Create room has was created too long ago and never used
-        $roomNeverUsedTooLong = Room::factory()->create(['created_at' => now()->subDays(31)]);
-
-        // Create room has was created not too long ago but never used
-        $roomNeverUsedNotTooLong = Room::factory()->create(['created_at' => now()->subDays(29)]);
-
-        // Disable
-        setting()->set('room_auto_delete.enabled', false);
-
-        // Run cleanup command
-        $this->artisan('cleanup:rooms');
-
-        $roomInactiveTooLong->refresh();
-        $this->assertNull($roomInactiveTooLong->delete_inactive);
-
-        $roomInactiveNotTooLong->refresh();
-        $this->assertNull($roomInactiveNotTooLong->delete_inactive);
-
-        $roomNeverUsedTooLong->refresh();
-        $this->assertNull($roomNeverUsedTooLong->delete_inactive);
-
-        $roomNeverUsedNotTooLong->refresh();
-        $this->assertNull($roomNeverUsedNotTooLong->delete_inactive);
-
-        // Enable
-        setting()->set('room_auto_delete.enabled', true);
-
-        // Set both periods to disabled
-        setting()->set('room_auto_delete.inactive_period', -1);
-        setting()->set('room_auto_delete.never_used_period', -1);
-
-        // Run cleanup command again
-        $this->artisan('cleanup:rooms');
-
-        $roomInactiveTooLong->refresh();
-        $this->assertNull($roomInactiveTooLong->delete_inactive);
-
-        $roomInactiveNotTooLong->refresh();
-        $this->assertNull($roomInactiveNotTooLong->delete_inactive);
-
-        $roomNeverUsedTooLong->refresh();
-        $this->assertNull($roomNeverUsedTooLong->delete_inactive);
-
-        $roomNeverUsedNotTooLong->refresh();
-        $this->assertNull($roomNeverUsedNotTooLong->delete_inactive);
-    }
-
-    /**
      * Check if rooms are deleted after their grace period
      */
     public function testDelete()
     {
         Notification::fake();
-
-        setting()->set('room_auto_delete.enabled', true);
 
         $roomNotToDelete = Room::factory()->create();
         $roomToDelete = Room::factory()->create(['delete_inactive' => now()->subDay()]);

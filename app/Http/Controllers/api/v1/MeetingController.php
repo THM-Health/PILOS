@@ -9,6 +9,8 @@ use App\Http\Resources\MeetingStat;
 use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
 use App\Models\Meeting;
 use App\Services\MeetingService;
+use App\Settings\GeneralSettings;
+use App\Settings\RecordingSettings;
 use Illuminate\Http\Request;
 use Log;
 
@@ -77,7 +79,7 @@ class MeetingController extends Controller
         }
 
         // Respond with paginated result
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return MeetingResource::collection($resource)->additional($additionalMeta);
     }
@@ -117,7 +119,7 @@ class MeetingController extends Controller
         Log::info('Show statistics for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
 
         // check if statistical data is globally enabled
-        if (! setting('statistics.meetings.enabled')) {
+        if (! app(RecordingSettings::class)->meeting_usage_enabled) {
             Log::info('Failed to show statistics for meeting {meeting} of room {room}; statistics are disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::FEATURE_DISABLED->value, __('app.errors.meeting_statistics_disabled'));
         }

@@ -30,7 +30,8 @@ class ForgotPasswordTest extends TestCase
         config([
             'auth.local.enabled' => true,
         ]);
-        setting(['password_change_allowed' => false]);
+        $this->userSettings->password_change_allowed = false;
+        $this->userSettings->save();
         $this->postJson(route('api.v1.password.email'), [
             'email' => 'test@test.de',
         ])->assertNotFound();
@@ -39,7 +40,8 @@ class ForgotPasswordTest extends TestCase
         config([
             'auth.local.enabled' => false,
         ]);
-        setting(['password_change_allowed' => true]);
+        $this->userSettings->password_change_allowed = true;
+        $this->userSettings->save();
         $this->postJson(route('api.v1.password.email'), [
             'email' => 'test@test.de',
         ])->assertNotFound();
@@ -55,7 +57,8 @@ class ForgotPasswordTest extends TestCase
             'initial_password_set' => true,
         ]);
 
-        setting(['password_change_allowed' => true]);
+        $this->userSettings->password_change_allowed = true;
+        $this->userSettings->save();
         $this->actingAs($user)->postJson(route('api.v1.password.email'))
             ->assertStatus(420);
 

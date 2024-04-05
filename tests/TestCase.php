@@ -2,6 +2,12 @@
 
 namespace Tests;
 
+use App\Settings\BannerSettings;
+use App\Settings\BigBlueButtonSettings;
+use App\Settings\GeneralSettings;
+use App\Settings\RecordingSettings;
+use App\Settings\RoomSettings;
+use App\Settings\UserSettings;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
@@ -22,6 +28,18 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
+    public GeneralSettings $generalSettings;
+
+    public BannerSettings $bannerSettings;
+
+    public RoomSettings $roomSettings;
+
+    public UserSettings $userSettings;
+
+    public RecordingSettings $recordingSettings;
+
+    public BigBlueButtonSettings $bigBlueButtonSettings;
+
     protected function setUp(): void
     {
         if (! defined('LARAVEL_START')) {
@@ -30,7 +48,19 @@ abstract class TestCase extends BaseTestCase
 
         parent::setUp();
 
+        $this->initSettings();
+
         $this->withoutVite();
+    }
+
+    protected function initSettings()
+    {
+        $this->generalSettings = app(GeneralSettings::class);
+        $this->bannerSettings = app(BannerSettings::class);
+        $this->roomSettings = app(RoomSettings::class);
+        $this->userSettings = app(UserSettings::class);
+        $this->recordingSettings = app(RecordingSettings::class);
+        $this->bigBlueButtonSettings = app(BigBlueButtonSettings::class);
     }
 
     protected function tearDown(): void

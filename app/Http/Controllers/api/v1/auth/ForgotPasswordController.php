@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Settings\UserSettings;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,10 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request): JsonResponse
     {
+        if (! app(UserSettings::class)->password_change_allowed) {
+            abort(404);
+        }
+
         $this->validateEmail($request);
 
         $user = User::where('authenticator', '=', 'local')

@@ -100,7 +100,7 @@ return [
             ],
         ],
         'room_limit' => [
-            'description' => 'Limits the number of rooms that a user can have. This setting does not apply to administrators.        Enter the value -1 for unlimited number of rooms',
+            'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
         ],
         'room_pagination_page_size' => [

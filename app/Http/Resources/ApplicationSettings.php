@@ -4,6 +4,12 @@ namespace App\Http\Resources;
 
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
+use App\Settings\BannerSettings;
+use App\Settings\BigBlueButtonSettings;
+use App\Settings\GeneralSettings;
+use App\Settings\RecordingSettings;
+use App\Settings\RoomSettings;
+use App\Settings\UserSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ApplicationSettings extends JsonResource
@@ -36,30 +42,38 @@ class ApplicationSettings extends JsonResource
      */
     public function toArray($request)
     {
+        $generalSettings = app(GeneralSettings::class);
+        $bannerSettings = app(BannerSettings::class);
+        $roomSettings = app(RoomSettings::class);
+        $userSettings = app(UserSettings::class);
+        $recordingSettings = app(RecordingSettings::class);
+        $bigBlueButtonSettings = app(BigBlueButtonSettings::class);
+
         return [
             'version' => config('app.version'),
             'whitelabel' => config('app.whitelabel'),
             'base_url' => config('app.url'),
-            'name' => setting('name'),
-            'logo' => setting('logo'),
-            'favicon' => setting('favicon'),
-            'room_limit' => (int) setting('room_limit'),
-            'pagination_page_size' => (int) setting('pagination_page_size'),
-            'room_pagination_page_size' => (int) setting('room_pagination_page_size'),
-            'password_change_allowed' => (bool) setting('password_change_allowed'),
+            'name' => $generalSettings->name,
+            'logo' => $generalSettings->logo,
+            'favicon' => $generalSettings->favicon,
+            'room_limit' => $roomSettings->limit,
+            'pagination_page_size' => $generalSettings->pagination_page_size,
+            'room_pagination_page_size' => $roomSettings->pagination_page_size,
+            'password_change_allowed' => $userSettings->password_change_allowed,
             'default_locale' => config('app.locale'),
             'enabled_locales' => array_map(function ($locale) {
                 return $locale['name'];
             }, config('app.enabled_locales')),
-            'default_timezone' => setting('default_timezone'),
+            'default_timezone' => $generalSettings->default_timezone,
             'bbb' => [
                 'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
                 'max_filesize' => (int) config('bigbluebutton.max_filesize'),
                 'room_name_limit' => (int) config('bigbluebutton.room_name_limit'),
                 'welcome_message_limit' => (int) config('bigbluebutton.welcome_message_limit'),
                 $this->mergeWhen($this->allSettings, [
-                    'style' => setting('bbb_style'),
-                    'logo' => setting('bbb_logo'),
+                    'style' => $bigBlueButtonSettings->style,
+                    'logo' => $bigBlueButtonSettings->logo,
+                    'default_presentation' => $bigBlueButtonSettings->default_presentation,
                 ]),
             ],
             'monitor' => [
@@ -68,49 +82,47 @@ class ApplicationSettings extends JsonResource
                 'telescope' => config('telescope.enabled'),
             ],
             'banner' => [
-                'enabled' => (bool) setting('banner.enabled'),
-                $this->mergeWhen(setting('banner.enabled') || $this->allSettings, [
-                    'message' => setting('banner.message'),
-                    'link' => setting('banner.link'),
-                    'icon' => setting('banner.icon'),
-                    'color' => setting('banner.color'),
-                    'background' => setting('banner.background'),
-                    'title' => setting('banner.title'),
-                    'link_style' => setting('banner.link_style'),
-                    'link_text' => setting('banner.link_text'),
-                    'link_target' => setting('banner.link_target'),
+                'enabled' => $bannerSettings->enabled,
+                $this->mergeWhen($bannerSettings->enabled || $this->allSettings, [
+                    'message' => $bannerSettings->message,
+                    'link' => $bannerSettings->link,
+                    'icon' => $bannerSettings->icon,
+                    'color' => $bannerSettings->color,
+                    'background' => $bannerSettings->background,
+                    'title' => $bannerSettings->title,
+                    'link_style' => $bannerSettings->link_style,
+                    'link_text' => $bannerSettings->link_text,
+                    'link_target' => $bannerSettings->link_target,
                 ]),
             ],
             $this->mergeWhen($this->allSettings, [
                 'link_btn_styles' => LinkButtonStyle::cases(),
                 'link_targets' => LinkTarget::cases(),
                 'room_auto_delete' => [
-                    'enabled' => (bool) setting('room_auto_delete.enabled'),
-                    'inactive_period' => (int) setting('room_auto_delete.inactive_period'),
-                    'never_used_period' => (int) setting('room_auto_delete.never_used_period'),
-                    'deadline_period' => (int) setting('room_auto_delete.deadline_period'),
+                    'inactive_period' => $roomSettings->auto_delete_inactive_period,
+                    'never_used_period' => $roomSettings->auto_delete_never_used_period,
+                    'deadline_period' => $roomSettings->auto_delete_deadline_period,
                 ],
             ]),
-            'default_presentation' => $this->when(! empty(setting('default_presentation')), setting('default_presentation')),
-            'help_url' => setting('help_url'),
-            'legal_notice_url' => setting('legal_notice_url'),
-            'privacy_policy_url' => setting('privacy_policy_url'),
+            'help_url' => $generalSettings->help_url,
+            'legal_notice_url' => $generalSettings->legal_notice_url,
+            'privacy_policy_url' => $generalSettings->privacy_policy_url,
             'statistics' => [
                 $this->mergeWhen($this->allSettings, [
                     'servers' => [
-                        'enabled' => (bool) setting('statistics.servers.enabled'),
-                        'retention_period' => (int) setting('statistics.servers.retention_period'),
+                        'enabled' => $recordingSettings->server_usage_enabled,
+                        'retention_period' => $recordingSettings->server_usage_retention_period,
                     ],
                 ]),
                 'meetings' => [
-                    'enabled' => (bool) setting('statistics.meetings.enabled'),
-                    'retention_period' => (int) setting('statistics.meetings.retention_period'),
+                    'enabled' => $recordingSettings->meeting_usage_enabled,
+                    'retention_period' => $recordingSettings->meeting_usage_retention_period,
                 ],
             ],
             'attendance' => [
-                'retention_period' => (int) setting('attendance.retention_period'),
+                'retention_period' => $recordingSettings->attendance_retention_period,
             ],
-            'room_token_expiration' => (int) setting('room_token_expiration'),
+            'room_token_expiration' => $roomSettings->token_expiration,
             'auth' => [
                 'local' => config('auth.local.enabled'),
                 'ldap' => config('ldap.enabled'),

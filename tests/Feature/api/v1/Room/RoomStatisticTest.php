@@ -51,8 +51,11 @@ class RoomStatisticTest extends TestCase
      */
     public function testMeetingList()
     {
-        setting(['pagination_page_size' => 5]);
-        setting(['statistics.meetings.enabled' => true]);
+        $this->generalSettings->pagination_page_size = 5;
+        $this->generalSettings->save();
+
+        $this->recordingSettings->meeting_usage_enabled = true;
+        $this->recordingSettings->save();
 
         // create room
         $room = Room::factory()->create();
@@ -154,7 +157,8 @@ class RoomStatisticTest extends TestCase
             ]);
 
         // check with meeting stats globally disabled
-        setting(['statistics.meetings.enabled' => false]);
+        $this->recordingSettings->meeting_usage_enabled = false;
+        $this->recordingSettings->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?page=2')
             ->assertJsonPath('data.0', [
                 'id' => $meetings[0]->id,
@@ -170,8 +174,10 @@ class RoomStatisticTest extends TestCase
      */
     public function testUsageStatistics()
     {
-        setting(['pagination_page_size' => 5]);
-        setting(['statistics.meetings.enabled' => true]);
+        $this->generalSettings->pagination_page_size = 5;
+        $this->generalSettings->save();
+        $this->recordingSettings->meeting_usage_enabled = true;
+        $this->recordingSettings->save();
 
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:18:23']);
@@ -245,7 +251,8 @@ class RoomStatisticTest extends TestCase
             ]);
 
         // check with meeting stats globally disabled
-        setting(['statistics.meetings.enabled' => false]);
+        $this->recordingSettings->meeting_usage_enabled = false;
+        $this->recordingSettings->save();
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.stats', ['meeting' => $meeting]))
             ->assertStatus(CustomStatusCodes::FEATURE_DISABLED->value);
     }

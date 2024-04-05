@@ -48,7 +48,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     // TODO: Implement or remove this completely
     // Route::post('register', 'RegisterController@register');
 
-    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if_config:auth.local.enabled', 'enable_if_setting:password_change_allowed', 'guest', 'throttle:password_email']);
+    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if_config:auth.local.enabled', 'guest', 'throttle:password_email']);
 
     Route::middleware('auth:users,ldap')->group(function () {
         Route::get('settings/all', [ApplicationController::class, 'allSettings'])->name('application.complete')->middleware('can:applicationSettings.viewAny');

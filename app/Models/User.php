@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\PasswordReset;
+use App\Settings\RoomSettings;
 use App\Traits\AddsModelNameTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -129,9 +130,11 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function getRoomLimitAttribute()
     {
+        $globalRoomLimit = app(RoomSettings::class)->limit;
+
         $role_limits = $this->roles()->pluck('room_limit');
-        $role_limits->transform(function ($item, $key) {
-            return $item !== null ? $item : setting('room_limit');
+        $role_limits->transform(function ($item, $key) use ($globalRoomLimit) {
+            return $item !== null ? $item : $globalRoomLimit;
         });
 
         // check if any role has unlimited rooms, if yes set to unlimited

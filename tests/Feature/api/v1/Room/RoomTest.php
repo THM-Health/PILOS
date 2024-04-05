@@ -102,7 +102,8 @@ class RoomTest extends TestCase
      */
     public function testCreateNewRoom()
     {
-        setting(['room_limit' => '-1']);
+        $this->roomSettings->limit = -1;
+        $this->roomSettings->save();
 
         $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomFactory::createValidRoomName()];
 
@@ -149,7 +150,8 @@ class RoomTest extends TestCase
         $role = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
         $this->user->roles()->attach($role);
-        setting(['room_limit' => '1']);
+        $this->roomSettings->limit = 1;
+        $this->roomSettings->save();
 
         $room_1 = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomFactory::createValidRoomName()];
         $room_2 = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomFactory::createValidRoomName()];
@@ -242,7 +244,8 @@ class RoomTest extends TestCase
         $userThatReachedLimit->roles()->attach($role);
         $userThatCanNotHaveRoomType = User::factory()->create();
         $userThatCanNotHaveRoomType->roles()->attach($role2);
-        setting(['room_limit' => '1']);
+        $this->roomSettings->limit = 1;
+        $this->roomSettings->save();
 
         //create rooms
         $room = Room::factory()->create();
@@ -592,7 +595,8 @@ class RoomTest extends TestCase
      */
     public function testRoomList()
     {
-        setting(['room_pagination_page_size' => 10]);
+        $this->roomSettings->pagination_page_size = 10;
+        $this->roomSettings->save();
 
         $roomType1 = RoomType::factory()->create();
         $roomType2 = RoomType::factory()->create(['allow_listing' => false]);
@@ -811,7 +815,8 @@ class RoomTest extends TestCase
 
     public function testRoomListSorting()
     {
-        setting(['room_pagination_page_size' => 10]);
+        $this->roomSettings->pagination_page_size = 10;
+        $this->roomSettings->save();
 
         $server = Server::factory()->create();
         $roomType1 = RoomType::factory()->create(['name' => 'roomType1']);
@@ -2049,7 +2054,8 @@ class RoomTest extends TestCase
             'allow_guests' => true,
         ]);
 
-        setting()->set('bbb_style', url('style.css'));
+        $this->bigBlueButtonSettings->style = url('style.css');
+        $this->bigBlueButtonSettings->save();
 
         // Set user profile image
         $this->user->image = 'test.jpg';
@@ -2117,7 +2123,9 @@ class RoomTest extends TestCase
 
         // check bbb style url
         $this->assertEquals(url('style.css'), $queryParams['userdata-bbb_custom_style_url']);
-        setting()->set('bbb_style', null);
+
+        $this->bigBlueButtonSettings->style = null;
+        $this->bigBlueButtonSettings->save();
 
         // Join as authorized users
         $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))

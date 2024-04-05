@@ -3,6 +3,7 @@
 namespace Tests\Feature\api\v1\Room;
 
 use App\Enums\RoomUserRole;
+use App\Enums\TimePeriod;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomToken;
@@ -33,7 +34,8 @@ class RoomTokenTest extends TestCase
 
     public function testIndex()
     {
-        setting(['room_token_expiration' => 90]);
+        $this->roomSettings->token_expiration = TimePeriod::THREE_MONTHS;
+        $this->roomSettings->save();
 
         RoomToken::query()->delete();
         RoomToken::factory()->count(10)->create([
@@ -113,7 +115,8 @@ class RoomTokenTest extends TestCase
         $token = RoomToken::find($results[0]['token']);
         self::assertEquals($token->created_at->addDays(90)->toISOString(), $results[0]['expires']);
 
-        setting(['room_token_expiration' => -1]);
+        $this->roomSettings->token_expiration = TimePeriod::UNLIMITED;
+        $this->roomSettings->save();
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
         self::assertNull($results[0]['expires']);
     }

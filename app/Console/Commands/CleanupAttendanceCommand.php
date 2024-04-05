@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\TimePeriod;
 use App\Models\MeetingAttendee;
+use App\Settings\RecordingSettings;
 use Illuminate\Console\Command;
 use Log;
 
@@ -29,9 +31,11 @@ class CleanupAttendanceCommand extends Command
      */
     public function handle()
     {
+        $retentionPeriod = app(RecordingSettings::class)->attendance_retention_period;
+
         // Remove all attendance data older than the retention period
-        if (setting('attendance.retention_period') != -1) {
-            $day = now()->subDays(setting('attendance.retention_period'))->toDateString();
+        if ($retentionPeriod != TimePeriod::UNLIMITED) {
+            $day = now()->subDays($retentionPeriod->value)->toDateString();
             Log::info('Removing attendance data older than '.$day);
             MeetingAttendee::where('join', '<', $day)->delete();
         }

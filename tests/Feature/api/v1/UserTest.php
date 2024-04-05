@@ -33,7 +33,8 @@ class UserTest extends TestCase
     public function testIndex()
     {
         $page_size = 5;
-        setting(['pagination_page_size' => $page_size]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         // Create Users + Ldap User with roles
         $users = User::factory()->count(10)->create([
@@ -816,7 +817,8 @@ class UserTest extends TestCase
     public function testChangePassword()
     {
         Notification::fake();
-        setting(['password_change_allowed' => false]);
+        $this->userSettings->password_change_allowed = false;
+        $this->userSettings->save();
 
         $password = $this->faker->password;
         $newPassword = '!SuperSecretPassword123';
@@ -841,7 +843,8 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Give user permission to change own password
-        setting(['password_change_allowed' => true]);
+        $this->userSettings->password_change_allowed = true;
+        $this->userSettings->save();
 
         // Check with missing password
         $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
@@ -941,7 +944,8 @@ class UserTest extends TestCase
     public function testChangePasswordAdmin()
     {
         Notification::fake();
-        setting(['password_change_allowed' => false]);
+        $this->userSettings->password_change_allowed = false;
+        $this->userSettings->save();
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $newPassword = '!SuperSecretPassword123';
@@ -1041,7 +1045,8 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Check if admin can change own password if self reset is enabled, but also has to provide current password
-        setting(['password_change_allowed' => true]);
+        $this->userSettings->password_change_allowed = true;
+        $this->userSettings->save();
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $admin]), $changes)
             ->assertJsonValidationErrors('current_password');
     }

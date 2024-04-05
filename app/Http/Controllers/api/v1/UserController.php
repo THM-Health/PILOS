@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Notifications\UserWelcome;
 use App\Services\AuthenticationService;
 use App\Services\EmailVerification\EmailVerificationService;
+use App\Settings\GeneralSettings;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -86,7 +87,7 @@ class UserController extends Controller
             $resource = $resource->withName($request->query('name'));
         }
 
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return UserResource::collection($resource)->additional($additionalMeta);
     }

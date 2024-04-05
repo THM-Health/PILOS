@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\TimePeriod;
 use App\Models\Room;
 use App\Notifications\RoomExpires;
+use App\Settings\RoomSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Log;
@@ -16,13 +18,13 @@ class CleanupRoomsCommand extends Command
 
     public function handle()
     {
-        if (! setting('room_auto_delete.enabled') || (setting('room_auto_delete.inactive_period') == -1 && setting('room_auto_delete.never_used_period') == -1)) {
-            return;
-        }
+        $inactivePeriod = app(RoomSettings::class)->auto_delete_inactive_period;
+        $neverUsedPeriod = app(RoomSettings::class)->auto_delete_never_used_period;
+        $deadlinePeriod = app(RoomSettings::class)->auto_delete_deadline_period;
 
-        $lastStartDate = now()->subDays(setting('room_auto_delete.inactive_period'));
-        $createdDate = now()->subDays(setting('room_auto_delete.never_used_period'));
-        $timeToDeleteDate = now()->addDays(setting('room_auto_delete.deadline_period'));
+        $lastStartDate = now()->subDays($inactivePeriod->value);
+        $createdDate = now()->subDays($neverUsedPeriod->value);
+        $timeToDeleteDate = now()->addDays($deadlinePeriod->value);
 
         // Find ids of rooms that have never been used of the last meeting was a long time ago
         $inactiveRoomIDs = DB::table('rooms')
@@ -30,14 +32,14 @@ class CleanupRoomsCommand extends Command
             ->join('users', 'rooms.user_id', '=', 'users.id')
             ->select('rooms.id')
             ->whereNull('delete_inactive')
-            ->where(function ($query) use ($createdDate, $lastStartDate) {
-                $query->where(function ($query) use ($lastStartDate) {
-                    if (setting('room_auto_delete.inactive_period') != -1) {
+            ->where(function ($query) use ($neverUsedPeriod, $inactivePeriod, $createdDate, $lastStartDate) {
+                $query->where(function ($query) use ($inactivePeriod, $lastStartDate) {
+                    if ($inactivePeriod != TimePeriod::UNLIMITED) {
                         $query->where('meetings.start', '<', $lastStartDate);
                     }
                 })
-                    ->orWhere(function ($query) use ($createdDate) {
-                        if (setting('room_auto_delete.never_used_period') != -1) {
+                    ->orWhere(function ($query) use ($neverUsedPeriod, $createdDate) {
+                        if ($neverUsedPeriod != TimePeriod::UNLIMITED) {
                             $query->where('rooms.created_at', '<', $createdDate)
                                 ->whereNull('meetings.start');
                         }

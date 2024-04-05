@@ -91,8 +91,9 @@ class PollServerTest extends TestCase
         $user101 = User::factory()->create(['id' => 101]);
 
         $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance' => true]);
-        setting(['statistics.servers.enabled' => true]);
-        setting(['statistics.meetings.enabled' => true]);
+        $this->recordingSettings->server_usage_enabled = true;
+        $this->recordingSettings->meeting_usage_enabled = true;
+        $this->recordingSettings->save();
 
         // Create fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
@@ -141,16 +142,18 @@ class PollServerTest extends TestCase
         $this->assertEquals(1, $meeting->server->meeting_count);
 
         // check with disabled server stats
-        setting(['statistics.servers.enabled' => false]);
-        setting(['statistics.meetings.enabled' => true]);
+        $this->recordingSettings->server_usage_enabled = false;
+        $this->recordingSettings->meeting_usage_enabled = true;
+        $this->recordingSettings->save();
         $this->travelTo(Carbon::create(2023, 9, 28, 12, 01, 00));
         $this->artisan('server:poll');
         $this->assertEquals(1, $meeting->server->stats()->count());
         $this->assertEquals(2, $meeting->stats()->count());
 
         // check with disabled meeting stats
-        setting(['statistics.servers.enabled' => true]);
-        setting(['statistics.meetings.enabled' => false]);
+        $this->recordingSettings->server_usage_enabled = true;
+        $this->recordingSettings->meeting_usage_enabled = false;
+        $this->recordingSettings->save();
         $this->travelTo(Carbon::create(2023, 9, 28, 12, 02, 00));
         $this->artisan('server:poll');
         $this->assertEquals(2, $meeting->server->stats()->count());

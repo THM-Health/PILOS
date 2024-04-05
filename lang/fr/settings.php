@@ -98,7 +98,7 @@ return [
             ],
         ],
         'room_limit' => [
-            'description' => 'Limite le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre ne s\'applique pas aux administrateurs.        Entrez la valeur -1 pour un nombre illimité de salles',
+            'description' => 'Limite le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre ne s\'applique pas aux administrateurs.',
             'title' => 'Nombre de salles par utilisateur',
         ],
         'room_pagination_page_size' => [

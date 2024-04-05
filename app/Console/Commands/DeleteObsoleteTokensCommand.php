@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\TimePeriod;
 use App\Models\RoomToken;
+use App\Settings\RoomSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Log;
@@ -30,14 +32,16 @@ class DeleteObsoleteTokensCommand extends Command
      */
     public function handle()
     {
-        if (setting('room_token_expiration') > -1) {
-            $expiredTokens = RoomToken::where(function ($query) {
+        $expireDuration = app(RoomSettings::class)->token_expiration;
+
+        if ($expireDuration != TimePeriod::UNLIMITED) {
+            $expiredTokens = RoomToken::where(function ($query) use ($expireDuration) {
                 $query->whereNull('last_usage')
-                    ->where('created_at', '<', Carbon::now()->subDays(setting('room_token_expiration')));
+                    ->where('created_at', '<', Carbon::now()->subDays($expireDuration->value));
             })
-                ->orWhere(function ($query) {
+                ->orWhere(function ($query) use ($expireDuration) {
                     $query->whereNotNull('last_usage')
-                        ->where('last_usage', '<', Carbon::now()->subDays(setting('room_token_expiration')));
+                        ->where('last_usage', '<', Carbon::now()->subDays($expireDuration->value));
                 })
                 ->pluck('token');
 
