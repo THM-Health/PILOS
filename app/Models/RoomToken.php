@@ -87,6 +87,8 @@ class RoomToken extends Model
      */
     public function getExpiresAttribute()
     {
-        return setting('room_token_expiration') > -1 ? ($this->last_usage != null ? $this->last_usage->addDays(setting('room_token_expiration')) : $this->created_at->addDays(setting('room_token_expiration'))) : null;
+        $tokenExpiration = (int) setting('room_token_expiration');
+
+        return $tokenExpiration > -1 ? ($this->last_usage != null ? $this->last_usage->addDays($tokenExpiration) : $this->created_at->addDays($tokenExpiration)) : null;
     }
 }
