@@ -202,53 +202,6 @@
         </div>
 
         <div class="field grid">
-          <label for="allow_listing" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_listing')}}</label>
-          <div class="col-12 md:col-8">
-            <div>
-              <InputSwitch
-                input-id="allow_listing"
-                v-model="model.allow_listing"
-                :invalid="formErrors.fieldInvalid('allow_listing')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-                aria-describedby="allow_listing-help"
-              />
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('allow_listing')"></p>
-            <small id="allow_listing-help">{{$t('settings.room_types.allow_listing_description')}}</small>
-          </div>
-        </div>
-
-        <div class="field grid">
-          <label for="allow_record_attendance" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.allow_record_attendance')}}</label>
-          <div class="col-12 md:col-8">
-            <div>
-              <InputSwitch
-                input-id="allow_record_attendance"
-                v-model="model.allow_record_attendance"
-                :invalid="formErrors.fieldInvalid('allow_record_attendance')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-              />
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('allow_record_attendance')"></p>
-          </div>
-        </div>
-
-        <div class="field grid">
-          <label for="require_access_code" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.require_access_code')}}</label>
-          <div class="col-12 md:col-8">
-            <div>
-              <InputSwitch
-                input-id="require_access_code"
-                v-model="model.require_access_code"
-                :invalid="formErrors.fieldInvalid('require_access_code')"
-                :disabled="isBusy || modelLoadingError || viewOnly"
-              />
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('require_access_code')"></p>
-          </div>
-        </div>
-
-        <div class="field grid">
           <label for="max_participants" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.max_participants')}}</label>
           <div class="col-12 md:col-8">
             <InputGroup>
@@ -295,6 +248,36 @@
         <h3>Default Settings</h3>
 
         <h4>{{ $t('rooms.settings.general.title') }}</h4>
+
+<!--        ToDo fix problem when enforcing Access Code (Rooms without an access code will stay without an access code)
+            (Problem already existed before???)-->
+        <div class="field grid">
+          <label for="has_access_code_default" class="col-12 md:col-4 md:m-0 align-items-center"> Has Access Code</label>
+          <div class="col-12 md:col-8">
+            <div class="flex justify-content-between align-items-center">
+              <InputSwitch
+                input-id="has_access_code_default"
+                v-model="model.has_access_code_default"
+                :invalid="formErrors.fieldInvalid('has_access_code_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+              <ToggleButton
+                v-model="model.has_access_code_enforced"
+                :invalid="formErrors.fieldInvalid('has_access_code_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <div class="flex justify-content-between gap-4 ">
+              <p class="p-error" v-html="formErrors.fieldError('has_access_code_default')"></p>
+              <p class="p-error" v-html="formErrors.fieldError('has_access_code_enforced')"></p>
+            </div>
+          </div>
+        </div>
+
         <div class="field grid">
           <label for="allow_guests_default" class="col-12 md:col-4 md:m-0 align-items-center">{{$t('rooms.settings.security.allow_guests')}}</label>
           <div class="col-12 md:col-8">
@@ -435,6 +418,33 @@
             >
               {{ $t('rooms.settings.participants.waiting_room_alert') }}
             </InlineNote>
+          </div>
+        </div>
+
+        <div class="field grid">
+          <label for="record_attendance_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+          <div class="col-12 md:col-8">
+            <div class="flex justify-content-between align-items-center">
+              <InputSwitch
+                input-id="record_attendance_default"
+                v-model="model.record_attendance_default"
+                :invalid="formErrors.fieldInvalid('record_attendance_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+              <ToggleButton
+                v-model="model.record_attendance_enforced"
+                :invalid="formErrors.fieldInvalid('record_attendance_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <div class="flex justify-content-between gap-4">
+              <p class="p-error" v-html="formErrors.fieldError('record_attendance_default')"></p>
+              <p class="p-error text-right" v-html="formErrors.fieldError('record_attendance_enforced')"></p>
+            </div>
           </div>
         </div>
 
@@ -699,6 +709,42 @@
         </div>
         <h4>Erweitert</h4>
 
+        <div class="field grid">
+          <label for="visibility_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.security.listed') }}</label>
+          <div class="col-12 md:col-8">
+            <div class="flex justify-content-between align-items-center">
+              <SelectButton
+                v-model="model.visibility_default"
+                :allowEmpty="false"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :invalid="formErrors.fieldInvalid('visibility_default')"
+                :options="[
+                    { visibility: 0, label: 'Private'},
+                    { visibility: 1, label: 'Public'}
+                  ]"
+                class="flex-shrink-0"
+                dataKey="visibility"
+                input-id="visibility_default"
+                optionLabel="label"
+                optionValue="visibility"
+              />
+              <ToggleButton
+                v-model="model.visibility_enforced"
+                :invalid="formErrors.fieldInvalid('visibility_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                on-label="Enforced"
+                off-label="Default"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+              />
+            </div>
+            <div class="flex justify-content-between gap-4">
+              <p class="p-error" v-html="formErrors.fieldError('visibility_default')"></p>
+              <p class="p-error text-right" v-html="formErrors.fieldError('visibility_enforced')"></p>
+            </div>
+          </div>
+        </div>
+
         <div v-if="!viewOnly">
           <Divider/>
           <div class="flex justify-content-end">
@@ -754,9 +800,6 @@ const model = ref({
   name: null,
   color: env.ROOM_TYPE_COLORS[0],
   server_pool: null,
-  allow_listing: false,
-  allow_record_attendance: false,
-  require_access_code: false,
   max_duration: null,
   max_participants: null,
   restrict: false,
@@ -786,7 +829,13 @@ const model = ref({
   default_role_default: 1,
   default_role_enforced: false,
   lobby_default: 0,
-  lobby_enforced: false
+  lobby_enforced: false,
+  record_attendance_default: false,
+  record_attendance_enforced: false,
+  visibility_default: 0,
+  visibility_enforced: false,
+  has_access_code_default: true,
+  has_access_code_enforced: false
 });
 
 const name = ref('');

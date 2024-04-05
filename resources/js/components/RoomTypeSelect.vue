@@ -1,6 +1,5 @@
 <template>
 
-<!--  ToDo fix width problems with long texts-->
   <div v-if="modelLoadingError" class="flex flex-column gap-2 align-items-start">
     <Message
       severity="error"
@@ -21,24 +20,26 @@
     />
   </div>
   <OverlayComponent v-else :show="isLoadingAction">
-  <div class="flex flex-column md:flex-row">
-    <Listbox
-      v-model="roomTypeId"
-      :disabled="disabled || isLoadingAction"
-      @change="changeRoomType"
-      :options="roomTypes"
-      optionLabel="name"
-      optionValue="id"
-      :invalid="props.invalid"
-      class="w-full"
-      listStyle="max-height:250px"
-      :aria-labelledby="ariaLabelledby"
-    />
-    <div class="w-full md:w-2" v-if="modelValue">
-      <Divider layout="vertical" class="hidden md:flex"/>
-      <Divider layout="horizontal" class="flex md:hidden" align="center"/>
+  <div class="grid">
+    <div :class="modelValue ? 'col-6' : 'col'">
+      <Listbox
+        v-model="roomTypeId"
+        :disabled="disabled || isLoadingAction"
+        @change="changeRoomType"
+        :options="roomTypes"
+        optionLabel="name"
+        optionValue="id"
+        :invalid="props.invalid"
+        class="w-full"
+        listStyle="max-height:250px"
+        :aria-labelledby="ariaLabelledby"
+      >
+        <template #option="slotProps">
+          <span style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
+        </template>
+      </Listbox>
     </div>
-    <div class="w-full flex" v-if="modelValue" aria-live="polite" aria-atomic="true">
+    <div class="col-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
       <RoomTypeDetails :roomType="modelValue" />
     </div>
   </div>

@@ -21,8 +21,8 @@
                   :disabled="disabled"
                   :invalid="formErrors.fieldInvalid('room_type')"
                   :room-id="room.id"
-                  @busy="(value) => roomTypeSelectBusy = value"
-                  @loading-error="(value) => roomTypeSelectLoadingError = value"
+                  :current-settings="settings"
+                  @reset-settings="(resetAll) => resetSettings(resetAll)"
                 />
                 <p class="p-error" v-html="formErrors.fieldError('room_type')"/>
           </div>
@@ -62,7 +62,7 @@
                   />
                   <!-- Clear access code -->
                   <Button
-                    v-if="settings.room_type && !settings.room_type.require_access_code"
+                    v-if="!(settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
                     v-tooltip="$t('rooms.settings.security.delete_access_code')"
                     :disabled="disabled"
                     icon="fa-solid fa-trash"
@@ -222,11 +222,19 @@
 
               <!-- Checkbox record attendance of users and guests -->
               <div class="col-12 md:col-3 flex flex-column">
-                <label for="record-attendance" class="mb-2">Anwesenheit</label>
+                <label for="record-attendance" class="mb-2">Anwesenheit
+                  <span
+                    v-if="settings.room_type.record_attendance_enforced"
+                    class="fa-solid fa-lock ml-1"
+                    v-tooltip="'Erzwungener Wert'"
+                    aria-label="Erzwungener Wert"
+                  />
+                </label>
+
                 <div class="flex align-items-center gap-2">
                   <InputSwitch
                     v-model="settings.record_attendance"
-                    :disabled="disabled || (settings.room_type && !settings.room_type.allow_record_attendance)"
+                    :disabled="disabled || settings.room_type.record_attendance_enforced"
                     :invalid="formErrors.fieldInvalid('record_attendance')"
                     class="flex-shrink-0"
                     input-id="record-attendance"
@@ -256,11 +264,6 @@
 
           <Divider/>
 
-          <!-- Permissions & Restrictions tab -->
-            <!--            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.permissions.title') }}</p>-->
-
-            <!--            <Divider class="my-0"/>-->
-<!--            ToDo change-->
             <div class="col-12">
               <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.restrictions.title') }}</p>
             </div>
@@ -477,17 +480,32 @@
           </div>
               <!-- Checkbox publicly list this room -->
               <div class="col-12 md:col-3">
-                <div class="flex align-items-center gap-2 h-full">
-                  <InputSwitch
-                    v-model="settings.listed"
-                    :disabled="disabled || (settings.room_type && !settings.room_type.allow_listing) || !!settings.access_code"
-                    :invalid="formErrors.fieldInvalid('listed')"
-                    class="flex-shrink-0"
-                    input-id="listed"
+                <label for="visibility">{{ $t('rooms.settings.security.listed') }}
+                  <span
+                    v-if="settings.room_type.visibility_enforced"
+                    class="fa-solid fa-lock ml-1"
+                    v-tooltip="'Erzwungener Wert'"
+                    aria-label="Erzwungener Wert"
                   />
-                  <label for="listed">{{ $t('rooms.settings.security.listed') }}</label>
+                </label>
+                <div class="flex align-items-center gap-2 h-full">
+                  <SelectButton
+                    v-model="settings.room_type.visibility_default"
+                    :allowEmpty="false"
+                    :disabled="disabled || settings.room_type.visibility_enforced"
+                    :invalid="formErrors.fieldInvalid('visibility_default')"
+                    :options="[
+                    { visibility: 0, label: 'Private'},
+                    { visibility: 1, label: 'Public'}
+                  ]"
+                    class="flex-shrink-0"
+                    dataKey="visibility"
+                    input-id="visibility_default"
+                    optionLabel="label"
+                    optionValue="visibility"
+                  />
                 </div>
-                <p class="p-error" v-html="formErrors.fieldError('listed')"/>
+                <p class="p-error" v-html="formErrors.fieldError('visibility')"/>
               </div>
         </div>
 
@@ -505,16 +523,16 @@
             :room="room"
             @transferredOwnership="emit('settingsChanged');"
           />
-<!--      ToDo Think about moving outside-->
+<!--      ToDo move outside-->
           <Button
             severity="secondary"
-            label="Expertenmodus"
-            @click="toggleExpertMode"
+            :label="settings.expert_mode? 'Expertenmodus deaktivieren': 'Expertenmodus aktivieren'"
+            @click="showExpertModeModal = !showExpertModeModal; toggleExpertMode"
           />
         </div>
         <div class="flex">
           <Button
-            :disabled="disabled || roomTypeSelectBusy || roomTypeSelectLoadingError"
+            :disabled="disabled"
             :label="$t('app.save')"
             :loading="isBusy"
             icon="fa-solid fa-save"
@@ -524,6 +542,27 @@
         </div>
       </div>
     </form>
+
+<!-- ToDo Think about moving outside-->
+    <Dialog
+      v-model:visible="showExpertModeModal"
+      modal
+      :header="settings.expert_mode? 'Expertenmodus deaktivieren': 'Expertenmodus aktivieren'"
+      :style="{ width: '500px' }"
+      :breakpoints="{ '575px': '90vw' }"
+      :draggable="false"
+    >
+      <div>
+        {{settings.expert_mode? 'All settings will be reset to default': 'Default settings will not be updated anymore' }}
+      </div>
+      <template #footer>
+        <div class="flex justify-content-end gap-2">
+          <Button :label="$t('app.no')" severity="secondary" @click="showExpertModeModal=false" />
+          <Button :label="$t('app.yes')" severity="danger"  @click="toggleExpertMode" />
+        </div>
+      </template>
+
+    </Dialog>
   </div>
 </template>
 
@@ -572,14 +611,18 @@ const settings = ref({
     default_role_default: 1,
     default_role_enforced: false,
     lobby_default: 0,
-    lobby_enforced: false
+    lobby_enforced: false,
+    record_attendance_default: false,
+    record_attendance_enforced: false,
+    visibility_default: false,
+    visibility_enforced: false
   }
 });
 const isBusy = ref(false);
 const loadingError = ref(false);
-// ToDo delete?
-const roomTypeSelectBusy = ref(false);
-const roomTypeSelectLoadingError = ref(false);
+
+// ToDo Think about moving outside
+const showExpertModeModal = ref(false);
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -648,6 +691,7 @@ function createAccessCode () {
 }
 
 function toggleExpertMode () {
+  showExpertModeModal.value = false; // ToDo think about moving outside
   settings.value.expert_mode = !settings.value.expert_mode;
 
   if (settings.value.expert_mode) {
@@ -656,7 +700,7 @@ function toggleExpertMode () {
 }
 
 function resetSettings (resetAll = false) {
-  resetSetting('allow_guests', resetAll);
+  settings.value.welcome = '';
   resetSetting('allow_membership', resetAll);
   resetSetting('default_role', resetAll);
   resetSetting('everyone_can_start', resetAll);
@@ -669,6 +713,8 @@ function resetSettings (resetAll = false) {
   resetSetting('lock_settings_hide_user_list', resetAll);
   resetSetting('mute_on_start', resetAll);
   resetSetting('webcams_only_for_moderator', resetAll);
+  resetSetting('record_attendance', resetAll);
+  resetSetting('visibility', resetAll);
 }
 
 function resetSetting (settingName, forceReset = false) {
@@ -716,16 +762,8 @@ const showLobbyAlert = computed(() => {
 function applyRoomRestrictions (roomType) {
   if (!roomType) { return; }
 
-  if (roomType.require_access_code && !settings.value.access_code) {
+  if ((roomType.has_access_code_default && roomType.has_access_code_enforced) && !settings.value.access_code) {
     createAccessCode();
-  }
-
-  if (!roomType.allow_listing || settings.value.access_code) {
-    settings.value.listed = false;
-  }
-
-  if (!roomType.allow_record_attendance) {
-    settings.value.record_attendance = false;
   }
 }
 

@@ -63,34 +63,17 @@ class RoomType extends JsonResource
             return [];
         }
 
-        return [
-            'webcams_only_for_moderator_default' => $this->webcams_only_for_moderator_default,
-            'webcams_only_for_moderator_enforced' => $this->webcams_only_for_moderator_enforced,
-            'mute_on_start_default' => $this->mute_on_start_default,
-            'mute_on_start_enforced' => $this->mute_on_start_enforced,
-            'lock_settings_disable_cam_default' => $this->lock_settings_disable_cam_default,
-            'lock_settings_disable_cam_enforced' => $this->lock_settings_disable_cam_enforced,
-            'lock_settings_disable_mic_default' => $this->lock_settings_disable_mic_default,
-            'lock_settings_disable_mic_enforced' => $this->lock_settings_disable_mic_enforced,
-            'lock_settings_disable_private_chat_default' => $this->lock_settings_disable_private_chat_default,
-            'lock_settings_disable_private_chat_enforced' => $this->lock_settings_disable_private_chat_enforced,
-            'lock_settings_disable_public_chat_default' => $this->lock_settings_disable_public_chat_default,
-            'lock_settings_disable_public_chat_enforced' => $this->lock_settings_disable_public_chat_enforced,
-            'lock_settings_disable_note_default' => $this->lock_settings_disable_note_default,
-            'lock_settings_disable_note_enforced' => $this->lock_settings_disable_note_enforced,
-            'lock_settings_hide_user_list_default' => $this->lock_settings_hide_user_list_default,
-            'lock_settings_hide_user_list_enforced' => $this->lock_settings_hide_user_list_enforced,
-            'everyone_can_start_default' => $this->everyone_can_start_default,
-            'everyone_can_start_enforced' => $this->everyone_can_start_enforced,
-            'allow_guests_default' => $this->allow_guests_default,
-            'allow_guests_enforced' => $this->allow_guests_enforced,
-            'allow_membership_default' => $this->allow_membership_default,
-            'allow_membership_enforced' => $this->allow_membership_enforced,
-            'default_role_default' => $this->default_role_default,
-            'default_role_enforced' => $this->default_role_enforced,
-            'lobby_default' => $this->lobby_default,
-            'lobby_enforced' => $this->lobby_enforced,
-        ];
+        $settings = [];
+
+        foreach (\App\Models\Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $settings[$setting.'_default'] = $this[$setting.'_default'];
+            $settings[$setting.'_enforced'] = $this[$setting.'_enforced'];
+        }
+
+        $settings['has_access_code_default'] = $this->has_access_code_default;
+        $settings['has_access_code_enforced'] = $this->has_access_code_enforced;
+
+        return $settings;
     }
 
     /**
@@ -106,7 +89,6 @@ class RoomType extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'color' => $this->color,
-            'allow_listing' => $this->allow_listing,
             'server_pool' => $this->when($this->withServerPool, function () {
                 return new ServerPool($this->serverPool);
             }),
@@ -115,8 +97,6 @@ class RoomType extends JsonResource
             'restrict' => $this->restrict,
             'max_participants' => $this->max_participants,
             'max_duration' => $this->max_duration,
-            'require_access_code' => $this->require_access_code,
-            'allow_record_attendance' => $this->allow_record_attendance,
             'roles' => $this->when($this->withRoles, function () {
                 return new RoleCollection($this->roles);
             }),

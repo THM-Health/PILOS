@@ -5,15 +5,31 @@
       <div class="overflow-y-auto w-full" style="height:220px">
       <div class="flex flex-column gap-2 border-1 border-200 border-round p-3">
         <span class="font-bold">{{ $t('app.description') }}</span>
-        <div>{{roomType.description? roomType.description: 'Keine Beschreibung vorhanden'}}</div>
+        <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: 'Keine Beschreibung vorhanden'}}</div>
 
+<!--        ToDo ??? Opening and closing slow????-->
         <Accordion>
           <AccordionTab header="Room Settings">
 
-<!--            ToDo think about moving outside (could maybe be used again for message/information when changing
-                room type while in expert mode)-->
-
             <h4 class="my-2">{{ $t('rooms.settings.general.title') }}</h4>
+
+            <div class="field grid">
+              <label for="has_access_code_default" class="col-6 mb-0 align-items-center">Has Access Code</label>
+              <div class="col-6 flex justify-content-between align-items-center gap-2">
+                <InputSwitch
+                  input-id="has_access_code_default"
+                  :model-value="roomType.has_access_code_default"
+                  disabled
+                />
+                <Tag v-if="roomType.has_access_code_enforced" severity="danger">
+                  Enforced
+                </Tag>
+                <Tag v-else severity="secondary">
+                  Default
+                </Tag>
+              </div>
+            </div>
+
             <div class="field grid">
               <label for="allow_guests_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.security.allow_guests')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
@@ -80,17 +96,22 @@
                   Default
                 </Tag>
               </div>
-<!--              ToDo Delete or add?
-                  <div class="col-12 mt-2">-->
-<!--                &lt;!&ndash; Alert shown when default role is moderator and waiting room is active &ndash;&gt;-->
-<!--                <InlineNote-->
-<!--                  class="w-full"-->
-<!--                  v-if="showLobbyAlert"-->
-<!--                  severity="warn"-->
-<!--                >-->
-<!--                  {{ $t('rooms.settings.participants.waiting_room_alert') }}-->
-<!--                </InlineNote>-->
-<!--              </div>-->
+            </div>
+            <div class="field grid">
+              <label for="record_attendance_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+              <div class="col-6 flex justify-content-between align-items-center gap-2">
+                <InputSwitch
+                  input-id="record_attendance_default"
+                  :model-value="roomType.record_attendance_default"
+                  disabled
+                />
+                <Tag v-if="roomType.record_attendance_enforced" severity="danger">
+                  Enforced
+                </Tag>
+                <Tag v-else severity="secondary" >
+                  Default
+                </Tag>
+              </div>
             </div>
 
             <h4 class="my-2" >Einschränkungen</h4>
@@ -246,6 +267,22 @@
             </div>
 
             <h4 class="my-2">Erweitert</h4>
+
+            <div class="field grid">
+              <label for="visibility_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.security.listed') }}</label>
+              <div class="col-6 flex justify-content-between align-items-center gap-2">
+                <span v-if="roomType.visibility_default === 0"> Private </span>
+                <span v-if="roomType.visibility_default === 1"> Public </span>
+
+                <Tag v-if="roomType.visibility_enforced" severity="danger">
+                  Enforced
+                </Tag>
+                <Tag v-else severity="secondary">
+                  Default
+                </Tag>
+              </div>
+            </div>
+
           </AccordionTab>
         </Accordion>
       </div>
@@ -256,20 +293,11 @@
 
 <script setup>
 
-import { computed } from 'vue';
-
-const props = defineProps({
+defineProps({
   roomType: {
     type: Object,
     required: true
   }
-});
-
-/**
- * Show alert if simultaneously default role is moderator and waiting room is active
- */
-const showLobbyAlert = computed(() => { // ToDo delete again or add????
-  return props.roomType.default_role_default === 2 && props.roomType.lobby_default === 1;
 });
 
 </script>

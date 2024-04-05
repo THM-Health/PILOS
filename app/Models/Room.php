@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Enums\RoomVisibility;
 use App\Exceptions\RoomIdGenerationFailed;
 use App\Services\RoomAuthService;
 use App\Traits\AddsModelNameTrait;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class Room extends Model
 {
@@ -55,27 +57,95 @@ class Room extends Model
         });
     }
 
-    protected $casts = [
-        'expert_mode' => 'boolean',
-        'mute_on_start' => 'boolean',
-        'lock_settings_disable_cam' => 'boolean',
-        'webcams_only_for_moderator' => 'boolean',
-        'lock_settings_disable_mic' => 'boolean',
-        'lock_settings_disable_private_chat' => 'boolean',
-        'lock_settings_disable_public_chat' => 'boolean',
-        'lock_settings_disable_note' => 'boolean',
-        'everyone_can_start' => 'boolean',
-        'allow_membership' => 'boolean',
-        'allow_guests' => 'boolean',
-        'lock_settings_lock_on_join' => 'boolean',
-        'lock_settings_hide_user_list' => 'boolean',
-        'default_role' => RoomUserRole::class,
-        'lobby' => RoomLobby::class,
-        'access_code' => 'integer',
-        'listed' => 'boolean',
-        'record_attendance' => 'boolean',
-        'delete_inactive' => 'datetime',
+    protected function casts()
+    {
+        $casts = [
+            'expert_mode' => 'boolean',
+            'delete_inactive' => 'datetime',
+            'access_code' => 'integer',
+        ];
+
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $casts[$setting] = $config['cast'];
+        }
+
+        return $casts;
+    }
+
+    public const ROOM_SETTINGS_DEFINITION = [ //ToDo check if also possible to add settings that only exist in the room type
+        'mute_on_start' => [
+            'cast' => 'boolean',
+        ],
+        'lock_settings_disable_cam' => [
+            'cast' => 'boolean',
+        ],
+        'webcams_only_for_moderator' => [
+            'cast' => 'boolean',
+        ],
+        'lock_settings_disable_mic' => [
+            'cast' => 'boolean',
+        ],
+        'lock_settings_disable_private_chat' => [
+            'cast' => 'boolean',
+        ],
+        'lock_settings_disable_public_chat' => [
+            'cast' => 'boolean',
+        ],
+        'lock_settings_disable_note' => [
+            'cast' => 'boolean',
+        ],
+        'everyone_can_start' => [
+            'cast' => 'boolean',
+        ],
+        'allow_membership' => [
+            'cast' => 'boolean',
+        ],
+        'allow_guests' => [
+            'cast' => 'boolean',
+            'expert' => false,
+        ],
+        'lock_settings_hide_user_list' => [
+            'cast' => 'boolean',
+        ],
+        'default_role' => [
+            'cast' => RoomUserRole::class,
+            'only' => [RoomUserRole::USER, RoomUserRole::MODERATOR],
+        ],
+        'lobby' => [
+            'cast' => RoomLobby::class,
+        ],
+        'visibility' => [
+            'cast' => RoomVisibility::class,
+        ],
+        'record_attendance' => [
+            'cast' => 'boolean',
+        ],
     ];
+
+    public static function getRoomSettingValidationRule($settingName)
+    {
+        $rules = ['required'];
+
+        if (! array_key_exists($settingName, self::ROOM_SETTINGS_DEFINITION)) {
+            throw new \Exception('Trying to access invalid room setting validation rule '.$settingName);
+        }
+
+        $castType = self::ROOM_SETTINGS_DEFINITION[$settingName]['cast'];
+
+        if ($castType === 'boolean') {
+            array_push($rules, 'boolean');
+        } elseif (enum_exists($castType)) {
+            $enumValidation = Rule::enum($castType);
+            if (isset(self::ROOM_SETTINGS_DEFINITION[$settingName]['only'])) {
+                $enumValidation = $enumValidation->only(self::ROOM_SETTINGS_DEFINITION[$settingName]['only']);
+            }
+            array_push($rules, $enumValidation);
+        } else {
+            throw new \Exception('Trying to access room setting validation rule with invalid cast '.$settingName);
+        }
+
+        return $rules;
+    }
 
     /**
      * Room owner
@@ -277,10 +347,32 @@ class Room extends Model
         return ! self::roomTypePermitted($this->owner, $this->roomType);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getRoomSetting(string $settingName)
     {
-        return ($this->expert_mode && ! $this->roomType[$settingName.'_enforced']) ? $this[$settingName] : $this->roomType[$settingName.'_default'];
+        if (! array_key_exists($settingName, self::ROOM_SETTINGS_DEFINITION)) {
+            throw new \Exception('Trying to access invalid room setting '.$settingName);
+        }
 
+        // If setting is enforced: always use room type default value
+        if ($this->roomType[$settingName.'_enforced']) {
+            return $this->roomType[$settingName.'_default'];
+        }
+
+        // If the expert mode is activated for the room, the user can set the value themselves: use room value
+        if ($this->expert_mode) {
+            return $this[$settingName];
+        }
+
+        // If the expert mode is deactivated for the room and the setting is a non-expert setting: use room value
+        if (isset(self::ROOM_SETTINGS_DEFINITION[$settingName]['expert']) && self::ROOM_SETTINGS_DEFINITION[$settingName]['expert'] === false) {
+            return $this[$settingName];
+        }
+
+        // If the expert mode is deactivated for the room and the setting is an expert-setting: use room type default value
+        return $this->roomType[$settingName.'_default'];
     }
 
     /**
