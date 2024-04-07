@@ -55,15 +55,29 @@ import { onMounted, ref, watch } from 'vue';
 const api = useApi();
 
 const props = defineProps({
-  modelValue: Object,
-  state: Boolean,
-  disabled: Boolean,
-  roomId: String,
-  invalid: Boolean,
-  ariaLabelledby: String
+  modelValue: {
+    type: Object
+  },
+  state: {
+    type: Boolean
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  roomId: {
+    type: String
+  },
+  invalid: {
+    type: Boolean,
+    default: false
+  },
+  ariaLabelledby: {
+    type: String
+  }
 });
 
-const emit = defineEmits(['update:modelValue', 'loadingError']);
+const emit = defineEmits(['update:modelValue', 'loadingError', 'busy']);
 
 const roomTypeId = ref(props.modelValue?.id ?? null);
 const roomTypes = ref([]);

@@ -157,7 +157,7 @@ class RoomController extends Controller
 
         $room = new Room();
         $room->name = $request->name;
-        $room->access_code = rand(111111111, 999999999);
+        $room->access_code = rand(111111111, 999999999); //ToDo??? Only if not deactivated
         $room->roomType()->associate($request->room_type);
         $room->owner()->associate(Auth::user());
 

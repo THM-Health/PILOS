@@ -1,15 +1,15 @@
 <template>
-  <div class="flex flex-column gap-2 w-full">
+  <div class="flex flex-column gap-2 w-full" style="height: 250px">
       <RoomTypeBadge :roomType="roomType" class="w-full text-base" />
 
-      <div class="overflow-y-auto w-full" style="height:220px">
+      <div class="overflow-y-auto w-full">
       <div class="flex flex-column gap-2 border-1 border-200 border-round p-3">
         <span class="font-bold">{{ $t('app.description') }}</span>
         <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: 'Keine Beschreibung vorhanden'}}</div>
 
-<!--        ToDo ??? Opening and closing slow????-->
+<!--        ToDo ??? Opening and closing sometimes slow????-->
         <Accordion>
-          <AccordionTab header="Room Settings">
+          <AccordionTab header="Default Room Settings">
 
             <h4 class="my-2">{{ $t('rooms.settings.general.title') }}</h4>
 
@@ -114,7 +114,7 @@
               </div>
             </div>
 
-            <h4 class="my-2" >Einschränkungen</h4>
+            <h4 class="my-2" >{{ $t('rooms.settings.restrictions.title') }}</h4>
             <div class="field grid">
               <label for="lock_settings_disable_cam_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_cam')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">

@@ -448,7 +448,7 @@
           </div>
         </div>
 
-        <h4>Einschränkungen</h4>
+        <h4>{{ $t('rooms.settings.restrictions.title') }}</h4>
         <div class="field grid">
           <label for="lock_settings_disable_cam_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_cam')}}</label>
           <div class="col-12 md:col-8">

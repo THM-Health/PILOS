@@ -26,9 +26,9 @@
     </template>
   </Dialog>
 
-<!--  ToDo only show changed settings (roomSettingChanged(settingName))??-->
+<!--  ToDo only show changed settings (roomSettingChanged(settingName))-->
   <Dialog
-    v-model:visible="confirmationVisible"
+    v-model:visible="confirmationModalVisible"
     modal
     :header="$t('rooms.change_type.title')"
     :style="{ width: '600px' }"
@@ -225,7 +225,7 @@
           </div>
         </div>
 
-        <h4 class="my-2" >Einschränkungen</h4>
+        <h4 class="my-2" >{{ $t('rooms.settings.restrictions.title') }}</h4>
         <div class="field grid mx-0">
           <label for="lock_settings_disable_cam_default" class="col-12">{{$t('rooms.settings.restrictions.disable_cam')}}</label>
           <div class="col-5 flex justify-content-between align-items-center">
@@ -525,7 +525,7 @@
     </div>
     <template #footer>
       <div class="flex flex-column align-items-start md:flex-row md:justify-content-end w-full gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="confirmationVisible = false" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="confirmationModalVisible = false" />
         <Button :label="'Only use enforced settings'" @click="changeRoomType()" />
         <Button :label="'Use default settings'" @click="changeRoomType(true)" />
       </div>
@@ -547,7 +547,7 @@ const props = defineProps({
 });
 
 const modalVisible = ref(false);
-const confirmationVisible = ref(false);
+const confirmationModalVisible = ref(false);
 
 const newRoomType = ref(null);
 
@@ -559,7 +559,7 @@ function editRoomType () {
 function handleOk () {
   // ToDo only show if a setting changed
   if (props.currentSettings.expert_mode || roomSettingChanged('allow_guests')) {
-    confirmationVisible.value = true;
+    confirmationModalVisible.value = true;
   } else {
     changeRoomType();
   }
@@ -576,12 +576,12 @@ function roomSettingChanged (settingName) {
   return false;
 }
 
-function changeRoomType (resetAll = false) {
+function changeRoomType (resetToDefaults = false) {
   model.value = _.cloneDeep(newRoomType.value);
   modalVisible.value = false;
-  confirmationVisible.value = false;
+  confirmationModalVisible.value = false;
 
-  emit('resetSettings', resetAll);
+  emit('resetSettings', resetToDefaults);
 }
 
 </script>

@@ -46,6 +46,7 @@
                 <InputGroup>
                   <!-- Generate random access code -->
                   <Button
+                    v-if="!(!settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
                     v-tooltip="$t('rooms.settings.security.generate_access_code')"
                     :disabled="disabled"
                     icon="fa-solid fa-dice"
@@ -523,11 +524,9 @@
             :room="room"
             @transferredOwnership="emit('settingsChanged');"
           />
-<!--      ToDo move outside-->
-          <Button
-            severity="secondary"
-            :label="settings.expert_mode? 'Expertenmodus deaktivieren': 'Expertenmodus aktivieren'"
-            @click="showExpertModeModal = !showExpertModeModal; toggleExpertMode"
+          <RoomTabSettingsExpertModeButton
+            :expert-mode="settings.expert_mode"
+            @toggle-expert-mode="toggleExpertMode"
           />
         </div>
         <div class="flex">
@@ -542,27 +541,6 @@
         </div>
       </div>
     </form>
-
-<!-- ToDo Think about moving outside-->
-    <Dialog
-      v-model:visible="showExpertModeModal"
-      modal
-      :header="settings.expert_mode? 'Expertenmodus deaktivieren': 'Expertenmodus aktivieren'"
-      :style="{ width: '500px' }"
-      :breakpoints="{ '575px': '90vw' }"
-      :draggable="false"
-    >
-      <div>
-        {{settings.expert_mode? 'All settings will be reset to default': 'Default settings will not be updated anymore' }}
-      </div>
-      <template #footer>
-        <div class="flex justify-content-end gap-2">
-          <Button :label="$t('app.no')" severity="secondary" @click="showExpertModeModal=false" />
-          <Button :label="$t('app.yes')" severity="danger"  @click="toggleExpertMode" />
-        </div>
-      </template>
-
-    </Dialog>
   </div>
 </template>
 
@@ -620,9 +598,6 @@ const settings = ref({
 });
 const isBusy = ref(false);
 const loadingError = ref(false);
-
-// ToDo Think about moving outside
-const showExpertModeModal = ref(false);
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -691,7 +666,6 @@ function createAccessCode () {
 }
 
 function toggleExpertMode () {
-  showExpertModeModal.value = false; // ToDo think about moving outside
   settings.value.expert_mode = !settings.value.expert_mode;
 
   if (settings.value.expert_mode) {
@@ -717,8 +691,8 @@ function resetSettings (resetAll = false) {
   resetSetting('visibility', resetAll);
 }
 
-function resetSetting (settingName, forceReset = false) {
-  if (forceReset || settings.value.room_type[settingName + '_enforced']) {
+function resetSetting (settingName, resetToDefaults = false) {
+  if (resetToDefaults || settings.value.room_type[settingName + '_enforced']) {
     settings.value[settingName] = settings.value.room_type[settingName + '_default'];
   }
 }
