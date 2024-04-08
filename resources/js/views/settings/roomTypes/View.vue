@@ -245,14 +245,14 @@
         </div>
 
         <Divider/>
-        <h3>Default Settings</h3>
+        <h3>{{ $t('settings.room_types.default_room_settings.title')}}</h3>
 
         <h4>{{ $t('rooms.settings.general.title') }}</h4>
 
 <!--        ToDo fix problem when enforcing Access Code (Rooms without an access code will stay without an access code)
             (Problem already existed before???)-->
         <div class="field grid">
-          <label for="has_access_code_default" class="col-12 md:col-4 md:m-0 align-items-center"> Has Access Code</label>
+          <label for="has_access_code_default" class="col-12 md:col-4 md:m-0 align-items-center"> {{ $t('rooms.settings.general.has_access_code')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -265,8 +265,8 @@
                 v-model="model.has_access_code_enforced"
                 :invalid="formErrors.fieldInvalid('has_access_code_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -279,7 +279,7 @@
         </div>
 
         <div class="field grid">
-          <label for="allow_guests_default" class="col-12 md:col-4 md:m-0 align-items-center">{{$t('rooms.settings.security.allow_guests')}}</label>
+          <label for="allow_guests_default" class="col-12 md:col-4 md:m-0 align-items-center">{{$t('rooms.settings.general.allow_guests')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -292,8 +292,8 @@
                 v-model="model.allow_guests_enforced"
                 :invalid="formErrors.fieldInvalid('allow_guests_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -305,10 +305,10 @@
           </div>
         </div>
 
-        <h4>Videokonferenz</h4>
+        <h4>{{ $t('rooms.settings.video_conference.title') }}</h4>
 
         <div class="field grid">
-          <label for="everyone_can_start_default" class="col-12 md:col-4  md:mb-0  align-items-center">{{$t('rooms.settings.permissions.everyone_start')}}</label>
+          <label for="everyone_can_start_default" class="col-12 md:col-4  md:mb-0  align-items-center">{{$t('rooms.settings.video_conference.everyone_can_start')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -321,8 +321,8 @@
                 v-model="model.everyone_can_start_enforced"
                 :invalid="formErrors.fieldInvalid('everyone_can_start_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -335,7 +335,7 @@
         </div>
 
         <div class="field grid">
-          <label for="mute_on_start_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.permissions.mute_mic')}}</label>
+          <label for="mute_on_start_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.video_conference.mute_on_start')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -348,8 +348,8 @@
                 v-model="model.mute_on_start_enforced"
                 :invalid="formErrors.fieldInvalid('mute_on_start_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -362,7 +362,7 @@
         </div>
 
         <div class="field grid">
-          <label for="default_role_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.participants.waiting_room.title') }}</label>
+          <label for="default_role_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.video_conference.lobby.title') }}</label>
           <div class="col-12 md:col-8 mb-2">
             <div class="flex flex-row justify-content-between align-items-center">
               <div class="flex flex-column gap-2">
@@ -391,15 +391,15 @@
                     :value="2"
                     name="lobby"
                   />
-                  <label>{{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}</label>
+                  <label>{{ $t('rooms.settings.video_conference.lobby.only_for_guests_enabled') }}</label>
                 </div>
               </div>
               <ToggleButton
                 v-model="model.lobby_enforced"
                 :invalid="formErrors.fieldInvalid('lobby_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -416,13 +416,13 @@
               v-if="showLobbyAlert"
               severity="warn"
             >
-              {{ $t('rooms.settings.participants.waiting_room_alert') }}
+              {{ $t('rooms.settings.video_conference.lobby.alert') }}
             </InlineNote>
           </div>
         </div>
 
         <div class="field grid">
-          <label for="record_attendance_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+          <label for="record_attendance_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.video_conference.record_attendance') }}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -435,8 +435,8 @@
                 v-model="model.record_attendance_enforced"
                 :invalid="formErrors.fieldInvalid('record_attendance_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -450,7 +450,7 @@
 
         <h4>{{ $t('rooms.settings.restrictions.title') }}</h4>
         <div class="field grid">
-          <label for="lock_settings_disable_cam_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_cam')}}</label>
+          <label for="lock_settings_disable_cam_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_cam')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -463,8 +463,8 @@
                 v-model="model.lock_settings_disable_cam_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_cam_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -477,7 +477,7 @@
         </div>
 
         <div class="field grid">
-          <label for="webcams_only_for_moderator_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.only_mod_see_cam')}}</label>
+          <label for="webcams_only_for_moderator_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.webcams_only_for_moderator')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -491,8 +491,8 @@
                 v-model="model.webcams_only_for_moderator_enforced"
                 :invalid="formErrors.fieldInvalid('webcams_only_for_moderator_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -505,7 +505,7 @@
         </div>
 
         <div class="field grid">
-          <label for="lock_settings_disable_mic_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_mic')}}</label>
+          <label for="lock_settings_disable_mic_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_mic')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -518,8 +518,8 @@
                 v-model="model.lock_settings_disable_mic_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_mic_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -532,7 +532,7 @@
         </div>
 
         <div class="field grid">
-          <label for="lock_settings_disable_public_chat_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_public_chat')}}</label>
+          <label for="lock_settings_disable_public_chat_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_public_chat')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -546,8 +546,8 @@
                 v-model="model.lock_settings_disable_public_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -560,7 +560,7 @@
         </div>
 
         <div class="field grid">
-          <label for="lock_settings_disable_private_chat_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_private_chat')}}</label>
+          <label for="lock_settings_disable_private_chat_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_private_chat')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -574,8 +574,8 @@
                 v-model="model.lock_settings_disable_private_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -588,7 +588,7 @@
         </div>
 
         <div class="field grid">
-          <label for="lock_settings_disable_public_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_note_edit')}}</label>
+          <label for="lock_settings_disable_public_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_note')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -602,8 +602,8 @@
                 v-model="model.lock_settings_disable_note_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_note_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -616,7 +616,7 @@
         </div>
 
         <div class="field grid">
-          <label for="lock_settings_hide_user_list_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.hide_participants_list')}}</label>
+          <label for="lock_settings_hide_user_list_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_hide_user_list')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -630,8 +630,8 @@
                 v-model="model.lock_settings_hide_user_list_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -645,7 +645,7 @@
 
         <h4>{{ $t('rooms.settings.participants.title') }}</h4>
         <div class="field grid">
-          <label for="allow_membership_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.security.allow_new_members')}}</label>
+          <label for="allow_membership_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.participants.allow_membership')}}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -659,8 +659,8 @@
                 v-model="model.allow_membership_enforced"
                 :invalid="formErrors.fieldInvalid('allow_membership_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -695,8 +695,8 @@
                 v-model="model.default_role_enforced"
                 :invalid="formErrors.fieldInvalid('default_role_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />
@@ -707,10 +707,10 @@
             </div>
           </div>
         </div>
-        <h4>Erweitert</h4>
+        <h4>{{ $t('rooms.settings.advanced.title') }}</h4>
 
         <div class="field grid">
-          <label for="visibility_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.security.listed') }}</label>
+          <label for="visibility_default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.advanced.visibility.title') }}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <SelectButton
@@ -732,8 +732,8 @@
                 v-model="model.visibility_enforced"
                 :invalid="formErrors.fieldInvalid('visibility_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                on-label="Enforced"
-                off-label="Default"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
               />

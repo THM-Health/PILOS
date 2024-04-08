@@ -21,7 +21,7 @@
   </div>
   <OverlayComponent v-else :show="isLoadingAction">
   <div class="grid">
-    <div :class="modelValue ? 'col-6' : 'col'">
+    <div :class="modelValue ? 'md:col-6' : 'md:col'" class="col-12">
       <Listbox
         v-model="roomTypeId"
         :disabled="disabled || isLoadingAction"
@@ -39,7 +39,7 @@
         </template>
       </Listbox>
     </div>
-    <div class="col-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
+    <div class="col-12 md:col-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
       <RoomTypeDetails :roomType="modelValue" />
     </div>
   </div>

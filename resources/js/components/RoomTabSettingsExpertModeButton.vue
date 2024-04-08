@@ -1,25 +1,34 @@
 <template>
   <Button
     severity="secondary"
-    :label="expertMode? 'Expertenmodus deaktivieren': 'Expertenmodus aktivieren'"
+    icon="fa-solid fa-cog"
+    :label="expertMode? $t('rooms.settings.expert_mode.deactivate'): $t('rooms.settings.expert_mode.activate')"
     @click="showModal = true"
   />
 
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="expertMode? 'Expertenmodus deaktivieren': 'Expertenmodus aktivieren'"
+    :header="expertMode? $t('rooms.settings.expert_mode.deactivate'): $t('rooms.settings.expert_mode.activate')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
   >
     <div>
-      {{expertMode? 'All settings will be reset to default': 'Default settings will not be updated anymore' }}
+      {{expertMode? $t('rooms.settings.expert_mode.warning.deactivate'): $t('rooms.settings.expert_mode.warning.activate') }}
     </div>
     <template #footer>
       <div class="flex justify-content-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" />
-        <Button :label="$t('app.yes')" severity="danger"  @click="toggleExpertMode" />
+        <Button
+          :label=" $t('app.cancel')"
+          severity="secondary"
+          @click="showModal = false"
+        />
+        <Button
+          :label="expertMode? $t('rooms.settings.expert_mode.deactivate'): $t('rooms.settings.expert_mode.activate')"
+          severity="danger"
+          @click="toggleExpertMode"
+        />
       </div>
     </template>
 
@@ -27,7 +36,7 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
+import { ref } from 'vue';
 
 defineProps({
   expertMode: {
@@ -40,10 +49,9 @@ const emit = defineEmits(['toggleExpertMode']);
 
 const showModal = ref(false);
 
-function toggleExpertMode(){
+function toggleExpertMode () {
   showModal.value = false;
   emit('toggleExpertMode');
 }
 
 </script>
-

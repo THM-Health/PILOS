@@ -5,16 +5,16 @@
       <div class="overflow-y-auto w-full">
       <div class="flex flex-column gap-2 border-1 border-200 border-round p-3">
         <span class="font-bold">{{ $t('app.description') }}</span>
-        <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: 'Keine Beschreibung vorhanden'}}</div>
+        <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: $t('settings.room_types.missing_description')}}</div>
 
 <!--        ToDo ??? Opening and closing sometimes slow????-->
         <Accordion>
-          <AccordionTab header="Default Room Settings">
+          <AccordionTab :header="$t('settings.room_types.default_room_settings.title')">
 
             <h4 class="my-2">{{ $t('rooms.settings.general.title') }}</h4>
 
             <div class="field grid">
-              <label for="has_access_code_default" class="col-6 mb-0 align-items-center">Has Access Code</label>
+              <label for="has_access_code_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.general.has_access_code') }}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                 <InputSwitch
                   input-id="has_access_code_default"
@@ -31,7 +31,7 @@
             </div>
 
             <div class="field grid">
-              <label for="allow_guests_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.security.allow_guests')}}</label>
+              <label for="allow_guests_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.general.allow_guests')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="allow_guests_default"
@@ -47,10 +47,10 @@
               </div>
             </div>
 
-            <h4 class="my-2">Videokonferenz</h4>
+            <h4 class="my-2">{{ $t('rooms.settings.video_conference.title') }}</h4>
 
             <div class="field grid">
-              <label for="everyone_can_start_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.permissions.everyone_start')}}</label>
+              <label for="everyone_can_start_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.video_conference.everyone_can_start')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="everyone_can_start_default"
@@ -67,7 +67,7 @@
             </div>
 
             <div class="field grid">
-              <label for="mute_on_start_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.permissions.mute_mic')}}</label>
+              <label for="mute_on_start_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.video_conference.mute_on_start')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="mute_on_start_default"
@@ -84,21 +84,21 @@
             </div>
 
             <div class="field grid">
-              <label for="default_role_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.participants.waiting_room.title') }}</label>
+              <label for="default_role_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.video_conference.lobby.title') }}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <span v-if="roomType.lobby_default === 0"> {{ $t('app.disabled') }}</span>
                   <span v-if="roomType.lobby_default === 1"> {{ $t('app.enabled') }}</span>
-                  <span v-if="roomType.lobby_default === 2"> {{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}</span>
                 <Tag v-if="roomType.lobby_enforced" severity="danger">
                   Enforced
                 </Tag>
                 <Tag v-else severity="secondary">
                   Default
+                  <span v-if="roomType.lobby_default === 2"> {{ $t('rooms.settings.video_conference.lobby.only_for_guests_enabled') }}</span>
                 </Tag>
               </div>
             </div>
             <div class="field grid">
-              <label for="record_attendance_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+              <label for="record_attendance_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.video_conference.record_attendance') }}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                 <InputSwitch
                   input-id="record_attendance_default"
@@ -116,7 +116,7 @@
 
             <h4 class="my-2" >{{ $t('rooms.settings.restrictions.title') }}</h4>
             <div class="field grid">
-              <label for="lock_settings_disable_cam_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_cam')}}</label>
+              <label for="lock_settings_disable_cam_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_cam')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="lock_settings_disable_cam_default"
@@ -133,7 +133,7 @@
             </div>
 
             <div class="field grid">
-              <label for="webcams_only_for_moderator_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.only_mod_see_cam')}}</label>
+              <label for="webcams_only_for_moderator_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.webcams_only_for_moderator')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="webcams_only_for_moderator_default"
@@ -150,7 +150,7 @@
             </div>
 
             <div class="field grid">
-              <label for="lock_settings_disable_mic_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_mic')}}</label>
+              <label for="lock_settings_disable_mic_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_mic')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="lock_settings_disable_mic_default"
@@ -167,7 +167,7 @@
             </div>
 
             <div class="field grid">
-              <label for="lock_settings_disable_public_chat_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_public_chat')}}</label>
+              <label for="lock_settings_disable_public_chat_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_public_chat')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="lock_settings_disable_public_chat_default"
@@ -184,7 +184,7 @@
             </div>
 
             <div class="field grid">
-              <label for="lock_settings_disable_private_chat_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_private_chat')}}</label>
+              <label for="lock_settings_disable_private_chat_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_private_chat')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="lock_settings_disable_private_chat_default"
@@ -201,7 +201,7 @@
             </div>
 
             <div class="field grid">
-              <label for="lock_settings_disable_public_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.disable_note_edit')}}</label>
+              <label for="lock_settings_disable_public_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_note')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="lock_settings_disable_public_default"
@@ -218,7 +218,7 @@
             </div>
 
             <div class="field grid">
-              <label for="lock_settings_hide_user_list_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.hide_participants_list')}}</label>
+              <label for="lock_settings_hide_user_list_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_hide_user_list')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                   <InputSwitch
                     input-id="lock_settings_hide_user_list_default"
@@ -234,9 +234,9 @@
               </div>
             </div>
 
-            <h4 class="my-2">Mitglieder</h4>
+            <h4 class="my-2">{{ $t('rooms.settings.participants.title') }}</h4>
             <div class="field grid">
-              <label for="allow_membership_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.security.allow_new_members')}}</label>
+              <label for="allow_membership_default" class="col-6 mb-0 align-items-center">{{$t('rooms.settings.participants.allow_membership')}}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
                 <InputSwitch
                   input-id="allow_membership_default"
@@ -266,13 +266,13 @@
               </div>
             </div>
 
-            <h4 class="my-2">Erweitert</h4>
+            <h4 class="my-2">{{ $t('rooms.settings.advanced.title') }}</h4>
 
             <div class="field grid">
-              <label for="visibility_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.security.listed') }}</label>
+              <label for="visibility_default" class="col-6 mb-0 align-items-center">{{ $t('rooms.settings.advanced.visibility.title') }}</label>
               <div class="col-6 flex justify-content-between align-items-center gap-2">
-                <span v-if="roomType.visibility_default === 0"> Private </span>
-                <span v-if="roomType.visibility_default === 1"> Public </span>
+                <span v-if="roomType.visibility_default === 0"> {{ $t('rooms.settings.advanced.visibility.private') }} </span>
+                <span v-if="roomType.visibility_default === 1"> {{ $t('rooms.settings.advanced.visibility.public') }} </span>
 
                 <Tag v-if="roomType.visibility_enforced" severity="danger">
                   Enforced

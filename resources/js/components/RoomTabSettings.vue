@@ -47,7 +47,7 @@
                   <!-- Generate random access code -->
                   <Button
                     v-if="!(!settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
-                    v-tooltip="$t('rooms.settings.security.generate_access_code')"
+                    v-tooltip="$t('rooms.settings.general.generate_access_code')"
                     :disabled="disabled"
                     icon="fa-solid fa-dice"
                     @click="createAccessCode"
@@ -57,33 +57,33 @@
                     v-model.number="settings.access_code"
                     :disabled="disabled"
                     :invalid="formErrors.fieldInvalid('access_code')"
-                    :placeholder="$t('rooms.settings.security.unprotected_placeholder')"
+                    :placeholder="$t('rooms.settings.general.unprotected_placeholder')"
                     readonly="readonly"
                     type="number"
                   />
                   <!-- Clear access code -->
                   <Button
                     v-if="!(settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
-                    v-tooltip="$t('rooms.settings.security.delete_access_code')"
+                    v-tooltip="$t('rooms.settings.general.delete_access_code')"
                     :disabled="disabled"
                     icon="fa-solid fa-trash"
                     @click="settings.access_code = null"
                   />
                 </InputGroup>
                 <small>
-                  {{ $t('rooms.settings.security.access_code_note') }}
+                  {{ $t('rooms.settings.general.access_code_note') }}
                 </small>
                 <p class="p-error" v-html="formErrors.fieldError('access_code')"/>
               </div>
 
               <!-- Checkbox allow guests to access the room -->
               <div class="col-12 md:col-3 flex flex-column">
-                <label for="allow-guests" class="mb-2">Zugriff durch Gäste
+                <label for="allow-guests" class="mb-2"> {{$t('rooms.settings.general.access_by_guests')}}
                   <span
                     v-if="settings.room_type.allow_guests_enforced"
                     class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </label>
                 <div class="flex align-items-center gap-2">
@@ -94,7 +94,7 @@
                     class="flex-shrink-0"
                     input-id="allow-guests"
                   />
-                  <label for="allow-guests">Erlauben</label>
+                  <label for="allow-guests">{{ $t('rooms.settings.general.allow') }}</label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('allow_guests')"/>
               </div>
@@ -122,15 +122,15 @@
 
           <!-- Security settings tab -->
           <div class="col-12">
-            <p class="text-lg font-semibold text-color m-0">Videokonferenz</p>
+            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.video_conference.title') }}</p>
           </div>
             <div class="col-12 md:col-3 flex flex-column">
-              <label for="everyone-can-start" class="mb-2">Videokonferenz starten
+              <label for="everyone-can-start" class="mb-2"> {{$t('rooms.settings.video_conference.allow_starting')}}
                 <span
                   v-if="settings.room_type.everyone_can_start_enforced"
                   class="fa-solid fa-lock ml-1"
-                  v-tooltip="'Erzwungener Wert'"
-                  aria-label="Erzwungener Wert"
+                  v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                  :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </label>
               <!-- Everyone can start a new meeting, not only the moderator -->
@@ -142,19 +142,19 @@
                     class="flex-shrink-0"
                     input-id="everyone-can-start"
                   />
-                  <label for="everyone-can-start">Jedem erlauben</label>
+                  <label for="everyone-can-start">{{ $t('rooms.settings.general.allow_everyone') }}</label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('everyone_can_start')"/>
               </div>
 
               <!-- Mute everyone's microphone on meeting join -->
               <div class="col-12 md:col-3 flex flex-column">
-                <label for="mute-on-start" class="mb-2">Mikrofon
+                <label for="mute-on-start" class="mb-2"> {{$t('rooms.settings.video_conference.microphone')}}
                   <span
                     v-if="settings.room_type.mute_on_start_enforced"
                     class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </label>
                 <div class="flex align-items-center gap-2">
@@ -165,7 +165,7 @@
                     class="flex-shrink-0"
                     input-id="mute-on-start"
                   />
-                  <label for="mute-on-start">{{ $t('rooms.settings.permissions.mute_mic') }}</label>
+                  <label for="mute-on-start">{{ $t('rooms.settings.video_conference.mute_on_start') }}</label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('mute_on_start')"/>
               </div>
@@ -173,12 +173,12 @@
             <div class="col-12 md:col-3">
               <!-- Radio usage of the waiting room/guest lobby -->
               <div class="flex flex-column gap-2">
-                <label>{{ $t('rooms.settings.participants.waiting_room.title') }}
+                <label>{{ $t('rooms.settings.video_conference.lobby.title') }}
                   <span
                     v-if="settings.room_type.lobby_enforced"
                     class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </label>
 
@@ -207,7 +207,7 @@
                     :value="2"
                     name="lobby"
                   />
-                  <label>{{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}</label>
+                  <label>{{ $t('rooms.settings.video_conference.lobby.only_for_guests_enabled') }}</label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lobby')"/>
               </div>
@@ -217,18 +217,18 @@
                 v-if="showLobbyAlert"
                 severity="warn"
               >
-                {{ $t('rooms.settings.participants.waiting_room_alert') }}
+                {{ $t('rooms.settings.video_conference.lobby.alert') }}
               </InlineMessage>
               </div>
 
               <!-- Checkbox record attendance of users and guests -->
               <div class="col-12 md:col-3 flex flex-column">
-                <label for="record-attendance" class="mb-2">Anwesenheit
+                <label for="record-attendance" class="mb-2"> {{$t('rooms.settings.video_conference.attendance')}}
                   <span
                     v-if="settings.room_type.record_attendance_enforced"
                     class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </label>
 
@@ -240,14 +240,14 @@
                     class="flex-shrink-0"
                     input-id="record-attendance"
                   />
-                  <label for="record-attendance">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+                  <label for="record-attendance">{{ $t('rooms.settings.video_conference.record_attendance') }}</label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('record_attendance')"/>
               </div>
 
               <!-- Welcome message -->
               <div class="col-12 flex flex-column">
-                <label for="welcome-message" class="mb-2">{{ $t('rooms.settings.general.welcome_message') }}</label>
+                <label for="welcome-message" class="mb-2">{{ $t('rooms.settings.video_conference.welcome_message') }}</label>
                 <Textarea
                   class="w-full"
                   id="welcome-message"
@@ -278,12 +278,12 @@
                     class="flex-shrink-0"
                     input-id="mute-on-start"
                   />
-                  <label for="mute-on-start">{{ $t('rooms.settings.restrictions.disable_cam') }}</label>
+                  <label for="mute-on-start">{{ $t('rooms.settings.restrictions.lock_settings_disable_cam') }}</label>
                   <span
                     v-if="settings.room_type.lock_settings_disable_cam_enforced"
                     class="fa-solid fa-lock"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam')"/>
@@ -303,11 +303,11 @@
                     class="flex-shrink-0"
                     input-id="webcams-only-for-moderator"
                   />
-                  <label for="webcams-only-for-moderator">{{ $t('rooms.settings.restrictions.only_mod_see_cam') }}</label>
+                  <label for="webcams-only-for-moderator">{{ $t('rooms.settings.restrictions.webcams_only_for_moderator') }}</label>
                   <span
                     v-if="settings.room_type.webcams_only_for_moderator_enforced"
                     class="fa-solid fa-lock"
-                    v-tooltip="'Erzwungener Wert'"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('webcams_only_for_moderator')"/>
@@ -322,11 +322,11 @@
                     class="flex-shrink-0"
                     input-id="disable-mic"
                   />
-                  <label for="disable-mic">{{ $t('rooms.settings.restrictions.disable_mic') }}</label>
+                  <label for="disable-mic">{{ $t('rooms.settings.restrictions.lock_settings_disable_mic') }}</label>
                   <span
                     v-if="settings.room_type.lock_settings_disable_mic_enforced"
                     class="fa-solid fa-lock"
-                    v-tooltip="'Erzwungener Wert'"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic')"/>
@@ -342,11 +342,11 @@
                     class="flex-shrink-0"
                     input-id="disable-public-chat"
                   />
-                  <label for="disable-public-chat">{{ $t('rooms.settings.restrictions.disable_public_chat') }}</label>
+                  <label for="disable-public-chat">{{ $t('rooms.settings.restrictions.lock_settings_disable_public_chat') }}</label>
                   <span
                     v-if="settings.room_type.lock_settings_disable_public_chat_enforced"
                     class="fa-solid fa-lock"
-                    v-tooltip="'Erzwungener Wert'"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat')"/>
@@ -365,12 +365,12 @@
                     class="flex-shrink-0"
                     input-id="disable-private-chat"
                   />
-                  <label for="disable-private-chat">{{ $t('rooms.settings.restrictions.disable_private_chat') }}</label>
+                  <label for="disable-private-chat">{{ $t('rooms.settings.restrictions.lock_settings_disable_private_chat') }}</label>
                   <span
                     v-if="settings.room_type.lock_settings_disable_private_chat_enforced"
                     class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat')"/>
@@ -386,12 +386,12 @@
                     class="flex-shrink-0"
                     input-id="disable-note-edit"
                   />
-                  <label for="disable-note-edit">{{ $t('rooms.settings.restrictions.disable_note_edit') }} </label>
+                  <label for="disable-note-edit">{{ $t('rooms.settings.restrictions.lock_settings_disable_note') }} </label>
                   <span
                     v-if="settings.room_type.lock_settings_disable_note_enforced"
                     class="fa-solid fa-lock"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note')"/>
@@ -407,12 +407,12 @@
                     class="flex-shrink-0"
                     input-id="disable-user-list"
                   />
-                  <label for="disable-user-list">{{ $t('rooms.settings.restrictions.hide_participants_list') }}</label>
+                  <label for="disable-user-list">{{ $t('rooms.settings.restrictions.lock_settings_hide_user_list') }}</label>
                   <span
                     v-if="settings.room_type.lock_settings_hide_user_list_enforced"
                     class="fa-solid fa-lock"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list')"/>
@@ -433,12 +433,12 @@
                   class="flex-shrink-0"
                   input-id="allow-membership"
                 />
-                <label for="allow-membership">{{ $t('rooms.settings.security.allow_new_members') }}</label>
+                <label for="allow-membership">{{ $t('rooms.settings.participants.allow_membership') }}</label>
                 <span
                   v-if="settings.room_type.allow_membership_enforced"
                   class="fa-solid fa-lock ml-1"
-                  v-tooltip="'Erzwungener Wert'"
-                  aria-label="Erzwungener Wert"
+                  v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                  :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </div>
               <p class="p-error" v-html="formErrors.fieldError('allow_membership')"/>
@@ -450,8 +450,8 @@
                 <span
                   v-if="settings.room_type.default_role_enforced"
                   class="fa-solid fa-lock ml-1"
-                  v-tooltip="'Erzwungener Wert'"
-                  aria-label="Erzwungener Wert"
+                  v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                  :aria-label="$t('rooms.settings.general.enforced_setting')"
                 />
               </label>
 
@@ -477,16 +477,16 @@
             </div>
             <Divider/>
           <div class="col-12">
-            <p class="text-lg font-semibold text-color m-0">Erweitert</p>
+            <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.advanced.title')}}</p>
           </div>
               <!-- Checkbox publicly list this room -->
               <div class="col-12 md:col-3">
-                <label for="visibility">{{ $t('rooms.settings.security.listed') }}
+                <label for="visibility">{{ $t('rooms.settings.advanced.visibility.title') }}
                   <span
                     v-if="settings.room_type.visibility_enforced"
                     class="fa-solid fa-lock ml-1"
-                    v-tooltip="'Erzwungener Wert'"
-                    aria-label="Erzwungener Wert"
+                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
+                    :aria-label="$t('rooms.settings.general.enforced_setting')"
                   />
                 </label>
                 <div class="flex align-items-center gap-2 h-full">
@@ -496,8 +496,8 @@
                     :disabled="disabled || settings.room_type.visibility_enforced"
                     :invalid="formErrors.fieldInvalid('visibility_default')"
                     :options="[
-                    { visibility: 0, label: 'Private'},
-                    { visibility: 1, label: 'Public'}
+                    { visibility: 0, label:  $t('rooms.settings.advanced.visibility.private') },
+                    { visibility: 1, label: $t('rooms.settings.advanced.visibility.public')}
                   ]"
                     class="flex-shrink-0"
                     dataKey="visibility"
