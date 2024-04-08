@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('id', 15);
             $table->primary('id');
             $table->string('name', 256);
-            $table->text('description')->nullable();
-            $table->string('short_description', 300)->nullable();
             $table->string('welcome', 5000)->nullable();
+            $table->integer('max_participants')->nullable();
+            $table->integer('duration')->nullable();
             $table->boolean('webcams_only_for_moderator')->default(false);
             $table->boolean('mute_on_start')->default(false);
             $table->boolean('lock_settings_disable_cam')->default(false);

@@ -1,146 +1,23 @@
-# Upgrade from PILOS v1 to PILOS v2
+# Upgrade from PILOS v2/v3 to PILOS v4
 
-## Migrate from native to docker
+## General
+This document describes the upgrade process from PILOS v2/v3 to PILOS v4.
+Before upgrading, please make sure you have the latest version of PILOS v2/v3 installed.
 
-1. Create a dump of your current database with mysqldump: `mysqldump DB_NAME > db_backup.sql` (adjust DB_NAME)
-2. Install PILOS with docker (see [INSTALL.md](INSTALL.md))
-3. Adjust .env
-4. Start docker compose (docker compose up -d)
-5. Copy backup file to new docker installation directory (where the docker-compose.yml file is)
-6. Copy backup file into container: `docker compose cp ./db_backup.sql app:/var/www/html/db_backup.sql`
-7. Remove the auto. generated db: `docker compose exec --user www-data app php artisan db:wipe --force`
-9. Import the backup: `docker compose exec --user www-data app php artisan db:import db_backup.sql`
-10. Upgrade db to new version: `docker compose exec --user www-data app php artisan db:upgrade`
-11. Install latest db migrations: `docker compose exec --user www-data app php artisan migrate`
-12. Copy all files from the directory `storage/app` of native installation to the folder `storage/app` in the new docker installation
+Please make sure to back up your database and files before upgrading, so you can restore them in case of any issues.
 
 ## Database
-The database schema has changed quite a lot from v1 to v2.
-This was necessary to support PostgreSQL in the future.
-This version also fixes inconsistent naming of table columns, eases development and cleans up the long migration list.
+The database schema has changed quite a lot from v2/3 to v4.
+This was necessary for many new features and a more stable global application settings storage.
 
-To migrate to v2 just run: `php artisan db:upgrade` or if you are using sail: `sail artisan db:upgrade`
+To migrate to v4 just run: `php artisan db:upgrade` or if you are using sail: `sail artisan db:upgrade`
 
-## LDAP
-LDAP is disabled by default. To enable LDAP change the `LDAP_ENABLED` option in the .env file to `true`.
-
-### Role and attribute mapping
-
-Authentication with LDAP has been fundamentally refactored.
-In the process, some .env variables were changed, added or removed. The following table provides an overview of the changes.
-
-| Old .env Attribute | New .env  Attribute | Description                                                                                        |
-|-----------|--------|----------------------------------------------------------------------------------------------------|
-| LDAP_ROLE_ATTRIBUTE | *Removed* | Attribute with the users role, can be a multi value attribute, replaced with new mapping json file |
-| LDAP_ROLE_MAP | *Removed* | Map the attribute to the name of a local role, replaced with new mapping json file                 |
-| AUTH_LOG_LDAP_ROLES | *Removed* | Show found roles during mapping, enabled on log level info                                         |
-| - | LDAP_GUID_KEY | Attribute with GUID; OpenLDAP (default): 'entryuuid', AD: 'objectGUID'                             |
-| - | LDAP_OBJECT_CLASSES | Comma seperated list of the object class (default: top,person,organizationalperson,inetorgperson)  |
-| - | LDAP_LOGIN_ATTRIBUTE | Attribute by which the user should be found in the LDAP (default: uid)                             |
-| - | LDAP_FILTER | Raw LDAP filter                                                                                    |
-| - | LDAP_LOAD_ATTRIBUTES_AS_USER | Load the users attributes by using the users credentials                                           |
-
-Please have a look at the [external authentication documentation](EXTERNAL_AUTHENTICATION.md)
-
-## Theme
-In v2 the default theme and color are not based on the [corporate design](https://www.thm.de/thmweb/) guidelines of [Technische Hochschule Mittelhessen University of Applied Sciences](https://thm.de) anymore.
-
-### Custom theme
-1. Copy the content of `resources/sass/theme/default` to `resources/sass/theme/custom`
-2. Adjust values in _variables.scss.
-3. Change the `VITE_THEME` option in the .env file to `custom`.
-4. Adjust colors in .env (`VITE_HISTORY_PARTICIPANT_COLOR`,`VITE_HISTORY_VOICES_COLOR`,`VITE_HISTORY_VIDEOS_COLOR`,`VITE_ROOM_TYPE_COLORS`,`VITE_BANNER_BACKGROUND_COLORS`,`VITE_BANNER_TEXT_COLORS`)
-5. Recompile the frontend with: `npm run build`
-
-### v1 theme
-1. Change the `VITE_THEME` option in the .env file to `thm`.
-2. Update colors in .env
-```
-# Color of the room history chart
-VITE_HISTORY_PARTICIPANT_COLOR='#9c132e'
-VITE_HISTORY_VOICES_COLOR='#00b8e4'
-VITE_HISTORY_VIDEOS_COLOR='#f4aa00'
-# Colors for color pickers (room type and application banner)
-VITE_ROOM_TYPE_COLORS='["#4a5c66", "#80ba24", "#9c132e", "#f4aa00", "#00b8e4", "#002878"]'
-VITE_BANNER_BACKGROUND_COLORS='["#4a5c66", "#80ba24", "#9c132e", "#f4aa00", "#00b8e4", "#002878"]'
-VITE_BANNER_TEXT_COLORS='["#ffffff", "#000000"]'
-```
-3. Recompile the frontend with: `npm run build`
-
+We try to migrate all old settings to new storage as good as possible, but some settings may be lost if they are not used anymore or the old option is not available in the new version.
+Please check the settings in the admin UI after the migration.
 
 ## Changed .env variables
-Many .env variables for theming have been added and the prefix changed from `MIX_` to `VITE_`. Please have a look in the `.env.example` and adjust your `.env` file accordingly.
+
+TODO
 
 ## Locales
-Custom locales are now php files in the `resources/custom/lang` folder.
-Each locale has its own subdirectory named after the locale code (e.g. en).
-Within the directory you can create files with the group name (part before the first dot in the translation string) as filename.
-For example, the string `auth.ldap.username_help` would be stored in the file `auth.php`.
-
-Within the file, the keys are organized in nested php arrays.
-Example for a custom german locale (`resources/custom/lang/de/auth.php`):
-```php
-<?php
-
-return [
-    'ldap' =>  [
-        'username_help' => 'Test'
-    ]
-];
-```
-
-To customize the date time format and the display name of a locale create a json file `metadata.json` in the locales directory.
-```json
-{
-    "name": "German",
-    "dateTimeFormat":  {
-        "dateShort": { 
-            "year": "numeric",
-            "month": "2-digit",
-            "day": "2-digit" 
-        },
-        "dateLong": {
-            "year": "numeric",
-            "month": "short",
-            "day": "2-digit"
-        },
-        "time": {
-            "hour": "2-digit",
-            "minute": "2-digit",
-            "hour12": false
-        },
-        "datetimeShort": {
-            "year": "numeric",
-            "month": "2-digit",
-            "day": "2-digit",
-            "hour": "2-digit",
-            "minute": "2-digit",
-            "hour12": false
-        },
-        "datetimeLong": {
-            "year": "numeric",
-            "month": "short",
-            "day": "2-digit",
-            "hour": "2-digit",
-            "minute": "2-digit",
-            "hour12": false
-        }
-      }
-
-}
-```
-
-### New locales
-To add custom locales that are not part of the core, add them to the resources/custom/lang directory as well.
-You need to create all php files and metadata.json file.
-To enable the new locale, you need to add it to the `ENABLED_LOCALES` .env option and restart the container.
-
-### Locale caching
-For better performance, locales should be cached with `php artisan locales:cache` or, if you use sail: `sail artisan locales:cache`.
-If you use the Docker Container, the locales are automatically cached in production when the container is started.
-
-## Images
-The path for custom images changed from `resources/custom/images` to `public/images/custom`.
-To customize the images of the applications (logo and favicon) put the custom images under the path `public/images/custom` and adjust your .env file to the the new path, e.g. `DEFAULT_LOGO=/images/custom/logo.svg`.
-
-Note: If you have already started the application (no fresh database), the logo and favicon path must be changed in the admin UI.
+Many translations have been added and changed. Please check the `resources/lang` folder for new translations and adjust your custom translations accordingly.

@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->boolean('superuser')->default(false);
-            $table->integer('room_limit')->nullable();
-            $table->timestamps();
+        Schema::create('role_room_type', function (Blueprint $table) {
+            $table->foreignId('role_id')->constrained()->onDelete('cascade');
+            $table->foreignId('room_type_id')->constrained()->onDelete('cascade');
         });
+
     }
 
     /**
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('role_room_type');
     }
 };

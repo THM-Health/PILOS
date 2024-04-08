@@ -13,11 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('meeting_stats', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->boolean('superuser')->default(false);
-            $table->integer('room_limit')->nullable();
+            $table->string('meeting_id');
+            $table->foreign('meeting_id')->references('id')->on('meetings')->onDelete('cascade');
+            $table->integer('participant_count');
+            $table->integer('listener_count');
+            $table->integer('voice_participant_count');
+            $table->integer('video_count');
             $table->timestamps();
         });
     }
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('meeting_stats');
     }
 };

@@ -21,12 +21,13 @@ return new class extends Migration
             $table->unsignedBigInteger('server_id')->nullable();
             $table->foreign('server_id')->references('id')->on('servers')->onDelete('cascade');
             $table->unique('id');
+            $table->string('attendee_pw', 64)->nullable();
+            $table->string('moderator_pw', 64)->nullable();
             $table->boolean('is_breakout')->default(false);
             $table->integer('sequence')->default(0);
             $table->dateTime('start')->nullable();
             $table->dateTime('end')->nullable();
             $table->boolean('record_attendance')->default(false);
-            $table->dateTime('detached')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

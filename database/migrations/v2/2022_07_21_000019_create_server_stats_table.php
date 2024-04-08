@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\ServerStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,25 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('servers', function (Blueprint $table) {
+        Schema::create('server_stats', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
-            $table->text('description')->nullable();
-            $table->text('base_url');
-            $table->text('secret');
-            $table->string('version')->nullable();
-            $table->smallInteger('strength')->default(1);
-            $table->smallInteger('status')->default(ServerStatus::DISABLED);
+            $table->unsignedBigInteger('server_id');
+            $table->foreign('server_id')->references('id')->on('servers')->onDelete('cascade');
             $table->integer('participant_count')->nullable();
             $table->integer('listener_count')->nullable();
             $table->integer('voice_participant_count')->nullable();
             $table->integer('video_count')->nullable();
             $table->integer('meeting_count')->nullable();
-            $table->integer('load')->nullable();
-            $table->integer('error_count')->default(0);
-            $table->integer('recover_count')->default(0);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -43,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('servers');
+        Schema::dropIfExists('server_stats');
     }
 };
