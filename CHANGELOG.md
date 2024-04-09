@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calculation of server load uses the participants amount, during starting phase using a configurable min. amount ([#956])
 - Layout of room features tab view ([#967])
 - **Breaking:** Time periods for room token expiration ([#968])
-- **Breaking:** Global application storage ([#958])
+- **Breaking:** Global application storage ([#958], [#989])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
@@ -93,6 +93,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#968]: https://github.com/THM-Health/PILOS/pull/968
 [#977]: https://github.com/THM-Health/PILOS/pull/977
 [#985]: https://github.com/THM-Health/PILOS/issues/985
+[#989]: https://github.com/THM-Health/PILOS/pull/989
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
