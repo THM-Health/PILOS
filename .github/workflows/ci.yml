@@ -73,20 +73,32 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: Migrate Database
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: root
+        DB_PASSWORD: password
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via Laravel Pint
       run: vendor/bin/pint --test
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: root
+        DB_PASSWORD: password
         LOG_CHANNEL: stack
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Execute tests (Unit, Feature and Integration tests) via PHPUnit
       if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: root
+        DB_PASSWORD: password
         LOG_CHANNEL: stack
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
