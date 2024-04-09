@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added config options for server health `BBB_SERVER_HEALTHY_THRESHOLD` and `BBB_SERVER_UNHEALTHY_THRESHOLD` ([#911])
 - Added config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
 - Added plugin to customize the server load calculation ([#956])
+- Save selected room tab in url to preserve selection on reload ([#977])
 - Recording management ([#31], [#896]) 
 
 ### Changed
@@ -51,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
-- Global attendance recording setting ([#905])
+- Global attendance logging setting ([#905])
 
 ## [v3.0.2] - 2024-03-28
 ### Changed
@@ -92,6 +93,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#956]: https://github.com/THM-Health/PILOS/pull/956
 [#967]: https://github.com/THM-Health/PILOS/pull/967
 [#968]: https://github.com/THM-Health/PILOS/pull/968
+[#977]: https://github.com/THM-Health/PILOS/pull/977
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

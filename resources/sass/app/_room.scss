@@ -16,8 +16,8 @@
     cursor: pointer;
 
     &--running{
-        border-color: $green;
-        border-width: 2.5px;
+        border-color: $green !important;
+        border-width: 2.5px !important;
     }
 
     &__buttons {

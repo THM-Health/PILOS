@@ -1451,7 +1451,7 @@ class RoomTest extends TestCase
         $this->assertNull($room->delete_inactive);
 
         // Clear
-        (new MeetingService($room->runningMeeting()))->end();
+        (new MeetingService($room->latestMeeting))->end();
 
         // Create meeting without agreement to record attendance
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
@@ -1468,7 +1468,10 @@ class RoomTest extends TestCase
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
-        (new MeetingService($room->runningMeeting()))->end();
+
+        // Clear
+        $room->refresh();
+        (new MeetingService($room->latestMeeting))->end();
 
         // Room token moderator
         Auth::logout();
@@ -1485,7 +1488,10 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        (new MeetingService($room->runningMeeting()))->end();
+
+        // Clear
+        $room->refresh();
+        (new MeetingService($room->latestMeeting))->end();
 
         $this->flushHeaders();
 
@@ -1521,7 +1527,10 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        (new MeetingService($room->runningMeeting()))->end();
+
+        // Clear
+        $room->refresh();
+        (new MeetingService($room->latestMeeting))->end();
 
         $this->flushHeaders();
 
@@ -1532,7 +1541,10 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
-        (new MeetingService($room->runningMeeting()))->end();
+
+        // Clear
+        $room->refresh();
+        (new MeetingService($room->latestMeeting))->end();
 
         $this->flushHeaders();
 
@@ -1719,9 +1731,12 @@ class RoomTest extends TestCase
             ->assertSuccessful();
 
         // check correct record attendance after start
-        $this->assertTrue($room1->runningMeeting()->record_attendance);
-        $this->assertFalse($room2->runningMeeting()->record_attendance);
-        $this->assertFalse($room3->runningMeeting()->record_attendance);
+        $room1->refresh();
+        $room2->refresh();
+        $room3->refresh();
+        $this->assertTrue($room1->latestMeeting->record_attendance);
+        $this->assertFalse($room2->latestMeeting->record_attendance);
+        $this->assertFalse($room3->latestMeeting->record_attendance);
 
         // check if api returns correct record attendance status
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room1]))
@@ -1968,13 +1983,13 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
 
-        $runningMeeting = $room->runningMeeting();
-
         // Not accepting attendance recording, but meeting is recorded
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertStatus(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value);
 
         // Not accepting attendance recording, but meeting is not recorded
+        $room->refresh();
+        $runningMeeting = $room->latestMeeting;
         $runningMeeting->record_attendance = false;
         $runningMeeting->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
@@ -2086,7 +2101,7 @@ class RoomTest extends TestCase
         // Start meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
-        $runningMeeting = $room->runningMeeting();
+        $runningMeeting = $room->latestMeeting;
 
         \Auth::logout();
 

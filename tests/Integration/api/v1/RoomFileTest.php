@@ -45,6 +45,7 @@ class RoomFileTest extends TestCase
         $this->assertArrayHasKey('Location', $response->headers());
 
         // Clear
-        (new MeetingService($room->runningMeeting()))->end();
+        $room->refresh();
+        (new MeetingService($room->latestMeeting))->end();
     }
 }
