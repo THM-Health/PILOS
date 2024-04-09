@@ -20,7 +20,6 @@ class GeneralSettings extends Settings
 
     public int $pagination_page_size;
 
-    // @TODO maybe change to different cast, also check user model
     public string $default_timezone;
 
     public static function group(): string

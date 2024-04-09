@@ -125,6 +125,7 @@ class UpgradeDatabaseCommand extends Command
         if (isset($oldSettings['pagination_page_size'])) {
             $generalSettings->pagination_page_size = (int) $oldSettings['pagination_page_size'];
         }
+
         if (isset($oldSettings['default_timezone'])) {
             $generalSettings->default_timezone = $oldSettings['default_timezone'];
         }
@@ -176,8 +177,8 @@ class UpgradeDatabaseCommand extends Command
         if (isset($oldSettings['room_limit'])) {
             $roomSettings->limit = (int) $oldSettings['room_limit'];
         }
-        if (isset($oldSettings['own_rooms_pagination_page_size'])) {
-            $roomSettings->pagination_page_size = (int) $oldSettings['own_rooms_pagination_page_size'];
+        if (isset($oldSettings['room_pagination_page_size'])) {
+            $roomSettings->pagination_page_size = (int) $oldSettings['room_pagination_page_size'];
         }
         if (isset($oldSettings['room_token_expiration'])) {
             $roomSettings->token_expiration = TimePeriod::tryFrom($oldSettings['room_token_expiration']) ?: TimePeriod::THREE_MONTHS;
@@ -212,8 +213,8 @@ class UpgradeDatabaseCommand extends Command
         if (isset($oldSettings['statistics.meetings.retention_period'])) {
             $recordingSettings->meeting_usage_retention_period = TimePeriod::tryFrom($oldSettings['statistics.meetings.retention_period']) ?: TimePeriod::ONE_MONTH;
         }
-        if (isset($oldSettings['recording.attendance_retention_period'])) {
-            $recordingSettings->attendance_retention_period = TimePeriod::tryFrom($oldSettings['recording.attendance_retention_period']) ?: TimePeriod::TWO_WEEKS;
+        if (isset($oldSettings['attendance.retention_period'])) {
+            $recordingSettings->attendance_retention_period = TimePeriod::tryFrom($oldSettings['attendance.retention_period']) ?: TimePeriod::TWO_WEEKS;
         }
         $recordingSettings->save();
 
