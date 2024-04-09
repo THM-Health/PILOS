@@ -29,7 +29,7 @@ return [
     */
 
     'logging' => [
-        'enabled' => env('LDAP_LOGGING', true),
+        'enabled' => env('LDAP_LOGGING', false),
         'channel' => env('LOG_CHANNEL', 'stack'),
     ],
 
