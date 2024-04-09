@@ -2,9 +2,9 @@
 
 return [
     'monitor' => [
-        'title' => 'System Überwachung',
         'horizon' => 'Horizon',
-        'telescope' => 'Telescope',
         'pulse' => 'Pulse',
+        'telescope' => 'Telescope',
+        'title' => 'System Überwachung',
     ],
 ];

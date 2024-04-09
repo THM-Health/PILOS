@@ -12,7 +12,6 @@ return [
             'banner_title' => 'Überschrift',
             'color' => 'Textfarbe des Banners',
             'enabled' => 'Anzeigen',
-            'preview' => 'Vorschau',
             'icon' => 'Icon',
             'icon_description' => 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fa-solid fa-door-open`). Das Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
             'link' => 'Anzuzeigender Link nach der Mitteilung',
@@ -20,6 +19,7 @@ return [
             'link_target' => 'Linkziel',
             'link_text' => 'Linktext',
             'message' => 'Mitteilung',
+            'preview' => 'Vorschau',
             'select_link_style' => 'Linkart auswählen',
             'select_link_target' => 'Linkziel auswählen',
             'title' => 'Banner für Mitteilungen',
@@ -73,10 +73,6 @@ return [
         'one_month' => '1 Monat (30 Tage)',
         'one_week' => '1 Woche (7 Tage)',
         'one_year' => '1 Jahr (365 Tage)',
-        'room_pagination_page_size' => [
-            'description' => 'Anzahl der gleichzeitig angezeigten Räume auf der Startseite',
-            'title' => 'Größe der Paginierung für die Räume',
-        ],
         'pagination_page_size' => [
             'description' => 'Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title' => 'Größe der Paginierung',
@@ -109,6 +105,10 @@ return [
         'room_limit' => [
             'description' => 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.',
             'title' => 'Anzahl der Räume pro Benutzer',
+        ],
+        'room_pagination_page_size' => [
+            'description' => 'Anzahl der gleichzeitig angezeigten Räume auf der Startseite',
+            'title' => 'Größe der Paginierung für die Räume',
         ],
         'room_token_expiration' => [
             'description' => 'Zeitraum ab der letzten Nutzung, wonach die personalisierten Raumlinks automatisch gelöscht werden.',
@@ -146,9 +146,9 @@ return [
         'has_included_permission' => 'Das Recht ":name" wurde entweder explizit ausgewählt oder ist in einem anderen ausgewählten Recht inkludiert.',
         'has_not_included_permission' => 'Das Recht ":name" wurde weder explizit ausgewählt noch ist es in einem anderen ausgewählten Recht inkludiert.',
         'new' => 'Neue Rolle erstellen',
-        'no_options' => 'Keine Berechtigungen vorhanden!',
         'no_data' => 'Es sind keine Rollen vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Rollen gefunden!',
+        'no_options' => 'Keine Berechtigungen vorhanden!',
         'permission_explicit' => 'Explizit',
         'permission_included' => 'Inkludiert',
         'permission_included_help' => 'Rechte die ausgewählt wurden und Rechte, die in den ausgewählten Rechten inkludiert sind.',
@@ -173,11 +173,8 @@ return [
     'room_types' => [
         'allow_listing' => 'Raumsuche erlaubt',
         'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
-        'allow_record_attendance' => 'Anwesenheitsprotokollierung erlauben',
         'allow_record' => 'Video-Konferenz Aufzeichnung erlauben',
-        'require_access_code' => 'Zugangscode erforderlich',
-        'max_duration' => 'Maximale Dauer',
-        'max_participants' => 'Maximale Teilnehmeranzahl',
+        'allow_record_attendance' => 'Anwesenheitsprotokollierung erlauben',
         'color' => 'Farbe',
         'custom_color' => 'Eigene Farbe',
         'delete' => [
@@ -189,10 +186,13 @@ return [
             'title' => 'Raumart löschen?',
         ],
         'edit' => 'Raumart :name bearbeiten',
+        'max_duration' => 'Maximale Dauer',
+        'max_participants' => 'Maximale Teilnehmeranzahl',
         'new' => 'Neue Raumart erstellen',
         'no_data' => 'Es sind keine Raumarten vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Raumarten gefunden!',
         'preview' => 'Vorschau',
+        'require_access_code' => 'Zugangscode erforderlich',
         'restrict' => 'Verwendung einschränken',
         'restrict_description' => 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
         'select_roles' => 'Rollen auswählen',
@@ -220,6 +220,7 @@ return [
     ],
     'servers' => [
         'base_url' => 'API Endpunkt',
+        'connection' => 'Verbindung',
         'current_usage' => 'Aktuelle Auslastung',
         'delete' => [
             'confirm' => 'Wollen Sie den Server :name wirklich entfernen?',
@@ -228,7 +229,9 @@ return [
         ],
         'disabled' => 'Deaktiviert',
         'disabled_description' => 'Bereits laufende Meetings werden durch eine Deaktivierung nicht beendet, neue können jedoch nicht erstellt werden',
+        'draining' => 'Auslaufend',
         'edit' => 'Server :name bearbeiten',
+        'enabled' => 'Aktiviert',
         'flash' => [
             'panic' => [
                 'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
@@ -242,10 +245,6 @@ return [
         'no_data' => 'Es sind keine Server vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Server gefunden!',
         'offline' => 'Offline',
-        'enabled' => 'Aktiviert',
-        'unhealthy' => 'Fehlerhaft',
-        'draining' => 'Auslaufend',
-        'connection' => 'Verbindung',
         'offline_reason' => [
             'connection' => 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
             'secret' => 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.',
@@ -265,6 +264,7 @@ return [
         'strength_description' => 'Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten',
         'test_connection' => 'Verbindung testen',
         'tile_description' => 'Die Server stellen die BBB Infrastruktur für die Meetings bereit.',
+        'unhealthy' => 'Fehlerhaft',
         'unknown' => 'Unbekannt',
         'usage_info' => 'Die Auslastung (Meetings, Teilnehmer, Videos) beinhalten auch Meetings die von anderen Systemen verwaltet werden.',
         'version' => 'Version',

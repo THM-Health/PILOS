@@ -30,7 +30,6 @@ return [
     'error' => 'Es ist ein Fehler aufgetreten',
     'errors' => [
         'attendance_agreement_missing' => 'Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.',
-        'record_agreement_missing' => 'Die Zustimmung zur Aufzeichnung ist erforderlich.',
         'file_not_found' => 'Die Datei konnte nicht gefunden werden.',
         'join_failed' => 'Der Beitritt zum Raum ist fehlgeschlagen, da ein Verbindungsfehler aufgetreten ist.',
         'meeting_attendance_disabled' => 'Die Protokollierung der Anwesenheit ist nicht verfügbar.',
@@ -41,6 +40,7 @@ return [
         'no_server_available' => 'Zur Zeit sind keine Server verfügbar.',
         'not_member_of_room' => 'Die Person ist nicht (mehr) Mitglied dieses Raums.',
         'not_running' => 'Der Beitritt zum Raum ist fehlgeschlagen, da er derzeit geschlossen ist.',
+        'record_agreement_missing' => 'Die Zustimmung zur Aufzeichnung ist erforderlich.',
         'role_delete_linked_users' => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',
         'role_update_permission_lost' => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
         'room_limit_exceeded' => 'Raumerstellung fehlgeschlagen! Sie haben die max. Anzahl an Räumen erreicht.',
@@ -56,6 +56,7 @@ return [
     'flash' => [
         'client_error' => 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
         'guests_only' => 'Die Anfrage ist nur für nicht angemeldete Benutzer gestattet!',
+        'popup_blocked' => 'Ihr Browser hat das Öffnen eines neuen Fensters blockiert. Bitte erlauben Sie das Öffnen von Popups für diese Seite und versuchen Sie es erneut.',
         'server_error' => [
             'empty_message' => 'Es ist ein Fehler auf dem Server aufgetreten!',
             'error_code' => 'Fehlercode: :statusCode',
@@ -65,7 +66,6 @@ return [
         'too_many_requests' => 'Zu viele Anfragen. Bitte versuchen Sie es später noch einmal.',
         'unauthenticated' => 'Sie müssen angemeldet sein, um die Anfrage durchführen zu können!',
         'unauthorized' => 'Sie haben für die aufgerufene Route nicht die notwendigen Rechte!',
-        'popup_blocked' => 'Ihr Browser hat das Öffnen eines neuen Fensters blockiert. Bitte erlauben Sie das Öffnen von Popups für diese Seite und versuchen Sie es erneut.',
     ],
     'footer' => [
         'legal_notice' => 'Impressum',
@@ -179,8 +179,8 @@ return [
     'user_name' => 'Name',
     'users' => 'Benutzer',
     'validation' => [
-        'too_large' => 'Die ausgewählte Datei ist zu groß.',
         'invalid_type' => 'Der Dateityp ist nicht erlaubt.',
+        'too_large' => 'Die ausgewählte Datei ist zu groß.',
     ],
     'verify_email' => [
         'fail' => 'Ihre E-Mail konnte nicht verifiziert werden!',

@@ -71,10 +71,6 @@ return [
         'one_month' => '1 mois (30 jours)',
         'one_week' => '1 semaine (7 jours)',
         'one_year' => '1 an (365 jours)',
-        'room_pagination_page_size' => [
-            'description' => 'Limites de pagination pour les salles personnelles',
-            'title' => 'Taille de la pagination pour les salles personnelles',
-        ],
         'pagination_page_size' => [
             'description' => 'Limite la taille de la pagination pour la pagination des tables de données',
             'title' => 'Taille de la pagination',
@@ -104,6 +100,10 @@ return [
         'room_limit' => [
             'description' => 'Limite le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre ne s\'applique pas aux administrateurs.        Entrez la valeur -1 pour un nombre illimité de salles',
             'title' => 'Nombre de salles par utilisateur',
+        ],
+        'room_pagination_page_size' => [
+            'description' => 'Limites de pagination pour les salles personnelles',
+            'title' => 'Taille de la pagination pour les salles personnelles',
         ],
         'room_token_expiration' => [
             'description' => 'Période depuis la dernière utilisation, après laquelle les liens de salle personnalisés sont automatiquement supprimés.',

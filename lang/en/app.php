@@ -40,6 +40,7 @@ return [
         'no_server_available' => 'Currently there are no servers available.',
         'not_member_of_room' => 'The person is not a member of this room (anymore).',
         'not_running' => 'Joining the room has failed as it is currently closed.',
+        'record_agreement_missing' => 'Consent to the recording is required.',
         'role_delete_linked_users' => 'The role is linked to users and therefore it can\'t be deleted!',
         'role_update_permission_lost' => 'The changes of the role would lead to a lost of permissions to view and update roles for you!',
         'room_limit_exceeded' => 'Creating room failed! You have reached the max. amount of rooms.',
@@ -55,6 +56,7 @@ return [
     'flash' => [
         'client_error' => 'An unknown error occurred in the application!',
         'guests_only' => 'The request can only be made by guests!',
+        'popup_blocked' => 'Your browser has blocked the opening of a new window. Please allow pop-ups to open for this page and try again.',
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
             'error_code' => 'Error code: :statusCode',
@@ -177,8 +179,8 @@ return [
     'user_name' => 'Name',
     'users' => 'Users',
     'validation' => [
-        'too_large' => 'The selected file is too large.',
         'invalid_type' => 'The file type is not allowed.',
+        'too_large' => 'The selected file is too large.',
     ],
     'verify_email' => [
         'fail' => 'Your email address could not be verified!',
