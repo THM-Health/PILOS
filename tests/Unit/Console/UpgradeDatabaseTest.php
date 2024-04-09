@@ -12,23 +12,23 @@ class UpgradeDatabaseTest extends TestCase
     use DatabaseMigrations, WithFaker;
 
     /**
-     * Test upgrade with v1 database
+     * Test upgrade with v2 database
      *
      * @return void
      */
-    public function testV1Database()
+    public function testV2Database()
     {
-        // Create fresh v1 database
-        $this->artisan('migrate:fresh', ['--path' => 'database/migrations/v1']);
+        // Create fresh v2 database
+        $this->artisan('migrate:fresh', ['--path' => 'database/migrations/v2']);
         $migrations_v1 = DB::table('migrations')->pluck('migration')->toArray();
 
         // Upgrade to v2 database
         $this->artisan('db:upgrade')
-            ->expectsOutput('Upgraded to latest v1 database')
-            ->expectsOutput('Upgraded to v2 database')
+            ->expectsOutput('Upgraded to latest v2 database')
+            ->expectsOutput('Upgraded to v4 database')
             ->expectsOutput('Cleared old migrations table')
             ->expectsOutput('Created new migrations table')
-            ->expectsOutputToContain('Upgrade to v2 completed. Please upgrade to latest v2 database: php artisan migrate');
+            ->expectsOutputToContain('Upgrade to v4 completed. Please upgrade to latest v4 database: php artisan migrate');
 
         $migrations_upgrade = DB::table('migrations')->pluck('migration')->toArray();
 
@@ -39,13 +39,13 @@ class UpgradeDatabaseTest extends TestCase
         $this->artisan('db:upgrade')
             ->expectsOutput('Database is already upgraded');
 
-        // Create v2 database
+        // Create v4 database
         $this->artisan('migrate:fresh');
-        $migrations_v2 = DB::table('migrations')->pluck('migration')->toArray();
+        $migrations_v4 = DB::table('migrations')->pluck('migration')->toArray();
 
-        // Check migration table after upgrade starts with the same as a fresh v2 database
+        // Check migration table after upgrade starts with the same as a fresh v4 database
         foreach ($migrations_upgrade as $key => $migration) {
-            $this->assertEquals($migration, $migrations_v2[$key]);
+            $this->assertEquals($migration, $migrations_v4[$key]);
         }
     }
 
@@ -54,9 +54,9 @@ class UpgradeDatabaseTest extends TestCase
      *
      * @return void
      */
-    public function testV2Database()
+    public function testV4Database()
     {
-        // Create new v2 db
+        // Create new v4 db
         $this->artisan('migrate:fresh');
 
         // Try to upgrade

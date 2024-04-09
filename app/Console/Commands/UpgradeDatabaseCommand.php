@@ -33,7 +33,7 @@ class UpgradeDatabaseCommand extends Command
         }
 
         // Check v4 database exists by checking migration that doesn't exist in v2/v3
-        if (DB::table('migrations')->where(['migration' => '2024_04_05_103858_create_big_blue_button_settings'])->exists()) {
+        if (DB::table('migrations')->where(['migration' => '2023_04_14_103858_create_big_blue_button_settings'])->exists()) {
             $this->info('Database is already upgraded');
 
             return;
@@ -81,8 +81,8 @@ class UpgradeDatabaseCommand extends Command
             '2022_07_21_000019_create_server_stats_table',
             '2022_09_27_193354_create_sessions_table',
             '2022_09_29_101046_create_verify_emails_table',
-            '2022_12_14_083707_create_settings_table',
             '2023_04_13_151058_create_session_data_table',
+            '2023_04_14_083707_create_settings_table',
         ];
         foreach ($migrations as $migration) {
             DB::table('migrations')->insert([
@@ -99,12 +99,12 @@ class UpgradeDatabaseCommand extends Command
         }));
         // Migrate new settings
         $settingMigrations = [
-            '2024_04_05_095406_create_general_settings',
-            '2024_04_05_101741_create_banner_settings',
-            '2024_04_05_102134_create_room_settings',
-            '2024_04_05_103520_create_user_settings',
-            '2024_04_05_103845_create_recording_settings',
-            '2024_04_05_103858_create_big_blue_button_settings',
+            '2023_04_14_095406_create_general_settings',
+            '2023_04_14_101741_create_banner_settings',
+            '2023_04_14_102134_create_room_settings',
+            '2023_04_14_103520_create_user_settings',
+            '2023_04_14_103845_create_recording_settings',
+            '2023_04_14_103858_create_big_blue_button_settings',
         ];
 
         foreach ($settingMigrations as $migration) {
