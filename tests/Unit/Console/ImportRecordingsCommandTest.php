@@ -19,6 +19,6 @@ class ImportRecordingsCommandTest extends TestCase
 
         $this->artisan('import:recordings');
 
-        Queue::assertCount(2);
+        Queue::assertCount(3);
     }
 }
