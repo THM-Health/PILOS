@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\RecordingExtractionFailed;
 use App\Models\RecordingFormat;
 use DateTime;
 use Exception;
@@ -13,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use PharData;
 use Storage;
+use Throwable;
 
 class ProcessRecording implements ShouldBeUnique, ShouldQueue
 {
@@ -81,31 +83,43 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * The number of seconds to wait before retrying the job.
+     * Calculate the number of seconds to wait before retrying the job.
      *
-     * @var int
+     * @return array<int, int>
      */
-    public $tryAgainAfter = 30;
+    public function backoff(): array
+    {
+        // First retry after 30 seconds
+        // Second after 60 seconds
+        // Third and so on (until one hour) after 5 minutes each
+        return [30, 60, 60 * 5];
+    }
 
     /**
      * Execute the job.
+     *
+     * @throws RecordingExtractionFailed
      */
     public function handle(): void
     {
+        // If the file is not found, delete the job, as it is not needed anymore
+        if (! Storage::disk('recordings-spool')->exists($this->file) && ! Storage::disk('recordings-spool')->exists('failed/'.$this->file)) {
+            \Log::error('Recording file '.$this->file.' not found');
+            $this->delete();
+
+            return;
+        }
+
+        // If file in not in the spool directory, but in the failed directory, move it back to the spool directory
+        // Probably a retry of a failed job, move it back to the spool directory
+        if (! Storage::disk('recordings-spool')->exists($this->file) && Storage::disk('recordings-spool')->exists('failed/'.$this->file)) {
+            Storage::disk('recordings-spool')->move('failed/'.$this->file, $this->file);
+        }
+
         try {
             // Extract the tar file to a temp directory
             $phar = new PharData(Storage::disk('recordings-spool')->path($this->file));
-            $result = $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
-
-            // If the extraction failed, retry the job later (.tar file might be incomplete yet)
-            // Cleanup any files that might have been extracted
-            if (! $result) {
-                \Log::error('Extraction failed for '.$this->file);
-                $this->release($this->attempts() * $this->tryAgainAfter);
-                $this->cleanup();
-
-                return;
-            }
+            $phar->extractTo(Storage::disk('recordings')->path($this->tempPath), null, true);
 
             // Find metadata.xml files
             $metadataFiles = array_filter(Storage::disk('recordings')->allFiles($this->tempPath), function ($file) {
@@ -113,8 +127,9 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
             });
 
             foreach ($metadataFiles as $metadataFile) {
-                // Each recording directory inside each format has a metadata file describing the recording
-                // and files with the actual recording
+                // Each directory with a metadata file inside is a recording format
+                // the metadata file is describing the recording
+                // and other files are the actual recording in the recording format
 
                 $xmlContent = Storage::disk('recordings')->get($metadataFile);
                 $xml = simplexml_load_string($xmlContent);
@@ -129,25 +144,37 @@ class ProcessRecording implements ShouldBeUnique, ShouldQueue
                     // Move the recording to the final destination
                     Storage::disk('recordings')->move($formatDirectory, $recordingFormat->recording->id.'/'.$recordingFormat->format);
                 } else {
-                    $this->fail('Room not found for recording meeting '.$recordingFormat->recording->id.' format '.$recordingFormat->format);
+                    // No room found for the recording format, fail whole file
+                    // Admins should check where the error is coming from, each recording file should only contain data of one meeting
+                    \Log::error('Associating recording file '.$this->file.' to a room failed');
+                    $this->fail('Associating recording file '.$this->file.' to a room failed');
+
+                    return;
                 }
             }
         } catch (Exception $e) {
             // Extraction failed, retry the job later (.tar file might be incomplete yet)
-            \Log::error('Extraction failed for '.$this->file, ['exception' => $e]);
-            $this->release($this->attempts() * $this->tryAgainAfter);
+            \Log::error('Extracting recording file '.$this->file.' failed');
             $this->cleanup();
 
-            return;
+            throw new RecordingExtractionFailed($this->file, previous: $e);
         }
 
         // Remove .tar file as extraction was successful
         $delete = Storage::disk('recordings-spool')->delete($this->file);
         if (! $delete) {
-            \Log::error('Failed to delete '.$this->file);
+            \Log::error('Deleting recording file '.$this->file.' failed');
         }
 
         $this->cleanup();
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        Storage::disk('recordings-spool')->move($this->file, 'failed/'.$this->file);
     }
 
     /**

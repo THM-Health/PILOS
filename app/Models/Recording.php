@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RecordingAccess;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Storage;
@@ -27,6 +28,7 @@ class Recording extends Model
     protected $casts = [
         'start' => 'datetime',
         'end' => 'datetime',
+        'access' => RecordingAccess::class,
     ];
 
     /**

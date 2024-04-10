@@ -11,7 +11,7 @@ class ImportRecordingsCommand extends Command
 {
     protected $signature = 'import:recordings';
 
-    protected $description = 'Command description';
+    protected $description = 'Detect and import new recordings from the recordings spool directory.';
 
     public function handle()
     {

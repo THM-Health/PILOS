@@ -178,6 +178,24 @@ If you are using rsync over ssh, you need to set the `spool_dir` setting in the 
 spool_dir: pilos.example.com:/
 ```
 
+## Importing recording
+
+Recording files are imported using the scheduler, checking for new files in the spool directory every minute.
+New files are added to a queue and imported in the background.
+You can check the queue status using Horizon (Main menu -> System Monitoring -> Horizon).
+
+The import script expects the recording files to be inside a .tar archive file.
+Each archive file should only contain the recording files of one meeting.
+The script will try to extract the archive file to a temporary directory, import the recording files from there into the database and the application storage.
+
+If the import was successful, the archive file will be deleted.
+
+By default all recording files are only visible to the meeting owner. The owner can change the visibility of the recordings in the UI.
+
+### Failed imports
+If the import failed (extract failed, recording doesn't belong to a room, etc.), the archive file will be moved to the `failed` directory in the spool directory.
+You can check the log files and Horizon for more information. You can also retry the import using Horizon.
+
 ## Tips and tricks
 
 ### Using a different group id
