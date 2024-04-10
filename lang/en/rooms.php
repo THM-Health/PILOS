@@ -5,9 +5,8 @@ return [
     'become_member' => 'Become member',
     'change_type' => [
         'changing_settings' => 'The following settings will change',
-        'only_enforced_settings' => 'Only use enforced settings',
+        'reset_to_default' => 'Reset to default settings of the room type',
         'title' => 'Change room type',
-        'use_default_settings' => 'Use default settings',
     ],
     'connection_error' => [
         'detached' => 'Connection to ongoing video conference lost, recovery failed.',

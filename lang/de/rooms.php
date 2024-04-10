@@ -5,9 +5,8 @@ return [
     'become_member' => 'Mitglied werden',
     'change_type' => [
         'changing_settings' => 'Bei folgenden Einstellungen kommt es zu Veränderungen',
-        'only_enforced_settings' => 'Nur erzwungene Einstellungen verwenden',
+        'reset_to_default' => 'Auf Standardeinstellungen der Raumart zurücksetzen',
         'title' => 'Raumart ändern',
-        'use_default_settings' => 'Standardeinstellungen verwenden',
     ],
     'connection_error' => [
         'detached' => 'Verbindung zu laufender Videokonferenz verloren, Wiederherstellung fehlgeschlagen.',
