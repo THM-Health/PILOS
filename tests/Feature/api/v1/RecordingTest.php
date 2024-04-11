@@ -10,8 +10,14 @@ use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
+/**
+ * Recording API tests
+ * @todo Add tests for room token access
+
+ */
 class RecordingTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
@@ -380,10 +386,40 @@ class RecordingTest extends TestCase
         $recording = $format->recording;
         $room = $recording->room;
 
+        $otherUser = User::factory()->create();
+
+        $room->allow_guests = true;
+        $room->access_code = null;
+        $room->save();
+
+        $recording->access = RecordingAccess::EVERYONE;
+        $recording->save();
+
+        // Guest can access
+        $this->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
+            ->assertOk();
+
+        // Every user can access
+        $this->actingAs($otherUser)
+            ->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
+            ->assertOk();
+        Auth::logout();
+
+        // Change access
         $recording->access = RecordingAccess::PARTICIPANT;
         $recording->save();
 
-        // User is room member
+        // Try to access again as guests
+        $this->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
+            ->assertForbidden();
+
+        //  Try to access again as normal user
+        $this->actingAs($otherUser)
+            ->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
+            ->assertForbidden();
+        Auth::logout();
+
+        // Try as room member
         $room->members()->attach($this->user->id, ['role' => RoomUserRole::USER]);
         $this->actingAs($this->user)
             ->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
@@ -401,6 +437,20 @@ class RecordingTest extends TestCase
         // Test user with higher role can access
         $room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
+            ->assertOk();
+
+        // Change access
+        $recording->access = RecordingAccess::OWNER;
+        $recording->save();
+
+        // Try to access again
+        $this->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
+            ->assertForbidden();
+
+        // Test owner can access
+        $this->actingAs($room->owner)
             ->getJson(route('api.v1.rooms.recordings.get', ['room' => $recording->room->id, 'format' => $format->id]))
             ->assertOk();
     }
