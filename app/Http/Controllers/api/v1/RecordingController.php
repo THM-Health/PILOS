@@ -15,7 +15,7 @@ class RecordingController extends Controller
 {
     public function index(Room $room)
     {
-        $resource = $room->recordings()->with('formats');
+        $resource = $room->recordings()->with('formats')->has('formats');
 
         if (! \Gate::allows('viewAllRecordings', $room)) {
             $allowedAccess = [RecordingAccess::EVERYONE];
@@ -54,8 +54,6 @@ class RecordingController extends Controller
         $resourceRoute = route('recording.resource', ['format' => $format->format, 'recording' => $recordingId, 'resource' => $resource]).($resource == '' ? '/' : '');
 
         return response()->json(['url' => $resourceRoute]);
-
-        //\Session::push($recording->meeting->id, $request->accessCode);
     }
 
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)
