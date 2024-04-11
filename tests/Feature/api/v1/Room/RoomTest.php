@@ -1270,14 +1270,16 @@ class RoomTest extends TestCase
         // Testing guests
         $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
-        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'code' => $room->access_code, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
+        $this->flushHeaders();
 
         // Testing authorized users
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
-        $this->getJson(route('api.v1.rooms.start', ['room' => $room, 'code' => $room->access_code, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertForbidden();
+        $this->flushHeaders();
 
         // Testing member
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);

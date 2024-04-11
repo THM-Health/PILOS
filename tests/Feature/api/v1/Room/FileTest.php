@@ -286,8 +286,9 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing user with access code
-        $this->actingAs($this->user)->get(route('api.v1.rooms.show', ['room' => $this->room->id, 'roomFile' => $room_file, 'code' => $this->room->access_code]))
+        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
             ->assertSuccessful();
+        $this->flushHeaders();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
