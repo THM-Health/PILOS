@@ -1793,6 +1793,159 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Tests if record is set on start
+     */
+    public function testStartRecordStatus()
+    {
+        $server = Server::factory()->create();
+
+        // Create Fake BBB-Server
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Check record status on starting a room with recording disabled
+        $room = Room::factory()->create(['record' => false]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+        $room->refresh();
+        $meeting = $room->latestMeeting;
+        $this->assertFalse($meeting->record);
+
+        // Check record status on starting a room with recording enabled
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+        $room->refresh();
+        $meeting = $room->latestMeeting;
+        $this->assertTrue($meeting->record);
+
+        // Check record status on starting a room with recording enabled, but room type has recording disabled
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $room->roomType->allow_record = false;
+        $room->roomType->save();
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+        $room->refresh();
+        $meeting = $room->latestMeeting;
+        $this->assertFalse($meeting->record);
+    }
+
+    /**
+     * Tests if record parameter is validated according to the room and room type settings
+     */
+    public function testStartRecordParameter()
+    {
+        $server = Server::factory()->create();
+
+        // Create Fake BBB-Server
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Agree to record when room is set to record
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Don't agree when room is set to record
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertStatus(CustomStatusCodes::RECORD_AGREEMENT_MISSING->value);
+
+        // Agree to record when room is set to record but room type has recording disabled
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $room->roomType->allow_record = false;
+        $room->roomType->save();
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Don't agree when room is set to record but room type has recording disabled
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $room->roomType->allow_record = false;
+        $room->roomType->save();
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Agree when room is not set to record
+        $room = Room::factory()->create(['record' => false]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Don't agree when room is not set to record
+        $room = Room::factory()->create(['record' => false]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Check error on invalid record value
+        $room = Room::factory()->create(['record' => false]);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 'hello', 'record_video' => 0]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record']);
+
+        // Check error on missing record value
+        $room = Room::factory()->create(['record' => false]);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record_video' => 0]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record']);
+    }
+
+    /**
+     * Tests if record video parameter is validated and passed to BBB in the join url on start
+     */
+    public function testStartRecordVideoParameter()
+    {
+        $server = Server::factory()->create();
+
+        // Create Fake BBB-Server
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Agree to record own video
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $result = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 1]));
+        $result->assertSuccessful();
+        $joinUrl = $result->json('url');
+        $this->assertStringContainsString('userdata-bbb_record_video=1', $joinUrl);
+
+        // Don't record own video
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $result = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]));
+        $result->assertSuccessful();
+        $joinUrl = $result->json('url');
+        $this->assertStringContainsString('userdata-bbb_record_video=0', $joinUrl);
+
+        // Check error on invalid record video value
+        $room = Room::factory()->create(['record' => false]);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 'hello']))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record_video']);
+
+        // Check error on missing record video value
+        $room = Room::factory()->create(['record' => false]);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record_video']);
+    }
+
+    /**
      * Test joining a meeting with a running bbb server
      */
     public function testJoin()
@@ -2188,5 +2341,188 @@ class RoomTest extends TestCase
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('MODERATOR', $queryParams['role']);
         $this->role->permissions()->detach($this->managePermission);
+    }
+
+    /**
+     * Tests if record parameter is validated based on the current running meeting
+     */
+    public function testJoinRecordParameter()
+    {
+        $server = Server::factory()->create();
+
+        // Create Fake BBB-Server
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Fake meeting info request to simulate running meeting
+        $meetingInfoRequest = function (Request $request) {
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        };
+
+        // Start meeting with recording enabled
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Agree to record when meeting was started with record
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Don't agree when meeting was started with record
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertStatus(CustomStatusCodes::RECORD_AGREEMENT_MISSING->value);
+
+        // Change room setting to disable recording
+        // should not have any effect on the current meeting
+        $room->record = false;
+        $room->save();
+
+        // Check if agreement is still required, as the meeting is still running with recording enabled
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertStatus(CustomStatusCodes::RECORD_AGREEMENT_MISSING->value);
+
+        // Create new meeting with recording disabled
+        $room = Room::factory()->create(['record' => false]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Agree when meeting was started without record
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Don't agree when meeting was started without record
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Change room setting to enable recording
+        // should not have any effect on the current meeting
+        $room->record = true;
+        $room->save();
+
+        // Check if agreement is still not required, as the meeting is still running with recording disabled
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Check error on invalid record value
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 'hello', 'record_video' => 0]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record']);
+
+        // Check error on missing record value
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record_video' => 0]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record']);
+    }
+
+    /**
+     * Tests if record video parameter is validated and passed to BBB in the join url on join
+     */
+    public function testJoinRecordVideoParameter()
+    {
+        $server = Server::factory()->create();
+
+        // Create Fake BBB-Server
+        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Fake meeting info request to simulate running meeting
+        $meetingInfoRequest = function (Request $request) {
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        };
+
+        // Start meeting with recording enabled
+        $room = Room::factory()->create(['record' => true]);
+        $room->roomType->serverPool->servers()->attach($server);
+        $bbbFaker->addCreateMeetingRequest();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Agree to record own video
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $result = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 1]));
+        $result->assertSuccessful();
+        $joinUrl = $result->json('url');
+        $this->assertStringContainsString('userdata-bbb_record_video=1', $joinUrl);
+
+        // Don't record own video
+        $bbbFaker->addRequest($meetingInfoRequest);
+        $result = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 1, 'record_video' => 0]));
+        $result->assertSuccessful();
+        $joinUrl = $result->json('url');
+        $this->assertStringContainsString('userdata-bbb_record_video=0', $joinUrl);
+
+        // Check error on invalid record video value
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 'hello']))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record_video']);
+
+        // Check error on missing record video value
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 0, 'record' => 0]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['record_video']);
     }
 }

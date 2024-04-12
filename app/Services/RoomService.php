@@ -57,7 +57,7 @@ class RoomService
                 }
 
                 // Check if user didn't see the recording note, but the meeting is recorded
-                if ($this->room->record && ! $agreedToRecord) {
+                if ($this->room->record && $this->room->roomType->allow_record && ! $agreedToRecord) {
                     $lock->release();
                     Log::warning('Failed to create meeting for room {room}; record agreement missing', ['room' => $this->room->getLogLabel()]);
                     abort(CustomStatusCodes::RECORD_AGREEMENT_MISSING->value, __('app.errors.record_agreement_missing'));
