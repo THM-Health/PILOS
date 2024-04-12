@@ -51,6 +51,7 @@ class Room extends Model
 
         static::deleting(function ($model) {
             $model->files->each->delete();
+            $model->recordings->each->delete();
             \Storage::deleteDirectory($model->id);
         });
     }

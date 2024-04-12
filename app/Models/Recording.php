@@ -31,6 +31,11 @@ class Recording extends Model
         'access' => RecordingAccess::class,
     ];
 
+    public function getLogLabel()
+    {
+        return $this->description.' ['.$this->start->format('Y-m-d H:i').' - '.$this->end->format('Y-m-d H:i').'] ('.$this->id.')';
+    }
+
     /**
      * Meeting
      *

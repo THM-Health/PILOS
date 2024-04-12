@@ -71,6 +71,9 @@ const props = defineProps({
   roomId: {
     required: true
   },
+  recordingId: {
+    required: true
+  },
   viewDisabled: {
     type: Boolean,
     default: false
@@ -118,7 +121,7 @@ function downloadFormat (format) {
     config.headers = { 'Access-Code': props.accessCode };
   }
 
-  const url = 'rooms/' + props.roomId + '/recordings/' + format.id;
+  const url = 'rooms/' + props.roomId + '/recordings/' + props.recordingId + '/formats/' + format.id;
 
   // Load data
   api.call(url, config)

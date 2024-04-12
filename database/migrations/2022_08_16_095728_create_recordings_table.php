@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->string('meeting_id')->nullable();
             $table->foreign('meeting_id')->references('id')->on('meetings')->onDelete('cascade');
-            $table->text('description')->nullable();
+            $table->text('description');
             $table->tinyInteger('access')->default(RecordingAccess::OWNER);
             $table->dateTime('start');
             $table->dateTime('end');

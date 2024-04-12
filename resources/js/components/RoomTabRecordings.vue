@@ -67,6 +67,7 @@
 
                 <RoomTabRecordingsViewButton
                   :roomId="props.room.id"
+                  :recordingId="item.id"
                   :formats="item.formats"
                   :view-disabled="userPermissions.can('manageSettings', room)"
                   :token="props.token"
