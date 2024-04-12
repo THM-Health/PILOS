@@ -21,7 +21,6 @@ use Http;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -1401,7 +1400,7 @@ class RoomTest extends TestCase
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
+            ->assertStatus(CustomStatusCodes::ROOM_NOT_RUNNING->value);
     }
 
     public function testStartServerErrors()
@@ -1574,58 +1573,15 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Tests starting new meeting with a running bbb server
+     * Tests starting new meeting with an already running meeting
+     * (without checking if it is actually running, detecting detached meetings in the pollers responsibility)
      */
     public function testStartWithServerMeetingRunning()
     {
-        // Add room, real servers and a fake meeting
         $room = Room::factory()->create();
 
         $server = Server::factory()->create();
         $room->roomType->serverPool->servers()->attach($server);
-
-        // Create Fake BBB-Server
-        $bbbFaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
-        // Server timeout
-        $bbbFaker->addRequest(fn () => throw new ConnectionException('Connection timed out'));
-        // Meeting was not found
-        $bbbFaker->addRequest(fn () => Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/MeetingNotFound.xml')));
-        // Create meeting
-        $bbbFaker->addCreateMeetingRequest();
-        // Get meeting info
-        for ($i = 0; $i < 4; $i++) {
-            $bbbFaker->addRequest(function (Request $request) {
-                $uri = $request->toPsrRequest()->getUri();
-                parse_str($uri->getQuery(), $params);
-                $xml = '
-                <response>
-                    <returncode>SUCCESS</returncode>
-                    <meetingName>test</meetingName>
-                    <meetingID>'.$params['meetingID'].'</meetingID>
-                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
-                    <createTime>1624606850899</createTime>
-                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
-                    <voiceBridge>70663</voiceBridge>
-                    <dialNumber>613-555-1234</dialNumber>
-                    <running>true</running>
-                    <duration>0</duration>
-                    <hasUserJoined>true</hasUserJoined>
-                    <recording>false</recording>
-                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
-                    <startTime>1624606850956</startTime>
-                    <endTime>0</endTime>
-                    <participantCount>0</participantCount>
-                    <listenerCount>0</listenerCount>
-                    <voiceParticipantCount>0</voiceParticipantCount>
-                    <videoCount>0</videoCount>
-                    <maxUsers>0</maxUsers>
-                    <moderatorCount>0</moderatorCount>
-                    <isBreakout>false</isBreakout>
-                </response>';
-
-                return Http::response($xml);
-            });
-        }
 
         $meeting = Meeting::factory()->create(['room_id' => $room->id, 'start' => null, 'end' => null, 'server_id' => Server::all()->first()]);
         $room->latestMeeting()->associate($meeting);
@@ -1633,44 +1589,7 @@ class RoomTest extends TestCase
 
         // Start room that should run on the server but server times out
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
-            ->assertStatus(472);
-        $meeting->refresh();
-        $this->assertNull($meeting->end);
-
-        // Check if failure effects the server health
-        $server->refresh();
-        $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
-        $server->error_count = 0;
-        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
-        $server->save();
-
-        // Start room that should run on the server but isn't
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
-            ->assertStatus(460);
-        $meeting->refresh();
-        $this->assertNotNull($meeting->end);
-
-        // Reset, make room running in db
-        $meeting->end = null;
-        $meeting->save();
-
-        // Start room with recording acceptance enabled, but a room without attendance recording is already running
-        $room->record_attendance = true;
-        $room->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
-            ->assertSuccessful();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
-            ->assertSuccessful();
-
-        // Start room with recording acceptance disabled, but a room with attendance recording is already running
-        $meeting->record_attendance = true;
-        $meeting->save();
-        $room->record_attendance = false;
-        $room->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
-            ->assertSuccessful();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
-            ->assertStatus(470);
+            ->assertStatus(474);
     }
 
     /**
@@ -1851,14 +1770,14 @@ class RoomTest extends TestCase
 
         // Testing join with meeting not running
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
+            ->assertStatus(CustomStatusCodes::ROOM_NOT_RUNNING->value);
 
         // Testing join with meeting that is starting, but not ready yet
         $meeting = $room->meetings()->create();
         $meeting->server()->associate($server);
         $meeting->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
+            ->assertStatus(CustomStatusCodes::ROOM_NOT_RUNNING->value);
         $meeting->delete();
 
         // Check no request was send to the bbb server
@@ -1872,7 +1791,7 @@ class RoomTest extends TestCase
         $room->latestMeeting()->associate($meeting);
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
-            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING->value);
+            ->assertStatus(CustomStatusCodes::ROOM_NOT_RUNNING->value);
         $meeting->refresh();
         $this->assertNotNull($meeting->end);
 

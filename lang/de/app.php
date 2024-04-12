@@ -50,6 +50,7 @@ return [
         'stale_error' => 'Änderungskonflikt',
         'stale_model' => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
         'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
+        'room_already_running' => 'Der Raum konnte nicht gestartet werden, weil dieser bereits läuft.',
     ],
     'firstname' => 'Vorname',
     'flash' => [
