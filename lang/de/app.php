@@ -42,6 +42,7 @@ return [
         'not_running' => 'Der Beitritt zum Raum ist fehlgeschlagen, da er derzeit geschlossen ist.',
         'role_delete_linked_users' => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',
         'role_update_permission_lost' => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
+        'room_already_running' => 'Der Raum konnte nicht gestartet werden, weil er bereits läuft.',
         'room_limit_exceeded' => 'Raumerstellung fehlgeschlagen! Sie haben die max. Anzahl an Räumen erreicht.',
         'room_start' => 'Starten fehlgeschlagen! Der Raum konnte nicht gestartet werden.',
         'room_type_invalid' => 'Die Art des Raumes ist für bestimmte Benutzergruppen eingeschränkt. Wenn Sie der Beistzer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum gestartet werden kann.',
@@ -50,7 +51,6 @@ return [
         'stale_error' => 'Änderungskonflikt',
         'stale_model' => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
         'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
-        'room_already_running' => 'Der Raum konnte nicht gestartet werden, weil dieser bereits läuft.',
     ],
     'firstname' => 'Vorname',
     'flash' => [

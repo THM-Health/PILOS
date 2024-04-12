@@ -241,7 +241,6 @@ function getJoinUrl () {
         if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
           formErrors.set({ record_attendance: [error.response.data.message] });
           emit('changed');
-          showModal.value = true;
           return;
         }
 
@@ -257,7 +256,6 @@ function getJoinUrl () {
         if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
           emit('changed');
           showRunningMessage.value = true;
-          showModal.value = true;
           return;
         }
       }
