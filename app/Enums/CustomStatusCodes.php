@@ -7,7 +7,7 @@ namespace App\Enums;
  */
 enum CustomStatusCodes: int
 {
-    case MEETING_NOT_RUNNING = 460;
+    case ROOM_NOT_RUNNING = 460;
     case NO_SERVER_AVAILABLE = 461;
     case ROOM_START_FAILED = 462;
     case ROOM_LIMIT_EXCEEDED = 463;
@@ -21,4 +21,5 @@ enum CustomStatusCodes: int
     case ATTENDANCE_AGREEMENT_MISSING = 470;
     case EMAIL_CHANGE_THROTTLE = 471;
     case JOIN_FAILED = 472;
+    case ROOM_ALREADY_RUNNING = 474;
 }
