@@ -140,7 +140,7 @@
                 @invalidCode="handleInvalidCode"
                 @invalidToken="handleInvalidToken"
                 @guests-not-allowed="handleGuestsNotAllowed"
-                @not-running="reload"
+                @changed="reload"
                 @forbidden="reload"
               />
               <RoomBrowserNotification
