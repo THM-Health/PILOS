@@ -609,9 +609,10 @@
 <script setup>
 import { ref } from 'vue';
 import _ from 'lodash';
+import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
 const model = defineModel();
 
-const emit = defineEmits(['resetSettings']);
+const emit = defineEmits(['roomTypeChanged']);
 const props = defineProps({
   currentSettings: {
     type: Object,
@@ -631,8 +632,7 @@ function editRoomType () {
 }
 
 function handleOk () {
-  // ToDo only show if a setting changed
-  if (props.currentSettings.expert_mode || roomSettingChanged('allow_guests')) {
+  if (roomSettingsChanged()) {
     resetToDefaults.value = false;
     confirmationModalVisible.value = true;
   } else {
@@ -654,6 +654,25 @@ function roomSettingChanged (settingName) {
   return false;
 }
 
+function roomSettingsChanged () {
+  // Check access code setting for changes
+  if ((props.currentSettings.accessCode !== null) !== newRoomType.value.has_access_code_default) {
+    if (props.currentSettings.room_type.has_access_code_enforced !== newRoomType.value.has_access_code_enforced) {
+      return true;
+    }
+  }
+
+  // Check all other visible settings for changes
+  for (const setting in ROOM_SETTINGS_DEFINITION) {
+    // check if expert mode is enabled or the setting is not an expert setting
+    if (props.currentSettings.expert_mode || !ROOM_SETTINGS_DEFINITION[setting].expert_setting) {
+      if (roomSettingChanged(setting)) return true;
+    }
+  }
+
+  // There are no change
+  return false;
+}
 
 function getResultingSetting (settingName) {
   // Check if setting will be changed to default value
@@ -674,7 +693,7 @@ function changeRoomType (resetToDefaults = false) {
   modalVisible.value = false;
   confirmationModalVisible.value = false;
 
-  emit('resetSettings', resetToDefaults);
+  emit('roomTypeChanged', resetToDefaults);
 }
 
 </script>

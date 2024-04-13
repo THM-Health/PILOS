@@ -22,7 +22,7 @@
                   :invalid="formErrors.fieldInvalid('room_type')"
                   :room-id="room.id"
                   :current-settings="settings"
-                  @reset-settings="(resetAll) => resetSettings(resetAll)"
+                  @room-type-changed="(resetToDefaults) => resetToRoomTypeSettings(resetToDefaults)"
                 />
                 <p class="p-error" v-html="formErrors.fieldError('room_type')"/>
           </div>
@@ -564,6 +564,7 @@ import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { onMounted, ref, computed, watch } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
+import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
 
 const props = defineProps({
   room: {
@@ -651,29 +652,37 @@ function toggleExpertMode () {
   settings.value.expert_mode = !settings.value.expert_mode;
 
   if (settings.value.expert_mode) {
-    resetSettings(true);
+    resetExpertSettings();
   }
 }
 
-function resetSettings (resetAll = false) {
-  settings.value.welcome = '';
-  resetSetting('allow_membership', resetAll);
-  resetSetting('default_role', resetAll);
-  resetSetting('everyone_can_start', resetAll);
-  resetSetting('lobby', resetAll);
-  resetSetting('lock_settings_disable_cam', resetAll);
-  resetSetting('lock_settings_disable_mic', resetAll);
-  resetSetting('lock_settings_disable_note', resetAll);
-  resetSetting('lock_settings_disable_private_chat', resetAll);
-  resetSetting('lock_settings_disable_public_chat', resetAll);
-  resetSetting('lock_settings_hide_user_list', resetAll);
-  resetSetting('mute_on_start', resetAll);
-  resetSetting('webcams_only_for_moderator', resetAll);
-  resetSetting('record_attendance', resetAll);
-  resetSetting('visibility', resetAll);
+function resetToRoomTypeSettings (resetToDefaults = false) {
+  // Reset the value of the access code setting
+  if (resetToDefaults || settings.value.room_type.has_access_code_enforced) {
+    // Create new access code if room should have an access code but does not have one
+    if (settings.value.room_type.has_access_code_default && settings.value.access_code === null) {
+      createAccessCode();
+    } else if (!settings.value.room_type.has_access_code_default) {
+      settings.value.access_code = null;
+    }
+  }
+  // Reset the value of all other settings
+  for (const setting in ROOM_SETTINGS_DEFINITION) {
+    resetSetting(setting, resetToDefaults);
+  }
 }
 
-function resetSetting (settingName, resetToDefaults = false) {
+function resetExpertSettings () {
+  // Reset all expert settings (including text fields) back to the default values of the room type
+  for (const setting in ROOM_SETTINGS_DEFINITION) {
+    if (ROOM_SETTINGS_DEFINITION[setting].expert_setting) {
+      resetSetting(setting);
+    }
+  }
+  settings.value.welcome = '';
+}
+
+function resetSetting (settingName, resetToDefaults = true) {
   if (resetToDefaults || settings.value.room_type[settingName + '_enforced']) {
     settings.value[settingName] = settings.value.room_type[settingName + '_default'];
   }
