@@ -12,10 +12,10 @@
           <div class="col-12">
             <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.general.title') }}</p>
           </div>
+          <!-- ToDo fix labels, ids ... (move icon back into label, move icon outside)-->
           <!-- General settings tab -->
           <div class="col-12 md:col-3 flex flex-column">
                 <label for="room-type" class="mb-2">{{ $t('rooms.settings.general.type') }}</label>
-<!--                ToDo change-->
             <RoomTypeChangeButton
                   v-model="settings.room_type"
                   :disabled="disabled"
@@ -48,6 +48,7 @@
                   <Button
                     v-if="!(!settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
                     v-tooltip="$t('rooms.settings.general.generate_access_code')"
+                    :aria-label="$t('rooms.settings.general.generate_access_code')"
                     :disabled="disabled"
                     icon="fa-solid fa-dice"
                     @click="createAccessCode"
@@ -63,7 +64,7 @@
                   />
                   <!-- Clear access code -->
                   <Button
-                    v-if="!(settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
+                    v-if="settings.access_code && !(settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
                     v-tooltip="$t('rooms.settings.general.delete_access_code')"
                     :disabled="disabled"
                     icon="fa-solid fa-trash"

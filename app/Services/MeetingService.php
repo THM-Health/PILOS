@@ -71,7 +71,6 @@ class MeetingService
             ->setEndCallbackUrl($this->getCallbackUrl())
             ->setDuration($this->meeting->room->roomType->max_duration)
             ->setMaxParticipants($this->meeting->room->roomType->max_participants)
-            ->setWelcome($this->meeting->room->welcome)
             ->setModeratorOnlyMessage($this->meeting->room->getModeratorOnlyMessage())
             ->setLockSettingsDisableMic($this->meeting->room->getRoomSetting('lock_settings_disable_mic'))
             ->setLockSettingsDisableCam($this->meeting->room->getRoomSetting('lock_settings_disable_cam'))
@@ -81,7 +80,7 @@ class MeetingService
             ->setLockSettingsDisableNotes($this->meeting->room->getRoomSetting('lock_settings_disable_note'))
             ->setLockSettingsHideUserList($this->meeting->room->getRoomSetting('lock_settings_hide_user_list'))
             // @TODO refactor: maybe always true or if any of the restrictions is enabled
-//            ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
+            //->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
             ->setDisabledFeatures([Feature::LEARNING_DASHBOARD]);
@@ -96,6 +95,11 @@ class MeetingService
 
         if (empty($meetingParams->getPresentations()) && ! empty(setting('default_presentation'))) {
             $meetingParams->addPresentation(setting('default_presentation'));
+        }
+
+        // Set welcome message if expert mode is activated
+        if ($this->meeting->room->expert_mode) {
+            $meetingParams->setWelcome($this->meeting->room->welcome);
         }
 
         // set guest policy

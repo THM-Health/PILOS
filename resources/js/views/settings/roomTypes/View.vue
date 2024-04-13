@@ -248,9 +248,7 @@
         <h3>{{ $t('settings.room_types.default_room_settings.title')}}</h3>
 
         <h4>{{ $t('rooms.settings.general.title') }}</h4>
-
-<!--        ToDo fix problem when enforcing Access Code (Rooms without an access code will stay without an access code)
-            (Problem already existed before???)-->
+        <!-- ToDo fix labels, ids ...-->
         <div class="field grid">
           <label for="has_access_code_default" class="col-12 md:col-4 md:m-0 align-items-center"> {{ $t('rooms.settings.general.has_access_code')}}</label>
           <div class="col-12 md:col-8">

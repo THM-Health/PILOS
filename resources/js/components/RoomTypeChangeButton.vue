@@ -26,22 +26,21 @@
     </template>
   </Dialog>
 
-<!--  ToDo only show changed settings (roomSettingChanged(settingName))-->
-<!--  ToDo fix problem with several Dialogs????? (modal leads to problem)-->
+<!--  ToDo move outside-->
   <Dialog
     v-model:visible="confirmationModalVisible"
-    modal
     :header="$t('rooms.change_type.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
     :dismissableMask="false"
+    modal
   >
     <div class="overflow-y-auto" style="max-height:300px">
       {{ $t('rooms.change_type.changing_settings') }} <!-- ToDo improve text -->
       <h4 class="my-2">{{ $t('rooms.settings.general.title') }}</h4>
 
-      <!-- ToDo switch Tag and InputSwitch, test changing Tag to only Icon-->
+      <!-- ToDo fix labels, ids ... (aria-labelledby)-->
       <div class="field grid mx-0">
         <label for="has_access_code" class="col-12">{{ $t('rooms.settings.general.has_access_code') }}</label>
         <div class="col-3 flex align-items-center justify-content-center">

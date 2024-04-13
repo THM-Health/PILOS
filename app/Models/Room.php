@@ -72,7 +72,7 @@ class Room extends Model
         return $casts;
     }
 
-    public const ROOM_SETTINGS_DEFINITION = [ //ToDo check if also possible to add settings that only exist in the room type
+    public const ROOM_SETTINGS_DEFINITION = [
         'mute_on_start' => [
             'cast' => 'boolean',
         ],
