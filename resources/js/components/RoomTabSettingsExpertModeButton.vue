@@ -4,6 +4,7 @@
     icon="fa-solid fa-cog"
     :label="expertMode? $t('rooms.settings.expert_mode.deactivate'): $t('rooms.settings.expert_mode.activate')"
     @click="showModal = true"
+    :disabled="disabled"
   />
 
   <Dialog
@@ -42,6 +43,10 @@ defineProps({
   expertMode: {
     type: Boolean,
     required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 

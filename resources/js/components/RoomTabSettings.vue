@@ -536,6 +536,7 @@
             @transferredOwnership="emit('settingsChanged');"
           />
           <RoomTabSettingsExpertModeButton
+            :disabled="disabled"
             :expert-mode="settings.expert_mode"
             @toggle-expert-mode="toggleExpertMode"
           />
@@ -574,38 +575,8 @@ const props = defineProps({
 const emit = defineEmits(['settingsChanged']);
 
 const settings = ref({
-  room_type: {
-    webcams_only_for_moderator_default: false,
-    webcams_only_for_moderator_enforced: false,
-    mute_on_start_default: false,
-    mute_on_start_enforced: false,
-    lock_settings_disable_cam_default: false,
-    lock_settings_disable_cam_enforced: false,
-    lock_settings_disable_mic_default: false,
-    lock_settings_disable_mic_enforced: false,
-    lock_settings_disable_private_chat_default: false,
-    lock_settings_disable_private_chat_enforced: false,
-    lock_settings_disable_public_chat_default: false,
-    lock_settings_disable_public_chat_enforced: false,
-    lock_settings_disable_note_default: false,
-    lock_settings_disable_note_enforced: false,
-    lock_settings_hide_user_list_default: false,
-    lock_settings_hide_user_list_enforced: false,
-    everyone_can_start_default: false,
-    everyone_can_start_enforced: false,
-    allow_guests_default: false,
-    allow_guests_enforced: false,
-    allow_membership_default: false,
-    allow_membership_enforced: false,
-    default_role_default: 1,
-    default_role_enforced: false,
-    lobby_default: 0,
-    lobby_enforced: false,
-    record_attendance_default: false,
-    record_attendance_enforced: false,
-    visibility_default: false,
-    visibility_enforced: false
-  }
+  expert_mode: false,
+  room_type: {}
 });
 const isBusy = ref(false);
 const loadingError = ref(false);

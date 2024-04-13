@@ -22,6 +22,30 @@
   <OverlayComponent v-else :show="isLoadingAction">
   <div class="grid">
     <div :class="modelValue ? 'md:col-6' : 'md:col'" class="col-12">
+      <Dropdown
+        v-model="roomTypeId"
+        :disabled="disabled || isLoadingAction"
+        @change="changeRoomType"
+        :options="roomTypes"
+        optionLabel="name"
+        optionValue="id"
+        :invalid="props.invalid"
+        class="w-full md:hidden"
+        :aria-labelledby="ariaLabelledby"
+        :pt="{
+          panel: {
+            class: 'max-w-full'
+          },
+          item: {
+            class: 'white-space-normal'
+          }
+        }"
+      >
+        <template #option="slotProps">
+          <span class="max-w-full" style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
+        </template>
+      </Dropdown>
+
       <Listbox
         v-model="roomTypeId"
         :disabled="disabled || isLoadingAction"
@@ -30,7 +54,7 @@
         optionLabel="name"
         optionValue="id"
         :invalid="props.invalid"
-        class="w-full"
+        class="w-full hidden md:block"
         listStyle="max-height:250px"
         :aria-labelledby="ariaLabelledby"
       >

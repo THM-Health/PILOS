@@ -4,7 +4,7 @@ return [
     'access_code' => 'Zugangscode',
     'become_member' => 'Mitglied werden',
     'change_type' => [
-        'changing_settings' => 'Bei folgenden Einstellungen kommt es zu Veränderungen',
+        'changing_settings' => 'Es kommt zur folgenden Veränderung der Raumeinstellungen',
         'reset_to_default' => 'Auf Standardeinstellungen der Raumart zurücksetzen',
         'title' => 'Raumart ändern',
     ],

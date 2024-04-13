@@ -8,8 +8,16 @@
         <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: $t('settings.room_types.missing_description')}}</div>
 
 <!--        ToDo ??? Opening and closing sometimes slow????-->
+        <!-- ToDo fix labels, ids ...-->
         <Accordion>
-          <AccordionTab :header="$t('settings.room_types.default_room_settings.title')">
+          <AccordionTab
+            :header="$t('settings.room_types.default_room_settings.title')"
+            :pt="{
+              headerAction: {
+                class: 'pl-0'
+              }
+            }"
+          >
 
             <h4 class="my-2">{{ $t('rooms.settings.general.title') }}</h4>
 

@@ -4,8 +4,8 @@ return [
     'access_code' => 'Access code',
     'become_member' => 'Become member',
     'change_type' => [
-        'changing_settings' => 'The following settings will change',
-        'reset_to_default' => 'Reset to default settings of the room type',
+        'changing_settings' => 'The following changes will be made to the room settings',
+        'reset_to_default' => 'Reset to the default settings of the room type',
         'title' => 'Change room type',
     ],
     'connection_error' => [
