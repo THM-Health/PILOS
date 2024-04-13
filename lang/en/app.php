@@ -42,6 +42,7 @@ return [
         'not_running' => 'Joining the room has failed as it is currently closed.',
         'role_delete_linked_users' => 'The role is linked to users and therefore it can\'t be deleted!',
         'role_update_permission_lost' => 'The changes of the role would lead to a lost of permissions to view and update roles for you!',
+        'room_already_running' => 'The room could not be started because it is already running.',
         'room_limit_exceeded' => 'Creating room failed! You have reached the max. amount of rooms.',
         'room_start' => 'Starting failed! The room could not be started.',
         'room_type_invalid' => 'The type of the room is restricted for special user groups. Please change the room type to start the room, if you are the owner if this room.',

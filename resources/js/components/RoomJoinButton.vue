@@ -35,35 +35,43 @@
     :dismissableMask="false"
     :closable="!isLoadingAction"
   >
-    <!-- Ask guests for their first and lastname -->
-    <div v-if="!authStore.isAuthenticated && !token" class="flex flex-column gap-2 mb-3" >
-      <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
-      <InputText
-        autofocus
-        v-model="name"
-        :placeholder="$t('rooms.placeholder_name')"
-        :invalid="formErrors.fieldInvalid('name')"
-      />
-      <p class="p-error" v-html="formErrors.fieldError('name')" />
-    </div>
+    <Message severity="warn" v-if="showRunningMessage">{{ $t('app.errors.room_already_running')}}</Message>
 
-    <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="recordAttendance">
-      <span class="font-semibold">{{ $t('rooms.recording_attendance_info') }}</span>
-      <div class="flex align-items-center gap-2">
-        <Checkbox
-          inputId="record-attendance-agreement"
-          v-model="recordAttendanceAgreement"
-          binary
-          :invalid="formErrors.fieldInvalid('record_attendance')"
-        />
-        <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
+    <OverlayComponent :show="isLoadingAction" :opacity="0">
+
+      <div v-if="!isLoadingAction">
+        <!-- Ask guests for their first and lastname -->
+        <div v-if="!authStore.isAuthenticated && !token" class="flex flex-column gap-2 mb-3" >
+          <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
+          <InputText
+            autofocus
+            v-model="name"
+            :placeholder="$t('rooms.placeholder_name')"
+            :invalid="formErrors.fieldInvalid('name')"
+          />
+          <p class="p-error" v-html="formErrors.fieldError('name')" />
+        </div>
+
+        <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="recordAttendance">
+          <span class="font-semibold">{{ $t('rooms.recording_attendance_info') }}</span>
+          <div class="flex align-items-center gap-2">
+            <Checkbox
+              inputId="record-attendance-agreement"
+              v-model="recordAttendanceAgreement"
+              binary
+              :invalid="formErrors.fieldInvalid('record_attendance')"
+            />
+            <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
+          </div>
+          <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
+        </div>
       </div>
-      <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
-    </div>
+
+    </OverlayComponent>
 
     <div class="flex align-items-center justify-content-end mt-4 gap-2">
       <Button :label="$t('app.cancel')" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"/>
-      <Button :label="$t('app.continue')" :disabled="isLoadingAction" :loading="isLoadingAction" @click="getJoinUrl" size="small"/>
+      <Button :label="$t('app.continue')" :disabled="isLoadingAction" @click="getJoinUrl" size="small"/>
     </div>
   </Dialog>
 
@@ -106,13 +114,14 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'notRunning', 'forbidden']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'changed', 'forbidden']);
 
 const authStore = useAuthStore();
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);
 const recordAttendanceAgreement = ref(false);
+const showRunningMessage = ref(false);
 const name = ref(''); // Name of guest
 
 const api = useApi();
@@ -121,25 +130,26 @@ const { t } = useI18n();
 const formErrors = useFormErrors();
 
 async function join () {
-  if (!showPopup.value) {
-    getJoinUrl();
-    return;
-  }
+  showRunningMessage.value = false;
 
   formErrors.clear();
   showModal.value = true;
+
+  if (autoJoin.value) {
+    getJoinUrl();
+  }
 }
 
-const showPopup = computed(() => {
+const autoJoin = computed(() => {
   if (!authStore.isAuthenticated && !props.token) {
-    return true;
+    return false;
   }
 
   if (props.recordAttendance) {
-    return true;
+    return false;
   }
 
-  return false;
+  return true;
 });
 
 /**
@@ -148,6 +158,9 @@ const showPopup = computed(() => {
 function getJoinUrl () {
   // Enable start/join meeting indicator/spinner
   isLoadingAction.value = true;
+
+  // Hide running message
+  showRunningMessage.value = false;
 
   // Reset errors
   formErrors.clear();
@@ -174,10 +187,12 @@ function getJoinUrl () {
       // Check if response has a join url, if yes redirect
       if (response.data.url !== undefined) {
         window.location = response.data.url;
-        showModal.value = false;
       }
     })
     .catch((error) => {
+      // Disable loading indicator
+      isLoadingAction.value = false;
+
       if (error.response) {
         // Access code invalid
         if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
@@ -225,23 +240,28 @@ function getJoinUrl () {
         // Attendance logging agreement required but not accepted
         if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
           formErrors.set({ record_attendance: [error.response.data.message] });
+          emit('changed');
           return;
         }
 
         // Room is not running, update running status
-        if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
+        if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
           toast.error(t('app.errors.not_running'));
-          emit('notRunning');
           showModal.value = false;
+          emit('changed');
+          return;
+        }
+
+        // Room is running cannot be started a second time, update running status
+        if (error.response.status === env.HTTP_ROOM_ALREADY_RUNNING) {
+          emit('changed');
+          showRunningMessage.value = true;
           return;
         }
       }
 
       api.error(error);
       showModal.value = false;
-    }).finally(() => {
-      // Disable loading indicator
-      isLoadingAction.value = false;
     });
 }
 

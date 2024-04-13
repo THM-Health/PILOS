@@ -100,7 +100,10 @@ jobs:
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Upload coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
       if: failure()
