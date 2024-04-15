@@ -1,6 +1,6 @@
 <template>
   <InputGroup v-if="model">
-    <InputText :value="model.name" readonly />
+    <InputText :value="model.name" readonly :id="inputId" />
     <Button icon="fa-solid fa-edit" @click="editRoomType" :aria-label="$t('rooms.change_type.title')" />
   </InputGroup>
 
@@ -46,6 +46,10 @@ const props = defineProps({
   currentSettings: {
     type: Object,
     required: true
+  },
+  inputId: {
+    type: String,
+    default: 'room-type'
   }
 });
 

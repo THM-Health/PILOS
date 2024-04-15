@@ -308,7 +308,7 @@ return [
         ],
         'title' => 'Settings',
         'video_conference' => [
-            'allow_starting' => 'start meeting',
+            'allow_starting' => 'Start meeting',
             'attendance' => 'Attendance',
             'everyone_can_start' => 'Everyone can start the meeting',
             'microphone' => 'Microphone',
