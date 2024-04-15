@@ -726,7 +726,7 @@ class FileTest extends TestCase
         $file = $room->files->first();
 
         // Set file to be used in next meeting
-        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file->id ]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file->id]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
             ->assertSuccessful();
 
         // Start room
