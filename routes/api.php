@@ -146,7 +146,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('rooms/{room}/files/{file}', [RoomFileController::class, 'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
 
     Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index')->middleware('room.authenticate');
-    Route::get('rooms/{room}/recordings/{recording}/formats/{format}', [RecordingFormatController::class, 'show'])->name('rooms.recordings.formats.show')->middleware(['can:viewRecordingFormat,room,format', 'room.authenticate'])->scopeBindings();
+    Route::get('rooms/{room}/recordings/{recording}/formats/{format}', [RecordingFormatController::class, 'show'])->name('rooms.recordings.formats.show')->middleware(['room.authenticate', 'can:viewRecordingFormat,room,format'])->scopeBindings();
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class, 'endMeetingCallback'])->name('meetings.endcallback');
 });

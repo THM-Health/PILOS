@@ -9,6 +9,7 @@ use App\Models\Recording;
 use App\Models\RecordingFormat;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomToken;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -365,6 +366,66 @@ class RecordingTest extends TestCase
 
         // Access as guest with correct access code
         $this->withHeaders(['Access-Code' => $room->access_code])
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+            ->assertForbidden();
+    }
+
+    public function testShowRoomToken()
+    {
+        $format = RecordingFormat::factory()->format('podcast')->create();
+        $recording = $format->recording;
+        $room = $recording->room;
+
+        $recording->access = RecordingAccess::EVERYONE;
+        $recording->save();
+
+        $room->allow_guests = false;
+        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->save();
+
+        // Create token
+        $token = RoomToken::factory()->create(['room_id' => $room->id]);
+        $token->role = RoomUserRole::USER;
+        $token->save();
+
+        // Access as guest with token with room participant role
+        $this->withHeaders(['Token' => $token->token])
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+            ->assertSuccessful();
+
+        // Increase recording access to participant
+        $recording->access = RecordingAccess::PARTICIPANT;
+        $recording->save();
+
+        // Access as guest with token with room participant role
+        $this->withHeaders(['Token' => $token->token])
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+            ->assertSuccessful();
+
+        // Increase recording access to moderator
+        $recording->access = RecordingAccess::MODERATOR;
+        $recording->save();
+
+        // Access as guest with token with room participant role
+        $this->withHeaders(['Token' => $token->token])
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+            ->assertForbidden();
+
+        // Increase token role to moderator
+        $token->role = RoomUserRole::MODERATOR;
+        $token->save();
+
+        // Access as guest with token with room moderator role
+        $this->withHeaders(['Token' => $token->token])
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+            ->assertSuccessful();
+
+        // Increase recording access to owner
+        $recording->access = RecordingAccess::OWNER;
+        $recording->save();
+
+        // Access as guest with token with room moderator role
+        $this->withHeaders(['Token' => $token->token])
             ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
             ->assertForbidden();
     }

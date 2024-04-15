@@ -255,10 +255,6 @@ class RoomPolicy
             return true;
         }
 
-        if ($user == null) {
-            return false;
-        }
-
         if ($recordingFormat->recording->access == RecordingAccess::PARTICIPANT) {
             return $room->isMember($user);
         }
