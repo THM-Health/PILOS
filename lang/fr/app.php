@@ -28,7 +28,6 @@ return [
     'error' => 'Une erreur est survenue',
     'errors' => [
         'attendance_agreement_missing' => 'Le consentement à l\'enregistrement des présences est requis.',
-        'file_not_found' => 'Le fichier n\'a pas pu être trouvé.',
         'meeting_attendance_disabled' => 'L\'enregistrement des présences n\'est pas disponible.',
         'meeting_attendance_not_ended' => 'L\'enregistrement des présences n\'est pas encore terminé pour cette salle.',
         'meeting_statistics_disabled' => 'Les données d\'utilisations sont indisponibles.',

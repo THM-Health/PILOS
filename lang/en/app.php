@@ -30,7 +30,6 @@ return [
     'error' => 'An error occurred',
     'errors' => [
         'attendance_agreement_missing' => 'Consent to record attendance is required.',
-        'file_not_found' => 'The file could not be found.',
         'join_failed' => 'Joining the room has failed because a connection error has occurred.',
         'meeting_attendance_disabled' => 'The logging of attendance is unavailable.',
         'meeting_attendance_not_ended' => 'The logging of attendance is not yet completed for this room.',

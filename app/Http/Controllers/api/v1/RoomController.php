@@ -183,10 +183,8 @@ class RoomController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function start(Room $room, StartJoinMeeting $request, RoomAuthService $roomAuthService)
+    public function start(Room $room, StartJoinMeeting $request)
     {
-        $this->authorize('start', [$room, $roomAuthService->getRoomToken($room)]);
-
         $roomService = new RoomService($room);
         $url = $roomService->start($request->record_attendance, $request->record)->getJoinUrl($request);
 

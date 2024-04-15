@@ -30,7 +30,6 @@ return [
     'error' => 'Es ist ein Fehler aufgetreten',
     'errors' => [
         'attendance_agreement_missing' => 'Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.',
-        'file_not_found' => 'Die Datei konnte nicht gefunden werden.',
         'join_failed' => 'Der Beitritt zum Raum ist fehlgeschlagen, da ein Verbindungsfehler aufgetreten ist.',
         'meeting_attendance_disabled' => 'Die Protokollierung der Anwesenheit ist nicht verfügbar.',
         'meeting_attendance_not_ended' => 'Die Protokollierung der Anwesenheit ist für diesen Raum noch nicht abgeschlossen.',
