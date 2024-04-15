@@ -1,47 +1,73 @@
 <template>
+  <!-- button -->
+  <Button
+    class="flex-shrink-0"
+    v-tooltip="$t('rooms.files.upload')"
+    :aria-label="$t('rooms.files.upload')"
+    severity="success"
+    :disabled="disabled"
+    @click="openModal"
+    icon="fa-solid fa-upload"
+  />
 
-  <div class="flex flex-column gap-2">
-    <div class="flex flex-row">
-      <label
-        for="file"
-        class="flex-shrink-0 p-button p-component lg:border-noround-right border-round"
-        :class="{'p-disabled': disabled}"
-        tabindex="0"
-        @keyup.enter="fileInputRef.click()"
-        @keyup.space="fileInputRef.click()"
-      >
-        <i class="fa-solid fa-upload mr-2"></i> {{ $t('app.browse') }}
-      </label>
-      <input
-        type="file"
-        ref="fileInputRef"
-        id="file"
-        class="p-sr-only"
-        :disabled="disabled"
-        @input="fileSelected"
-        :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
-      />
-      <div
-        class="flex-grow-1 border-1 border-round border-400 border-noround-left hidden lg:flex cursor-pointer align-items-center p-2"
-        :class="dropZoneClasses"
-        ref="dropZoneRef"
-         @keyup.enter="fileInputRef.click()"
-        @keyup.space="fileInputRef.click()"
-        @click="fileInputRef.click()"
-      >
+  <!-- modal -->
+  <Dialog
+    v-model:visible="showModal"
+    modal
+    :header="$t('rooms.files.upload')"
+    :style="{ width: '500px' }"
+    :breakpoints="{ '575px': '90vw' }"
+    :draggable="false"
+    :closeOnEscape="!isUploading"
+    :dismissableMask="false"
+    :closable="!isUploading"
+  >
+    <div class="flex flex-column gap-2">
+        <label
+          for="file"
+          class="flex flex-row justify-content-center gap-2 p-button p-component border-round"
+          :class="{'p-disabled': disabled}"
+          tabindex="0"
+          @keyup.enter="fileInputRef.click()"
+          @keyup.space="fileInputRef.click()"
+        >
+          <i class="fa-solid fa-upload"></i> {{ $t('app.browse') }}
+        </label>
+        <input
+          type="file"
+          ref="fileInputRef"
+          id="file"
+          class="p-sr-only"
+          :disabled="disabled"
+          @input="fileSelected"
+          :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
+        />
+        <div
+          class="border-1 border-round border-400 text-center cursor-pointer align-items-center p-2"
+          :class="dropZoneClasses"
+          ref="dropZoneRef"
+          @keyup.enter="fileInputRef.click()"
+          @keyup.space="fileInputRef.click()"
+          @click="fileInputRef.click()"
+        >
           <span v-if="!isUploading" class="text-center">
             {{ $t('rooms.files.select_or_drag') }}
           </span>
           <span v-else>
             {{ uploadingFile }}
           </span>
-      </div>
-    </div>
-    <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
-    <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
-    <p class="p-error" v-html="formErrors.fieldError('file')" />
+        </div>
+
+      <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
+      <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
+      <p class="p-error" v-html="formErrors.fieldError('file')" />
+
+      <Message v-if="uploaded" severity="success" icon="fa-solid fa-check-circle">
+        {{ $t('rooms.files.uploaded') }}
+      </Message>
   </div>
 
+  </Dialog>
 </template>
 <script setup>
 
@@ -72,6 +98,9 @@ const isOverDropZone = ref(false);
 const isUploading = ref(false);
 const uploadProgress = ref(0);
 const uploadingFile = ref(null);
+
+const showModal = ref(false);
+const uploaded = ref(false);
 
 const api = useApi();
 const settingsStore = useSettingsStore();
@@ -122,11 +151,19 @@ const dropZoneClasses = computed(() => {
   ];
 });
 
+function openModal () {
+  showModal.value = true;
+  uploaded.value = false;
+  formErrors.clear();
+}
+
 function fileSelected (event) {
   uploadFile(event.target.files[0]);
 }
 
 function uploadFile (file) {
+  uploaded.value = false;
+
   if (file == null) {
     return;
   }
@@ -155,6 +192,7 @@ function uploadFile (file) {
   }).then(response => {
     // Fetch successful
     emit('uploaded');
+    uploaded.value = true;
   }).catch((error) => {
     if (error.response) {
       if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
