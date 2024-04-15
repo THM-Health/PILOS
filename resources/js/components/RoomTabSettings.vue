@@ -614,7 +614,7 @@ function load () {
       api.error(error);
       loadingError.value = true;
     }).finally(() => {
-      //Disable busy indicator
+      // Disable busy indicator
       isBusy.value = false;
     });
 }
@@ -647,9 +647,8 @@ function resetToRoomTypeSettings (resetToDefaults = false) {
     // Create new access code if the room should have an access code but does not have one
     if (settings.value.room_type.has_access_code_default && settings.value.access_code === null) {
       createAccessCode();
-    }
-    // Delete access code if the room should not have an access code but has one
-    else if (!settings.value.room_type.has_access_code_default) {
+    } else if (!settings.value.room_type.has_access_code_default) {
+      // Delete access code if the room should not have an access code but has one
       settings.value.access_code = null;
     }
   }
