@@ -30,10 +30,10 @@ class RoomMemberController extends Controller
      */
     public function index(Room $room, Request $request)
     {
+        $additional = [];
+
         $sortBy = match ($request->get('sort_by')) {
             'firstname' => 'firstname',
-            'email' => 'email',
-            'role' => 'role',
             default => 'lastname',
         };
 
@@ -42,9 +42,33 @@ class RoomMemberController extends Controller
             default => 'asc',
         };
 
-        $members = $room->members()->orderBy($sortBy, $sortOrder)->paginate(setting('pagination_page_size'));
+        $filter = match ($request->get('filter')) {
+            'participant_role' => ['role', RoomUserRole::USER],
+            'moderator_role' => ['role', RoomUserRole::MODERATOR],
+            'co_owner_role' => ['role', RoomUserRole::CO_OWNER],
+            default => null,
+        };
 
-        return RoomUser::collection($members);
+        $resource = $room->members()->orderBy($sortBy, $sortOrder);
+
+        // count all before applying filters
+        $additional['meta']['total_no_filter'] = $resource->count();
+
+        if ($request->has('search')) {
+            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            foreach ($searchQueries as $searchQuery) {
+                $resource = $resource->where(function ($query) use ($searchQuery) {
+                    $query->where('firstname', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('lastname', 'like', '%'.$searchQuery.'%');
+                });
+            }
+        }
+
+        if ($filter) {
+            $resource = $resource->where($filter[0], $filter[1]);
+        }
+
+        return RoomUser::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
     }
 
     /**
