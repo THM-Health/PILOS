@@ -809,6 +809,10 @@ class RecordingTest extends TestCase
         $response = $this->actingAs($room->owner)->get(route('recording.resource', ['format' => $notes, 'resource' => '../podcast/audio.ogg']));
         $response->assertNotFound();
 
+        // Try invalid file
+        $response = $this->actingAs($room->owner)->get(route('recording.resource', ['format' => $notes, 'resource' => 'audio.ogg']));
+        $response->assertNotFound();
+
         // Check if permission to access the resource are bound to the session
         $this->flushSession();
         $response = $this->actingAs($room->owner)->get($url);
