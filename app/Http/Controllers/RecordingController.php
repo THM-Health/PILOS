@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recording;
+use App\Models\RecordingFormat;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -10,15 +11,15 @@ use ZipStream\ZipStream;
 
 class RecordingController extends Controller
 {
-    public function resource(string $format, Recording $recording, string $resource = 'index.html'): \Illuminate\Http\Response
+    public function resource(RecordingFormat $format, string $resource = 'index.html'): \Illuminate\Http\Response
     {
         // Check session for permission to access recording
-        if (! session()->exists($recording->id.'-'.$format)) {
+        if (! session()->exists('access-format-'.$format->id)) {
             abort(403);
         }
 
         // Allowed directory to read files from
-        $allowedDir = $recording->id.'/'.$format;
+        $allowedDir = $format->recording->id.'/'.$format->format;
         $requestedFile = $allowedDir.'/'.$resource;
 
         $absFilePath = realpath(Storage::disk('recordings')->path($requestedFile));
@@ -31,6 +32,7 @@ class RecordingController extends Controller
         // Check if resolved requested file path is in allowed directory
         if (! str_contains($absFilePath, realpath(Storage::disk('recordings')->path($allowedDir)))) {
             // prevent path transversal
+            \Log::notice('Attempted to access recording file outside of allowed directory', ['requestedFile' => $requestedFile]);
             abort(404);
         }
 
@@ -43,7 +45,7 @@ class RecordingController extends Controller
 
     public function download(Recording $recording)
     {
-        $this->authorize('manageRecordings', $recording->room);
+        $this->authorize('viewAllRecordings', $recording->room);
 
         // Get all files in the recording directory, remove the root folder and filter the files by the whitelist
         $files = Collection::make(Storage::disk('recordings')->allFiles($recording->id))
@@ -57,7 +59,7 @@ class RecordingController extends Controller
         $response = new StreamedResponse(function () use ($recording, $files) {
             // create a new zip stream
             $zip = new ZipStream(
-                outputName: __('rooms.recordings.filename').'_'.$recording->meeting->start->format('Y-m-d').'.zip',
+                outputName: __('rooms.recordings.filename').'_'.$recording->start->format('Y-m-d').'.zip',
                 contentType: 'application/octet-stream',
             );
 

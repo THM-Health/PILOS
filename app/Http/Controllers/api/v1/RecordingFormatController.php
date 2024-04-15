@@ -11,7 +11,7 @@ class RecordingFormatController extends Controller
 {
     public function show(Room $room, Recording $recording, RecordingFormat $format)
     {
-        session()->push($recording->id.'-'.$format->format, true);
+        session()->push('access-format-'.$format->id, true);
 
         if ($format->format === 'presentation') {
             return response()->json(['url' => config('recording.player').'/'.$recording->id.'/']);
@@ -19,7 +19,7 @@ class RecordingFormatController extends Controller
 
         $resource = explode($recording->id.'/', $format->url, 2)[1];
 
-        $resourceRoute = route('recording.resource', ['format' => $format->format, 'recording' => $recording, 'resource' => $resource]).($resource == '' ? '/' : '');
+        $resourceRoute = route('recording.resource', ['format' => $format, 'resource' => $resource]).($resource == '' ? '/' : '');
 
         return response()->json(['url' => $resourceRoute]);
     }

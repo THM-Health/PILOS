@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('download/file/{roomFile}/{filename?}', [FileController::class, 'show'])->name('download.file')->middleware('signed');
 Route::get('download/attendance/{meeting}', [MeetingController::class, 'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
-Route::get('download/recording/{recording}', [\App\Http\Controllers\RecordingController::class, 'download'])->name('recording.download');
-Route::get('recording/{format}/{recording}/{resource?}', [\App\Http\Controllers\RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
+Route::get('download/recording/{recording}', [\App\Http\Controllers\RecordingController::class, 'download'])->middleware('auth:users,ldap')->name('recording.download');
+Route::get('recording/{format}/{resource?}', [\App\Http\Controllers\RecordingController::class, 'resource'])->where('resource', '.*')->name('recording.resource');
 
 Route::middleware('enable_if_config:services.shibboleth.enabled')->group(function () {
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');

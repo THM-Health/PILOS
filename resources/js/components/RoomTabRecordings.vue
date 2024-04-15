@@ -21,13 +21,9 @@
       lazy
       dataKey="id"
       paginator
-      :alwaysShowPaginator="false"
       :loading="isBusy"
       rowHover
-      v-model:sortField="sortField"
-      v-model:sortOrder="sortOrder"
       @page="onPage"
-      @sort="onSort"
       class="mt-4 table-auto lg:table-fixed"
     >
 

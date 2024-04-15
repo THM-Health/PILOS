@@ -26,17 +26,16 @@ class RecordingFormatFactory extends Factory
 
     public function format($format): Factory
     {
-        return $this->state(function (array $attributes) use ($format) {
-            return [
-                'format' => $format,
-                'url' => $this->generateUrl($attributes['recording_id'], $format),
-            ];
+        return $this->afterCreating(function (RecordingFormat $recordingFormat) use ($format) {
+            $recordingFormat->format = $format;
+            $recordingFormat->url = $this->generateUrl($recordingFormat->recording->id, $format);
+            $recordingFormat->save();
         });
     }
 
     public function generateUrl($recordingId, $format): string
     {
-        $domain = "https://{$this->faker->domainName}/";
+        $domain = "https://{$this->faker->domainName}";
         $paths = [
             'video' => "/playback/video/{$recordingId}/",
             'podcast' => "/podcast/{$recordingId}/audio.ogg",

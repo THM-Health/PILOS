@@ -17,6 +17,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Storage;
 use Tests\TestCase;
+use Tests\Utils\FileHelper;
+use ZipArchive;
 
 /**
  * Recording API tests
@@ -494,7 +496,7 @@ class RecordingTest extends TestCase
         $this->actingAs($room->owner)
             ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
             ->assertOk()
-            ->assertJson(['url' => route('recording.resource', ['format' => $format->format, 'recording' => $recording->id, 'resource' => 'audio.ogg'])]);
+            ->assertJson(['url' => route('recording.resource', ['format' => $format, 'resource' => 'audio.ogg'])]);
 
         // Check url is pointing to the player route (for presentation format)
         $format = RecordingFormat::factory()->format('presentation')->create();
@@ -768,5 +770,225 @@ class RecordingTest extends TestCase
         $this->actingAs($otherRoom->owner)
             ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $otherRoom->id, 'recording' => $recording->id]))
             ->assertNotFound();
+    }
+
+    /** Non-API Routes */
+    public function testAccessRecordingResource()
+    {
+        Storage::fake('recordings');
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        // Create format
+        $notes = RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+
+        // Create folder with recording files
+        Storage::disk('recordings')->makeDirectory($recording->id);
+        Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
+        Storage::disk('recordings')->makeDirectory($recording->id.'/podcast');
+        UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
+        UploadedFile::fake()->create('audio.ogg', 100, 'audio/ogg')->storeAs($recording->id.'/podcast', 'audio.ogg', 'recordings');
+
+        // Check url is pointing to the resource route
+        $apiResponse = $this->actingAs($room->owner)
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $notes->id]));
+
+        $apiResponse->assertOk();
+
+        $url = $apiResponse->json('url');
+
+        // Access the resource
+        $response = $this->actingAs($room->owner)->get($url);
+        $response->assertSuccessful();
+
+        // Check if file headers for reverse proxy are correctly set
+        $this->assertEquals('/private-storage/recordings/'.$recording->id.'/notes/notes.pdf', $response->headers->get('x-accel-redirect'));
+
+        // Try to path traversal
+        $response = $this->actingAs($room->owner)->get(route('recording.resource', ['format' => $notes, 'resource' => '../podcast/audio.ogg']));
+        $response->assertNotFound();
+
+        // Check if permission to access the resource are bound to the session
+        $this->flushSession();
+        $response = $this->actingAs($room->owner)->get($url);
+        $response->assertForbidden();
+    }
+
+    public function testDownloadRecording()
+    {
+        config(['recording.download_whitelist' => '(.*)']);
+
+        Storage::fake('recordings');
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        // Create formats
+        RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+        RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+
+        // Create folder with recording files
+        Storage::disk('recordings')->makeDirectory($recording->id);
+        Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
+        Storage::disk('recordings')->makeDirectory($recording->id.'/podcast');
+        UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
+        UploadedFile::fake()->create('audio.ogg', 100, 'audio/ogg')->storeAs($recording->id.'/podcast', 'audio.ogg', 'recordings');
+
+        // Check if owner can download the file
+        $response = $this->actingAs($room->owner)->get(route('recording.download', ['recording' => $recording]));
+        $response->assertSuccessful();
+
+        $zipFile = $response->streamedContent();
+        $tempFile = tempnam(sys_get_temp_dir(), 'zip_file');
+        file_put_contents($tempFile, $zipFile);
+
+        $tempDir = tempnam(sys_get_temp_dir(), 'zip_content');
+        unlink($tempDir);
+        mkdir($tempDir);
+
+        $zip = new ZipArchive;
+        $zip->open($tempFile);
+        $zip->extractTo($tempDir);
+        $zip->close();
+
+        $zipRoot = scandir($tempDir);
+        $this->assertEquals([
+            '.',
+            '..',
+            'notes',
+            'podcast',
+        ], $zipRoot);
+
+        $notesFiles = scandir($tempDir.'/notes');
+        $this->assertEquals([
+            '.',
+            '..',
+            'notes.pdf',
+        ], $notesFiles);
+
+        $podcastFiles = scandir($tempDir.'/podcast');
+        $this->assertEquals([
+            '.',
+            '..',
+            'audio.ogg',
+        ], $podcastFiles);
+
+        unlink($tempFile);
+        FileHelper::deleteDirectory($tempDir);
+    }
+
+    public function testDownloadRecordingWithWhitelist()
+    {
+        config(['recording.download_whitelist' => '^.*\.(pdf|mp4)$']);
+
+        Storage::fake('recordings');
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        // Create formats
+        RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+        RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+
+        // Create folder with recording files
+        Storage::disk('recordings')->makeDirectory($recording->id);
+        Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
+        Storage::disk('recordings')->makeDirectory($recording->id.'/podcast');
+        UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
+        UploadedFile::fake()->create('audio.ogg', 100, 'audio/ogg')->storeAs($recording->id.'/podcast', 'audio.ogg', 'recordings');
+
+        // Check if owner can download the file
+        $response = $this->actingAs($room->owner)->get(route('recording.download', ['recording' => $recording]));
+        $response->assertSuccessful();
+
+        $zipFile = $response->streamedContent();
+        $tempFile = tempnam(sys_get_temp_dir(), 'zip_file');
+        file_put_contents($tempFile, $zipFile);
+
+        $tempDir = tempnam(sys_get_temp_dir(), 'zip_content');
+        unlink($tempDir);
+        mkdir($tempDir);
+
+        $zip = new ZipArchive;
+        $zip->open($tempFile);
+        $zip->extractTo($tempDir);
+        $zip->close();
+
+        $zipRoot = scandir($tempDir);
+        $this->assertEquals([
+            '.',
+            '..',
+            'notes',
+        ], $zipRoot);
+
+        $notesFiles = scandir($tempDir.'/notes');
+        $this->assertEquals([
+            '.',
+            '..',
+            'notes.pdf',
+        ], $notesFiles);
+
+        unlink($tempFile);
+        FileHelper::deleteDirectory($tempDir);
+    }
+
+    public function testDownloadRecordingPermissions()
+    {
+        config(['recording.download_whitelist' => '(.*)']);
+
+        Storage::fake('recordings');
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        // Create formats
+        RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+        RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+
+        // Create folder with recording files
+        Storage::disk('recordings')->makeDirectory($recording->id);
+        Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
+        UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
+
+        // Check if owner can download the file
+        $this->actingAs($room->owner)->get(route('recording.download', ['recording' => $recording]))
+            ->assertSuccessful();
+
+        // Check if co-owner can download the file
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->get(route('recording.download', ['recording' => $recording]))
+            ->assertSuccessful();
+
+        // Check if moderator can download the file
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->actingAs($this->user)->get(route('recording.download', ['recording' => $recording]))
+            ->assertForbidden();
+
+        // Check if participant can download the file
+        $room->members()->sync([$this->user->id => ['role' => RoomUserRole::USER]]);
+        $this->actingAs($this->user)->get(route('recording.download', ['recording' => $recording]))
+            ->assertForbidden();
+
+        // Check if non-member cannot download the file
+        $room->members()->detach($this->user->id);
+        $this->actingAs($this->user)->get(route('recording.download', ['recording' => $recording]))
+            ->assertForbidden();
+
+        // Check if guest cannot download the file
+        Auth::logout();
+        $this->get(route('recording.download', ['recording' => $recording]))
+            ->assertStatus(302);
+
+        // Check if user with viewAll rooms permission can download
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->user->roles()->attach($this->role);
+        $this->actingAs($this->user)->get(route('recording.download', ['recording' => $recording]))
+            ->assertSuccessful();
+
+        // Check if user with manage rooms permission can download
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->get(route('recording.download', ['recording' => $recording]))
+            ->assertSuccessful();
     }
 }
