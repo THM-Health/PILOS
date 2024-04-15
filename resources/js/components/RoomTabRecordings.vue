@@ -210,10 +210,6 @@ function onPage (event) {
   loadData();
 }
 
-function onSort () {
-  loadData();
-}
-
 onMounted(() => {
   loadData();
 });
