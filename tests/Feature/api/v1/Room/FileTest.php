@@ -382,7 +382,7 @@ class FileTest extends TestCase
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->get(route('api.v1.rooms.files.show', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertForbidden();
+            ->assertNotFound();
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
@@ -545,7 +545,7 @@ class FileTest extends TestCase
 
         // Testing for room without permission
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room' => $other_room->id, 'file' => $room_file]))
-            ->assertForbidden();
+            ->assertNotFound();
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
@@ -629,7 +629,7 @@ class FileTest extends TestCase
         $other_room = Room::factory()->create();
         // Testing for room without permission
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
-            ->assertForbidden();
+            ->assertNotFound();
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);

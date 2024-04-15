@@ -59,10 +59,6 @@ class RoomFileController extends Controller
      */
     public function show(Room $room, RoomFile $file)
     {
-        if (! $file->room->is($room)) {
-            abort(404, __('app.errors.file_not_found'));
-        }
-
         $roomFileService = new RoomFileService($file);
         $url = $roomFileService->setTimeLimit(1)->url();
 
@@ -76,10 +72,6 @@ class RoomFileController extends Controller
      */
     public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
     {
-        if (! $file->room->is($room)) {
-            abort(404, __('app.errors.file_not_found'));
-        }
-
         if ($request->has('use_in_meeting')) {
             $file->use_in_meeting = $request->use_in_meeting;
             // If no default file for this room is set, set this file as default
@@ -118,10 +110,6 @@ class RoomFileController extends Controller
      */
     public function destroy(Room $room, RoomFile $file)
     {
-        if (! $file->room->is($room)) {
-            abort(404, __('app.errors.file_not_found'));
-        }
-
         $file->delete();
         $room->updateDefaultFile();
 
