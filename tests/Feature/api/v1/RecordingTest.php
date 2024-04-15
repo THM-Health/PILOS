@@ -22,9 +22,7 @@ use Tests\Utils\FileHelper;
 use ZipArchive;
 
 /**
- * Recording API tests
- *
- * @todo Add tests for room token access
+ * Recording tests
  */
 class RecordingTest extends TestCase
 {
@@ -303,6 +301,49 @@ class RecordingTest extends TestCase
             ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
             ->assertOk()
             ->assertJsonCount(1, 'data');
+    }
+
+    public function testIndexRoomToken()
+    {
+        $page_size = 20;
+        setting([
+            'pagination_page_size' => $page_size,
+        ]);
+
+        $room = Room::factory()->create();
+        $room->allow_guests = false;
+        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->save();
+
+        Recording::factory()->count(7)->create(['room_id' => $room->id, 'access' => RecordingAccess::OWNER]);
+        Recording::factory()->count(6)->create(['room_id' => $room->id, 'access' => RecordingAccess::MODERATOR]);
+        Recording::factory()->count(3)->create(['room_id' => $room->id, 'access' => RecordingAccess::PARTICIPANT]);
+        Recording::factory()->count(2)->create(['room_id' => $room->id, 'access' => RecordingAccess::EVERYONE]);
+
+        foreach (Recording::all() as $recording) {
+            RecordingFormat::factory()->count(2)->create(['recording_id' => $recording->id]);
+        }
+
+        // Create token
+        $token = RoomToken::factory()->create(['room_id' => $room->id]);
+        $token->role = RoomUserRole::USER;
+        $token->save();
+
+        // Access as guest with token with room participant role
+        $this->withHeaders(['Token' => $token->token])
+            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+            ->assertSuccessful()
+            ->assertJsonCount(5, 'data');
+
+        // Increase token role to moderator
+        $token->role = RoomUserRole::MODERATOR;
+        $token->save();
+
+        // Access as guest with token with room moderator role
+        $this->withHeaders(['Token' => $token->token])
+            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+            ->assertSuccessful()
+            ->assertJsonCount(11, 'data');
     }
 
     public function testShowNoAccessCodeGuestsAllowed()
