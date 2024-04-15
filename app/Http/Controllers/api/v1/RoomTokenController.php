@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTokenRequest;
 use App\Http\Resources\RoomToken as RoomTokenResource;
 use App\Models\Room;
 use App\Models\RoomToken;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Log;
@@ -19,9 +21,47 @@ class RoomTokenController extends Controller
      * @param  Room  $room  Room for which the tokens should be listed.
      * @return AnonymousResourceCollection
      */
-    public function index(Room $room)
+    public function index(Room $room, Request $request)
     {
-        return RoomTokenResource::collection($room->tokens);
+        $additional = [];
+
+        $sortBy = match ($request->get('sort_by')) {
+            'lastname' => 'lastname',
+            'last_usage' => 'last_usage',
+            default => 'firstname',
+        };
+
+        $sortOrder = match ($request->get('sort_direction')) {
+            'desc' => 'desc',
+            default => 'asc',
+        };
+
+        $filter = match ($request->get('filter')) {
+            'participant_role' => ['role', RoomUserRole::USER],
+            'moderator_role' => ['role', RoomUserRole::MODERATOR],
+            default => null,
+        };
+
+        $resource = $room->tokens()->orderBy($sortBy, $sortOrder);
+
+        // count all before applying filters
+        $additional['meta']['total_no_filter'] = $resource->count();
+
+        if ($request->has('search')) {
+            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            foreach ($searchQueries as $searchQuery) {
+                $resource = $resource->where(function ($query) use ($searchQuery) {
+                    $query->where('firstname', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('lastname', 'like', '%'.$searchQuery.'%');
+                });
+            }
+        }
+
+        if ($filter) {
+            $resource = $resource->where($filter[0], $filter[1]);
+        }
+
+        return RoomTokenResource::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
     }
 
     /**
