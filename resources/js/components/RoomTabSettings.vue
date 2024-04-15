@@ -79,15 +79,10 @@
 
               <!-- Checkbox allow guests to access the room -->
               <div class="col-12 md:col-3 flex flex-column gap-2">
-                <div class="flex align-items-center gap-2">
-                  <span
-                    v-if="settings.room_type.allow_guests_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="allow-guests"> {{$t('rooms.settings.general.access_by_guests')}}</label>
-                </div>
+                <label for="allow-guests" class="flex align-items-center gap-2">
+                  <RoomSettingEnforcedIcon v-if="settings.room_type.allow_guests_enforced"/>
+                  {{$t('rooms.settings.general.access_by_guests')}}
+                </label>
 
                 <div class="flex align-items-center gap-2">
                   <InputSwitch
@@ -128,15 +123,10 @@
             <p class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.video_conference.title') }}</p>
           </div>
             <div class="col-12 md:col-3 flex flex-column gap-2">
-              <div class="flex align-items-center gap-2">
-                <span
-                  v-if="settings.room_type.everyone_can_start_enforced"
-                  class="fa-solid fa-lock"
-                  v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                  :aria-label="$t('rooms.settings.general.enforced_setting')"
-                />
-                <label for="everyone-can-start"> {{$t('rooms.settings.video_conference.allow_starting')}} </label>
-              </div>
+              <label for="everyone-can-start" class="align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="settings.room_type.everyone_can_start_enforced"/>
+                {{$t('rooms.settings.video_conference.allow_starting')}}
+              </label>
 
               <!-- Everyone can start a new meeting, not only the moderator -->
                 <div class="flex align-items-center gap-2">
@@ -154,15 +144,10 @@
 
               <!-- Mute everyone's microphone on meeting join -->
               <div class="col-12 md:col-3 flex flex-column gap-2">
-                <div class="flex align-items-center gap-2">
-                  <span
-                    v-if="settings.room_type.mute_on_start_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="mute-on-start"> {{$t('rooms.settings.video_conference.microphone')}}</label>
-                </div>
+                <label for="mute-on-start" class="flex align-items-center gap-2">
+                  <RoomSettingEnforcedIcon v-if="settings.room_type.mute_on_start_enforced"/>
+                  {{$t('rooms.settings.video_conference.microphone')}}
+                </label>
                 <div class="flex align-items-center gap-2">
                   <InputSwitch
                     v-model="settings.mute_on_start"
@@ -179,15 +164,10 @@
             <div class="col-12 md:col-3">
               <!-- Radio usage of the waiting room/guest lobby -->
               <div class="flex flex-column gap-2">
-                <div class="flex align-items-center gap-2">
-                  <span
-                    v-if="settings.room_type.lobby_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label>{{ $t('rooms.settings.video_conference.lobby.title') }} </label>
-                </div>
+                <label class="flex align-items-center gap-2">
+                  <RoomSettingEnforcedIcon v-if="settings.room_type.lobby_enforced"/>
+                  {{ $t('rooms.settings.video_conference.lobby.title') }}
+                </label>
 
                 <div class="flex align-items-center gap-2">
                   <RadioButton
@@ -230,15 +210,10 @@
 
               <!-- Checkbox record attendance of users and guests -->
               <div class="col-12 md:col-3 flex flex-column gap-2">
-                <div class="flex align-items-center gap-2">
-                  <span
-                    v-if="settings.room_type.record_attendance_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="record-attendance"> {{$t('rooms.settings.video_conference.attendance')}}</label>
-                </div>
+                <label for="record-attendance" class="flex align-items-center gap-2">
+                  <RoomSettingEnforcedIcon v-if="settings.room_type.record_attendance_enforced"/>
+                  {{$t('rooms.settings.video_conference.attendance')}}
+                </label>
 
                 <div class="flex align-items-center gap-2">
                   <InputSwitch
@@ -286,13 +261,10 @@
                     class="flex-shrink-0"
                     input-id="lock_settings_disable_cam"
                   />
-                  <span
-                    v-if="settings.room_type.lock_settings_disable_cam_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="lock_settings_disable_cam">{{ $t('rooms.settings.restrictions.lock_settings_disable_cam') }}</label>
+                  <label for="lock_settings_disable_cam" class="flex align-items-center gap-2">
+                    <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_cam_enforced"/>
+                    {{ $t('rooms.settings.restrictions.lock_settings_disable_cam') }}
+                  </label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam')"/>
               </div>
@@ -311,12 +283,10 @@
                     class="flex-shrink-0"
                     input-id="webcams-only-for-moderator"
                   />
-                  <span
-                    v-if="settings.room_type.webcams_only_for_moderator_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="webcams-only-for-moderator">{{ $t('rooms.settings.restrictions.webcams_only_for_moderator') }}</label>
+                  <label for="webcams-only-for-moderator" class="flex align-items-center gap-2">
+                    <RoomSettingEnforcedIcon v-if="settings.room_type.webcams_only_for_moderator_enforced"/>
+                    {{ $t('rooms.settings.restrictions.webcams_only_for_moderator') }}
+                  </label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('webcams_only_for_moderator')"/>
               </div>
@@ -330,12 +300,10 @@
                     class="flex-shrink-0"
                     input-id="disable-mic"
                   />
-                  <span
-                    v-if="settings.room_type.lock_settings_disable_mic_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="disable-mic">{{ $t('rooms.settings.restrictions.lock_settings_disable_mic') }}</label>
+                  <label for="disable-mic" class="flex align-items-center gap-2">
+                    <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_mic_enforced"/>
+                    {{ $t('rooms.settings.restrictions.lock_settings_disable_mic') }}
+                  </label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic')"/>
               </div>
@@ -350,12 +318,10 @@
                     class="flex-shrink-0"
                     input-id="disable-public-chat"
                   />
-                  <span
-                    v-if="settings.room_type.lock_settings_disable_public_chat_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="disable-public-chat">{{ $t('rooms.settings.restrictions.lock_settings_disable_public_chat') }}</label>
+                  <label for="disable-public-chat" class="flex align-items-center gap-2">
+                    <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_public_chat_enforced"/>
+                    {{ $t('rooms.settings.restrictions.lock_settings_disable_public_chat') }}
+                  </label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat')"/>
               </div>
@@ -373,13 +339,10 @@
                     class="flex-shrink-0"
                     input-id="disable-private-chat"
                   />
-                  <span
-                    v-if="settings.room_type.lock_settings_disable_private_chat_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="disable-private-chat">{{ $t('rooms.settings.restrictions.lock_settings_disable_private_chat') }}</label>
+                  <label for="disable-private-chat" class="flex align-items-center gap-2">
+                    <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_private_chat_enforced"/>
+                    {{ $t('rooms.settings.restrictions.lock_settings_disable_private_chat') }}
+                  </label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat')"/>
               </div>
@@ -394,13 +357,10 @@
                     class="flex-shrink-0"
                     input-id="disable-note-edit"
                   />
-                  <span
-                    v-if="settings.room_type.lock_settings_disable_note_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="disable-note-edit">{{ $t('rooms.settings.restrictions.lock_settings_disable_note') }} </label>
+                  <label for="disable-note-edit" class="flex align-items-center gap-2">
+                    <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_note_enforced"/>
+                    {{ $t('rooms.settings.restrictions.lock_settings_disable_note') }}
+                  </label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note')"/>
               </div>
@@ -415,13 +375,10 @@
                     class="flex-shrink-0"
                     input-id="disable-user-list"
                   />
-                  <span
-                    v-if="settings.room_type.lock_settings_hide_user_list_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="disable-user-list">{{ $t('rooms.settings.restrictions.lock_settings_hide_user_list') }}</label>
+                  <label for="disable-user-list" class="flex align-items-center gap-2">
+                    <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_hide_user_list_enforced"/>
+                    {{ $t('rooms.settings.restrictions.lock_settings_hide_user_list') }}
+                  </label>
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list')"/>
               </div>
@@ -441,28 +398,20 @@
                   class="flex-shrink-0"
                   input-id="allow-membership"
                 />
-                <span
-                  v-if="settings.room_type.allow_membership_enforced"
-                  class="fa-solid fa-lock"
-                  v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                  :aria-label="$t('rooms.settings.general.enforced_setting')"
-                />
-                <label for="allow-membership">{{ $t('rooms.settings.participants.allow_membership') }}</label>
+                <label for="allow-membership" class="flex align-items-center gap-2">
+                  <RoomSettingEnforcedIcon v-if="settings.room_type.allow_membership_enforced"/>
+                  {{ $t('rooms.settings.participants.allow_membership') }}
+                </label>
               </div>
               <p class="p-error" v-html="formErrors.fieldError('allow_membership')"/>
             </div>
 
             <!-- Radio default user role for logged in users only -->
             <div class="col-12 md:col-3 flex flex-column">
-              <div class="flex align-items-center gap-2">
-                <span
-                  v-if="settings.room_type.default_role_enforced"
-                  class="fa-solid fa-lock"
-                  v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                  :aria-label="$t('rooms.settings.general.enforced_setting')"
-                />
-                <label for="default-role">{{ $t('rooms.settings.participants.default_role.title') }}</label>
-              </div>
+              <label for="default-role" class="flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="settings.room_type.default_role_enforced"/>
+                {{ $t('rooms.settings.participants.default_role.title') }}
+              </label>
 
               <small>
                 {{ $t('rooms.settings.participants.default_role.only_logged_in') }}
@@ -491,15 +440,10 @@
           </div>
               <!-- Checkbox publicly list this room -->
               <div class="col-12 md:col-3 flex flex-column gap-2">
-                <div class="flex align-items-center gap-2">
-                  <span
-                    v-if="settings.room_type.visibility_enforced"
-                    class="fa-solid fa-lock"
-                    v-tooltip="$t('rooms.settings.general.enforced_setting')"
-                    :aria-label="$t('rooms.settings.general.enforced_setting')"
-                  />
-                  <label for="visibility">{{ $t('rooms.settings.advanced.visibility.title') }}</label>
-                </div>
+                <label for="visibility" class="flex align-items-center gap-2">
+                  <RoomSettingEnforcedIcon v-if="settings.room_type.visibility_enforced"/>
+                  {{ $t('rooms.settings.advanced.visibility.title') }}
+                </label>
                 <div class="flex align-items-center gap-2">
                   <SelectButton
                     v-model="settings.room_type.visibility_default"
@@ -565,6 +509,7 @@ import { useFormErrors } from '../composables/useFormErrors.js';
 import { onMounted, ref, computed, watch } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
+import RoomSettingEnforcedIcon from './RoomSettingEnforcedIcon.vue';
 
 const props = defineProps({
   room: {
