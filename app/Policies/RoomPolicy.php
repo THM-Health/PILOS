@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Room;
 use App\Models\RoomFile;
-use App\Models\RoomToken;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -60,8 +59,6 @@ class RoomPolicy
     /**
      * Determine whether the user can view the room access code.
      *
-     * @param  User|null  $user
-     * @param  ?RoomToken  $token
      * @return bool
      */
     public function viewAccessCode(User $user, Room $room)
@@ -93,10 +90,9 @@ class RoomPolicy
      * Determine whether the user can start a new meeting in a room.
      *
      * @param  ?User  $user
-     * @param  ?RoomToken  $token
      * @return bool
      */
-    public function start(?User $user, Room $room, ?RoomToken $token)
+    public function start(?User $user, Room $room)
     {
         if ($room->everyone_can_start) {
             return true;
@@ -106,7 +102,7 @@ class RoomPolicy
             return true;
         }
 
-        if ($room->isModerator($user, $token)) {
+        if ($room->isModerator($user)) {
             return true;
         }
 

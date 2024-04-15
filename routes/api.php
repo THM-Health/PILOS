@@ -94,7 +94,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.destroy')->middleware('can:manageTokens,room');
 
         // File operations
-        Route::middleware('can:manageFiles,room')->group(function () {
+        Route::middleware('can:manageFiles,room')->scopeBindings()->group(function () {
             Route::post('rooms/{room}/files', [RoomFileController::class, 'store'])->name('rooms.files.add');
 
             Route::put('rooms/{room}/files/{file}', [RoomFileController::class, 'update'])->name('rooms.files.update');
@@ -133,10 +133,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
-    Route::get('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('room.authenticate');
-    Route::get('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join')->middleware('room.authenticate');
-    Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get')->middleware('room.authenticate');
-    Route::get('rooms/{room}/files/{file}', [RoomFileController::class, 'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
+
+    Route::middleware('room.authenticate')->scopeBindings()->group(function () {
+        Route::get('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
+        Route::get('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
+        Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get');
+        Route::get('rooms/{room}/files/{file}', [RoomFileController::class, 'show'])->name('rooms.files.show')->middleware('can:downloadFile,room,file');
+    });
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class, 'endMeetingCallback'])->name('meetings.endcallback');
 });
