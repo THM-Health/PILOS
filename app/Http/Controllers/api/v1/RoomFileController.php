@@ -23,24 +23,29 @@ class RoomFileController extends Controller
     {
         $additional = [];
 
+        // Sort by column, fallback/default is filename
         $sortBy = match ($request->get('sort_by')) {
             'uploaded' => 'created_at',
             default => 'filename',
         };
 
+        // Sort direction, fallback/default is asc
         $sortOrder = match ($request->get('sort_direction')) {
             'desc' => 'desc',
             default => 'asc',
         };
 
+        // Filter, default is no filter
         $filter = match ($request->get('filter')) {
             'use_in_meeting' => ['use_in_meeting', 1],
             'downloadable' => ['download', 1],
             default => null,
         };
 
+        // Get all files of the room
         $resource = $room->files()->orderBy($sortBy, $sortOrder);
 
+        // If user is not allowed to view all files, only query files that are downloadable
         if (! \Gate::allows('viewAllFiles', $room)) {
             $resource = $resource->where('download', true);
         }
@@ -48,14 +53,17 @@ class RoomFileController extends Controller
         // count all before applying filters
         $additional['meta']['total_no_filter'] = $resource->count();
 
+        // Apply search filter
         if ($request->has('search')) {
             $resource = $resource->where('filename', 'like', '%'.$request->query('search').'%');
         }
 
+        // Apply filter if set, first element is the column, second the value to query
         if ($filter) {
             $resource = $resource->where($filter[0], $filter[1]);
         }
 
+        // If user is allowed to view all files, return PrivateRoomFile resource to show additional information
         if (\Gate::allows('viewAllFiles', $room)) {
             $additional['default'] = $room->files()->where('default', true)->first();
 
