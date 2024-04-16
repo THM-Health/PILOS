@@ -61,14 +61,14 @@
 
             <!-- Everyone can start a new meeting, not only the moderator -->
             <div class="field grid">
-                <label for="everyone-can-start" class="col-8 flex align-items-center gap-2">
+                <label for="everyone-can-start-default" class="col-8 flex align-items-center gap-2">
                   <RoomSettingEnforcedIcon v-if="roomType.everyone_can_start_enforced"/>
                   {{$t('rooms.settings.video_conference.everyone_can_start')}}
                 </label>
 
               <div class="col-4 justify-content-center flex align-items-center">
                 <InputSwitch
-                  input-id="everyone-can-start"
+                  input-id="everyone-can-start-default"
                   :model-value="roomType.everyone_can_start_default"
                   disabled
                 />
@@ -140,7 +140,7 @@
             </div>
 
             <!--
-            Disable the ability to see the webcam of non moderator-uses, moderators can see all webcams,
+            Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
             can be changed during the meeting
             -->
             <div class="field grid">

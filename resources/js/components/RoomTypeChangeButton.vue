@@ -56,7 +56,7 @@ const props = defineProps({
 const modalVisible = ref(false);
 const confirmationModalVisible = ref(false);
 
-const newRoomType = ref(null);
+const newRoomType = ref({});
 
 function editRoomType () {
   newRoomType.value = _.cloneDeep(model.value);

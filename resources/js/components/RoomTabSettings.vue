@@ -128,7 +128,10 @@
           </div>
         </div>
 
-        <!-- Expert settings (only shown when expert mode is activated) -->
+        <!--
+        Expert settings (only shown when expert mode is activated)
+        When the expert mode is deactivated the default values from the room type will be used
+        -->
         <div class="grid" v-if="settings.expert_mode">
           <Divider />
 
@@ -291,7 +294,7 @@
           </div>
 
           <!--
-          Disable the ability to see the webcam of non moderator-uses, moderators can see all webcams,
+          Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
           can be changed during the meeting
           -->
           <div class="col-12 md:col-3">
