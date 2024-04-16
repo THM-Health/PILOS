@@ -26,11 +26,11 @@
               v-model="search"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
-              @keyup.enter="loadData()"
+              @keyup.enter="loadData(1)"
             />
             <Button
               :disabled="isBusy"
-              @click="loadData()"
+              @click="loadData(1)"
               v-tooltip="$t('app.search')"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
@@ -42,14 +42,14 @@
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Dropdown v-model="filter" :options="filterOptions" @change="loadData()" option-label="name" option-value="value" />
+            <Dropdown v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
           </InputGroup>
 
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Dropdown v-model="sortField" :options="sortFields" @change="loadData()" option-label="name" option-value="value" />
+            <Dropdown v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
             <InputGroupAddon class="p-0">
               <Button :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
             </InputGroupAddon>
@@ -61,7 +61,7 @@
           v-if="userPermissions.can('manageSettings', props.room)"
           :room-id="props.room.id"
           :disabled="isBusy"
-          @uploaded="loadData"
+          @uploaded="loadData()"
         />
 
         <!-- Reload file list -->
@@ -70,7 +70,7 @@
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData"
+          @click="loadData()"
           icon="fa-solid fa-sync"
         />
       </div>
@@ -81,6 +81,7 @@
       <DataView
         :totalRecords="meta.total"
         :rows="meta.per_page"
+        :first="meta.from"
         :value="files"
         lazy
         dataKey="id"
@@ -143,7 +144,7 @@
                     :token="props.token"
                     :access-code="props.accessCode"
                     :disabled="isBusy || (!downloadAgreement && requireAgreement)"
-                    @file-not-found="loadData"
+                    @file-not-found="loadData()"
                     @invalid-code="emit('invalidCode')"
                     @invalid-token="emit('invalidToken')"
                   />
@@ -156,7 +157,7 @@
                     :default="defaultFile?.id === item.id"
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :disabled="isBusy"
-                    @edited="loadData"
+                    @edited="loadData()"
                   />
                   <RoomTabFilesDeleteButton
                     :room-id="props.room.id"
@@ -164,7 +165,7 @@
                     :filename="item.filename"
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :disabled="isBusy"
-                    @deleted="loadData"
+                    @deleted="loadData()"
                   />
                 </div>
               </div>
@@ -207,7 +208,6 @@ const files = ref([]);
 const defaultFile = ref(null);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const currentPage = ref(1);
 const sortField = ref('uploaded');
 const sortOrder = ref(0);
 
@@ -227,11 +227,11 @@ const filterOptions = computed(() => [
 
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 1 ? 0 : 1;
-  loadData();
+  loadData(1);
 };
 
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -249,7 +249,7 @@ const requireAgreement = computed(() => {
 /**
  * (Re)load file list
  */
-function loadData () {
+function loadData (page = null) {
   // Change table to busy state
   isBusy.value = true;
   loadingError.value = false;
@@ -257,7 +257,7 @@ function loadData () {
   // Fetch file list
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       search: search.value === '' ? null : search.value,
@@ -303,8 +303,7 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 /**
@@ -314,9 +313,13 @@ function onPage (event) {
  * @return undefined
  */
 onMounted(() => {
-  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
   loadData();
 });
+
+function onRoomChanged () {
+  loadData();
+}
 
 /**
  * Removes the listener for current room change
@@ -325,7 +328,7 @@ onMounted(() => {
  * @return undefined
  */
 onBeforeUnmount(() => {
-  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
 });
 
 </script>
