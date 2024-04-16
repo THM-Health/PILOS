@@ -46,8 +46,11 @@
           </div>
 
           <!-- Access code -->
-          <div class="col-12 md:col-3 flex flex-column">
-            <label for="access-code" class="mb-2">{{ $t('rooms.access_code') }}</label>
+          <div class="col-12 md:col-3 flex flex-column gap-2">
+            <label for="access-code" class="flex align-items-center gap-2">
+              <RoomSettingEnforcedIcon v-if="settings.room_type.has_access_code_enforced"/>
+              {{ $t('rooms.access_code') }}
+            </label>
 
             <InputGroup>
               <!-- Generate random access code -->
@@ -73,6 +76,7 @@
               <Button
                 v-if="settings.access_code && !(settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
                 v-tooltip="$t('rooms.settings.general.delete_access_code')"
+                :aria-label="$t('rooms.settings.general.delete_access_code')"
                 :disabled="disabled"
                 icon="fa-solid fa-trash"
                 @click="settings.access_code = null"
@@ -448,7 +452,7 @@
                 ]"
                 class="flex-shrink-0"
                 dataKey="role"
-                aria-labelledby="" y="default-role-label"
+                aria-labelledby="default-role-label"
                 optionLabel="label"
                 optionValue="role"
               />
