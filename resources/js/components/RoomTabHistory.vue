@@ -11,7 +11,7 @@
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Dropdown v-model="sortField" :options="sortFields" @change="loadData()" option-label="name" option-value="value" />
+            <Dropdown v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
             <InputGroupAddon class="p-0">
               <Button :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
             </InputGroupAddon>
@@ -23,7 +23,7 @@
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData"
+          @click="loadData()"
           icon="fa-solid fa-sync"
         />
       </div>
@@ -121,12 +121,11 @@ const { t } = useI18n();
 const meetings = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const currentPage = ref(1);
 const sortField = ref('start');
 const sortOrder = ref(0);
 
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -140,20 +139,19 @@ const sortFields = computed(() => [
 
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 1 ? 0 : 1;
-  currentPage.value = 1;
-  loadData();
+  loadData(1);
 };
 
 /**
  * Loads the current and previous meetings of a given room
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
@@ -162,7 +160,6 @@ function loadData () {
   api.call('rooms/' + props.room.id + '/meetings', config).then(response => {
     meetings.value = response.data.data;
     meta.value = response.data.meta;
-    currentPage.value = meta.value.current_page;
   }).catch(error => {
     api.error(error);
     loadingError.value = true;
@@ -172,8 +169,7 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 onMounted(() => {
