@@ -64,6 +64,7 @@ function editRoomType () {
 }
 
 function handleOk () {
+  // Show room type confirmation modal if the settings change
   if (roomSettingsChanged()) {
     confirmationModalVisible.value = true;
   } else {
@@ -71,6 +72,11 @@ function handleOk () {
   }
 }
 
+/**
+ * Checks if the default value or the enforced value of a single setting change with the new room type
+ * @param settingName setting name of the setting that should be checked for changes
+ * @returns {boolean} boolean that indicates if the setting is changed
+ */
 function roomSettingChanged (settingName) {
   // Check if default value of the setting changed / is different to the current setting
   if (props.currentSettings[settingName] !== newRoomType.value[settingName + '_default']) {
@@ -85,10 +91,13 @@ function roomSettingChanged (settingName) {
   return false;
 }
 
+/**
+ * Checks if any of the current visible settings change with the new room type
+ * @returns {boolean}
+ */
 function roomSettingsChanged () {
   // Check access code setting for changes
-  const currentSettingsHasAccessCode = props.currentSettings.access_code !== null;
-  if (currentSettingsHasAccessCode !== newRoomType.value.has_access_code_default) {
+  if ((props.currentSettings.access_code !== null) !== newRoomType.value.has_access_code_default) {
     return true;
   }
   if (props.currentSettings.room_type.has_access_code_enforced !== newRoomType.value.has_access_code_enforced) {
@@ -103,10 +112,14 @@ function roomSettingsChanged () {
     }
   }
 
-  // There are no change
+  // There are no change for the visible settings
   return false;
 }
 
+/**
+ * Change the room type
+ * @param resetToDefaults indicates if the settings should be reset to the default values of the room type
+ */
 function changeRoomType (resetToDefaults = false) {
   model.value = _.cloneDeep(newRoomType.value);
   modalVisible.value = false;
