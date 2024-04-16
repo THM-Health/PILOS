@@ -8,11 +8,11 @@
               v-model="search"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
-              @keyup.enter="loadData()"
+              @keyup.enter="loadData(1)"
             />
             <Button
               :disabled="isBusy"
-              @click="loadData()"
+              @click="loadData(1)"
               v-tooltip="$t('app.search')"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
@@ -24,14 +24,14 @@
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Dropdown v-model="filter" :options="filterOptions" @change="loadData()" option-label="name" option-value="value" />
+            <Dropdown v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
           </InputGroup>
 
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Dropdown v-model="sortField" :options="sortFields" @change="loadData()" option-label="name" option-value="value" />
+            <Dropdown v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
             <InputGroupAddon class="p-0">
               <Button :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
             </InputGroupAddon>
@@ -43,7 +43,7 @@
         <RoomTabPersonalizedLinksAddButton
           :room-id="props.room.id"
           :disabled="isBusy"
-          @added="loadData"
+          @added="loadData()"
         />
 
         <!-- Reload file list -->
@@ -52,7 +52,7 @@
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData"
+          @click="loadData()"
           icon="fa-solid fa-sync"
         />
       </div>
@@ -62,6 +62,7 @@
       <DataView
         :totalRecords="meta.total"
         :rows="meta.per_page"
+        :first="meta.from"
         :value="tokens"
         lazy
         dataKey="id"
@@ -71,7 +72,7 @@
         class="mt-4"
       >
 
-        <!-- Show message on empty recording list -->
+        <!-- Show message on empty list -->
         <template #empty>
           <div class="px-2">
             <InlineNote v-if="!isBusy && !loadingError && meta.total_no_filter === 0">{{ $t('rooms.tokens.nodata') }}</InlineNote>
@@ -122,7 +123,7 @@
                     :role="item.role"
                     :token="item.token"
                     :disabled="isBusy"
-                    @edited="loadData"
+                    @edited="loadData()"
                   />
                   <!-- delete -->
                   <RoomTabPersonalizedLinksDeleteButton
@@ -132,7 +133,7 @@
                     :lastname="item.lastname"
                     :token="item.token"
                     :disabled="isBusy"
-                    @deleted="loadData"
+                    @deleted="loadData()"
                   />
                 </div>
               </div>
@@ -181,11 +182,11 @@ const filterOptions = computed(() => [
 
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 1 ? 0 : 1;
-  loadData();
+  loadData(1);
 };
 
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -197,13 +198,13 @@ const meta = ref({
 /**
  * (Re)loads list of tokens from api
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       search: search.value === '' ? null : search.value,
@@ -226,8 +227,7 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 onMounted(() => {
