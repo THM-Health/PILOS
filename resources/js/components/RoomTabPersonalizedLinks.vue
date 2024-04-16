@@ -162,7 +162,6 @@ const { t } = useI18n();
 const tokens = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const currentPage = ref(1);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
 const search = ref('');
