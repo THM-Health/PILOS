@@ -91,7 +91,7 @@
         class="mt-4"
       >
 
-        <!-- Show message on empty recording list -->
+        <!-- Show message on empty list -->
         <template #empty>
           <div class="px-2">
             <InlineNote v-if="!isBusy && !loadingError && meta.total_no_filter === 0">{{ $t('rooms.files.nodata') }}</InlineNote>
