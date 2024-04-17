@@ -21,6 +21,8 @@
       :value="meetings"
       dataKey="id"
       paginator
+      :paginator-template="paginatorDefaults.getTemplate()"
+      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -92,6 +94,7 @@
 import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../composables/useApi.js';
 import { onMounted, ref } from 'vue';
+import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
 
 const props = defineProps({
   room: Object
@@ -99,6 +102,7 @@ const props = defineProps({
 
 const api = useApi();
 const settingsStore = useSettingsStore();
+const paginatorDefaults = usePaginatorDefaults();
 
 const meetings = ref([]);
 const isBusy = ref(false);

@@ -205,6 +205,8 @@
           lazy
           dataKey="id"
           :paginator="!loadingRooms && !loadingRoomsError"
+          :paginator-template="paginatorDefaults.getTemplate()"
+          :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
           :always-show-paginator="false"
           rowHover
           class="mt-4"
@@ -274,11 +276,13 @@ import { onMounted, ref, computed } from 'vue';
 import { useApi } from '@/composables/useApi.js';
 import { useI18n } from 'vue-i18n';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
+import { usePaginatorDefaults } from "../../composables/usePaginatorDefaults.js";
 
 const authStore = useAuthStore();
 const api = useApi();
 const { t } = useI18n();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 
 const toggleMobileMenu = ref(false);
 const loadingRooms = ref(false);

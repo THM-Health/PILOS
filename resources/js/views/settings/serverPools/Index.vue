@@ -45,6 +45,8 @@
       dataKey="id"
       lazy
       paginator
+      :paginator-template="paginatorDefaults.getTemplate()"
+      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
       rowHover
       stripedRows
       @page="onPage"
@@ -109,9 +111,11 @@ import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useActionColumn } from '@/composables/useActionColumn.js';
 import { onMounted, ref } from 'vue';
+import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 const actionColumn = useActionColumn([{ permissions: ['serverPools.view'] }, { permissions: ['serverPools.update'] }, { permissions: ['serverPools.delete'] }]);
 
 const isBusy = ref(false);

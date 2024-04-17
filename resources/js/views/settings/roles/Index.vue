@@ -42,6 +42,8 @@
       lazy
       dataKey="id"
       paginator
+      :paginator-template="paginatorDefaults.getTemplate()"
+      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -113,9 +115,11 @@ import { useApi } from '@/composables/useApi.js';
 import { onMounted, ref } from 'vue';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useActionColumn } from '@/composables/useActionColumn.js';
+import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 const actionColumn = useActionColumn([{ permissions: ['roles.view'] }, { permissions: ['roles.update'] }, { permissions: ['roles.delete'] }]);
 
 const isBusy = ref(false);

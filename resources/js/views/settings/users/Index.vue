@@ -116,6 +116,8 @@
       lazy
       dataKey="id"
       paginator
+      :paginator-template="paginatorDefaults.getTemplate()"
+      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -218,10 +220,12 @@ import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
 import { Multiselect } from 'vue-multiselect';
 import { useActionColumn } from '@/composables/useActionColumn.js';
+import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
+const paginatorDefaults = usePaginatorDefaults();
 
 // first: view action, second: edit action (requires only view permission for current user), third: resend pw (required at least update), fourth: delete action
 const actionColumn = useActionColumn([{ permissions: ['users.view'] }, { permissions: ['users.view'] }, { permissions: ['users.update'] }, { permissions: ['users.delete'] }]);

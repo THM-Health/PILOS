@@ -38,6 +38,8 @@
         v-model:selection="selectedMembers"
         dataKey="id"
         paginator
+        :paginator-template="paginatorDefaults.getTemplate()"
+        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
         :loading="isBusy || loadingError"
         rowHover
         stripedRows
@@ -150,6 +152,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import UserAvatar from './UserAvatar.vue';
+import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
 
 const props = defineProps({
   room: {
@@ -161,6 +164,7 @@ const props = defineProps({
 const authStore = useAuthStore();
 const api = useApi();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
