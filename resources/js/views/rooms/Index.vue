@@ -277,7 +277,7 @@ import { onMounted, ref, computed } from 'vue';
 import { useApi } from '@/composables/useApi.js';
 import { useI18n } from 'vue-i18n';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { usePaginatorDefaults } from "../../composables/usePaginatorDefaults.js";
+import { usePaginatorDefaults } from '../../composables/usePaginatorDefaults.js';
 
 const authStore = useAuthStore();
 const api = useApi();
