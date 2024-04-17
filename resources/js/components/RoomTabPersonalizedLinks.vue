@@ -67,6 +67,8 @@
         lazy
         dataKey="id"
         paginator
+        :paginator-template="paginatorDefaults.getTemplate()"
+        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
         rowHover
         @page="onPage"
         class="mt-4"
@@ -150,6 +152,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useI18n } from 'vue-i18n';
+import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
 
 const props = defineProps({
   room: Object
@@ -157,6 +160,7 @@ const props = defineProps({
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 const { t } = useI18n();
 
 const tokens = ref([]);
