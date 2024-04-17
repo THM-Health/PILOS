@@ -8,11 +8,11 @@
               v-model="search"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
-              @keyup.enter="loadData()"
+              @keyup.enter="loadData(1)"
             />
             <Button
               :disabled="isBusy"
-              @click="loadData()"
+              @click="loadData(1)"
               v-tooltip="$t('app.search')"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
@@ -24,14 +24,14 @@
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Dropdown v-model="filter" :options="filterOptions" @change="loadData()" option-label="name" option-value="value" />
+            <Dropdown v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
           </InputGroup>
 
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Dropdown v-model="sortField" :options="sortFields" @change="loadData()" option-label="name" option-value="value" />
+            <Dropdown v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
             <InputGroupAddon class="p-0">
               <Button :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
             </InputGroupAddon>
@@ -43,7 +43,7 @@
           v-if="userPermissions.can('manageSettings', props.room)"
           :room-id="props.room.id"
           :disabled="isBusy"
-          @added="loadData"
+          @added="loadData()"
         />
 
         <!-- Reload -->
@@ -52,13 +52,13 @@
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData"
+          @click="loadData()"
           icon="fa-solid fa-sync"
         />
       </div>
     </div>
 
-    <OverlayComponent :show="isBusy" style="min-height: 4rem;">
+    <OverlayComponent :show="isBusy" style="min-height: 4rem;" z-index="1">
       <DataView
         :totalRecords="meta.total"
         :rows="meta.per_page"
@@ -71,7 +71,7 @@
         class="mt-4"
       >
 
-        <!-- Show message on empty recording list -->
+        <!-- Show message on empty list -->
         <template #empty>
           <div class="px-2">
             <InlineNote v-if="!isBusy && !loadingError && meta.total_no_filter === 0">{{ $t('rooms.members.nodata') }}</InlineNote>
@@ -93,14 +93,14 @@
                 :room-id="props.room.id"
                 :user-ids="selectedMembers"
                 :disabled="isBusy"
-                @edited="loadData"
+                @edited="loadData()"
               />
               <!-- bulk remove member -->
               <RoomTabMembersBulkDeleteButton
                 :room-id="props.room.id"
                 :user-ids="selectedMembers"
                 :disabled="isBusy"
-                @deleted="loadData"
+                @deleted="loadData()"
               />
             </div>
           </div>
@@ -146,7 +146,7 @@
                     :role="item.role"
                     :user-id="item.id"
                     :disabled="isBusy"
-                    @edited="loadData"
+                    @edited="loadData()"
                   />
                   <!-- remove member -->
                   <RoomTabMembersDeleteButton
@@ -155,7 +155,7 @@
                     :lastname="item.lastname"
                     :user-id="item.id"
                     :disabled="isBusy"
-                    @deleted="loadData"
+                    @deleted="loadData()"
                   />
                 </div>
               </div>
@@ -192,14 +192,13 @@ const { t } = useI18n();
 const isBusy = ref(false);
 const loadingError = ref(false);
 const members = ref([]);
-const currentPage = ref(1);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
 const search = ref('');
 const filter = ref('all');
 const selectedMembers = ref([]);
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -250,7 +249,7 @@ function onMemberSelected (id, selected) {
 /**
  * reload member list from api
  */
-function loadData () {
+function loadData (page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
@@ -261,7 +260,7 @@ function loadData () {
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       search: search.value === '' ? null : search.value,
@@ -285,8 +284,7 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 // list of member ids that can be selected on the current page (user cannot select himself)
@@ -305,9 +303,13 @@ const showManagementColumns = computed(() => {
  * @return undefined
  */
 onMounted(() => {
-  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
   loadData();
 });
+
+function onRoomChanged () {
+  loadData();
+}
 
 /**
  * Removes the listener for current room change
@@ -316,6 +318,6 @@ onMounted(() => {
  * @return undefined
  */
 onBeforeUnmount(() => {
-  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
 });
 </script>

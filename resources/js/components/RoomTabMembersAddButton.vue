@@ -9,6 +9,7 @@
     @click="toggle"
     aria-haspopup="true"
     aria-controls="overlay_menu"
+    :disabled="props.disabled"
   />
   <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
   <!-- Add existing user from database -->

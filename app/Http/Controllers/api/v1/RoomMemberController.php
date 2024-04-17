@@ -32,16 +32,19 @@ class RoomMemberController extends Controller
     {
         $additional = [];
 
+        // Sort by column, fallback/default is firstname
         $sortBy = match ($request->get('sort_by')) {
-            'firstname' => 'firstname',
-            default => 'lastname',
+            'lastname' => 'lastname',
+            default => 'firstname',
         };
 
+        // Sort direction, fallback/default is asc
         $sortOrder = match ($request->get('sort_direction')) {
             'desc' => 'desc',
             default => 'asc',
         };
 
+        // Filter by role, fallback/default is no filter
         $filter = match ($request->get('filter')) {
             'participant_role' => ['role', RoomUserRole::USER],
             'moderator_role' => ['role', RoomUserRole::MODERATOR],
@@ -49,12 +52,15 @@ class RoomMemberController extends Controller
             default => null,
         };
 
+        // Get all members of the room and sort them
         $resource = $room->members()->orderBy($sortBy, $sortOrder);
 
         // count all before applying filters
         $additional['meta']['total_no_filter'] = $resource->count();
 
+        // Apply search query if set
         if ($request->has('search')) {
+            // Split search query into single words and search for them in firstname and lastname
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {
@@ -64,6 +70,7 @@ class RoomMemberController extends Controller
             }
         }
 
+        // Apply filter if set, first element is the column, second the value to query
         if ($filter) {
             $resource = $resource->where($filter[0], $filter[1]);
         }
