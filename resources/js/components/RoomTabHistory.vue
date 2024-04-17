@@ -8,7 +8,7 @@
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData"
+          @click="loadData()"
           icon="fa-solid fa-sync"
         />
       </div>
@@ -18,6 +18,7 @@
     <DataTable
       :totalRecords="meta.total"
       :rows="meta.per_page"
+      :first="meta.from"
       :value="meetings"
       dataKey="id"
       paginator
@@ -32,7 +33,7 @@
       class="mt-4 table-auto md:table-fixed"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
 
       <template #empty>
@@ -107,9 +108,8 @@ const paginatorDefaults = usePaginatorDefaults();
 const meetings = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const currentPage = ref(1);
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -120,13 +120,13 @@ const meta = ref({
 /**
  * Loads the current and previous meetings of a given room
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
 
   const config = {
     params: {
-      page: currentPage.value
+      page: page || meta.value.current_page
     }
   };
 
@@ -142,8 +142,7 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 onMounted(() => {

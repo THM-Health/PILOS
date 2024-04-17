@@ -23,11 +23,11 @@
               v-model="filter.name"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
-              @keyup.enter="loadData"
+              @keyup.enter="loadData(1)"
             />
             <Button
               :disabled="isBusy"
-              @click="loadData"
+              @click="loadData(1)"
               v-tooltip="$t('app.search')"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
@@ -42,7 +42,7 @@
             id="roles"
             ref="rolesMultiselectRef"
             v-model="filter.role"
-            @update:modelValue="loadData"
+            @update:modelValue="loadData(1)"
             :placeholder="$t('settings.users.role_filter')"
             track-by="id"
             open-direction="bottom"
@@ -112,6 +112,7 @@
     <DataTable
       :totalRecords="meta.total"
       :rows="meta.per_page"
+      :first="meta.from"
       :value="users"
       lazy
       dataKey="id"
@@ -128,7 +129,7 @@
       class="table-auto lg:table-fixed"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
       <!-- Show message on empty user list -->
       <template #empty>
@@ -204,7 +205,7 @@
               :id="slotProps.data.id"
               :firstname="slotProps.data.firstname"
               :lastname="slotProps.data.lastname"
-              @deleted="loadData"
+              @deleted="loadData()"
             />
           </div>
         </template>
@@ -233,11 +234,10 @@ const actionColumn = useActionColumn([{ permissions: ['users.view'] }, { permiss
 const isBusy = ref(false);
 const loadingError = ref(false);
 const users = ref([]);
-const currentPage = ref(1);
 const sortField = ref('id');
 const sortOrder = ref(1);
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -298,13 +298,13 @@ function loadRoles (page = 1) {
  * Loads the users from the backend
  *
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       name: filter.value.name,
@@ -324,13 +324,11 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 function onSort () {
-  currentPage.value = 1;
-  loadData();
+  loadData(1);
 }
 
 /**
@@ -339,7 +337,7 @@ function onSort () {
  */
 function clearFilterRole () {
   filter.value.role = null;
-  loadData();
+  loadData(1);
 }
 
 </script>

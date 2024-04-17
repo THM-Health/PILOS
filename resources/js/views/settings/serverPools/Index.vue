@@ -21,13 +21,13 @@
           <InputText
             v-model="filter"
             :placeholder="$t('app.search')"
-            @keyup.enter="loadData"
+            @keyup.enter="loadData(1)"
           />
           <Button
             v-tooltip="$t('app.search')"
             :aria-label="$t('app.search')"
             severity="primary"
-            @click="loadData"
+            @click="loadData(1)"
             icon="fa-solid fa-magnifying-glass"
           />
         </InputGroup>
@@ -41,6 +41,7 @@
       :loading="isBusy || loadingError"
       :rows="meta.per_page"
       :totalRecords="meta.total"
+      :first="meta.from"
       :value="serverPools"
       dataKey="id"
       lazy
@@ -54,7 +55,7 @@
       class="table-auto lg:table-fixed"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData"/>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()"/>
       </template>
       <!-- Show message on empty server pool list -->
       <template #empty>
@@ -96,7 +97,7 @@
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
-              @deleted="loadData"
+              @deleted="loadData()"
             >
             </SettingsServerPoolsDeleteButton>
           </div>
@@ -121,11 +122,10 @@ const actionColumn = useActionColumn([{ permissions: ['serverPools.view'] }, { p
 const isBusy = ref(false);
 const loadingError = ref(false);
 const serverPools = ref([]);
-const currentPage = ref(1);
 const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -142,12 +142,12 @@ onMounted(() => {
  * Loads the server pools from the backend
  *
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       name: filter.value
@@ -166,12 +166,10 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 function onSort () {
-  currentPage.value = 1;
-  loadData();
+  loadData(1);
 }
 </script>

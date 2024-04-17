@@ -115,13 +115,13 @@ const filters = ref({
 });
 
 onMounted(() => {
-  fetchRoomTypes();
+  loadData();
 });
 
 /**
  * Loads the roles from the backend and calls on finish the callback function.
  */
-function fetchRoomTypes () {
+function loadData () {
   isBusy.value = true;
   api.call('roomTypes').then(response => {
     roomTypes.value = response.data.data;

@@ -12,11 +12,11 @@
                 v-model="search"
                 :disabled="isBusy"
                 :placeholder="$t('app.search')"
-                @keyup.enter="loadData()"
+                @keyup.enter="loadData(1)"
               />
                 <Button
                   :disabled="isBusy "
-                  @click="loadData()"
+                  @click="loadData(1)"
                   icon="fa-solid fa-magnifying-glass"
                 />
             </InputGroup>
@@ -39,6 +39,7 @@
           class="mt-4"
           :totalRecords="meta.total"
           :rows="meta.per_page"
+          :first="meta.from"
           :value="meetings"
           lazy
           dataKey="id"
@@ -53,7 +54,7 @@
           @sort="onSort"
         >
           <template #loading>
-            <LoadingRetryButton :error="loadingError" @reload="loadData" />
+            <LoadingRetryButton :error="loadingError" @reload="loadData()" />
           </template>
 
           <!-- Show message on empty attendance list -->
@@ -211,12 +212,11 @@ const paginatorDefaults = usePaginatorDefaults();
 const isBusy = ref(false);
 const loadingError = ref(false);
 const meetings = ref([]);
-const currentPage = ref(1);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
 const search = ref('');
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -227,7 +227,7 @@ const meta = ref({
 /**
  * reload member list from api
  */
-function loadData () {
+function loadData (page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
@@ -235,7 +235,7 @@ function loadData () {
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
@@ -261,12 +261,11 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 function onSort () {
-  loadData();
+  loadData(1);
 }
 
 onMounted(() => {

@@ -202,6 +202,7 @@
           :totalRecords="meta.total"
           :rows="meta.per_page"
           :value="rooms"
+          :first="meta.from"
           lazy
           dataKey="id"
           :paginator="!loadingRooms && !loadingRoomsError"
@@ -302,7 +303,7 @@ const roomTypesBusy = ref(false);
 const roomTypesLoadingError = ref(false);
 
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -410,15 +411,11 @@ function loadRoomTypes () {
  * Load the rooms of the current user based on the given inputs
  */
 function loadRooms (page = null) {
-  console.log('page', page);
   if (roomFilter.value.length === 0 && roomFilterAll.value === false) {
     showNoFilterMessage.value = true;
     return;
   }
   showNoFilterMessage.value = false;
-  if (page === null) {
-    page = rooms.value !== null ? meta.value.current_page : 1;
-  }
   loadingRooms.value = true;
 
   api.call('rooms', {
@@ -432,7 +429,7 @@ function loadRooms (page = null) {
       room_type: selectedRoomType.value,
       sort_by: selectedSortingType.value,
       search: rawSearchQuery.value.trim() !== '' ? rawSearchQuery.value.trim() : null,
-      page
+      page: page || meta.value.current_page
     }
   }).then(response => {
     // operation successful, set rooms and reset loadingRoomsError

@@ -21,13 +21,13 @@
           <InputText
             v-model="filter"
             :placeholder="$t('app.search')"
-            @keyup.enter="loadData"
+            @keyup.enter="loadData(1)"
           />
           <Button
             v-tooltip="$t('app.search')"
             :aria-label="$t('app.search')"
             severity="primary"
-            @click="loadData"
+            @click="loadData(1)"
             icon="fa-solid fa-magnifying-glass"
           />
         </InputGroup>
@@ -38,6 +38,7 @@
     <DataTable
       :totalRecords="meta.total"
       :rows="meta.per_page"
+      :first="meta.from"
       :value="roles"
       lazy
       dataKey="id"
@@ -54,7 +55,7 @@
       class="table-auto lg:table-fixed"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
       <!-- Show message on empty role list -->
       <template #empty>
@@ -101,7 +102,7 @@
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
-              @deleted="loadData"
+              @deleted="loadData()"
             />
           </div>
         </template>
@@ -125,11 +126,10 @@ const actionColumn = useActionColumn([{ permissions: ['roles.view'] }, { permiss
 const isBusy = ref(false);
 const loadingError = ref(false);
 const roles = ref([]);
-const currentPage = ref(1);
 const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -146,12 +146,12 @@ onMounted(() => {
  * Loads the roles from the backend
  *
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       name: filter.value
@@ -170,13 +170,11 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 function onSort () {
-  currentPage.value = 1;
-  loadData();
+  loadData(1);
 }
 
 </script>
