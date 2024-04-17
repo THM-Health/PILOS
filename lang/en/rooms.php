@@ -5,7 +5,11 @@ return [
     'become_member' => 'Become member',
     'change_type' => [
         'changing_settings' => 'The following changes will be made to the room settings',
+        'current_setting' => 'Current setting',
+        'current_setting_enforced' => 'Current setting. Enforced',
         'reset_to_default' => 'Reset to the default settings of the room type',
+        'resulting_setting' => 'Resulting setting',
+        'resulting_setting_enforced' => 'Result setting. Enforced',
         'title' => 'Change room type',
     ],
     'connection_error' => [

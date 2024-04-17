@@ -5,7 +5,11 @@ return [
     'become_member' => 'Mitglied werden',
     'change_type' => [
         'changing_settings' => 'Es kommt zur folgenden Veränderung der Raumeinstellungen',
+        'current_setting' => 'Aktuelle Einstellung',
+        'current_setting_enforced' => 'Aktuelle Einstellung. Erzwungen',
         'reset_to_default' => 'Auf Standardeinstellungen der Raumart zurücksetzen',
+        'resulting_setting' => 'Resultierende Einstellung',
+        'resulting_setting_enforced' => 'Resultierende Einstellung. Erzwungen',
         'title' => 'Raumart ändern',
     ],
     'connection_error' => [

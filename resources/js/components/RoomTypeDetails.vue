@@ -278,10 +278,10 @@
 
             <!-- Room visibility setting -->
             <div class="field grid">
-                <span class="col-8 flex align-items-center gap-2">
-                  <RoomSettingEnforcedIcon v-if="roomType.visibility_enforced"/>
-                  {{ $t('rooms.settings.advanced.visibility.title') }}
-                </span>
+              <span class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.visibility_enforced"/>
+                {{ $t('rooms.settings.advanced.visibility.title') }}
+              </span>
 
               <div class="col-4 justify-content-center flex align-items-center">
                 <span v-if="roomType.visibility_default === 0"> {{ $t('rooms.settings.advanced.visibility.private') }} </span>
