@@ -66,6 +66,8 @@
         lazy
         dataKey="id"
         paginator
+        :paginator-template="paginatorDefaults.getTemplate()"
+        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
         rowHover
         @page="onPage"
         class="mt-4"
@@ -174,6 +176,7 @@ import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
+import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
 import UserAvatar from './UserAvatar.vue';
 import { useI18n } from 'vue-i18n';
 
@@ -187,6 +190,7 @@ const props = defineProps({
 const authStore = useAuthStore();
 const api = useApi();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 const { t } = useI18n();
 
 const isBusy = ref(false);

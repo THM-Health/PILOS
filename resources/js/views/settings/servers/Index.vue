@@ -21,14 +21,14 @@
           <InputText
             v-model="filter"
             :placeholder="$t('app.search')"
-            @keyup.enter="loadData()"
+            @keyup.enter="loadData(1, false)"
           />
           <Button
             v-tooltip="$t('app.search')"
             :aria-label="$t('app.search')"
             icon="fa-solid fa-magnifying-glass"
             severity="primary"
-            @click="loadData()"
+            @click="loadData(1, false)"
           />
         </InputGroup>
       </div>
@@ -36,14 +36,14 @@
         <Button
           :disabled="isBusy"
           severity="info"
-          @click="loadData(true);"
+          @click="loadData(null,true);"
           icon="fa-solid fa-repeat"
           :label="$t('settings.servers.reload')"
         />
         <Button
           :disabled="isBusy"
           severity="secondary"
-          @click="loadData();"
+          @click="loadData(null, false);"
           icon="fa-solid fa-sync"
           v-tooltip="$t('app.reload')"
           :aria-label="$t('app.reload')"
@@ -56,11 +56,14 @@
       v-model:sortOrder="sortOrder"
       :loading="isBusy || loadingError"
       :rows="meta.per_page"
+      :first="meta.from"
       :totalRecords="meta.total"
       :value="servers"
       dataKey="id"
       lazy
       paginator
+      :paginator-template="paginatorDefaults.getTemplate()"
+      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
       rowHover
       stripedRows
       @page="onPage"
@@ -68,7 +71,7 @@
       class="table-auto lg:table-fixed"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData()"/>
+        <LoadingRetryButton :error="loadingError" @reload="loadData(null, false)"/>
       </template>
       <!-- Show message on empty server list -->
       <template #empty>
@@ -208,7 +211,7 @@
               v-if="userPermissions.can('delete', slotProps.data) && slotProps.data.status===-1"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
-              @deleted="loadData()"
+              @deleted="loadData(null, false)"
             ></SettingsServersDeleteButton>
           </div>
         </template>
@@ -226,19 +229,20 @@ import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useActionColumn } from '@/composables/useActionColumn.js';
 import { onMounted, ref } from 'vue';
+import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 const actionColumn = useActionColumn([{ permissions: ['servers.view'] }, { permissions: ['servers.update'] }, { permissions: ['servers.delete'] }]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);
 const servers = ref([]);
-const currentPage = ref(1);
 const sortField = ref('name');
 const sortOrder = ref(1);
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -248,19 +252,19 @@ const meta = ref({
 const filter = ref(undefined);
 
 onMounted(() => {
-  loadData();
+  loadData(null, false);
 });
 
 /**
  * Loads the servers from the backend
  *
  */
-function loadData (updateUsage = false) {
+function loadData (page = null, updateUsage = false) {
   isBusy.value = true;
   loadingError.value = false;
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       update_usage: updateUsage,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
@@ -280,13 +284,11 @@ function loadData (updateUsage = false) {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1, false);
 }
 
 function onSort () {
-  currentPage.value = 1;
-  loadData();
+  loadData(1, false);
 }
 
 </script>
