@@ -7,7 +7,7 @@
             v-if="userPermissions.can('manageSettings', props.room)"
             :room-id="props.room.id"
             :disabled="isBusy"
-            @added="loadData"
+            @added="loadData()"
           />
 
           <!-- Bulk Import -->
@@ -15,7 +15,7 @@
             v-if="userPermissions.can('manageSettings', props.room)"
             :room-id="props.room.id"
             :disabled="isBusy"
-            @imported="loadData"
+            @imported="loadData()"
           />
         </div>
         <!-- Reload members list -->
@@ -24,7 +24,7 @@
             v-tooltip="$t('app.reload')"
             severity="secondary"
             :disabled="isBusy"
-            @click="loadData"
+            @click="loadData()"
             icon="fa-solid fa-sync"
           />
         </div>
@@ -38,6 +38,8 @@
         v-model:selection="selectedMembers"
         dataKey="id"
         paginator
+        :paginator-template="paginatorDefaults.getTemplate()"
+        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
         :loading="isBusy || loadingError"
         rowHover
         stripedRows
@@ -50,7 +52,7 @@
         class="mt-4 table-auto md:table-fixed"
       >
         <template #loading>
-          <LoadingRetryButton :error="loadingError" @reload="loadData" />
+          <LoadingRetryButton :error="loadingError" @reload="loadData()" />
         </template>
         <!-- Show message on empty attendance list -->
         <template #empty>
@@ -107,7 +109,7 @@
                 :role="slotProps.data.role"
                 :user-id="slotProps.data.id"
                 :disabled="isBusy"
-                @edited="loadData"
+                @edited="loadData()"
               />
               <!-- remove member -->
               <RoomTabMembersDeleteButton
@@ -116,7 +118,7 @@
                 :lastname="slotProps.data.lastname"
                 :user-id="slotProps.data.id"
                 :disabled="isBusy"
-                @deleted="loadData"
+                @deleted="loadData()"
               />
             </div>
           </template>
@@ -129,14 +131,14 @@
           :room-id="props.room.id"
           :user-ids="selectedMembers.map(user => user.id)"
           :disabled="isBusy"
-          @edited="loadData"
+          @edited="loadData()"
         />
         <!-- bulk remove member -->
         <RoomTabMembersBulkDeleteButton
           :room-id="props.room.id"
           :user-ids="selectedMembers.map(user => user.id)"
           :disabled="isBusy"
-          @deleted="loadData"
+          @deleted="loadData()"
         />
       </div>
   </div>
@@ -150,6 +152,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import UserAvatar from './UserAvatar.vue';
+import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
 
 const props = defineProps({
   room: {
@@ -161,16 +164,16 @@ const props = defineProps({
 const authStore = useAuthStore();
 const api = useApi();
 const userPermissions = useUserPermissions();
+const paginatorDefaults = usePaginatorDefaults();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
 const members = ref([]);
-const currentPage = ref(1);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
 const selectedMembers = ref([]);
 const meta = ref({
-  current_page: 0,
+  current_page: 1,
   from: 0,
   last_page: 0,
   per_page: 0,
@@ -204,7 +207,7 @@ function onRowSelected (data, selected) {
 /**
  * reload member list from api
  */
-function loadData () {
+function loadData (page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
@@ -212,7 +215,7 @@ function loadData () {
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || meta.value.current_page,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
@@ -234,15 +237,13 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
   selectedMembers.value = [];
-  loadData();
+  loadData(event.page + 1);
 }
 
 function onSort () {
-  currentPage.value = 1;
   selectedMembers.value = [];
-  loadData();
+  loadData(1);
 }
 
 // amount of members that can be selected on the current page (user cannot select himself)
@@ -261,10 +262,13 @@ const showManagementColumns = computed(() => {
  * @return undefined
  */
 onMounted(() => {
-  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
   loadData();
 });
 
+function onRoomChanged () {
+  loadData();
+}
 /**
  * Removes the listener for current room change
  *
@@ -272,6 +276,6 @@ onMounted(() => {
  * @return undefined
  */
 onBeforeUnmount(() => {
-  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
 });
 </script>

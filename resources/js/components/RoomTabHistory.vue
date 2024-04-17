@@ -39,6 +39,8 @@
         lazy
         dataKey="id"
         paginator
+        :paginator-template="paginatorDefaults.getTemplate()"
+        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
         rowHover
         @page="onPage"
         class="mt-4"
@@ -108,6 +110,7 @@ import { useApi } from '../composables/useApi.js';
 import { computed, onMounted, ref } from 'vue';
 import { useDateDiff } from '../composables/useDateDiff.js';
 import { useI18n } from 'vue-i18n';
+import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
 
 const props = defineProps({
   room: Object
@@ -117,6 +120,7 @@ const api = useApi();
 const settingsStore = useSettingsStore();
 const dateDiff = useDateDiff();
 const { t } = useI18n();
+const paginatorDefaults = usePaginatorDefaults();
 
 const meetings = ref([]);
 const isBusy = ref(false);
