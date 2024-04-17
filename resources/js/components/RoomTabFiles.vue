@@ -77,7 +77,7 @@
     </div>
 
     <!-- Display files -->
-    <OverlayComponent :show="isBusy" style="min-height: 4rem;">
+    <OverlayComponent :show="isBusy" z-index="1">
       <DataView
         :totalRecords="meta.total"
         :rows="meta.per_page"
