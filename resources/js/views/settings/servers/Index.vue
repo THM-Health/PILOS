@@ -55,15 +55,15 @@
       v-model:sortField="sortField"
       v-model:sortOrder="sortOrder"
       :loading="isBusy || loadingError"
-      :rows="meta.per_page"
-      :first="meta.from"
-      :totalRecords="meta.total"
+      :totalRecords="paginator.getTotalRecords()"
+      :rows="paginator.getRows()"
+      :first="paginator.getFirst()"
       :value="servers"
       dataKey="id"
       lazy
       paginator
-      :paginator-template="paginatorDefaults.getTemplate()"
-      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       rowHover
       stripedRows
       @page="onPage"
@@ -76,7 +76,7 @@
       <!-- Show message on empty server list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.servers.no_data') }}</InlineNote>
+          <InlineNote v-if="paginator.getTotalRecordsNoFilter() === 0">{{ $t('settings.servers.no_data') }}</InlineNote>
           <InlineNote v-else>{{ $t('settings.servers.no_data_filtered') }}</InlineNote>
         </div>
       </template>
@@ -229,11 +229,11 @@ import { useApi } from '@/composables/useApi.js';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useActionColumn } from '@/composables/useActionColumn.js';
 import { onMounted, ref } from 'vue';
-import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../../../composables/usePaginator.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 const actionColumn = useActionColumn([{ permissions: ['servers.view'] }, { permissions: ['servers.update'] }, { permissions: ['servers.delete'] }]);
 
 const isBusy = ref(false);
@@ -241,14 +241,6 @@ const loadingError = ref(false);
 const servers = ref([]);
 const sortField = ref('name');
 const sortOrder = ref(1);
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 const filter = ref(undefined);
 
 onMounted(() => {
@@ -264,7 +256,7 @@ function loadData (page = null, updateUsage = false) {
   loadingError.value = false;
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       update_usage: updateUsage,
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
@@ -274,7 +266,7 @@ function loadData (page = null, updateUsage = false) {
 
   api.call('servers', config).then(response => {
     servers.value = response.data.data;
-    meta.value = response.data.meta;
+    paginator.updateMeta(response.data.meta);
   }).catch(error => {
     api.error(error);
     loadingError.value = true;

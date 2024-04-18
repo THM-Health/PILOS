@@ -44,8 +44,8 @@
           lazy
           dataKey="id"
           paginator
-          :paginator-template="paginatorDefaults.getTemplate()"
-          :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+          :paginator-template="paginator.getTemplate()"
+          :current-page-report-template="paginator.getCurrentPageReportTemplate()"
           :loading="isBusy || loadingError"
           rowHover
           v-model:sortField="sortField"
@@ -204,10 +204,10 @@ import RawText from '@/components/RawText.vue';
 import TextTruncate from '@/components/TextTruncate.vue';
 import { ref, onMounted } from 'vue';
 import { useApi } from '../../composables/useApi.js';
-import { usePaginatorDefaults } from '../../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../../composables/usePaginator.js';
 
 const api = useApi();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 
 const isBusy = ref(false);
 const loadingError = ref(false);

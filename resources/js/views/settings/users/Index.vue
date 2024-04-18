@@ -110,15 +110,15 @@
     <Divider/>
 
     <DataTable
-      :totalRecords="meta.total"
-      :rows="meta.per_page"
-      :first="meta.from"
+      :totalRecords="paginator.getTotalRecords()"
+      :rows="paginator.getRows()"
+      :first="paginator.getFirst()"
       :value="users"
       lazy
       dataKey="id"
       paginator
-      :paginator-template="paginatorDefaults.getTemplate()"
-      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -134,7 +134,7 @@
       <!-- Show message on empty user list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.users.no_data') }}</InlineNote>
+          <InlineNote v-if="paginator.getTotalRecordsNoFilter === 0">{{ $t('settings.users.no_data') }}</InlineNote>
           <InlineNote v-else>{{ $t('settings.users.no_data_filtered') }}</InlineNote>
         </div>
       </template>
@@ -221,12 +221,12 @@ import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
 import { Multiselect } from 'vue-multiselect';
 import { useActionColumn } from '@/composables/useActionColumn.js';
-import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../../../composables/usePaginator.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 
 // first: view action, second: edit action (requires only view permission for current user), third: resend pw (required at least update), fourth: delete action
 const actionColumn = useActionColumn([{ permissions: ['users.view'] }, { permissions: ['users.view'] }, { permissions: ['users.update'] }, { permissions: ['users.delete'] }]);
@@ -236,14 +236,7 @@ const loadingError = ref(false);
 const users = ref([]);
 const sortField = ref('id');
 const sortOrder = ref(1);
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
+
 const filter = ref({
   name: undefined,
   role: undefined
@@ -304,7 +297,7 @@ function loadData (page = null) {
 
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       name: filter.value.name,
@@ -313,8 +306,8 @@ function loadData (page = null) {
   };
 
   api.call('users', config).then(response => {
-    meta.value = response.data.meta;
     users.value = response.data.data;
+    paginator.updateMeta(response.data.meta);
   }).catch(error => {
     api.error(error);
     loadingError.value = true;
