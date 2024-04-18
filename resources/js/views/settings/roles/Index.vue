@@ -152,7 +152,11 @@ function loadData (page = null) {
 
   api.call('roles', config).then(response => {
     roles.value = response.data.data;
-    paginator.updateMeta(response.data.meta);
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadData(paginator.getLastPage());
+      }
+    });
   }).catch(error => {
     api.error(error);
     loadingError.value = true;

@@ -266,7 +266,11 @@ function loadData (page = null, updateUsage = false) {
 
   api.call('servers', config).then(response => {
     servers.value = response.data.data;
-    paginator.updateMeta(response.data.meta);
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadData(paginator.getLastPage(), false);
+      }
+    });
   }).catch(error => {
     api.error(error);
     loadingError.value = true;

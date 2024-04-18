@@ -241,7 +241,11 @@ function loadData (page = null) {
     .then(response => {
       // fetching successful
       meetings.value = response.data.data;
-      paginator.updateMeta(response.data.meta);
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
     })
     .catch((error) => {
       api.error(error);

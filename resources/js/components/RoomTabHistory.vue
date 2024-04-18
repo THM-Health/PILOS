@@ -124,7 +124,11 @@ function loadData (page = null) {
 
   api.call('rooms/' + props.room.id + '/meetings', config).then(response => {
     meetings.value = response.data.data;
-    paginator.updateMeta(response.data.meta);
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadData(paginator.getLastPage());
+      }
+    });
   }).catch(error => {
     api.error(error);
     loadingError.value = true;

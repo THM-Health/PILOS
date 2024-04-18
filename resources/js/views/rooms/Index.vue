@@ -208,7 +208,6 @@
           :paginator="!loadingRooms && !loadingRoomsError"
           :paginator-template="paginator.getTemplate()"
           :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-          :always-show-paginator="false"
           rowHover
           class="mt-4"
           @page="onPage"
@@ -423,7 +422,13 @@ function loadRooms (page = null) {
   }).then(response => {
     // operation successful, set rooms and reset loadingRoomsError
     rooms.value = response.data.data;
-    paginator.updateMeta(response.data.meta);
+    // update paginator metadata, if the current page is out of range, load the last possible page
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadRooms(paginator.getLastPage());
+      }
+    });
+
     loadingRoomsError.value = false;
   }).catch(error => {
     // failed

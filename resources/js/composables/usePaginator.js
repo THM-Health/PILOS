@@ -40,6 +40,22 @@ class Paginator {
   }
 
   /**
+   * Current page is out of range of available pages
+   * @return {boolean}
+   */
+  isOutOfRange () {
+    return this.meta.value.current_page > this.meta.value.last_page;
+  }
+
+  /**
+   * Last possible page
+   * @return {number}
+   */
+  getLastPage () {
+    return this.meta.value.last_page;
+  }
+
+  /**
    * Get amount of data present on this page
    * @return {number}
    */
