@@ -37,9 +37,9 @@
         <!-- table with room members -->
         <DataTable
           class="mt-4"
-          :totalRecords="meta.total"
-          :rows="meta.per_page"
-          :first="meta.from"
+          :totalRecords="paginator.getTotalRecords()"
+          :rows="paginator.getRows()"
+          :first="paginator.getFirst()"
           :value="meetings"
           lazy
           dataKey="id"
@@ -60,7 +60,7 @@
           <!-- Show message on empty attendance list -->
           <template #empty>
             <div v-if="!isBusy && !loadingError">
-              <InlineNote v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</InlineNote>
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('meetings.no_data') }}</InlineNote>
               <InlineNote v-else>{{ $t('meetings.no_data_filtered') }}</InlineNote>
             </div>
           </template>
@@ -215,14 +215,6 @@ const meetings = ref([]);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
 const search = ref('');
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 
 /**
  * reload member list from api
@@ -235,7 +227,7 @@ function loadData (page = null) {
 
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
@@ -249,7 +241,7 @@ function loadData (page = null) {
     .then(response => {
       // fetching successful
       meetings.value = response.data.data;
-      meta.value = response.data.meta;
+      paginator.updateMeta(response.data.meta);
     })
     .catch((error) => {
       api.error(error);

@@ -230,8 +230,8 @@
           <template #empty>
             <div>
               <div class="text-center" v-if="rooms && !loadingRooms && !loadingRoomsError">
-                <InlineMessage severity="info" v-if="onlyShowFavorites && paginator.getTotalRecordsNoFilter()===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
-                <InlineMessage severity="info" v-else-if="paginator.getTotalRecordsNoFilter()===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
+                <InlineMessage severity="info" v-if="onlyShowFavorites && paginator.isEmptyUnfiltered()"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
+                <InlineMessage severity="info" v-else-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
                 <InlineMessage severity="info" v-else-if="!rooms.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
               </div>
             </div>

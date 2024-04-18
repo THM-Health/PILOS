@@ -60,7 +60,7 @@
       <!-- Show message on empty role list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="paginator.getTotalRecordsNoFilter() === 0">{{ $t('settings.roles.no_data') }}</InlineNote>
+          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('settings.roles.no_data') }}</InlineNote>
           <InlineNote v-else>{{ $t('settings.roles.no_data_filtered') }}</InlineNote>
         </div>
       </template>

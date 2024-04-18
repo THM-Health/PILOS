@@ -60,7 +60,7 @@
       <!-- Show message on empty server pool list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="paginator.getTotalRecordsNoFilter() === 0">{{ $t('settings.server_pools.no_data') }}</InlineNote>
+          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('settings.server_pools.no_data') }}</InlineNote>
           <InlineNote v-else>{{ $t('settings.server_pools.no_data_filtered') }}</InlineNote>
         </div>
       </template>
