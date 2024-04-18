@@ -1723,16 +1723,16 @@
         },
         {
             "name": "laravel/horizon",
-            "version": "v5.24.1",
+            "version": "v5.24.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/horizon.git",
-                "reference": "df27ad9c125c1eb8c8c8b2cb50f38a2a28288da9"
+                "reference": "6667681e5462e080d73d3f75de70e63e38afe2d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/horizon/zipball/df27ad9c125c1eb8c8c8b2cb50f38a2a28288da9",
-                "reference": "df27ad9c125c1eb8c8c8b2cb50f38a2a28288da9",
+                "url": "https://api.github.com/repos/laravel/horizon/zipball/6667681e5462e080d73d3f75de70e63e38afe2d1",
+                "reference": "6667681e5462e080d73d3f75de70e63e38afe2d1",
                 "shasum": ""
             },
             "require": {
@@ -1796,9 +1796,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/horizon/issues",
-                "source": "https://github.com/laravel/horizon/tree/v5.24.1"
+                "source": "https://github.com/laravel/horizon/tree/v5.24.2"
             },
-            "time": "2024-04-15T15:17:16+00:00"
+            "time": "2024-04-17T08:18:07+00:00"
         },
         {
             "name": "laravel/prompts",
