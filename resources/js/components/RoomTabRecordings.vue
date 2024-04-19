@@ -1,117 +1,164 @@
 <template>
   <div>
-    <div class="flex flex-wrap gap-2 justify-content-end flex-column-reverse md:flex-row">
-      <!-- Reload list -->
-      <div class="flex justify-content-end">
+    <div class="flex justify-content-between flex-column-reverse lg:flex-row gap-2 px-2">
+      <div class="flex justify-content-between flex-column lg:flex-row flex-grow-1 gap-2">
+        <div>
+          <InputGroup>
+            <InputText
+              v-model="search"
+              :disabled="isBusy"
+              :placeholder="$t('app.search')"
+              @keyup.enter="loadData(1)"
+            />
+            <Button
+              :disabled="isBusy"
+              @click="loadData(1)"
+              v-tooltip="$t('app.search')"
+              :aria-label="$t('app.search')"
+              icon="fa-solid fa-magnifying-glass"
+            />
+          </InputGroup>
+        </div>
+        <div class="flex gap-2 flex-column lg:flex-row">
+          <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
+            <InputGroupAddon>
+              <i class="fa-solid fa-filter"></i>
+            </InputGroupAddon>
+            <Dropdown :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+          </InputGroup>
+
+          <InputGroup>
+            <InputGroupAddon>
+              <i class="fa-solid fa-sort"></i>
+            </InputGroupAddon>
+            <Dropdown :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <InputGroupAddon class="p-0">
+              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
+      </div>
+      <div class="flex gap-2 justify-content-end">
+        <!-- Reload list -->
         <Button
+          class="flex-shrink-0"
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData"
+          @click="loadData()"
           icon="fa-solid fa-sync"
         />
       </div>
     </div>
 
-    <!-- table with room recordings -->
-    <DataView
-      :totalRecords="meta.total"
-      :rows="meta.per_page"
-      :value="recordings"
-      lazy
-      dataKey="id"
-      paginator
-      :loading="isBusy"
-      rowHover
-      @page="onPage"
-      class="mt-4 table-auto lg:table-fixed"
-    >
-
-      <!-- Show message on empty recording list -->
-      <template #empty>
-        <div>
-          <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.recordings.nodata') }}</InlineNote>
-        </div>
+    <OverlayComponent :show="isBusy || loadingError" z-index="1">
+      <template #overlay>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
 
-      <template #list="slotProps">
-        <div class="grid grid-nogutter border-top-1 border-bottom-1 surface-border">
-          <div v-for="(item, index) in slotProps.items" :key="index" class="col-12">
-            <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
-              <div class="flex flex-column gap-2">
-                <p class="text-lg font-semibold m-0">{{ item.description }}</p>
-                <div class="flex flex-column gap-2 align-items-start">
-                  <div class="flex flex-row gap-2">
-                    <i class="fa-solid fa-clock" />
-                    <p class="text-sm m-0">{{ $d(new Date(item.start),'datetimeShort') }}</p>
+      <!-- Display recordings -->
+      <DataView
+        :totalRecords="paginator.getTotalRecords()"
+        :rows="paginator.getRows()"
+        :first="paginator.getFirst()"
+        :value="recordings"
+        lazy
+        dataKey="id"
+        paginator
+        :paginator-template="paginator.getTemplate()"
+        :current-page-report-template="paginator.getCurrentPageReportTemplate()"
+        :loading="isBusy"
+        rowHover
+        @page="onPage"
+        class="mt-4"
+      >
+
+        <!-- Show message on empty recording list -->
+        <template #empty>
+          <div>
+            <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.recordings.nodata') }}</InlineNote>
+          </div>
+        </template>
+
+        <template #list="slotProps">
+          <div class="grid grid-nogutter border-top-1 border-bottom-1 surface-border">
+            <div v-for="(item, index) in slotProps.items" :key="index" class="col-12">
+              <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
+                <div class="flex flex-column gap-2">
+                  <p class="text-lg font-semibold m-0">{{ item.description }}</p>
+                  <div class="flex flex-column gap-2 align-items-start">
+                    <div class="flex flex-row gap-2">
+                      <i class="fa-solid fa-clock" />
+                      <p class="text-sm m-0">{{ $d(new Date(item.start),'datetimeShort') }}</p>
+                    </div>
+                    <div class="flex flex-row gap-2" v-if="showManagementColumns">
+                      <i class="fa-solid fa-lock"></i>
+                      <RoomRecodingAccessBadge :access="item.access" />
+                    </div>
                   </div>
-                  <div class="flex flex-row gap-2" v-if="showManagementColumns">
-                    <i class="fa-solid fa-lock"></i>
-                    <RoomRecodingAccessBadge :access="item.access" />
+                  <div class="flex flex-row flex-wrap gap-1" v-if="showManagementColumns">
+                    <Tag
+                      v-for="format in item.formats"
+                      :key="format.id"
+                      :value="$t('rooms.recordings.format_types.'+format.format)"
+                      :icon="format.disabled ? 'fa-solid fa-eye-slash' : ''"
+                    />
                   </div>
                 </div>
-                <div class="flex flex-row flex-wrap gap-1" v-if="showManagementColumns">
-                  <Tag
-                    v-for="format in item.formats"
-                    :key="format.id"
-                    :value="$t('rooms.recordings.format_types.'+format.format)"
-                    :icon="format.disabled ? 'fa-solid fa-eye-slash' : ''"
+                <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" >
+
+                  <RoomTabRecordingsViewButton
+                    :roomId="props.room.id"
+                    :recordingId="item.id"
+                    :formats="item.formats"
+                    :view-disabled="userPermissions.can('manageSettings', room)"
+                    :token="props.token"
+                    :start="item.start"
+                    :end="item.end"
+                    :description="item.description"
+                    :access-code="props.accessCode"
+                    :disabled="isBusy"
+                    @invalidCode="$emit('invalidCode')"
+                    @invalidToken="$emit('invalidToken')"
+                    @forbidden="loadData"
+                    @notFound="loadData"
+                  />
+
+                  <RoomTabRecordingsDownloadButton
+                    :recordingId="item.id"
+                    :disabled="isBusy"
+                    v-if="showManagementColumns"
+                  />
+
+                  <!-- Edit button -->
+                  <RoomTabRecordingsEditButton
+                    v-if="showManagementColumns"
+                    :roomId="props.room.id"
+                    :recordingId="item.id"
+                    :description="item.description"
+                    :start="item.start"
+                    :end="item.end"
+                    :formats="item.formats"
+                    :access="item.access"
+                    :disabled="isBusy"
+                    @edited="loadData()"
+                  />
+
+                  <!-- Delete file -->
+                  <RoomTabRecordingsDeleteButton
+                    v-if="showManagementColumns"
+                    :roomId="props.room.id"
+                    :recordingId="item.id"
+                    :disabled="isBusy"
+                    @deleted="loadData()"
                   />
                 </div>
               </div>
-              <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" >
-
-                <RoomTabRecordingsViewButton
-                  :roomId="props.room.id"
-                  :recordingId="item.id"
-                  :formats="item.formats"
-                  :view-disabled="userPermissions.can('manageSettings', room)"
-                  :token="props.token"
-                  :start="item.start"
-                  :end="item.end"
-                  :description="item.description"
-                  :access-code="props.accessCode"
-                  :disabled="isBusy"
-                  @invalidCode="$emit('invalidCode')"
-                  @invalidToken="$emit('invalidToken')"
-                  @forbidden="loadData"
-                  @notFound="loadData"
-                />
-
-                <RoomTabRecordingsDownloadButton
-                  :recordingId="item.id"
-                  :disabled="isBusy"
-                  v-if="showManagementColumns"
-                />
-
-                <!-- Edit button -->
-                <RoomTabRecordingsEditButton
-                  v-if="showManagementColumns"
-                  :roomId="props.room.id"
-                  :recordingId="item.id"
-                  :description="item.description"
-                  :start="item.start"
-                  :end="item.end"
-                  :formats="item.formats"
-                  :access="item.access"
-                  :disabled="isBusy"
-                  @edited="loadData()"
-                />
-
-                <!-- Delete file -->
-                <RoomTabRecordingsDeleteButton
-                  v-if="showManagementColumns"
-                  :roomId="props.room.id"
-                  :recordingId="item.id"
-                  :disabled="isBusy"
-                  @deleted="loadData()"
-                />
-              </div>
             </div>
           </div>
-        </div>
-      </template>
-    </DataView>
+        </template>
+      </DataView>
+    </OverlayComponent>
     <div id="retentionPeriodInfo">
       <Divider/>
       <b>{{ $t('rooms.recordings.retention_period.title') }}</b><br>
@@ -126,6 +173,8 @@ import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import RoomTabRecordingsDownloadButton from './RoomTabRecordingsDownloadButton.vue';
 import { useSettingsStore } from '../stores/settings.js';
+import { usePaginator } from '../composables/usePaginator.js';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   room: {
@@ -145,28 +194,41 @@ const props = defineProps({
 const api = useApi();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
+const paginator = usePaginator();
+const { t } = useI18n();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
 
 const recordings = ref([]);
-const currentPage = ref(1);
-const sortField = ref('lastname');
-const sortOrder = ref(1);
+const sortField = ref('start');
+const sortOrder = ref(0);
 
-const meta = ref({
-  current_page: 0,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
+const search = ref('');
+const filter = ref('all');
+
+const sortFields = computed(() => [
+  { name: t('rooms.recordings.sort.description'), value: 'description' },
+  { name: t('rooms.recordings.sort.start'), value: 'start' }
+]);
+
+const filterOptions = computed(() => [
+  { name: t('rooms.files.filter.all'), value: 'all' },
+  { name: t('rooms.files.filter.everyone_access'), value: 'everyone_access' },
+  { name: t('rooms.files.filter.participant_access'), value: 'participant_access' },
+  { name: t('rooms.files.filter.moderator_access'), value: 'moderator_access' },
+  { name: t('rooms.files.filter.owner_access'), value: 'owner_access' }
+]);
+
+const toggleSortOrder = () => {
+  sortOrder.value = sortOrder.value === 1 ? 0 : 1;
+  loadData(1);
+};
 
 /**
  * reload recordings list from api
  */
-function loadData () {
+function loadData (page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
@@ -174,9 +236,11 @@ function loadData () {
   // make request to load recordings
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
+      search: search.value === '' ? null : search.value,
+      filter: filter.value === 'all' ? null : filter.value
     }
   };
 
@@ -190,7 +254,11 @@ function loadData () {
     .then(response => {
       // fetching successful
       recordings.value = response.data.data;
-      meta.value = response.data.meta;
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
     })
     .catch((error) => {
       loadingError.value = true;
@@ -206,8 +274,7 @@ const showManagementColumns = computed(() => {
 });
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 onMounted(() => {

@@ -9,14 +9,40 @@ use App\Http\Resources\RecordingResource;
 use App\Models\Recording;
 use App\Models\Room;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Log;
 
 class RecordingController extends Controller
 {
-    public function index(Room $room)
+    public function index(Room $room, Request $request)
     {
-        $resource = $room->recordings()->with('formats')->has('formats');
+        $additional = [];
 
+        // Sort by column, fallback/default is filename
+        $sortBy = match ($request->get('sort_by')) {
+            'start' => 'start',
+            default => 'description',
+        };
+
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->get('sort_direction')) {
+            'desc' => 'desc',
+            default => 'asc',
+        };
+
+        // Filter, default is no filter
+        $filter = match ($request->get('filter')) {
+            'everyone_access' => ['access', RecordingAccess::EVERYONE],
+            'participant_access' => ['access', RecordingAccess::PARTICIPANT],
+            'moderator_access' => ['access', RecordingAccess::MODERATOR],
+            'owner_access' => ['access', RecordingAccess::OWNER],
+            default => null,
+        };
+
+        // Get all recordings of the room
+        $resource = $room->recordings()->with('formats')/*->has('formats')*/->orderBy($sortBy, $sortOrder);
+
+        // If user is not allowed to view all recordings, only query recordings that should be visible to the user
         if (! \Gate::allows('viewAllRecordings', $room)) {
             $allowedAccess = [RecordingAccess::EVERYONE];
 
@@ -32,7 +58,20 @@ class RecordingController extends Controller
             });
         }
 
-        return RecordingResource::collection($resource->paginate(setting('pagination_page_size')));
+        // count all before applying filters
+        $additional['meta']['total_no_filter'] = $resource->count();
+
+        // Apply search filter
+        if ($request->has('search')) {
+            $resource = $resource->where('description', 'like', '%'.$request->query('search').'%');
+        }
+
+        // Apply filter if set, first element is the column, second the value to query
+        if ($filter) {
+            $resource = $resource->where($filter[0], $filter[1]);
+        }
+
+        return RecordingResource::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
     }
 
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)
