@@ -60,15 +60,15 @@
 
     <OverlayComponent :show="isBusy" z-index="1">
       <DataView
-        :totalRecords="meta.total"
-        :rows="meta.per_page"
-        :first="meta.from"
+        :totalRecords="paginator.getTotalRecords()"
+        :rows="paginator.getRows()"
+        :first="paginator.getFirst()"
         :value="tokens"
         lazy
         dataKey="id"
         paginator
-        :paginator-template="paginatorDefaults.getTemplate()"
-        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+        :paginator-template="paginator.getTemplate()"
+        :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         rowHover
         @page="onPage"
         class="mt-4"
@@ -76,9 +76,11 @@
 
         <!-- Show message on empty list -->
         <template #empty>
-          <div class="px-2">
-            <InlineNote v-if="!isBusy && !loadingError && meta.total_no_filter === 0">{{ $t('rooms.tokens.nodata') }}</InlineNote>
-            <InlineNote v-if="!isBusy && !loadingError && meta.total_no_filter !== 0">{{ $t('app.filter_no_results') }}</InlineNote>
+          <div>
+            <div class="px-2" v-if="!isBusy && !loadingError">
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.tokens.nodata') }}</InlineNote>
+              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+            </div>
           </div>
         </template>
 
@@ -152,7 +154,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useI18n } from 'vue-i18n';
-import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const props = defineProps({
   room: Object
@@ -160,7 +162,7 @@ const props = defineProps({
 
 const api = useApi();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 const { t } = useI18n();
 
 const tokens = ref([]);
@@ -188,16 +190,6 @@ const toggleSortOrder = () => {
   loadData(1);
 };
 
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0,
-  total_no_filter: 0
-});
-
 /**
  * (Re)loads list of tokens from api
  */
@@ -207,7 +199,7 @@ function loadData (page = null) {
 
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       search: search.value === '' ? null : search.value,
@@ -218,7 +210,11 @@ function loadData (page = null) {
   api.call('rooms/' + props.room.id + '/tokens', config)
     .then(response => {
       tokens.value = response.data.data;
-      meta.value = response.data.meta;
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
     })
     .catch((error) => {
       api.error(error);

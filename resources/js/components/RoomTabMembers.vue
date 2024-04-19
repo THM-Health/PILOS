@@ -31,15 +31,16 @@
       </div>
       <!-- table with room members -->
       <DataTable
-        :totalRecords="meta.total"
-        :rows="meta.per_page"
+        :totalRecords="paginator.getTotalRecords()"
+        :rows="paginator.getRows()"
+        :first="paginator.getFirst()"
         :value="members"
         lazy
         v-model:selection="selectedMembers"
         dataKey="id"
         paginator
-        :paginator-template="paginatorDefaults.getTemplate()"
-        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+        :paginator-template="paginator.getTemplate()"
+        :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         :loading="isBusy || loadingError"
         rowHover
         stripedRows
@@ -152,7 +153,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import UserAvatar from './UserAvatar.vue';
-import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const props = defineProps({
   room: {
@@ -164,7 +165,7 @@ const props = defineProps({
 const authStore = useAuthStore();
 const api = useApi();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
@@ -172,14 +173,6 @@ const members = ref([]);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
 const selectedMembers = ref([]);
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 
 function toggleSelectAll (event) {
   if (event.checked) {
@@ -215,7 +208,7 @@ function loadData (page = null) {
 
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
@@ -225,7 +218,11 @@ function loadData (page = null) {
     .then(response => {
       // fetching successful
       members.value = response.data.data;
-      meta.value = response.data.meta;
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
     })
     .catch((error) => {
       api.error(error);

@@ -46,8 +46,8 @@
       :value="files"
       dataKey="id"
       paginator
-      :paginator-template="paginatorDefaults.getTemplate()"
-      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -148,7 +148,7 @@ import { useSettingsStore } from '../stores/settings.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useApi } from '../composables/useApi.js';
 import { useToast } from '../composables/useToast.js';
-import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const props = defineProps({
   room: Object,
@@ -169,7 +169,7 @@ const api = useApi();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
 const toast = useToast();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 
 const files = ref([]);
 const defaultFile = ref(null);

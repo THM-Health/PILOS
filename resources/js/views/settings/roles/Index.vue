@@ -36,15 +36,15 @@
     <Divider/>
 
     <DataTable
-      :totalRecords="meta.total"
-      :rows="meta.per_page"
-      :first="meta.from"
+      :totalRecords="paginator.getTotalRecords()"
+      :rows="paginator.getRows()"
+      :first="paginator.getFirst()"
       :value="roles"
       lazy
       dataKey="id"
       paginator
-      :paginator-template="paginatorDefaults.getTemplate()"
-      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -60,7 +60,7 @@
       <!-- Show message on empty role list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.roles.no_data') }}</InlineNote>
+          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('settings.roles.no_data') }}</InlineNote>
           <InlineNote v-else>{{ $t('settings.roles.no_data_filtered') }}</InlineNote>
         </div>
       </template>
@@ -116,11 +116,11 @@ import { useApi } from '@/composables/useApi.js';
 import { onMounted, ref } from 'vue';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useActionColumn } from '@/composables/useActionColumn.js';
-import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../../../composables/usePaginator.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 const actionColumn = useActionColumn([{ permissions: ['roles.view'] }, { permissions: ['roles.update'] }, { permissions: ['roles.delete'] }]);
 
 const isBusy = ref(false);
@@ -128,14 +128,6 @@ const loadingError = ref(false);
 const roles = ref([]);
 const sortField = ref('name');
 const sortOrder = ref(1);
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 const filter = ref(undefined);
 
 onMounted(() => {
@@ -151,7 +143,7 @@ function loadData (page = null) {
   loadingError.value = false;
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       name: filter.value
@@ -160,7 +152,11 @@ function loadData (page = null) {
 
   api.call('roles', config).then(response => {
     roles.value = response.data.data;
-    meta.value = response.data.meta;
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadData(paginator.getLastPage());
+      }
+    });
   }).catch(error => {
     api.error(error);
     loadingError.value = true;
