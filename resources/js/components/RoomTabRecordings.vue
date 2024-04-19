@@ -91,6 +91,12 @@
                       <i class="fa-solid fa-clock" />
                       <p class="text-sm m-0">{{ $d(new Date(item.start),'datetimeShort') }}</p>
                     </div>
+                    <div class="flex flex-row gap-2">
+                      <i class="fa-solid fa-hourglass" />
+                      <p class="text-sm m-0" v-tooltip.bottom="$d(new Date(item.start),'datetimeShort')+' - '+(item.end == null ? $t('meetings.now') : $d(new Date(item.end),'datetimeShort'))">
+                        {{ dateDiff.format(new Date(item.start), item.end == null ? new Date() : new Date(item.end)) }}
+                      </p>
+                    </div>
                     <div class="flex flex-row gap-2" v-if="showManagementColumns">
                       <i class="fa-solid fa-lock"></i>
                       <RoomRecodingAccessBadge :access="item.access" />
@@ -174,6 +180,7 @@ import { useUserPermissions } from '../composables/useUserPermission.js';
 import RoomTabRecordingsDownloadButton from './RoomTabRecordingsDownloadButton.vue';
 import { useSettingsStore } from '../stores/settings.js';
 import { usePaginator } from '../composables/usePaginator.js';
+import { useDateDiff } from '../composables/useDateDiff.js';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
@@ -195,6 +202,7 @@ const api = useApi();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
 const paginator = usePaginator();
+const dateDiff = useDateDiff();
 const { t } = useI18n();
 
 const isBusy = ref(false);

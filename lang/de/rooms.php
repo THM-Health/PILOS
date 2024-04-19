@@ -282,6 +282,10 @@ return [
             'title' => 'Aufbewahrungsfristen',
             'unlimited' => 'Die Aufzeichnungen werden zeitlich unbegrenzt gespeichert.',
         ],
+        'sort' => [
+            'start' => 'Beginn',
+            'description' => 'Beschreibung',
+        ],
         'start' => 'Beginn',
         'title' => 'Aufzeichnungen',
         'view_recording' => 'Aufzeichnung ansehen',
