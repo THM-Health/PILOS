@@ -81,8 +81,8 @@
         </template>
 
         <template #list="slotProps">
-          <div class="grid grid-nogutter border-top-1 border-bottom-1 surface-border">
-            <div v-for="(item, index) in slotProps.items" :key="index" class="col-12">
+          <div class="px-2 border-top-1 border-bottom-1 surface-border">
+            <div v-for="(item, index) in slotProps.items" :key="index">
               <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
                 <div class="flex flex-column gap-2">
                   <p class="text-lg font-semibold m-0">{{ item.description }}</p>
