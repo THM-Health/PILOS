@@ -23,8 +23,8 @@
       :value="tokens"
       dataKey="id"
       paginator
-      :paginator-template="paginatorDefaults.getTemplate()"
-      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -116,7 +116,7 @@ import { useSettingsStore } from '../stores/settings';
 import { onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
-import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const props = defineProps({
   room: Object
@@ -125,7 +125,7 @@ const props = defineProps({
 const api = useApi();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 
 const tokens = ref([]);
 const isBusy = ref(false);

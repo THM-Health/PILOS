@@ -32,15 +32,15 @@
     <!-- List of all meetings -->
     <OverlayComponent :show="isBusy" z-index="1">
       <DataView
-        :totalRecords="meta.total"
-        :rows="meta.per_page"
-        :first="meta.from"
+        :totalRecords="paginator.getTotalRecords()"
+        :rows="paginator.getRows()"
+        :first="paginator.getFirst()"
         :value="meetings"
         lazy
         dataKey="id"
         paginator
-        :paginator-template="paginatorDefaults.getTemplate()"
-        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+        :paginator-template="paginator.getTemplate()"
+        :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         rowHover
         @page="onPage"
         class="mt-4"
@@ -110,7 +110,7 @@ import { useApi } from '../composables/useApi.js';
 import { computed, onMounted, ref } from 'vue';
 import { useDateDiff } from '../composables/useDateDiff.js';
 import { useI18n } from 'vue-i18n';
-import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const props = defineProps({
   room: Object
@@ -120,22 +120,13 @@ const api = useApi();
 const settingsStore = useSettingsStore();
 const dateDiff = useDateDiff();
 const { t } = useI18n();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 
 const meetings = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
 const sortField = ref('start');
 const sortOrder = ref(0);
-
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 
 const sortFields = computed(() => [
   { name: t('meetings.start'), value: 'start' }
@@ -155,7 +146,7 @@ function loadData (page = null) {
 
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
@@ -163,7 +154,11 @@ function loadData (page = null) {
 
   api.call('rooms/' + props.room.id + '/meetings', config).then(response => {
     meetings.value = response.data.data;
-    meta.value = response.data.meta;
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadData(paginator.getLastPage());
+      }
+    });
   }).catch(error => {
     api.error(error);
     loadingError.value = true;
