@@ -13,7 +13,7 @@
           @limit-reached="onReachLimit"
         />
         <Tag v-if="showLimit" severity="info" class="w-full" >
-          {{ $t('rooms.room_limit',{has:meta.total_own,max: authStore.currentUser.room_limit}) }}
+          {{ $t('rooms.room_limit',{has: paginator.getMetaProperty('total_own'),max: authStore.currentUser.room_limit}) }}
         </Tag>
       </div>
     </div>
@@ -199,16 +199,15 @@
       </div>
 
         <DataView
-          :totalRecords="meta.total"
-          :rows="meta.per_page"
+          :totalRecords="paginator.getTotalRecords()"
+          :rows="paginator.getRows()"
+          :first="paginator.getFirst()"
           :value="rooms"
-          :first="meta.from"
           lazy
           dataKey="id"
           :paginator="!loadingRooms && !loadingRoomsError"
-          :paginator-template="paginatorDefaults.getTemplate()"
-          :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
-          :always-show-paginator="false"
+          :paginator-template="paginator.getTemplate()"
+          :current-page-report-template="paginator.getCurrentPageReportTemplate()"
           rowHover
           class="mt-4"
           @page="onPage"
@@ -230,8 +229,8 @@
           <template #empty>
             <div>
               <div class="text-center" v-if="rooms && !loadingRooms && !loadingRoomsError">
-                <InlineMessage severity="info" v-if="onlyShowFavorites && meta.total_no_filter===0"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
-                <InlineMessage severity="info" v-else-if="meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
+                <InlineMessage severity="info" v-if="onlyShowFavorites && paginator.isEmptyUnfiltered()"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
+                <InlineMessage severity="info" v-else-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
                 <InlineMessage severity="info" v-else-if="!rooms.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
               </div>
             </div>
@@ -277,13 +276,13 @@ import { onMounted, ref, computed } from 'vue';
 import { useApi } from '@/composables/useApi.js';
 import { useI18n } from 'vue-i18n';
 import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { usePaginatorDefaults } from '../../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../../composables/usePaginator.js';
 
 const authStore = useAuthStore();
 const api = useApi();
 const { t } = useI18n();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 
 const toggleMobileMenu = ref(false);
 const loadingRooms = ref(false);
@@ -302,17 +301,6 @@ const roomTypes = ref([]);
 const roomTypesBusy = ref(false);
 const roomTypesLoadingError = ref(false);
 
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0,
-  total_own: 0,
-  total_no_filter: 0
-});
-
 function onPage (event) {
   loadRooms(event.page + 1);
 }
@@ -322,7 +310,7 @@ const showLimit = computed(() => {
 });
 
 const limitReached = computed(() => {
-  return authStore.currentUser && authStore.currentUser.room_limit !== -1 && rooms.value !== null && meta.value.total_own >= authStore.currentUser.room_limit;
+  return authStore.currentUser && authStore.currentUser.room_limit !== -1 && rooms.value !== null && paginator.getMetaProperty('total_own') >= authStore.currentUser.room_limit;
 });
 
 // t('rooms.index.sorting.select_sorting')
@@ -429,16 +417,19 @@ function loadRooms (page = null) {
       room_type: selectedRoomType.value,
       sort_by: selectedSortingType.value,
       search: rawSearchQuery.value.trim() !== '' ? rawSearchQuery.value.trim() : null,
-      page: page || meta.value.current_page
+      page: page || paginator.getCurrentPage()
     }
   }).then(response => {
     // operation successful, set rooms and reset loadingRoomsError
     rooms.value = response.data.data;
-    meta.value = response.data.meta;
+    // update paginator metadata, if the current page is out of range, load the last possible page
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadRooms(paginator.getLastPage());
+      }
+    });
+
     loadingRoomsError.value = false;
-    if (meta.value.current_page > 1 && rooms.value.length === 0) {
-      loadRooms(meta.value.last_page);
-    }
   }).catch(error => {
     // failed
     loadingRoomsError.value = true;
