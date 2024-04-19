@@ -38,8 +38,8 @@
       sort-field="name"
       :sort-order="1"
       paginator
-      :paginator-template="paginatorDefaults.getTemplate()"
-      :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       stripedRows
       row-hover
       :loading="isBusy"
@@ -99,12 +99,12 @@ import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
 import { FilterMatchMode } from 'primevue/api';
 import { useActionColumn } from '@/composables/useActionColumn.js';
-import { usePaginatorDefaults } from '../../../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../../../composables/usePaginator.js';
 
 const api = useApi();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 const actionColumn = useActionColumn([{ permissions: ['roomTypes.view'] }, { permissions: ['roomTypes.update'] }, { permissions: ['roomTypes.delete'] }]);
 
 const isBusy = ref(false);

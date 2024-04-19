@@ -60,14 +60,15 @@
 
     <OverlayComponent :show="isBusy" style="min-height: 4rem;" z-index="1">
       <DataView
-        :totalRecords="meta.total"
-        :rows="meta.per_page"
+        :totalRecords="paginator.getTotalRecords()"
+        :rows="paginator.getRows()"
+        :first="paginator.getFirst()"
         :value="members"
         lazy
         dataKey="id"
         paginator
-        :paginator-template="paginatorDefaults.getTemplate()"
-        :current-page-report-template="paginatorDefaults.getCurrentPageReportTemplate()"
+        :paginator-template="paginator.getTemplate()"
+        :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         rowHover
         @page="onPage"
         class="mt-4"
@@ -75,9 +76,11 @@
 
         <!-- Show message on empty list -->
         <template #empty>
-          <div class="px-2">
-            <InlineNote v-if="!isBusy && !loadingError && meta.total_no_filter === 0">{{ $t('rooms.members.nodata') }}</InlineNote>
-            <InlineNote v-if="!isBusy && !loadingError && meta.total_no_filter !== 0">{{ $t('app.filter_no_results') }}</InlineNote>
+          <div>
+            <div class="px-2" v-if="!isBusy && !loadingError">
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.members.nodata') }}</InlineNote>
+              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+            </div>
           </div>
         </template>
 
@@ -176,7 +179,7 @@ import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
-import { usePaginatorDefaults } from '../composables/usePaginatorDefaults.js';
+import { usePaginator } from '../composables/usePaginator.js';
 import UserAvatar from './UserAvatar.vue';
 import { useI18n } from 'vue-i18n';
 
@@ -190,7 +193,7 @@ const props = defineProps({
 const authStore = useAuthStore();
 const api = useApi();
 const userPermissions = useUserPermissions();
-const paginatorDefaults = usePaginatorDefaults();
+const paginator = usePaginator();
 const { t } = useI18n();
 
 const isBusy = ref(false);
@@ -201,14 +204,6 @@ const sortOrder = ref(1);
 const search = ref('');
 const filter = ref('all');
 const selectedMembers = ref([]);
-const meta = ref({
-  current_page: 1,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 
 const sortFields = computed(() => [
   { name: t('app.firstname'), value: 'firstname' },
@@ -224,7 +219,7 @@ const filterOptions = computed(() => [
 
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 1 ? 0 : 1;
-  loadData();
+  loadData(1);
 };
 
 function toggleSelectAll (checked) {
@@ -264,7 +259,7 @@ function loadData (page = null) {
 
   const config = {
     params: {
-      page: page || meta.value.current_page,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       search: search.value === '' ? null : search.value,
@@ -276,7 +271,11 @@ function loadData (page = null) {
     .then(response => {
       // fetching successful
       members.value = response.data.data;
-      meta.value = response.data.meta;
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
     })
     .catch((error) => {
       api.error(error);
