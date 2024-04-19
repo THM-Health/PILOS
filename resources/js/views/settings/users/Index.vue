@@ -23,11 +23,11 @@
               v-model="filter.name"
               :disabled="isBusy"
               :placeholder="$t('app.search')"
-              @keyup.enter="loadData"
+              @keyup.enter="loadData(1)"
             />
             <Button
               :disabled="isBusy"
-              @click="loadData"
+              @click="loadData(1)"
               v-tooltip="$t('app.search')"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
@@ -42,7 +42,7 @@
             id="roles"
             ref="rolesMultiselectRef"
             v-model="filter.role"
-            @update:modelValue="loadData"
+            @update:modelValue="loadData(1)"
             :placeholder="$t('settings.users.role_filter')"
             track-by="id"
             open-direction="bottom"
@@ -110,12 +110,15 @@
     <Divider/>
 
     <DataTable
-      :totalRecords="meta.total"
-      :rows="meta.per_page"
+      :totalRecords="paginator.getTotalRecords()"
+      :rows="paginator.getRows()"
+      :first="paginator.getFirst()"
       :value="users"
       lazy
       dataKey="id"
       paginator
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -126,12 +129,12 @@
       class="table-auto lg:table-fixed"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
       <!-- Show message on empty user list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="meta.total_no_filter === 0">{{ $t('settings.users.no_data') }}</InlineNote>
+          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('settings.users.no_data') }}</InlineNote>
           <InlineNote v-else>{{ $t('settings.users.no_data_filtered') }}</InlineNote>
         </div>
       </template>
@@ -202,7 +205,7 @@
               :id="slotProps.data.id"
               :firstname="slotProps.data.firstname"
               :lastname="slotProps.data.lastname"
-              @deleted="loadData"
+              @deleted="loadData()"
             />
           </div>
         </template>
@@ -218,10 +221,12 @@ import { useUserPermissions } from '@/composables/useUserPermission.js';
 import { useSettingsStore } from '@/stores/settings';
 import { Multiselect } from 'vue-multiselect';
 import { useActionColumn } from '@/composables/useActionColumn.js';
+import { usePaginator } from '../../../composables/usePaginator.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
+const paginator = usePaginator();
 
 // first: view action, second: edit action (requires only view permission for current user), third: resend pw (required at least update), fourth: delete action
 const actionColumn = useActionColumn([{ permissions: ['users.view'] }, { permissions: ['users.view'] }, { permissions: ['users.update'] }, { permissions: ['users.delete'] }]);
@@ -229,17 +234,9 @@ const actionColumn = useActionColumn([{ permissions: ['users.view'] }, { permiss
 const isBusy = ref(false);
 const loadingError = ref(false);
 const users = ref([]);
-const currentPage = ref(1);
 const sortField = ref('id');
 const sortOrder = ref(1);
-const meta = ref({
-  current_page: 0,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
+
 const filter = ref({
   name: undefined,
   role: undefined
@@ -294,13 +291,13 @@ function loadRoles (page = 1) {
  * Loads the users from the backend
  *
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
       name: filter.value.name,
@@ -309,8 +306,12 @@ function loadData () {
   };
 
   api.call('users', config).then(response => {
-    meta.value = response.data.meta;
     users.value = response.data.data;
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadData(paginator.getLastPage());
+      }
+    });
   }).catch(error => {
     api.error(error);
     loadingError.value = true;
@@ -320,13 +321,11 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 function onSort () {
-  currentPage.value = 1;
-  loadData();
+  loadData(1);
 }
 
 /**
@@ -335,7 +334,7 @@ function onSort () {
  */
 function clearFilterRole () {
   filter.value.role = null;
-  loadData();
+  loadData(1);
 }
 
 </script>

@@ -8,7 +8,7 @@
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData"
+          @click="loadData()"
           icon="fa-solid fa-sync"
         />
       </div>
@@ -16,11 +16,14 @@
 
     <!-- List of all meetings -->
     <DataTable
-      :totalRecords="meta.total"
-      :rows="meta.per_page"
+      :totalRecords="paginator.getTotalRecords()"
+      :rows="paginator.getRows()"
+      :first="paginator.getFirst()"
       :value="meetings"
       dataKey="id"
       paginator
+      :paginator-template="paginator.getTemplate()"
+      :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
       rowHover
       stripedRows
@@ -30,7 +33,7 @@
       class="mt-4 table-auto md:table-fixed"
     >
       <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
 
       <template #empty>
@@ -90,6 +93,7 @@
 import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../composables/useApi.js';
 import { onMounted, ref } from 'vue';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const props = defineProps({
   room: Object
@@ -97,36 +101,32 @@ const props = defineProps({
 
 const api = useApi();
 const settingsStore = useSettingsStore();
+const paginator = usePaginator();
 
 const meetings = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const currentPage = ref(1);
-const meta = ref({
-  current_page: 0,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 
 /**
  * Loads the current and previous meetings of a given room
  */
-function loadData () {
+function loadData (page = null) {
   isBusy.value = true;
   loadingError.value = false;
 
   const config = {
     params: {
-      page: currentPage.value
+      page: page || paginator.getCurrentPage()
     }
   };
 
   api.call('rooms/' + props.room.id + '/meetings', config).then(response => {
     meetings.value = response.data.data;
-    meta.value = response.data.meta;
+    paginator.updateMeta(response.data.meta).then(() => {
+      if (paginator.isOutOfRange()) {
+        loadData(paginator.getLastPage());
+      }
+    });
   }).catch(error => {
     api.error(error);
     loadingError.value = true;
@@ -136,8 +136,7 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 onMounted(() => {

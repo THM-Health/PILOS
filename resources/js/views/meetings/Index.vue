@@ -12,11 +12,11 @@
                 v-model="search"
                 :disabled="isBusy"
                 :placeholder="$t('app.search')"
-                @keyup.enter="loadData()"
+                @keyup.enter="loadData(1)"
               />
                 <Button
                   :disabled="isBusy "
-                  @click="loadData()"
+                  @click="loadData(1)"
                   icon="fa-solid fa-magnifying-glass"
                 />
             </InputGroup>
@@ -37,12 +37,15 @@
         <!-- table with room members -->
         <DataTable
           class="mt-4"
-          :totalRecords="meta.total"
-          :rows="meta.per_page"
+          :totalRecords="paginator.getTotalRecords()"
+          :rows="paginator.getRows()"
+          :first="paginator.getFirst()"
           :value="meetings"
           lazy
           dataKey="id"
           paginator
+          :paginator-template="paginator.getTemplate()"
+          :current-page-report-template="paginator.getCurrentPageReportTemplate()"
           :loading="isBusy || loadingError"
           rowHover
           v-model:sortField="sortField"
@@ -51,13 +54,13 @@
           @sort="onSort"
         >
           <template #loading>
-            <LoadingRetryButton :error="loadingError" @reload="loadData" />
+            <LoadingRetryButton :error="loadingError" @reload="loadData()" />
           </template>
 
           <!-- Show message on empty attendance list -->
           <template #empty>
             <div v-if="!isBusy && !loadingError">
-              <InlineNote v-if="meta.total_no_filter === 0">{{ $t('meetings.no_data') }}</InlineNote>
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('meetings.no_data') }}</InlineNote>
               <InlineNote v-else>{{ $t('meetings.no_data_filtered') }}</InlineNote>
             </div>
           </template>
@@ -201,29 +204,22 @@ import RawText from '@/components/RawText.vue';
 import TextTruncate from '@/components/TextTruncate.vue';
 import { ref, onMounted } from 'vue';
 import { useApi } from '../../composables/useApi.js';
+import { usePaginator } from '../../composables/usePaginator.js';
 
 const api = useApi();
+const paginator = usePaginator();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
 const meetings = ref([]);
-const currentPage = ref(1);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
 const search = ref('');
-const meta = ref({
-  current_page: 0,
-  from: 0,
-  last_page: 0,
-  per_page: 0,
-  to: 0,
-  total: 0
-});
 
 /**
  * reload member list from api
  */
-function loadData () {
+function loadData (page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
@@ -231,7 +227,7 @@ function loadData () {
 
   const config = {
     params: {
-      page: currentPage.value,
+      page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
       sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
     }
@@ -245,7 +241,11 @@ function loadData () {
     .then(response => {
       // fetching successful
       meetings.value = response.data.data;
-      meta.value = response.data.meta;
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
     })
     .catch((error) => {
       api.error(error);
@@ -257,12 +257,11 @@ function loadData () {
 }
 
 function onPage (event) {
-  currentPage.value = event.page + 1;
-  loadData();
+  loadData(event.page + 1);
 }
 
 function onSort () {
-  loadData();
+  loadData(1);
 }
 
 onMounted(() => {
