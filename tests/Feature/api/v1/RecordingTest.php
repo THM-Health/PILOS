@@ -598,7 +598,7 @@ class RecordingTest extends TestCase
         $this->actingAs($room->owner)
             ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
             ->assertOk()
-            ->assertJson(['url' => route('recording.resource', ['format' => $format, 'resource' => 'audio.ogg'])]);
+            ->assertJson(['url' => route('recording.resource', ['formatName' => $format->format, 'recording' => $recording->id, 'resource' => 'audio.ogg'])]);
 
         // Check url is pointing to the player route (for presentation format)
         $format = RecordingFormat::factory()->format('presentation')->create();
@@ -908,12 +908,16 @@ class RecordingTest extends TestCase
         $this->assertEquals('/private-storage/recordings/'.$recording->id.'/notes/notes.pdf', $response->headers->get('x-accel-redirect'));
 
         // Try to path traversal
-        $response = $this->actingAs($room->owner)->get(route('recording.resource', ['format' => $notes, 'resource' => '../podcast/audio.ogg']));
+        $response = $this->actingAs($room->owner)->get(route('recording.resource', ['formatName' => 'notes', 'recording' => $recording->id, 'resource' => '../podcast/audio.ogg']));
         $response->assertNotFound();
 
         // Try invalid file
-        $response = $this->actingAs($room->owner)->get(route('recording.resource', ['format' => $notes, 'resource' => 'audio.ogg']));
+        $response = $this->actingAs($room->owner)->get(route('recording.resource', ['formatName' => 'notes', 'recording' => $recording->id, 'resource' => 'audio.ogg']));
         $response->assertNotFound();
+
+        // Try to access other format
+        $this->actingAs($room->owner)->get(route('recording.resource', ['formatName' => 'podcast', 'recording' => $recording->id, 'resource' => 'audio.ogg']))
+            ->assertNotFound();
 
         // Check if permission to access the resource are bound to the session
         $this->flushSession();

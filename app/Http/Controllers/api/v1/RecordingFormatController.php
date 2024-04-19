@@ -19,7 +19,7 @@ class RecordingFormatController extends Controller
 
         $resource = explode($recording->id.'/', $format->url, 2)[1];
 
-        $resourceRoute = route('recording.resource', ['format' => $format, 'resource' => $resource]).($resource == '' ? '/' : '');
+        $resourceRoute = route('recording.resource', ['formatName' => $format->format, 'recording' => $recording->id, 'resource' => $resource]).($resource == '' ? '/' : '');
 
         return response()->json(['url' => $resourceRoute]);
     }

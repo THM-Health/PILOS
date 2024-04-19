@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recording;
-use App\Models\RecordingFormat;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -11,8 +10,11 @@ use ZipStream\ZipStream;
 
 class RecordingController extends Controller
 {
-    public function resource(RecordingFormat $format, string $resource = 'index.html'): \Illuminate\Http\Response
+    public function resource(string $formatName, Recording $recording, string $resource = 'index.html'): \Illuminate\Http\Response
     {
+        // Get format with the given name of the recording
+        $format = $recording->formats()->where('format', $formatName)->firstOrFail();
+
         // Check session for permission to access recording
         if (! session()->exists('access-format-'.$format->id)) {
             abort(403);
