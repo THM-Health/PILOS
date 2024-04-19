@@ -42,16 +42,16 @@
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Dropdown v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+            <Dropdown :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
           </InputGroup>
 
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Dropdown v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <Dropdown :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
             <InputGroupAddon class="p-0">
-              <Button :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
+              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
             </InputGroupAddon>
           </InputGroup>
         </div>
@@ -77,7 +77,10 @@
     </div>
 
     <!-- Display files -->
-    <OverlayComponent :show="isBusy" z-index="1">
+    <OverlayComponent :show="isBusy || loadingError" z-index="1">
+      <template #overlay>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
+      </template>
       <DataView
         :totalRecords="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
@@ -92,7 +95,6 @@
         @page="onPage"
         class="mt-4"
       >
-
         <!-- Show message on empty list -->
         <template #empty>
           <div>
