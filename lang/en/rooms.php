@@ -258,6 +258,13 @@ return [
         'edit_recording' => 'Edit recording',
         'end' => 'End',
         'filename' => 'Recording',
+        'filter' => [
+            'all' => 'All',
+            'everyone_access' => 'Access: Everyone (like room)',
+            'moderator_access' => 'Access: Moderator',
+            'owner_access' => 'Access: Co-owner',
+            'participant_access' => 'Access: Participant',
+        ],
         'format_types' => [
             'notes' => 'Notes',
             'podcast' => 'Audio-Podcast',
@@ -280,6 +287,10 @@ return [
             'days' => 'The recordings are stored for :days days.',
             'title' => 'Retention period',
             'unlimited' => 'The recordings are stored indefinitely.',
+        ],
+        'sort' => [
+            'description' => 'Description',
+            'start' => 'Start',
         ],
         'start' => 'Start',
         'title' => 'Recordings',

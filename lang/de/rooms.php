@@ -259,6 +259,13 @@ return [
         'edit_recording' => 'Aufzeichnung bearbeiten',
         'end' => 'Ende',
         'filename' => 'Aufzeichnung',
+        'filter' => [
+            'all' => 'Alle',
+            'everyone_access' => 'Zugriff: Jeder (wie Raum)',
+            'moderator_access' => 'Zugriff: Moderator',
+            'owner_access' => 'Zugriff: Mitbesitzer',
+            'participant_access' => 'Zugriff: Teilnehmer',
+        ],
         'format_types' => [
             'notes' => 'Notizen',
             'podcast' => 'Audio-Podcast',
@@ -283,8 +290,8 @@ return [
             'unlimited' => 'Die Aufzeichnungen werden zeitlich unbegrenzt gespeichert.',
         ],
         'sort' => [
-            'start' => 'Beginn',
             'description' => 'Beschreibung',
+            'start' => 'Beginn',
         ],
         'start' => 'Beginn',
         'title' => 'Aufzeichnungen',

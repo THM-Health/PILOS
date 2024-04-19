@@ -221,11 +221,11 @@ const sortFields = computed(() => [
 ]);
 
 const filterOptions = computed(() => [
-  { name: t('rooms.files.filter.all'), value: 'all' },
-  { name: t('rooms.files.filter.everyone_access'), value: 'everyone_access' },
-  { name: t('rooms.files.filter.participant_access'), value: 'participant_access' },
-  { name: t('rooms.files.filter.moderator_access'), value: 'moderator_access' },
-  { name: t('rooms.files.filter.owner_access'), value: 'owner_access' }
+  { name: t('rooms.recordings.filter.all'), value: 'all' },
+  { name: t('rooms.recordings.filter.everyone_access'), value: 'everyone_access' },
+  { name: t('rooms.recordings.filter.participant_access'), value: 'participant_access' },
+  { name: t('rooms.recordings.filter.moderator_access'), value: 'moderator_access' },
+  { name: t('rooms.recordings.filter.owner_access'), value: 'owner_access' }
 ]);
 
 const toggleSortOrder = () => {
