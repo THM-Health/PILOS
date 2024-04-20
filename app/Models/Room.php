@@ -65,6 +65,7 @@ class Room extends Model
             'access_code' => 'integer',
         ];
 
+        // Generate casts for settings that are also present in the room type
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             $casts[$setting] = $config['cast'];
         }
@@ -122,25 +123,42 @@ class Room extends Model
         ],
     ];
 
+    /**
+     * Get the setting validation rules for the room setting with the given name.
+     * Setting must be defined in the ROOM_SETTINGS_DEFINITION
+     *
+     * @param  string  $settingName  setting name of the setting
+     * @return string[] setting rules for the setting
+     *
+     * @throws \Exception
+     */
     public static function getRoomSettingValidationRule($settingName)
     {
         $rules = ['required'];
 
+        // Throw Exception if setting not defined in ROOM_SETTINGS_DEFINITION
         if (! array_key_exists($settingName, self::ROOM_SETTINGS_DEFINITION)) {
             throw new \Exception('Trying to access invalid room setting validation rule '.$settingName);
         }
 
         $castType = self::ROOM_SETTINGS_DEFINITION[$settingName]['cast'];
 
+        // Boolean
         if ($castType === 'boolean') {
             array_push($rules, 'boolean');
-        } elseif (enum_exists($castType)) {
+        }
+        // Enum
+        elseif (enum_exists($castType)) {
+
             $enumValidation = Rule::enum($castType);
+            // Only some values allowed
             if (isset(self::ROOM_SETTINGS_DEFINITION[$settingName]['only'])) {
                 $enumValidation = $enumValidation->only(self::ROOM_SETTINGS_DEFINITION[$settingName]['only']);
             }
             array_push($rules, $enumValidation);
-        } else {
+        }
+        // Room setting validation with invalid cast
+        else {
             throw new \Exception('Trying to access room setting validation rule with invalid cast '.$settingName);
         }
 
@@ -338,6 +356,12 @@ class Room extends Model
     }
 
     /**
+     * Get the current value of the room setting with the given name
+     * Setting must be defined in the ROOM_SETTINGS_DEFINITION
+     *
+     * @param  string  $settingName  setting name of the setting
+     * @return mixed
+     *
      * @throws \Exception
      */
     public function getRoomSetting(string $settingName)

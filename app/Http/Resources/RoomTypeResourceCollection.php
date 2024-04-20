@@ -9,6 +9,11 @@ class RoomTypeResourceCollection extends ResourceCollection
 {
     private $withDefaultRoomSettings = false;
 
+    /**
+     * Sets the flag to also load the default room settings
+     *
+     * @return $this The room type resource collection instance
+     */
     public function withDefaultRoomSettings(): self
     {
         $this->withDefaultRoomSettings = true;

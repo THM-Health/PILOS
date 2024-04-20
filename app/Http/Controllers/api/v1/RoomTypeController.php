@@ -90,6 +90,7 @@ class RoomTypeController extends Controller
         $roomType->max_duration = $request->max_duration;
         $roomType->serverPool()->associate($request->server_pool);
 
+        // Save default room settings
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             $roomType[$setting.'_default'] = $request[$setting.'_default'];
             $roomType[$setting.'_enforced'] = $request[$setting.'_enforced'];
@@ -99,6 +100,7 @@ class RoomTypeController extends Controller
         $roomType->has_access_code_enforced = $request->has_access_code_enforced;
 
         $roomType->save();
+
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
@@ -122,6 +124,7 @@ class RoomTypeController extends Controller
         $roomType->max_duration = $request->max_duration;
         $roomType->serverPool()->associate($request->server_pool);
 
+        // Safe default room settings
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             $roomType[$setting.'_default'] = $request[$setting.'_default'];
             $roomType[$setting.'_enforced'] = $request[$setting.'_enforced'];
@@ -131,6 +134,7 @@ class RoomTypeController extends Controller
         $roomType->has_access_code_enforced = $request->has_access_code_enforced;
 
         $roomType->save();
+
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }

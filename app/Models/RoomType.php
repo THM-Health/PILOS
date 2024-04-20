@@ -17,10 +17,12 @@ class RoomType extends Model
             'restrict' => 'boolean',
             'max_participants' => 'integer',
             'max_duration' => 'integer',
+            // Default room settings
             'has_access_code_default' => 'boolean',
             'has_access_code_enforced' => 'boolean',
         ];
 
+        // Generate casts for default room settings (that are also present in the room)
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             $casts[$setting.'_default'] = $config['cast'];
             $casts[$setting.'_enforced'] = 'boolean';

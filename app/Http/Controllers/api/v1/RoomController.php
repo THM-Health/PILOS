@@ -68,17 +68,19 @@ class RoomController extends Controller
                     // all rooms that are public
                     if ($request->filter_public) {
                         $query->orWhere(function (Builder $subQuery) {
-                            // list of room types for which listing is enabled
                             $roomTypesWithListingEnforced = RoomType::where('visibility_enforced', 1)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
                             $roomTypesWithNoListingEnforced = RoomType::where('visibility_enforced', 1)->where('visibility_default', RoomVisibility::PRIVAT)->get('id');
                             $roomTypesWithListingDefault = RoomType::where('visibility_enforced', 0)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
                             $subQuery
+                                // Room has a room type where the visibility public is enforced
                                 ->whereIn('room_type_id', $roomTypesWithListingEnforced)
+                                // Room where expert mode is deactivated where the visibility public is the default value
                                 ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithListingDefault) {
                                     $subSubQuery
                                         ->where('expert_mode', 0)
                                         ->whereIn('room_type_id', $roomTypesWithListingDefault);
                                 })
+                                // Room where expert mode is activated and visibility is set to public
                                 ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithNoListingEnforced) {
                                     $subSubQuery
                                         ->where('expert_mode', 1)

@@ -20,10 +20,12 @@ class RoomTypeRequest extends FormRequest
             'restrict' => ['required', 'boolean'],
             'roles' => [Rule::requiredIf($this->boolean('restrict')), 'array'],
             'roles.*' => ['distinct', 'exists:App\Models\Role,id'],
+            // Default room settings
             'has_access_code_default' => ['required', 'boolean'],
             'has_access_code_enforced' => ['required', 'boolean'],
         ];
 
+        // Default room settings
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             $rules[$setting.'_default'] = Room::getRoomSettingValidationRule($setting);
             $rules[$setting.'_enforced'] = ['required', 'boolean'];
