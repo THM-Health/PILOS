@@ -4,8 +4,9 @@
     severity="success"
     :disabled="disabled"
     @click="showAddModal"
-    icon="fa-solid fa-link"
-    :label="$t('rooms.tokens.add')"
+    icon="fa-solid fa-plus"
+    :aria-label="$t('rooms.tokens.add')"
+    v-tooltip="$t('rooms.tokens.add')"
   />
 
   <!-- modal -->

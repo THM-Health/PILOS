@@ -6,7 +6,7 @@
       >
         <template #content>
           <!-- Tab header -->
-          <div role="tablist" class="flex flex-row justify-content-between m-0 p-0 border-0">
+          <div role="tablist" class="flex flex-row justify-content-between m-0 px-2 border-0">
             <!-- Current tab -->
             <div class="flex flex-row gap-2 align-items-center">
               <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>

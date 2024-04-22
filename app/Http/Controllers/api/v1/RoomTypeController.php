@@ -32,7 +32,7 @@ class RoomTypeController extends Controller
         $roomTypes = RoomType::query();
 
         if ($request->has('filter')) {
-            $filter = $request->get('filter');
+            $filter = $request->query('filter');
 
             if ($filter === 'own') {
                 $roomTypes = $roomTypes->where('restrict', '=', false)

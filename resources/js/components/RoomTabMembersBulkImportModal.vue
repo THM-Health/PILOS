@@ -1,14 +1,4 @@
 <template>
-  <!-- bulk add users -->
-  <Button
-    ref="bulk-import-members-button"
-    :disabled="disabled"
-    severity="success"
-    @click="openModal"
-    icon="fa-solid fa-user-plus"
-    :label="$t('rooms.members.bulk_import_users')"
-  />
-
   <!-- bulk add new user modal -->
   <Dialog
     v-model:visible="showModal"
@@ -168,6 +158,10 @@ const formErrors = useFormErrors();
 const toast = useToast();
 const api = useApi();
 const { t } = useI18n();
+
+defineExpose({
+  openModal
+});
 
 /**
  * show modal to bulk import users
