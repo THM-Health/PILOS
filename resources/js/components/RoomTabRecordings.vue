@@ -76,7 +76,10 @@
         <!-- Show message on empty recording list -->
         <template #empty>
           <div>
-            <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.recordings.nodata') }}</InlineNote>
+            <div class="px-2" v-if="!isBusy && !loadingError">
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.recordings.nodata') }}</InlineNote>
+              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+            </div>
           </div>
         </template>
 
