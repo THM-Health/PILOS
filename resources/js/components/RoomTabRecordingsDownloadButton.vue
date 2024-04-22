@@ -7,7 +7,8 @@
     :aria-label="$t('rooms.recordings.download')"
     v-tooltip:top="$t('rooms.recordings.download')"
   >
-    <i class="fa-solid fa-download" />
+    <span class="p-button-icon fa-solid fa-download" />
+    <span class="p-button-label" data-pc-section="label">&nbsp;</span>
   </a>
 </template>
 <script setup>
