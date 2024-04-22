@@ -4,6 +4,7 @@
       severity="info"
       v-if="requireAgreement && files.length >0"
       :closable="false"
+      class="mx-2"
       :pt="{
         wrapper: { class: 'align-items-start gap-2'},
         icon: { class: [ 'mt-1' ] }

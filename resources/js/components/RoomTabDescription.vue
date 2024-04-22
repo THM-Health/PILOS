@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="px-2">
     <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-content-end mb-3">
       <Button
         v-if="!editorOpen"
