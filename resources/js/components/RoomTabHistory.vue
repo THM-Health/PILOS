@@ -48,7 +48,7 @@
         @page="onPage"
         class="mt-4"
       >
-        <!-- Show message on empty recording list -->
+        <!-- Show message on empty list -->
         <template #empty>
           <div class="px-2">
             <InlineNote v-if="!isBusy && !loadingError">{{ $t('meetings.no_historical_data') }}</InlineNote>
