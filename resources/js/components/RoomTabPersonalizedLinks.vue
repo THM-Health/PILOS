@@ -41,6 +41,7 @@
       <div class="flex gap-2 justify-content-end">
         <!-- add -->
         <RoomTabPersonalizedLinksAddButton
+          v-if="userPermissions.can('manageSettings', props.room)"
           :room-id="props.room.id"
           :disabled="isBusy"
           @added="loadData()"
