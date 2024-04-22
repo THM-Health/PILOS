@@ -51,6 +51,7 @@ return [
         'stale_model' => 'The :model entity was updated in the meanwhile!',
         'token_not_found' => 'The personalized room link could not be found.',
     ],
+    'filter_no_results' => 'No results found',
     'firstname' => 'Firstname',
     'flash' => [
         'client_error' => 'An unknown error occurred in the application!',

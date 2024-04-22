@@ -51,6 +51,7 @@ return [
         'stale_model' => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
         'token_not_found' => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
+    'filter_no_results' => 'Keine Ergebnisse gefunden',
     'firstname' => 'Vorname',
     'flash' => [
         'client_error' => 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
