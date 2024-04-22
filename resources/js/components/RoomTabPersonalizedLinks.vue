@@ -46,7 +46,7 @@
           @added="loadData()"
         />
 
-        <!-- Reload file list -->
+        <!-- Reload list -->
         <Button
           class="flex-shrink-0"
           v-tooltip="$t('app.reload')"
