@@ -19,19 +19,19 @@ class RecordingController extends Controller
         $additional = [];
 
         // Sort by column, fallback/default is filename
-        $sortBy = match ($request->get('sort_by')) {
+        $sortBy = match ($request->query('sort_by')) {
             'start' => 'start',
             default => 'description',
         };
 
         // Sort direction, fallback/default is asc
-        $sortOrder = match ($request->get('sort_direction')) {
+        $sortOrder = match ($request->query('sort_direction')) {
             'desc' => 'desc',
             default => 'asc',
         };
 
         // Filter, default is no filter
-        $filter = match ($request->get('filter')) {
+        $filter = match ($request->query('filter')) {
             'everyone_access' => ['access', RecordingAccess::EVERYONE],
             'participant_access' => ['access', RecordingAccess::PARTICIPANT],
             'moderator_access' => ['access', RecordingAccess::MODERATOR],
