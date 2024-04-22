@@ -285,12 +285,25 @@ class RoomController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function meetings(Room $room)
+    public function meetings(Room $room, Request $request)
     {
         $this->authorize('viewStatistics', $room);
-        $meetings = $room->meetings()->orderByDesc('start')->whereNotNull('start');
 
-        return \App\Http\Resources\Meeting::collection($meetings->paginate(setting('pagination_page_size')));
+        // Sort by column, fallback/default is start time
+        $sortBy = match ($request->get('sort_by')) {
+            default => 'start',
+        };
+
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->get('sort_direction')) {
+            'desc' => 'desc',
+            default => 'asc',
+        };
+
+        // Get all meeting of the room and sort them, only meetings that are not in the starting phase
+        $resource = $room->meetings()->orderBy($sortBy, $sortOrder)->whereNotNull('start');
+
+        return \App\Http\Resources\Meeting::collection($resource->paginate(setting('pagination_page_size')));
     }
 
     /**
