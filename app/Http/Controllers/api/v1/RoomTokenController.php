@@ -26,20 +26,20 @@ class RoomTokenController extends Controller
         $additional = [];
 
         // Sort by column, fallback/default is firstname
-        $sortBy = match ($request->get('sort_by')) {
+        $sortBy = match ($request->query('sort_by')) {
             'lastname' => 'lastname',
             'last_usage' => 'last_usage',
             default => 'firstname',
         };
 
         // Sort direction, fallback/default is asc
-        $sortOrder = match ($request->get('sort_direction')) {
+        $sortOrder = match ($request->query('sort_direction')) {
             'desc' => 'desc',
             default => 'asc',
         };
 
         // Filter by role, fallback/default is no filter
-        $filter = match ($request->get('filter')) {
+        $filter = match ($request->query('filter')) {
             'participant_role' => ['role', RoomUserRole::USER],
             'moderator_role' => ['role', RoomUserRole::MODERATOR],
             default => null,

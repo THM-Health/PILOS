@@ -290,12 +290,12 @@ class RoomController extends Controller
         $this->authorize('viewStatistics', $room);
 
         // Sort by column, fallback/default is start time
-        $sortBy = match ($request->get('sort_by')) {
+        $sortBy = match ($request->query('sort_by')) {
             default => 'start',
         };
 
         // Sort direction, fallback/default is asc
-        $sortOrder = match ($request->get('sort_direction')) {
+        $sortOrder = match ($request->query('sort_direction')) {
             'desc' => 'desc',
             default => 'asc',
         };

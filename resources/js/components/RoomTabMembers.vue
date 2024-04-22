@@ -176,7 +176,6 @@
   </div>
 </template>
 <script setup>
-import _ from 'lodash';
 import { useAuthStore } from '../stores/auth';
 import EventBus from '../services/EventBus';
 import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
