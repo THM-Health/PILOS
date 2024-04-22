@@ -69,7 +69,7 @@ class RoomController extends Controller
                     if ($request->filter_public) {
                         $query->orWhere(function (Builder $subQuery) {
                             $roomTypesWithListingEnforced = RoomType::where('visibility_enforced', 1)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
-                            $roomTypesWithNoListingEnforced = RoomType::where('visibility_enforced', 1)->where('visibility_default', RoomVisibility::PRIVAT)->get('id');
+                            $roomTypesWithNoListingEnforced = RoomType::where('visibility_enforced', 1)->where('visibility_default', RoomVisibility::PRIVATE)->get('id');
                             $roomTypesWithListingDefault = RoomType::where('visibility_enforced', 0)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
                             $subQuery
                                 // Room has a room type where the visibility public is enforced
@@ -235,7 +235,7 @@ class RoomController extends Controller
         $room->name = $request->name;
         $room->expert_mode = $request->expert_mode;
         $room->short_description = $request->short_description;
-        $room->access_code = $request->access_code;
+        $room->access_code = $request->access_code; //ToDo reset???
 
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             // User is not an expert and setting is an expert setting: do not update setting

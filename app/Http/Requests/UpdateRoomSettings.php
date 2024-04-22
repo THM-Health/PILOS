@@ -14,7 +14,7 @@ class UpdateRoomSettings extends FormRequest
             'access_code' => ['nullable', 'numeric', 'digits:9'],
             'room_type' => ['bail', 'required', 'exists:App\Models\RoomType,id', new ValidRoomType($this->room->owner)],
             'name' => ['required', 'string', 'min:2', 'max:'.config('bigbluebutton.room_name_limit')],
-            'short_description' => 'nullable', 'string', 'max:300',
+            'short_description' => ['nullable', 'string', 'max:300'],
             'expert_mode' => ['required', 'boolean'],
         ];
 

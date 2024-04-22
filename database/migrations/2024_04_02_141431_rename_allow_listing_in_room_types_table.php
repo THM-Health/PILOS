@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('room_types', function (Blueprint $table) {
-            $table->integer('allow_listing')->default(\App\Enums\RoomVisibility::PRIVAT)->change();
+            $table->integer('allow_listing')->default(\App\Enums\RoomVisibility::PRIVATE)->change();
             $table->renameColumn('allow_listing', 'visibility_default');
 
             $table->boolean('visibility_enforced')->default(false);
