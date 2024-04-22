@@ -146,7 +146,7 @@
                   </div>
                 </div>
 
-                <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" v-if="showManagementColumns && authStore.currentUser?.id !== item.id">
+                <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" v-if="userPermissions.can('manageSettings', props.room) && authStore.currentUser?.id !== item.id">
                   <!-- edit membership role -->
                   <RoomTabMembersEditButton
                     :room-id="props.room.id"
@@ -228,7 +228,7 @@ const toggleSortOrder = () => {
 
 function toggleSelectAll (checked) {
   if (checked) {
-    selectedMembers.value = _.clone(selectableMembers.value);
+    selectedMembers.value = selectableMembers.value;
   } else {
     selectedMembers.value = [];
   }
@@ -239,14 +239,11 @@ function isMemberSelected (id) {
 }
 
 function onMemberSelected (id, selected) {
-  let selection = _.clone(selectedMembers.value);
   if (selected) {
-    selection.push(id);
+    selectedMembers.value.push(id);
   } else {
-    selection = selection.filter(memberId => memberId !== id);
+    selectedMembers.value = selectedMembers.value.filter(memberId => memberId !== id);
   }
-
-  selectedMembers.value = selection;
 }
 
 /**
@@ -297,10 +294,6 @@ function onPage (event) {
 // list of member ids that can be selected on the current page (user cannot select himself)
 const selectableMembers = computed(() => {
   return members.value.map(member => member.id).filter(id => id !== authStore.currentUser?.id);
-});
-
-const showManagementColumns = computed(() => {
-  return userPermissions.can('manageSettings', props.room);
 });
 
 /**
