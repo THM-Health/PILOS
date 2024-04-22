@@ -30,21 +30,52 @@ class RoomMemberController extends Controller
      */
     public function index(Room $room, Request $request)
     {
-        $sortBy = match ($request->get('sort_by')) {
-            'firstname' => 'firstname',
-            'email' => 'email',
-            'role' => 'role',
-            default => 'lastname',
+        $additional = [];
+
+        // Sort by column, fallback/default is firstname
+        $sortBy = match ($request->query('sort_by')) {
+            'lastname' => 'lastname',
+            default => 'firstname',
         };
 
-        $sortOrder = match ($request->get('sort_direction')) {
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
             'desc' => 'desc',
             default => 'asc',
         };
 
-        $members = $room->members()->orderBy($sortBy, $sortOrder)->paginate(setting('pagination_page_size'));
+        // Filter by role, fallback/default is no filter
+        $filter = match ($request->query('filter')) {
+            'participant_role' => ['role', RoomUserRole::USER],
+            'moderator_role' => ['role', RoomUserRole::MODERATOR],
+            'co_owner_role' => ['role', RoomUserRole::CO_OWNER],
+            default => null,
+        };
 
-        return RoomUser::collection($members);
+        // Get all members of the room and sort them
+        $resource = $room->members()->orderBy($sortBy, $sortOrder);
+
+        // count all before applying filters
+        $additional['meta']['total_no_filter'] = $resource->count();
+
+        // Apply search query if set
+        if ($request->has('search')) {
+            // Split search query into single words and search for them in firstname and lastname
+            $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            foreach ($searchQueries as $searchQuery) {
+                $resource = $resource->where(function ($query) use ($searchQuery) {
+                    $query->where('firstname', 'like', '%'.$searchQuery.'%')
+                        ->orWhere('lastname', 'like', '%'.$searchQuery.'%');
+                });
+            }
+        }
+
+        // Apply filter if set, first element is the column, second the value to query
+        if ($filter) {
+            $resource = $resource->where($filter[0], $filter[1]);
+        }
+
+        return RoomUser::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
     }
 
     /**

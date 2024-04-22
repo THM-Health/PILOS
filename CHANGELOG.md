@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
 - Plugin to customize the server load calculation ([#956])
 - Save selected room tab in url to preserve selection on reload ([#977])
+- Sorting the room history list ([#1004])
+- Search and filter options to list of room members ([#1005])
+- Search and filter options to list of room files ([#1006])
+- Search and filter options to list of personalized room links ([#1007])
 - Recording management ([#31], [#896]) 
 
 ### Changed
@@ -45,6 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calculation of server load uses the participants amount, during starting phase using a configurable min. amount ([#956])
 - Layout of room features tab view ([#967])
 - **Breaking:** Time periods for room token expiration ([#968])
+- Layout of the room history list ([#1004])
+- Layout of the room members list ([#1005])
+- Layout of the room files list ([#1006])
+- Layout of the personalized room links list ([#1007])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
@@ -94,6 +102,10 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#967]: https://github.com/THM-Health/PILOS/pull/967
 [#968]: https://github.com/THM-Health/PILOS/pull/968
 [#977]: https://github.com/THM-Health/PILOS/pull/977
+[#1004]: https://github.com/THM-Health/PILOS/pull/1004
+[#1005]: https://github.com/THM-Health/PILOS/pull/1005
+[#1006]: https://github.com/THM-Health/PILOS/pull/1006
+[#1007]: https://github.com/THM-Health/PILOS/pull/1007
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

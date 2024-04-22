@@ -25,10 +25,12 @@ class RoomFileTest extends TestCase
         $room = Room::factory()->create();
         $validFile = UploadedFile::fake()->create('document.pdf', config('bigbluebutton.max_filesize') * 1000 - 1, 'application/pdf');
 
-        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $room]), ['file' => $validFile]);
-        $response->assertSuccessful();
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $room]), ['file' => $validFile])
+            ->assertSuccessful();
 
-        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $response->json('data.files.0.id')]), ['use_in_meeting' => true])
+        $file = $room->files->first();
+
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
             ->assertSuccessful();
 
         // Adding server(s)

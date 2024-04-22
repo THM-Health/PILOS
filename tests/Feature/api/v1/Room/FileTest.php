@@ -6,12 +6,12 @@ use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomFile;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\RoomFileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -127,8 +127,9 @@ class FileTest extends TestCase
      */
     public function testViewFiles()
     {
-        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room' => $this->room]), ['file' => $this->file_valid])
-            ->assertSuccessful();
+        $document = RoomFile::factory()->create(['filename' => 'document.pdf', 'created_at' => '2024-04-01 08:00:00', 'download' => true, 'default' => true, 'use_in_meeting' => true, 'room_id' => $this->room->id]);
+        $presentation = RoomFile::factory()->create(['filename' => 'presentation.pptx', 'created_at' => '2024-04-01 09:00:00', 'download' => false, 'default' => false, 'use_in_meeting' => true, 'room_id' => $this->room->id]);
+        $notes = RoomFile::factory()->create(['filename' => 'notes.pdf', 'created_at' => '2024-04-01 10:00:00', 'download' => true, 'default' => false, 'use_in_meeting' => false, 'room_id' => $this->room->id]);
 
         \Auth::logout();
         // Testing access for room owners only file list
@@ -164,37 +165,37 @@ class FileTest extends TestCase
         // Testing guests with access code
         $this->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(0, 'data.files');
+            ->assertJsonCount(2, 'data');
         $this->flushHeaders();
 
         // Testing users with access code
         $this->actingAs($this->user)->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(0, 'data.files');
+            ->assertJsonCount(2, 'data');
         $this->flushHeaders();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(0, 'data.files');
+            ->assertJsonCount(2, 'data');
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(0, 'data.files');
+            ->assertJsonCount(2, 'data');
 
         // Testing co-owner member
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['filename' => $this->file_valid->name]);
+            ->assertJsonCount(3, 'data');
 
         // Testing owner
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['filename' => $this->file_valid->name]);
+            ->assertJsonCount(3, 'data');
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
@@ -202,22 +203,81 @@ class FileTest extends TestCase
         $this->role->permissions()->attach($this->viewAllPermission);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['filename' => $this->file_valid->name]);
+            ->assertJsonCount(3, 'data');
         $this->role->permissions()->detach($this->viewAllPermission);
 
-        // -- Testing file list shared with all users that have access to the room --
-
-        $this->room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-
-        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
-        $room_file->download = true;
-        $room_file->save();
-
-        // File shared
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
+        // Test default sorting / fallback
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room]))
             ->assertSuccessful()
-            ->assertJsonCount(1, 'data.files')
-            ->assertJsonFragment(['filename' => $this->file_valid->name]);
+            ->assertJsonPath('data.0.filename', 'document.pdf')
+            ->assertJsonPath('data.1.filename', 'notes.pdf')
+            ->assertJsonPath('data.2.filename', 'presentation.pptx');
+
+        // Test sorting by name desc
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'sort_direction' => 'desc']))
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.filename', 'presentation.pptx')
+            ->assertJsonPath('data.1.filename', 'notes.pdf')
+            ->assertJsonPath('data.2.filename', 'document.pdf');
+
+        // Test sorting by date
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'sort_by' => 'uploaded', 'sort_direction' => 'asc']))
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.filename', 'document.pdf')
+            ->assertJsonPath('data.1.filename', 'presentation.pptx')
+            ->assertJsonPath('data.2.filename', 'notes.pdf');
+
+        // Test sorting by date desc
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'sort_by' => 'uploaded', 'sort_direction' => 'desc']))
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.filename', 'notes.pdf')
+            ->assertJsonPath('data.1.filename', 'presentation.pptx')
+            ->assertJsonPath('data.2.filename', 'document.pdf');
+
+        // Test search
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'search' => '.pdf']))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.filename', 'document.pdf')
+            ->assertJsonPath('data.1.filename', 'notes.pdf');
+
+        // Test filter downloadable
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'filter' => 'downloadable']))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.filename', 'document.pdf')
+            ->assertJsonPath('data.1.filename', 'notes.pdf');
+
+        // Test filter use in meeting
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'filter' => 'use_in_meeting']))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.filename', 'document.pdf')
+            ->assertJsonPath('data.1.filename', 'presentation.pptx');
+
+        // Test filter and search
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'filter' => 'use_in_meeting', 'search' => '.pdf']))
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.filename', 'document.pdf')
+            ->assertJsonPath('meta.total_no_filter', 3);
+
+        // Test search with no results
+        $this->actingAs($this->room->owner)
+            ->getJson(route('api.v1.rooms.files.get', ['room' => $this->room, 'search' => 'test']))
+            ->assertSuccessful()
+            ->assertJsonCount(0, 'data')
+            ->assertJsonPath('meta.total', 0)
+            ->assertJsonPath('meta.total_no_filter', 3);
+
     }
 
     /**
@@ -636,6 +696,21 @@ class FileTest extends TestCase
         $other_room->save();
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $other_room->id, 'file' => $room_file]), $params)
             ->assertNotFound();
+
+        // Testing missing properties
+        $params = [];
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertJsonValidationErrors(['use_in_meeting', 'download', 'default']);
+
+        // Testing invalid properties
+        $params = [
+            'use_in_meeting' => 'invalid',
+            'download' => 'invalid',
+            'default' => 'invalid',
+        ];
+
+        $this->actingAs($this->room->owner)->putJson($route, $params)
+            ->assertJsonValidationErrors(['use_in_meeting', 'download', 'default']);
     }
 
     /**
@@ -661,7 +736,7 @@ class FileTest extends TestCase
         $this->assertFalse($room_file_2->use_in_meeting);
 
         // Set new default without use_in_meeting
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), ['default' => true])
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), ['download' => false, 'default' => true, 'use_in_meeting' => false])
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
@@ -671,9 +746,9 @@ class FileTest extends TestCase
         $this->assertFalse($room_file_2->use_in_meeting);
 
         // Set new default with use_in_meeting
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_1]), ['use_in_meeting' => true])
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_1]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
             ->assertSuccessful();
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), ['use_in_meeting' => true])
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $this->room->id, 'file' => $room_file_2]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
@@ -705,11 +780,13 @@ class FileTest extends TestCase
         $bbbfaker->addCreateMeetingRequest();
 
         // Upload a fake file
-        $response = $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $room]), ['file' => $this->file_valid]);
-        $response->assertSuccessful();
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.add', ['room' => $room]), ['file' => $this->file_valid])
+            ->assertSuccessful();
+
+        $file = $room->files->first();
 
         // Set file to be used in next meeting
-        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $response->json('data.files.0.id')]), ['use_in_meeting' => true])
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.files.update', ['room' => $room, 'file' => $file->id]), ['download' => false, 'default' => false, 'use_in_meeting' => true])
             ->assertSuccessful();
 
         // Start room
