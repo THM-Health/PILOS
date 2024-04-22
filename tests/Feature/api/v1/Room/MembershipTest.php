@@ -110,21 +110,27 @@ class MembershipTest extends TestCase
      */
     public function testMemberList()
     {
-        $memberUser = User::factory()->create(['image' => 'test.jpg']);
-        $memberModerator = User::factory()->create();
-        $memberCoOwner = User::factory()->create();
-        $owner = User::factory()->create();
+        $page_size = 5;
+        setting(['pagination_page_size' => $page_size]);
 
         $room = Room::factory()->create([
             'allow_guests' => true,
             'access_code' => $this->faker->numberBetween(111111111, 999999999),
         ]);
-        $room->owner()->associate($owner);
-        $room->save();
 
-        $room->members()->attach($memberUser, ['role' => RoomUserRole::USER]);
-        $room->members()->attach($memberModerator, ['role' => RoomUserRole::MODERATOR]);
-        $room->members()->attach($memberCoOwner, ['role' => RoomUserRole::CO_OWNER]);
+        $john = User::factory()->create(['firstname' => 'John', 'lastname' => 'Doe', 'image' => 'test.jpg']);
+        $daniel = User::factory()->create(['firstname' => 'Daniel', 'lastname' => 'Osorio']);
+        $angela = User::factory()->create(['firstname' => 'Angela', 'lastname' => 'Jones']);
+        $hoyt = User::factory()->create(['firstname' => 'Hoyt', 'lastname' => 'Hastings']);
+        $william = User::factory()->create(['firstname' => 'William', 'lastname' => 'White']);
+        $thomas = User::factory()->create(['firstname' => 'Thomas', 'lastname' => 'Bolden']);
+
+        $room->members()->attach($john, ['role' => RoomUserRole::USER]);
+        $room->members()->attach($daniel, ['role' => RoomUserRole::USER]);
+        $room->members()->attach($angela, ['role' => RoomUserRole::USER]);
+        $room->members()->attach($hoyt, ['role' => RoomUserRole::MODERATOR]);
+        $room->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);
+        $room->members()->attach($william, ['role' => RoomUserRole::CO_OWNER]);
 
         // Check member list as guest
         $this->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
@@ -135,23 +141,20 @@ class MembershipTest extends TestCase
             ->assertForbidden();
 
         // Check member list as member user
-        $this->actingAs($memberUser)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
+        $this->actingAs($john)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
             ->assertForbidden();
 
         // Check member list as member moderator
-        $this->actingAs($memberModerator)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
+        $this->actingAs($hoyt)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
             ->assertForbidden();
 
         // Check member list as member co-owner
-        $this->actingAs($memberCoOwner)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
+        $this->actingAs($william)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
             ->assertSuccessful();
 
-        // Check member list as owner and response
+        // Check member list as owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
-            ->assertSuccessful()
-            ->assertJsonFragment(['id' => $memberUser->id, 'firstname' => $memberUser->firstname, 'lastname' => $memberUser->lastname, 'email' => $memberUser->email, 'role' => RoomUserRole::USER, 'image' => $memberUser->imageUrl])
-            ->assertJsonFragment(['id' => $memberModerator->id, 'firstname' => $memberModerator->firstname, 'lastname' => $memberModerator->lastname, 'email' => $memberModerator->email, 'role' => RoomUserRole::MODERATOR, 'image' => $memberUser->imageUrl])
-            ->assertJsonFragment(['id' => $memberCoOwner->id, 'firstname' => $memberCoOwner->firstname, 'lastname' => $memberCoOwner->lastname, 'email' => $memberCoOwner->email, 'role' => RoomUserRole::CO_OWNER, 'image' => $memberUser->imageUrl]);
+            ->assertSuccessful();
 
         // Check member list with view all rooms permission
         $this->user->roles()->attach($this->role);
@@ -165,6 +168,80 @@ class MembershipTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
             ->assertSuccessful();
         $this->role->permissions()->detach($this->managePermission);
+
+        // Check response content
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonPath('data.2.firstname', 'Hoyt')
+            ->assertJsonPath('data.2.lastname', 'Hastings')
+            ->assertJsonPath('data.2.role', RoomUserRole::MODERATOR->value)
+            ->assertJsonPath('data.2.image', null)
+            ->assertJsonPath('data.3.firstname', 'John')
+            ->assertJsonPath('data.3.lastname', 'Doe')
+            ->assertJsonPath('data.3.role', RoomUserRole::USER->value)
+            ->assertJsonPath('data.3.image', 'http://localhost/storage/test.jpg');
+
+        // Check default sorting / fallback (firstname asc)
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room]))
+            ->assertJsonPath('data.0.firstname', 'Angela')
+            ->assertJsonPath('data.1.firstname', 'Daniel')
+            ->assertJsonPath('data.2.firstname', 'Hoyt')
+            ->assertJsonPath('data.3.firstname', 'John')
+            ->assertJsonPath('data.4.firstname', 'Thomas');
+
+        // Check sorting by firstname desc
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'sort_by' => 'firstname', 'sort_direction' => 'desc']))
+            ->assertJsonPath('data.0.firstname', 'William')
+            ->assertJsonPath('data.1.firstname', 'Thomas')
+            ->assertJsonPath('data.2.firstname', 'John')
+            ->assertJsonPath('data.3.firstname', 'Hoyt')
+            ->assertJsonPath('data.4.firstname', 'Daniel');
+
+        // Check sorting by lastname asc
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'sort_by' => 'lastname', 'sort_direction' => 'asc']))
+            ->assertJsonPath('data.0.lastname', 'Bolden')
+            ->assertJsonPath('data.1.lastname', 'Doe')
+            ->assertJsonPath('data.2.lastname', 'Hastings')
+            ->assertJsonPath('data.3.lastname', 'Jones')
+            ->assertJsonPath('data.4.lastname', 'Osorio');
+
+        // Check search
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'search' => 'Jo']))
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.firstname', 'Angela')
+            ->assertJsonPath('data.1.firstname', 'John')
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check search with whitespaces (all should match in first or last name)
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'search' => 'John Doe']))
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.firstname', 'John')
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check filter by role (participant_role)
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'participant_role']))
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('meta.total', 3)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check filter by role (moderator_role)
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'moderator_role']))
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check filter by role (co_owner_role)
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'co_owner_role']))
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check filter by invalid role (fallback to all)
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room' => $room, 'filter' => 'invalid_role']))
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('meta.total', 6);
     }
 
     /**

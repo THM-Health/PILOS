@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin to customize the server load calculation ([#956])
 - Save selected room tab in url to preserve selection on reload ([#977])
 - Sorting the room history list ([#1004])
+- Search and filter options to list of room members ([#1005])
 - Search and filter options to list of personalized room links ([#1007])
 
 ### Changed
@@ -47,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of room features tab view ([#967])
 - **Breaking:** Time periods for room token expiration ([#968])
 - Layout of the room history list ([#1004])
+- Layout of the room members list ([#1005])
 - Layout of the personalized room links list ([#1007])
 
 ### Fixed
@@ -96,6 +98,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#968]: https://github.com/THM-Health/PILOS/pull/968
 [#977]: https://github.com/THM-Health/PILOS/pull/977
 [#1004]: https://github.com/THM-Health/PILOS/pull/1004
+[#1005]: https://github.com/THM-Health/PILOS/pull/1005
 [#1007]: https://github.com/THM-Health/PILOS/pull/1007
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop

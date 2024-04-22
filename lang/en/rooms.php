@@ -161,11 +161,18 @@ return [
         'title' => 'History',
     ],
     'members' => [
+        'add_single_user' => 'Add single user',
         'add_user' => 'Add user',
         'bulk_edit_user' => 'Edit :numberOfSelectedUsers members',
         'bulk_import_users' => 'Add several users',
         'bulk_remove_user' => 'Remove :numberOfSelectedUsers members',
         'edit_user' => 'Edit member',
+        'filter' => [
+            'all' => 'All',
+            'co_owner_role' => 'Only Co-owners',
+            'moderator_role' => 'Only moderators',
+            'participant_role' => 'Only participants',
+        ],
         'image' => 'Picture',
         'modals' => [
             'add' => [
