@@ -24,19 +24,19 @@ class RoomFileController extends Controller
         $additional = [];
 
         // Sort by column, fallback/default is filename
-        $sortBy = match ($request->get('sort_by')) {
+        $sortBy = match ($request->query('sort_by')) {
             'uploaded' => 'created_at',
             default => 'filename',
         };
 
         // Sort direction, fallback/default is asc
-        $sortOrder = match ($request->get('sort_direction')) {
+        $sortOrder = match ($request->query('sort_direction')) {
             'desc' => 'desc',
             default => 'asc',
         };
 
         // Filter, default is no filter
-        $filter = match ($request->get('filter')) {
+        $filter = match ($request->query('filter')) {
             'use_in_meeting' => ['use_in_meeting', 1],
             'downloadable' => ['download', 1],
             default => null,
