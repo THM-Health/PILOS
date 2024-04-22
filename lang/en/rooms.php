@@ -174,11 +174,18 @@ return [
         'title' => 'History',
     ],
     'members' => [
+        'add_single_user' => 'Add single user',
         'add_user' => 'Add user',
         'bulk_edit_user' => 'Edit :numberOfSelectedUsers members',
         'bulk_import_users' => 'Add several users',
         'bulk_remove_user' => 'Remove :numberOfSelectedUsers members',
         'edit_user' => 'Edit member',
+        'filter' => [
+            'all' => 'All',
+            'co_owner_role' => 'Only Co-owners',
+            'moderator_role' => 'Only moderators',
+            'participant_role' => 'Only participants',
+        ],
         'image' => 'Picture',
         'modals' => [
             'add' => [
@@ -340,7 +347,15 @@ return [
         'delete' => 'Delete personalized room link',
         'edit' => 'Edit personalized room link',
         'expires' => 'Expiry date',
+        'expires_at' => 'Expires at :date',
+        'filter' => [
+            'all' => 'All',
+            'moderator_role' => 'Only moderators',
+            'participant_role' => 'Only participants',
+        ],
         'last_usage' => 'Last used',
+        'last_used_at' => 'Last used at :date',
+        'last_used_never' => 'Never used',
         'nodata' => 'No personalized room links available!',
         'room_link_copied' => 'The personalized room link for :firstname :lastname was copied to your clipboard.',
         'title' => 'Personalized room links',

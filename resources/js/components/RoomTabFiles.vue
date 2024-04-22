@@ -271,7 +271,6 @@ function loadData (page = null) {
 
   api.call('rooms/' + props.room.id + '/files', config)
     .then(response => {
-      console.log(response);
       // Fetch successful
       files.value = response.data.data;
       defaultFile.value = response.data.default;

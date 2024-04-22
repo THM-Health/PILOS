@@ -174,11 +174,18 @@ return [
         'title' => 'Historie',
     ],
     'members' => [
+        'add_single_user' => 'Einen Benutzer hinzufügen',
         'add_user' => 'Benutzer hinzufügen',
         'bulk_edit_user' => ':numberOfSelectedUsers Mitglieder bearbeiten',
         'bulk_import_users' => 'Mehrere Benutzer hinzufügen',
         'bulk_remove_user' => ':numberOfSelectedUsers Mitglieder löschen',
         'edit_user' => 'Mitglied bearbeiten',
+        'filter' => [
+            'all' => 'Alle',
+            'co_owner_role' => 'Nur Mitbesitzer',
+            'moderator_role' => 'Nur Moderatoren',
+            'participant_role' => 'Nur Teilnehmer',
+        ],
         'image' => 'Bild',
         'modals' => [
             'add' => [
@@ -341,7 +348,15 @@ return [
         'delete' => 'Personalisierten Raumlink löschen',
         'edit' => 'Personalisierten Raumlink bearbeiten',
         'expires' => 'Verfallsdatum',
+        'expires_at' => 'Läuft ab am :date',
+        'filter' => [
+            'all' => 'Alle',
+            'moderator_role' => 'Nur Moderatoren',
+            'participant_role' => 'Nur Teilnehmer',
+        ],
         'last_usage' => 'Zuletzt verwendet',
+        'last_used_at' => 'Zuletzt verwendet am :date',
+        'last_used_never' => 'Noch nie verwendet',
         'nodata' => 'Keine personalisierten Raumlinks vorhanden!',
         'room_link_copied' => 'Der persionalisierte Raumlink für :firstname :lastname wurde in Ihre Zwischenablage kopiert.',
         'title' => 'Personalisierte Raumlinks',

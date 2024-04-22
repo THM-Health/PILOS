@@ -1,147 +1,178 @@
 <template>
   <div>
-      <div class="flex flex-wrap gap-2 justify-content-end flex-column-reverse md:flex-row">
-        <div class="flex flex-wrap justify-content-between gap-2">
-          <!-- Add existing user from database -->
-          <RoomTabMembersAddButton
-            v-if="userPermissions.can('manageSettings', props.room)"
-            :room-id="props.room.id"
-            :disabled="isBusy"
-            @added="loadData()"
-          />
-
-          <!-- Bulk Import -->
-          <RoomTabMembersBulkImportButton
-            v-if="userPermissions.can('manageSettings', props.room)"
-            :room-id="props.room.id"
-            :disabled="isBusy"
-            @imported="loadData()"
-          />
+    <div class="flex justify-content-between flex-column-reverse lg:flex-row gap-2 px-2">
+      <div class="flex justify-content-between flex-column lg:flex-row flex-grow-1 gap-2">
+        <div>
+          <InputGroup>
+            <InputText
+              v-model="search"
+              :disabled="isBusy"
+              :placeholder="$t('app.search')"
+              @keyup.enter="loadData(1)"
+            />
+            <Button
+              :disabled="isBusy"
+              @click="loadData(1)"
+              v-tooltip="$t('app.search')"
+              :aria-label="$t('app.search')"
+              icon="fa-solid fa-magnifying-glass"
+            />
+          </InputGroup>
         </div>
-        <!-- Reload members list -->
-        <div class="flex justify-content-end">
-          <Button
-            v-tooltip="$t('app.reload')"
-            severity="secondary"
-            :disabled="isBusy"
-            @click="loadData()"
-            icon="fa-solid fa-sync"
-          />
+        <div class="flex gap-2 flex-column lg:flex-row">
+          <InputGroup>
+            <InputGroupAddon>
+              <i class="fa-solid fa-filter"></i>
+            </InputGroupAddon>
+            <Dropdown :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+          </InputGroup>
+
+          <InputGroup>
+            <InputGroupAddon>
+              <i class="fa-solid fa-sort"></i>
+            </InputGroupAddon>
+            <Dropdown :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <InputGroupAddon class="p-0">
+              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
+            </InputGroupAddon>
+          </InputGroup>
         </div>
       </div>
-      <!-- table with room members -->
-      <DataTable
+      <div class="flex gap-2 justify-content-end">
+        <RoomTabMembersAddButton
+          v-if="userPermissions.can('manageSettings', props.room)"
+          :room-id="props.room.id"
+          :disabled="isBusy"
+          @added="loadData()"
+        />
+
+        <!-- Reload -->
+        <Button
+          class="flex-shrink-0"
+          v-tooltip="$t('app.reload')"
+          severity="secondary"
+          :disabled="isBusy"
+          @click="loadData()"
+          icon="fa-solid fa-sync"
+        />
+      </div>
+    </div>
+
+    <OverlayComponent :show="isBusy || loadingError" z-index="1">
+      <template #overlay>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
+      </template>
+
+      <DataView
         :totalRecords="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
         :value="members"
         lazy
-        v-model:selection="selectedMembers"
         dataKey="id"
         paginator
         :paginator-template="paginator.getTemplate()"
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-        :loading="isBusy || loadingError"
         rowHover
-        stripedRows
-        v-model:sortField="sortField"
-        v-model:sortOrder="sortOrder"
         @page="onPage"
-        @sort="onSort"
-        :select-all="selectableMembers === selectedMembers.length && selectableMembers > 0"
-        @select-all-change="toggleSelectAll"
-        class="mt-4 table-auto md:table-fixed"
+        class="mt-4"
       >
-        <template #loading>
-          <LoadingRetryButton :error="loadingError" @reload="loadData()" />
-        </template>
-        <!-- Show message on empty attendance list -->
+
+        <!-- Show message on empty list -->
         <template #empty>
-          <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.members.nodata') }}</InlineNote>
+          <div>
+            <div class="px-2" v-if="!isBusy && !loadingError">
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.members.nodata') }}</InlineNote>
+              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+            </div>
+          </div>
         </template>
 
-        <Column selectionMode="multiple" headerStyle="width: 3rem" v-if="showManagementColumns">
-          <template #body="slotProps">
-            <Checkbox
-              v-if="authStore.currentUser && authStore.currentUser.id !== slotProps.data.id"
-              :model-value="isRowSelected(slotProps.data)"
-              @update:modelValue="(selected) => onRowSelected(slotProps.data, selected)"
-              :binary="true"
-            />
-          </template>
-        </Column>
-        <Column field="image" :header="$t('rooms.members.image')" headerStyle="width: 5rem">
-          <!-- render user profile image -->
-          <template #body="slotProps">
-            <UserAvatar :firstname="slotProps.data.firstname" :lastname="slotProps.data.lastname" :image="slotProps.data.image" size="large"/>
-          </template>
-        </Column>
-        <Column field="firstname" :header="$t('app.firstname')" sortable>
-          <template #body="slotProps">
-            <text-truncate>{{ slotProps.data.firstname }}</text-truncate>
-          </template>
-        </Column>
-        <Column field="lastname" :header="$t('app.lastname')" sortable>
-          <template #body="slotProps">
-            <text-truncate>{{ slotProps.data.lastname }}</text-truncate>
-          </template>
-        </Column>
-        <Column field="email" :header="$t('settings.users.email')" sortable>
-          <template #body="slotProps">
-            <text-truncate>{{ slotProps.data.email }}</text-truncate>
-          </template>
-        </Column>
-        <Column field="role" sortable headerStyle="width: 8rem" :header="$t('rooms.role')">
-          <!-- render user role -->
-          <template #body="slotProps">
-            <RoomRoleBadge
-              :role="slotProps.data.role"
-            />
-          </template>
-        </Column>
-        <Column :header="$t('app.actions')" class="action-column action-column-2" v-if="showManagementColumns">
-          <template #body="slotProps">
-            <div v-if="authStore.currentUser?.id !== slotProps.data.id">
-              <!-- edit membership role -->
-              <RoomTabMembersEditButton
+        <template #header v-if="selectableMembers.length > 0">
+          <div class="flex justify-content-between mb-2">
+             <Checkbox
+                :model-value="selectedMembers.length === selectableMembers.length"
+                @update:modelValue="toggleSelectAll"
+                :binary="true"
+              />
+            <!-- selected rows action buttons -->
+            <div class="flex gap-1" v-if="selectedMembers.length > 0">
+              <!-- bulk edit membership role -->
+              <RoomTabMembersBulkEditButton
                 :room-id="props.room.id"
-                :firstname="slotProps.data.firstname"
-                :lastname="slotProps.data.lastname"
-                :role="slotProps.data.role"
-                :user-id="slotProps.data.id"
+                :user-ids="selectedMembers"
                 :disabled="isBusy"
                 @edited="loadData()"
               />
-              <!-- remove member -->
-              <RoomTabMembersDeleteButton
+              <!-- bulk remove member -->
+              <RoomTabMembersBulkDeleteButton
                 :room-id="props.room.id"
-                :firstname="slotProps.data.firstname"
-                :lastname="slotProps.data.lastname"
-                :user-id="slotProps.data.id"
+                :user-ids="selectedMembers"
                 :disabled="isBusy"
                 @deleted="loadData()"
               />
             </div>
-          </template>
-        </Column>
-      </DataTable>
-      <!-- selected rows action buttons -->
-      <div class="flex justify-content-end gap-2 px-3" v-if="selectedMembers.length > 0">
-        <!-- bulk edit membership role -->
-        <RoomTabMembersBulkEditButton
-          :room-id="props.room.id"
-          :user-ids="selectedMembers.map(user => user.id)"
-          :disabled="isBusy"
-          @edited="loadData()"
-        />
-        <!-- bulk remove member -->
-        <RoomTabMembersBulkDeleteButton
-          :room-id="props.room.id"
-          :user-ids="selectedMembers.map(user => user.id)"
-          :disabled="isBusy"
-          @deleted="loadData()"
-        />
-      </div>
+          </div>
+        </template>
+
+        <template #list="slotProps">
+          <div class="px-2 border-top-1 border-bottom-1 surface-border">
+            <div v-for="(item, index) in slotProps.items" :key="index">
+              <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
+                <div class="flex flex-row gap-4">
+                  <div class="flex align-items-center">
+                    <Checkbox
+                      :disabled="authStore.currentUser && authStore.currentUser.id === item.id"
+                      :model-value="isMemberSelected(item.id)"
+                      @update:modelValue="(selected) => onMemberSelected(item.id, selected)"
+                      :binary="true"
+                    />
+                  </div>
+                  <div class="flex align-items-center">
+                    <UserAvatar :firstname="item.firstname" :lastname="item.lastname" :image="item.image" size="large"/>
+                  </div>
+                  <div class="flex flex-column gap-2">
+                    <p class="text-lg font-semibold m-0 text-word-break">{{ item.firstname }} {{ item.lastname }}</p>
+                    <div class="flex flex-column gap-2 align-items-start">
+                      <div class="flex flex-row gap-2">
+                        <i class="fa-solid fa-envelope" />
+                        <p class="text-sm m-0 text-word-break">{{ item.email }}</p>
+                      </div>
+                      <div class="flex flex-row gap-2">
+                        <i class="fa-solid fa-user-tag"></i>
+                        <RoomRoleBadge :role="item.role" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" v-if="userPermissions.can('manageSettings', props.room) && authStore.currentUser?.id !== item.id">
+                  <!-- edit membership role -->
+                  <RoomTabMembersEditButton
+                    :room-id="props.room.id"
+                    :firstname="item.firstname"
+                    :lastname="item.lastname"
+                    :role="item.role"
+                    :user-id="item.id"
+                    :disabled="isBusy"
+                    @edited="loadData()"
+                  />
+                  <!-- remove member -->
+                  <RoomTabMembersDeleteButton
+                    :room-id="props.room.id"
+                    :firstname="item.firstname"
+                    :lastname="item.lastname"
+                    :user-id="item.id"
+                    :disabled="isBusy"
+                    @deleted="loadData()"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </DataView>
+    </OverlayComponent>
   </div>
 </template>
 <script setup>
@@ -152,8 +183,9 @@ import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
-import UserAvatar from './UserAvatar.vue';
 import { usePaginator } from '../composables/usePaginator.js';
+import UserAvatar from './UserAvatar.vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   room: {
@@ -166,35 +198,52 @@ const authStore = useAuthStore();
 const api = useApi();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
+const { t } = useI18n();
 
 const isBusy = ref(false);
 const loadingError = ref(false);
 const members = ref([]);
 const sortField = ref('lastname');
 const sortOrder = ref(1);
+const search = ref('');
+const filter = ref('all');
 const selectedMembers = ref([]);
 
-function toggleSelectAll (event) {
-  if (event.checked) {
-    selectedMembers.value = members.value.filter(user => user.id !== authStore.currentUser?.id);
+const sortFields = computed(() => [
+  { name: t('app.firstname'), value: 'firstname' },
+  { name: t('app.lastname'), value: 'lastname' }
+]);
+
+const filterOptions = computed(() => [
+  { name: t('rooms.members.filter.all'), value: 'all' },
+  { name: t('rooms.members.filter.participant_role'), value: 'participant_role' },
+  { name: t('rooms.members.filter.moderator_role'), value: 'moderator_role' },
+  { name: t('rooms.members.filter.co_owner_role'), value: 'co_owner_role' }
+]);
+
+const toggleSortOrder = () => {
+  sortOrder.value = sortOrder.value === 1 ? 0 : 1;
+  loadData(1);
+};
+
+function toggleSelectAll (checked) {
+  if (checked) {
+    selectedMembers.value = selectableMembers.value;
   } else {
     selectedMembers.value = [];
   }
 }
 
-function isRowSelected (data) {
-  return selectedMembers.value.some(member => member.id === data.id);
+function isMemberSelected (id) {
+  return selectedMembers.value.some(memberId => memberId === id);
 }
 
-function onRowSelected (data, selected) {
-  let selection = _.clone(selectedMembers.value);
+function onMemberSelected (id, selected) {
   if (selected) {
-    selection.push(data);
+    selectedMembers.value.push(id);
   } else {
-    selection = selection.filter(member => member.id !== data.id);
+    selectedMembers.value = selectedMembers.value.filter(memberId => memberId !== id);
   }
-
-  selectedMembers.value = selection;
 }
 
 /**
@@ -204,13 +253,18 @@ function loadData (page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
+
+  // clear selection
+  selectedMembers.value = [];
   // make request to load users
 
   const config = {
     params: {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
+      search: search.value === '' ? null : search.value,
+      filter: filter.value === 'all' ? null : filter.value
     }
   };
 
@@ -234,22 +288,12 @@ function loadData (page = null) {
 }
 
 function onPage (event) {
-  selectedMembers.value = [];
   loadData(event.page + 1);
 }
 
-function onSort () {
-  selectedMembers.value = [];
-  loadData(1);
-}
-
-// amount of members that can be selected on the current page (user cannot select himself)
+// list of member ids that can be selected on the current page (user cannot select himself)
 const selectableMembers = computed(() => {
-  return members.value.filter(member => member.id !== authStore.currentUser?.id).length;
-});
-
-const showManagementColumns = computed(() => {
-  return userPermissions.can('manageSettings', props.room);
+  return members.value.map(member => member.id).filter(id => id !== authStore.currentUser?.id);
 });
 
 /**
@@ -266,6 +310,7 @@ onMounted(() => {
 function onRoomChanged () {
   loadData();
 }
+
 /**
  * Removes the listener for current room change
  *
