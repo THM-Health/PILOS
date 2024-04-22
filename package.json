@@ -62,7 +62,7 @@
         "sass": "^1.74.1",
         "ua-parser-js": "^1.0.37",
         "unplugin-vue-components": "^0.26.0",
-        "vite": "^5.2.9",
+        "vite": "^5.2.10",
         "vue": "^3.4",
         "vue-axe": "^3.1.2",
         "vue-chartjs": "^5.3.1",
