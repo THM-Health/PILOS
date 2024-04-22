@@ -21,7 +21,7 @@ class RoomTokenTest extends TestCase
     protected $room;
 
     /**
-     * Setup ressources for all tests
+     * Setup resources for all tests
      */
     protected function setUp(): void
     {
@@ -35,14 +35,15 @@ class RoomTokenTest extends TestCase
     {
         setting(['room_token_expiration' => 90]);
 
-        RoomToken::query()->delete();
-        RoomToken::factory()->count(10)->create([
-            'room_id' => $this->room,
-        ]);
-        $moderatorToken = RoomToken::factory()->create([
-            'room_id' => $this->room,
-            'role' => RoomUserRole::MODERATOR,
-        ]);
+        $page_size = 5;
+        setting(['pagination_page_size' => $page_size]);
+
+        RoomToken::factory()->create(['firstname' => 'John', 'lastname' => 'Doe', 'role' => RoomUserRole::USER, 'last_usage' => '2024-04-01 08:00', 'room_id' => $this->room]);
+        RoomToken::factory()->create(['firstname' => 'Daniel', 'lastname' => 'Osorio', 'role' => RoomUserRole::USER, 'last_usage' => '2024-04-01 09:00', 'room_id' => $this->room]);
+        RoomToken::factory()->create(['firstname' => 'Angela', 'lastname' => 'Jones', 'role' => RoomUserRole::USER, 'last_usage' => null, 'room_id' => $this->room]);
+        RoomToken::factory()->create(['firstname' => 'Thomas', 'lastname' => 'Bolden', 'role' => RoomUserRole::USER, 'last_usage' => '2024-04-01 10:00', 'room_id' => $this->room]);
+        RoomToken::factory()->create(['firstname' => 'Hoyt', 'lastname' => 'Hastings', 'role' => RoomUserRole::MODERATOR, 'last_usage' => '2024-04-01 11:00', 'room_id' => $this->room]);
+        $moderatorToken = RoomToken::factory()->create(['firstname' => 'William', 'lastname' => 'White', 'role' => RoomUserRole::MODERATOR, 'last_usage' => null, 'room_id' => $this->room]);
 
         RoomToken::factory()->count(10)->create();
 
@@ -73,7 +74,8 @@ class RoomTokenTest extends TestCase
                     'expires',
                 ],
             ]])
-            ->assertJsonCount(11, 'data');
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('meta.total', 6);
 
         // Testing owner
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.tokens.get', ['room' => 1337]))
@@ -90,7 +92,7 @@ class RoomTokenTest extends TestCase
                     'expires',
                 ],
             ]])
-            ->assertJsonCount(11, 'data');
+            ->assertJsonCount(5, 'data');
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
@@ -106,7 +108,7 @@ class RoomTokenTest extends TestCase
                     'expires',
                 ],
             ]])
-            ->assertJsonCount(11, 'data');
+            ->assertJsonCount(5, 'data');
 
         // Check expire date
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
@@ -116,6 +118,69 @@ class RoomTokenTest extends TestCase
         setting(['room_token_expiration' => -1]);
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
         self::assertNull($results[0]['expires']);
+
+        // Check default sorting / fallback (firstname asc)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))
+            ->assertJsonPath('data.0.firstname', 'Angela')
+            ->assertJsonPath('data.1.firstname', 'Daniel')
+            ->assertJsonPath('data.2.firstname', 'Hoyt')
+            ->assertJsonPath('data.3.firstname', 'John')
+            ->assertJsonPath('data.4.firstname', 'Thomas');
+
+        // Check sorting by firstname desc
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'sort_by' => 'firstname', 'sort_direction' => 'desc']))
+            ->assertJsonPath('data.0.firstname', 'William')
+            ->assertJsonPath('data.1.firstname', 'Thomas')
+            ->assertJsonPath('data.2.firstname', 'John')
+            ->assertJsonPath('data.3.firstname', 'Hoyt')
+            ->assertJsonPath('data.4.firstname', 'Daniel');
+
+        // Check sorting by lastname asc
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'sort_by' => 'lastname', 'sort_direction' => 'asc']))
+            ->assertJsonPath('data.0.lastname', 'Bolden')
+            ->assertJsonPath('data.1.lastname', 'Doe')
+            ->assertJsonPath('data.2.lastname', 'Hastings')
+            ->assertJsonPath('data.3.lastname', 'Jones')
+            ->assertJsonPath('data.4.lastname', 'Osorio');
+
+        // Check sorting by last_usage desc
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'sort_by' => 'last_usage', 'sort_direction' => 'desc']))
+            ->assertJsonPath('data.0.firstname', 'Hoyt')
+            ->assertJsonPath('data.1.firstname', 'Thomas')
+            ->assertJsonPath('data.2.firstname', 'Daniel')
+            ->assertJsonPath('data.3.firstname', 'John');
+
+        // Check search
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'search' => 'Jo']))
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.firstname', 'Angela')
+            ->assertJsonPath('data.1.firstname', 'John')
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check search with whitespaces (all should match in first or last name)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'search' => 'John Doe']))
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.firstname', 'John')
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check filter by role (participant_role)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'filter' => 'participant_role']))
+            ->assertJsonCount(4, 'data')
+            ->assertJsonPath('meta.total', 4)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check filter by role (moderator_role)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'filter' => 'moderator_role']))
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.total_no_filter', 6);
+
+        // Check filter by invalid role (fallback to all)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room, 'filter' => 'invalid_role']))
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('meta.total', 6);
     }
 
     public function testCreate()
