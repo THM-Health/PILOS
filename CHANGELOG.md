@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
 - Plugin to customize the server load calculation ([#956])
 - Save selected room tab in url to preserve selection on reload ([#977])
+- Default settings in the room type for the room settings and option to enforce these settings in the room type ([#75], [#695], [#983])
+- Room type description ([#75], [#695], [#983])
 - Sorting the room history list ([#1004])
 - Search and filter options to list of room members ([#1005])
 - Search and filter options to list of room files ([#1006])
@@ -77,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Older versions
 You can find the changelog for older versions there [here](https://github.com/THM-Health/PILOS/blob/2.x/CHANGELOG.md)
 
-
+[#75]: https://github.com/THM-Health/PILOS/issues/75
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
 [#532]: https://github.com/THM-Health/PILOS/issues/532
@@ -86,6 +88,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#650]: https://github.com/THM-Health/PILOS/pull/650
 [#681]: https://github.com/THM-Health/PILOS/pull/681
 [#686]: https://github.com/THM-Health/PILOS/pull/686
+[#695]: https://github.com/THM-Health/PILOS/issues/695
 [#704]: https://github.com/THM-Health/PILOS/issues/704
 [#724]: https://github.com/THM-Health/PILOS/pull/724
 [#735]: https://github.com/THM-Health/PILOS/pull/735
@@ -99,6 +102,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#967]: https://github.com/THM-Health/PILOS/pull/967
 [#968]: https://github.com/THM-Health/PILOS/pull/968
 [#977]: https://github.com/THM-Health/PILOS/pull/977
+[#983]: https://github.com/THM-Health/PILOS/pull/983
 [#1004]: https://github.com/THM-Health/PILOS/pull/1004
 [#1005]: https://github.com/THM-Health/PILOS/pull/1005
 [#1006]: https://github.com/THM-Health/PILOS/pull/1006
