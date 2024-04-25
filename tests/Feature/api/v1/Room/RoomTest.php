@@ -1322,10 +1322,15 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
             ->assertSuccessful();
 
+        // Check if correct setting values get returned
         $new_settings = $response->json('data');
         $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
 
         // Set settings back to room type default values to be able to compare with new settings
+        //ToDo access code?
+        $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
+
+        // Expert Settings
         $settings['allow_membership'] = $roomType->allow_membership_default;
         $settings['everyone_can_start'] = $roomType->everyone_can_start_default;
         $settings['lock_settings_disable_cam'] = $roomType->lock_settings_disable_cam_default;
@@ -1338,9 +1343,9 @@ class RoomTest extends TestCase
         $settings['webcams_only_for_moderator'] = $roomType->webcams_only_for_moderator_default;
         $settings['default_role'] = $roomType->default_role_default;
         $settings['lobby'] = $roomType->lobby_default;
-        $settings['welcome'] = null;
         $settings['visibility'] = $roomType->visibility_default;
         $settings['record_attendance'] = $roomType->record_attendance_default;
+        $settings['welcome'] = null;
 
         $this->assertJsonStringEqualsJsonString(json_encode($new_settings), json_encode($settings));
 
@@ -1374,10 +1379,14 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
             ->assertSuccessful();
 
+        // Check if correct setting values get returned
         $new_settings = $response->json('data');
         $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
 
         // Set settings back to room type default values to be able to compare with new settings
+        //ToDo access code?
+        $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
+        // Expert settings
         $settings['allow_membership'] = $roomType->allow_membership_default;
         $settings['everyone_can_start'] = $roomType->everyone_can_start_default;
         $settings['lock_settings_disable_cam'] = $roomType->lock_settings_disable_cam_default;
@@ -1390,9 +1399,9 @@ class RoomTest extends TestCase
         $settings['webcams_only_for_moderator'] = $roomType->webcams_only_for_moderator_default;
         $settings['default_role'] = $roomType->default_role_default;
         $settings['lobby'] = $roomType->lobby_default;
-        $settings['welcome'] = null;
         $settings['visibility'] = $roomType->visibility_default;
         $settings['record_attendance'] = $roomType->record_attendance_default;
+        $settings['welcome'] = null;
 
         $this->assertJsonStringEqualsJsonString(json_encode($new_settings), json_encode($settings));
 
@@ -1427,10 +1436,14 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
             ->assertSuccessful();
 
+        // Check if correct setting values get returned
         $new_settings = $response->json('data');
         $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
 
         // Set to resulting values based on enforced value in the room type //Todo possible to use get Setting (maybe not a good idea because this method should be tested)
+        //ToDo access code?
+        $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
+        // Expert settings
         $settings['allow_membership'] = $roomType->allow_membership_enforced ? $roomType->allow_membership_default : $settings['allow_membership'];
         $settings['everyone_can_start'] = $roomType->everyone_can_start_enforced ? $roomType->everyone_can_start_default : $settings['everyone_can_start'];
         $settings['lock_settings_disable_cam'] = $roomType->lock_settings_disable_cam_enforced ? $roomType->lock_settings_disable_cam_default : $settings['lock_settings_disable_cam'];
@@ -1442,7 +1455,6 @@ class RoomTest extends TestCase
         $settings['mute_on_start'] = $roomType->mute_on_start_enforced ? $roomType->mute_on_start_default : $settings['mute_on_start'];
         $settings['webcams_only_for_moderator'] = $roomType->webcams_only_for_moderator_enforced ? $roomType->webcams_only_for_moderator_default : $settings['webcams_only_for_moderator'];
         $settings['default_role'] = $roomType->default_role_enforced ? $roomType->default_role_default : $settings['default_role'];
-        $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
         $settings['lobby'] = $roomType->lobby_enforced ? $roomType->lobby_default : $settings['lobby'];
         $settings['visibility'] = $roomType->visibility_enforced ? $roomType->visibility_default : $settings['visibility'];
         $settings['record_attendance'] = $roomType->record_attendance_enforced ? $roomType->record_attendance_default : $settings['record_attendance'];
@@ -1472,6 +1484,7 @@ class RoomTest extends TestCase
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['name']);
 
+        // Invalid parameters
         $settings['access_code'] = $this->faker->numberBetween(1111111, 9999999);
         $settings['default_role'] = RoomUserRole::GUEST;
         $settings['lobby'] = 5;
@@ -1517,6 +1530,17 @@ class RoomTest extends TestCase
                 'short_description',
                 'visibility',
                 'record_attendance',
+            ]);
+
+        // Missing parameters
+        $settings = [];
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertJsonValidationErrors([
+                'name',
+                'expert_mode',
+                'room_type',
+                'expert_mode',
+                'allow_guests',
             ]);
     }
 
