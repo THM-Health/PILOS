@@ -38,8 +38,17 @@
     <!-- description -->
     <div class="flex flex-column gap-2">
       <label for="description">{{ $t('rooms.recordings.description') }}</label>
-      <InputText id="description" v-model="newDescription" :disabled="isLoadingAction" />
+      <Textarea
+        id="description"
+        v-model="newDescription"
+        :disabled="isLoadingAction"
+        :invalid="formErrors.fieldInvalid('description')"
+        :maxlength="settingsStore.getSetting('recording.description_limit')"
+      />
       <p class="p-error" v-html="formErrors.fieldError('description')" />
+      <small>
+        {{ $t('rooms.settings.general.chars', {chars: charactersLeftDescription}) }}
+      </small>
     </div>
 
     <!-- available formats -->
@@ -73,8 +82,9 @@
 import env from '../env';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import _ from 'lodash';
+import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
   recordingId: {
@@ -115,6 +125,7 @@ const emit = defineEmits(['edited']);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const settingsStore = useSettingsStore();
 
 const showModal = ref(false);
 const newDescription = ref(null);
@@ -122,6 +133,14 @@ const newFormats = ref([]);
 const newAccess = ref(null);
 const isLoadingAction = ref(false);
 const accessTypes = ref([0, 1, 2, 3]);
+
+/**
+ * Count the chars of the description
+ * @returns {string} amount of chars in comparison to the limit
+ */
+const charactersLeftDescription = computed(() => {
+  return newDescription.value.length + ' / ' + settingsStore.getSetting('recording.description_limit');
+});
 
 /**
  * show modal to edit user role

@@ -55,7 +55,7 @@ class RecordingController extends Controller
                 return explode($recording->id.'/', $filename, 2)[1];
             })
             ->filter(function (string $filename) {
-                return preg_match('/'.config('recording.download_whitelist').'/', $filename);
+                return preg_match('/'.config('recording.download_allowlist').'/', $filename);
             });
 
         $response = new StreamedResponse(function () use ($recording, $files) {

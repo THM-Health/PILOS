@@ -927,7 +927,7 @@ class RecordingTest extends TestCase
 
     public function testDownloadRecording()
     {
-        config(['recording.download_whitelist' => '(.*)']);
+        config(['recording.download_allowlist' => '(.*)']);
 
         Storage::fake('recordings');
 
@@ -990,7 +990,7 @@ class RecordingTest extends TestCase
 
     public function testDownloadRecordingWithWhitelist()
     {
-        config(['recording.download_whitelist' => '^.*\.(pdf|mp4)$']);
+        config(['recording.download_allowlist' => '^.*\.(pdf|mp4)$']);
 
         Storage::fake('recordings');
 
@@ -1045,7 +1045,7 @@ class RecordingTest extends TestCase
 
     public function testDownloadRecordingPermissions()
     {
-        config(['recording.download_whitelist' => '(.*)']);
+        config(['recording.download_allowlist' => '.*']);
 
         Storage::fake('recordings');
 

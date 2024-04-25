@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('url');
             $table->boolean('disabled')->default(false);
             $table->timestamps();
+            $table->unique(['recording_id', 'format']);
         });
     }
 

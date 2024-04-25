@@ -37,7 +37,7 @@ class Recording extends Model
     }
 
     /**
-     * Meeting
+     * Room the recording belongs to
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -47,7 +47,7 @@ class Recording extends Model
     }
 
     /**
-     * Meeting
+     * Meeting the recording belongs to (if available)
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -57,7 +57,7 @@ class Recording extends Model
     }
 
     /**
-     * Meeting
+     * Formats of the recording (screenshare, notes, etc.)
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

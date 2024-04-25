@@ -11,7 +11,7 @@ class UpdateRecordingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => ['required', 'string'],
+            'description' => ['required', 'string', 'max:'.config('recording.description_limit')],
             'access' => ['required', Rule::enum(RecordingAccess::class)],
             'formats' => ['required', 'array'],
             'formats.*.id' => ['required', 'distinct', Rule::in($this->recording->formats->pluck('id')->toArray())],

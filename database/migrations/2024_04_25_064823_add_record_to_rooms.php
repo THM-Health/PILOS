@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
+            $table->boolean('record')->default(false);
             $table->boolean('auto_start_recording')->default(false);
         });
     }
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->dropColumn('auto_start_recording');
+            $table->dropColumn('record');
         });
     }
 };

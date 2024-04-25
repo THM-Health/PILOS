@@ -10,7 +10,7 @@ Therefore, you need to create a user and group on both systems.
 
 ### BBB-Server
 
-On the BBB-Server we create a group `pilos-spool` and add the `bigbluebutton` user to this group.
+On the BBB-Server you need to create a group `pilos-spool` and add the `bigbluebutton` user to this group.
 
 ```bash
 # Create a new group shared by the BBB-Server and PILOS
@@ -21,7 +21,7 @@ usermod -a -G pilos-spool bigbluebutton
 
 ### PILOS
 
-On the PILOS server we also create a group `pilos-spool` with the same group id.
+On the PILOS server you also need to create a group `pilos-spool` with the same group id.
 
 ```bash
 # Create a new group shared by the BBB-Server and PILOS
@@ -88,7 +88,7 @@ adduser --disabled-password --ingroup pilos-spool --gecos "" pilos-spool
 ```
 
 This user has no password, therefor it can only be used via ssh with key authentication.
-To further secure the transfer, we will later restrict the user to only run the rsync command.
+To further secure the transfer, you can later restrict the user to only run the rsync command.
 
 
 **On the BBB server:**
@@ -146,7 +146,7 @@ Next make sure permissions are correctly set for the shared storage.
 su - bigbluebutton -s /bin/bash -c "echo "test" > test.txt && rsync --verbose --remove-source-files test.txt dev.pilos-thm.de:/"
 ```
 
-Notice the `/` at the end of the command, this is the path of the recordings-spool directory on the PILOS server as we restricted the key to only run the rsync command in this directory.
+Notice the `/` at the end of the command, this is the path of the recordings-spool directory on the PILOS server as you restricted the key to only run the rsync command in this directory.
 
 **On PILOS:**
 ```bash

@@ -173,7 +173,7 @@ return [
     'room_types' => [
         'allow_listing' => 'Raumsuche erlaubt',
         'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
-        'allow_record' => 'Video-Konferenz Aufzeichnung erlauben',
+        'allow_record' => 'Videokonferenz-Aufzeichnung erlauben',
         'allow_record_attendance' => 'Anwesenheitsprotokollierung erlauben',
         'color' => 'Farbe',
         'custom_color' => 'Eigene Farbe',
