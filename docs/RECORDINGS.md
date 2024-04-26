@@ -224,3 +224,28 @@ PILOS will send this as a meta variable on the creation of each meeting and the 
 ```dotenv
 RECORDING_SPOOL_SUB_DIRECTORY=instance1
 ```
+
+### Update the BigBlueButton recording player
+The BBB Recording Player is included in the Docker container.
+However, it can be upgraded independently of the docker container.
+
+You will need to map the player directory to the host system using docker compose.
+```yaml
+x-docker-pilos-common: &pilos-common
+    env_file: .env
+    volumes:
+        - './public/playback-player:/var/www/html/public/playback-player'
+```
+Next, use pilos-cli to build the player with the release version you want.
+```bash
+docker compose exec app pilos-cli playback-player:build 5.0.2
+```
+
+### Customize recording download
+Room owners can download the raw recording files for archiving, uploading to other video platforms, etc. The BigBlueButton recording raw files include many files that typical users don't need. Therefore, you can customise which files are included in the download. You can filter the files using a regular expression in the .env file.
+
+In this example, only pdf, ogg, mp4, m4v and webm files are included in the download.
+```dotenv
+RECORDING_DOWNLOAD_WHITELIST='^.*\.(pdf|ogg|mp4|m4v|webm)$'
+```
+
