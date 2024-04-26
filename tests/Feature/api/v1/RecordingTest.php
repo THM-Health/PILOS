@@ -69,7 +69,8 @@ class RecordingTest extends TestCase
         Recording::factory()->count(2)->create(['room_id' => $room->id, 'access' => RecordingAccess::EVERYONE]);
 
         foreach (Recording::all() as $recording) {
-            RecordingFormat::factory()->count(2)->create(['recording_id' => $recording->id]);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
         // Access as guest, only show public recordings
@@ -129,7 +130,8 @@ class RecordingTest extends TestCase
         Recording::factory()->count(2)->create(['room_id' => $room->id, 'access' => RecordingAccess::EVERYONE]);
 
         foreach (Recording::all() as $recording) {
-            RecordingFormat::factory()->count(2)->create(['recording_id' => $recording->id]);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
         // Access as guest without access code
@@ -213,7 +215,8 @@ class RecordingTest extends TestCase
         Recording::factory()->count(2)->create(['room_id' => $room->id, 'access' => RecordingAccess::EVERYONE]);
 
         foreach (Recording::all() as $recording) {
-            RecordingFormat::factory()->count(2)->create(['recording_id' => $recording->id]);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
         // Access as guest with correct access code
@@ -254,7 +257,8 @@ class RecordingTest extends TestCase
         Recording::factory()->count(2)->create(['room_id' => $room->id, 'access' => RecordingAccess::EVERYONE]);
 
         foreach (Recording::all() as $recording) {
-            RecordingFormat::factory()->count(2)->create(['recording_id' => $recording->id]);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
         $this->actingAs($room->owner)
@@ -285,9 +289,11 @@ class RecordingTest extends TestCase
         $recordings = Recording::factory()->count(3)->create(['room_id' => $room->id, 'access' => RecordingAccess::PARTICIPANT]);
 
         // Add formats to first recording
-        RecordingFormat::factory()->count(2)->create(['recording_id' => $recordings[0]->id]);
+        RecordingFormat::factory()->create(['recording_id' => $recordings[0]->id, 'format' => 'notes']);
+        RecordingFormat::factory()->create(['recording_id' => $recordings[0]->id, 'format' => 'podcast']);
         // Add formats to second recording but disable them
-        RecordingFormat::factory()->count(2)->create(['recording_id' => $recordings[1]->id, 'disabled' => true]);
+        RecordingFormat::factory()->create(['recording_id' => $recordings[1]->id, 'format' => 'notes', 'disabled' => true]);
+        RecordingFormat::factory()->create(['recording_id' => $recordings[1]->id, 'format' => 'podcast', 'disabled' => true]);
 
         // Check if owner can see all recordings with at least one format, even with only disabled formats
         $this->actingAs($room->owner)
@@ -321,7 +327,8 @@ class RecordingTest extends TestCase
         Recording::factory()->count(2)->create(['room_id' => $room->id, 'access' => RecordingAccess::EVERYONE]);
 
         foreach (Recording::all() as $recording) {
-            RecordingFormat::factory()->count(2)->create(['recording_id' => $recording->id]);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+            RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
         }
 
         // Create token
@@ -348,7 +355,7 @@ class RecordingTest extends TestCase
 
     public function testShowNoAccessCodeGuestsAllowed()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -366,7 +373,7 @@ class RecordingTest extends TestCase
 
     public function testShowAccessCodeGuestsAllowed()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -394,7 +401,7 @@ class RecordingTest extends TestCase
 
     public function testShowAccessCodeGuestsNotAllowed()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -413,7 +420,7 @@ class RecordingTest extends TestCase
 
     public function testShowRoomToken()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -473,7 +480,7 @@ class RecordingTest extends TestCase
 
     public function testShowDisabledFormat()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -503,7 +510,7 @@ class RecordingTest extends TestCase
 
     public function testShowAccess()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -578,7 +585,7 @@ class RecordingTest extends TestCase
 
     public function testShowWrongFormat()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
 
         $otherRoom = Room::factory()->create();
@@ -590,7 +597,7 @@ class RecordingTest extends TestCase
 
     public function testShowUrl()
     {
-        $format = RecordingFormat::factory()->format('podcast')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -601,7 +608,7 @@ class RecordingTest extends TestCase
             ->assertJson(['url' => route('recording.resource', ['formatName' => $format->format, 'recording' => $recording->id, 'resource' => 'audio.ogg'])]);
 
         // Check url is pointing to the player route (for presentation format)
-        $format = RecordingFormat::factory()->format('presentation')->create();
+        $format = RecordingFormat::factory()->create(['format' => 'presentation']);
         $recording = $format->recording;
         $room = $recording->room;
 
@@ -618,9 +625,9 @@ class RecordingTest extends TestCase
         $recording = Recording::factory()->create();
         $room = $recording->room;
 
-        $podcast = RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
-        $presentation = RecordingFormat::factory()->format('presentation')->create(['recording_id' => $recording->id]);
-        $notes = RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+        $podcast = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
+        $presentation = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'presentation']);
+        $notes = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
 
         $payload = [
             'description' => 'New description',
@@ -652,9 +659,9 @@ class RecordingTest extends TestCase
         $recording = Recording::factory()->create();
         $room = $recording->room;
 
-        $podcast = RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
-        $presentation = RecordingFormat::factory()->format('presentation')->create(['recording_id' => $recording->id]);
-        $notes = RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+        $podcast = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
+        $presentation = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'presentation']);
+        $notes = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
 
         $payload = [
             'description' => 'New description',
@@ -716,9 +723,9 @@ class RecordingTest extends TestCase
         $recording = Recording::factory()->create();
         $room = $recording->room;
 
-        $podcast = RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
-        $presentation = RecordingFormat::factory()->format('presentation')->create(['recording_id' => $recording->id]);
-        RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+        $podcast = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
+        $presentation = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'presentation']);
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
 
         $formatOtherRecording = RecordingFormat::factory()->create();
 
@@ -754,8 +761,8 @@ class RecordingTest extends TestCase
         $room = $recording->room;
 
         // Create formats
-        $notes = RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
-        $podcast = RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+        $notes = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+        $podcast = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
 
         // Create folder with recording files
         Storage::disk('recordings')->makeDirectory($recording->id);
@@ -784,8 +791,8 @@ class RecordingTest extends TestCase
         $room = $recording->room;
 
         // Create formats
-        $notes = RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
-        $podcast = RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+        $notes = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+        $podcast = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
 
         // Create folder with recording files
         Storage::disk('recordings')->makeDirectory($recording->id);
@@ -883,7 +890,7 @@ class RecordingTest extends TestCase
         $room = $recording->room;
 
         // Create format
-        $notes = RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
+        $notes = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
 
         // Create folder with recording files
         Storage::disk('recordings')->makeDirectory($recording->id);
@@ -935,8 +942,8 @@ class RecordingTest extends TestCase
         $room = $recording->room;
 
         // Create formats
-        RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
-        RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
 
         // Create folder with recording files
         Storage::disk('recordings')->makeDirectory($recording->id);
@@ -998,8 +1005,8 @@ class RecordingTest extends TestCase
         $room = $recording->room;
 
         // Create formats
-        RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
-        RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
 
         // Create folder with recording files
         Storage::disk('recordings')->makeDirectory($recording->id);
@@ -1053,8 +1060,8 @@ class RecordingTest extends TestCase
         $room = $recording->room;
 
         // Create formats
-        RecordingFormat::factory()->format('notes')->create(['recording_id' => $recording->id]);
-        RecordingFormat::factory()->format('podcast')->create(['recording_id' => $recording->id]);
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
 
         // Create folder with recording files
         Storage::disk('recordings')->makeDirectory($recording->id);

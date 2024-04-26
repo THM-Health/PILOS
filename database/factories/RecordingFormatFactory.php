@@ -24,11 +24,10 @@ class RecordingFormatFactory extends Factory
         ];
     }
 
-    public function format($format): Factory
+    public function configure(): static
     {
-        return $this->afterCreating(function (RecordingFormat $recordingFormat) use ($format) {
-            $recordingFormat->format = $format;
-            $recordingFormat->url = $this->generateUrl($recordingFormat->recording->id, $format);
+        return $this->afterCreating(function (RecordingFormat $recordingFormat) {
+            $recordingFormat->url = $this->generateUrl($recordingFormat->recording->id, $recordingFormat->format);
             $recordingFormat->save();
         });
     }
