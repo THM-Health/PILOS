@@ -41,7 +41,7 @@ class UpdateRoomSettings extends FormRequest
 
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             //Expert mode for room is deactivated and setting is an expert setting: do not update setting
-            if (! $this->expert_mode && (! isset($config['expert']) || $config['expert'] !== false)) {
+            if (! $this->expert_mode && $config['expert']) {
                 continue;
             }
             $rules[$setting] = Room::getRoomSettingValidationRule($setting);

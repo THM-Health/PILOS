@@ -35,6 +35,7 @@ class RoomTypeController extends Controller
             $filter = $request->query('filter');
 
             if ($filter === 'own') {
+                // Get list of the room type the current user has access to (Used when creating a new room)
                 $roomTypes = $roomTypes->where('restrict', '=', false)
                     ->orWhereIn('id', function ($query) {
                         $query->select('role_room_type.room_type_id')
@@ -42,6 +43,7 @@ class RoomTypeController extends Controller
                             ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
                     });
             } else {
+                // Get list of room types the owner of the given room has access to (Used when changing room type)
                 $room = Room::find($filter);
 
                 if (is_null($room) || Auth::user()->cannot('viewSettings', $room)) {

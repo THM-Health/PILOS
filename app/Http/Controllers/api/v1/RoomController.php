@@ -238,8 +238,8 @@ class RoomController extends Controller
         $room->access_code = $request->access_code;
 
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
-            // User is not an expert and setting is an expert setting: do not update setting
-            if (! $room->expert_mode && (! isset($config['expert']) || $config['expert'] !== false)) {
+            // Expert mode for room is deactivated and setting is an expert setting: do not update setting
+            if (! $room->expert_mode && $config['expert']) {
                 continue;
             }
 

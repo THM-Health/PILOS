@@ -68,7 +68,7 @@ class RoomTypeTest extends TestCase
         $this->getJson(route('api.v1.roomTypes.index'))
             ->assertUnauthorized();
 
-        // Test logged in users (without filter) //ToDo???
+        // Test logged in users (without filter)
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index'))
             ->assertSuccessful()
             ->assertJsonStructure(['data' => [
@@ -184,6 +184,7 @@ class RoomTypeTest extends TestCase
                 ['id' => $roomTypePublicEnforced->id, 'name' => $roomTypePublicEnforced->name, 'color' => $roomTypePublicEnforced->color]
             );
 
+        // Test list of room types the owner of the given room has access to (Used when changing room type)
         $this->user->roles()->attach([$role1->id]);
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
             ->assertSuccessful()
@@ -204,7 +205,7 @@ class RoomTypeTest extends TestCase
     /**
      * Test to view single room type
      */
-    public function testShow() //ToDo Server pool?
+    public function testShow() //ToDo Server pool
     {
         $roomType = RoomType::factory()->create();
 
@@ -438,7 +439,7 @@ class RoomTypeTest extends TestCase
                 'roles.0',
             ]);
 
-        // Test with missing parameters ToDo delete again???
+        // Test with missing parameters
         $data = [];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
             ->assertJsonValidationErrors([
@@ -697,7 +698,7 @@ class RoomTypeTest extends TestCase
                 'has_access_code_enforced',
             ]);
 
-        //Test with missing parameters //ToDo delete again ????
+        //Test with missing parameters
         $data = [
             'updated_at' => $roomType->updated_at,
         ];

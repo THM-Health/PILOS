@@ -47,7 +47,7 @@ class RoomTest extends TestCase
     protected $viewAllPermission;
 
     /**
-     * Setup ressources for all tests
+     * Setup resources for all tests
      */
     protected function setUp(): void
     {
@@ -1440,7 +1440,7 @@ class RoomTest extends TestCase
         $new_settings = $response->json('data');
         $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
 
-        // Set to resulting values based on enforced value in the room type //Todo possible to use get Setting (maybe not a good idea because this method should be tested)
+        // Set to resulting values based on enforced value in the room type
         //ToDo access code?
         $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
         // Expert settings
@@ -1474,7 +1474,7 @@ class RoomTest extends TestCase
 
         $settings = $response->json('data');
 
-        // Room type invalid format
+        // Room type invalid format //ToDo check if fix is enough
         $settings['room_type'] = ['id' => 5];
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['room_type']);

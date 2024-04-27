@@ -76,30 +76,39 @@ class Room extends Model
     public const ROOM_SETTINGS_DEFINITION = [
         'mute_on_start' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'lock_settings_disable_cam' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'webcams_only_for_moderator' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'lock_settings_disable_mic' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'lock_settings_disable_private_chat' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'lock_settings_disable_public_chat' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'lock_settings_disable_note' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'everyone_can_start' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'allow_membership' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'allow_guests' => [
             'cast' => 'boolean',
@@ -107,19 +116,24 @@ class Room extends Model
         ],
         'lock_settings_hide_user_list' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
         'default_role' => [
             'cast' => RoomUserRole::class,
+            'expert' => true,
             'only' => [RoomUserRole::USER, RoomUserRole::MODERATOR],
         ],
         'lobby' => [
             'cast' => RoomLobby::class,
+            'expert' => true,
         ],
         'visibility' => [
             'cast' => RoomVisibility::class,
+            'expert' => true,
         ],
         'record_attendance' => [
             'cast' => 'boolean',
+            'expert' => true,
         ],
     ];
 
@@ -381,7 +395,7 @@ class Room extends Model
         }
 
         // If the expert mode is deactivated for the room and the setting is a non-expert setting: use room value
-        if (isset(self::ROOM_SETTINGS_DEFINITION[$settingName]['expert']) && self::ROOM_SETTINGS_DEFINITION[$settingName]['expert'] === false) {
+        if (self::ROOM_SETTINGS_DEFINITION[$settingName]['expert'] === false) {
             return $this[$settingName];
         }
 
