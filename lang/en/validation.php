@@ -114,6 +114,10 @@ return [
     'confirmed' => 'The :attribute confirmation does not match.',
     'current_password' => 'The current password is incorrect.',
     'custom' => [
+        'access_code' => [
+            'prohibited' => 'The room is not allowed to have an access code because of its room type.',
+            'required' => 'The room requires an access code because of its room type.',
+        ],
         'banner' => [
             'array' => 'The message banner settings are missing!',
             'icon' => [

@@ -47,15 +47,18 @@
 
           <!-- Access code -->
           <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label for="access-code" class="flex align-items-center gap-2">
-              <RoomSettingEnforcedIcon v-if="settings.room_type.has_access_code_enforced"/>
+            <label for="access-code" class="flex flex-column gap-2">
               {{ $t('rooms.access_code') }}
+
+              <small v-if="settings.room_type.has_access_code_enforced">
+                <RoomSettingEnforcedIcon class="mr-1"/>
+                {{settings.room_type.has_access_code_default?  $t('rooms.settings.general.access_code_enforced'): $t('rooms.settings.general.access_code_prohibited') }}
+              </small>
             </label>
 
             <InputGroup>
               <!-- Generate random access code -->
               <Button
-                v-if="!(!settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
                 v-tooltip="$t('rooms.settings.general.generate_access_code')"
                 :aria-label="$t('rooms.settings.general.generate_access_code')"
                 :disabled="disabled"
@@ -74,7 +77,7 @@
               />
               <!-- Clear access code -->
               <Button
-                v-if="settings.access_code && !(settings.room_type.has_access_code_default && settings.room_type.has_access_code_enforced)"
+                v-if="settings.access_code"
                 v-tooltip="$t('rooms.settings.general.delete_access_code')"
                 :aria-label="$t('rooms.settings.general.delete_access_code')"
                 :disabled="disabled"
@@ -538,7 +541,7 @@ import _ from 'lodash';
 import { useSettingsStore } from '../stores/settings';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
-import { onMounted, ref, computed, watch } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
 import RoomSettingEnforcedIcon from './RoomSettingEnforcedIcon.vue';
@@ -649,16 +652,6 @@ function toggleExpertMode () {
  * @param resetToDefaults indicates if the settings should be reset to the default values of the room type
  */
 function resetToRoomTypeSettings (resetToDefaults = false) {
-  // Reset the value of the access code setting
-  if (resetToDefaults || settings.value.room_type.has_access_code_enforced) {
-    // Create new access code if the room should have an access code but does not have one
-    if (settings.value.room_type.has_access_code_default && settings.value.access_code === null) {
-      createAccessCode();
-    } else if (!settings.value.room_type.has_access_code_default) {
-      // Delete access code if the room should not have an access code but has one
-      settings.value.access_code = null;
-    }
-  }
   // Reset the value of all other settings
   for (const setting in ROOM_SETTINGS_DEFINITION) {
     resetSetting(setting, resetToDefaults);
@@ -729,20 +722,6 @@ const charactersLeftShortDescription = computed(() => {
 const showLobbyAlert = computed(() => {
   return settings.value.default_role === 2 && settings.value.lobby === 1;
 });
-
-function applyRoomRestrictions (roomType) {
-  if (!roomType) { return; }
-
-  if ((roomType.has_access_code_default && roomType.has_access_code_enforced) && !settings.value.access_code) {
-    createAccessCode();
-  }
-}
-
-watch(settings, () => {
-  if (!settings.value) { return; }
-
-  applyRoomRestrictions(settings.value.room_type);
-}, { deep: true });
 
 onMounted(() => {
   // Load all room settings

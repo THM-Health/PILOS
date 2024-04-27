@@ -114,6 +114,10 @@ return [
     'confirmed' => ':attribute stimmt nicht mit der Bestätigung überein.',
     'current_password' => 'Das Passwort ist falsch.',
     'custom' => [
+        'access_code' => [
+            'prohibited' => 'Der Raum darf wegen seiner Raumart keinen Zugangscode besitzen.',
+            'required' => 'Der Raum benötigt wegen seiner Raumart einen Zugangscode.',
+        ],
         'banner' => [
             'array' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
             'icon' => [

@@ -235,7 +235,7 @@ class RoomController extends Controller
         $room->name = $request->name;
         $room->expert_mode = $request->expert_mode;
         $room->short_description = $request->short_description;
-        $room->access_code = $request->access_code; //ToDo reset???
+        $room->access_code = $request->access_code;
 
         foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
             // User is not an expert and setting is an expert setting: do not update setting

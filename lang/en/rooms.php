@@ -296,8 +296,10 @@ return [
             ],
         ],
         'general' => [
-            'access_code_note' => 'Access restriction for joining the room and room membership (if enabled).',
             'access_by_guests' => 'Access by guests',
+            'access_code_enforced' => 'The room requires an access code',
+            'access_code_note' => 'Access restriction for joining the room and room membership (if enabled).',
+            'access_code_prohibited' => 'The room is not allowed to have an access code',
             'allow' => 'Allow',
             'allow_everyone' => 'Allow everyone',
             'allow_guests' => 'Allow guests',
