@@ -349,7 +349,7 @@ class RoomTypeTest extends TestCase
         $data = [
             'color' => 'rgb(255,255,255)',
             'name' => '',
-            'description' => fake()->words(5001), //ToDo
+            'description' => $this->faker->textWithLength(5001),
             'server_pool' => '',
             'restrict' => true,
             'max_duration' => -1,

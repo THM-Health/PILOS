@@ -1464,6 +1464,7 @@ class RoomTest extends TestCase
 
     public function testUpdateSettingsInvalid()
     {
+        config(['bigbluebutton.welcome_message_limit' => 5]);
         $room = Room::factory()->create([
             'expert_mode' => true,
         ]);
@@ -1502,8 +1503,8 @@ class RoomTest extends TestCase
         $settings['mute_on_start'] = 'no';
         $settings['webcams_only_for_moderator'] = 'no';
         $settings['allow_guests'] = 'no';
-        $settings['welcome'] = $this->faker->words((int) env('WELCOME_MESSAGE_LIMIT', 500) + 1); //ToDo
-        $settings['short_description'] = $this->faker->words(301); //ToDo
+        $settings['welcome'] = $this->faker->textWithLength(6);
+        $settings['short_description'] = $this->faker->textWithLength(301);
         $settings['visibility'] = 10;
         $settings['record_attendance'] = 'no';
 
