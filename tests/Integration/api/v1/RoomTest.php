@@ -44,7 +44,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled for everyone and enforced by room type
      */
-    public function testLobbyEnabledEnforced()
+    public function testLobbyEnabledEnforced() //ToDo add other cases
     {
         $roomTypeLobbyEnabledEnforced = RoomType::factory()->create([
             'lobby_default' => RoomLobby::ENABLED,
@@ -96,7 +96,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled for everyone when expert mode is activated
      */
-    public function testLobbyEnabledExpertMode()
+    public function testLobbyEnabledExpertMode() // ToDo add other cases
     {
         $roomTypeLobbyDisabledDefault = RoomType::factory()->create([
             'lobby_default' => RoomLobby::DISABLED,
@@ -158,7 +158,6 @@ class RoomTest extends TestCase
         $room = Room::factory()->create([
             'expert_mode' => false,
             'allow_guests' => true,
-            'lobby' => RoomLobby::DISABLED,
         ]);
 
         $room->roomType()->associate($roomTypeLobbyEnabledDefault);
@@ -200,7 +199,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled only for guests and enforced by room type
      */
-    public function testLobbyOnlyGuestsEnforced()
+    public function testLobbyOnlyGuestsEnforced() //ToDo add other cases
     {
         $roomTypeLobbyOnlyGuestsEnforced = RoomType::factory()->create([
             'lobby_default' => RoomLobby::ONLY_GUEST,
@@ -252,7 +251,7 @@ class RoomTest extends TestCase
     /**
      * Test lobby behavior if enabled only for guests when expert mode is activated
      */
-    public function testLobbyOnlyGuestsExpertMode()
+    public function testLobbyOnlyGuestsExpertMode() //ToDo add other cases
     {
         $roomTypeLobbyDisabledDefault = RoomType::factory()->create([
             'lobby_default' => RoomLobby::DISABLED,
@@ -314,7 +313,6 @@ class RoomTest extends TestCase
         $room = Room::factory()->create([
             'expert_mode' => false,
             'allow_guests' => true,
-            'lobby' => RoomLobby::DISABLED,
         ]);
 
         $room->roomType()->associate($roomTypeLobbyOnlyGuestsDefault);

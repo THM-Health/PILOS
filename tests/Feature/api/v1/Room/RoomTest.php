@@ -124,6 +124,33 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertCreated();
 
+        //Test if access code gets set correctly if enforced in the room type
+        // Access code enforced
+        $roomType = RoomType::factory()->create([
+            'has_access_code_default' => true,
+            'has_access_code_enforced' => true,
+        ]);
+
+        $room = ['room_type' => $roomType->id, 'name' => RoomFactory::createValidRoomName()];
+
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertCreated();
+        $createdRoom = Room::find($response->json('data.id'));
+        $this->assertNotNull($createdRoom->access_code);
+
+        // No Access code enforced
+        $roomType = RoomType::factory()->create([
+            'has_access_code_default' => false,
+            'has_access_code_enforced' => true,
+        ]);
+
+        $room = ['room_type' => $roomType->id, 'name' => RoomFactory::createValidRoomName()];
+
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertCreated();
+        $createdRoom = Room::find($response->json('data.id'));
+        $this->assertNull($createdRoom->access_code);
+
         // -- Try different invalid requests --
 
         // empty name and invalid roomtype
@@ -530,6 +557,310 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test data room api returns for different values for the record attendance setting
+     */
+    public function testRoomViewRecordAttendance()
+    {
+        $roomTypeAttendanceEnforced = RoomType::factory()->create([
+            'record_attendance_default' => true,
+            'record_attendance_enforced' => true,
+        ]);
+
+        $roomTypeNoAttendanceEnforced = RoomType::factory()->create([
+            'record_attendance_default' => false,
+            'record_attendance_enforced' => true,
+        ]);
+
+        $roomTypeAttendanceDefault = RoomType::factory()->create([
+            'record_attendance_default' => true,
+            'record_attendance_enforced' => false,
+        ]);
+
+        $roomTypeNoAttendanceDefault = RoomType::factory()->create([
+            'record_attendance_default' => false,
+            'record_attendance_enforced' => false,
+        ]);
+
+        $room = Room::factory()->create();
+
+        // Test for record attendance enforced in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeAttendanceEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => true,
+            ]);
+
+        // Test for record attendance as default in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeAttendanceDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => true,
+            ]);
+
+        // Test for no record attendance enforced in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeNoAttendanceEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ]);
+
+        // Test for record attendance as default in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeNoAttendanceDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ]);
+
+        // Test for record attendance enforced and expert mode activated (room setting true)
+        $room->expert_mode = true;
+        $room->record_attendance = true;
+        $room->roomType()->associate($roomTypeAttendanceEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => true,
+            ]);
+
+        // Test for record attendance default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeAttendanceDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => true,
+            ]);
+
+        // Test for no record attendance enforced and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoAttendanceEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ]);
+
+        // Test for no record attendance default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoAttendanceDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => true,
+            ]);
+
+        // Test for record attendance enforced and expert mode activated (room setting false)
+        $room->record_attendance = false;
+        $room->roomType()->associate($roomTypeAttendanceEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => true,
+            ]);
+
+        // Test for record attendance default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeAttendanceDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ]);
+
+        // Test for no record attendance enforced and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoAttendanceEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ]);
+
+        // Test for no record attendance default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoAttendanceDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ]);
+
+    }
+
+    /**
+     * Test data room api returns for different values for the allow membership setting
+     */
+    public function testRoomViewAllowMembership()
+    {
+        $roomTypeMembershipEnforced = RoomType::factory()->create([
+            'allow_membership_default' => true,
+            'allow_membership_enforced' => true,
+        ]);
+
+        $roomTypeNoMembershipEnforced = RoomType::factory()->create([
+            'allow_membership_default' => false,
+            'allow_membership_enforced' => true,
+        ]);
+
+        $roomTypeMembershipDefault = RoomType::factory()->create([
+            'allow_membership_default' => true,
+            'allow_membership_enforced' => false,
+        ]);
+
+        $roomTypeNoMembershipDefault = RoomType::factory()->create([
+            'allow_membership_default' => false,
+            'allow_membership_enforced' => false,
+        ]);
+
+        $room = Room::factory()->create();
+
+        // Test for allow membership enforced in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeMembershipEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => true,
+            ]);
+
+        // Test for allow membership as default in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeMembershipDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => true,
+            ]);
+
+        // Test for no allow membership enforced in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeNoMembershipEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => false,
+            ]);
+
+        // Test for allow membership as default in room type and expert mode deactivated
+        $room->roomType()->associate($roomTypeNoMembershipDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => false,
+            ]);
+
+        // Test for allow membership enforced and expert mode activated (room setting true)
+        $room->expert_mode = true;
+        $room->allow_membership = true;
+        $room->roomType()->associate($roomTypeMembershipEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => true,
+            ]);
+
+        // Test for allow membership default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeMembershipDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => true,
+            ]);
+
+        // Test for no allow membership enforced and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoMembershipEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => false,
+            ]);
+
+        // Test for no allow membership default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoMembershipDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => true,
+            ]);
+
+        // Test for allow membership enforced and expert mode activated (room setting false)
+        $room->allow_membership = false;
+        $room->roomType()->associate($roomTypeMembershipEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => true,
+            ]);
+
+        // Test for allow membership default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeMembershipDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => false,
+            ]);
+
+        // Test for no allow membership enforced and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoMembershipEnforced);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => false,
+            ]);
+
+        // Test for no allow membership default and expert mode activated (room setting true)
+        $room->roomType()->associate($roomTypeNoMembershipDefault);
+        $room->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'allow_membership' => false,
+            ]);
+
+    }
+
+    /**
      * Test data room api returns
      */
     public function testRoomView()
@@ -641,7 +972,7 @@ class RoomTest extends TestCase
      */
     public function testRoomList()
     {
-        setting(['room_pagination_page_size' => 10]);
+        setting(['room_pagination_page_size' => 20]);
 
         $roomType1 = RoomType::factory()->create();
         $roomTypePublicEnforced = RoomType::factory()->create([
@@ -672,11 +1003,22 @@ class RoomTest extends TestCase
             'room_type_id' => $roomType1->id,
         ]);
         $roomShared->members()->attach($this->user, ['role' => RoomUserRole::USER]);
-        $roomPublicEnforced = Room::factory()->create([
+        $roomPublicEnforced1 = Room::factory()->create([
             'name' => 'Public room enforced',
             'expert_mode' => true,
             'room_type_id' => $roomTypePublicEnforced->id,
             'visibility' => RoomVisibility::PRIVATE,
+        ]);
+        $roomPublicEnforced2 = Room::factory()->create([
+            'name' => 'Public room enforced',
+            'expert_mode' => true,
+            'room_type_id' => $roomTypePublicEnforced->id,
+            'visibility' => RoomVisibility::PUBLIC,
+        ]);
+        $roomPublicEnforced3 = Room::factory()->create([
+            'name' => 'Public room enforced',
+            'expert_mode' => false,
+            'room_type_id' => $roomTypePublicEnforced->id,
         ]);
         $roomPublicDefault = Room::factory()->create([
             'name' => 'Public room default',
@@ -684,13 +1026,30 @@ class RoomTest extends TestCase
             'room_type_id' => $roomTypePublicDefault->id,
             'visibility' => RoomVisibility::PRIVATE,
         ]);
-        $roomPublicExpert = Room::factory()->create([
+        $roomPublicExpert1 = Room::factory()->create([
             'name' => 'Public room expert',
             'expert_mode' => true,
             'room_type_id' => $roomTypePrivateDefault->id,
             'visibility' => RoomVisibility::PUBLIC,
         ]);
-        $roomPrivateEnforced = Room::factory()->create([
+        $roomPublicExpert2 = Room::factory()->create([
+            'name' => 'Public room expert',
+            'expert_mode' => true,
+            'room_type_id' => $roomTypePublicDefault->id,
+            'visibility' => RoomVisibility::PUBLIC,
+        ]);
+        $roomPrivateEnforced1 = Room::factory()->create([
+            'name' => 'Private room enforced',
+            'expert_mode' => false,
+            'room_type_id' => $roomTypePrivateEnforced->id,
+        ]);
+        $roomPrivateEnforced2 = Room::factory()->create([
+            'name' => 'Private room enforced',
+            'expert_mode' => true,
+            'room_type_id' => $roomTypePrivateEnforced->id,
+            'visibility' => RoomVisibility::PRIVATE,
+        ]);
+        $roomPrivateEnforced3 = Room::factory()->create([
             'name' => 'Private room enforced',
             'expert_mode' => true,
             'room_type_id' => $roomTypePrivateEnforced->id,
@@ -702,20 +1061,26 @@ class RoomTest extends TestCase
             'room_type_id' => $roomTypePrivateDefault->id,
             'visibility' => RoomVisibility::PUBLIC,
         ]);
-        $roomPrivateExpert = Room::factory()->create([
+        $roomPrivateExpert1 = Room::factory()->create([
             'name' => 'Public room expert',
             'expert_mode' => true,
             'room_type_id' => $roomTypePublicDefault->id,
             'visibility' => RoomVisibility::PRIVATE,
         ]);
+        $roomPrivateExpert2 = Room::factory()->create([
+            'name' => 'Public room expert',
+            'expert_mode' => true,
+            'room_type_id' => $roomTypePrivateDefault->id,
+            'visibility' => RoomVisibility::PRIVATE,
+        ]);
 
         $server = Server::factory()->create();
-        $meeting1 = $roomPrivateExpert->meetings()->create();
+        $meeting1 = $roomPrivateExpert1->meetings()->create();
         $meeting1->server()->associate($server);
         $meeting1->start = date('Y-m-d H:i:s');
         $meeting1->save();
-        $roomPrivateExpert->latestMeeting()->associate($meeting1);
-        $roomPrivateExpert->save();
+        $roomPrivateExpert1->latestMeeting()->associate($meeting1);
+        $roomPrivateExpert1->save();
 
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index'))->assertUnauthorized();
@@ -767,11 +1132,14 @@ class RoomTest extends TestCase
         //filter public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(3, 'data')
-            ->assertJsonFragment(['id' => $roomPublicEnforced->id, 'name' => $roomPublicEnforced->name])
+            ->assertJsonCount(6, 'data')
+            ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced2->id, 'name' => $roomPublicEnforced2->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced3->id, 'name' => $roomPublicEnforced3->name])
             ->assertJsonFragment(['id' => $roomPublicDefault->id, 'name' => $roomPublicDefault->name])
-            ->assertJsonFragment(['id' => $roomPublicExpert->id, 'name' => $roomPublicExpert->name])
-            ->assertJsonPath('meta.total_no_filter', 3)
+            ->assertJsonFragment(['id' => $roomPublicExpert1->id, 'name' => $roomPublicExpert1->name])
+            ->assertJsonFragment(['id' => $roomPublicExpert2->id, 'name' => $roomPublicExpert2->name])
+            ->assertJsonPath('meta.total_no_filter', 6)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
@@ -788,37 +1156,46 @@ class RoomTest extends TestCase
         //filter shared, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(4, 'data')
+            ->assertJsonCount(7, 'data')
             ->assertJsonFragment(['id' => $roomShared->id, 'name' => $roomShared->name])
-            ->assertJsonFragment(['id' => $roomPublicEnforced->id, 'name' => $roomPublicEnforced->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced2->id, 'name' => $roomPublicEnforced2->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced3->id, 'name' => $roomPublicEnforced3->name])
             ->assertJsonFragment(['id' => $roomPublicDefault->id, 'name' => $roomPublicDefault->name])
-            ->assertJsonFragment(['id' => $roomPublicExpert->id, 'name' => $roomPublicExpert->name])
-            ->assertJsonPath('meta.total_no_filter', 4)
+            ->assertJsonFragment(['id' => $roomPublicExpert1->id, 'name' => $roomPublicExpert1->name])
+            ->assertJsonFragment(['id' => $roomPublicExpert2->id, 'name' => $roomPublicExpert2->name])
+            ->assertJsonPath('meta.total_no_filter', 7)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
         //filter own, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(4, 'data')
+            ->assertJsonCount(7, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name])
-            ->assertJsonFragment(['id' => $roomPublicEnforced->id, 'name' => $roomPublicEnforced->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced2->id, 'name' => $roomPublicEnforced2->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced3->id, 'name' => $roomPublicEnforced3->name])
             ->assertJsonFragment(['id' => $roomPublicDefault->id, 'name' => $roomPublicDefault->name])
-            ->assertJsonFragment(['id' => $roomPublicExpert->id, 'name' => $roomPublicExpert->name])
-            ->assertJsonPath('meta.total_no_filter', 4)
+            ->assertJsonFragment(['id' => $roomPublicExpert1->id, 'name' => $roomPublicExpert1->name])
+            ->assertJsonFragment(['id' => $roomPublicExpert2->id, 'name' => $roomPublicExpert2->name])
+            ->assertJsonPath('meta.total_no_filter', 7)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
         //filter own, shared, public
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(5, 'data')
+            ->assertJsonCount(8, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name])
             ->assertJsonFragment(['id' => $roomShared->id, 'name' => $roomShared->name])
-            ->assertJsonFragment(['id' => $roomPublicEnforced->id, 'name' => $roomPublicEnforced->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced2->id, 'name' => $roomPublicEnforced2->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced3->id, 'name' => $roomPublicEnforced3->name])
             ->assertJsonFragment(['id' => $roomPublicDefault->id, 'name' => $roomPublicDefault->name])
-            ->assertJsonFragment(['id' => $roomPublicExpert->id, 'name' => $roomPublicExpert->name])
-            ->assertJsonPath('meta.total_no_filter', 5)
+            ->assertJsonFragment(['id' => $roomPublicExpert1->id, 'name' => $roomPublicExpert1->name])
+            ->assertJsonFragment(['id' => $roomPublicExpert2->id, 'name' => $roomPublicExpert2->name])
+            ->assertJsonPath('meta.total_no_filter', 8)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
@@ -846,8 +1223,8 @@ class RoomTest extends TestCase
 
         //Test Room List with only favorites (user has several favorites)
         $this->user->roomFavorites()->attach($roomShared);
-        $this->user->roomFavorites()->attach($roomPublicEnforced);
-        $this->user->roomFavorites()->attach($roomPrivateEnforced);
+        $this->user->roomFavorites()->attach($roomPublicEnforced1);
+        $this->user->roomFavorites()->attach($roomPrivateEnforced1);
 
         $this->user->refresh();
 
@@ -856,8 +1233,8 @@ class RoomTest extends TestCase
             ->assertJsonCount(4, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name])
             ->assertJsonFragment(['id' => $roomShared->id, 'name' => $roomShared->name])
-            ->assertJsonFragment(['id' => $roomPublicEnforced->id, 'name' => $roomPublicEnforced->name])
-            ->assertJsonFragment(['id' => $roomPrivateEnforced->id, 'name' => $roomPrivateEnforced->name]);
+            ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPrivateEnforced1->id, 'name' => $roomPrivateEnforced1->name]);
 
         //filter all (without permission to show all rooms)
         //should lead to bad request because the other filters are set to 0 (false)
@@ -867,13 +1244,16 @@ class RoomTest extends TestCase
         //should show same result as showing all the other filters together
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(5, 'data')
+            ->assertJsonCount(8, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name])
             ->assertJsonFragment(['id' => $roomShared->id, 'name' => $roomShared->name])
-            ->assertJsonFragment(['id' => $roomPublicEnforced->id, 'name' => $roomPublicEnforced->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced2->id, 'name' => $roomPublicEnforced2->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced3->id, 'name' => $roomPublicEnforced3->name])
             ->assertJsonFragment(['id' => $roomPublicDefault->id, 'name' => $roomPublicDefault->name])
-            ->assertJsonFragment(['id' => $roomPublicExpert->id, 'name' => $roomPublicExpert->name])
-            ->assertJsonPath('meta.total_no_filter', 5)
+            ->assertJsonFragment(['id' => $roomPublicExpert1->id, 'name' => $roomPublicExpert1->name])
+            ->assertJsonFragment(['id' => $roomPublicExpert2->id, 'name' => $roomPublicExpert2->name])
+            ->assertJsonPath('meta.total_no_filter', 8)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
@@ -884,21 +1264,27 @@ class RoomTest extends TestCase
         $this->user->roles()->attach($role);
         $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(8, 'data')
+            ->assertJsonCount(14, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name])
             ->assertJsonFragment(['id' => $roomShared->id, 'name' => $roomShared->name])
-            ->assertJsonFragment(['id' => $roomPublicEnforced->id, 'name' => $roomPublicEnforced->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced1->id, 'name' => $roomPublicEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced2->id, 'name' => $roomPublicEnforced2->name])
+            ->assertJsonFragment(['id' => $roomPublicEnforced3->id, 'name' => $roomPublicEnforced3->name])
             ->assertJsonFragment(['id' => $roomPublicDefault->id, 'name' => $roomPublicDefault->name])
-            ->assertJsonFragment(['id' => $roomPublicExpert->id, 'name' => $roomPublicExpert->name])
-            ->assertJsonFragment(['id' => $roomPrivateEnforced->id, 'name' => $roomPrivateEnforced->name])
+            ->assertJsonFragment(['id' => $roomPublicExpert1->id, 'name' => $roomPublicExpert1->name])
+            ->assertJsonFragment(['id' => $roomPublicExpert2->id, 'name' => $roomPublicExpert2->name])
+            ->assertJsonFragment(['id' => $roomPrivateEnforced1->id, 'name' => $roomPrivateEnforced1->name])
+            ->assertJsonFragment(['id' => $roomPrivateEnforced2->id, 'name' => $roomPrivateEnforced2->name])
+            ->assertJsonFragment(['id' => $roomPrivateEnforced3->id, 'name' => $roomPrivateEnforced3->name])
             ->assertJsonFragment(['id' => $roomPrivateDefault->id, 'name' => $roomPrivateDefault->name])
-            ->assertJsonFragment(['id' => $roomPrivateExpert->id, 'name' => $roomPrivateExpert->name])
-            ->assertJsonPath('meta.total_no_filter', 8)
+            ->assertJsonFragment(['id' => $roomPrivateExpert1->id, 'name' => $roomPrivateExpert1->name])
+            ->assertJsonFragment(['id' => $roomPrivateExpert2->id, 'name' => $roomPrivateExpert2->name])
+            ->assertJsonPath('meta.total_no_filter', 14)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
         foreach ($results->json('data') as $room) {
-            if ($room['id'] == $roomPrivateExpert->id) {
+            if ($room['id'] == $roomPrivateExpert1->id) {
                 self::assertNull($room['last_meeting']['end']);
             } else {
                 self::assertNull($room['last_meeting']);
@@ -907,8 +1293,8 @@ class RoomTest extends TestCase
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=0&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(8, 'data')
-            ->assertJsonPath('meta.total_no_filter', 8)
+            ->assertJsonCount(14, 'data')
+            ->assertJsonPath('meta.total_no_filter', 14)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
 
@@ -919,7 +1305,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['id' => $roomOwn->id, 'name' => $roomOwn->name])
             ->assertJsonFragment(['id' => $roomShared->id, 'name' => $roomShared->name])
-            ->assertJsonPath('meta.total_no_filter', 8)
+            ->assertJsonPath('meta.total_no_filter', 14)
             ->assertJsonPath('meta.total_own', 1)
             ->assertJsonCount(10, 'meta');
     }
@@ -1260,23 +1646,24 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['access_code' => $room->access_code]);
     }
 
-    public function testUpdateSettings()
+    /**
+     * Test the permissions to update the room settings
+     */
+    public function testUpdateSettingsPermission()
     {
         $room = Room::factory()->create();
+
         // Get current settings
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
             ->assertSuccessful();
 
         $settings = $response->json('data');
 
-        $roomType = $this->faker->randomElement(RoomType::all());
+        $roomType = RoomType::factory()->create();
 
         // Test with expert mode deactivated (only necessary settings)
-        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
         $settings['room_type'] = $roomType->id;
         $settings['name'] = RoomFactory::createValidRoomName();
-        $settings['allow_guests'] = $this->faker->boolean;
-        $settings['short_description'] = $this->faker->text(300);
 
         // Testing user
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
@@ -1317,149 +1704,371 @@ class RoomTest extends TestCase
         // Test as owner
         $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertSuccessful();
+    }
 
-        // Get new settings
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
-            ->assertSuccessful();
+    /**
+     * Test updating the room settings when the expert mode is deactivated and only the necessary parameters are send
+     */
+    public function testUpdateSettingsNoExpertOnlyNecessary()
+    {
+        $room = Room::factory()->create();
+        $roomType = RoomType::factory()->create();
 
-        // Check if correct setting values get returned
-        $new_settings = $response->json('data');
-        $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
+        $roomTypeGuestsEnforced = RoomType::factory()->create([
+            'allow_guests_default' => true,
+            'allow_guests_enforced' => true,
+        ]);
+        $roomTypeNoGuestsEnforced = RoomType::factory()->create([
+            'allow_guests_default' => false,
+            'allow_guests_enforced' => true,
+        ]);
 
-        // Set settings back to room type default values to be able to compare with new settings
-        //ToDo access code?
-        $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
-
-        // Expert Settings
-        $settings['allow_membership'] = $roomType->allow_membership_default;
-        $settings['everyone_can_start'] = $roomType->everyone_can_start_default;
-        $settings['lock_settings_disable_cam'] = $roomType->lock_settings_disable_cam_default;
-        $settings['lock_settings_disable_mic'] = $roomType->lock_settings_disable_mic_default;
-        $settings['lock_settings_disable_note'] = $roomType->lock_settings_disable_note_default;
-        $settings['lock_settings_disable_private_chat'] = $roomType->lock_settings_disable_private_chat_default;
-        $settings['lock_settings_disable_public_chat'] = $roomType->lock_settings_disable_public_chat_default;
-        $settings['lock_settings_hide_user_list'] = $roomType->lock_settings_hide_user_list_default;
-        $settings['mute_on_start'] = $roomType->mute_on_start_default;
-        $settings['webcams_only_for_moderator'] = $roomType->webcams_only_for_moderator_default;
-        $settings['default_role'] = $roomType->default_role_default;
-        $settings['lobby'] = $roomType->lobby_default;
-        $settings['visibility'] = $roomType->visibility_default;
-        $settings['record_attendance'] = $roomType->record_attendance_default;
-        $settings['welcome'] = null;
-
-        $this->assertJsonStringEqualsJsonString(json_encode($new_settings), json_encode($settings));
-
-        // Test with expert mode deactivated (send all settings)
+        // Test without allow guests enforced in room type
         $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
         $settings['room_type'] = $roomType->id;
+        $settings['expert_mode'] = false;
         $settings['name'] = RoomFactory::createValidRoomName();
-        $settings['allow_guests'] = $this->faker->boolean;
+        $settings['allow_guests'] = true;
         $settings['short_description'] = $this->faker->text(300);
-        $settings['allow_membership'] = $this->faker->boolean;
-        $settings['everyone_can_start'] = true;
-        $settings['lock_settings_disable_cam'] = $this->faker->boolean;
-        $settings['lock_settings_disable_mic'] = $this->faker->boolean;
-        $settings['lock_settings_disable_note'] = $this->faker->boolean;
-        $settings['lock_settings_disable_private_chat'] = $this->faker->boolean;
-        $settings['lock_settings_disable_public_chat'] = $this->faker->boolean;
-        $settings['lock_settings_hide_user_list'] = $this->faker->boolean;
-        $settings['mute_on_start'] = $this->faker->boolean;
-        $settings['webcams_only_for_moderator'] = $this->faker->boolean;
-        $settings['default_role'] = $this->faker->randomElement([RoomUserRole::MODERATOR, RoomUserRole::USER]);
-        $settings['lobby'] = $this->faker->randomElement(RoomLobby::cases());
-        $settings['welcome'] = $this->faker->text;
-        $settings['visibility'] = $this->faker->randomElement(RoomVisibility::cases());
-        $settings['record_attendance'] = $this->faker->boolean;
 
-        // Test as owner
         $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertSuccessful();
 
-        // Get new settings
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => true,
+                'short_description' => $settings['short_description'],
+            ])
+            ->assertJsonPath('data.room_type.id', $roomType->id);
+
+        // Test with allow guests enforced in room type (room setting true)
+        $settings['room_type'] = $roomTypeGuestsEnforced->id;
+
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertSuccessful();
 
-        // Check if correct setting values get returned
-        $new_settings = $response->json('data');
-        $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => true,
+                'short_description' => $settings['short_description'],
+            ])
+            ->assertJsonPath('data.room_type.id', $roomTypeGuestsEnforced->id);
 
-        // Set settings back to room type default values to be able to compare with new settings
-        //ToDo access code?
-        $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
-        // Expert settings
-        $settings['allow_membership'] = $roomType->allow_membership_default;
-        $settings['everyone_can_start'] = $roomType->everyone_can_start_default;
-        $settings['lock_settings_disable_cam'] = $roomType->lock_settings_disable_cam_default;
-        $settings['lock_settings_disable_mic'] = $roomType->lock_settings_disable_mic_default;
-        $settings['lock_settings_disable_note'] = $roomType->lock_settings_disable_note_default;
-        $settings['lock_settings_disable_private_chat'] = $roomType->lock_settings_disable_private_chat_default;
-        $settings['lock_settings_disable_public_chat'] = $roomType->lock_settings_disable_public_chat_default;
-        $settings['lock_settings_hide_user_list'] = $roomType->lock_settings_hide_user_list_default;
-        $settings['mute_on_start'] = $roomType->mute_on_start_default;
-        $settings['webcams_only_for_moderator'] = $roomType->webcams_only_for_moderator_default;
-        $settings['default_role'] = $roomType->default_role_default;
-        $settings['lobby'] = $roomType->lobby_default;
-        $settings['visibility'] = $roomType->visibility_default;
-        $settings['record_attendance'] = $roomType->record_attendance_default;
-        $settings['welcome'] = null;
+        // Test with not allowing guests enforced in room type (room setting true)
+        $settings['room_type'] = $roomTypeNoGuestsEnforced->id;
 
-        $this->assertJsonStringEqualsJsonString(json_encode($new_settings), json_encode($settings));
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
 
-        //Test with expert mode activated
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => false,
+                'short_description' => $settings['short_description'],
+            ])
+            ->assertJsonPath('data.room_type.id', $roomTypeNoGuestsEnforced->id);
+
+        // Test with not allowing guests enforced in room type (room setting false)
+        $settings['allow_guests'] = false;
+
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => false,
+                'short_description' => $settings['short_description'],
+            ])
+            ->assertJsonPath('data.room_type.id', $roomTypeNoGuestsEnforced->id);
+
+        // Test with allow guests enforced in room type (room setting false)
+        $settings['room_type'] = $roomTypeGuestsEnforced->id;
+
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => true,
+                'short_description' => $settings['short_description'],
+            ])
+            ->assertJsonPath('data.room_type.id', $roomTypeGuestsEnforced->id);
+    }
+
+    /**
+     * Test updating the room settings when the expert mode is deactivated and all parameters are send
+     */
+    public function testUpdateSettingsNoExpertAll()
+    {
+        $room = Room::factory()->create();
+        $roomType = RoomType::factory()->create([
+            'allow_membership_default' => false,
+            'everyone_can_start_default' => true,
+            'lock_settings_disable_cam_default' => false,
+            'lock_settings_disable_mic_default' => true,
+            'lock_settings_disable_note_default' => false,
+            'lock_settings_disable_private_chat_default' => true,
+            'lock_settings_disable_public_chat_default' => false,
+            'lock_settings_hide_user_list_default' => true,
+            'mute_on_start_default' => false,
+            'webcams_only_for_moderator_default' => true,
+            'default_role_default' => RoomUserRole::MODERATOR,
+            'lobby_default' => RoomLobby::ENABLED,
+            'visibility_default' => RoomVisibility::PRIVATE,
+            'record_attendance_default' => false,
+        ]);
+
+        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
+        $settings['expert_mode'] = false;
+        $settings['room_type'] = $roomType->id;
+        $settings['name'] = RoomFactory::createValidRoomName();
+        $settings['allow_guests'] = true;
+        $settings['short_description'] = $this->faker->text(300);
+        $settings['allow_membership'] = true;
+        $settings['everyone_can_start'] = false;
+        $settings['lock_settings_disable_cam'] = true;
+        $settings['lock_settings_disable_mic'] = false;
+        $settings['lock_settings_disable_note'] = true;
+        $settings['lock_settings_disable_private_chat'] = false;
+        $settings['lock_settings_disable_public_chat'] = true;
+        $settings['lock_settings_hide_user_list'] = false;
+        $settings['mute_on_start'] = true;
+        $settings['webcams_only_for_moderator'] = false;
+        $settings['default_role'] = RoomUserRole::USER;
+        $settings['lobby'] = RoomLobby::DISABLED;
+        $settings['welcome'] = $this->faker->text;
+        $settings['visibility'] = RoomVisibility::PUBLIC;
+        $settings['record_attendance'] = true;
+
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => true,
+                'short_description' => $settings['short_description'],
+                'allow_membership' => false,
+                'everyone_can_start' => true,
+                'lock_settings_disable_cam' => false,
+                'lock_settings_disable_mic' => true,
+                'lock_settings_disable_note' => false,
+                'lock_settings_disable_private_chat' => true,
+                'lock_settings_disable_public_chat' => false,
+                'lock_settings_hide_user_list' => true,
+                'mute_on_start' => false,
+                'webcams_only_for_moderator' => true,
+                'default_role' => RoomUserRole::MODERATOR,
+                'lobby' => RoomLobby::ENABLED,
+                'visibility' => RoomVisibility::PRIVATE,
+                'record_attendance' => false,
+                'welcome' => null,
+            ])
+            ->assertJsonPath('data.room_type.id', $roomType->id);
+
+        // Try with different combination
+        $roomType->allow_membership_default = true;
+        $roomType->lock_settings_disable_mic_default = false;
+        $roomType->lock_settings_disable_note_default = true;
+        $roomType->lock_settings_hide_user_list_default = false;
+        $roomType->mute_on_start_default = true;
+        $roomType->default_role_default = RoomUserRole::USER;
+        $roomType->lobby_default = RoomLobby::ONLY_GUEST;
+        $roomType->visibility_default = RoomVisibility::PUBLIC;
+        $roomType->save();
+
+        $settings['allow_membership'] = false;
+        $settings['everyone_can_start'] = true;
+        $settings['lock_settings_disable_cam'] = false;
+        $settings['welcome'] = $this->faker->text;
+        $settings['visibility'] = RoomVisibility::PRIVATE;
+        $settings['record_attendance'] = false;
+
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => true,
+                'short_description' => $settings['short_description'],
+                'allow_membership' => true,
+                'everyone_can_start' => true,
+                'lock_settings_disable_cam' => false,
+                'lock_settings_disable_mic' => false,
+                'lock_settings_disable_note' => true,
+                'lock_settings_disable_private_chat' => true,
+                'lock_settings_disable_public_chat' => false,
+                'lock_settings_hide_user_list' => false,
+                'mute_on_start' => true,
+                'webcams_only_for_moderator' => true,
+                'default_role' => RoomUserRole::USER,
+                'lobby' => RoomLobby::ONLY_GUEST,
+                'visibility' => RoomVisibility::PUBLIC,
+                'record_attendance' => false,
+                'welcome' => null,
+            ])
+            ->assertJsonPath('data.room_type.id', $roomType->id);
+    }
+
+    /**
+     * Test updating the room settings when the expert mode is activated
+     */
+    public function testUpdateSettingsExpert()
+    {
+        $room = Room::factory()->create();
+        $roomType = RoomType::factory()->create([
+            'allow_membership_default' => true,
+            'allow_membership_enforced' => true,
+            'everyone_can_start_default' => false,
+            'everyone_can_start_enforced' => true,
+            'lock_settings_disable_cam_default' => true,
+            'lock_settings_disable_cam_enforced' => false,
+            'lock_settings_disable_mic_default' => false,
+            'lock_settings_disable_mic_enforced' => false,
+            'lock_settings_disable_note_default' => true,
+            'lock_settings_disable_note_enforced' => true,
+            'lock_settings_disable_private_chat_default' => false,
+            'lock_settings_disable_private_chat_enforced' => true,
+            'lock_settings_disable_public_chat_default' => true,
+            'lock_settings_disable_public_chat_enforced' => false,
+            'lock_settings_hide_user_list_default' => false,
+            'lock_settings_hide_user_list_enforced' => false,
+            'mute_on_start_default' => true,
+            'mute_on_start_enforced' => true,
+            'webcams_only_for_moderator_default' => false,
+            'webcams_only_for_moderator_enforced' => true,
+            'default_role_default' => RoomUserRole::MODERATOR,
+            'default_role_enforced' => false,
+            'lobby_default' => RoomLobby::ENABLED,
+            'lobby_enforced' => true,
+            'visibility_default' => RoomVisibility::PRIVATE,
+            'visibility_enforced' => false,
+            'record_attendance_default' => true,
+            'record_attendance_enforced' => false,
+            'allow_guests_default' => false,
+            'allow_guests_enforced' => false,
+            'has_access_code_default' => true,
+            'has_access_code_enforced' => false,
+            'restrict' => false,
+        ]);
+
+        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
         $settings['expert_mode'] = true;
-        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
-        $settings['allow_membership'] = $this->faker->boolean;
-        $settings['everyone_can_start'] = true;
-        $settings['lock_settings_disable_cam'] = $this->faker->boolean;
-        $settings['lock_settings_disable_mic'] = $this->faker->boolean;
-        $settings['lock_settings_disable_note'] = $this->faker->boolean;
-        $settings['lock_settings_disable_private_chat'] = $this->faker->boolean;
-        $settings['lock_settings_disable_public_chat'] = $this->faker->boolean;
-        $settings['lock_settings_hide_user_list'] = $this->faker->boolean;
-        $settings['mute_on_start'] = $this->faker->boolean;
-        $settings['webcams_only_for_moderator'] = $this->faker->boolean;
-        $settings['default_role'] = $this->faker->randomElement([RoomUserRole::MODERATOR, RoomUserRole::USER]);
-        $settings['allow_guests'] = $this->faker->boolean;
-        $settings['lobby'] = $this->faker->randomElement(RoomLobby::cases());
         $settings['room_type'] = $roomType->id;
         $settings['name'] = RoomFactory::createValidRoomName();
-        $settings['welcome'] = $this->faker->text;
+        $settings['allow_guests'] = true;
         $settings['short_description'] = $this->faker->text(300);
-        $settings['visibility'] = $this->faker->randomElement(RoomVisibility::cases());
-        $settings['record_attendance'] = $this->faker->boolean;
+        $settings['allow_membership'] = false;
+        $settings['everyone_can_start'] = false;
+        $settings['lock_settings_disable_cam'] = false;
+        $settings['lock_settings_disable_mic'] = false;
+        $settings['lock_settings_disable_note'] = true;
+        $settings['lock_settings_disable_private_chat'] = true;
+        $settings['lock_settings_disable_public_chat'] = true;
+        $settings['lock_settings_hide_user_list'] = true;
+        $settings['mute_on_start'] = false;
+        $settings['webcams_only_for_moderator'] = false;
+        $settings['default_role'] = RoomUserRole::USER;
+        $settings['lobby'] = RoomLobby::DISABLED;
+        $settings['visibility'] = RoomVisibility::PUBLIC;
+        $settings['record_attendance'] = true;
+        $settings['welcome'] = $this->faker->text;
 
-        // Test as owner
         $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertSuccessful();
 
-        // Get new settings
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'access_code' => $settings['access_code'],
+                'name' => $settings['name'],
+                'allow_guests' => true,
+                'short_description' => $settings['short_description'],
+                'allow_membership' => true,
+                'everyone_can_start' => false,
+                'lock_settings_disable_cam' => false,
+                'lock_settings_disable_mic' => false,
+                'lock_settings_disable_note' => true,
+                'lock_settings_disable_private_chat' => false,
+                'lock_settings_disable_public_chat' => true,
+                'lock_settings_hide_user_list' => true,
+                'mute_on_start' => true,
+                'webcams_only_for_moderator' => false,
+                'default_role' => RoomUserRole::USER,
+                'lobby' => RoomLobby::ENABLED,
+                'visibility' => RoomVisibility::PUBLIC,
+                'record_attendance' => true,
+                'welcome' => $settings['welcome'],
+            ])
+            ->assertJsonPath('data.room_type.id', $roomType->id);
+
+        // Try with different combination
+        $roomType->allow_membership_default = true;
+        $roomType->allow_membership_enforced = false;
+        $roomType->lock_settings_disable_mic_default = true;
+        $roomType->lock_settings_disable_note_default = true;
+        $roomType->lock_settings_hide_user_list_enforced = true;
+        $roomType->mute_on_start_default = false;
+        $roomType->default_role_enforced = true;
+        $roomType->lobby_enforced = false;
+        $roomType->visibility_enforced = true;
+        $roomType->save();
+
+        $settings['everyone_can_start'] = true;
+        $settings['lock_settings_disable_cam'] = true;
+        $settings['lock_settings_disable_mic'] = true;
+        $settings['lock_settings_disable_private_chat'] = false;
+        $settings['lock_settings_hide_user_list'] = false;
+        $settings['mute_on_start'] = true;
+        $settings['webcams_only_for_moderator'] = true;
+        $settings['visibility'] = RoomVisibility::PRIVATE;
+        $settings['record_attendance'] = false;
+
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertSuccessful();
+
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room' => $room]))
             ->assertSuccessful();
 
         // Check if correct setting values get returned
         $new_settings = $response->json('data');
         $settings['room_type'] = (new RoomTypeResource($roomType))->withDefaultRoomSettings();
-
-        // Set to resulting values based on enforced value in the room type
-        //ToDo access code?
-        $settings['allow_guests'] = $roomType->allow_guests_enforced ? $roomType->allow_guests_default : $settings['allow_guests'];
-        // Expert settings
-        $settings['allow_membership'] = $roomType->allow_membership_enforced ? $roomType->allow_membership_default : $settings['allow_membership'];
-        $settings['everyone_can_start'] = $roomType->everyone_can_start_enforced ? $roomType->everyone_can_start_default : $settings['everyone_can_start'];
-        $settings['lock_settings_disable_cam'] = $roomType->lock_settings_disable_cam_enforced ? $roomType->lock_settings_disable_cam_default : $settings['lock_settings_disable_cam'];
-        $settings['lock_settings_disable_mic'] = $roomType->lock_settings_disable_mic_enforced ? $roomType->lock_settings_disable_mic_default : $settings['lock_settings_disable_mic'];
-        $settings['lock_settings_disable_note'] = $roomType->lock_settings_disable_note_enforced ? $roomType->lock_settings_disable_note_default : $settings['lock_settings_disable_note'];
-        $settings['lock_settings_disable_private_chat'] = $roomType->lock_settings_disable_private_chat_enforced ? $roomType->lock_settings_disable_private_chat_default : $settings['lock_settings_disable_private_chat'];
-        $settings['lock_settings_disable_public_chat'] = $roomType->lock_settings_disable_public_chat_enforced ? $roomType->lock_settings_disable_public_chat_default : $settings['lock_settings_disable_public_chat'];
-        $settings['lock_settings_hide_user_list'] = $roomType->lock_settings_hide_user_list_enforced ? $roomType->lock_settings_hide_user_list_default : $settings['lock_settings_hide_user_list'];
-        $settings['mute_on_start'] = $roomType->mute_on_start_enforced ? $roomType->mute_on_start_default : $settings['mute_on_start'];
-        $settings['webcams_only_for_moderator'] = $roomType->webcams_only_for_moderator_enforced ? $roomType->webcams_only_for_moderator_default : $settings['webcams_only_for_moderator'];
-        $settings['default_role'] = $roomType->default_role_enforced ? $roomType->default_role_default : $settings['default_role'];
-        $settings['lobby'] = $roomType->lobby_enforced ? $roomType->lobby_default : $settings['lobby'];
-        $settings['visibility'] = $roomType->visibility_enforced ? $roomType->visibility_default : $settings['visibility'];
-        $settings['record_attendance'] = $roomType->record_attendance_enforced ? $roomType->record_attendance_default : $settings['record_attendance'];
+        $settings['allow_membership'] = false;
+        $settings['everyone_can_start'] = false;
+        $settings['lock_settings_disable_cam'] = true;
+        $settings['lock_settings_disable_mic'] = true;
+        $settings['lock_settings_disable_note'] = true;
+        $settings['lock_settings_disable_private_chat'] = false;
+        $settings['lock_settings_disable_public_chat'] = true;
+        $settings['lock_settings_hide_user_list'] = false;
+        $settings['mute_on_start'] = false;
+        $settings['webcams_only_for_moderator'] = false;
+        $settings['default_role'] = RoomUserRole::MODERATOR;
+        $settings['lobby'] = RoomLobby::DISABLED;
+        $settings['visibility'] = RoomVisibility::PRIVATE;
+        $settings['record_attendance'] = false;
 
         $this->assertJsonStringEqualsJsonString(json_encode($new_settings), json_encode($settings));
+
     }
 
     public function testUpdateSettingsInvalid()
@@ -1474,6 +2083,28 @@ class RoomTest extends TestCase
 
         $settings = $response->json('data');
 
+        // Access code enforced but has no access code
+        $roomType = RoomType::factory()->create([
+            'has_access_code_default' => true,
+            'has_access_code_enforced' => true,
+        ]);
+
+        $settings['access_code'] = null;
+        $settings['room_type'] = $roomType->id;
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertJsonValidationErrors(['access_code']);
+
+        // No Access code enforced but has an access code
+        $roomType = RoomType::factory()->create([
+            'has_access_code_default' => false,
+            'has_access_code_enforced' => true,
+        ]);
+
+        $settings['access_code'] = $this->faker->numberBetween(111111111, 999999999);
+        $settings['room_type'] = $roomType->id;
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertJsonValidationErrors(['access_code']);
+
         // Room type invalid format //ToDo check if fix is enough
         $settings['room_type'] = ['id' => 5];
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
@@ -1485,13 +2116,13 @@ class RoomTest extends TestCase
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['name']);
 
-        // Invalid parameters
+        // Invalid parameters expert mode activated
         $settings['access_code'] = $this->faker->numberBetween(1111111, 9999999);
         $settings['default_role'] = RoomUserRole::GUEST;
         $settings['lobby'] = 5;
         $settings['name'] = null;
         $settings['room_type'] = 0;
-        $settings['expert_mode'] = 'yes';
+        $settings['expert_mode'] = true;
         $settings['allow_membership'] = 'yes';
         $settings['everyone_can_start'] = 'no';
         $settings['lock_settings_disable_cam'] = 'yes';
@@ -1515,7 +2146,6 @@ class RoomTest extends TestCase
                 'lobby',
                 'name',
                 'room_type',
-                'expert_mode',
                 'allow_membership',
                 'everyone_can_start',
                 'lock_settings_disable_cam',
@@ -1531,6 +2161,18 @@ class RoomTest extends TestCase
                 'short_description',
                 'visibility',
                 'record_attendance',
+            ]);
+
+        // Invalid parameters expert mode deactivated
+        $settings['expert_mode'] = false;
+
+        $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
+            ->assertJsonValidationErrors([
+                'access_code',
+                'name',
+                'room_type',
+                'allow_guests',
+                'short_description',
             ]);
 
         // Missing parameters
@@ -1911,7 +2553,7 @@ class RoomTest extends TestCase
      */
     public function testRecordAttendanceStatus()
     {
-
+        // Room types
         $roomTypeAttendanceEnforced = RoomType::factory()->create([
             'record_attendance_default' => true,
             'record_attendance_enforced' => true,
@@ -1932,49 +2574,90 @@ class RoomTest extends TestCase
             'record_attendance_enforced' => false,
         ]);
 
-        $roomAttendanceEnforced = Room::factory()->create([
+        // Rooms
+        $roomAttendanceEnforced1 = Room::factory()->create([
             'expert_mode' => true,
             'room_type_id' => $roomTypeAttendanceEnforced->id,
             'record_attendance' => false,
         ]);
+        $roomAttendanceEnforced2 = Room::factory()->create([
+            'expert_mode' => true,
+            'room_type_id' => $roomTypeAttendanceEnforced->id,
+            'record_attendance' => true,
+        ]);
+        $roomAttendanceEnforced3 = Room::factory()->create([
+            'expert_mode' => false,
+            'room_type_id' => $roomTypeAttendanceEnforced->id,
+        ]);
         $roomAttendanceDefault = Room::factory()->create([
             'expert_mode' => false,
             'room_type_id' => $roomTypeAttendanceDefault->id,
-            'record_attendance' => false,
         ]);
-        $roomAttendanceExpert = Room::factory()->create([
+
+        $roomAttendanceExpert1 = Room::factory()->create([
             'expert_mode' => true,
             'room_type_id' => $roomTypeNoAttendanceDefault->id,
             'record_attendance' => true,
         ]);
-        $roomNoAttendanceEnforced = Room::factory()->create([
+        $roomAttendanceExpert2 = Room::factory()->create([
+            'expert_mode' => true,
+            'room_type_id' => $roomTypeAttendanceDefault->id,
+            'record_attendance' => true,
+        ]);
+        $roomNoAttendanceEnforced1 = Room::factory()->create([
             'expert_mode' => true,
             'room_type_id' => $roomTypeNoAttendanceEnforced->id,
             'record_attendance' => true,
+        ]);
+        $roomNoAttendanceEnforced2 = Room::factory()->create([
+            'expert_mode' => true,
+            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
+            'record_attendance' => false,
+        ]);
+        $roomNoAttendanceEnforced3 = Room::factory()->create([
+            'expert_mode' => false,
+            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
         ]);
         $roomNoAttendanceDefault = Room::factory()->create([
             'expert_mode' => false,
             'room_type_id' => $roomTypeNoAttendanceDefault->id,
             'record_attendance' => true,
         ]);
-        $roomNoAttendanceExpert = Room::factory()->create([
+        $roomNoAttendanceExpert1 = Room::factory()->create([
             'expert_mode' => true,
             'room_type_id' => $roomTypeAttendanceDefault->id,
             'record_attendance' => false,
         ]);
+        $roomNoAttendanceExpert2 = Room::factory()->create([
+            'expert_mode' => true,
+            'room_type_id' => $roomTypeNoAttendanceDefault->id,
+            'record_attendance' => false,
+        ]);
 
         $server = Server::factory()->create();
-        $roomAttendanceEnforced->roomType->serverPool->servers()->attach($server);
+        $roomAttendanceEnforced1->roomType->serverPool->servers()->attach($server);
+        $roomAttendanceEnforced2->roomType->serverPool->servers()->attach($server);
+        $roomAttendanceEnforced3->roomType->serverPool->servers()->attach($server);
         $roomAttendanceDefault->roomType->serverPool->servers()->attach($server);
-        $roomAttendanceExpert->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceEnforced->roomType->serverPool->servers()->attach($server);
+        $roomAttendanceExpert1->roomType->serverPool->servers()->attach($server);
+        $roomAttendanceExpert2->roomType->serverPool->servers()->attach($server);
+        $roomNoAttendanceEnforced1->roomType->serverPool->servers()->attach($server);
+        $roomNoAttendanceEnforced2->roomType->serverPool->servers()->attach($server);
+        $roomNoAttendanceEnforced3->roomType->serverPool->servers()->attach($server);
         $roomNoAttendanceDefault->roomType->serverPool->servers()->attach($server);
-        $roomNoAttendanceExpert->roomType->serverPool->servers()->attach($server);
+        $roomNoAttendanceExpert1->roomType->serverPool->servers()->attach($server);
+        $roomNoAttendanceExpert2->roomType->serverPool->servers()->attach($server);
 
         // Create Fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
 
-        // Create 6 meetings
+        // Create 12 meetings
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
+        $bbbfaker->addCreateMeetingRequest();
         $bbbfaker->addCreateMeetingRequest();
         $bbbfaker->addCreateMeetingRequest();
         $bbbfaker->addCreateMeetingRequest();
@@ -1982,115 +2665,139 @@ class RoomTest extends TestCase
         $bbbfaker->addCreateMeetingRequest();
         $bbbfaker->addCreateMeetingRequest();
 
-        // Create meeting attendance enforced
-        $this->actingAs($roomAttendanceEnforced->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced, 'record_attendance' => 1]))
+        // Create meeting attendance enforced expert mode activated (room setting false)
+        $this->actingAs($roomAttendanceEnforced1->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced1, 'record_attendance' => 1]))
+            ->assertSuccessful();
+
+        // Create meeting attendance enforced expert mode activated (room setting true)
+        $this->actingAs($roomAttendanceEnforced2->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced2, 'record_attendance' => 1]))
+            ->assertSuccessful();
+
+        // Create meeting attendance enforced expert mode deactivated
+        $this->actingAs($roomAttendanceEnforced3->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceEnforced3, 'record_attendance' => 1]))
             ->assertSuccessful();
 
         //Create meeting attendance default
         $this->actingAs($roomAttendanceDefault->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceDefault, 'record_attendance' => 1]))
             ->assertSuccessful();
 
-        //Create meeting attendance expert
-        $this->actingAs($roomAttendanceExpert->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert, 'record_attendance' => 1]))
+        //Create meeting attendance expert (room type default false)
+        $this->actingAs($roomAttendanceExpert1->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert1, 'record_attendance' => 1]))
             ->assertSuccessful();
 
-        // Create meeting with no attendance enforced
-        $this->actingAs($roomNoAttendanceEnforced->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceEnforced, 'record_attendance' => 0]))
+        //Create meeting attendance expert (room type default true)
+        $this->actingAs($roomAttendanceExpert2->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomAttendanceExpert2, 'record_attendance' => 1]))
+            ->assertSuccessful();
+
+        // Create meeting with no attendance enforced expert mode activated (room setting true)
+        $this->actingAs($roomNoAttendanceEnforced1->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceEnforced1, 'record_attendance' => 0]))
+            ->assertSuccessful();
+
+        // Create meeting with no attendance enforced expert mode activated (room setting false)
+        $this->actingAs($roomNoAttendanceEnforced2->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceEnforced2, 'record_attendance' => 0]))
+            ->assertSuccessful();
+
+        // Create meeting with no attendance enforced expert mode deactivated
+        $this->actingAs($roomNoAttendanceEnforced3->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceEnforced3, 'record_attendance' => 0]))
             ->assertSuccessful();
 
         // Create meeting with no attendance default
         $this->actingAs($roomNoAttendanceDefault->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceDefault, 'record_attendance' => 0]))
             ->assertSuccessful();
 
-        // Create meeting with no attendance expert
-        $this->actingAs($roomNoAttendanceExpert->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceExpert, 'record_attendance' => 0]))
+        // Create meeting with no attendance expert (room type default true)
+        $this->actingAs($roomNoAttendanceExpert1->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceExpert1, 'record_attendance' => 0]))
+            ->assertSuccessful();
+
+        // Create meeting with no attendance expert (room type default false)
+        $this->actingAs($roomNoAttendanceExpert2->owner)->getJson(route('api.v1.rooms.start', ['room' => $roomNoAttendanceExpert2, 'record_attendance' => 0]))
             ->assertSuccessful();
 
         // check correct record attendance after start
-        $roomAttendanceEnforced->refresh();
+        $roomAttendanceEnforced1->refresh();
+        $roomAttendanceEnforced2->refresh();
+        $roomAttendanceEnforced3->refresh();
         $roomAttendanceDefault->refresh();
-        $roomAttendanceExpert->refresh();
-        $roomNoAttendanceEnforced->refresh();
+        $roomAttendanceExpert1->refresh();
+        $roomAttendanceExpert2->refresh();
+        $roomNoAttendanceEnforced1->refresh();
+        $roomNoAttendanceEnforced2->refresh();
+        $roomNoAttendanceEnforced3->refresh();
         $roomNoAttendanceDefault->refresh();
-        $roomNoAttendanceExpert->refresh();
-        $this->assertTrue($roomAttendanceEnforced->latestMeeting->record_attendance);
+        $roomNoAttendanceExpert1->refresh();
+        $roomNoAttendanceExpert2->refresh();
+        $this->assertTrue($roomAttendanceEnforced1->latestMeeting->record_attendance);
+        $this->assertTrue($roomAttendanceEnforced2->latestMeeting->record_attendance);
+        $this->assertTrue($roomAttendanceEnforced3->latestMeeting->record_attendance);
         $this->assertTrue($roomAttendanceDefault->latestMeeting->record_attendance);
-        $this->assertTrue($roomAttendanceExpert->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceEnforced->latestMeeting->record_attendance);
+        $this->assertTrue($roomAttendanceExpert1->latestMeeting->record_attendance);
+        $this->assertTrue($roomAttendanceExpert2->latestMeeting->record_attendance);
+        $this->assertFalse($roomNoAttendanceEnforced1->latestMeeting->record_attendance);
+        $this->assertFalse($roomNoAttendanceEnforced2->latestMeeting->record_attendance);
+        $this->assertFalse($roomNoAttendanceEnforced3->latestMeeting->record_attendance);
         $this->assertFalse($roomNoAttendanceDefault->latestMeeting->record_attendance);
-        $this->assertFalse($roomNoAttendanceExpert->latestMeeting->record_attendance);
+        $this->assertFalse($roomNoAttendanceExpert1->latestMeeting->record_attendance);
+        $this->assertFalse($roomNoAttendanceExpert2->latestMeeting->record_attendance);
 
-        // check if api returns correct record attendance status
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceEnforced]))
+        // check if api return the record attendance status of the currently running meeting, not the room
+        $roomAttendanceExpert1->record_attendance = false;
+        $roomAttendanceExpert1->save();
+        $roomNoAttendanceExpert1->record_attendance = true;
+        $roomNoAttendanceExpert1->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceExpert1]))
             ->assertStatus(200)
             ->assertJsonFragment([
                 'record_attendance' => true,
             ])
             ->assertJsonPath('last_meeting.end', null);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceExpert1]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ])
+            ->assertJsonPath('last_meeting.end', null);
+
+        // Test changing of the room type settings while running meeting
+        $roomAttendanceExpert2->roomType->record_attendance_enforced = true;
+        $roomAttendanceExpert2->roomType->record_attendance_default = false;
+        $roomAttendanceExpert2->roomType->save();
+        $roomNoAttendanceExpert2->roomType->record_attendance_enforced = true;
+        $roomNoAttendanceExpert2->roomType->record_attendance_default = true;
+        $roomNoAttendanceExpert2->roomType->save();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceExpert2]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => true,
+            ]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceExpert2]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'record_attendance' => false,
+            ]);
+
+        // Test changing of the room type while running meeting
+
+        $roomAttendanceDefault->roomType()->associate($roomTypeNoAttendanceEnforced);
+        $roomNoAttendanceDefault->save();
+        $roomNoAttendanceDefault->roomType()->associate($roomTypeAttendanceEnforced);
+        $roomNoAttendanceDefault->save();
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceDefault]))
             ->assertStatus(200)
             ->assertJsonFragment([
                 'record_attendance' => true,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceExpert]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceEnforced]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
+            ]);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceDefault]))
             ->assertStatus(200)
             ->assertJsonFragment([
                 'record_attendance' => false,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceExpert]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        // check if api return the record attendance status of the currently running meeting, not the room
-        $roomAttendanceExpert->record_attendance = false;
-        $roomAttendanceExpert->save();
-        $roomNoAttendanceExpert->record_attendance = true;
-        $roomNoAttendanceExpert->save();
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceExpert]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomNoAttendanceExpert]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => false,
-            ])
-            ->assertJsonPath('last_meeting.end', null);
-
-        // check with attendance disabled in room type
-        $roomAttendanceExpert->roomType->record_attendance_enforced = true;
-        $roomAttendanceExpert->roomType->save();
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room' => $roomAttendanceExpert]))
-            ->assertStatus(200)
-            ->assertJsonFragment([
-                'record_attendance' => true,
             ]);
+
     }
 
     /**
