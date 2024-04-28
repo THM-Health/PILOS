@@ -183,7 +183,7 @@ class RoomMemberController extends Controller
     public function join(Room $room)
     {
         // Check if membership is enabled
-        if (! $room->allow_membership) {
+        if (! $room->getRoomSetting('allow_membership')) {
             Log::notice('Failed to join room {room}; membership is disabled', ['room' => $room->getLogLabel()]);
 
             return response()->json(['message' => __('app.errors.membership_disabled')], 403);
