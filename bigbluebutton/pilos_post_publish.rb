@@ -94,8 +94,8 @@ begin
         system('rsync', '--verbose', '--remove-source-files', '--chmod=664', *extra_rsync_opts, archive_file, spool_dir) \
           || raise('Failed to transfer recording archive')
 
-        # BigBlueButton.logger.info('Create sender.done file');
-        # File.write("#{recording_dir}/status/published/#{meeting_id}-#{format}-sender.done", "Published #{meeting_id}")
+        BigBlueButton.logger.info('Create sender.done file');
+        File.write("#{recording_dir}/status/published/#{meeting_id}-sender.done", "Published #{meeting_id}")
     else
         BigBlueButton.logger.info("Meeting #{meeting_id} from origin #{origin} - not a Pilos recording")
     end
