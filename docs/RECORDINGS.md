@@ -211,7 +211,7 @@ Room owners can download the raw recording files for archiving, uploading to oth
 
 In this example, only pdf, ogg, mp4, m4v and webm files are included in the download.
 ```dotenv
-RECORDING_DOWNLOAD_WHITELIST='^.*\.(pdf|ogg|mp4|m4v|webm)$'
+RECORDING_DOWNLOAD_ALLOWLIST='^.*\.(pdf|ogg|mp4|m4v|webm)$'
 ```
 
 ### Max. retention period
