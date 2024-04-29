@@ -178,6 +178,14 @@ If you are using rsync over ssh, you need to set the `spool_dir` setting in the 
 spool_dir: pilos.example.com:/
 ```
 
+### Cleanup
+BigBlueButton processes all recording formats independently of each other.
+However, BigBlueButton only has a command to delete a recording, not a specific format.
+
+We save a sender.done file for a meeting once the first format has been processed.
+You can use [Scalelite's](https://github.com/blindsidenetworks/scalelite/blob/master/bigbluebutton/scalelite_prune_recordings) script to clean up the recordings. However, this can lead to data loss if not all formats have been processed before the cleanup is performed.
+
+
 ## Importing recording
 
 Recording files are imported using the scheduler, checking for new files in the spool directory every minute.
