@@ -196,6 +196,34 @@ By default all recording files are only visible to the meeting owner. The owner 
 If the import failed (extract failed, recording doesn't belong to a room, etc.), the archive file will be moved to the `failed` directory in the spool directory.
 You can check the log files and Horizon for more information. You can also retry the import using Horizon.
 
+## Config options
+
+### Customize recording download
+Room owners can download the raw recording files for archiving, uploading to other video platforms, etc. The BigBlueButton recording raw files include many files that typical users don't need. Therefore, you can customise which files are included in the download. You can filter the files using a regular expression in the .env file.
+
+In this example, only pdf, ogg, mp4, m4v and webm files are included in the download.
+```dotenv
+RECORDING_DOWNLOAD_WHITELIST='^.*\.(pdf|ogg|mp4|m4v|webm)$'
+```
+
+### Max. retention period
+Admins can customise the retention period for recordings, after which the system automatically deletes the recordings. This setting can be changed in the application settings on the UI.
+
+You can also set a maximum retention period that cannot be exceeded by the administrators.
+This setting can be defined in the .env file. The value can be either -1 = unlimited or a number of days.
+```dotenv
+RECORDING_MAX_RETENTION_PERIOD=365
+```
+
+### Max. recording description length
+Users can change the description of a recording.
+You can limit the length of the description in the .env file.
+The current default value is 1000 characters.
+```dotenv
+RECORDING_DESCRIPTION_LIMIT=255
+```
+The maximum configurable value is 65,535 characters. As the entire description is displayed in the overview of the recordings, such a high limit is not recommended.
+
 ## Tips and tricks
 
 ### Using a different group id
@@ -240,12 +268,3 @@ Next, use pilos-cli to build the player with the release version you want.
 ```bash
 docker compose exec app pilos-cli playback-player:build 5.0.2
 ```
-
-### Customize recording download
-Room owners can download the raw recording files for archiving, uploading to other video platforms, etc. The BigBlueButton recording raw files include many files that typical users don't need. Therefore, you can customise which files are included in the download. You can filter the files using a regular expression in the .env file.
-
-In this example, only pdf, ogg, mp4, m4v and webm files are included in the download.
-```dotenv
-RECORDING_DOWNLOAD_WHITELIST='^.*\.(pdf|ogg|mp4|m4v|webm)$'
-```
-
