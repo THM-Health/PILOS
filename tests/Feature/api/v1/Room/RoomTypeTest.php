@@ -86,7 +86,7 @@ class RoomTypeTest extends TestCase
             ]])
             ->assertJsonCount(4, 'data');
 
-        // Test logged in users (without filter but without default room settings)
+        // Test logged in users (without filter and without default room settings)
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['with_room_settings' => false]))
             ->assertSuccessful()
             ->assertJsonStructure(['data' => [
@@ -104,7 +104,7 @@ class RoomTypeTest extends TestCase
             ]])
             ->assertJsonCount(4, 'data');
 
-        // Test logged in users (without filter but with default room settings)
+        // Test logged in users (without filter and with default room settings)
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['with_room_settings' => true]))
             ->assertSuccessful()
             ->assertJsonStructure(['data' => [
@@ -205,7 +205,7 @@ class RoomTypeTest extends TestCase
     /**
      * Test to view single room type
      */
-    public function testShow() //ToDo Server pool
+    public function testShow()
     {
         $roomType = RoomType::factory()->create();
 
@@ -228,7 +228,52 @@ class RoomTypeTest extends TestCase
             ->assertSuccessful()
             ->assertJsonFragment(
                 ['id' => $roomType->id, 'name' => $roomType->name, 'color' => $roomType->color]
-            );
+            )
+            ->assertJsonStructure(['data' => [
+                'description',
+                'color',
+                'name',
+                'id',
+                'server_pool',
+                'model_name',
+                'restrict',
+                'roles',
+                'updated_at',
+                'max_participants',
+                'max_duration',
+                'everyone_can_start_default',
+                'everyone_can_start_enforced',
+                'mute_on_start_default',
+                'mute_on_start_enforced',
+                'lock_settings_disable_cam_default',
+                'lock_settings_disable_cam_enforced',
+                'webcams_only_for_moderator_default',
+                'webcams_only_for_moderator_enforced',
+                'lock_settings_disable_mic_default',
+                'lock_settings_disable_mic_enforced',
+                'lock_settings_disable_private_chat_default',
+                'lock_settings_disable_private_chat_enforced',
+                'lock_settings_disable_public_chat_default',
+                'lock_settings_disable_public_chat_enforced',
+                'lock_settings_disable_note_default',
+                'lock_settings_disable_note_enforced',
+                'allow_membership_default',
+                'allow_membership_enforced',
+                'allow_guests_default',
+                'allow_guests_enforced',
+                'lock_settings_hide_user_list_default',
+                'lock_settings_hide_user_list_enforced',
+                'default_role_default',
+                'default_role_enforced',
+                'lobby_default',
+                'lobby_enforced',
+                'visibility_default',
+                'visibility_enforced',
+                'record_attendance_default',
+                'record_attendance_enforced',
+                'has_access_code_default',
+                'has_access_code_enforced',
+            ]]);
 
         // Test deleted
         $roomType->delete();

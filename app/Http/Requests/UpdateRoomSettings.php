@@ -20,7 +20,7 @@ class UpdateRoomSettings extends FormRequest
         ];
 
         // Make sue that the given room type id is a number
-        if (is_numeric($this->input('room_type'))) { //ToDo check if is enough to fix problem
+        if (is_numeric($this->input('room_type'))) {
             // Check if a room type exists with the given number
             $newRoomType = RoomType::find($this->input('room_type'));
             if ($newRoomType) {

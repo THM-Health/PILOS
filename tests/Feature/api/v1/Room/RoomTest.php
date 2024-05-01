@@ -394,6 +394,11 @@ class RoomTest extends TestCase
             'allow_guests_enforced' => false,
         ]);
 
+        $roomTypeGuestAccessDefault = RoomType::factory()->create([
+            'allow_guests_default' => true,
+            'allow_guests_enforced' => false,
+        ]);
+
         $room = Room::factory()->create([
             'allow_guests' => false,
         ]);
@@ -406,8 +411,14 @@ class RoomTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment(['current_user' => null]);
 
-        // Test for value set to true and default value set to false
         $room->allow_guests = true;
+        $room->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Test for default value set to false (not enforced)
         $room->roomType()->associate($roomTypeNoGuestAccessDefault);
         $room->save();
 
@@ -415,6 +426,13 @@ class RoomTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment(['current_user' => null]);
 
+        // Test for default value set to true (not enforced)
+        $room->roomType()->associate($roomTypeGuestAccessDefault);
+        $room->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['current_user' => null]);
     }
 
     /**
@@ -431,6 +449,11 @@ class RoomTest extends TestCase
             'allow_guests_enforced' => false,
         ]);
 
+        $roomTypeNoGuestAccessDefault = RoomType::factory()->create([
+            'allow_guests_default' => false,
+            'allow_guests_enforced' => false,
+        ]);
+
         $room = Room::factory()->create([
             'allow_guests' => true,
         ]);
@@ -442,9 +465,21 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(403);
 
-        // Test for value set to false and default value set to true
         $room->allow_guests = false;
+        $room->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(403);
+
+        // Test for default value set to true (not enforced)
         $room->roomType()->associate($roomTypeGuestAccessDefault);
+        $room->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(403);
+
+        // Test for default value set to false (not enforced)
+        $room->roomType()->associate($roomTypeNoGuestAccessDefault);
         $room->save();
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
@@ -475,6 +510,45 @@ class RoomTest extends TestCase
             ->assertUnauthorized();
 
         // Try with correct access code
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
+    }
+
+    /**
+     * Test that the existing access code setting is not changed if the default setting changes in the room type
+     * (The access code in the room should not be automatically be overwritten by the room type setting)
+     */
+    public function testAccessCodeEnforcedDifferent()
+    {
+        $roomType = RoomType::factory()->create([
+            'has_access_code_default' => true,
+            'has_access_code_enforced' => true,
+        ]);
+
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'room_type_id' => $roomType->id,
+        ]);
+
+        // Test room without an access if the room type enforces an access code
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Test room with access code if the room type enforces on access code
+        $room->access_code = $this->faker->numberBetween(111111111, 999999999);
+        $room->save();
+        $roomType->has_access_code_default = false;
+        $roomType->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => false])
+            ->assertJsonFragment(['current_user' => null]);
+
         $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
@@ -2105,7 +2179,7 @@ class RoomTest extends TestCase
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['access_code']);
 
-        // Room type invalid format //ToDo check if fix is enough
+        // Room type invalid format
         $settings['room_type'] = ['id' => 5];
         $this->putJson(route('api.v1.rooms.update', ['room' => $room]), $settings)
             ->assertJsonValidationErrors(['room_type']);
@@ -2577,13 +2651,15 @@ class RoomTest extends TestCase
         // Rooms
         $roomAttendanceEnforced1 = Room::factory()->create([
             'expert_mode' => true,
-            'room_type_id' => $roomTypeAttendanceEnforced->id,
             'record_attendance' => false,
+            'room_type_id' => $roomTypeAttendanceEnforced->id,
+
         ]);
         $roomAttendanceEnforced2 = Room::factory()->create([
             'expert_mode' => true,
-            'room_type_id' => $roomTypeAttendanceEnforced->id,
             'record_attendance' => true,
+            'room_type_id' => $roomTypeAttendanceEnforced->id,
+
         ]);
         $roomAttendanceEnforced3 = Room::factory()->create([
             'expert_mode' => false,
@@ -2596,23 +2672,23 @@ class RoomTest extends TestCase
 
         $roomAttendanceExpert1 = Room::factory()->create([
             'expert_mode' => true,
-            'room_type_id' => $roomTypeNoAttendanceDefault->id,
             'record_attendance' => true,
+            'room_type_id' => $roomTypeNoAttendanceDefault->id,
         ]);
         $roomAttendanceExpert2 = Room::factory()->create([
             'expert_mode' => true,
-            'room_type_id' => $roomTypeAttendanceDefault->id,
             'record_attendance' => true,
+            'room_type_id' => $roomTypeAttendanceDefault->id,
         ]);
         $roomNoAttendanceEnforced1 = Room::factory()->create([
             'expert_mode' => true,
-            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
             'record_attendance' => true,
+            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
         ]);
         $roomNoAttendanceEnforced2 = Room::factory()->create([
             'expert_mode' => true,
-            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
             'record_attendance' => false,
+            'room_type_id' => $roomTypeNoAttendanceEnforced->id,
         ]);
         $roomNoAttendanceEnforced3 = Room::factory()->create([
             'expert_mode' => false,

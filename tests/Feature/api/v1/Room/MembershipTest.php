@@ -6,6 +6,7 @@ use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
+use App\Models\RoomType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -57,30 +58,198 @@ class MembershipTest extends TestCase
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
     }
 
-    public function testJoinMembership() //ToDo fix
+    public function testJoinMembership()
     {
-        $room = Room::factory()->create([
-            'expert_mode' => true, //ToDo remove again and fix test with all cases
-            'allow_guests' => true,
-            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+        //Room types
+        $roomTypeAllowMembershipEnforced = RoomType::factory()->create([
+            'allow_membership_default' => true,
+            'allow_membership_enforced' => true,
         ]);
 
-        $this->withHeaders(['Access-Code' => $room->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $room]))
+        $roomTypeNoMembershipAllowedEnforced = RoomType::factory()->create([
+            'allow_membership_default' => false,
+            'allow_membership_enforced' => true,
+        ]);
+
+        $roomTypeAllowMembershipDefault = RoomType::factory()->create([
+            'allow_membership_default' => true,
+            'allow_membership_enforced' => false,
+        ]);
+
+        $roomTypeNoMembershipAllowedDefault = RoomType::factory()->create([
+            'allow_membership_default' => false,
+            'allow_membership_enforced' => false,
+        ]);
+
+        // Rooms
+        $roomAllowMembershipEnforced1 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeAllowMembershipEnforced->id,
+        ]);
+
+        $roomAllowMembershipEnforced2 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => true,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeAllowMembershipEnforced->id,
+        ]);
+
+        $roomAllowMembershipEnforced3 = Room::factory()->create([
+            'expert_mode' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeAllowMembershipEnforced->id,
+        ]);
+
+        $roomAllowMembershipDefault = Room::factory()->create([
+            'expert_mode' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeAllowMembershipDefault->id,
+        ]);
+
+        $roomAllowMembershipExpert1 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => true,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeNoMembershipAllowedDefault->id,
+        ]);
+
+        $roomAllowMembershipExpert2 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => true,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeAllowMembershipDefault->id,
+        ]);
+
+        $roomNoMembershipAllowedEnforced1 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => true,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeNoMembershipAllowedEnforced->id,
+        ]);
+
+        $roomNoMembershipAllowedEnforced2 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeNoMembershipAllowedEnforced->id,
+        ]);
+
+        $roomNoMembershipAllowedEnforced3 = Room::factory()->create([
+            'expert_mode' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeNoMembershipAllowedEnforced->id,
+        ]);
+
+        $roomNoMembershipAllowedDefault = Room::factory()->create([
+            'expert_mode' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeNoMembershipAllowedDefault->id,
+        ]);
+
+        $roomNoMembershipAllowedExpert1 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeAllowMembershipDefault->id,
+        ]);
+
+        $roomNoMembershipAllowedExpert2 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_membership' => false,
+            'access_code' => $this->faker->numberBetween(111111111, 999999999),
+            'room_type_id' => $roomTypeNoMembershipAllowedDefault->id,
+        ]);
+
+        // Test rooms where joining membership is not allowed
+        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedEnforced1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedEnforced1]))
             ->assertForbidden();
 
-        $room->allow_membership = true;
-        $room->save();
+        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedEnforced2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedEnforced2]))
+            ->assertForbidden();
 
-        $this->withHeaders(['Access-Code' => $room->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedEnforced3->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedEnforced3]))
+            ->assertForbidden();
+
+        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedDefault->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedDefault]))
+            ->assertForbidden();
+
+        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedExpert1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedExpert1]))
+            ->assertForbidden();
+
+        $this->withHeaders(['Access-Code' => $roomNoMembershipAllowedExpert2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomNoMembershipAllowedExpert2]))
+            ->assertForbidden();
+
+        // Test rooms where joining membership is allowed
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipEnforced1]))
+            ->assertNoContent();
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipEnforced2]))
+            ->assertNoContent();
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced3->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipEnforced3]))
+            ->assertNoContent();
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipDefault->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipDefault]))
+            ->assertNoContent();
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert1->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipExpert1]))
+            ->assertNoContent();
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert2->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room' => $roomAllowMembershipExpert2]))
             ->assertNoContent();
 
         // Try to get room details with access code even not needed
-        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced1->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced1]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced2->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced2]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipEnforced3->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced3]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipDefault->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipDefault]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert1->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipExpert1]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->withHeaders(['Access-Code' => $roomAllowMembershipExpert2->access_code])->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipExpert2]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
         // Try to get room details without access code, because members don't need it
         $this->flushHeaders();
-        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced1]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced2]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipEnforced3]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipDefault]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipExpert1]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $roomAllowMembershipExpert2]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
     }
