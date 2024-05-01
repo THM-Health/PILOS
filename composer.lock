@@ -7236,16 +7236,16 @@
         },
         {
             "name": "symfony/var-exporter",
-            "version": "v7.0.6",
+            "version": "v7.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-exporter.git",
-                "reference": "c74c568d2a15a1d407cf40d61ea82bc2d521e27b"
+                "reference": "cdecc0022e40e90340ba1a59a3d5ccf069777078"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-exporter/zipball/c74c568d2a15a1d407cf40d61ea82bc2d521e27b",
-                "reference": "c74c568d2a15a1d407cf40d61ea82bc2d521e27b",
+                "url": "https://api.github.com/repos/symfony/var-exporter/zipball/cdecc0022e40e90340ba1a59a3d5ccf069777078",
+                "reference": "cdecc0022e40e90340ba1a59a3d5ccf069777078",
                 "shasum": ""
             },
             "require": {
@@ -7292,7 +7292,7 @@
                 "serialize"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-exporter/tree/v7.0.6"
+                "source": "https://github.com/symfony/var-exporter/tree/v7.0.7"
             },
             "funding": [
                 {
@@ -7308,7 +7308,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-20T21:25:22+00:00"
+            "time": "2024-04-18T09:29:19+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
