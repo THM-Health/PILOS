@@ -17,6 +17,7 @@ return [
     ],
     'cancel' => 'Cancel',
     'cancel_editing' => 'Cancel editing',
+    'char_counter' => 'Characters: :chars',
     'close' => 'Close',
     'continue' => 'Continue',
     'delete' => 'Delete',

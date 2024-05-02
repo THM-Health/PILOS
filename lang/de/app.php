@@ -17,6 +17,7 @@ return [
     ],
     'cancel' => 'Abbrechen',
     'cancel_editing' => 'Bearbeiten abbrechen',
+    'char_counter' => 'Zeichen: :chars',
     'close' => 'Schließen',
     'continue' => 'Weiter',
     'delete' => 'Löschen',

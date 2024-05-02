@@ -80,7 +80,7 @@ class Room extends Model
     ];
 
     /**
-     * Meeting
+     * Recordings
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -159,7 +159,7 @@ class Room extends Model
     }
 
     /**
-     * Meetings
+     * Last meeting of the room
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

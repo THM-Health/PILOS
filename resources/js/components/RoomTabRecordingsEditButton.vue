@@ -47,7 +47,7 @@
       />
       <p class="p-error" v-html="formErrors.fieldError('description')" />
       <small>
-        {{ $t('rooms.settings.general.chars', {chars: charactersLeftDescription}) }}
+        {{ $t('app.char_counter', {chars: charactersLeftDescription}) }}
       </small>
     </div>
 

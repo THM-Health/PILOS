@@ -1022,7 +1022,7 @@ class SettingsTest extends TestCase
                 'room_auto_delete.deadline_period',
             ]);
 
-        // test recording retention period higher than max allowed
+        // test setting recording retention period to a value higher than max allowed retention period
         $this->putJson(
             route('api.v1.application.update'),
             [

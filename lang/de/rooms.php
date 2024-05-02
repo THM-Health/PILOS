@@ -345,7 +345,6 @@ return [
     ],
     'settings' => [
         'general' => [
-            'chars' => 'Zeichen: :chars',
             'max_duration' => 'Max. Dauer',
             'minutes' => 'min.',
             'record' => 'Aufzeichnen',

@@ -49,7 +49,7 @@
                 rows="3"
               />
               <small>
-                {{ $t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage}) }}
+                {{ $t('app.char_counter', {chars: charactersLeftWelcomeMessage}) }}
               </small>
               <p class="p-error" v-html="formErrors.fieldError('welcome')" />
             </div>
@@ -66,7 +66,7 @@
                 :invalid="formErrors.fieldInvalid('short_description')"
               />
               <small>
-                {{ $t('rooms.settings.general.chars', {chars: charactersLeftShortDescription}) }}
+                {{ $t('app.char_counter', {chars: charactersLeftShortDescription}) }}
               </small>
               <p class="p-error" v-html="formErrors.fieldError('short_description')" />
             </div>

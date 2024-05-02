@@ -344,7 +344,6 @@ return [
     ],
     'settings' => [
         'general' => [
-            'chars' => 'Characters: :chars',
             'max_duration' => 'Max. duration',
             'minutes' => 'min.',
             'record' => 'Record',

@@ -136,7 +136,7 @@ class RoomTest extends TestCase
     {
         // logout from previous calls
         \Auth::logout();
-        // login as user is not guest
+        // request as a user if a user is provided, otherwise request as a guest
         $request = $user == null ? $this : $this->actingAs($user);
         // join meeting
         $response = $request->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => $this->faker->name, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))

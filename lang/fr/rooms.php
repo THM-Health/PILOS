@@ -202,7 +202,6 @@ return [
     ],
     'settings' => [
         'general' => [
-            'chars' => 'Caractères: :chars',
             'max_duration' => 'Durée max.',
             'minutes' => 'min.',
             'reset_duration' => 'Réinitialiser la durée',
