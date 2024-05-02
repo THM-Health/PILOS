@@ -34,19 +34,15 @@ final class LaravelHTTPClient implements TransportInterface
      */
     public function request(TransportRequest $request): TransportResponse
     {
-        $headers = [
-            'Content-Type' => $request->getContentType()
-        ];
-
         try {
             if ('' !== $payload = $request->getPayload()) {
                 $httpResponse = $this->httpClient
-                    ->withHeaders($headers)
                     ->withBody($payload)
+                    ->contentType($request->getContentType())
                     ->post($request->getUrl());
             } else {
                 $httpResponse = $this->httpClient
-                    ->withHeaders($headers)
+                    ->contentType($request->getContentType())
                     ->get($request->getUrl());
             }
         } catch (ConnectionException $e) {

@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [v2.4.4] - 2024-05-02
+### Fixed
+- Error starting meeting with files on a scalelite server ([#1045], [#1046])
+
+### Changed 
+- Bump Dependencies
+
 ## [v2.4.3] - 2024-03-28
 ### Changed
 - Bump Dependencies
@@ -713,8 +720,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#700]: https://github.com/THM-Health/PILOS/issues/700
 [#701]: https://github.com/THM-Health/PILOS/pull/701
 [#747]: https://github.com/THM-Health/PILOS/pull/747
+[#1045]: https://github.com/THM-Health/PILOS/issues/1045
+[#1046]: https://github.com/THM-Health/PILOS/issues/1046
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.3...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.4.4...develop
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -754,3 +763,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.1
 [v2.4.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.2
 [v2.4.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.3
+[v2.4.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.4.4
