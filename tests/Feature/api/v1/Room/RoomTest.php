@@ -138,6 +138,14 @@ class RoomTest extends TestCase
         $createdRoom = Room::find($response->json('data.id'));
         $this->assertNotNull($createdRoom->access_code);
 
+        // Access code set by default
+        $roomType->has_access_code_enforced = false;
+
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertCreated();
+        $createdRoom = Room::find($response->json('data.id'));
+        $this->assertNotNull($createdRoom->access_code);
+
         // No Access code enforced
         $roomType = RoomType::factory()->create([
             'has_access_code_default' => false,
@@ -145,6 +153,14 @@ class RoomTest extends TestCase
         ]);
 
         $room = ['room_type' => $roomType->id, 'name' => RoomFactory::createValidRoomName()];
+
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertCreated();
+        $createdRoom = Room::find($response->json('data.id'));
+        $this->assertNull($createdRoom->access_code);
+
+        // No Access code by default
+        $roomType->has_access_code_enforced = false;
 
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertCreated();
@@ -520,7 +536,7 @@ class RoomTest extends TestCase
      * Test that the existing access code setting is not changed if the default setting changes in the room type
      * (The access code in the room should not be automatically be overwritten by the room type setting)
      */
-    public function testAccessCodeEnforcedDifferent()
+    public function testAccessCodeDifferentSettings()
     {
         $roomType = RoomType::factory()->create([
             'has_access_code_default' => true,
@@ -532,17 +548,41 @@ class RoomTest extends TestCase
             'room_type_id' => $roomType->id,
         ]);
 
-        // Test room without an access if the room type enforces an access code
+        // Test room without an access code if the room type enforces an access code
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonFragment(['current_user' => null]);
 
-        // Test room with access code if the room type enforces on access code
+        // Test room without an access code if the room type has access code as default
+        $roomType->has_access_code_enforced = false;
+        $roomType->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Test room with access code if the room type has no access code as default
         $room->access_code = $this->faker->numberBetween(111111111, 999999999);
         $room->save();
         $roomType->has_access_code_default = false;
         $roomType->save();
+
+        $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => false])
+            ->assertJsonFragment(['current_user' => null]);
+
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
+
+        // Test room with access code if the room type enforces no access code
+        $roomType->has_access_code_enforced = true;
+        $roomType->save();
+        $this->flushHeaders();
 
         $this->getJson(route('api.v1.rooms.show', ['room' => $room]))
             ->assertStatus(200)
@@ -1392,13 +1432,13 @@ class RoomTest extends TestCase
         $roomType1 = RoomType::factory()->create(['name' => 'roomType1']);
         $roomType2 = RoomType::factory()->create(['name' => 'roomType2']);
         $roomType3 = RoomType::factory()->create(['name' => 'roomType3']);
-        $roomRunning1 = Room::factory()->create(['name' => 'Runnning room 1', 'room_type_id' => $roomType1->id]);
+        $roomRunning1 = Room::factory()->create(['name' => 'Running room 1', 'room_type_id' => $roomType1->id]);
         $roomRunning1->owner()->associate($this->user);
         $meetingRunning1 = Meeting::factory()->create(['room_id' => $roomRunning1->id, 'start' => '2000-01-01 11:11:00', 'end' => null, 'server_id' => $server->id]);
         $roomRunning1->latestMeeting()->associate($meetingRunning1);
         $roomRunning1->save();
 
-        $roomRunning2 = Room::factory()->create(['name' => 'Runnning room 2', 'room_type_id' => $roomType3->id]);
+        $roomRunning2 = Room::factory()->create(['name' => 'Running room 2', 'room_type_id' => $roomType3->id]);
         $roomRunning2->owner()->associate($this->user);
         $meetingRunning2 = Meeting::factory()->create(['room_id' => $roomRunning2->id, 'start' => '2000-01-01 12:21:00', 'end' => null, 'server_id' => $server->id]);
         $roomRunning2->latestMeeting()->associate($meetingRunning2);
