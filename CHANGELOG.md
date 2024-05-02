@@ -61,6 +61,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Max. participants and max. duration from room settings ([#883])
 - Global attendance recording setting ([#905])
 
+## [v3.0.3] - 2024-05-02
+### Fixed
+- Error starting meeting with files on a scalelite server ([#1045])
+
+### Changed
+- Bump Dependencies
+
 ## [v3.0.2] - 2024-03-28
 ### Changed
 - Bump Dependencies
@@ -103,8 +110,10 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1005]: https://github.com/THM-Health/PILOS/pull/1005
 [#1006]: https://github.com/THM-Health/PILOS/pull/1006
 [#1007]: https://github.com/THM-Health/PILOS/pull/1007
+[#1045]: https://github.com/THM-Health/PILOS/issues/1045
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
+[v3.0.3]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.3
