@@ -186,7 +186,7 @@ import { useSettingsStore } from '../stores/settings.js';
 import { usePaginator } from '../composables/usePaginator.js';
 import { useDateDiff } from '../composables/useDateDiff.js';
 import { useI18n } from 'vue-i18n';
-import env from "../env.js";
+import env from '../env.js';
 
 const props = defineProps({
   room: {
