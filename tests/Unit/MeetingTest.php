@@ -91,6 +91,9 @@ class MeetingTest extends TestCase
         $request = Http::recorded()[0][0];
         $data = $request->data();
 
+        // Check content type of body
+        $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
+
         $this->assertEquals(url('logo.png'), $data['logo']);
     }
 
@@ -148,6 +151,9 @@ class MeetingTest extends TestCase
         $docs = $xml->module->document;
 
         $this->assertCount(3, $docs);
+
+        // Check content type of body
+        $this->assertEquals('application/xml', $request->header('Content-Type')[0]);
 
         // check order based on default and missing file 4 because use_in_meeting disabled
         $this->assertEquals('file2', $docs[0]->attributes()->filename);
