@@ -40,7 +40,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'fileNotFound']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'fileNotFound', 'forbidden']);
 
 const api = useApi();
 const toast = useToast();

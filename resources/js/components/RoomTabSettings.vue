@@ -188,7 +188,7 @@
               <p class="p-error" v-html="formErrors.fieldError('record')" />
             </div>
 
-            <!-- Checkbox record video conference -->
+            <!-- Checkbox auto start recording of video conference -->
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center gap-2">
                 <InputSwitch

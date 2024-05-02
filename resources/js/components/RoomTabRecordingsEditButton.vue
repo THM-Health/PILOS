@@ -63,7 +63,7 @@
         />
         <label :for="format.id" class="ml-2">{{ $t('rooms.recordings.format_types.'+format.format)}}</label>
       </div>
-      <p class="p-error" v-html="formErrors.fieldError('formats')" />
+      <p class="p-error" v-html="formErrors.fieldError('formats', true)" />
     </div>
 
     <!-- access -->
@@ -121,7 +121,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['edited']);
+const emit = defineEmits(['edited', 'notFound']);
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -143,7 +143,7 @@ const charactersLeftDescription = computed(() => {
 });
 
 /**
- * show modal to edit user role
+ * show modal to edit recording
  */
 function showEditModal () {
   newDescription.value = props.description;
@@ -172,10 +172,10 @@ function save () {
   }).catch((error) => {
     // editing failed
     if (error.response) {
-      // user not found
-      if (error.response.status === env.HTTP_GONE) {
+      // recording not found
+      if (error.response.status === env.HTTP_NOT_FOUND) {
         showModal.value = false;
-        emit('edited');
+        emit('notFound');
         return;
       }
       // failed due to form validation errors
@@ -184,7 +184,6 @@ function save () {
         return;
       }
     }
-    showModal.value = false;
     api.error(error);
   }).finally(() => {
     isLoadingAction.value = false;

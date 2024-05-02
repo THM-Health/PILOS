@@ -97,15 +97,15 @@
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p class="text-sm m-0" v-tooltip.bottom="$d(new Date(item.start),'datetimeShort')+' - '+(item.end == null ? $t('meetings.now') : $d(new Date(item.end),'datetimeShort'))">
-                        {{ dateDiff.format(new Date(item.start), item.end == null ? new Date() : new Date(item.end)) }}
+                        {{ dateDiff.format(new Date(item.start), new Date(item.end)) }}
                       </p>
                     </div>
-                    <div class="flex flex-row gap-2" v-if="showManagementColumns">
+                    <div class="flex flex-row gap-2" v-if="userPermissions.can('manageSettings', props.room)">
                       <i class="fa-solid fa-lock"></i>
                       <RoomRecodingAccessBadge :access="item.access" />
                     </div>
                   </div>
-                  <div class="flex flex-row flex-wrap gap-1" v-if="showManagementColumns">
+                  <div class="flex flex-row flex-wrap gap-1" v-if="userPermissions.can('manageSettings', props.room)">
                     <Tag
                       v-for="format in item.formats"
                       :key="format.id"
@@ -120,7 +120,7 @@
                     :roomId="props.room.id"
                     :recordingId="item.id"
                     :formats="item.formats"
-                    :view-disabled="userPermissions.can('manageSettings', room)"
+                    :hide-disabled-formats="!userPermissions.can('manageSettings', room)"
                     :token="props.token"
                     :start="item.start"
                     :end="item.end"
@@ -136,12 +136,12 @@
                   <RoomTabRecordingsDownloadButton
                     :recordingId="item.id"
                     :disabled="isBusy"
-                    v-if="showManagementColumns"
+                    v-if="userPermissions.can('manageSettings', props.room)"
                   />
 
                   <!-- Edit button -->
                   <RoomTabRecordingsEditButton
-                    v-if="showManagementColumns"
+                    v-if="userPermissions.can('manageSettings', props.room)"
                     :roomId="props.room.id"
                     :recordingId="item.id"
                     :description="item.description"
@@ -151,11 +151,12 @@
                     :access="item.access"
                     :disabled="isBusy"
                     @edited="loadData()"
+                    @not-found="loadData()"
                   />
 
                   <!-- Delete file -->
                   <RoomTabRecordingsDeleteButton
-                    v-if="showManagementColumns"
+                    v-if="userPermissions.can('manageSettings', props.room)"
                     :roomId="props.room.id"
                     :recordingId="item.id"
                     :disabled="isBusy"
@@ -185,6 +186,7 @@ import { useSettingsStore } from '../stores/settings.js';
 import { usePaginator } from '../composables/usePaginator.js';
 import { useDateDiff } from '../composables/useDateDiff.js';
 import { useI18n } from 'vue-i18n';
+import env from "../env.js";
 
 const props = defineProps({
   room: {
@@ -200,6 +202,8 @@ const props = defineProps({
     required: false
   }
 });
+
+const emit = defineEmits(['invalidCode', 'invalidToken']);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -272,6 +276,22 @@ function loadData (page = null) {
       });
     })
     .catch((error) => {
+      if (error.response) {
+        // Access code invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+          return emit('invalidCode');
+        }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return emit('invalidToken');
+        }
+
+        // Forbidden, require access code
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+          return emit('invalidCode');
+        }
+      }
       loadingError.value = true;
       api.error(error);
     })
@@ -279,10 +299,6 @@ function loadData (page = null) {
       isBusy.value = false;
     });
 }
-
-const showManagementColumns = computed(() => {
-  return userPermissions.can('manageSettings', props.room);
-});
 
 function onPage (event) {
   loadData(event.page + 1);

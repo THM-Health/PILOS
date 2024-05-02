@@ -7,7 +7,7 @@
     :disabled="props.disabled"
   />
 
-  <!-- edit recording modal -->
+  <!-- view recording modal -->
   <Dialog
     v-model:visible="showModal"
     modal
@@ -37,8 +37,9 @@
     <OverlayComponent :show="isLoadingAction">
       <div class="flex flex-column gap-2">
 
+          <!-- Hide disabled formats if disabled formats should be hidden -->
           <Button
-            v-for="format in formats.filter(format => !format.disabled || viewDisabled)"
+            v-for="format in formats.filter(format => !(format.disabled && hideDisabledFormats))"
             :key="format.format"
             icon="fa-solid fa-play"
             @click="downloadFormat(format)"
@@ -74,7 +75,7 @@ const props = defineProps({
   recordingId: {
     required: true
   },
-  viewDisabled: {
+  hideDisabledFormats: {
     type: Boolean,
     default: false
   },
@@ -149,14 +150,14 @@ function downloadFormat (format) {
           return emit('invalidCode');
         }
 
-        // Forbidden, not allowed to download this file
+        // Forbidden, not allowed to view recording format
         if (error.response.status === env.HTTP_FORBIDDEN) {
         // Show error message
           toast.error(t('rooms.flash.recording_forbidden'));
           return emit('forbidden');
         }
 
-        // File gone
+        // Recording gone
         if (error.response.status === env.HTTP_NOT_FOUND) {
         // Show error message
           toast.error(t('rooms.flash.recording_gone'));

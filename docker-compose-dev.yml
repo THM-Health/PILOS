@@ -23,7 +23,6 @@ services:
           PHP_FPM_PM_MAX_CHILDREN: '${PHP_FPM_PM_MAX_CHILDREN:-100}'
           NGINX_WORKER_PROCESSES: '${NGINX_WORKER_PROCESSES:-auto}'
           TRUSTED_PROXIES: "*"
-          PILOS_SPOOL_GID: 5000
         healthcheck:
           test: curl --fail http://localhost/ping || exit 1
           interval: 10s
@@ -40,7 +39,7 @@ services:
     cron:
       <<: *app-image
       env_file:
-        - .env      
+        - .env
       entrypoint: [ 'pilos-cli', 'run:cron' ]
       volumes:
         - './:/var/www/html/'
@@ -50,7 +49,7 @@ services:
     horizon:
       <<: *app-image
       env_file:
-        - .env      
+        - .env
       entrypoint: [ 'pilos-cli', 'run:horizon' ]
       volumes:
         - './:/var/www/html/'

@@ -65,7 +65,7 @@ const showModal = ref(false);
 const isLoadingAction = ref(false);
 
 /*
- * Delete file
+ * Delete recording
  */
 function deleteRecording () {
   isLoadingAction.value = true;
@@ -79,14 +79,13 @@ function deleteRecording () {
   }).catch((error) => {
     // editing failed
     if (error.response) {
-      // user not found
-      if (error.response.status === env.HTTP_GONE) {
+      // recording not found
+      if (error.response.status === env.HTTP_NOT_FOUND) {
         toast.error(t('rooms.flash.recording_gone'));
         emit('deleted');
         return;
       }
     }
-    showModal.value = false;
     api.error(error);
   }).finally(() => {
     isLoadingAction.value = false;
