@@ -20,24 +20,50 @@
     />
   </div>
   <OverlayComponent v-else :show="isLoadingAction">
-  <div class="flex flex-column md:flex-row">
-    <Listbox
-      v-model="roomTypeId"
-      :disabled="disabled || isLoadingAction"
-      @change="changeRoomType"
-      :options="roomTypes"
-      optionLabel="name"
-      optionValue="id"
-      :invalid="props.invalid"
-      class="w-full"
-      listStyle="max-height:250px"
-      :aria-labelledby="ariaLabelledby"
-    />
-    <div class="w-full md:w-2" v-if="modelValue">
-      <Divider layout="vertical" class="hidden md:flex"/>
-      <Divider layout="horizontal" class="flex md:hidden" align="center"/>
+  <div class="grid">
+    <div :class="modelValue ? 'md:col-6' : 'md:col'" class="col-12">
+      <Dropdown
+        v-model="roomTypeId"
+        :disabled="disabled || isLoadingAction"
+        @change="changeRoomType"
+        :options="roomTypes"
+        optionLabel="name"
+        optionValue="id"
+        :invalid="props.invalid"
+        class="w-full md:hidden"
+        :aria-labelledby="ariaLabelledby"
+        :pt="{
+          panel: {
+            class: 'max-w-full'
+          },
+          item: {
+            class: 'white-space-normal'
+          }
+        }"
+      >
+        <template #option="slotProps">
+          <span class="max-w-full" style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
+        </template>
+      </Dropdown>
+
+      <Listbox
+        v-model="roomTypeId"
+        :disabled="disabled || isLoadingAction"
+        @change="changeRoomType"
+        :options="roomTypes"
+        optionLabel="name"
+        optionValue="id"
+        :invalid="props.invalid"
+        class="w-full hidden md:block"
+        listStyle="max-height:250px"
+        :aria-labelledby="ariaLabelledby"
+      >
+        <template #option="slotProps">
+          <span style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
+        </template>
+      </Listbox>
     </div>
-    <div class="w-full flex" v-if="modelValue" aria-live="polite" aria-atomic="true">
+    <div class="col-12 md:col-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
       <RoomTypeDetails :roomType="modelValue" />
     </div>
   </div>
@@ -53,15 +79,29 @@ import { onMounted, ref, watch } from 'vue';
 const api = useApi();
 
 const props = defineProps({
-  modelValue: Object,
-  state: Boolean,
-  disabled: Boolean,
-  roomId: String,
-  invalid: Boolean,
-  ariaLabelledby: String
+  modelValue: {
+    type: Object
+  },
+  state: {
+    type: Boolean
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  roomId: {
+    type: String
+  },
+  invalid: {
+    type: Boolean,
+    default: false
+  },
+  ariaLabelledby: {
+    type: String
+  }
 });
 
-const emit = defineEmits(['update:modelValue', 'loadingError']);
+const emit = defineEmits(['update:modelValue', 'loadingError', 'busy']);
 
 const roomTypeId = ref(props.modelValue?.id ?? null);
 const roomTypes = ref([]);
@@ -96,7 +136,8 @@ function reloadRoomTypes () {
   isLoadingAction.value = true;
   const config = {
     params: {
-      filter: props.roomId === undefined ? 'own' : props.roomId
+      filter: props.roomId === undefined ? 'own' : props.roomId,
+      with_room_settings: true
     }
   };
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTypeDestroyRequest;
 use App\Http\Requests\RoomTypeRequest;
 use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResourceCollection;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +25,7 @@ class RoomTypeController extends Controller
     /**
      * Return a json array with all room types
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return RoomTypeResourceCollection
      */
     public function index(Request $request)
     {
@@ -34,15 +35,15 @@ class RoomTypeController extends Controller
             $filter = $request->query('filter');
 
             if ($filter === 'own') {
+                // Get list of the room type the current user has access to (Used when creating a new room)
                 $roomTypes = $roomTypes->where('restrict', '=', false)
                     ->orWhereIn('id', function ($query) {
                         $query->select('role_room_type.room_type_id')
                             ->from('role_room_type as role_room_type')
                             ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
                     });
-            } elseif ($filter === 'searchable') {
-                $roomTypes = $roomTypes->where('allow_listing', '=', true);
             } else {
+                // Get list of room types the owner of the given room has access to (Used when changing room type)
                 $room = Room::find($filter);
 
                 if (is_null($room) || Auth::user()->cannot('viewSettings', $room)) {
@@ -57,8 +58,12 @@ class RoomTypeController extends Controller
                     });
             }
         }
+        if ($request->boolean('with_room_settings')) {
+            return (new RoomTypeResourceCollection($roomTypes->orderBy('name')->get()))->withDefaultRoomSettings();
+        } else {
+            return new RoomTypeResourceCollection($roomTypes->orderBy('name')->get());
+        }
 
-        return RoomTypeResource::collection($roomTypes->orderBy('name')->get());
     }
 
     /**
@@ -68,7 +73,8 @@ class RoomTypeController extends Controller
      */
     public function show(RoomType $roomType)
     {
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
     }
 
     /**
@@ -79,20 +85,29 @@ class RoomTypeController extends Controller
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
         $roomType->name = $request->name;
+        $roomType->description = $request->description;
         $roomType->color = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict = $request->restrict;
         $roomType->max_participants = $request->max_participants;
         $roomType->max_duration = $request->max_duration;
-        $roomType->require_access_code = $request->require_access_code;
-        $roomType->allow_record_attendance = $request->allow_record_attendance;
         $roomType->serverPool()->associate($request->server_pool);
+
+        // Save default room settings
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $roomType[$setting.'_default'] = $request[$setting.'_default'];
+            $roomType[$setting.'_enforced'] = $request[$setting.'_enforced'];
+        }
+
+        $roomType->has_access_code_default = $request->has_access_code_default;
+        $roomType->has_access_code_enforced = $request->has_access_code_enforced;
+
         $roomType->save();
+
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
     }
 
     /**
@@ -104,20 +119,29 @@ class RoomTypeController extends Controller
     {
         $roomType = new RoomType();
         $roomType->name = $request->name;
+        $roomType->description = $request->description;
         $roomType->color = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict = $request->restrict;
         $roomType->max_participants = $request->max_participants;
         $roomType->max_duration = $request->max_duration;
-        $roomType->require_access_code = $request->require_access_code;
-        $roomType->allow_record_attendance = $request->allow_record_attendance;
         $roomType->serverPool()->associate($request->server_pool);
+
+        // Safe default room settings
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $roomType[$setting.'_default'] = $request[$setting.'_default'];
+            $roomType[$setting.'_enforced'] = $request[$setting.'_enforced'];
+        }
+
+        $roomType->has_access_code_default = $request->has_access_code_default;
+        $roomType->has_access_code_enforced = $request->has_access_code_enforced;
+
         $roomType->save();
+
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
     }
 
     /**

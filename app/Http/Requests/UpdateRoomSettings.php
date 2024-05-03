@@ -2,38 +2,68 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\RoomLobby;
-use App\Enums\RoomUserRole;
+use App\Models\Room;
+use App\Models\RoomType;
 use App\Rules\ValidRoomType;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateRoomSettings extends FormRequest
 {
     public function rules()
     {
-        return [
-            'access_code' => 'nullable|numeric|digits:9',
-            'allow_membership' => 'required|boolean',
-            'everyone_can_start' => 'required|boolean',
-            'lock_settings_disable_cam' => 'required|boolean',
-            'lock_settings_disable_mic' => 'required|boolean',
-            'lock_settings_disable_note' => 'required|boolean',
-            'lock_settings_disable_private_chat' => 'required|boolean',
-            'lock_settings_disable_public_chat' => 'required|boolean',
-            'lock_settings_lock_on_join' => 'required|boolean',
-            'lock_settings_hide_user_list' => 'required|boolean',
-            'mute_on_start' => 'required|boolean',
-            'webcams_only_for_moderator' => 'required|boolean',
-            'default_role' => ['required', Rule::in([RoomUserRole::USER, RoomUserRole::MODERATOR])],
-            'allow_guests' => 'required|boolean',
-            'lobby' => ['required', Rule::enum(RoomLobby::class)],
+        $rules = [
+            'access_code' => $this->getAccessCodeValidationRule(),
             'room_type' => ['bail', 'required', 'exists:App\Models\RoomType,id', new ValidRoomType($this->room->owner)],
-            'name' => 'required|string|min:2|max:'.config('bigbluebutton.room_name_limit'),
-            'welcome' => 'nullable|string|max:'.config('bigbluebutton.welcome_message_limit'),
-            'short_description' => 'nullable|string|max:300',
-            'listed' => 'required|boolean',
-            'record_attendance' => 'required|boolean',
+            'name' => ['required', 'string', 'min:2', 'max:'.config('bigbluebutton.room_name_limit')],
+            'short_description' => ['nullable', 'string', 'max:300'],
+            'expert_mode' => ['required', 'boolean'],
         ];
+
+        // Generate validation rules for all visible room settings
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            //Expert mode for room is deactivated and setting is an expert setting: do not update setting
+            if (! $this->expert_mode && $config['expert']) {
+                continue;
+            }
+            $rules[$setting] = Room::getRoomSettingValidationRule($setting);
+        }
+
+        if ($this->expert_mode) {
+            $rules['welcome'] = ['nullable', 'string', 'max:'.config('bigbluebutton.welcome_message_limit')];
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Set access code validation rule based on the settings in the room type
+     *
+     * @return string[] access code validation rules
+     */
+    private function getAccessCodeValidationRule(): array
+    {
+        $rules = ['numeric', 'digits:9', 'bail'];
+
+        // Make sure that the given room type id is a number
+        if (is_numeric($this->input('room_type'))) {
+            // Check if a room type exists with the given number
+            $newRoomType = RoomType::find($this->input('room_type'));
+            if ($newRoomType) {
+                // Set access code to required if enforced in room type
+                if ($newRoomType->has_access_code_enforced && $newRoomType->has_access_code_default) {
+                    array_unshift($rules, 'required');
+                }
+                // Set access code to prohibited if enforced in room type
+                elseif ($newRoomType->has_access_code_enforced && ! $newRoomType->has_access_code_default) {
+                    array_unshift($rules, 'prohibited', 'nullable');
+                }
+                // Set access code to nullable (room can have an access code but access code is not enforced)
+                else {
+                    array_unshift($rules, 'nullable');
+                }
+            }
+        }
+
+        return $rules;
     }
 }

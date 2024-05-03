@@ -56,14 +56,14 @@ class Room extends JsonResource
             'username' => $this->when(! empty($this->token), ! empty($this->token) ? $this->token->fullname : null),
             'authenticated' => $this->authenticated,
             'description' => $this->when($this->authenticated, $this->description),
-            'allow_membership' => $this->allow_membership,
+            'allow_membership' => $this->getRoomSetting('allow_membership'),
             'is_member' => $this->resource->isMember(Auth::user()),
             'is_moderator' => $this->resource->isModerator(Auth::user(), $this->token),
             'is_co_owner' => $this->resource->isCoOwner(Auth::user()),
             'can_start' => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
             'access_code' => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
-            'record_attendance' => ($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record_attendance : ($this->resource->record_attendance && $this->roomType->allow_record_attendance),
+            'record_attendance' => ($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record_attendance : ($this->getRoomSetting('record_attendance')),
             'current_user' => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles(),
         ];
     }

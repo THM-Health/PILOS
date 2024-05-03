@@ -17,6 +17,11 @@ class RoomType extends JsonResource
     private $withRoles = false;
 
     /**
+     * @var bool Indicates whether the default room settings should be included or not.
+     */
+    private $withDefaultRoomSettings = false;
+
+    /**
      * Sets the flag to also load the server pool
      *
      * @return $this The server pool resource instance.
@@ -41,6 +46,37 @@ class RoomType extends JsonResource
     }
 
     /**
+     * Sets the flag to also load the default room settings
+     *
+     * @return $this The room type resource instance.
+     */
+    public function withDefaultRoomSettings(): self
+    {
+        $this->withDefaultRoomSettings = true;
+
+        return $this;
+    }
+
+    public function getDefaultRoomSettings()
+    {
+        if (! $this->withDefaultRoomSettings) {
+            return [];
+        }
+
+        $settings = [];
+
+        foreach (\App\Models\Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $settings[$setting.'_default'] = $this[$setting.'_default'];
+            $settings[$setting.'_enforced'] = $this[$setting.'_enforced'];
+        }
+
+        $settings['has_access_code_default'] = $this->has_access_code_default;
+        $settings['has_access_code_enforced'] = $this->has_access_code_enforced;
+
+        return $settings;
+    }
+
+    /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -51,8 +87,8 @@ class RoomType extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'description' => $this->description,
             'color' => $this->color,
-            'allow_listing' => $this->allow_listing,
             'server_pool' => $this->when($this->withServerPool, function () {
                 return new ServerPool($this->serverPool);
             }),
@@ -61,11 +97,10 @@ class RoomType extends JsonResource
             'restrict' => $this->restrict,
             'max_participants' => $this->max_participants,
             'max_duration' => $this->max_duration,
-            'require_access_code' => $this->require_access_code,
-            'allow_record_attendance' => $this->allow_record_attendance,
             'roles' => $this->when($this->withRoles, function () {
                 return new RoleCollection($this->roles);
             }),
+            $this->mergeWhen($this->withDefaultRoomSettings, $this->getDefaultRoomSettings()),
         ];
     }
 }

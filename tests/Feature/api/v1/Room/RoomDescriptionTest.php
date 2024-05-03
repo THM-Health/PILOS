@@ -219,7 +219,7 @@ class RoomDescriptionTest extends TestCase
         // Test room co-owner
         $room->members()->attach($this->user, ['role' => RoomUserRole::CO_OWNER]);
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => $description])
-            ->assertStatus(200);
+            ->assertStatus(204);
         $room->refresh();
         $this->assertEquals($description, $room->description);
         $room->description = null;
@@ -246,7 +246,7 @@ class RoomDescriptionTest extends TestCase
         $room->owner()->associate($this->user);
         $room->save();
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => $description])
-            ->assertStatus(200);
+            ->assertStatus(204);
         $room->refresh();
 
         $this->assertEquals($description, $room->description);
@@ -262,19 +262,19 @@ class RoomDescriptionTest extends TestCase
 
         // Set description
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => $description])
-            ->assertStatus(200);
+            ->assertStatus(204);
         $room->refresh();
         $this->assertEquals($description, $room->description);
 
         // Remove description
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => null])
-            ->assertStatus(200);
+            ->assertStatus(204);
         $room->refresh();
         $this->assertNull($room->description);
 
         // Set description to empty paragraph
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.description.update', ['room' => $room]), ['description' => '<p></p>'])
-            ->assertStatus(200);
+            ->assertStatus(204);
         $room->refresh();
         $this->assertNull($room->description);
 

@@ -3,7 +3,9 @@
 namespace Tests\Feature\api\v1\Room;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Enums\RoomVisibility;
 use App\Http\Resources\RoleCollection;
 use App\Models\Permission;
 use App\Models\Role;
@@ -47,8 +49,9 @@ class RoomTypeTest extends TestCase
         $roomType2 = RoomType::factory()->create([
             'restrict' => true,
         ]);
-        $roomTypeListed = RoomType::factory()->create([
-            'allow_listing' => true,
+        $roomTypePublicEnforced = RoomType::factory()->create([
+            'visibility_default' => RoomVisibility::PUBLIC,
+            'visibility_enforced' => true,
         ]);
 
         $role1 = Role::factory()->create();
@@ -65,22 +68,93 @@ class RoomTypeTest extends TestCase
         $this->getJson(route('api.v1.roomTypes.index'))
             ->assertUnauthorized();
 
-        // Test logged in users
+        // Test logged in users (without filter)
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index'))
             ->assertSuccessful()
             ->assertJsonStructure(['data' => [
                 '*' => [
-                    'allow_listing',
+                    'description',
                     'color',
                     'name',
                     'id',
                     'model_name',
                     'restrict',
                     'updated_at',
+                    'max_participants',
+                    'max_duration',
                 ],
             ]])
             ->assertJsonCount(4, 'data');
 
+        // Test logged in users (without filter and without default room settings)
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['with_room_settings' => false]))
+            ->assertSuccessful()
+            ->assertJsonStructure(['data' => [
+                '*' => [
+                    'description',
+                    'color',
+                    'name',
+                    'id',
+                    'model_name',
+                    'restrict',
+                    'updated_at',
+                    'max_participants',
+                    'max_duration',
+                ],
+            ]])
+            ->assertJsonCount(4, 'data');
+
+        // Test logged in users (without filter and with default room settings)
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['with_room_settings' => true]))
+            ->assertSuccessful()
+            ->assertJsonStructure(['data' => [
+                '*' => [
+                    'description',
+                    'color',
+                    'name',
+                    'id',
+                    'model_name',
+                    'restrict',
+                    'updated_at',
+                    'max_participants',
+                    'max_duration',
+                    'everyone_can_start_default',
+                    'everyone_can_start_enforced',
+                    'mute_on_start_default',
+                    'mute_on_start_enforced',
+                    'lock_settings_disable_cam_default',
+                    'lock_settings_disable_cam_enforced',
+                    'webcams_only_for_moderator_default',
+                    'webcams_only_for_moderator_enforced',
+                    'lock_settings_disable_mic_default',
+                    'lock_settings_disable_mic_enforced',
+                    'lock_settings_disable_private_chat_default',
+                    'lock_settings_disable_private_chat_enforced',
+                    'lock_settings_disable_public_chat_default',
+                    'lock_settings_disable_public_chat_enforced',
+                    'lock_settings_disable_note_default',
+                    'lock_settings_disable_note_enforced',
+                    'allow_membership_default',
+                    'allow_membership_enforced',
+                    'allow_guests_default',
+                    'allow_guests_enforced',
+                    'lock_settings_hide_user_list_default',
+                    'lock_settings_hide_user_list_enforced',
+                    'default_role_default',
+                    'default_role_enforced',
+                    'lobby_default',
+                    'lobby_enforced',
+                    'visibility_default',
+                    'visibility_enforced',
+                    'record_attendance_default',
+                    'record_attendance_enforced',
+                    'has_access_code_default',
+                    'has_access_code_enforced',
+                ],
+            ]])
+            ->assertJsonCount(4, 'data');
+
+        // Test logged in users (with filter own)
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'own']))
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
@@ -88,12 +162,14 @@ class RoomTypeTest extends TestCase
                 ['id' => $roomType->id, 'name' => $roomType->name, 'color' => $roomType->color]
             )
             ->assertJsonFragment(
-                ['id' => $roomTypeListed->id, 'name' => $roomTypeListed->name, 'color' => $roomTypeListed->color]
+                ['id' => $roomTypePublicEnforced->id, 'name' => $roomTypePublicEnforced->name, 'color' => $roomTypePublicEnforced->color]
             );
 
+        // Test logged in users (with different filter)
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 1337]))
             ->assertForbidden();
 
+        // Test logged in users (with room id as filter)
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
             ->assertForbidden();
 
@@ -105,9 +181,10 @@ class RoomTypeTest extends TestCase
                 ['id' => $roomType->id, 'name' => $roomType->name, 'color' => $roomType->color]
             )
             ->assertJsonFragment(
-                ['id' => $roomTypeListed->id, 'name' => $roomTypeListed->name, 'color' => $roomTypeListed->color]
+                ['id' => $roomTypePublicEnforced->id, 'name' => $roomTypePublicEnforced->name, 'color' => $roomTypePublicEnforced->color]
             );
 
+        // Test list of room types the owner of the given room has access to (Used when changing room type)
         $this->user->roles()->attach([$role1->id]);
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
             ->assertSuccessful()
@@ -116,14 +193,7 @@ class RoomTypeTest extends TestCase
                 ['id' => $roomType->id, 'name' => $roomType->name, 'color' => $roomType->color]
             )
             ->assertJsonFragment(
-                ['id' => $roomTypeListed->id, 'name' => $roomTypeListed->name, 'color' => $roomTypeListed->color]
-            );
-
-        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'searchable']))
-            ->assertSuccessful()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonFragment(
-                ['id' => $roomTypeListed->id, 'name' => $roomTypeListed->name, 'color' => $roomTypeListed->color]
+                ['id' => $roomTypePublicEnforced->id, 'name' => $roomTypePublicEnforced->name, 'color' => $roomTypePublicEnforced->color]
             );
 
         $room->owner->roles()->attach([$role1->id, $role2->id]);
@@ -158,7 +228,52 @@ class RoomTypeTest extends TestCase
             ->assertSuccessful()
             ->assertJsonFragment(
                 ['id' => $roomType->id, 'name' => $roomType->name, 'color' => $roomType->color]
-            );
+            )
+            ->assertJsonStructure(['data' => [
+                'description',
+                'color',
+                'name',
+                'id',
+                'server_pool',
+                'model_name',
+                'restrict',
+                'roles',
+                'updated_at',
+                'max_participants',
+                'max_duration',
+                'everyone_can_start_default',
+                'everyone_can_start_enforced',
+                'mute_on_start_default',
+                'mute_on_start_enforced',
+                'lock_settings_disable_cam_default',
+                'lock_settings_disable_cam_enforced',
+                'webcams_only_for_moderator_default',
+                'webcams_only_for_moderator_enforced',
+                'lock_settings_disable_mic_default',
+                'lock_settings_disable_mic_enforced',
+                'lock_settings_disable_private_chat_default',
+                'lock_settings_disable_private_chat_enforced',
+                'lock_settings_disable_public_chat_default',
+                'lock_settings_disable_public_chat_enforced',
+                'lock_settings_disable_note_default',
+                'lock_settings_disable_note_enforced',
+                'allow_membership_default',
+                'allow_membership_enforced',
+                'allow_guests_default',
+                'allow_guests_enforced',
+                'lock_settings_hide_user_list_default',
+                'lock_settings_hide_user_list_enforced',
+                'default_role_default',
+                'default_role_enforced',
+                'lobby_default',
+                'lobby_enforced',
+                'visibility_default',
+                'visibility_enforced',
+                'record_attendance_default',
+                'record_attendance_enforced',
+                'has_access_code_default',
+                'has_access_code_enforced',
+            ]]);
 
         // Test deleted
         $roomType->delete();
@@ -177,14 +292,44 @@ class RoomTypeTest extends TestCase
         $data = [
             'name' => $roomType->name,
             'color' => $roomType->color,
+            'description' => $roomType->description,
             'server_pool' => $roomType->serverPool->id,
             'restrict' => true,
             'roles' => [$role1->id],
-            'require_access_code' => false,
-            'allow_listing' => 0,
-            'allow_record_attendance' => true,
             'max_duration' => 90,
             'max_participants' => 30,
+            'everyone_can_start_default' => false,
+            'everyone_can_start_enforced' => false,
+            'mute_on_start_default' => false,
+            'mute_on_start_enforced' => false,
+            'lock_settings_disable_cam_default' => false,
+            'lock_settings_disable_cam_enforced' => false,
+            'webcams_only_for_moderator_default' => false,
+            'webcams_only_for_moderator_enforced' => false,
+            'lock_settings_disable_mic_default' => false,
+            'lock_settings_disable_mic_enforced' => false,
+            'lock_settings_disable_private_chat_default' => false,
+            'lock_settings_disable_private_chat_enforced' => false,
+            'lock_settings_disable_public_chat_default' => false,
+            'lock_settings_disable_public_chat_enforced' => false,
+            'lock_settings_disable_note_default' => false,
+            'lock_settings_disable_note_enforced' => false,
+            'allow_membership_default' => false,
+            'allow_membership_enforced' => false,
+            'allow_guests_default' => false,
+            'allow_guests_enforced' => false,
+            'lock_settings_hide_user_list_default' => false,
+            'lock_settings_hide_user_list_enforced' => false,
+            'default_role_default' => RoomUserRole::USER,
+            'default_role_enforced' => false,
+            'lobby_default' => RoomLobby::DISABLED,
+            'lobby_enforced' => false,
+            'visibility_default' => RoomVisibility::PRIVATE,
+            'visibility_enforced' => false,
+            'record_attendance_default' => false,
+            'record_attendance_enforced' => false,
+            'has_access_code_default' => true,
+            'has_access_code_enforced' => false,
         ];
 
         // Test guests
@@ -207,23 +352,180 @@ class RoomTypeTest extends TestCase
             ->assertJsonFragment([
                 'name' => $roomType->name,
                 'color' => $roomType->color,
-                'allow_listing' => false,
+                'description' => $roomType->description,
                 'restrict' => true,
                 'roles' => new RoleCollection([$role1]),
-                'require_access_code' => false,
-                'allow_record_attendance' => true,
                 'max_duration' => 90,
                 'max_participants' => 30,
+                'everyone_can_start_default' => false,
+                'everyone_can_start_enforced' => false,
+                'mute_on_start_default' => false,
+                'mute_on_start_enforced' => false,
+                'lock_settings_disable_cam_default' => false,
+                'lock_settings_disable_cam_enforced' => false,
+                'webcams_only_for_moderator_default' => false,
+                'webcams_only_for_moderator_enforced' => false,
+                'lock_settings_disable_mic_default' => false,
+                'lock_settings_disable_mic_enforced' => false,
+                'lock_settings_disable_private_chat_default' => false,
+                'lock_settings_disable_private_chat_enforced' => false,
+                'lock_settings_disable_public_chat_default' => false,
+                'lock_settings_disable_public_chat_enforced' => false,
+                'lock_settings_disable_note_default' => false,
+                'lock_settings_disable_note_enforced' => false,
+                'allow_membership_default' => false,
+                'allow_membership_enforced' => false,
+                'allow_guests_default' => false,
+                'allow_guests_enforced' => false,
+                'lock_settings_hide_user_list_default' => false,
+                'lock_settings_hide_user_list_enforced' => false,
+                'default_role_default' => RoomUserRole::USER,
+                'default_role_enforced' => false,
+                'lobby_default' => RoomLobby::DISABLED,
+                'lobby_enforced' => false,
+                'visibility_default' => RoomVisibility::PRIVATE,
+                'visibility_enforced' => false,
+                'record_attendance_default' => false,
+                'record_attendance_enforced' => false,
+                'has_access_code_default' => true,
+                'has_access_code_enforced' => false,
             ]);
 
         // Test with invalid data
-        $data = ['color' => 'rgb(255,255,255)', 'name' => '', 'server_pool' => '', 'allow_listing' => 'ok', 'restrict' => true, 'require_access_code' => 'no', 'allow_record_attendance' => 'yes', 'max_duration' => -1, 'max_participants' => -1];
+        $data = [
+            'color' => 'rgb(255,255,255)',
+            'name' => '',
+            'description' => $this->faker->textWithLength(5001),
+            'server_pool' => '',
+            'restrict' => true,
+            'max_duration' => -1,
+            'max_participants' => -1,
+            'everyone_can_start_default' => 'ok',
+            'everyone_can_start_enforced' => 'no',
+            'mute_on_start_default' => 'yes',
+            'mute_on_start_enforced' => 'no',
+            'lock_settings_disable_cam_default' => 'no',
+            'lock_settings_disable_cam_enforced' => 'no',
+            'webcams_only_for_moderator_default' => 'no',
+            'webcams_only_for_moderator_enforced' => 'no',
+            'lock_settings_disable_mic_default' => 'no',
+            'lock_settings_disable_mic_enforced' => 'no',
+            'lock_settings_disable_private_chat_default' => 'no',
+            'lock_settings_disable_private_chat_enforced' => 'no',
+            'lock_settings_disable_public_chat_default' => 'no',
+            'lock_settings_disable_public_chat_enforced' => 'no',
+            'lock_settings_disable_note_default' => 'no',
+            'lock_settings_disable_note_enforced' => 'no',
+            'allow_membership_default' => 'no',
+            'allow_membership_enforced' => 'no',
+            'allow_guests_default' => 'no',
+            'allow_guests_enforced' => 'no',
+            'lock_settings_hide_user_list_default' => 'no',
+            'lock_settings_hide_user_list_enforced' => 'no',
+            'default_role_default' => 'no',
+            'default_role_enforced' => 'no',
+            'lobby_default' => 'no',
+            'lobby_enforced' => 'no',
+            'visibility_default' => 10,
+            'visibility_enforced' => 'no',
+            'record_attendance_default' => 'no',
+            'record_attendance_enforced' => 'no',
+            'has_access_code_default' => 'yes',
+            'has_access_code_enforced' => 'no',
+        ];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
-            ->assertJsonValidationErrors(['color', 'name', 'allow_listing', 'roles', 'max_duration', 'max_participants', 'require_access_code', 'allow_record_attendance']);
+            ->assertJsonValidationErrors([
+                'description',
+                'color',
+                'name',
+                'roles',
+                'server_pool',
+                'max_participants',
+                'max_duration',
+                'everyone_can_start_default',
+                'everyone_can_start_enforced',
+                'mute_on_start_default',
+                'mute_on_start_enforced',
+                'lock_settings_disable_cam_default',
+                'lock_settings_disable_cam_enforced',
+                'webcams_only_for_moderator_default',
+                'webcams_only_for_moderator_enforced',
+                'lock_settings_disable_mic_default',
+                'lock_settings_disable_mic_enforced',
+                'lock_settings_disable_private_chat_default',
+                'lock_settings_disable_private_chat_enforced',
+                'lock_settings_disable_public_chat_default',
+                'lock_settings_disable_public_chat_enforced',
+                'lock_settings_disable_note_default',
+                'lock_settings_disable_note_enforced',
+                'allow_membership_default',
+                'allow_membership_enforced',
+                'allow_guests_default',
+                'allow_guests_enforced',
+                'lock_settings_hide_user_list_default',
+                'lock_settings_hide_user_list_enforced',
+                'default_role_default',
+                'default_role_enforced',
+                'lobby_default',
+                'lobby_enforced',
+                'visibility_default',
+                'visibility_enforced',
+                'record_attendance_default',
+                'record_attendance_enforced',
+                'has_access_code_default',
+                'has_access_code_enforced',
+            ]);
 
         $data['roles'] = [1337];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
-            ->assertJsonValidationErrors(['color', 'name', 'allow_listing', 'roles.0']);
+            ->assertJsonValidationErrors([
+                'color',
+                'name',
+                'roles.0',
+            ]);
+
+        // Test with missing parameters
+        $data = [];
+        $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
+            ->assertJsonValidationErrors([
+                'color',
+                'server_pool',
+                'restrict',
+                'max_participants',
+                'max_duration',
+                'everyone_can_start_default',
+                'everyone_can_start_enforced',
+                'mute_on_start_default',
+                'mute_on_start_enforced',
+                'lock_settings_disable_cam_default',
+                'lock_settings_disable_cam_enforced',
+                'webcams_only_for_moderator_default',
+                'webcams_only_for_moderator_enforced',
+                'lock_settings_disable_mic_default',
+                'lock_settings_disable_mic_enforced',
+                'lock_settings_disable_private_chat_default',
+                'lock_settings_disable_private_chat_enforced',
+                'lock_settings_disable_public_chat_default',
+                'lock_settings_disable_public_chat_enforced',
+                'lock_settings_disable_note_default',
+                'lock_settings_disable_note_enforced',
+                'allow_membership_default',
+                'allow_membership_enforced',
+                'allow_guests_default',
+                'allow_guests_enforced',
+                'lock_settings_hide_user_list_default',
+                'lock_settings_hide_user_list_enforced',
+                'default_role_default',
+                'default_role_enforced',
+                'lobby_default',
+                'lobby_enforced',
+                'visibility_default',
+                'visibility_enforced',
+                'record_attendance_default',
+                'record_attendance_enforced',
+                'has_access_code_default',
+                'has_access_code_enforced',
+            ]);
     }
 
     /**
@@ -237,14 +539,44 @@ class RoomTypeTest extends TestCase
         $data = [
             'name' => $roomType->name,
             'color' => $roomType->color,
+            'description' => $roomType->description,
             'server_pool' => $roomType->serverPool->id,
             'restrict' => false,
             'roles' => [$role1->id],
-            'allow_listing' => 1,
-            'require_access_code' => false,
-            'allow_record_attendance' => true,
             'max_duration' => 90,
             'max_participants' => 30,
+            'everyone_can_start_default' => false,
+            'everyone_can_start_enforced' => false,
+            'mute_on_start_default' => false,
+            'mute_on_start_enforced' => false,
+            'lock_settings_disable_cam_default' => false,
+            'lock_settings_disable_cam_enforced' => false,
+            'webcams_only_for_moderator_default' => false,
+            'webcams_only_for_moderator_enforced' => false,
+            'lock_settings_disable_mic_default' => false,
+            'lock_settings_disable_mic_enforced' => false,
+            'lock_settings_disable_private_chat_default' => false,
+            'lock_settings_disable_private_chat_enforced' => false,
+            'lock_settings_disable_public_chat_default' => false,
+            'lock_settings_disable_public_chat_enforced' => false,
+            'lock_settings_disable_note_default' => false,
+            'lock_settings_disable_note_enforced' => false,
+            'allow_membership_default' => false,
+            'allow_membership_enforced' => false,
+            'allow_guests_default' => false,
+            'allow_guests_enforced' => false,
+            'lock_settings_hide_user_list_default' => false,
+            'lock_settings_hide_user_list_enforced' => false,
+            'default_role_default' => RoomUserRole::USER,
+            'default_role_enforced' => false,
+            'lobby_default' => RoomLobby::DISABLED,
+            'lobby_enforced' => false,
+            'visibility_default' => RoomVisibility::PUBLIC,
+            'visibility_enforced' => false,
+            'record_attendance_default' => false,
+            'record_attendance_enforced' => false,
+            'has_access_code_default' => true,
+            'has_access_code_enforced' => false,
         ];
 
         // Test guests
@@ -273,13 +605,43 @@ class RoomTypeTest extends TestCase
             ->assertJsonFragment([
                 'name' => $roomType->name,
                 'color' => $roomType->color,
+                'description' => $roomType->description,
                 'restrict' => false,
                 'roles' => [],
-                'allow_listing' => true,
-                'require_access_code' => false,
-                'allow_record_attendance' => true,
                 'max_duration' => 90,
                 'max_participants' => 30,
+                'everyone_can_start_default' => false,
+                'everyone_can_start_enforced' => false,
+                'mute_on_start_default' => false,
+                'mute_on_start_enforced' => false,
+                'lock_settings_disable_cam_default' => false,
+                'lock_settings_disable_cam_enforced' => false,
+                'webcams_only_for_moderator_default' => false,
+                'webcams_only_for_moderator_enforced' => false,
+                'lock_settings_disable_mic_default' => false,
+                'lock_settings_disable_mic_enforced' => false,
+                'lock_settings_disable_private_chat_default' => false,
+                'lock_settings_disable_private_chat_enforced' => false,
+                'lock_settings_disable_public_chat_default' => false,
+                'lock_settings_disable_public_chat_enforced' => false,
+                'lock_settings_disable_note_default' => false,
+                'lock_settings_disable_note_enforced' => false,
+                'allow_membership_default' => false,
+                'allow_membership_enforced' => false,
+                'allow_guests_default' => false,
+                'allow_guests_enforced' => false,
+                'lock_settings_hide_user_list_default' => false,
+                'lock_settings_hide_user_list_enforced' => false,
+                'default_role_default' => RoomUserRole::USER,
+                'default_role_enforced' => false,
+                'lobby_default' => RoomLobby::DISABLED,
+                'lobby_enforced' => false,
+                'visibility_default' => RoomVisibility::PUBLIC,
+                'visibility_enforced' => false,
+                'record_attendance_default' => false,
+                'record_attendance_enforced' => false,
+                'has_access_code_default' => true,
+                'has_access_code_enforced' => false,
             ]);
 
         $roomType->refresh();
@@ -290,16 +652,142 @@ class RoomTypeTest extends TestCase
             ->assertJsonFragment([
                 'name' => $roomType->name,
                 'color' => $roomType->color,
-                'allow_listing' => true,
                 'restrict' => true,
                 'roles' => new RoleCollection([$role1]),
             ]);
 
         // Test with invalid data
         $roomType->refresh();
-        $data = ['color' => 'rgb(255,255,255)', 'name' => '', 'server_pool' => '', 'updated_at' => $roomType->updated_at, 'allow_listing' => 'ok', 'require_access_code' => 'no', 'allow_record_attendance' => 'yes', 'max_duration' => -1, 'max_participants' => -1];
+        $data = [
+            'color' => 'rgb(255,255,255)',
+            'name' => '',
+            'description' => fake()->text(6000),
+            'server_pool' => '',
+            'restrict' => true,
+            'max_duration' => -1,
+            'max_participants' => -1,
+            'everyone_can_start_default' => 'ok',
+            'everyone_can_start_enforced' => 'no',
+            'mute_on_start_default' => 'yes',
+            'mute_on_start_enforced' => 'no',
+            'lock_settings_disable_cam_default' => 'no',
+            'lock_settings_disable_cam_enforced' => 'no',
+            'webcams_only_for_moderator_default' => 'no',
+            'webcams_only_for_moderator_enforced' => 'no',
+            'lock_settings_disable_mic_default' => 'no',
+            'lock_settings_disable_mic_enforced' => 'no',
+            'lock_settings_disable_private_chat_default' => 'no',
+            'lock_settings_disable_private_chat_enforced' => 'no',
+            'lock_settings_disable_public_chat_default' => 'no',
+            'lock_settings_disable_public_chat_enforced' => 'no',
+            'lock_settings_disable_note_default' => 'no',
+            'lock_settings_disable_note_enforced' => 'no',
+            'allow_membership_default' => 'no',
+            'allow_membership_enforced' => 'no',
+            'allow_guests_default' => 'no',
+            'allow_guests_enforced' => 'no',
+            'lock_settings_hide_user_list_default' => 'no',
+            'lock_settings_hide_user_list_enforced' => 'no',
+            'default_role_default' => 'no',
+            'default_role_enforced' => 'no',
+            'lobby_default' => 'no',
+            'lobby_enforced' => 'no',
+            'visibility_default' => 'no',
+            'visibility_enforced' => 'no',
+            'record_attendance_default' => 'no',
+            'record_attendance_enforced' => 'no',
+            'has_access_code_default' => 'yes',
+            'has_access_code_enforced' => 'no',
+            'updated_at' => $roomType->updated_at,
+        ];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType' => $roomType->id]), $data)
-            ->assertJsonValidationErrors(['color', 'name', 'allow_listing', 'max_duration', 'max_participants', 'require_access_code', 'allow_record_attendance']);
+            ->assertJsonValidationErrors([
+                'description',
+                'color',
+                'name',
+                'roles',
+                'server_pool',
+                'max_participants',
+                'max_duration',
+                'everyone_can_start_default',
+                'everyone_can_start_enforced',
+                'mute_on_start_default',
+                'mute_on_start_enforced',
+                'lock_settings_disable_cam_default',
+                'lock_settings_disable_cam_enforced',
+                'webcams_only_for_moderator_default',
+                'webcams_only_for_moderator_enforced',
+                'lock_settings_disable_mic_default',
+                'lock_settings_disable_mic_enforced',
+                'lock_settings_disable_private_chat_default',
+                'lock_settings_disable_private_chat_enforced',
+                'lock_settings_disable_public_chat_default',
+                'lock_settings_disable_public_chat_enforced',
+                'lock_settings_disable_note_default',
+                'lock_settings_disable_note_enforced',
+                'allow_membership_default',
+                'allow_membership_enforced',
+                'allow_guests_default',
+                'allow_guests_enforced',
+                'lock_settings_hide_user_list_default',
+                'lock_settings_hide_user_list_enforced',
+                'default_role_default',
+                'default_role_enforced',
+                'lobby_default',
+                'lobby_enforced',
+                'visibility_default',
+                'visibility_enforced',
+                'record_attendance_default',
+                'record_attendance_enforced',
+                'has_access_code_default',
+                'has_access_code_enforced',
+            ]);
+
+        //Test with missing parameters
+        $data = [
+            'updated_at' => $roomType->updated_at,
+        ];
+
+        $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType' => $roomType->id]), $data)
+            ->assertJsonValidationErrors([
+                'color',
+                'server_pool',
+                'restrict',
+                'max_participants',
+                'max_duration',
+                'everyone_can_start_default',
+                'everyone_can_start_enforced',
+                'mute_on_start_default',
+                'mute_on_start_enforced',
+                'lock_settings_disable_cam_default',
+                'lock_settings_disable_cam_enforced',
+                'webcams_only_for_moderator_default',
+                'webcams_only_for_moderator_enforced',
+                'lock_settings_disable_mic_default',
+                'lock_settings_disable_mic_enforced',
+                'lock_settings_disable_private_chat_default',
+                'lock_settings_disable_private_chat_enforced',
+                'lock_settings_disable_public_chat_default',
+                'lock_settings_disable_public_chat_enforced',
+                'lock_settings_disable_note_default',
+                'lock_settings_disable_note_enforced',
+                'allow_membership_default',
+                'allow_membership_enforced',
+                'allow_guests_default',
+                'allow_guests_enforced',
+                'lock_settings_hide_user_list_default',
+                'lock_settings_hide_user_list_enforced',
+                'default_role_default',
+                'default_role_enforced',
+                'lobby_default',
+                'lobby_enforced',
+                'visibility_default',
+                'visibility_enforced',
+                'record_attendance_default',
+                'record_attendance_enforced',
+                'has_access_code_default',
+                'has_access_code_enforced',
+            ]);
 
         // Test deleted
         $roomType->delete();

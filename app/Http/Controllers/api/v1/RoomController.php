@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomSortingType;
 use App\Enums\RoomUserRole;
+use App\Enums\RoomVisibility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\ShowRoomsRequest;
@@ -64,14 +65,28 @@ class RoomController extends Controller
                         $query->orWhereIn('rooms.id', $roomMemberships);
                     }
 
-                    // all rooms that are public (listed and without access code)
+                    // all rooms that are public
                     if ($request->filter_public) {
                         $query->orWhere(function (Builder $subQuery) {
-                            // list of room types for which listing is enabled
-                            $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
-                            $subQuery->where('listed', 1)
-                                ->whereNull('access_code')
-                                ->whereIn('room_type_id', $roomTypesWithListingEnabled);
+                            $roomTypesWithListingEnforced = RoomType::where('visibility_enforced', true)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
+                            $roomTypesWithNoListingEnforced = RoomType::where('visibility_enforced', true)->where('visibility_default', RoomVisibility::PRIVATE)->get('id');
+                            $roomTypesWithListingDefault = RoomType::where('visibility_enforced', false)->where('visibility_default', RoomVisibility::PUBLIC)->get('id');
+                            $subQuery
+                                // Room has a room type where the visibility public is enforced
+                                ->whereIn('room_type_id', $roomTypesWithListingEnforced)
+                                // Room where expert mode is deactivated where the visibility public is the default value
+                                ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithListingDefault) {
+                                    $subSubQuery
+                                        ->where('expert_mode', false)
+                                        ->whereIn('room_type_id', $roomTypesWithListingDefault);
+                                })
+                                // Room where expert mode is activated and visibility is set to public
+                                ->orWhere(function (Builder $subSubQuery) use ($roomTypesWithNoListingEnforced) {
+                                    $subSubQuery
+                                        ->where('expert_mode', true)
+                                        ->where('visibility', RoomVisibility::PUBLIC)
+                                        ->whereNotIn('room_type_id', $roomTypesWithNoListingEnforced);
+                                });
                         });
                     }
 
@@ -144,9 +159,15 @@ class RoomController extends Controller
 
         $room = new Room();
         $room->name = $request->name;
-        $room->access_code = rand(111111111, 999999999);
         $room->roomType()->associate($request->room_type);
         $room->owner()->associate(Auth::user());
+
+        $room->save();
+
+        //Create access code if activated for this room type
+        if ($room->roomType->has_access_code_default) {
+            $room->access_code = random_int(111111111, 999999999);
+        }
         $room->save();
 
         Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
@@ -212,28 +233,22 @@ class RoomController extends Controller
     public function update(UpdateRoomSettings $request, Room $room)
     {
         $room->name = $request->name;
-        $room->welcome = $request->welcome;
+        $room->expert_mode = $request->expert_mode;
         $room->short_description = $request->short_description;
         $room->access_code = $request->access_code;
-        $room->listed = $request->listed;
 
-        $room->mute_on_start = $request->mute_on_start;
-        $room->lock_settings_disable_cam = $request->lock_settings_disable_cam;
-        $room->webcams_only_for_moderator = $request->webcams_only_for_moderator;
-        $room->lock_settings_disable_mic = $request->lock_settings_disable_mic;
-        $room->lock_settings_disable_private_chat = $request->lock_settings_disable_private_chat;
-        $room->lock_settings_disable_public_chat = $request->lock_settings_disable_public_chat;
-        $room->lock_settings_disable_note = $request->lock_settings_disable_note;
-        $room->lock_settings_lock_on_join = $request->lock_settings_lock_on_join;
-        $room->lock_settings_hide_user_list = $request->lock_settings_hide_user_list;
-        $room->everyone_can_start = $request->everyone_can_start;
-        $room->allow_membership = $request->allow_membership;
-        $room->allow_guests = $request->allow_guests;
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            // Expert mode for room is deactivated and setting is an expert setting: do not update setting
+            if (! $room->expert_mode && $config['expert']) {
+                continue;
+            }
 
-        $room->record_attendance = $request->record_attendance;
+            $room[$setting] = $request[$setting];
+        }
 
-        $room->default_role = $request->default_role;
-        $room->lobby = $request->lobby;
+        // Save welcome message if expert mode enabled, otherwise clear
+        $room->welcome = $room->expert_mode ? $request->welcome : null;
+
         $room->roomType()->associate($request->room_type);
 
         $room->save();
@@ -246,7 +261,7 @@ class RoomController extends Controller
     /**
      * Update room description
      *
-     * @return RoomSettings
+     * @return \Illuminate\Http\Response
      */
     public function updateDescription(UpdateRoomDescription $request, Room $room)
     {
@@ -258,10 +273,11 @@ class RoomController extends Controller
         }
 
         $room->save();
+        $room->refresh();
 
         Log::info('Changed description for room {room}', ['room' => $room->getLogLabel()]);
 
-        return new RoomSettings($room);
+        return response()->noContent();
     }
 
     /**
