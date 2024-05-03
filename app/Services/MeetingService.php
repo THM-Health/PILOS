@@ -78,8 +78,7 @@ class MeetingService
             ->setLockSettingsDisablePublicChat($this->meeting->room->getRoomSetting('lock_settings_disable_public_chat'))
             ->setLockSettingsDisableNotes($this->meeting->room->getRoomSetting('lock_settings_disable_note'))
             ->setLockSettingsHideUserList($this->meeting->room->getRoomSetting('lock_settings_hide_user_list'))
-            // @TODO refactor: maybe always true or if any of the restrictions is enabled
-            //->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
+            ->setLockSettingsLockOnJoin(true)
             ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
             ->setDisabledFeatures([Feature::LEARNING_DASHBOARD]);

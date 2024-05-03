@@ -170,6 +170,11 @@ return [
     'room_types' => [
         'color' => 'Color',
         'custom_color' => 'Custom color',
+        'default_room_settings' => [
+            'default' => 'Default',
+            'enforced' => 'Enforced',
+            'title' => 'Default room settings',
+        ],
         'delete' => [
             'confirm' => 'Do you really want to delete the room type :name?',
             'item' => 'Delete room type :id',
@@ -177,11 +182,6 @@ return [
             'replacement' => 'Room type replacement',
             'replacement_info' => 'If there are rooms associated with this room type, you need to select a replacement room type.',
             'title' => 'Delete room type?',
-        ],
-        'default_room_settings' => [
-            'default' => 'Default',
-            'enforced' => 'Enforced',
-            'title' => 'Default room settings',
         ],
         'edit' => 'Edit room type :name',
         'max_duration' => 'Maximum duration',

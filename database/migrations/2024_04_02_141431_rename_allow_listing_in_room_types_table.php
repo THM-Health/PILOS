@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('visibility_enforced')->default(false);
         });
 
-        RoomType::where('visibility_default', 0)->update(['visibility_enforced' => true]);
+        RoomType::where('visibility_default', \App\Enums\RoomVisibility::PRIVATE)->update(['visibility_enforced' => true]);
     }
 
     /**

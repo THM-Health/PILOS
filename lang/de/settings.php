@@ -170,6 +170,11 @@ return [
     'room_types' => [
         'color' => 'Farbe',
         'custom_color' => 'Eigene Farbe',
+        'default_room_settings' => [
+            'default' => 'Standard',
+            'enforced' => 'Erzwungen',
+            'title' => 'Standard-Raumeinstellungen',
+        ],
         'delete' => [
             'confirm' => 'Wollen Sie die Raumart :name wirklich löschen?',
             'item' => 'Raumart :id löschen',
@@ -177,11 +182,6 @@ return [
             'replacement' => 'Ersatzraumart',
             'replacement_info' => 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.',
             'title' => 'Raumart löschen?',
-        ],
-        'default_room_settings' => [
-            'default' => 'Standard',
-            'enforced' => 'Erzwungen',
-            'title' => 'Standard-Raumeinstellungen',
         ],
         'edit' => 'Raumart :name bearbeiten',
         'max_duration' => 'Maximale Dauer',

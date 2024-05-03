@@ -73,6 +73,13 @@ class Room extends Model
         return $casts;
     }
 
+    /**
+     * Defines the room settings that are present in the room and the room type.
+     * Is used in casts, when generating validation rules and in general when looping through all room settings.
+     * cast: defines the type to which should be cast (must be set)
+     * expert: defines if the setting is an expert setting or not (must be set)
+     * only: limits the possible values for the validation to specific values of an enum (can be set when the type is an enum)
+     */
     public const ROOM_SETTINGS_DEFINITION = [
         'mute_on_start' => [
             'cast' => 'boolean',
