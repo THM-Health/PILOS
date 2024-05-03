@@ -15,9 +15,10 @@ class TextProvider extends Base
         // (Words contain at least 1 character so the text has at least the given length)
         $text = substr($this->generator->sentence($length, false), 0, $length);
 
-        // Replace the last character of the text with '.'
-        // (Prevents the last character being ' ')
-        $text[$length - 1] = '.';
+        // Replace the last character of the text with '.' if it is ' '
+        if ($text[$length - 1] === ' ') {
+            $text[$length - 1] = '.';
+        }
 
         return $text;
     }
