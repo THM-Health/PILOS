@@ -47,13 +47,9 @@
 
           <!-- Access code -->
           <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label for="access-code" class="flex flex-column gap-2">
+            <label for="access-code" class="flex align-items-center gap-2">
+              <RoomSettingEnforcedIcon v-if="settings.room_type.has_access_code_enforced"/>
               {{ $t('rooms.access_code') }}
-
-              <small v-if="settings.room_type.has_access_code_enforced">
-                <RoomSettingEnforcedIcon class="mr-1"/>
-                {{settings.room_type.has_access_code_default?  $t('rooms.settings.general.access_code_enforced'): $t('rooms.settings.general.access_code_prohibited') }}
-              </small>
             </label>
 
             <InputGroup>
@@ -85,8 +81,8 @@
                 @click="settings.access_code = null"
               />
             </InputGroup>
-            <small>
-              {{ $t('rooms.settings.general.access_code_note') }}
+            <small v-if="settings.room_type.has_access_code_enforced">
+              {{settings.room_type.has_access_code_default?  $t('rooms.settings.general.access_code_enforced'): $t('rooms.settings.general.access_code_prohibited') }}
             </small>
             <p class="p-error" v-html="formErrors.fieldError('access_code')"/>
           </div>

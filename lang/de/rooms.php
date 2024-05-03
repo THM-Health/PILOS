@@ -298,9 +298,8 @@ return [
         ],
         'general' => [
             'access_by_guests' => 'Zugriff durch Gäste',
-            'access_code_enforced' => 'Der Raum benötigt einen Zugangscode',
-            'access_code_note' => 'Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).',
-            'access_code_prohibited' => 'Der Raum darf keinen Zugangscode besitzen',
+            'access_code_enforced' => 'Die Raumart erzwingt, dass ein Zugangscode existiert',
+            'access_code_prohibited' => 'Die Raumart erzwingt, dass kein Zugangscode existiert',
             'allow' => 'Erlauben',
             'allow_everyone' => 'Jedem erlauben',
             'allow_guests' => 'Gäste zulassen',
