@@ -342,7 +342,7 @@ return [
                 'title' => 'Waiting room',
             ],
             'microphone' => 'Microphone',
-            'mute_on_start' => 'Mute microphone in join',
+            'mute_on_start' => 'Mute microphone on join',
             'record_attendance' => 'Log attendance of participants',
             'title' => 'Video conference',
             'welcome_message' => 'Welcome message',
