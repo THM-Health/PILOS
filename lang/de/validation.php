@@ -80,7 +80,6 @@ return [
         'privacy_policy_url' => 'Datenschutzerklärung',
         'record' => 'Videokonferenz aufzeichnen',
         'record_attendance' => 'Anwesenheit der Teilnehmer protokollieren',
-        'require_access_code' => 'Zugangscode erforderlich',
         'restrict' => 'Verwendung einschränken',
         'role' => 'Rolle',
         'roles' => 'Rollen',

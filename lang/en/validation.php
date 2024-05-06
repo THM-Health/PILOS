@@ -80,7 +80,6 @@ return [
         'privacy_policy_url' => 'Privacy policy',
         'record' => 'Record video conference',
         'record_attendance' => 'Log attendance of participants',
-        'require_access_code' => 'Require access code',
         'restrict' => 'Restrict usage',
         'role' => 'Role',
         'roles' => 'Roles',
