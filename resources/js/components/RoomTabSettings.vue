@@ -296,11 +296,11 @@
               <InputSwitch
                 v-model="settings.auto_start_recording"
                 :disabled="disabled || settings.room_type.auto_start_recording_enforced"
-                :invalid="formErrors.fieldInvalid('record')"
+                :invalid="formErrors.fieldInvalid('auto_start_recording')"
                 class="flex-shrink-0"
-                input-id="record"
+                input-id="auto-start-recording"
               />
-              <label for="record" class="flex align-items-center gap-2">
+              <label for="auto-start-recording" class="flex align-items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.auto_start_recording_enforced"/>
                 {{ $t('rooms.settings.recordings.auto_start_recording') }}
               </label>
