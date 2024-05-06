@@ -523,7 +523,7 @@
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
-                input-id="record-default"
+                input-id="auto-start-recording-default"
                 v-model="model.auto_start_recording_default"
                 :invalid="formErrors.fieldInvalid('auto_start_recording_default')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
