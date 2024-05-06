@@ -73,13 +73,7 @@ export default ({ mode }) => {
         deep: true,
         dts: true,
         resolvers: [
-          PrimeVueResolver(),
-          (componentName) => {
-            if (componentName === 'InputGroup') { return { from: 'primevue/inputgroup' }; }
-            if (componentName === 'InputGroupAddon') { return { from: 'primevue/inputgroupaddon' }; }
-            if (componentName === 'IconField') { return { from: 'primevue/iconfield' }; }
-            if (componentName === 'InputIcon') { return { from: 'primevue/inputicon' }; }
-          }
+          PrimeVueResolver()
         ]
       })
     ],
