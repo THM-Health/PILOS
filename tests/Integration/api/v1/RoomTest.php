@@ -6,6 +6,7 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Models\Meeting;
 use App\Models\Room;
+use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\BigBlueButton\LaravelHTTPClient;
@@ -41,14 +42,187 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Test lobby behavior if enabled for everyone
+     * Test lobby behavior if enabled for everyone and enforced by room type
      */
-    public function testLobbyEnabled()
+    public function testLobbyEnabledEnforced()
     {
-        $room = Room::factory()->create([
+        $roomTypeLobbyEnabledEnforced = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::ENABLED,
+            'lobby_enforced' => true,
+            'allow_guests_default' => true,
+            'allow_guests_enforced' => true,
+        ]);
+
+        $room1 = Room::factory()->create([
+            'expert_mode' => true,
+            'lobby' => RoomLobby::DISABLED,
+            'room_type_id' => $roomTypeLobbyEnabledEnforced->id,
+        ]);
+
+        $room2 = Room::factory()->create([
+            'expert_mode' => true,
+            'lobby' => RoomLobby::ENABLED,
+            'room_type_id' => $roomTypeLobbyEnabledEnforced->id,
+
+        ]);
+
+        $room3 = Room::factory()->create([
+            'expert_mode' => false,
+            'room_type_id' => $roomTypeLobbyEnabledEnforced->id,
+        ]);
+
+        // Adding server(s)
+        $this->seed(ServerSeeder::class);
+
+        // Start meeting
+        $this->actingAs($room1->owner)->getJson(route('api.v1.rooms.start', ['room' => $room1, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        $this->actingAs($room3->owner)->getJson(route('api.v1.rooms.start', ['room' => $room3, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Check guests
+        $this->assertTrue($this->checkGuestWaitPage($room1));
+        $this->assertTrue($this->checkGuestWaitPage($room2));
+        $this->assertTrue($this->checkGuestWaitPage($room3));
+
+        // Check auth. users
+        $this->assertTrue($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertTrue($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertTrue($this->checkGuestWaitPage($room3, $this->user));
+
+        // Check owner
+        $this->assertFalse($this->checkGuestWaitPage($room1, $room1->owner));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $room2->owner));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $room3->owner));
+
+        // Testing member
+        $room1->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $room2->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $room3->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->assertTrue($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertTrue($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertTrue($this->checkGuestWaitPage($room3, $this->user));
+
+        // Testing moderator member
+        $room1->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $room3->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $this->user));
+
+        // Testing co-owner member
+        $room1->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $room3->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $this->user));
+
+        // Clear
+        $room1->refresh();
+        $room2->refresh();
+        $room3->refresh();
+        (new MeetingService($room1->latestMeeting))->end();
+        (new MeetingService($room2->latestMeeting))->end();
+        (new MeetingService($room3->latestMeeting))->end();
+    }
+
+    /**
+     * Test lobby behavior if enabled for everyone when expert mode is activated
+     */
+    public function testLobbyEnabledExpertMode()
+    {
+        $roomTypeLobbyDisabledDefault = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::DISABLED,
+            'lobby_enforced' => false,
+        ]);
+        $roomTypeLobbyEnabledDefault = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::ENABLED,
+            'lobby_enforced' => false,
+        ]);
+
+        $room1 = Room::factory()->create([
+            'expert_mode' => true,
             'allow_guests' => true,
             'lobby' => RoomLobby::ENABLED,
+            'room_type_id' => $roomTypeLobbyDisabledDefault->id,
         ]);
+
+        $room2 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_guests' => true,
+            'lobby' => RoomLobby::ENABLED,
+            'room_type_id' => $roomTypeLobbyEnabledDefault->id,
+        ]);
+
+        // Adding server(s)
+        $this->seed(ServerSeeder::class);
+
+        // Start meeting
+        $this->actingAs($room1->owner)->getJson(route('api.v1.rooms.start', ['room' => $room1, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Check guests
+        $this->assertTrue($this->checkGuestWaitPage($room1));
+        $this->assertTrue($this->checkGuestWaitPage($room2));
+
+        // Check auth. users
+        $this->assertTrue($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertTrue($this->checkGuestWaitPage($room2, $this->user));
+
+        // Check owner
+        $this->assertFalse($this->checkGuestWaitPage($room1, $room1->owner));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $room2->owner));
+
+        // Testing member
+        $room1->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $room2->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->assertTrue($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertTrue($this->checkGuestWaitPage($room2, $this->user));
+
+        // Testing moderator member
+        $room1->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+
+        // Testing co-owner member
+        $room1->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+
+        // Clear
+        $room1->refresh();
+        $room2->refresh();
+        (new MeetingService($room1->latestMeeting))->end();
+        (new MeetingService($room2->latestMeeting))->end();
+    }
+
+    /**
+     * Test lobby behavior if enabled for everyone when expert mode is deactivated
+     */
+    public function testLobbyEnabledWithoutExpertMode()
+    {
+        $roomTypeLobbyEnabledDefault = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::ENABLED,
+            'lobby_enforced' => false,
+        ]);
+
+        $room = Room::factory()->create([
+            'expert_mode' => false,
+            'allow_guests' => true,
+        ]);
+
+        $room->roomType()->associate($roomTypeLobbyEnabledDefault);
+        $room->save();
 
         // Adding server(s)
         $this->seed(ServerSeeder::class);
@@ -84,14 +258,185 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Test lobby behavior if enabled only for guests
+     * Test lobby behavior if enabled only for guests and enforced by room type
      */
-    public function testLobbyOnlyGuests()
+    public function testLobbyOnlyGuestsEnforced()
     {
-        $room = Room::factory()->create([
+        $roomTypeLobbyOnlyGuestsEnforced = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::ONLY_GUEST,
+            'lobby_enforced' => true,
+            'allow_guests_default' => true,
+            'allow_guests_enforced' => true,
+        ]);
+
+        $room1 = Room::factory()->create([
+            'expert_mode' => true,
+            'lobby' => RoomLobby::DISABLED,
+            'room_type_id' => $roomTypeLobbyOnlyGuestsEnforced,
+        ]);
+
+        $room2 = Room::factory()->create([
+            'expert_mode' => true,
+            'lobby' => RoomLobby::ONLY_GUEST,
+            'room_type_id' => $roomTypeLobbyOnlyGuestsEnforced,
+        ]);
+
+        $room3 = Room::factory()->create([
+            'expert_mode' => false,
+            'room_type_id' => $roomTypeLobbyOnlyGuestsEnforced,
+        ]);
+
+        // Adding server(s)
+        $this->seed(ServerSeeder::class);
+
+        // Start meeting
+        $this->actingAs($room1->owner)->getJson(route('api.v1.rooms.start', ['room' => $room1, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+        $this->actingAs($room3->owner)->getJson(route('api.v1.rooms.start', ['room' => $room3, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Check guests
+        $this->assertTrue($this->checkGuestWaitPage($room1));
+        $this->assertTrue($this->checkGuestWaitPage($room2));
+        $this->assertTrue($this->checkGuestWaitPage($room3));
+
+        // Check auth. users
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $this->user));
+
+        // Check owner
+        $this->assertFalse($this->checkGuestWaitPage($room1, $room1->owner));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $room2->owner));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $room3->owner));
+
+        // Testing member
+        $room1->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $room2->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $room3->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $this->user));
+
+        // Testing moderator member
+        $room1->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $room3->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $this->user));
+
+        // Testing co-owner member
+        $room1->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $room3->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room3, $this->user));
+
+        // Clear
+        $room1->refresh();
+        $room2->refresh();
+        $room3->refresh();
+        (new MeetingService($room1->latestMeeting))->end();
+        (new MeetingService($room2->latestMeeting))->end();
+        (new MeetingService($room3->latestMeeting))->end();
+    }
+
+    /**
+     * Test lobby behavior if enabled only for guests when expert mode is activated
+     */
+    public function testLobbyOnlyGuestsExpertMode()
+    {
+        $roomTypeLobbyDisabledDefault = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::DISABLED,
+            'lobby_enforced' => false,
+        ]);
+        $roomTypeLobbyOnlyGuestsDefault = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::ONLY_GUEST,
+            'lobby_enforced' => false,
+        ]);
+
+        $room1 = Room::factory()->create([
+            'expert_mode' => true,
             'allow_guests' => true,
             'lobby' => RoomLobby::ONLY_GUEST,
+            'room_type_id' => $roomTypeLobbyDisabledDefault->id,
         ]);
+
+        $room2 = Room::factory()->create([
+            'expert_mode' => true,
+            'allow_guests' => true,
+            'lobby' => RoomLobby::ONLY_GUEST,
+            'room_type_id' => $roomTypeLobbyOnlyGuestsDefault->id,
+        ]);
+
+        // Adding server(s)
+        $this->seed(ServerSeeder::class);
+
+        // Start meeting
+        $this->actingAs($room1->owner)->getJson(route('api.v1.rooms.start', ['room' => $room1, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room' => $room2, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+            ->assertSuccessful();
+
+        // Check guests
+        $this->assertTrue($this->checkGuestWaitPage($room1));
+        $this->assertTrue($this->checkGuestWaitPage($room2));
+
+        // Check auth. users
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+
+        // Check owner
+        $this->assertFalse($this->checkGuestWaitPage($room1, $room1->owner));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $room2->owner));
+
+        // Testing member
+        $room1->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $room2->members()->attach($this->user, ['role' => RoomUserRole::USER]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+
+        // Testing moderator member
+        $room1->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::MODERATOR]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+
+        // Testing co-owner member
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $room2->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
+        $this->assertFalse($this->checkGuestWaitPage($room1, $this->user));
+        $this->assertFalse($this->checkGuestWaitPage($room2, $this->user));
+
+        // Clear
+        $room1->refresh();
+        $room2->refresh();
+        (new MeetingService($room1->latestMeeting))->end();
+        (new MeetingService($room2->latestMeeting))->end();
+    }
+
+    /**
+     * Test lobby behavior if enabled only for guests when expert mode is deactivated
+     */
+    public function testLobbyOnlyGuestsWithoutExpertMode()
+    {
+        $roomTypeLobbyOnlyGuestsDefault = RoomType::factory()->create([
+            'lobby_default' => RoomLobby::ONLY_GUEST,
+            'lobby_enforced' => false,
+        ]);
+
+        $room = Room::factory()->create([
+            'expert_mode' => false,
+            'allow_guests' => true,
+        ]);
+
+        $room->roomType()->associate($roomTypeLobbyOnlyGuestsDefault);
+        $room->save();
+
         // Adding server(s)
         $this->seed(ServerSeeder::class);
 

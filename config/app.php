@@ -230,6 +230,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\FakerServiceProvider::class,
 
         App\Auth\LDAP\LDAPServiceProvider::class,
         App\Auth\Shibboleth\ShibbolethServiceProvider::class,

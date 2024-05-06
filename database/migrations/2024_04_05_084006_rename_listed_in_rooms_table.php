@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->boolean('record')->default(false);
-            $table->boolean('auto_start_recording')->default(false);
+            $table->integer('listed')->default(\App\Enums\RoomVisibility::PRIVATE)->change();
+            $table->renameColumn('listed', 'visibility');
         });
     }
 
@@ -23,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->dropColumn(['record', 'auto_start_recording']);
+            $table->boolean('visibility')->default(false)->change();
+            $table->renameColumn('visibility', 'listed');
         });
     }
 };

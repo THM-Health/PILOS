@@ -12,12 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('room_types', function (Blueprint $table) {
-            $table->boolean('record_default')->default(false);
-            $table->boolean('record_enforced')->default(false);
-
-            $table->boolean('auto_start_recording_default')->default(false);
-            $table->boolean('auto_start_recording_enforced')->default(false);
-
+            $table->string('description', 5000)->nullable();
         });
     }
 
@@ -27,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('room_types', function (Blueprint $table) {
-            $table->dropColumn(['record_default', 'record_enforced']);
-            $table->dropColumn(['auto_start_recording_default', 'auto_start_recording_enforced']);
+            $table->dropColumn('description');
         });
     }
 };

@@ -16,8 +16,6 @@ return [
         'allow_guests' => 'Gäste zulassen',
         'allow_listing' => 'Raumsuche erlaubt',
         'allow_membership' => 'Neue Mitglieder zulassen',
-        'allow_record' => 'Videokonferenz-Aufzeichnung erlauben',
-        'allow_record_attendance' => 'Anwesenheitsprotokollierung erlauben',
         'auto_start_recording' => 'Automatischer Aufnahmestart',
         'available' => 'verfügbar',
         'banner_background' => 'Hintergrundfarbe des Banners',
@@ -121,6 +119,10 @@ return [
     'confirmed' => ':attribute stimmt nicht mit der Bestätigung überein.',
     'current_password' => 'Das Passwort ist falsch.',
     'custom' => [
+        'access_code' => [
+            'prohibited' => 'Der Raum darf wegen seiner Raumart keinen Zugangscode besitzen.',
+            'required' => 'Der Raum benötigt wegen seiner Raumart einen Zugangscode.',
+        ],
         'banner' => [
             'array' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
             'icon' => [

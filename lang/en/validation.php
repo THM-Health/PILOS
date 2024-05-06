@@ -16,8 +16,6 @@ return [
         'allow_guests' => 'Allow guests',
         'allow_listing' => 'Room search allowed',
         'allow_membership' => 'Allow new members',
-        'allow_record' => 'Allow video conference recording',
-        'allow_record_attendance' => 'Allow attendance recording',
         'auto_start_recording' => 'Automatic recording start',
         'available' => 'Available',
         'banner_background' => 'Background color of the banner',
@@ -121,6 +119,10 @@ return [
     'confirmed' => 'The :attribute confirmation does not match.',
     'current_password' => 'The current password is incorrect.',
     'custom' => [
+        'access_code' => [
+            'prohibited' => 'The room is not allowed to have an access code because of its room type.',
+            'required' => 'The room requires an access code because of its room type.',
+        ],
         'banner' => [
             'array' => 'The message banner settings are missing!',
             'icon' => [
