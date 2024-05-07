@@ -21,5 +21,6 @@ enum CustomStatusCodes: int
     case ATTENDANCE_AGREEMENT_MISSING = 470;
     case EMAIL_CHANGE_THROTTLE = 471;
     case JOIN_FAILED = 472;
+    case RECORD_AGREEMENT_MISSING = 473;
     case ROOM_ALREADY_RUNNING = 474;
 }

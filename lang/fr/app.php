@@ -16,6 +16,7 @@ return [
         'warning' => 'Avertissement',
     ],
     'cancel' => 'Annuler',
+    'char_counter' => 'Caractères: :chars',
     'close' => 'Fermer',
     'continue' => 'Continuer',
     'delete' => 'Supprimer',

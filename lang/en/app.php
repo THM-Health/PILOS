@@ -17,6 +17,7 @@ return [
     ],
     'cancel' => 'Cancel',
     'cancel_editing' => 'Cancel editing',
+    'char_counter' => 'Characters: :chars',
     'close' => 'Close',
     'continue' => 'Continue',
     'delete' => 'Delete',
@@ -39,6 +40,7 @@ return [
         'no_server_available' => 'Currently there are no servers available.',
         'not_member_of_room' => 'The person is not a member of this room (anymore).',
         'not_running' => 'Joining the room has failed as it is currently closed.',
+        'record_agreement_missing' => 'Consent to the recording is required.',
         'role_delete_linked_users' => 'The role is linked to users and therefore it can\'t be deleted!',
         'role_update_permission_lost' => 'The changes of the role would lead to a lost of permissions to view and update roles for you!',
         'room_already_running' => 'The room could not be started because it is already running.',
@@ -56,6 +58,7 @@ return [
     'flash' => [
         'client_error' => 'An unknown error occurred in the application!',
         'guests_only' => 'The request can only be made by guests!',
+        'popup_blocked' => 'Your browser has blocked opening a new window. Please allow pop-ups to open for this page and try again.',
         'server_error' => [
             'empty_message' => 'An error occurred on the server during request!',
             'error_code' => 'Error code: :statusCode',

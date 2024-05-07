@@ -104,17 +104,52 @@
               </div>
             </div>
 
+            <!-- Recording settings -->
+            <h4 class="my-2" >{{ $t('rooms.settings.recordings.title') }}</h4>
+
             <!-- Record attendance of users and guests -->
             <div class="field grid">
               <label for="record-attendance-default" class="col-8 flex align-items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="roomType.record_attendance_enforced"/>
-                {{ $t('rooms.settings.video_conference.record_attendance') }}
+                {{ $t('rooms.settings.recordings.record_attendance') }}
               </label>
 
               <div class="col-4 justify-content-center flex align-items-center">
                 <InputSwitch
                   input-id="record-attendance-default"
                   :model-value="roomType.record_attendance_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Record video conference -->
+            <div class="field grid">
+              <label for="record-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.record_enforced"/>
+                {{ $t('rooms.settings.recordings.record_video_conference') }}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="record-default"
+                  :model-value="roomType.record_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Auto start recording video conference -->
+            <div class="field grid">
+              <label for="auto-start-recording-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.auto_start_recording_enforced"/>
+                {{ $t('rooms.settings.recordings.auto_start_recording') }}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="auto-start-recording-default"
+                  :model-value="roomType.auto_start_recording_default"
                   disabled
                 />
               </div>

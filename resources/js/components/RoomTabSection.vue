@@ -76,6 +76,7 @@ import RoomTabPersonalizedLinks from './RoomTabPersonalizedLinks.vue';
 import RoomTabFiles from './RoomTabFiles.vue';
 import RoomTabHistory from './RoomTabHistory.vue';
 import RoomTabSettings from './RoomTabSettings.vue';
+import RoomTabRecordings from './RoomTabRecordings.vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
@@ -130,6 +131,7 @@ const availableTabs = computed(() => {
   }
 
   tabs.push({ key: 'files', label: t('rooms.files.title'), icon: 'fa-solid fa-folder-open', component: RoomTabFiles });
+  tabs.push({ key: 'recordings', label: t('rooms.recordings.title'), icon: 'fa-solid fa-play-circle', component: RoomTabRecordings });
 
   if (userPermissions.can('viewSettings', props.room)) {
     tabs.push({ key: 'history', label: t('rooms.meeting_history.title'), icon: 'fa-solid fa-history', component: RoomTabHistory });

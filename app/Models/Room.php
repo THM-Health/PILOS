@@ -53,6 +53,7 @@ class Room extends Model
 
         static::deleting(function ($model) {
             $model->files->each->delete();
+            $model->recordings->each->delete();
             \Storage::deleteDirectory($model->id);
         });
     }
@@ -142,6 +143,14 @@ class Room extends Model
             'cast' => 'boolean',
             'expert' => true,
         ],
+        'record' => [
+            'cast' => 'boolean',
+            'expert' => true,
+        ],
+        'auto_start_recording' => [
+            'cast' => 'boolean',
+            'expert' => true,
+        ],
     ];
 
     /**
@@ -184,6 +193,16 @@ class Room extends Model
         }
 
         return $rules;
+    }
+
+    /**
+     * Recordings
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function recordings()
+    {
+        return $this->hasMany(Recording::class);
     }
 
     /**
@@ -256,7 +275,7 @@ class Room extends Model
     }
 
     /**
-     * Meetings
+     * Last meeting of the room
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

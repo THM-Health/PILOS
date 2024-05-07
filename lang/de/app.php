@@ -17,6 +17,7 @@ return [
     ],
     'cancel' => 'Abbrechen',
     'cancel_editing' => 'Bearbeiten abbrechen',
+    'char_counter' => 'Zeichen: :chars',
     'close' => 'Schließen',
     'continue' => 'Weiter',
     'delete' => 'Löschen',
@@ -39,6 +40,7 @@ return [
         'no_server_available' => 'Zur Zeit sind keine Server verfügbar.',
         'not_member_of_room' => 'Die Person ist nicht (mehr) Mitglied dieses Raums.',
         'not_running' => 'Der Beitritt zum Raum ist fehlgeschlagen, da er derzeit geschlossen ist.',
+        'record_agreement_missing' => 'Die Zustimmung zur Aufzeichnung ist erforderlich.',
         'role_delete_linked_users' => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',
         'role_update_permission_lost' => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
         'room_already_running' => 'Der Raum konnte nicht gestartet werden, weil er bereits läuft.',
@@ -56,6 +58,7 @@ return [
     'flash' => [
         'client_error' => 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
         'guests_only' => 'Die Anfrage ist nur für nicht angemeldete Benutzer gestattet!',
+        'popup_blocked' => 'Ihr Browser hat das Öffnen eines neuen Fensters blockiert. Bitte erlauben Sie das Öffnen von Popups für diese Seite und versuchen Sie es erneut.',
         'server_error' => [
             'empty_message' => 'Es ist ein Fehler auf dem Server aufgetreten!',
             'error_code' => 'Fehlercode: :statusCode',

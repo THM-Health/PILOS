@@ -229,26 +229,6 @@
             </InlineNote>
           </div>
 
-          <!-- Checkbox record attendance of users and guests -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label for="record-attendance" class="flex align-items-center gap-2">
-              <RoomSettingEnforcedIcon v-if="settings.room_type.record_attendance_enforced"/>
-              {{$t('rooms.settings.video_conference.attendance')}}
-            </label>
-
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
-                v-model="settings.record_attendance"
-                :disabled="disabled || settings.room_type.record_attendance_enforced"
-                :invalid="formErrors.fieldInvalid('record_attendance')"
-                class="flex-shrink-0"
-                input-id="record-attendance"
-              />
-              <label for="record-attendance">{{ $t('rooms.settings.video_conference.record_attendance') }}</label>
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('record_attendance')"/>
-          </div>
-
           <!-- Welcome message -->
           <div class="col-12 flex flex-column">
             <label for="welcome-message" class="mb-2">{{ $t('rooms.settings.video_conference.welcome_message') }}</label>
@@ -265,6 +245,67 @@
               {{ $t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage}) }}
             </small>
             <p class="p-error" v-html="formErrors.fieldError('welcome')"/>
+          </div>
+
+          <Divider/>
+
+          <!-- Recording settings -->
+          <div class="col-12">
+            <h4 class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.recordings.title') }}</h4>
+          </div>
+
+          <!-- Checkbox record attendance of users and guests -->
+          <div class="col-12 md:col-3 flex flex-column gap-2">
+            <div class="flex align-items-center gap-2">
+              <InputSwitch
+                v-model="settings.record_attendance"
+                :disabled="disabled || settings.room_type.record_attendance_enforced"
+                :invalid="formErrors.fieldInvalid('record_attendance')"
+                class="flex-shrink-0"
+                input-id="record-attendance"
+              />
+              <label for="record-attendance" class="flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="settings.room_type.record_attendance_enforced"/>
+                {{ $t('rooms.settings.recordings.record_attendance') }}
+              </label>
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('record_attendance')"/>
+          </div>
+
+          <!-- Checkbox record video conference -->
+          <div class="col-12 md:col-3 flex flex-column gap-2">
+            <div class="flex align-items-center gap-2">
+              <InputSwitch
+                v-model="settings.record"
+                :disabled="disabled || settings.room_type.record_enforced"
+                :invalid="formErrors.fieldInvalid('record')"
+                class="flex-shrink-0"
+                input-id="record"
+              />
+              <label for="record" class="flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="settings.room_type.record_enforced"/>
+                {{ $t('rooms.settings.recordings.record_video_conference') }}
+              </label>
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('record')"/>
+          </div>
+
+          <!-- Checkbox auto start recording of video conference -->
+          <div class="col-12 md:col-3 flex flex-column gap-2">
+            <div class="flex align-items-center gap-2">
+              <InputSwitch
+                v-model="settings.auto_start_recording"
+                :disabled="disabled || settings.room_type.auto_start_recording_enforced"
+                :invalid="formErrors.fieldInvalid('auto_start_recording')"
+                class="flex-shrink-0"
+                input-id="auto-start-recording"
+              />
+              <label for="auto-start-recording" class="flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="settings.room_type.auto_start_recording_enforced"/>
+                {{ $t('rooms.settings.recordings.auto_start_recording') }}
+              </label>
+            </div>
+            <p class="p-error" v-html="formErrors.fieldError('auto_start_recording')"/>
           </div>
 
           <Divider/>
@@ -482,7 +523,7 @@
                 :disabled="disabled || settings.room_type.visibility_enforced"
                 :invalid="formErrors.fieldInvalid('visibility_default')"
                 :options="[
-                  { visibility: 0, label:  $t('rooms.settings.advanced.visibility.private') },
+                  { visibility: 0, label: $t('rooms.settings.advanced.visibility.private') },
                   { visibility: 1, label: $t('rooms.settings.advanced.visibility.public')}
                 ]"
                 class="flex-shrink-0"

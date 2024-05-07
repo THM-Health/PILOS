@@ -632,6 +632,22 @@
           </div>
         </div>
 
+        <div class="grid">
+          <label id="recording-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.recording.retention_period_title')}}</label>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <Dropdown
+              v-model="settings.recording.retention_period"
+              :options="recordingRetentionPeriods"
+              optionLabel="text"
+              optionValue="value"
+              :invalid="formErrors.fieldInvalid('recording.retention_period')"
+              :disabled="disabled"
+              aria-labelledby="recording-retention-period-label"
+            />
+            <p class="p-error" v-html="formErrors.fieldError('recording.retention_period')"></p>
+          </div>
+        </div>
+
         <Divider/>
         <h4 class="text-xl">{{ $t('settings.application.bbb.title') }}</h4>
 
@@ -748,6 +764,7 @@ const settings = ref({
     meetings: {}
   },
   attendance: {},
+  recording: {},
   room_auto_delete: {}
 });
 
@@ -851,6 +868,8 @@ function updateSettings () {
   formData.append('statistics[meetings][retention_period]', settings.value.statistics.meetings.retention_period);
   formData.append('attendance[retention_period]', settings.value.attendance.retention_period);
 
+  formData.append('recording[retention_period]', settings.value.recording.retention_period);
+
   formData.append('room_auto_delete[enabled]', settings.value.room_auto_delete.enabled ? 1 : 0);
   formData.append('room_auto_delete[deadline_period]', settings.value.room_auto_delete.deadline_period);
   formData.append('room_auto_delete[inactive_period]', settings.value.room_auto_delete.inactive_period);
@@ -949,6 +968,19 @@ const timePeriods = computed(() => {
     { value: 730, text: t('settings.application.two_years') },
     { value: -1, text: t('app.unlimited') }
   ];
+});
+
+/**
+ * Options for the recording retention period select.
+ */
+const recordingRetentionPeriods = computed(() => {
+  return timePeriods.value.filter((period) => {
+    if (settings.value.recording.max_retention_period === -1) {
+      return true;
+    }
+
+    return period.value <= settings.value.recording.max_retention_period && period.value !== -1;
+  });
 });
 
 /**

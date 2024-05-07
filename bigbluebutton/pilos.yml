@@ -1,0 +1,11 @@
+# Should be stored in /etc/bigbluebutton/recording/pilos.yml
+#
+# Directory for temporary storage of working files
+work_dir: /var/bigbluebutton/recording/pilos
+#
+# Directory to place recording files for pilos to import
+# If you are using a shared filesystem, this should be the local mountpoint on the BigBlueButton server.
+spool_dir: /mnt/storage/recordings-spool
+# If you are using rsync over ssh, this should be of the form HOST:DEST
+# The username is not required if the .ssh/config file of the bigbluebutton user is set up correctly.
+#spool_dir: pilos.example.com:/

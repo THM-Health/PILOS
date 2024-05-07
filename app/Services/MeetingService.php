@@ -61,11 +61,13 @@ class MeetingService
     /**
      * Start meeting with the properties saved for this meeting and room
      */
-    public function start(): bool
+    public function start(): ?\BigBlueButton\Responses\CreateMeetingResponse
     {
         // Set meeting parameters
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
         $meetingParams
+            ->setRecord($this->meeting->record)
+            ->setAutoStartRecording($this->meeting->room->auto_start_recording)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
             ->setEndCallbackUrl($this->getCallbackUrl())
             ->setDuration($this->meeting->room->roomType->max_duration)
@@ -81,9 +83,12 @@ class MeetingService
             ->setLockSettingsLockOnJoin(true)
             ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setDisabledFeatures([Feature::LEARNING_DASHBOARD]);
+            ->setDisabledFeatures([Feature::LEARNING_DASHBOARD])
+            ->setRemindRecordingIsOn(true)
+            ->setNotifyRecordingIsOn(true);
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
+        $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
@@ -122,7 +127,7 @@ class MeetingService
             $this->meeting->forceDelete();
             $this->serverService->handleApiCallFailed();
 
-            return false;
+            return null;
         }
 
         // Check server response for meeting creation
@@ -142,10 +147,10 @@ class MeetingService
                     break;
             }
 
-            return false;
+            return null;
         }
 
-        return true;
+        return $result;
     }
 
     /**
@@ -352,6 +357,8 @@ class MeetingService
             $joinMeetingParams->setGuest(true);
         }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
+
+        $joinMeetingParams->addUserData('bbb_record_video', $request->record_video);
 
         // If a custom style file is set, pass url to bbb html5 client
         if (setting()->has('bbb_style')) {

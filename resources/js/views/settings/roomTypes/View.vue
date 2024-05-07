@@ -454,9 +454,12 @@
           </div>
         </div>
 
+        <!-- Record settings -->
+        <h4>{{ $t('rooms.settings.recordings.title') }}</h4>
+
         <!-- Record attendance of users and guests -->
         <div class="field grid">
-          <label for="record-attendance-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.video_conference.record_attendance') }}</label>
+          <label for="record-attendance-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
           <div class="col-12 md:col-8">
             <div class="flex justify-content-between align-items-center">
               <InputSwitch
@@ -480,6 +483,66 @@
             <div class="flex justify-content-between gap-4">
               <p class="p-error" v-html="formErrors.fieldError('record_attendance_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('record_attendance_enforced')"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Record video-conf -->
+        <div class="field grid">
+          <label for="record-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_video_conference') }}</label>
+          <div class="col-12 md:col-8">
+            <div class="flex justify-content-between align-items-center">
+              <InputSwitch
+                input-id="record-default"
+                v-model="model.record_default"
+                :invalid="formErrors.fieldInvalid('record_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+              <ToggleButton
+                v-model="model.record_enforced"
+                :invalid="formErrors.fieldInvalid('record_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+                input-id="record-attendance-enforced"
+                :aria-label="$t('rooms.settings.general.enforced_setting')"
+              />
+            </div>
+            <div class="flex justify-content-between gap-4">
+              <p class="p-error" v-html="formErrors.fieldError('record_default')"></p>
+              <p class="p-error text-right" v-html="formErrors.fieldError('record_enforced')"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto start recording video-conf -->
+        <div class="field grid">
+          <label for="auto-start-recording-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.auto_start_recording') }}</label>
+          <div class="col-12 md:col-8">
+            <div class="flex justify-content-between align-items-center">
+              <InputSwitch
+                input-id="auto-start-recording-default"
+                v-model="model.auto_start_recording_default"
+                :invalid="formErrors.fieldInvalid('auto_start_recording_default')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+              />
+              <ToggleButton
+                v-model="model.auto_start_recording_enforced"
+                :invalid="formErrors.fieldInvalid('auto_start_recording_enforced')"
+                :disabled="isBusy || modelLoadingError || viewOnly"
+                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
+                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                on-icon="fa-solid fa-lock"
+                off-icon="fa-solid fa-lock-open"
+                input-id="record-attendance-enforced"
+                :aria-label="$t('rooms.settings.general.enforced_setting')"
+              />
+            </div>
+            <div class="flex justify-content-between gap-4">
+              <p class="p-error" v-html="formErrors.fieldError('auto_start_recording_enforced')"></p>
+              <p class="p-error text-right" v-html="formErrors.fieldError('auto_start_recording_enforced')"></p>
             </div>
           </div>
         </div>
@@ -905,6 +968,10 @@ const model = ref({
   lobby_enforced: false,
   record_attendance_default: false,
   record_attendance_enforced: false,
+  record_default: false,
+  record_enforced: false,
+  auto_start_recording_default: false,
+  auto_start_recording_enforced: false,
   visibility_default: 0,
   visibility_enforced: false,
   has_access_code_default: true,

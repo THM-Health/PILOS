@@ -154,6 +154,7 @@
                     @file-not-found="loadData()"
                     @invalid-code="emit('invalidCode')"
                     @invalid-token="emit('invalidToken')"
+                    @forbidden="loadData()"
                   />
                   <RoomTabFilesEditButton
                     :room-id="props.room.id"

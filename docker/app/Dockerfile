@@ -5,6 +5,7 @@ LABEL description="Development and production container for PILOS, compatible wi
 
 ARG WWWGROUP=82
 ARG WWWUSER=82
+ARG PLAYBACK_PLAYER_VERSION=5.0.2
 
 WORKDIR /var/www/html
 
@@ -12,7 +13,8 @@ ENV TZ=UTC \
     PHP_FPM_PM_MAX_CHILDREN=100 \
     NGINX_WORKER_PROCESSES=auto \
     NGINX_WORKER_CONNECTIONS=auto \
-    NGINX_WORKER_RLIMIT_NOFILE=auto
+    NGINX_WORKER_RLIMIT_NOFILE=auto \
+    PILOS_SPOOL_GID=2000
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -58,6 +60,11 @@ COPY ./docker/app/frontend /usr/local/etc/frontend
 RUN chmod +x /usr/local/etc/frontend/run.sh
 RUN chown www-data:www-data /usr/local/etc/frontend/
 
+# Copy bbb-player script
+COPY ./docker/app/playback-player /usr/local/etc/playback-player
+RUN chmod +x /usr/local/etc/playback-player/build.sh
+RUN chown www-data:www-data /usr/local/etc/playback-player/
+
 # Copy supervisor config
 RUN mkdir -p /var/log/supervisor
 COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
@@ -81,12 +88,15 @@ COPY ./docker/app/ldap/ /etc/ldap
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
-# Run npm and composer install as www-data user
+# Run npm install command
 RUN su-exec www-data npm install --omit=dev
-RUN su-exec www-data composer install --no-dev
 
-# Optimize composer autoloader for production
+# Run and optimize composer for production
+RUN su-exec www-data composer install --no-dev
 RUN su-exec www-data composer dump-autoload -o
+
+# Install BBB Recording Player
+RUN pilos-cli playback-player:build $PLAYBACK_PLAYER_VERSION
 
 EXPOSE 80
 EXPOSE 443
