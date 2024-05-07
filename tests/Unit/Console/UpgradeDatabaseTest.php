@@ -147,19 +147,10 @@ class UpgradeDatabaseTest extends TestCase
             ['key' => 'bbb_logo', 'value' => 'https://example.com/bbb-logo.svg'],
             ['key' => 'bbb_style', 'value' => 'https://example.com/bbb.css'],
             ['key' => 'default_presentation', 'value' => 'https://example.com/default.pdf'],
-
         ]);
 
         // Upgrade to v4 database
-        $this->artisan('db:upgrade')
-            /*->expectsTable(
-                ['Key', 'Value'],
-                [
-                    ['name', 'Old App Name'],
-                    ['logo', '/images/old-logo.svg'],
-                    ['pagination_page_size', '10'],
-                ]
-            )*/;
+        $this->artisan('db:upgrade');
 
         // Check settings
         $generalSettings = app(GeneralSettings::class);
