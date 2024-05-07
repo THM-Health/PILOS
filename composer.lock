@@ -4,71 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edf5a641e2bc8c8e033d570df7615082",
+    "content-hash": "4267b39e9175cf8cdd8ebc55951d1859",
     "packages": [
-        {
-            "name": "anlutro/l4-settings",
-            "version": "v1.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/anlutro/laravel-settings.git",
-                "reference": "379ab5d5a3c7a1e4ac0cf04884b4e7a1a095461d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/anlutro/laravel-settings/zipball/379ab5d5a3c7a1e4ac0cf04884b4e7a1a095461d",
-                "reference": "379ab5d5a3c7a1e4ac0cf04884b4e7a1a095461d",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/cache": "^4.2|^5|^6|^7|^8|^9|^10|^11",
-                "illuminate/support": "^4.2|^5|^6|^7|^8|^9|^10|^11"
-            },
-            "require-dev": {
-                "laravel/framework": ">=5.7",
-                "mockery/mockery": "^1.2",
-                "phpunit/phpunit": "^8.0"
-            },
-            "suggest": {
-                "illuminate/database": "Save settings to a database table.",
-                "illuminate/filesystem": "Save settings to a JSON file."
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Setting": "anlutro\\LaravelSettings\\Facade"
-                    },
-                    "providers": [
-                        "anlutro\\LaravelSettings\\ServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
-                "psr-4": {
-                    "anlutro\\LaravelSettings\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Andreas Lutro",
-                    "email": "anlutro@gmail.com"
-                }
-            ],
-            "description": "Persistent settings in Laravel.",
-            "support": {
-                "issues": "https://github.com/anlutro/laravel-settings/issues",
-                "source": "https://github.com/anlutro/laravel-settings/tree/v1.4.0"
-            },
-            "time": "2024-03-13T08:59:39+00:00"
-        },
         {
             "name": "brick/math",
             "version": "0.12.1",

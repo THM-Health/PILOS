@@ -10,7 +10,6 @@
         "ext-json": "*",
         "ext-simplexml": "*",
         "ext-zip": "*",
-        "anlutro/l4-settings": "^1.0.0",
         "directorytree/ldaprecord-laravel": "^3.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^11.0",
