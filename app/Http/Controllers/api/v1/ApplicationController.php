@@ -141,6 +141,7 @@ class ApplicationController extends Controller
         $recordingSettings->meeting_usage_enabled = $request->boolean('statistics.meetings.enabled');
         $recordingSettings->meeting_usage_retention_period = $request->enum('statistics.meetings.retention_period', TimePeriod::class);
         $recordingSettings->attendance_retention_period = $request->enum('attendance.retention_period', TimePeriod::class);
+        $recordingSettings->recording_retention_period = $request->enum('recording.retention_period', TimePeriod::class);
 
         $generalSettings->save();
         $roomSettings->save();

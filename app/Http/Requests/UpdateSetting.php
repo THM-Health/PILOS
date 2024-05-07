@@ -17,6 +17,18 @@ class UpdateSetting extends FormRequest
      */
     public function rules()
     {
+        // List of retention periods that are disabled because they are larger than the maximum retention period
+        $disabledRecordingRetentionPeriods = [];
+        if (config('recording.max_retention_period') !== -1) {
+            $disabledRecordingRetentionPeriods[] = TimePeriod::UNLIMITED;
+
+            foreach (TimePeriod::cases() as $timePeriod) {
+                if ($timePeriod->value > config('recording.max_retention_period')) {
+                    $disabledRecordingRetentionPeriods[] = $timePeriod;
+                }
+            }
+        }
+
         return [
             'name' => 'required|string|max:255',
             'room_limit' => 'required|numeric|min:-1|max:100',
@@ -55,6 +67,7 @@ class UpdateSetting extends FormRequest
             'room_auto_delete.inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete.never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete.deadline_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)->only([TimePeriod::ONE_WEEK, TimePeriod::TWO_WEEKS, TimePeriod::ONE_MONTH])],
+            'recording.retention_period' => ['required', 'numeric',  Rule::enum(TimePeriod::class)->except($disabledRecordingRetentionPeriods)],
         ];
     }
 

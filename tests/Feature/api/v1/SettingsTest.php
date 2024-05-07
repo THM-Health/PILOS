@@ -65,6 +65,7 @@ class SettingsTest extends TestCase
         $this->recordingSettings->meeting_usage_enabled = true;
         $this->recordingSettings->meeting_usage_retention_period = TimePeriod::THREE_MONTHS;
         $this->recordingSettings->attendance_retention_period = TimePeriod::TWO_WEEKS;
+        $this->recordingSettings->recording_retention_period = TimePeriod::ONE_MONTH;
         $this->recordingSettings->save();
 
         config(['bigbluebutton.room_refresh_rate' => 20]);
@@ -73,6 +74,7 @@ class SettingsTest extends TestCase
         config(['app.whitelabel' => false]);
         config(['auth.local.enabled' => true]);
         config(['ldap.enabled' => false]);
+        config(['recording.max_retention_period' => -1]);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
@@ -107,6 +109,10 @@ class SettingsTest extends TestCase
                     ],
                     'attendance' => [
                         'retention_period' => 14,
+                    ],
+                    'recording' => [
+                        'retention_period' => 30,
+                        'max_retention_period' => -1,
                     ],
                     'room_token_expiration' => -1,
                     'room_refresh_rate' => 20,
@@ -209,6 +215,7 @@ class SettingsTest extends TestCase
         $this->recordingSettings->meeting_usage_enabled = false;
         $this->recordingSettings->meeting_usage_retention_period = TimePeriod::THREE_MONTHS;
         $this->recordingSettings->attendance_retention_period = TimePeriod::TWO_WEEKS;
+        $this->recordingSettings->recording_retention_period = TimePeriod::ONE_MONTH;
         $this->recordingSettings->save();
 
         $this->bigBlueButtonSettings->style = url('style.css');
@@ -221,6 +228,7 @@ class SettingsTest extends TestCase
         config(['bigbluebutton.welcome_message_limit' => 100]);
         config(['app.url' => 'https://domain.tld']);
         config(['bigbluebutton.room_refresh_rate' => 20]);
+        config(['recording.max_retention_period' => 90]);
 
         $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
@@ -268,6 +276,10 @@ class SettingsTest extends TestCase
                     ],
                     'attendance' => [
                         'retention_period' => 14,
+                    ],
+                    'recording' => [
+                        'retention_period' => 30,
+                        'max_retention_period' => 90,
                     ],
                     'room_auto_delete' => [
                         'inactive_period' => 7,
@@ -330,6 +342,8 @@ class SettingsTest extends TestCase
 
     public function testAllApplicationSettingsReturnedOnUpdate()
     {
+        config(['recording.max_retention_period' => -1]);
+
         $payload = [
             'name' => 'test',
             'logo' => 'testlogo.svg',
@@ -337,9 +351,9 @@ class SettingsTest extends TestCase
             'bbb' => [
                 'logo' => 'bbblogo.png',
             ],
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 15,
+            'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
                 'message' => 'Welcome to Test!',
@@ -369,6 +383,9 @@ class SettingsTest extends TestCase
             ],
             'attendance' => [
                 'retention_period' => 14,
+            ],
+            'recording' => [
+                'retention_period' => 7,
             ],
             'room_auto_delete' => [
                 'inactive_period' => 14,
@@ -423,6 +440,10 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'retention_period' => 14,
                     ],
+                    'recording' => [
+                        'retention_period' => 7,
+                        'max_retention_period' => -1,
+                    ],
                     'room_auto_delete' => [
                         'inactive_period' => 14,
                         'never_used_period' => 30,
@@ -453,6 +474,8 @@ class SettingsTest extends TestCase
      */
     public function testUpdateApplicationSettingsWithValidInputsImageFile()
     {
+        config(['recording.max_retention_period' => -1]);
+
         $payload = [
             'name' => 'test',
             'logo_file' => UploadedFile::fake()->image('logo.svg'),
@@ -460,9 +483,9 @@ class SettingsTest extends TestCase
             'bbb' => [
                 'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
             ],
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 15,
+            'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
                 'message' => 'Welcome to Test!',
@@ -489,6 +512,9 @@ class SettingsTest extends TestCase
             ],
             'attendance' => [
                 'retention_period' => 14,
+            ],
+            'recording' => [
+                'retention_period' => 7,
             ],
             'room_auto_delete' => [
                 'inactive_period' => 14,
@@ -522,6 +548,8 @@ class SettingsTest extends TestCase
      */
     public function testUpdateApplicationSettingsWithValidInputsImageUrl()
     {
+        config(['recording.max_retention_period' => -1]);
+
         $payload = [
             'name' => 'test',
             'favicon' => '/storage/image/testfavicon.ico',
@@ -529,9 +557,9 @@ class SettingsTest extends TestCase
             'bbb' => [
                 'logo' => '/storage/image/testbbblogo.png',
             ],
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 5,
+            'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
                 'message' => 'Welcome to Test!',
@@ -558,6 +586,9 @@ class SettingsTest extends TestCase
             ],
             'attendance' => [
                 'retention_period' => 14,
+            ],
+            'recording' => [
+                'retention_period' => 7,
             ],
             'room_auto_delete' => [
                 'inactive_period' => 14,
@@ -596,6 +627,8 @@ class SettingsTest extends TestCase
      */
     public function testUpdateApplicationSettingsWithValidInputsImageFileAndUrl()
     {
+        config(['recording.max_retention_period' => -1]);
+
         $payload = [
             'name' => 'test',
             'logo' => '/storage/image/testfile.svg',
@@ -606,9 +639,9 @@ class SettingsTest extends TestCase
                 'logo' => '/storage/image/bbbtestlogo.png',
                 'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
             ],
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 15,
+            'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
                 'message' => 'Welcome to Test!',
@@ -635,6 +668,9 @@ class SettingsTest extends TestCase
             ],
             'attendance' => [
                 'retention_period' => 14,
+            ],
+            'recording' => [
+                'retention_period' => 7,
             ],
             'room_auto_delete' => [
                 'inactive_period' => 14,
@@ -670,6 +706,8 @@ class SettingsTest extends TestCase
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
+        config(['recording.max_retention_period' => -1]);
+
         $payload = [
             'name' => '',
             'favicon' => '',
@@ -702,6 +740,9 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'retention_period' => 'test',
             ],
+            'recording' => [
+                'retention_period' => 'test',
+            ],
             'room_auto_delete' => [
                 'inactive_period' => false,
                 'never_used_period' => false,
@@ -731,6 +772,7 @@ class SettingsTest extends TestCase
                 'statistics.meetings.enabled',
                 'statistics.meetings.retention_period',
                 'attendance.retention_period',
+                'recording.retention_period',
                 'room_token_expiration',
                 'bbb.logo',
                 'bbb.logo_file',
@@ -744,9 +786,9 @@ class SettingsTest extends TestCase
             'name' => 'test',
             'favicon' => '/storage/image/favicon.ico',
             'logo' => '/storage/image/testfile.svg',
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 15,
+            'room_limit' => -1,
             'banner' => false,
             'password_change_allowed' => '1',
             'default_timezone' => 'Europe/Berlin',
@@ -767,6 +809,9 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'retention_period' => 14,
             ],
+            'recording' => [
+                'retention_period' => 99,
+            ],
             'room_auto_delete' => [
                 'inactive_period' => 30,
                 'never_used_period' => 7,
@@ -779,6 +824,7 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'banner',
                 'room_token_expiration',
+                'recording.retention_period',
             ])
             ->assertJsonMissingValidationErrors([
                 'help_url',
@@ -856,6 +902,8 @@ class SettingsTest extends TestCase
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
+        config(['recording.max_retention_period' => -1]);
+
         // inputs lower than allowed minimum
         $this->actingAs($this->user)->putJson(
             route('api.v1.application.update'),
@@ -863,9 +911,9 @@ class SettingsTest extends TestCase
                 'name' => 'test',
                 'favicon' => '/storage/image/favicon.ico',
                 'logo' => '/storage/image/testfile.svg',
-                'pagination_page_size' => '0',
-                'room_pagination_page_size' => '0',
-                'room_limit' => '-2',
+                'pagination_page_size' => 0,
+                'room_pagination_page_size' => 0,
+                'room_limit' => -2,
                 'banner' => ['enabled' => false],
                 'statistics' => [
                     'servers' => [
@@ -878,7 +926,10 @@ class SettingsTest extends TestCase
                     ],
                 ],
                 'attendance' => [
-                    'retention_period' => 0,
+                    'retention_period' => 1,
+                ],
+                'recording' => [
+                    'retention_period' => 1,
                 ],
                 'room_auto_delete' => [
                     'inactive_period' => 1,
@@ -895,10 +946,13 @@ class SettingsTest extends TestCase
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
                 'attendance.retention_period',
+                'recording.retention_period',
                 'room_auto_delete.inactive_period',
                 'room_auto_delete.never_used_period',
                 'room_auto_delete.deadline_period',
             ]);
+
+        config(['recording.max_retention_period' => 30]);
 
         // inputs higher than allowed minimum
         $this->putJson(
@@ -907,9 +961,9 @@ class SettingsTest extends TestCase
                 'name' => 'test',
                 'favicon' => '/storage/image/favicon.ico',
                 'logo' => '/storage/image/testfile.svg',
-                'pagination_page_size' => '101',
-                'room_pagination_page_size' => '26',
-                'room_limit' => '101',
+                'pagination_page_size' => 101,
+                'room_pagination_page_size' => 26,
+                'room_limit' => 101,
                 'banner' => ['enabled' => false],
                 'statistics' => [
                     'servers' => [
@@ -923,6 +977,9 @@ class SettingsTest extends TestCase
                 ],
                 'attendance' => [
                     'retention_period' => 366,
+                ],
+                'recording' => [
+                    'retention_period' => 90,
                 ],
                 'room_auto_delete' => [
                     'inactive_period' => 1000,
@@ -939,9 +996,24 @@ class SettingsTest extends TestCase
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
                 'attendance.retention_period',
+                'recording.retention_period',
                 'room_auto_delete.inactive_period',
                 'room_auto_delete.never_used_period',
                 'room_auto_delete.deadline_period',
+            ]);
+
+        // test setting recording retention period to a value higher than max allowed retention period
+        $this->putJson(
+            route('api.v1.application.update'),
+            [
+                'recording' => [
+                    'retention_period' => -1,
+                ],
+            ]
+        )
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'recording.retention_period',
             ]);
     }
 
@@ -954,14 +1026,15 @@ class SettingsTest extends TestCase
 
         config(['bigbluebutton.allowed_file_mimes' => 'pdf,jpg']);
         config(['bigbluebutton.max_filesize' => 5]);
+        config(['recording.max_retention_period' => -1]);
 
         $request = [
             'name' => 'test',
             'favicon' => '/storage/image/favicon.ico',
             'logo' => '/storage/image/testfile.svg',
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 15,
+            'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
                 'message' => 'Welcome to Test!',
@@ -991,6 +1064,9 @@ class SettingsTest extends TestCase
             ],
             'attendance' => [
                 'retention_period' => 14,
+            ],
+            'recording' => [
+                'retention_period' => 90,
             ],
             'room_auto_delete' => [
                 'inactive_period' => 14,
@@ -1062,6 +1138,8 @@ class SettingsTest extends TestCase
         $style = UploadedFile::fake()->create('style.css');
         file_put_contents($style->getRealPath(), 'body { background-color: #273035; }');
 
+        config(['recording.max_retention_period' => -1]);
+
         $request = [
             'bbb' => [
                 'style' => $style,
@@ -1069,9 +1147,9 @@ class SettingsTest extends TestCase
             'name' => 'test',
             'favicon' => '/storage/image/favicon.ico',
             'logo' => '/storage/image/testfile.svg',
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 15,
+            'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
                 'message' => 'Welcome to Test!',
@@ -1098,6 +1176,9 @@ class SettingsTest extends TestCase
             ],
             'attendance' => [
                 'retention_period' => 14,
+            ],
+            'recording' => [
+                'retention_period' => 90,
             ],
             'room_auto_delete' => [
                 'inactive_period' => 14,
@@ -1154,6 +1235,8 @@ class SettingsTest extends TestCase
 
         $logo = UploadedFile::fake()->create('logo.png');
 
+        config(['recording.max_retention_period' => -1]);
+
         $request = [
             'bbb' => [
                 'logo_file' => $logo,
@@ -1161,9 +1244,9 @@ class SettingsTest extends TestCase
             'name' => 'test',
             'favicon' => '/storage/image/favicon.ico',
             'logo' => '/storage/image/testfile.svg',
-            'pagination_page_size' => '10',
-            'room_pagination_page_size' => '15',
-            'room_limit' => '-1',
+            'pagination_page_size' => 10,
+            'room_pagination_page_size' => 15,
+            'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
                 'message' => 'Welcome to Test!',
@@ -1190,6 +1273,9 @@ class SettingsTest extends TestCase
             ],
             'attendance' => [
                 'retention_period' => 14,
+            ],
+            'recording' => [
+                'retention_period' => 90,
             ],
             'room_auto_delete' => [
                 'inactive_period' => 14,

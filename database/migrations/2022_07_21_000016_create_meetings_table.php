@@ -26,6 +26,7 @@ return new class extends Migration
             $table->dateTime('start')->nullable();
             $table->dateTime('end')->nullable();
             $table->boolean('record_attendance')->default(false);
+            $table->boolean('record')->default(false);
             $table->dateTime('detached')->nullable();
             $table->softDeletes();
             $table->timestamps();

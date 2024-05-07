@@ -40,16 +40,16 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
           sleep 1
         done
+    - name: Install pipe viewer tool
+      run: |
+          sudo apt-get update
+          sudo apt-get install pv
     - name: Setup PHP, with composer and extensions
       uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
         coverage: pcov
-    - name: Install pipe viewer tool
-      run: |
-          sudo apt-get update
-          sudo apt-get install pv
     - name: Copy .env
       run: php -r "copy('.env.ci', '.env');"
     - name: Get Composer Cache Directory
@@ -103,7 +103,10 @@ jobs:
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
     - name: Upload coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
       if: failure()

@@ -67,9 +67,9 @@ class ApplicationSettings extends JsonResource
             'default_timezone' => $generalSettings->default_timezone,
             'bbb' => [
                 'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
-                'max_filesize' => (int) config('bigbluebutton.max_filesize'),
-                'room_name_limit' => (int) config('bigbluebutton.room_name_limit'),
-                'welcome_message_limit' => (int) config('bigbluebutton.welcome_message_limit'),
+                'max_filesize' => config('bigbluebutton.max_filesize'),
+                'room_name_limit' => config('bigbluebutton.room_name_limit'),
+                'welcome_message_limit' => config('bigbluebutton.welcome_message_limit'),
                 $this->mergeWhen($this->allSettings, [
                     'style' => $bigBlueButtonSettings->style,
                     'logo' => $bigBlueButtonSettings->logo,
@@ -119,6 +119,11 @@ class ApplicationSettings extends JsonResource
                     'retention_period' => $recordingSettings->meeting_usage_retention_period,
                 ],
             ],
+            'recording' => [
+                'retention_period' => $recordingSettings->recording_retention_period,
+                'max_retention_period' => config('recording.max_retention_period'),
+                'description_limit' => config('recording.description_limit'),
+            ],
             'attendance' => [
                 'retention_period' => $recordingSettings->attendance_retention_period,
             ],
@@ -128,7 +133,7 @@ class ApplicationSettings extends JsonResource
                 'ldap' => config('ldap.enabled'),
                 'shibboleth' => config('services.shibboleth.enabled'),
             ],
-            'room_refresh_rate' => (int) config('bigbluebutton.room_refresh_rate'),
+            'room_refresh_rate' => config('bigbluebutton.room_refresh_rate'),
         ];
     }
 }

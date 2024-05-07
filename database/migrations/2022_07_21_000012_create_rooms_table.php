@@ -45,10 +45,15 @@ return new class extends Migration
             $table->integer('listener_count')->nullable();
             $table->integer('voice_participant_count')->nullable();
             $table->integer('video_count')->nullable();
-            $table->boolean('listed')->default(false);
-            $table->boolean('record_attendance')->default(false);
-            $table->dateTime('delete_inactive')->nullable();
+            $table->boolean('visibility')->default(\App\Enums\RoomVisibility::PRIVATE);
 
+            $table->boolean('record_attendance')->default(false);
+            $table->boolean('record')->default(false);
+            $table->boolean('auto_start_recording')->default(false);
+
+            $table->boolean('expert_mode')->default(false);
+
+            $table->dateTime('delete_inactive')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

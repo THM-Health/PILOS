@@ -17,6 +17,8 @@ class RecordingSettings extends Settings
 
     public TimePeriod $attendance_retention_period;
 
+    public TimePeriod $recording_retention_period;
+
     public static function group(): string
     {
         return 'recording';

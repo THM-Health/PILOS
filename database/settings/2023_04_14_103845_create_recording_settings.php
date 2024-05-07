@@ -14,5 +14,7 @@ return new class extends SettingsMigration
         $this->migrator->add('recording.meeting_usage_retention_period', TimePeriod::ONE_MONTH);
 
         $this->migrator->add('recording.attendance_retention_period', TimePeriod::TWO_WEEKS);
+
+        $this->migrator->add('recording.recording_retention_period', TimePeriod::ONE_YEAR);
     }
 };

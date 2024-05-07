@@ -128,16 +128,16 @@ class RoomStatisticTest extends TestCase
                 ],
             ])
             ->assertJsonPath('data.0', [
-                'id' => $meetings[5]->id,
-                'start' => $meetings[5]->start->toJson(),
-                'end' => null,
-                'attendance' => false,
-                'statistical' => false,
+                'id' => $meetings[0]->id,
+                'start' => $meetings[0]->start->toJson(),
+                'end' => $meetings[0]->end->toJson(),
+                'attendance' => true,
+                'statistical' => true,
             ])
             ->assertJsonPath('data.1', [
-                'id' => $meetings[4]->id,
-                'start' => $meetings[4]->start->toJson(),
-                'end' => $meetings[4]->end->toJson(),
+                'id' => $meetings[1]->id,
+                'start' => $meetings[1]->start->toJson(),
+                'end' => $meetings[1]->end->toJson(),
                 'attendance' => false,
                 'statistical' => false,
             ]);
@@ -149,17 +149,17 @@ class RoomStatisticTest extends TestCase
             ->assertJsonFragment(['per_page' => 5])
             ->assertJsonFragment(['total' => 6])
             ->assertJsonPath('data.0', [
-                'id' => $meetings[0]->id,
-                'start' => $meetings[0]->start->toJson(),
-                'end' => $meetings[0]->end->toJson(),
-                'attendance' => true,
-                'statistical' => true,
+                'id' => $meetings[5]->id,
+                'start' => $meetings[5]->start->toJson(),
+                'end' => null,
+                'attendance' => false,
+                'statistical' => false,
             ]);
 
         // check with meeting stats globally disabled
         $this->recordingSettings->meeting_usage_enabled = false;
         $this->recordingSettings->save();
-        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?page=2')
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]))
             ->assertJsonPath('data.0', [
                 'id' => $meetings[0]->id,
                 'start' => $meetings[0]->start->toJson(),
@@ -167,6 +167,16 @@ class RoomStatisticTest extends TestCase
                 'attendance' => true,
                 'statistical' => false,
             ]);
+
+        // check sort order
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?sort_direction=desc')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.id', $meetings[5]->id);
+
+        // check invalid sort order, fallback to default
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.meetings', ['room' => $room]).'?sort_direction=invalid')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.id', $meetings[0]->id);
     }
 
     /**

@@ -5,11 +5,12 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRoomFile;
 use App\Http\Requests\UpdateRoomFile;
-use App\Http\Resources\PrivateRoomFileCollection;
-use App\Http\Resources\RoomFileCollection;
+use App\Http\Resources\PrivateRoomFile;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Services\RoomFileService;
+use App\Settings\GeneralSettings;
+use Illuminate\Http\Request;
 use Log;
 
 class RoomFileController extends Controller
@@ -17,23 +18,66 @@ class RoomFileController extends Controller
     /**
      * Return a list of all files of a room and id of the default file
      *
-     * @return PrivateRoomFileCollection|RoomFileCollection
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Room $room)
+    public function index(Room $room, Request $request)
     {
-        if (\Gate::allows('viewAllFiles', $room)) {
-            $default = $room->files()->where('default', true)->first();
+        $additional = [];
 
-            return new PrivateRoomFileCollection($room->files, $default);
+        // Sort by column, fallback/default is filename
+        $sortBy = match ($request->query('sort_by')) {
+            'uploaded' => 'created_at',
+            default => 'filename',
+        };
+
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'desc',
+            default => 'asc',
+        };
+
+        // Filter, default is no filter
+        $filter = match ($request->query('filter')) {
+            'use_in_meeting' => ['use_in_meeting', 1],
+            'downloadable' => ['download', 1],
+            default => null,
+        };
+
+        // Get all files of the room
+        $resource = $room->files()->orderBy($sortBy, $sortOrder);
+
+        // If user is not allowed to view all files, only query files that are downloadable
+        if (! \Gate::allows('viewAllFiles', $room)) {
+            $resource = $resource->where('download', true);
         }
 
-        return new RoomFileCollection($room->files()->where('download', true)->get());
+        // count all before applying filters
+        $additional['meta']['total_no_filter'] = $resource->count();
+
+        // Apply search filter
+        if ($request->has('search')) {
+            $resource = $resource->where('filename', 'like', '%'.$request->query('search').'%');
+        }
+
+        // Apply filter if set, first element is the column, second the value to query
+        if ($filter) {
+            $resource = $resource->where($filter[0], $filter[1]);
+        }
+
+        // If user is allowed to view all files, return PrivateRoomFile resource to show additional information
+        if (\Gate::allows('viewAllFiles', $room)) {
+            $additional['default'] = $room->files()->where('default', true)->first();
+
+            return PrivateRoomFile::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
+        }
+
+        return \App\Http\Resources\RoomFile::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     /**
      * Store a new file in the storage
      *
-     * @return PrivateRoomFileCollection|RoomFileCollection
+     * @return \Illuminate\Http\Response
      */
     public function store(Room $room, StoreRoomFile $request)
     {
@@ -48,7 +92,7 @@ class RoomFileController extends Controller
 
         Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
-        return $this->index($room);
+        return response()->noContent();
     }
 
     /**
@@ -59,10 +103,6 @@ class RoomFileController extends Controller
      */
     public function show(Room $room, RoomFile $file)
     {
-        if (! $file->room->is($room)) {
-            abort(404, __('app.errors.file_not_found'));
-        }
-
         $roomFileService = new RoomFileService($file);
         $url = $roomFileService->setTimeLimit(1)->url();
 
@@ -72,14 +112,10 @@ class RoomFileController extends Controller
     /**
      * Update the specified file attributes
      *
-     * @return PrivateRoomFileCollection|RoomFileCollection
+     * @return \Illuminate\Http\Response
      */
     public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
     {
-        if (! $file->room->is($room)) {
-            abort(404, __('app.errors.file_not_found'));
-        }
-
         if ($request->has('use_in_meeting')) {
             $file->use_in_meeting = $request->use_in_meeting;
             // If no default file for this room is set, set this file as default
@@ -96,7 +132,6 @@ class RoomFileController extends Controller
             // Make other files not the default
             $room->files()->update(['default' => false]);
             // Set this file as default
-            $file->refresh();
             $file->default = true;
         }
 
@@ -106,27 +141,23 @@ class RoomFileController extends Controller
 
         $room->updateDefaultFile();
 
-        return $this->index($room);
+        return response()->noContent();
     }
 
     /**
      * Remove the specified file from storage and database.
      *
-     * @return PrivateRoomFileCollection|RoomFileCollection
+     * @return \Illuminate\Http\Response
      *
      * @throws \Exception
      */
     public function destroy(Room $room, RoomFile $file)
     {
-        if (! $file->room->is($room)) {
-            abort(404, __('app.errors.file_not_found'));
-        }
-
         $file->delete();
         $room->updateDefaultFile();
 
         Log::info('Deleted file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
-        return $this->index($room);
+        return response()->noContent();
     }
 }

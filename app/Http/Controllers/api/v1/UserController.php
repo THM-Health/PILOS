@@ -46,12 +46,13 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        $resultCount = User::withName($request->get('query'))->count();
-        if ($resultCount > config('bigbluebutton.user_search_limit')) {
+        $query = User::withName($request->query('query'));
+
+        if ($query->count() > config('bigbluebutton.user_search_limit')) {
             abort(204, 'Too many results');
         }
 
-        return UserSearch::collection(User::withName($request->get('query'))->orderBy('lastname', 'ASC')->orderBy('firstname', 'ASC')->get());
+        return UserSearch::collection($query->orderBy('lastname', 'ASC')->orderBy('firstname', 'ASC')->get());
     }
 
     /**

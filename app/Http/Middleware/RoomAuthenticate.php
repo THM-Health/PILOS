@@ -54,7 +54,7 @@ class RoomAuthenticate
         }
 
         // user is not authenticated and room is not allowed for guests
-        if (! $room->allow_guests && ! $authenticated && ! Auth::user()) {
+        if (! $room->getRoomSetting('allow_guests') && ! $authenticated && ! Auth::user()) {
             abort(403, 'guests_not_allowed');
         }
 

@@ -11,6 +11,7 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+.DS_Store
 /public/build
 /public/fonts
 .nyc_output
@@ -20,3 +21,4 @@ coverage.xml
 /redis
 version
 components.d.ts
+public/playback-player

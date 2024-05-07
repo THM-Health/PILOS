@@ -82,6 +82,9 @@ return [
             'description' => 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.',
             'title' => 'URL zur Datenschutzerklärung',
         ],
+        'recording' => [
+            'retention_period_title' => 'Speicherdauer der Aufzeichnungen in Tagen',
+        ],
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Zeitraum zwischen Zustellung der Informations-E-Mail und der Löschung',
@@ -168,11 +171,13 @@ return [
         'view' => 'Detaillierte Informationen für die Rolle :name',
     ],
     'room_types' => [
-        'allow_listing' => 'Raumsuche erlaubt',
-        'allow_listing_description' => 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
-        'allow_record_attendance' => 'Anwesenheitsprotokollierung erlauben',
         'color' => 'Farbe',
         'custom_color' => 'Eigene Farbe',
+        'default_room_settings' => [
+            'default' => 'Standard',
+            'enforced' => 'Erzwungen',
+            'title' => 'Standard-Raumeinstellungen',
+        ],
         'delete' => [
             'confirm' => 'Wollen Sie die Raumart :name wirklich löschen?',
             'item' => 'Raumart :id löschen',
@@ -184,11 +189,11 @@ return [
         'edit' => 'Raumart :name bearbeiten',
         'max_duration' => 'Maximale Dauer',
         'max_participants' => 'Maximale Teilnehmeranzahl',
+        'missing_description' => 'Keine Beschreibungen vorhanden!',
         'new' => 'Neue Raumart erstellen',
         'no_data' => 'Es sind keine Raumarten vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Raumarten gefunden!',
         'preview' => 'Vorschau',
-        'require_access_code' => 'Zugangscode erforderlich',
         'restrict' => 'Verwendung einschränken',
         'restrict_description' => 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
         'select_roles' => 'Rollen auswählen',

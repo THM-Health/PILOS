@@ -1,140 +1,187 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-start gap-2">
-      <div class="flex-grow-1 flex-shrink-1">
-        <RoomTabFilesUpload
+    <Message
+      severity="info"
+      v-if="requireAgreement && files.length >0"
+      :closable="false"
+      class="mx-2"
+      :pt="{
+        wrapper: { class: 'align-items-start gap-2'},
+        icon: { class: [ 'mt-1' ] }
+      }"
+    >
+      <strong>{{ $t('rooms.files.terms_of_use.title') }}</strong><br>
+      {{ $t('rooms.files.terms_of_use.content') }}
+      <Divider/>
+      <div class="flex align-items-center">
+        <Checkbox v-model="downloadAgreement" inputId="terms_of_use" :binary="true" />
+        <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
+      </div>
+    </Message>
+
+    <div class="flex justify-content-between flex-column-reverse lg:flex-row gap-2 px-2">
+      <div class="flex justify-content-between flex-column lg:flex-row flex-grow-1 gap-2">
+        <div>
+          <InputGroup>
+            <InputText
+              v-model="search"
+              :disabled="isBusy"
+              :placeholder="$t('app.search')"
+              @keyup.enter="loadData(1)"
+            />
+            <Button
+              :disabled="isBusy"
+              @click="loadData(1)"
+              v-tooltip="$t('app.search')"
+              :aria-label="$t('app.search')"
+              icon="fa-solid fa-magnifying-glass"
+            />
+          </InputGroup>
+        </div>
+        <div class="flex gap-2 flex-column lg:flex-row">
+          <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
+            <InputGroupAddon>
+              <i class="fa-solid fa-filter"></i>
+            </InputGroupAddon>
+            <Dropdown :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+          </InputGroup>
+
+          <InputGroup>
+            <InputGroupAddon>
+              <i class="fa-solid fa-sort"></i>
+            </InputGroupAddon>
+            <Dropdown :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <InputGroupAddon class="p-0">
+              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
+      </div>
+      <div class="flex gap-2 justify-content-end">
+        <RoomTabFilesUploadButton
           v-if="userPermissions.can('manageSettings', props.room)"
           :room-id="props.room.id"
           :disabled="isBusy"
-          @uploaded="loadData"
+          @uploaded="loadData()"
         />
-        <Message
-          severity="info"
-          v-if="requireAgreement && files.length >0"
-          :closable="false"
-          class="m-0"
-          :pt="{
-            wrapper: { class: 'align-items-start gap-2'},
-            icon: { class: [ 'mt-1' ] }
-          }"
-        >
-          <strong>{{ $t('rooms.files.terms_of_use.title') }}</strong><br>
-          {{ $t('rooms.files.terms_of_use.content') }}
-          <Divider/>
-          <div class="flex align-items-center">
-            <Checkbox v-model="downloadAgreement" inputId="terms_of_use" :binary="true" />
-            <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
-          </div>
-        </Message>
+
+        <!-- Reload file list -->
+        <Button
+          class="flex-shrink-0"
+          v-tooltip="$t('app.reload')"
+          severity="secondary"
+          :disabled="isBusy"
+          @click="loadData()"
+          icon="fa-solid fa-sync"
+        />
       </div>
-      <!-- Reload file list -->
-      <Button
-        class="flex-shrink-0"
-        v-tooltip="$t('app.reload')"
-        severity="secondary"
-        :disabled="isBusy"
-        @click="loadData"
-        icon="fa-solid fa-sync"
-      />
     </div>
 
     <!-- Display files -->
-    <DataTable
-      class="mt-4"
-      :totalRecords="files.length"
-      :rows="settingsStore.getSetting('pagination_page_size')"
-      :value="files"
-      dataKey="id"
-      paginator
-      :loading="isBusy || loadingError"
-      rowHover
-      stripedRows
-      scrollable
-    >
-      <template #loading>
-        <LoadingRetryButton :error="loadingError" @reload="loadData" />
+    <OverlayComponent :show="isBusy || loadingError" z-index="1">
+      <template #overlay>
+        <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
-
-        <!-- Show message on empty file list -->
+      <DataView
+        :totalRecords="paginator.getTotalRecords()"
+        :rows="paginator.getRows()"
+        :first="paginator.getFirst()"
+        :value="files"
+        lazy
+        dataKey="id"
+        paginator
+        :paginator-template="paginator.getTemplate()"
+        :current-page-report-template="paginator.getCurrentPageReportTemplate()"
+        rowHover
+        @page="onPage"
+        class="mt-4"
+      >
+        <!-- Show message on empty list -->
         <template #empty>
-          <InlineNote v-if="!isBusy && !loadingError">{{ $t('rooms.files.nodata') }}</InlineNote>
-        </template>
-
-      <Column field="filename" sortable :header="$t('rooms.files.filename')" style="max-width: 250px">
-        <template #body="slotProps">
-          <TextTruncate>{{ slotProps.data.filename }}</TextTruncate>
-        </template>
-      </Column>
-
-      <Column field="uploaded" sortable :header="$t('rooms.files.uploaded_at')" v-if="showManagementColumns">
-        <template #body="slotProps">
-          {{ $d(new Date(slotProps.data.uploaded), 'datetimeLong') }}
-        </template>
-      </Column>
-
-      <!-- Checkbox if file should be downloadable by all room participants -->
-      <Column field="download" sortable :header="$t('rooms.files.downloadable')" v-if="showManagementColumns">
-        <template #body="slotProps">
-          <InputSwitch
-            v-model="slotProps.data.download"
-            :disabled="isBusy"
-            @update:modelValue="(downloadable) => changeSettings(slotProps.data,'download', downloadable)"
-          />
-        </template>
-      </Column>
-
-      <!--
-        Checkbox if file should be send to the api on the next meeting start,
-        setting can't be changed manually if the file is the default presentation
-        -->
-      <Column field="use_in_meeting" sortable :header="$t('rooms.files.use_in_next_meeting')" v-if="showManagementColumns">
-        <template #body="slotProps">
-          <InputSwitch
-            v-model="slotProps.data.use_in_meeting"
-            :disabled="isBusy"
-            @update:modelValue="(useInMeeting) => changeSettings(slotProps.data,'use_in_meeting', useInMeeting)"
-          />
-        </template>
-      </Column>
-
-      <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
-      <Column field="default" sortable :header="$t('rooms.files.default')" v-if="showManagementColumns">
-        <template #body="slotProps">
-          <RadioButton
-            v-model="defaultFile"
-            :value="slotProps.data.id"
-            name="default_file"
-            :disabled="slotProps.data.use_in_meeting !== true || isBusy"
-            @update:modelValue="(selected) => changeSettings(slotProps.data,'default', selected)"
-          />
-        </template>
-      </Column>
-
-      <Column :header="$t('app.actions')" class="action-column action-column-2">
-        <template #body="slotProps">
           <div>
-            <RoomTabFilesViewButton
-              :room-id="props.room.id"
-              :file-id="slotProps.data.id"
-              :token="props.token"
-              :access-code="props.accessCode"
-              :disabled="isBusy || (!downloadAgreement && requireAgreement)"
-              @file-not-found="loadData"
-              @invalid-code="emit('invalidCode')"
-              @invalid-token="emit('invalidToken')"
-            />
-            <RoomTabFilesDeleteButton
-              :room-id="props.room.id"
-              :file-id="slotProps.data.id"
-              :filename="slotProps.data.filename"
-              v-if="userPermissions.can('manageSettings', props.room)"
-              :disabled="isBusy"
-              @deleted="loadData"
-            />
+            <div class="px-2" v-if="!isBusy && !loadingError">
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.files.nodata') }}</InlineNote>
+              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+            </div>
           </div>
         </template>
-      </Column>
-    </DataTable>
+
+        <template #list="slotProps">
+          <div class="px-2 border-top-1 border-bottom-1 surface-border">
+            <div v-for="(item, index) in slotProps.items" :key="index">
+              <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
+                <div class="flex flex-column gap-2">
+                  <p class="text-lg font-semibold m-0 text-word-break">{{ item.filename }}</p>
+                  <div class="flex flex-column gap-2 align-items-start">
+                    <div class="flex flex-row gap-2">
+                      <i class="fa-solid fa-clock" />
+                      <p class="text-sm m-0">
+                        {{ $d(new Date(item.uploaded), 'datetimeLong') }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex flex-column gap-2 align-items-start" v-if="userPermissions.can('manageSettings', props.room)">
+                    <div class="flex flex-row gap-2">
+                      <i class="fa-solid fa-download" />
+                      <p class="text-sm m-0">
+                        <Tag v-if="item.download" severity="success">{{ $t('rooms.files.download_visible') }}</Tag>
+                        <Tag v-else severity="danger">{{ $t('rooms.files.download_hidden') }}</Tag>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex flex-column gap-2 align-items-start" v-if="userPermissions.can('manageSettings', props.room)">
+                    <div class="flex flex-row gap-2">
+                      <i v-if="item.use_in_meeting" class="fa-solid fa-circle-check"></i>
+                      <i v-else class="fa-solid fa-circle-xmark"></i>
+                      <p class="text-sm m-0 flex flex-row gap-2">
+                        <Tag v-if="item.use_in_meeting" severity="success">{{ $t('rooms.files.use_in_next_meeting') }}</Tag>
+                        <Tag v-else severity="danger">{{ $t('rooms.files.use_in_next_meeting_disabled') }}</Tag>
+                        <Tag v-if="defaultFile?.id === item.id" class="flex flex-row gap-2 align-items-start">
+                          <i class="fa-solid fa-star"></i> {{ $t('rooms.files.default') }}
+                        </Tag>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" >
+                  <RoomTabFilesViewButton
+                    :room-id="props.room.id"
+                    :file-id="item.id"
+                    :token="props.token"
+                    :access-code="props.accessCode"
+                    :disabled="isBusy || (!downloadAgreement && requireAgreement)"
+                    @file-not-found="loadData()"
+                    @invalid-code="emit('invalidCode')"
+                    @invalid-token="emit('invalidToken')"
+                    @forbidden="loadData()"
+                  />
+                  <RoomTabFilesEditButton
+                    :room-id="props.room.id"
+                    :file-id="item.id"
+                    :filename="item.filename"
+                    :use-in-meeting="item.use_in_meeting"
+                    :download="item.download"
+                    :default="defaultFile?.id === item.id"
+                    v-if="userPermissions.can('manageSettings', props.room)"
+                    :disabled="isBusy"
+                    @edited="loadData()"
+                  />
+                  <RoomTabFilesDeleteButton
+                    :room-id="props.room.id"
+                    :file-id="item.id"
+                    :filename="item.filename"
+                    v-if="userPermissions.can('manageSettings', props.room)"
+                    :disabled="isBusy"
+                    @deleted="loadData()"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </DataView>
+    </OverlayComponent>
   </div>
 </template>
 <script setup>
@@ -142,10 +189,10 @@ import env from '../env.js';
 import EventBus from '../services/EventBus';
 import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useSettingsStore } from '../stores/settings.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useApi } from '../composables/useApi.js';
-import { useToast } from '../composables/useToast.js';
+import { usePaginator } from '../composables/usePaginator.js';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   room: Object,
@@ -163,14 +210,36 @@ const props = defineProps({
 const emit = defineEmits(['invalidCode', 'invalidToken']);
 
 const api = useApi();
-const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
-const toast = useToast();
+const paginator = usePaginator();
+const { t } = useI18n();
 
 const files = ref([]);
 const defaultFile = ref(null);
 const isBusy = ref(false);
 const loadingError = ref(false);
+const sortField = ref('uploaded');
+const sortOrder = ref(0);
+
+const search = ref('');
+const filter = ref('all');
+
+const sortFields = computed(() => [
+  { name: t('rooms.files.sort.filename'), value: 'filename' },
+  { name: t('rooms.files.sort.uploaded_at'), value: 'uploaded' }
+]);
+
+const filterOptions = computed(() => [
+  { name: t('rooms.files.filter.all'), value: 'all' },
+  { name: t('rooms.files.filter.downloadable'), value: 'downloadable' },
+  { name: t('rooms.files.filter.use_in_meeting'), value: 'use_in_meeting' }
+]);
+
+const toggleSortOrder = () => {
+  sortOrder.value = sortOrder.value === 1 ? 0 : 1;
+  loadData(1);
+};
+
 const downloadAgreement = ref(false);
 
 const requireAgreement = computed(() => {
@@ -180,12 +249,21 @@ const requireAgreement = computed(() => {
 /**
  * (Re)load file list
  */
-function loadData () {
+function loadData (page = null) {
   // Change table to busy state
   isBusy.value = true;
   loadingError.value = false;
+
   // Fetch file list
-  const config = {};
+  const config = {
+    params: {
+      page: page || paginator.getCurrentPage(),
+      sort_by: sortField.value,
+      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
+      search: search.value === '' ? null : search.value,
+      filter: filter.value === 'all' ? null : filter.value
+    }
+  };
 
   if (props.token) {
     config.headers = { Token: props.token };
@@ -196,8 +274,13 @@ function loadData () {
   api.call('rooms/' + props.room.id + '/files', config)
     .then(response => {
       // Fetch successful
-      files.value = response.data.data.files;
-      defaultFile.value = response.data.data.default;
+      files.value = response.data.data;
+      defaultFile.value = response.data.default;
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
     }).catch((error) => {
       if (error.response) {
         // Access code invalid
@@ -222,46 +305,9 @@ function loadData () {
     });
 }
 
-/**
- * Change a setting for a file
- * @param file effected file
- * @param setting setting name
- * @param value new value
- */
-function changeSettings (file, setting, value) {
-  // Change table to busy state
-  isBusy.value = true;
-
-  if (setting === 'default') {
-    value = true;
-  }
-
-  // Update value for the setting and the effected file
-  api.call('rooms/' + props.room.id + '/files/' + file.id, {
-    method: 'put',
-    data: { [setting]: value }
-  }).then(response => {
-    // Fetch successful
-    // Fetch successful
-    files.value = response.data.data.files;
-    defaultFile.value = response.data.data.default;
-  }).catch((error) => {
-    if (error.response.status === env.HTTP_NOT_FOUND) {
-      // Show error message
-      toast.error(this.$t('rooms.flash.file_gone'));
-      // reload
-      loadData();
-      return;
-    }
-    api.error(error);
-  }).finally(() => {
-    isBusy.value = false;
-  });
+function onPage (event) {
+  loadData(event.page + 1);
 }
-
-const showManagementColumns = computed(() => {
-  return userPermissions.can('manageSettings', props.room);
-});
 
 /**
  * Sets the event listener for current room change to reload the file list.
@@ -270,9 +316,13 @@ const showManagementColumns = computed(() => {
  * @return undefined
  */
 onMounted(() => {
-  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
   loadData();
 });
+
+function onRoomChanged () {
+  loadData();
+}
 
 /**
  * Removes the listener for current room change
@@ -281,7 +331,7 @@ onMounted(() => {
  * @return undefined
  */
 onBeforeUnmount(() => {
-  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, loadData);
+  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
 });
 
 </script>

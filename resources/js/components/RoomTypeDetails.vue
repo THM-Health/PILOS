@@ -1,66 +1,344 @@
 <template>
-  <div class="flex flex-column gap-2 w-full">
-      <RoomTypeBadge :roomType="roomType" class="w-full text-base" />
+  <div class="flex flex-column gap-2 w-full" style="height: 250px">
+    <RoomTypeBadge :roomType="roomType" class="w-full text-base" />
 
+    <div class="overflow-y-auto w-full">
       <div class="flex flex-column gap-2 border-1 border-200 border-round p-3">
-        <span class="font-bold">{{ $t('rooms.room_types.restrictions.title') }}</span>
 
-        <i v-if="!hasRestrictions">{{ $t('rooms.room_types.restrictions.none') }}</i>
+        <!-- Description for the room type -->
+        <span class="font-bold">{{ $t('app.description') }}</span>
+        <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: $t('settings.room_types.missing_description')}}</div>
 
-        <div v-if="!roomType.allow_listing" class="flex align-items-start gap-2">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span>{{ $t('rooms.room_types.restrictions.no_listing') }}</span>
-        </div>
+        <!-- Information about the default and enforced room settings for the room type -->
+        <Accordion>
+          <AccordionTab
+            :header="$t('settings.room_types.default_room_settings.title')"
+            :pt="{
+              headerAction: {
+                class: 'pl-0'
+              }
+            }"
+          >
 
-        <div v-if="!roomType.allow_record_attendance" class="flex align-items-start gap-2">
-          <i class="fa-solid fa-list-check"></i>
-          <span>{{ $t('rooms.room_types.restrictions.no_attendace_recording') }}</span>
-        </div>
+            <!-- General settings -->
+            <h4 class="my-2">{{ $t('rooms.settings.general.title') }}</h4>
 
-        <div v-if="roomType.require_access_code" class="flex align-items-start gap-2">
-          <i class="fa-solid fa-lock"></i>
-          <span>{{ $t('rooms.room_types.restrictions.require_access_code') }}</span>
-        </div>
+            <!-- Has access code setting (defines if the room should have an access code) -->
+            <div class="field grid">
+              <label for="has-access-code-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.has_access_code_enforced"/>
+                {{ $t('rooms.settings.general.has_access_code') }}
+              </label>
 
-        <div v-if="roomType.max_participants" class="flex align-items-start gap-2">
-          <i class="fa-solid fa-users"></i>
-          <span>{{ $t('rooms.room_types.restrictions.max_participants', {participants: roomType.max_participants}) }}</span>
-        </div>
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="has-access-code-default"
+                  :model-value="roomType.has_access_code_default"
+                  disabled
+                />
+              </div>
+            </div>
 
-        <div v-if="roomType.max_duration" class="flex align-items-start gap-2">
-          <i class="fa-solid fa-clock"></i>
-          <span>{{ $t('rooms.room_types.restrictions.max_duration', {duration: roomType.max_duration}) }}</span>
-        </div>
+            <!-- Allow guests to access the room -->
+            <div class="field grid">
+              <label for="allow-guests-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.allow_guests_enforced"/>
+                {{$t('rooms.settings.general.allow_guests')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="allow-guests-default"
+                  :model-value="roomType.allow_guests_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Expert settings -->
+            <!-- Video conference settings -->
+            <h4 class="my-2">{{ $t('rooms.settings.video_conference.title') }}</h4>
+
+            <!-- Everyone can start a new meeting, not only the moderator -->
+            <div class="field grid">
+                <label for="everyone-can-start-default" class="col-8 flex align-items-center gap-2">
+                  <RoomSettingEnforcedIcon v-if="roomType.everyone_can_start_enforced"/>
+                  {{$t('rooms.settings.video_conference.everyone_can_start')}}
+                </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="everyone-can-start-default"
+                  :model-value="roomType.everyone_can_start_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Mute everyone's microphone on meeting join -->
+            <div class="field grid">
+              <label for="mute-on-start-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.mute_on_start_enforced"/>
+                {{$t('rooms.settings.video_conference.mute_on_start')}}
+              </label>
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="mute-on-start-default"
+                  :model-value="roomType.mute_on_start_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Usage of the waiting room/guest lobby -->
+            <div class="field grid">
+              <span class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.lobby_enforced"/>
+                {{ $t('rooms.settings.video_conference.lobby.title') }}
+              </span>
+
+              <div class="col-4 justify-content-center flex align-items-center text-center">
+                <span v-if="roomType.lobby_default === 0"> {{ $t('app.disabled') }}</span>
+                <span v-if="roomType.lobby_default === 1"> {{ $t('app.enabled') }}</span>
+                <span v-if="roomType.lobby_default === 2"> {{ $t('rooms.settings.video_conference.lobby.only_for_guests_enabled') }}</span>
+              </div>
+            </div>
+
+            <!-- Recording settings -->
+            <h4 class="my-2" >{{ $t('rooms.settings.recordings.title') }}</h4>
+
+            <!-- Record attendance of users and guests -->
+            <div class="field grid">
+              <label for="record-attendance-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.record_attendance_enforced"/>
+                {{ $t('rooms.settings.recordings.record_attendance') }}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="record-attendance-default"
+                  :model-value="roomType.record_attendance_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Record video conference -->
+            <div class="field grid">
+              <label for="record-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.record_enforced"/>
+                {{ $t('rooms.settings.recordings.record_video_conference') }}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="record-default"
+                  :model-value="roomType.record_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Auto start recording video conference -->
+            <div class="field grid">
+              <label for="auto-start-recording-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.auto_start_recording_enforced"/>
+                {{ $t('rooms.settings.recordings.auto_start_recording') }}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="auto-start-recording-default"
+                  :model-value="roomType.auto_start_recording_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Restriction settings -->
+            <h4 class="my-2" >{{ $t('rooms.settings.restrictions.title') }}</h4>
+
+            <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
+            <div class="field grid">
+              <label for="disable-cam-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.lock_settings_disable_cam_enforced"/>
+                {{$t('rooms.settings.restrictions.lock_settings_disable_cam')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="disable-cam-default"
+                  :model-value="roomType.lock_settings_disable_cam_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!--
+            Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
+            can be changed during the meeting
+            -->
+            <div class="field grid">
+              <label for="webcams-only-for-moderator-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.webcams_only_for_moderator_enforced"/>
+                {{$t('rooms.settings.restrictions.webcams_only_for_moderator')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="webcams-only-for-moderator-default"
+                  :model-value="roomType.webcams_only_for_moderator_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
+            <div class="field grid">
+              <label for="disable-mic-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.lock_settings_disable_mic_enforced"/>
+                {{$t('rooms.settings.restrictions.lock_settings_disable_mic')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="disable-mic-default"
+                  :model-value="roomType.lock_settings_disable_mic_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
+            <div class="field grid">
+              <label for="disable-public-chat-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.lock_settings_disable_public_chat_enforced"/>
+                {{$t('rooms.settings.restrictions.lock_settings_disable_public_chat')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="disable-public-chat-default"
+                  :model-value="roomType.lock_settings_disable_public_chat_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!--
+            Disable the ability to send messages via the private chat for non moderator-uses,
+            private chats with the moderators is still possible
+            can be changed during the meeting
+            -->
+            <div class="field grid">
+              <label for="disable-private-chat-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.lock_settings_disable_private_chat_enforced"/>
+                {{$t('rooms.settings.restrictions.lock_settings_disable_private_chat')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="disable-private-chat-default"
+                  :model-value="roomType.lock_settings_disable_private_chat_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
+            <div class="field grid">
+              <label for="disable-note-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.lock_settings_disable_note_enforced"/>
+                {{$t('rooms.settings.restrictions.lock_settings_disable_note')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <InputSwitch
+                  input-id="disable-note-default"
+                  :model-value="roomType.lock_settings_disable_note_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
+            <div class="field grid">
+              <label for="hide-user-list-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.lock_settings_hide_user_list_enforced"/>
+                {{$t('rooms.settings.restrictions.lock_settings_hide_user_list')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+              <InputSwitch
+                  input-id="hide-user-list-default"
+                  :model-value="roomType.lock_settings_hide_user_list_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Participants settings -->
+            <h4 class="my-2">{{ $t('rooms.settings.participants.title') }}</h4>
+
+            <!-- Allow users to become room members -->
+            <div class="field grid">
+              <label for="allow-membership-default" class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.allow_membership_enforced"/>
+                {{$t('rooms.settings.participants.allow_membership')}}
+              </label>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+              <InputSwitch
+                  input-id="allow-membership-default"
+                  :model-value="roomType.allow_membership_default"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Default user role for logged in users only -->
+            <div class="field grid">
+              <span class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.default_role_enforced"/>
+                {{ $t('rooms.settings.participants.default_role.title') }} {{ $t('rooms.settings.participants.default_role.only_logged_in') }}
+              </span>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <RoomRoleBadge :role="roomType.default_role_default"/>
+              </div>
+            </div>
+
+            <!-- Advanced settings -->
+            <h4 class="my-2">{{ $t('rooms.settings.advanced.title') }}</h4>
+
+            <!-- Room visibility setting -->
+            <div class="field grid">
+              <span class="col-8 flex align-items-center gap-2">
+                <RoomSettingEnforcedIcon v-if="roomType.visibility_enforced"/>
+                {{ $t('rooms.settings.advanced.visibility.title') }}
+              </span>
+
+              <div class="col-4 justify-content-center flex align-items-center">
+                <span v-if="roomType.visibility_default === 0"> {{ $t('rooms.settings.advanced.visibility.private') }} </span>
+                <span v-if="roomType.visibility_default === 1"> {{ $t('rooms.settings.advanced.visibility.public') }} </span>
+              </div>
+            </div>
+
+          </AccordionTab>
+        </Accordion>
       </div>
+    </div>
 
   </div>
 </template>
 
 <script setup>
 
-import { computed } from 'vue';
-
-const props = defineProps({
+defineProps({
   roomType: {
     type: Object,
     required: true
-  },
-  iconsOnly: {
-    type: Boolean,
-    default: false
   }
 });
 
-const hasRestrictions = computed(() => {
-  return !props.roomType.allow_listing ||
-    !props.roomType.allow_record_attendance ||
-    props.roomType.require_access_code ||
-    props.roomType.max_participants ||
-    props.roomType.max_duration;
-});
-
 </script>
-
-<style scoped>
-
-</style>

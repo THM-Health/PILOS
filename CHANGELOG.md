@@ -20,16 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation for scaling PILOS ([#617])
 - Transfer room ownership ([#532], [#686])
 - Search for roles, server and serverpools ([#883])
-- Added room type restrictions (max. participants, max. duration, require access code, allow record attendance) ([#883])
+- Room type restrictions (max. participants, max. duration, require access code, allow record attendance) ([#883])
 - Limit results in user search ([#883])
 - Allow changing the default admin role ([#883])
 - Option to drain a server ([#911])
 - Show server connection status in server list ([#911])
 - End detached meetings after server failure ([#911])
-- Added config options for server health `BBB_SERVER_HEALTHY_THRESHOLD` and `BBB_SERVER_UNHEALTHY_THRESHOLD` ([#911])
-- Added config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
-- Added plugin to customize the server load calculation ([#956])
+- Config options for server health `BBB_SERVER_HEALTHY_THRESHOLD` and `BBB_SERVER_UNHEALTHY_THRESHOLD` ([#911])
+- Config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
+- Plugin to customize the server load calculation ([#956])
 - Save selected room tab in url to preserve selection on reload ([#977])
+- Default settings in the room type for the room settings and option to enforce these settings in the room type ([#75], [#695], [#1059])
+- Room type description ([#75], [#695], [#1059])
+- Sorting the room history list ([#1004])
+- Search and filter options to list of room members ([#1005])
+- Search and filter options to list of room files ([#1006])
+- Search and filter options to list of personalized room links ([#1007])
+- Recording management ([#31], [#896]) 
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
@@ -44,6 +51,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calculation of server load uses the participants amount, during starting phase using a configurable min. amount ([#956])
 - Layout of room features tab view ([#967])
 - **Breaking:** Time periods for room token expiration ([#968])
+- Layout of the room history list ([#1004])
+- Layout of the room members list ([#1005])
+- Layout of the room files list ([#1006])
+- Layout of the personalized room links list ([#1007])
 - **Breaking:** Global application storage ([#958], [#989])
 
 ### Fixed
@@ -52,7 +63,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
-- Global attendance recording setting ([#905])
+- Global attendance logging setting ([#905])
+
+## [v3.0.3] - 2024-05-02
+### Fixed
+- Error starting meeting with files on a scalelite server ([#1045])
+
+### Changed
+- Bump Dependencies
 
 ## [v3.0.2] - 2024-03-28
 ### Changed
@@ -70,7 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Older versions
 You can find the changelog for older versions there [here](https://github.com/THM-Health/PILOS/blob/2.x/CHANGELOG.md)
 
-
+[#31]: https://github.com/THM-Health/PILOS/issues/31
+[#75]: https://github.com/THM-Health/PILOS/issues/75
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
 [#532]: https://github.com/THM-Health/PILOS/issues/532
@@ -79,12 +98,14 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#650]: https://github.com/THM-Health/PILOS/pull/650
 [#681]: https://github.com/THM-Health/PILOS/pull/681
 [#686]: https://github.com/THM-Health/PILOS/pull/686
+[#695]: https://github.com/THM-Health/PILOS/issues/695
 [#704]: https://github.com/THM-Health/PILOS/issues/704
 [#724]: https://github.com/THM-Health/PILOS/pull/724
 [#735]: https://github.com/THM-Health/PILOS/pull/735
 [#743]: https://github.com/THM-Health/PILOS/pull/743
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 [#883]: https://github.com/THM-Health/PILOS/pull/883
+[#896]: https://github.com/THM-Health/PILOS/pull/896
 [#905]: https://github.com/THM-Health/PILOS/pull/905
 [#911]: https://github.com/THM-Health/PILOS/pull/911
 [#927]: https://github.com/THM-Health/PILOS/pull/927
@@ -94,8 +115,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#977]: https://github.com/THM-Health/PILOS/pull/977
 [#985]: https://github.com/THM-Health/PILOS/issues/985
 [#989]: https://github.com/THM-Health/PILOS/pull/989
+[#1004]: https://github.com/THM-Health/PILOS/pull/1004
+[#1005]: https://github.com/THM-Health/PILOS/pull/1005
+[#1006]: https://github.com/THM-Health/PILOS/pull/1006
+[#1007]: https://github.com/THM-Health/PILOS/pull/1007
+[#1045]: https://github.com/THM-Health/PILOS/issues/1045
+[#1059]: https://github.com/THM-Health/PILOS/pull/1059
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.2...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
+[v3.0.3]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.3

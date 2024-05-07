@@ -56,7 +56,7 @@ class ShibbolethController extends Controller
 
         // Redirect to the external login page in the frontend, optionally with a redirect back to a specific URL
         $url = '/external_login';
-        $redirectUrl = $request->get('redirect');
+        $redirectUrl = $request->query('redirect');
 
         return redirect($redirectUrl ? ($url.'?redirect='.urlencode($redirectUrl)) : $url);
     }

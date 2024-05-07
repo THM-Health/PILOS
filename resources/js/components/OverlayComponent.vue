@@ -1,5 +1,5 @@
 <template>
-  <div class="overlay-wrap relative">
+  <div class="overlay-wrap relative" :style="{'min-height': props.show ? '3rem' : null}">
       <slot />
       <div
         v-if="props.show"
@@ -7,7 +7,7 @@
       >
         <div class="absolute" style="inset: 0; background-color: #f8f9fa" :style="{opacity: props.opacity}" />
 
-        <div class="overlay-wrapper absolute top-0 left-0 right-0 bottom-0" :class="wrapperClass">
+        <div class="overlay-wrapper absolute top-0 left-0 right-0 bottom-0" :class="wrapperClass" >
           <slot name="overlay">
             <i class="fa-solid fa-circle-notch fa-spin text-3xl" />
           </slot>
