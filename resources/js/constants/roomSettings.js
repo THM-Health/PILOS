@@ -41,6 +41,12 @@ export const ROOM_SETTINGS_DEFINITION = {
   record_attendance: {
     expert_setting: true
   },
+  record: {
+    expert_setting: true
+  },
+  auto_start_recording: {
+    expert_setting: true
+  },
   visibility: {
     expert_setting: true
   }

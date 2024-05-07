@@ -82,6 +82,9 @@ return [
             'description' => 'If not set, no privacy policy link will be displayed in the footer.',
             'title' => 'URL to the privacy policy',
         ],
+        'recording' => [
+            'retention_period_title' => 'Storage duration of the recordings in days',
+        ],
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Period between delivery of the information email and the deletion',

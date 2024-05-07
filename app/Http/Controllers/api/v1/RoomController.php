@@ -207,7 +207,7 @@ class RoomController extends Controller
     public function start(Room $room, StartJoinMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url = $roomService->start($request->record_attendance)->getJoinUrl($request);
+        $url = $roomService->start($request->record_attendance, $request->record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
@@ -220,7 +220,7 @@ class RoomController extends Controller
     public function join(Room $room, StartJoinMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url = $roomService->join($request->record_attendance)->getJoinUrl($request);
+        $url = $roomService->join($request->record_attendance, $request->record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }

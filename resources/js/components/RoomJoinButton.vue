@@ -38,7 +38,6 @@
     <Message severity="warn" v-if="showRunningMessage">{{ $t('app.errors.room_already_running')}}</Message>
 
     <OverlayComponent :show="isLoadingAction" :opacity="0">
-
       <div v-if="!isLoadingAction">
         <!-- Ask guests for their first and lastname -->
         <div v-if="!authStore.isAuthenticated && !token" class="flex flex-column gap-2 mb-3" >
@@ -65,8 +64,32 @@
           </div>
           <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
         </div>
-      </div>
 
+        <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="record">
+          <span class="font-semibold">{{ $t('rooms.recording_info') }}</span>
+          <i>{{ $t('rooms.recording_hint') }}</i>
+          <div class="flex align-items-center gap-2">
+            <Checkbox
+              inputId="record-agreement"
+              v-model="recordAgreement"
+              binary
+              :class="{'p-invalid': formErrors.fieldInvalid('record')}"
+            />
+            <label for="record-agreement" class="required">{{ $t('rooms.recording_accept') }}</label>
+          </div>
+          <p class="p-error" v-html="formErrors.fieldError('record')" />
+          <div class="flex align-items-center gap-2">
+            <Checkbox
+              inputId="record-video-agreement"
+              v-model="recordVideoAgreement"
+              binary
+              :class="{'p-invalid': formErrors.fieldInvalid('record_video')}"
+            />
+            <label for="record-video-agreement">{{ $t('rooms.recording_video_accept') }}</label>
+          </div>
+          <p class="p-error" v-html="formErrors.fieldError('record_video')" />
+        </div>
+      </div>
     </OverlayComponent>
 
     <div class="flex align-items-center justify-content-end mt-4 gap-2">
@@ -111,6 +134,9 @@ const props = defineProps({
   },
   recordAttendance: {
     type: Boolean
+  },
+  record: {
+    type: Boolean
   }
 });
 
@@ -122,6 +148,8 @@ const showModal = ref(false);
 const isLoadingAction = ref(false);
 const recordAttendanceAgreement = ref(false);
 const showRunningMessage = ref(false);
+const recordAgreement = ref(false);
+const recordVideoAgreement = ref(false);
 const name = ref(''); // Name of guest
 
 const api = useApi();
@@ -149,6 +177,10 @@ const autoJoin = computed(() => {
     return false;
   }
 
+  if (props.record) {
+    return false;
+  }
+
   return true;
 });
 
@@ -169,7 +201,9 @@ function getJoinUrl () {
   const config = {
     params: {
       name: props.token ? null : name.value,
-      record_attendance: recordAttendanceAgreement.value ? 1 : 0
+      record_attendance: recordAttendanceAgreement.value ? 1 : 0,
+      record: recordAgreement.value ? 1 : 0,
+      record_video: recordVideoAgreement.value ? 1 : 0
     }
   };
 
@@ -240,6 +274,13 @@ function getJoinUrl () {
         // Attendance logging agreement required but not accepted
         if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
           formErrors.set({ record_attendance: [error.response.data.message] });
+          emit('changed');
+          return;
+        }
+
+        // Record agreement required but not accepted
+        if (error.response.status === env.HTTP_RECORD_AGREEMENT_MISSING) {
+          formErrors.set({ record: [error.response.data.message] });
           emit('changed');
           return;
         }

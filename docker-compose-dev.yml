@@ -40,7 +40,7 @@ services:
       <<: *app-image
       env_file:
         - .env
-      entrypoint: [ '/usr/sbin/crond','-f' ]
+      entrypoint: [ 'pilos-cli', 'run:cron' ]
       volumes:
         - './:/var/www/html/'
       depends_on:
@@ -50,7 +50,7 @@ services:
       <<: *app-image
       env_file:
         - .env
-      entrypoint: [ 'pilos-cli', 'horizon' ]
+      entrypoint: [ 'pilos-cli', 'run:horizon' ]
       volumes:
         - './:/var/www/html/'
       depends_on:

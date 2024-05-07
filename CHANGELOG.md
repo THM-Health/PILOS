@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search and filter options to list of room members ([#1005])
 - Search and filter options to list of room files ([#1006])
 - Search and filter options to list of personalized room links ([#1007])
+- Recording management ([#31], [#896]) 
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
@@ -61,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
-- Global attendance recording setting ([#905])
+- Global attendance logging setting ([#905])
 
 ## [v3.0.3] - 2024-05-02
 ### Fixed
@@ -86,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Older versions
 You can find the changelog for older versions there [here](https://github.com/THM-Health/PILOS/blob/2.x/CHANGELOG.md)
 
+[#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
@@ -102,6 +104,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#743]: https://github.com/THM-Health/PILOS/pull/743
 [#792]: https://github.com/THM-Health/PILOS/pull/792
 [#883]: https://github.com/THM-Health/PILOS/pull/883
+[#896]: https://github.com/THM-Health/PILOS/pull/896
 [#905]: https://github.com/THM-Health/PILOS/pull/905
 [#911]: https://github.com/THM-Health/PILOS/pull/911
 [#927]: https://github.com/THM-Health/PILOS/pull/927

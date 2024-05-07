@@ -37,7 +37,7 @@ class RoomFileTest extends TestCase
         $this->seed(ServerSeeder::class);
 
         // Create server
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
 

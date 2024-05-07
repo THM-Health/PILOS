@@ -167,9 +167,12 @@
           </div>
         </div>
 
+        <!-- Recording settings -->
+        <h4 class="my-2" >{{ $t('rooms.settings.recordings.title') }}</h4>
+
         <!-- Record attendance of users and guests -->
         <div class="field grid mx-0">
-          <span class="col-12 mb-2">{{ $t('rooms.settings.video_conference.record_attendance') }}</span>
+          <span class="col-12 mb-2">{{ $t('rooms.settings.recordings.record_attendance') }}</span>
           <div class="col-3 flex justify-content-center align-items-center">
             <InputSwitch
               input-id="record-attendance-current"
@@ -193,6 +196,64 @@
           </div>
           <div class="col-2 flex justify-content-center align-items-center">
             <RoomSettingEnforcedIcon v-if="newRoomType.record_attendance_enforced"/>
+          </div>
+        </div>
+
+        <!-- Record video conference -->
+        <div class="field grid mx-0">
+          <span class="col-12 mb-2">{{ $t('rooms.settings.recordings.record_video_conference') }}</span>
+          <div class="col-3 flex justify-content-center align-items-center">
+            <InputSwitch
+              input-id="record-current"
+              :model-value="currentSettings.record"
+              disabled
+              :aria-label="currentSettings.room_type.record_enforced? $t('rooms.change_type.current_setting_enforced'): $t('rooms.change_type.current_setting')"
+            />
+          </div>
+          <div class="col-2 flex justify-content-center align-items-center">
+            <RoomSettingEnforcedIcon v-if="currentSettings.room_type.record_enforced"/>
+          </div>
+          <div class="col-2 fa-solid fa-arrow-right flex align-items-center justify-content-center"/>
+          <!-- Resulting setting value -->
+          <div class="col-3 flex justify-content-center align-items-center">
+            <InputSwitch
+              input-id="record-resulting"
+              :model-value="getResultingSetting('record')"
+              disabled
+              :aria-label="newRoomType.record_enforced? $t('rooms.change_type.resulting_setting_enforced'): $t('rooms.change_type.resulting_setting')"
+            />
+          </div>
+          <div class="col-2 flex justify-content-center align-items-center">
+            <RoomSettingEnforcedIcon v-if="newRoomType.record_enforced"/>
+          </div>
+        </div>
+
+        <!-- Auto start recording video conference -->
+        <div class="field grid mx-0">
+          <span class="col-12 mb-2">{{ $t('rooms.settings.recordings.auto_start_recording') }}</span>
+          <div class="col-3 flex justify-content-center align-items-center">
+            <InputSwitch
+              input-id="auto-start-recording-current"
+              :model-value="currentSettings.auto_start_recording"
+              disabled
+              :aria-label="currentSettings.room_type.auto_start_recording_enforced? $t('rooms.change_type.current_setting_enforced'): $t('rooms.change_type.current_setting')"
+            />
+          </div>
+          <div class="col-2 flex justify-content-center align-items-center">
+            <RoomSettingEnforcedIcon v-if="currentSettings.room_type.auto_start_recording_enforced"/>
+          </div>
+          <div class="col-2 fa-solid fa-arrow-right flex align-items-center justify-content-center"/>
+          <!-- Resulting setting value -->
+          <div class="col-3 flex justify-content-center align-items-center">
+            <InputSwitch
+              input-id="auto-start-recording-resulting"
+              :model-value="getResultingSetting('auto_start_recording')"
+              disabled
+              :aria-label="newRoomType.auto_start_recording_enforced? $t('rooms.change_type.resulting_setting_enforced'): $t('rooms.change_type.resulting_setting')"
+            />
+          </div>
+          <div class="col-2 flex justify-content-center align-items-center">
+            <RoomSettingEnforcedIcon v-if="newRoomType.auto_start_recording_enforced"/>
           </div>
         </div>
 

@@ -40,7 +40,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'fileNotFound']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'fileNotFound', 'forbidden']);
 
 const api = useApi();
 const toast = useToast();
@@ -70,7 +70,10 @@ function downloadFile () {
   api.call(url, config)
     .then(response => {
       if (response.data.url !== undefined) {
-        window.open(response.data.url, '_blank');
+        const downloadWindow = window.open(response.data.url, '_blank');
+        if (!downloadWindow) {
+          toast.error(t('app.flash.popup_blocked'));
+        }
       }
     }).catch((error) => {
       if (error.response) {
@@ -91,9 +94,9 @@ function downloadFile () {
 
         // Forbidden, not allowed to download this file
         if (error.response.status === env.HTTP_FORBIDDEN) {
-        // Show error message
+          // Show error message
           toast.error(t('rooms.flash.file_forbidden'));
-          emit('fileNotFound');
+          emit('forbidden');
           return;
         }
 
