@@ -201,8 +201,8 @@ class UpgradeDatabaseCommand extends Command
         $userSettings->save();
 
         $recordingSettings = app(RecordingSettings::class);
-        if (isset($oldSettings['statistics.servers.enabled"'])) {
-            $recordingSettings->server_usage_enabled = $oldSettings['statistics.servers.enabled"'] == '1';
+        if (isset($oldSettings['statistics.servers.enabled'])) {
+            $recordingSettings->server_usage_enabled = $oldSettings['statistics.servers.enabled'] == '1';
         }
         if (isset($oldSettings['statistics.servers.retention_period'])) {
             $recordingSettings->server_usage_retention_period = TimePeriod::tryFrom($oldSettings['statistics.servers.retention_period']) ?: TimePeriod::ONE_MONTH;

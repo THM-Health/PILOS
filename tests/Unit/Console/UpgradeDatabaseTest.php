@@ -121,6 +121,7 @@ class UpgradeDatabaseTest extends TestCase
             ['key' => 'banner.enabled', 'value' => '1'],
             ['key' => 'banner.message', 'value' => 'Welcome to the old app'],
             ['key' => 'banner.title', 'value' => 'Welcome'],
+            ['key' => 'banner.icon', 'value' => 'fas fa-exclamation-triangle'],
             ['key' => 'banner.color', 'value' => '#333'],
             ['key' => 'banner.background', 'value' => '#fcdf02'],
             ['key' => 'banner.link', 'value' => 'https://example.com'],
@@ -176,6 +177,7 @@ class UpgradeDatabaseTest extends TestCase
         $this->assertTrue($bannerSettings->enabled);
         $this->assertEquals('Welcome to the old app', $bannerSettings->message);
         $this->assertEquals('Welcome', $bannerSettings->title);
+        $this->assertEquals('fas fa-exclamation-triangle', $bannerSettings->icon);
         $this->assertEquals('#333', $bannerSettings->color);
         $this->assertEquals('#fcdf02', $bannerSettings->background);
         $this->assertEquals('https://example.com', $bannerSettings->link);
