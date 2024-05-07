@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Vorlesung",
+      "color": "#80BA27",
+      "default": false
+    },
+    {
+      "id": 2,
+      "name": "Meeting",
+      "color": "#4a5c66",
+      "default": true
+    },
+    {
+      "id": 3,
+      "name": "Pr\u00fcfung",
+      "color": "#9C132E",
+      "default": false
+    },
+    {
+      "id": 4,
+      "description": "\u00dcbung",
+      "color": "#00B8E4",
+      "default": false
+    }
+  ]
+}
