@@ -5,8 +5,18 @@ describe('Login', () => {
   });
 
   it('correct data gets sent in ldap login', () => {
+    cy.intercept('api/v1/settings', { //ToDo meta?? or error not important???
+      "data": {
+        "auth": {
+          "ldap": true
+        }
+      }
+    })
     cy.intercept('/sanctum/csrf-cookie', {
-      statusCode: 200
+      statusCode: 200,
+      headers: {
+        'Set-Cookie': 'XSRF-TOKEN=test-csrf; Path=/'
+      }
     }).as('cookieRequest');
     cy.intercept('api/v1/login/ldap',{
       statusCode: 200
@@ -14,10 +24,9 @@ describe('Login', () => {
 
     cy.visit('/login');
 
-    cy.get('[data-cy="login-tab-ldap"]').within(()=>{ //ToDo think about giving components data-cy or something similar (easier to test)
+    cy.get('[data-test="login-tab-ldap"]').within(()=>{
       cy.get('#ldap-username').type('user');
       cy.get('#ldap-password').type('password');
-      cy.setCookie('XSRF-TOKEN', 'test-csrf');
       cy.get('.p-button').click();
     });
 
@@ -36,19 +45,27 @@ describe('Login', () => {
     cy.intercept('api/v1/settings', {
       "data": {
         "auth": {
-          "local": true,
-          "ldap": false,
-          "shibboleth": false
+          "local": true
         }
       }
     })
     cy.visit('/login');
-    cy.get('[data-cy="login-tab-ldap"]').should('not.exist');
+    cy.get('[data-test="login-tab-ldap"]').should('not.exist');
   });
 
   it('correct data gets sent on email login', () =>{
+    cy.intercept('api/v1/settings', {
+      "data": {
+        "auth": {
+          "local": true
+        }
+      }
+    });
     cy.intercept('/sanctum/csrf-cookie', {
-      statusCode: 200
+      statusCode: 200,
+      headers: {
+        'Set-Cookie': 'XSRF-TOKEN=test-csrf; Path=/'
+      }
     }).as('cookieRequest');
     cy.intercept('api/v1/login/local',{
       statusCode: 200
@@ -56,12 +73,9 @@ describe('Login', () => {
 
     cy.visit('/login');
 
-    cy.get('#pv_id_5_1_header_action').click(); //ToDo think about changing settings so only local login is shown
-
-    cy.get('[data-cy="login-tab-local"]').within(()=>{ //ToDo think about giving components data-cy or something similar (easier to test)
+    cy.get('[data-test="login-tab-local"]').within(()=>{
       cy.get('#local-email').type('user');
       cy.get('#local-password').type('password');
-      cy.setCookie('XSRF-TOKEN', 'test-csrf');
       cy.get('.p-button').click();
     });
 

@@ -17,7 +17,6 @@
                 :header="$t('auth.ldap.tab_title')"
               >
                 <LoginTabLdap
-                  data-cy="login-tab-ldap"
                   id="ldap"
                   :title="$t('auth.ldap.title')"
                   :submit-label="$t('auth.login')"
@@ -44,7 +43,6 @@
                 :header="$t('auth.email.tab_title')"
               >
                 <LoginTabLocal
-                  data-cy="login-tab-local"
                   id="local"
                   :title="$t('auth.email.title')"
                   :submit-label="$t('auth.login')"

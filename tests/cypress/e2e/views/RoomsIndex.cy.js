@@ -1,11 +1,15 @@
+import {interceptIndefinitely} from "../../support/utils/interceptIndefinitely.js";
+
 describe('Room Index', () => {
   beforeEach(()=>{
     cy.init();
     cy.intercept('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'}).as('roomTypeRequest');
-    cy.intercept('GET', 'api/v1/rooms?*', {fixture: 'exampleRoomsResponse.json'}).as('roomRequest');
   })
 
   it('check list of rooms', () => {
+    const interception = interceptIndefinitely( 'GET','api/v1/rooms?*', {fixture: 'exampleRoomsResponse.json'}, 'roomRequest');
+
+
     cy.visit('/rooms');
 
     cy.get('.p-inputgroup').eq(0).within(()=>{
@@ -13,11 +17,29 @@ describe('Room Index', () => {
       cy.get('.p-button').should('be.disabled');
     });
 
-    //ToDo fix tests for loading (options: delaying the request, promise)
-    // cy.get('.p-dropdown').eq(0).should('be.disabled');
-    // cy.get('.p-dropdown').eq(1).should('be.disabled');
+    cy.wait(1000); //ToDo delete again
 
-    cy.wait('@roomRequest');
+    cy.get('.p-inputgroup').eq(1).within(()=> {
+      cy.get('.p-dropdown-label').should('have.attr', 'aria-disabled', 'true');
+    })
+
+    //ToDo finish testing loading
+
+    cy.get('.p-inputgroup').eq(2).within(()=> {
+      cy.get('.p-dropdown-label').should('have.attr', 'aria-disabled', 'true');
+    }).then(()=>{
+      interception.sendResponse();
+    })
+
+    cy.wait('@roomRequest').then(interception => { //ToDo delete again
+      expect(interception.request.query).to.contain({
+        filter_all: '0',
+        filter_own: '1',
+        filter_public: '0',
+        only_favorites: '0',
+        sort_by: 'last_started'
+      });
+    });
 
     //ToDo delete or add alias completely
     cy.get('.room-card').as('rooms').should('have.length', 3);
@@ -34,4 +56,6 @@ describe('Room Index', () => {
       cy.get('a').should('have.attr','href', '/rooms/def-abc-456');
     });
   })
+
+  //ToDo
 })
