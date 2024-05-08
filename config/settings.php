@@ -5,7 +5,7 @@ return [
     'defaults' => [
         'general' => [
             'name' => env('APP_NAME', 'PILOS'),
-            'help_url' => env('DEFAULT_HELP_URL', '/images/logo.svg'),
+            'help_url' => env('DEFAULT_HELP_URL'),
             'legal_notice_url' => env('DEFAULT_LEGAL_NOTICE_URL'),
             'privacy_policy_url' => env('DEFAULT_PRIVACY_POLICY_URL'),
             'favicon' => env('DEFAULT_FAVICON', '/images/favicon.ico'),
