@@ -1,31 +1,31 @@
-import { defineConfig } from "cypress";
+import { defineConfig } from 'cypress';
 
 export default defineConfig({
   //ToDo find port that works (only necessary for component testing)
   port: 5178,
 
-  downloadsFolder: "test/cypress/downloads",
-  fixturesFolder: "tests/cypress/fixtures",
-  screenshotsFolder: "tests/cypress/screenshots",
-  videosFolder: "tests/cypress/videos",
+  downloadsFolder: 'test/cypress/downloads',
+  fixturesFolder: 'tests/cypress/fixtures',
+  screenshotsFolder: 'tests/cypress/screenshots',
+  videosFolder: 'tests/cypress/videos',
 
   e2e: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: "http://localhost",
+    baseUrl: 'http://localhost',
     experimentalStudio: true,
-    supportFile: "tests/cypress/support/e2e.{js,jsx,ts,tsx}",
-    specPattern: "tests/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
+    supportFile: 'tests/cypress/support/e2e.{js,jsx,ts,tsx}',
+    specPattern: 'tests/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
   },
 
   component: {
-    indexHtmlFile: "tests/cypress/support/component-index.html",
-    supportFile: "tests/cypress/support/component.js",
-    specPattern: "tests/cypress/component/**/*.cy.{js,jsx,ts,tsx}",
+    indexHtmlFile: 'tests/cypress/support/component-index.html',
+    supportFile: 'tests/cypress/support/component.js',
+    specPattern: 'tests/cypress/component/**/*.cy.{js,jsx,ts,tsx}',
     devServer: {
-      framework: "vue",
-      bundler: "vite",
+      framework: 'vue',
+      bundler: 'vite',
     },
   },
 });

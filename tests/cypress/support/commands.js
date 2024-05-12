@@ -29,3 +29,8 @@ Cypress.Commands.add('init', ()=>{
   cy.intercept('GET','api/v1/currentUser', {fixture: 'exampleUser.json'});
   cy.intercept('GET', 'api/v1/locale/en', {});
 });
+
+Cypress.Commands.add('interceptRoomIndexRequests', () => {
+  cy.intercept('get', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'});
+  cy.intercept('get', 'api/v1/rooms*', {fixture: 'exampleRooms.json'});
+});

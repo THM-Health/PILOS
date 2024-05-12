@@ -1,35 +1,52 @@
+import {interceptIndefinitely} from "../../support/utils/interceptIndefinitely.js";
+
 describe('Login', () => {
 
   beforeEach(()=>{
     cy.intercept('GET', 'api/v1/locale/en', {});
   });
 
-  it('correct data gets sent in ldap login', () => {
-    cy.intercept('api/v1/settings', { //ToDo meta?? or error not important???
-      "data": {
-        "auth": {
-          "ldap": true
+  it('ldap login', () => {
+    // Intercept settings request to only show ldap login tab
+    cy.intercept('GET', 'api/v1/settings', {
+      data: {
+        auth: {
+          ldap: true
         }
       }
-    })
-    cy.intercept('/sanctum/csrf-cookie', {
+    });
+    // Intercept csrf-cookie request to set defined cookie that can be checked later
+    cy.intercept('GET', '/sanctum/csrf-cookie', {
       statusCode: 200,
       headers: {
         'Set-Cookie': 'XSRF-TOKEN=test-csrf; Path=/'
       }
     }).as('cookieRequest');
-    cy.intercept('api/v1/login/ldap',{
-      statusCode: 200
-    }).as('loginRequest');
+
+    // Intercept login request
+    const loginRequest = interceptIndefinitely('POST', 'api/v1/login/ldap',{
+      statusCode: 200,
+    }, 'loginRequest');
 
     cy.visit('/login');
 
+    // Check if ldap login tab is shown correctly and click on login button
     cy.get('[data-test="login-tab-ldap"]').within(()=>{
       cy.get('#ldap-username').type('user');
       cy.get('#ldap-password').type('password');
-      cy.get('.p-button').click();
+
+      // Intercept requests that will be needed to show the room index page (needed to check redirect)
+      cy.intercept('GET', 'api/v1/currentUser', {fixture: 'exampleUser.json'});
+      cy.interceptRoomIndexRequests();
+
+      cy.get('button').should('contain', 'auth.login').click();
+      // Check if button is disabled after being clicked and loading and send response
+      cy.get('button').should('be.disabled').and('have.class', 'p-button-loading').then(()=>{
+        loginRequest.sendResponse();
+      });
     });
 
+    // Check if correct data gets sent
     cy.wait('@loginRequest').then(interception =>{
       expect(interception.request.body).to.contain({
         username: 'user',
@@ -37,58 +54,341 @@ describe('Login', () => {
       });
       expect(interception.request.headers).to.contain({
         'x-xsrf-token': 'test-csrf'
-      })
-    })
+      });
+    });
+
+    //ToDo think about using cy.spy() (will be difficult) or stop toast from vanishing in tests
+    // Check toast
+    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
+    // Check if redirect works
+    cy.url().should('contain', '/rooms').and('not.contain', 'login');
   });
 
+//ToDo maybe test all cases in one test with cy.reload()
   it('hide ldap login if disabled', () =>{
+    // Intercept settings request to only show ldap login tab
     cy.intercept('api/v1/settings', {
-      "data": {
-        "auth": {
-          "local": true
+      data: {
+        auth: {
+          ldap: false
         }
       }
-    })
+    });
+
     cy.visit('/login');
     cy.get('[data-test="login-tab-ldap"]').should('not.exist');
   });
 
-  it('correct data gets sent on email login', () =>{
+  it('ldap login with redirect query set', () => {
+    // Intercept settings request to only show ldap login tab
     cy.intercept('api/v1/settings', {
-      "data": {
-        "auth": {
-          "local": true
+      data: {
+        auth: {
+          ldap: true
         }
       }
     });
-    cy.intercept('/sanctum/csrf-cookie', {
+
+    // Intercept login request
+    cy.intercept('api/v1/login/ldap',{
+      statusCode: 200
+    }).as('loginRequest');
+
+    // Visit page that can only be visited by logged in users
+    cy.visit('settings'); //ToDo think about changing
+
+    // Check redirect to the login page
+    cy.url().should('contain', '/login?redirect=/settings');
+
+    // Intercept user request (user that has the permission to show the settings page)
+    cy.intercept('api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        locale: "en",
+        permissions: ["settings.manage"],
+        model_name: "User",
+        room_limit: -1
+      }
+    });
+
+    // Log in the user
+    cy.get('[data-test="login-tab-ldap"]').within(()=>{
+      cy.get('#ldap-username').type('user');
+      cy.get('#ldap-password').type('password');
+      cy.get('button').click();
+    });
+
+    // Check if redirect works
+    cy.url().should('contain', 'settings').and('not.contain', 'login');
+
+  });
+
+  it('local login', () => {
+    // Intercept settings request to only show local login tab
+    cy.intercept('GET', 'api/v1/settings', {
+      data: {
+        auth: {
+          local: true
+        }
+      }
+    });
+    // Intercept csrf-cookie request to set defined cookie that can be checked later
+    cy.intercept('GET', '/sanctum/csrf-cookie', {
       statusCode: 200,
       headers: {
         'Set-Cookie': 'XSRF-TOKEN=test-csrf; Path=/'
       }
     }).as('cookieRequest');
-    cy.intercept('api/v1/login/local',{
-      statusCode: 200
-    }).as('loginRequest');
+
+    // Intercept login request
+    const loginRequest = interceptIndefinitely('POST', 'api/v1/login/local',{
+      statusCode: 200,
+    }, 'loginRequest');
 
     cy.visit('/login');
 
+    // Check if ldap login tab is shown correctly and click on login button
     cy.get('[data-test="login-tab-local"]').within(()=>{
-      cy.get('#local-email').type('user');
+      cy.get('#local-email').type('john.doe@domain.tld');
       cy.get('#local-password').type('password');
-      cy.get('.p-button').click();
+
+      // Intercept requests that will be needed to show the room index page (needed to check redirect)
+      cy.intercept('GET', 'api/v1/currentUser', {fixture: 'exampleUser.json'});
+      cy.interceptRoomIndexRequests();
+
+      cy.get('button').should('contain', 'auth.login').click();
+      // Check if button is disabled after being clicked and loading and send response
+      cy.get('button').should('be.disabled').and('have.class', 'p-button-loading').then(()=>{
+        loginRequest.sendResponse();
+      });
     });
 
+    // Check if correct data gets sent
     cy.wait('@loginRequest').then(interception =>{
       expect(interception.request.body).to.contain({
-        email: 'user',
+        email: 'john.doe@domain.tld',
         password: 'password'
       });
       expect(interception.request.headers).to.contain({
         'x-xsrf-token': 'test-csrf'
-      })
-    })
-  })
+      });
+    });
 
-  //ToDo
+    //ToDo think about using cy.spy() (will be difficult) or stop toast from vanishing in tests
+    // Check toast
+    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
+    // Check if redirect works
+    cy.url().should('contain', '/rooms').and('not.contain', 'login');
+  });
+
+  it('hide local login if disabled', () =>{
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          local: false
+        }
+      }
+    })
+
+    cy.visit('/login');
+    cy.get('[data-test="login-tab-local"]').should('not.exist');
+  });
+
+  it('local login with query set', () =>{
+    // Intercept settings request to only show local login tab
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          local: true
+        }
+      }
+    });
+
+    // Intercept login request
+    cy.intercept('api/v1/login/local',{
+      statusCode: 200
+    }).as('loginRequest');
+
+    // Visit page that can only be visited by logged in users
+    cy.visit('settings'); //ToDo think about changing
+
+    // Check redirect to the login page
+    cy.url().should('contain', '/login?redirect=/settings');
+
+    // Intercept user request (user that has the permission to show the settings page)
+    cy.intercept('api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        locale: "en",
+        permissions: ["settings.manage"],
+        model_name: "User",
+        room_limit: -1
+      }
+    });
+
+    // Log in the user
+    cy.get('[data-test="login-tab-local"]').within(()=>{
+      cy.get('#local-email').type('john.doe@domain.tld');
+      cy.get('#local-password').type('password');
+      cy.get('button').click();
+    });
+
+    // Check if redirect works
+    cy.url().should('contain', 'settings').and('not.contain', 'login');
+  });
+
+  it('unprocessable entity error gets displayed for the corresponding fields', () => {
+    // Intercept settings request to only show local login tab
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          local: true
+        }
+      }
+    });
+
+    // Intercept login request
+    cy.intercept('api/v1/login/local',{
+      statusCode: 422, //ToDo env.HTTP_UNPROCESSABLE_ENTITY
+      body: {
+        errors: {
+          email: ['Password or Email wrong!']
+        }
+      }
+    }).as('loginRequest');
+
+    cy.visit('/login');
+
+    // Try to log in the user
+    cy.get('[data-test="login-tab-local"]').within(()=>{
+      cy.get('#local-email').type('john.doe@domain.tld');
+      cy.get('#local-password').type('password');
+      cy.get('button').click();
+    });
+
+    // Check if error gets displayed
+    //ToDo change??
+    cy.get('.p-inline-message').should('contain', 'Password or Email wrong!');
+    //cy.should('contain', 'Password or Email wrong!'); //ToDo enough???
+  });
+
+  it('error for to many login requests gets displayed', () => {
+    // Intercept settings request to only show local login tab
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          local: true
+        }
+      }
+    });
+
+    // Intercept login request
+    cy.intercept('api/v1/login/local',{
+      statusCode: 429, //ToDo env.HTTP_TOO_MANY_REQUESTS
+      body: {
+        errors: {
+          email: ['Too many logins. Please try again later!']
+        }
+      }
+    }).as('loginRequest');
+
+    cy.visit('/login');
+
+    // Try to log in the user
+    cy.get('[data-test="login-tab-local"]').within(()=>{
+      cy.get('#local-email').type('john.doe@domain.tld');
+      cy.get('#local-password').type('password');
+      cy.get('button').click();
+    });
+
+    // Check if error gets displayed
+    //ToDo change??
+    cy.get('.p-inline-message').should('contain', 'Too many logins. Please try again later!');
+    //cy.should('contain', 'Too many logins. Please try again later!'); //ToDo enough???
+  });
+
+  it('other api errors get thrown and handled by the global error handler', ()=>{
+    // Intercept settings request to only show local login tab
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          local: true
+        }
+      }
+    });
+
+    // Intercept login request
+    cy.intercept('api/v1/login/local',{
+      statusCode: 500,
+    }).as('loginRequest');
+
+    cy.visit('/login');
+
+    // Try to log in the user
+    cy.get('[data-test="login-tab-local"]').within(()=>{
+      cy.get('#local-email').type('john.doe@domain.tld');
+      cy.get('#local-password').type('password');
+      cy.get('button').click();
+    });
+
+    //ToDo check if global error handler gets called (cy.spy()???? could be difficult (same as toast))
+    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.empty_message')
+  });
+
+  it('shibboleth login', () => {
+    // Intercept settings request to only show local login tab
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          shibboleth: true
+        }
+      }
+    });
+
+    cy.visit('/login');
+
+    cy.get('[data-test="login-tab-external"]').within(()=>{
+      cy.get('a').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect');
+    });
+  });
+
+  it('hide shibboleth login if disabled', () =>{
+    // Intercept settings request to only show local login tab
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          shibboleth: false
+        }
+      }
+    });
+
+    cy.visit('/login');
+    cy.get('[data-test="login-tab-external"]').should('not.exist');
+  });
+
+  it('shibboleth login with query set', () => {
+    // Intercept settings request to only show ldap login tab
+    cy.intercept('api/v1/settings', {
+      data: {
+        auth: {
+          shibboleth: true
+        }
+      }
+    });
+
+    // Visit page that can only be visited by logged in users
+    cy.visit('settings'); //ToDo think about changing
+
+    // Check redirect to the login page
+    cy.url().should('contain', '/login?redirect=/settings');
+
+    cy.get('[data-test="login-tab-external"]').within(()=>{
+      cy.get('a').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect?redirect=%2Fsettings');
+    });
+  });
+
 })
