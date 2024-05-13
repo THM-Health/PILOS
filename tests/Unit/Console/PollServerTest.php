@@ -24,8 +24,8 @@ class PollServerTest extends TestCase
     public function testServerOffline()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 2,
-            'bigbluebutton.server_unhealthy_threshold' => 2,
+            'bigbluebutton.server_online_threshold' => 2,
+            'bigbluebutton.server_offline_threshold' => 2,
         ]);
 
         // Create new meeting with fake server

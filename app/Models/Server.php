@@ -110,10 +110,10 @@ class Server extends Model
             return null;
         }
 
-        if ($this->recover_count >= config('bigbluebutton.server_healthy_threshold')) {
+        if ($this->recover_count >= config('bigbluebutton.server_online_threshold')) {
             return ServerHealth::ONLINE;
         }
-        if ($this->error_count >= config('bigbluebutton.server_unhealthy_threshold')) {
+        if ($this->error_count >= config('bigbluebutton.server_offline_threshold')) {
             return ServerHealth::OFFLINE;
         }
 

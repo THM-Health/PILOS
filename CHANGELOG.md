@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to drain a server ([#911])
 - Show server connection status in server list ([#911])
 - End detached meetings after server failure ([#911])
-- Config options for server health `BBB_SERVER_HEALTHY_THRESHOLD` and `BBB_SERVER_UNHEALTHY_THRESHOLD` ([#911])
+- Config options for server health `BBB_SERVER_ONLINE_THRESHOLD` and `BBB_SERVER_OFFLINE_THRESHOLD` ([#911])
 - Config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
 - Plugin to customize the server load calculation ([#956])
 - Save selected room tab in url to preserve selection on reload ([#977])

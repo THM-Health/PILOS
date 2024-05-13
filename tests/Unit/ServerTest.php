@@ -48,14 +48,14 @@ class ServerTest extends TestCase
     public function testServerHealth()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         // Check online
         $server = Server::factory()->create();
         $server->error_count = 0;
-        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+        $server->recover_count = config('bigbluebutton.server_online_threshold');
         $server->save();
 
         $this->assertEquals(ServerHealth::ONLINE, $server->health);
@@ -68,7 +68,7 @@ class ServerTest extends TestCase
         $this->assertEquals(ServerHealth::UNHEALTHY, $server->health);
 
         // Check offline
-        $server->error_count = config('bigbluebutton.server_unhealthy_threshold');
+        $server->error_count = config('bigbluebutton.server_offline_threshold');
         $server->recover_count = 0;
         $server->save();
 
