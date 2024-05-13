@@ -31,7 +31,7 @@ for tag in "${TAGS[@]}"; do
     echo "Adding documentation for $version"
     npm run docusaurus docs:version "${version}"
   else
-    echo "Warning: branch/tag $(version) does not contain a docusaurus.config.js!"
+    echo "Warning: branch/tag ${version} does not contain a docusaurus.config.js!"
   fi
 
 done
@@ -56,7 +56,7 @@ for branch in "${BRANCHES[@]}"; do
     echo "Adding documentation for $version"
     npm run docusaurus docs:version "${version}"
   else
-    echo "Warning: branch $(branch) does not contain a docusaurus.config.js!"
+    echo "Warning: branch ${branch} does not contain a docusaurus.config.js!"
   fi
 
 done
