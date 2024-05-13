@@ -1,4 +1,7 @@
-# Migrate from Greenlight v2 to PILOS
+---
+title: Migrate from Greenlight v2
+description: Step by step guide to migrate from Greenlight v2 to PILOS
+---
 
 PILOS provides an easy to use command to import all greenlight users (incl. ldap), rooms and shared accesses.
 
@@ -9,13 +12,13 @@ to publish the database port.
 
 Change the port configuration for the db service from:
 
-```
+```yml
 ports:
 - 127.0.0.1:5432:5432
 ```
 to:
 
-```
+```yml
 ports:
 - 5432:5432
 ```
@@ -24,8 +27,8 @@ Also make sure the internal firewall of the OS and no external firewall is not b
 
 ## Running migration command
 
-```
-php artisan import:greenlight-v2   {host : ip or hostname of postgres database server}
+```bash
+docker compose exec app pilos-cli import:greenlight-v2   {host : ip or hostname of postgres database server}
                                 {port : port of postgres database server}
                                 {database : greenlight database name, see greenlight .env variable DB_NAME}
                                 {username : greenlight database username, see greenlight .env variable DB_USERNAME}
@@ -34,8 +37,8 @@ php artisan import:greenlight-v2   {host : ip or hostname of postgres database s
 
 **Example**
 
-```
-php artisan import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678
+```bash
+docker compose exec app pilos-cli import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678
 ```
 
 The command will output the process of the import and imforms about failed user, room and shared access import.
@@ -46,7 +49,7 @@ The command will output the process of the import and imforms about failed user,
 
 Please replace the following section of the greenlight nginx configuration:
 
-```
+```nginx
 location /b {
   proxy_pass          http://127.0.0.1:5000;
   proxy_set_header    Host              $host;
@@ -90,7 +93,7 @@ location /rails/active_storage {
 
 with
 
-```
+```nginx
 location /b {
     return 301 https://DOMAIN.TLD$request_uri;
 }
@@ -101,7 +104,7 @@ Replace **DOMAIN.TLD** with the hostname of your PILOS installation.
 
 ## Enable greenlight compatibility mode
 
-To enable support for the most common greenlight urls eg. room urls, /ldap_signin, /signin and /default_room please set the following .env variable
+To enable support for the most common greenlight urls e.g. room urls, /ldap_signin, /signin and /default_room please set the following .env variable
 ```
 GREENLIGHT_COMPATIBILITY=true
 ```
@@ -116,6 +119,6 @@ You also need to make sure the prefix does not collide with PILOS urls (check ro
 ## Shutdown greenlight
 
 To shutdown greenlight run this command inside the greenlight directory
-```
+```bash
 docker-compose down
 ```

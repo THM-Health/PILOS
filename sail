@@ -239,6 +239,18 @@ elif [ "$1" == "artisan" ] || [ "$1" == "art" ]; then
         sail_is_not_running
     fi
 
+# Proxy PILOS-CLI commands to the "pilos-cli" binary on the application container...
+elif [ "$1" == "pilos-cli" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec)
+        [ ! -t 0 ] && ARGS+=(-T)
+        ARGS+=("$APP_SERVICE" pilos-cli "$@")
+    else
+        sail_is_not_running
+    fi
+
 # Proxy the "debug" command to the "php artisan" binary on the application container with xdebug enabled...
 elif [ "$1" == "debug" ]; then
     shift 1

@@ -1,6 +1,11 @@
+---
+title: Scaling
+description: Guides on how to scale PILOS vertically and horizontally
+---
+
 # Scaling PILOS
 
-**Before continuing, make sure you have read the [installation instructions](INSTALL.md), as this document will only cover some additional scaling related topics.**
+**Before continuing, make sure you have read the [installation instructions](../02-getting-started.md), as this document will only cover some additional scaling related topics.**
 
 ## Vertical Scaling
 
@@ -8,26 +13,26 @@ You can try to scale the PILOS docker container vertically by increasing the PHP
 
 ### PHP
 To increase the number of PHP-FPM worker processes you can set the environment variable `PHP_FPM_PM_MAX_CHILDREN` to the desired value.
-```dotenv
+```shell
 PHP_FPM_PM_MAX_CHILDREN=100
 ```
 
 ### Nginx
 To increase the number of nginx worker processes you can set the environment variable `NGINX_WORKER_PROCESSES` to the desired value.
 Usually you should set this to the number of CPU cores available, using `auto` as the value will do this automatically.
-```dotenv
+```shell
 NGINX_WORKER_PROCESSES=auto
 ```
 
 Each nginx worker process can handle multiple connections.
 The maximum amount of connections is defined by the `NGINX_WORKER_CONNECTIONS` environment variable.
-```dotenv
+```shell
 NGINX_WORKER_CONNECTIONS=1024
 ```
 
 During each connection nginx will need up to two file descriptors.
 If you increase the number of worker connections you should also increase the maximum number of open files to at least twice the amount.
-```dotenv 
+```shell 
 NGINX_WORKER_RLIMIT_NOFILE=2048
 ```
 
@@ -42,9 +47,9 @@ However, you need a use a shared database, redis and storage as shown in the fol
 The PILOS docker container has a build in nginx webserver to serve static files and proxy all other requests to PHP-FPM.
 
 You should always use another webserver in front of the PILOS docker container to handle the SSL encryption.
-Have a look at our [install instructions](INSTALL.md#webserver) how to set up apache or nginx as a reverse proxy.
+Have a look at our [install instructions](../02-getting-started.md#webserver) how to set up apache or nginx as a reverse proxy.
 
-The shibboleth authentication is *only* available if the reverse proxy is apache with mod_shib. ([How to configure](EXTERNAL_AUTHENTICATION.md#shibboleth))
+The shibboleth authentication is *only* available if the reverse proxy is apache with mod_shib. ([How to configure](./01-external-authentication.md#shibboleth))
 
 ### Database
 
@@ -52,7 +57,7 @@ You need a dedicated MySQL/MariaDB or PostgreSQL database for PILOS.
 The database credentials are stored in the `.env` file.
 
 **MySQL Example:**
-```.dotenv
+```shell
 # Database config
 DB_CONNECTION=mysql
 DB_HOST=db.example.com
@@ -63,7 +68,7 @@ DB_PASSWORD=password
 ```
 
 **PostgreSQL Example:**
-```.dotenv
+```shell
 # Database config
 DB_CONNECTION=pgsql
 DB_HOST=db.example.com
@@ -79,7 +84,7 @@ For caching and queueing PILOS uses a Redis server.
 The Redis credentials are stored in the `.env` file.
 
 **Example:**
-```.dotenv
+```.shell
 # Redis config
 #REDIS_URL=
 REDIS_HOST=redis

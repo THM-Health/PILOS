@@ -1,16 +1,21 @@
-# Recording management
+---
+title: Recording management
+description: Guide how to setup recording management with PILOS
+---
+
+## Introduction
 
 PILOS is able to manage recordings from BigBlueButton servers.
 This includes the transfer of the recordings to PILOS for permanent storage and serving.
+
+Follow the steps below to set up the recording management.
 
 ## Permissions
 
 To allow the BBB-Server to write the recording files and PILOS to read the files, the file permissions need to be set correctly.
 Therefore, you need to create a user and group on both systems.
 
-### BBB-Server
-
-On the BBB-Server you need to create a group `pilos-spool` and add the `bigbluebutton` user to this group.
+**On the BBB Server** you need to create a group `pilos-spool` and add the `bigbluebutton` user to this group.
 
 ```bash
 # Create a new group shared by the BBB-Server and PILOS
@@ -19,15 +24,12 @@ addgroup pilos-spool --gid 2000
 usermod -a -G pilos-spool bigbluebutton
 ```
 
-### PILOS
-
-On the PILOS server you also need to create a group `pilos-spool` with the same group id.
+**On the PILOS server** you also need to create a group `pilos-spool` with the same group id.
 
 ```bash
 # Create a new group shared by the BBB-Server and PILOS
 addgroup pilos-spool --gid 2000
 ```
-
 
 ## Transferring recordings
 
@@ -39,13 +41,13 @@ To transfer the recording files to PILOS you have two options:
 
 To use shared storage, you need to mount the shared storage to the BBB-Servers and PILOS.
 
-On the BBB-Server you need to set the mount point in the `spool_dir` setting of the `pilos.yml` file.
+**On the BBB Server** you need to set the mount point in the `spool_dir` setting of the `pilos.yml` file.
 
 ```yaml
 spool_dir: /mnt/storage/recordings-spool
 ```
 
-On PILOS you need to map the mount point to the `/var/www/html/storage/recordings-spool` folder of the docker container (adjust the `docker-compose.yml`).
+**On the PILOS server** you need to map the mount point to the `/var/www/html/storage/recordings-spool` folder of the docker container (adjust the `docker-compose.yml`).
 
 ```yaml
 x-docker-pilos-common: &pilos-common
@@ -210,7 +212,7 @@ You can check the log files and Horizon for more information. You can also retry
 Room owners can download the raw recording files for archiving, uploading to other video platforms, etc. The BigBlueButton recording raw files include many files that typical users don't need. Therefore, you can customise which files are included in the download. You can filter the files using a regular expression in the .env file.
 
 In this example, only pdf, ogg, mp4, m4v and webm files are included in the download.
-```dotenv
+```shell
 RECORDING_DOWNLOAD_ALLOWLIST='^.*\.(pdf|ogg|mp4|m4v|webm)$'
 ```
 
@@ -219,7 +221,7 @@ Admins can customise the retention period for recordings, after which the system
 
 You can also set a maximum retention period that cannot be exceeded by the administrators.
 This setting can be defined in the .env file. The value can be either -1 = unlimited or a number of days.
-```dotenv
+```shell
 RECORDING_MAX_RETENTION_PERIOD=365
 ```
 
@@ -227,7 +229,7 @@ RECORDING_MAX_RETENTION_PERIOD=365
 Users can change the description of a recording.
 You can limit the length of the description in the .env file.
 The current default value is 1000 characters.
-```dotenv
+```shell
 RECORDING_DESCRIPTION_LIMIT=255
 ```
 The maximum configurable value is 65,535 characters. As the entire description is displayed in the overview of the recordings, such a high limit is not recommended.
@@ -257,7 +259,7 @@ This subdirectory is mounted to the PILOS instance.
 To tell the post_publish script in what subdirectory the recordings should be transferred, you need to set the `RECORDING_SPOOL_SUB_DIRECTORY` environment variable.
 PILOS will send this as a meta variable on the creation of each meeting and the post_publish script will use this to transfer the recordings to the correct subdirectory.
 
-```dotenv
+```shell
 RECORDING_SPOOL_SUB_DIRECTORY=instance1
 ```
 
