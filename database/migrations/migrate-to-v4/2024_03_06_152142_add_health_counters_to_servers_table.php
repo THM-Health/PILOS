@@ -34,7 +34,7 @@ return new class extends Migration
                     // Online
                 case 1:
                     // Server is healthy
-                    $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+                    $server->recover_count = config('bigbluebutton.server_online_threshold');
                     $server->error_count = 0;
                     $server->status = \App\Enums\ServerStatus::ENABLED;
                     break;

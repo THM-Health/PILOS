@@ -46,13 +46,13 @@ class ServerTest extends TestCase
         $this->generalSettings->save();
 
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         $servers = Server::factory()->count(6)->create(['description' => 'test', 'version' => '2.4.5']);
         $serverOnline = Server::factory()->create(['name' => 'serverOnline', 'version' => '2.4.5']);
-        $serverOffline = Server::factory()->create(['name' => 'serverOffline', 'version' => '2.4.5', 'error_count' => config('bigbluebutton.server_unhealthy_threshold'), 'recover_count' => 0]);
+        $serverOffline = Server::factory()->create(['name' => 'serverOffline', 'version' => '2.4.5', 'error_count' => config('bigbluebutton.server_offline_threshold'), 'recover_count' => 0]);
         $serverUnhealthy = Server::factory()->create(['name' => 'serverUnhealthy', 'version' => '2.4.5', 'error_count' => 1, 'recover_count' => 0]);
         $serverDisabled = Server::factory()->create(['name' => 'serverDisabled', 'status' => ServerStatus::DISABLED, 'version' => null]);
         $serverDraining = Server::factory()->create(['name' => 'serverDraining', 'status' => ServerStatus::DRAINING, 'version' => null]);

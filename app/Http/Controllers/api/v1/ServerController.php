@@ -90,7 +90,7 @@ class ServerController extends Controller
         $server->status = $request->status;
 
         $server->error_count = 0;
-        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+        $server->recover_count = config('bigbluebutton.server_online_threshold');
 
         // Check if server is online/offline and update usage data
         $serverService = new ServerService($server);
@@ -117,7 +117,7 @@ class ServerController extends Controller
         $server->status = $request->status;
 
         $server->error_count = 0;
-        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+        $server->recover_count = config('bigbluebutton.server_online_threshold');
 
         // Check if server is online/offline and update usage data
         $serverService = new ServerService($server);
