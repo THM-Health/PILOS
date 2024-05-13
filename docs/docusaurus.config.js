@@ -44,15 +44,12 @@ const config = {
           lastVersion: 'current',
           //lastVersion: 'v3',
           includeCurrentVersion: true,
-          /*versions: {
-            v2: {
-              banner: 'none'
-            },
-            v3: {
-              banner: 'none'
+          versions: {
+            current: {
+              label: 'v4',
+              banner: 'unreleased'
             }
           },
-          */
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
