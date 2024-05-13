@@ -41,9 +41,10 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          lastVersion: 'v3',
+          lastVersion: 'current',
+          //lastVersion: 'v3',
           includeCurrentVersion: true,
-          versions: {
+          /*versions: {
             v2: {
               banner: 'none'
             },
@@ -51,6 +52,7 @@ const config = {
               banner: 'none'
             }
           },
+          */
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
