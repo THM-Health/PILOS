@@ -349,7 +349,7 @@
             <ColorSelect
               class="my-2"
               :disabled='disabled'
-              :colors="backgroundColors"
+              :colors="colors.getAllColors()"
               v-model="settings.banner.background"
             />
             <label for="banner-background">{{ $t('settings.room_types.custom_color') }}</label>
@@ -717,6 +717,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../../composables/useApi.js';
 import { useFormErrors } from '../../composables/useFormErrors.js';
 import { useUserPermissions } from '../../composables/useUserPermission.js';
+import { useColors } from '../../composables/useColors.js';
 import { useI18n } from 'vue-i18n';
 
 const roomLimitMode = ref('custom');
@@ -751,8 +752,7 @@ const settings = ref({
   room_auto_delete: {}
 });
 
-const textColors = ref(env.BANNER_TEXT_COLORS);
-const backgroundColors = ref(env.BANNER_BACKGROUND_COLORS);
+const textColors = ref(['#FFFFFF', '#000000']);
 const timezonesLoading = ref(false);
 const timezonesLoadingError = ref(false);
 
@@ -761,6 +761,7 @@ const api = useApi();
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
 const { t } = useI18n();
+const colors = useColors();
 
 /**
  * Input fields are disabled

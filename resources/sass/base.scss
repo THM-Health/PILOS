@@ -216,6 +216,18 @@ $colors: (
     font-feature-settings: $fontFeatureSettings;
     --font-family: $fontFamily;;
     --font-feature-settings: $fontFeatureSettings;
+
+    --pc-blue: #{$blue};
+    --pc-green: #{$green};
+    --pc-yellow: #{$yellow};
+    --pc-cyan: #{$cyan};
+    --pc-pink: #{$pink};
+    --pc-indigo: #{$indigo};
+    --pc-teal: #{$teal};
+    --pc-orange: #{$orange};
+    --pc-bluegray: #{$bluegray};
+    --pc-purple: #{$purple};
+    --pc-red: #{$red};
 }
 
 // PrimeVue base

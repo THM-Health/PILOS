@@ -88,7 +88,7 @@
               id="color"
               class="mb-2"
               :disabled='isBusy || modelLoadingError || viewOnly'
-              :colors="colors"
+              :colors="colors.getAllColors()"
               v-model="model.color"
             />
             <label for="custom-color">{{ $t('settings.room_types.custom_color') }}</label>
@@ -912,12 +912,15 @@ import { Multiselect } from 'vue-multiselect';
 import { useConfirm } from 'primevue/useconfirm';
 import { useI18n } from 'vue-i18n';
 import ConfirmDialog from 'primevue/confirmdialog';
+import { useColors } from '@/composables/useColors.js';
 
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();
 const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
+const colors = useColors();
+
 const { t } = useI18n();
 
 const props = defineProps({
@@ -934,7 +937,7 @@ const props = defineProps({
 const isBusy = ref(false);
 const model = ref({
   name: null,
-  color: env.ROOM_TYPE_COLORS[0],
+  color: colors.getAllColors()[0],
   server_pool: null,
   max_duration: null,
   max_participants: null,
@@ -981,7 +984,6 @@ const model = ref({
 const name = ref('');
 
 const rolesLoading = ref(false);
-const colors = env.ROOM_TYPE_COLORS;
 
 const serverPoolsLoading = ref(false);
 const serverPools = ref([]);

@@ -64,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
 - Global attendance logging setting ([#905])
+- Environment variables for room history chart colors, room type colors and banner colors; replaced by using the theme colors ([#1071])
 
 ## [v3.0.3] - 2024-05-02
 ### Fixed
@@ -121,6 +122,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1007]: https://github.com/THM-Health/PILOS/pull/1007
 [#1045]: https://github.com/THM-Health/PILOS/issues/1045
 [#1059]: https://github.com/THM-Health/PILOS/pull/1059
+[#1071]: https://github.com/THM-Health/PILOS/issues/1071
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

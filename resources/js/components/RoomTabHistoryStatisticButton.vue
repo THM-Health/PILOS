@@ -43,9 +43,9 @@
 
 import { computed, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
-import env from '../env.js';
 import { useI18n } from 'vue-i18n';
 import 'chartjs-adapter-date-fns';
+import { useColors } from '../composables/useColors.js';
 
 const props = defineProps({
   roomId: {
@@ -84,6 +84,7 @@ const chartDataRows = ref({
 
 const api = useApi();
 const { t, d } = useI18n();
+const colors = useColors();
 
 function showStatisticModal () {
   showModal.value = true;
@@ -192,24 +193,24 @@ const chartData = computed(() => {
   return {
     datasets: [{
       label: t('meetings.stats.participants'),
-      backgroundColor: env.HISTORY_PARTICIPANT_COLOR,
-      borderColor: env.HISTORY_PARTICIPANT_COLOR,
+      backgroundColor: colors.getColor('red'),
+      borderColor: colors.getColor('red'),
       fill: false,
       cubicInterpolationMode: 'monotone',
       data: chartDataRows.value.participants
     },
     {
       label: t('meetings.stats.voices'),
-      backgroundColor: env.HISTORY_VOICES_COLOR,
-      borderColor: env.HISTORY_VOICES_COLOR,
+      backgroundColor: colors.getColor('blue'),
+      borderColor: colors.getColor('blue'),
       fill: false,
       cubicInterpolationMode: 'monotone',
       data: chartDataRows.value.voices
     },
     {
       label: t('meetings.stats.videos'),
-      backgroundColor: env.HISTORY_VIDEOS_COLOR,
-      borderColor: env.HISTORY_VIDEOS_COLOR,
+      backgroundColor: colors.getColor('green'),
+      borderColor: colors.getColor('green'),
       fill: false,
       cubicInterpolationMode: 'monotone',
       data: chartDataRows.value.videos
