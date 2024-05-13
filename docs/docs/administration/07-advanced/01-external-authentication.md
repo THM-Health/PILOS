@@ -1,20 +1,25 @@
-# Introduction
+---
+title: External Authentication
+description: Guide how to connect PILOS to external authentication systems like LDAP and Shibboleth
+---
 
-PILOS has two types of users: Local and External.
+## Introduction
 
-## Local users
+PILOS has two types of users:
+
+**Local users**
 Local users can be created by administrators. They can log in to the system with the combination of email address and password. Via PILOS, an email can be sent to the user upon creation, also a password reset function can be activated.
 
-## External users
+**External users**
 In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP and Shibboleth are available as interfaces. All authentication providers can be operated in parallel, but none of them more than once.
 
-# Setup of external authenticators
+## Setup of external authenticators
 
-## LDAP
+### LDAP
 
 To enable LDAP, you need to add/set the following options in the  `.env` file and adjust to your needs.
 
-```
+```bash
 # LDAP config
 LDAP_ENABLED=true
 LDAP_HOST=ldap.university.org
@@ -46,15 +51,15 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 LDAP_LOGIN_ATTRIBUTE=uid
 ```
 
-## Shibboleth
+### Shibboleth
 
 The shibboleth authentication is available if the reverse proxy is apache with mod_shib.
 The application trusts the header information of the apache webserver and authenticates the user via the shibboleth protected route /auth/shibboleth/callback.
 
-### Configure Apache + mod_shib
+#### Configure Apache + mod_shib
 
 You need to add the two options to your apache reverse proxy configuration to enable shibboleth support.
-```
+```apacheconf
 <Location />
     AuthType shibboleth
     ShibUseHeaders On
@@ -70,7 +75,7 @@ You need to add the two options to your apache reverse proxy configuration to en
 ```
 
 If you host your own discovery service, you also need to add these lines before the `ProxyPass` so that these requests are not proxied.
-```
+```apacheconf
 ProxyPass /shibboleth-ds !
 ProxyPass /shibboleth-sp !
 ```
@@ -83,16 +88,16 @@ You need the add the url of the font- and back-channel to the ApplicationDefault
 <Notify Channel="front" Location="https://DOMAIN.TLD/auth/shibboleth/logout" />
 ```
 
-### Configure application to use shibboleth
+#### Configure application to use shibboleth
 
 To enable Shibboleth, you need to enable it in the  `.env` file.
 
-```
+```bash
 # Shibboleth config
 SHIBBOLETH_ENABLED=true
 ```
 
-# Configure mapping
+## Configure mapping
 
 For each external authenticator the attribute and role mapping needs to be configured.
 The mapping is defined in a JSON file, which is stored in the directory `app/Auth/config` of the pilos installation.
@@ -102,9 +107,9 @@ The mapping is defined in a JSON file, which is stored in the directory `app/Aut
 | LDAP            | ldap_mapping.json       |
 | Shibboleth      | shibboleth_mapping.json |
 
-## Attribute mapping
+### Attribute mapping
 
-### Required attributes
+#### Required attributes
 
 You must add attribute mapping for the following attributes.
 
@@ -119,58 +124,58 @@ You must add attribute mapping for the following attributes.
 **Notice:** The external identifier (`external_id`) is used to uniquely identify a user within each authenicator.
 User accounts are not shared between authenicators.
 
-### Array attributes
+#### Array attributes
 
 If the value of one of the **required** attributes is an array, the first array entry is used.
 
 
-### Additional attributes
+#### Additional attributes
 
 You can define additional attributes.
 These attributes are not saved in the database, but they can be used for role mapping.
 
-## Role mapping
-## Roles
+### Role mapping
+### Roles
 
 To add a mapping to a role, add a new object to the `roles` array.
 The attribute `name` must match the name of the role in pilos.
 
-### Disable roles
+#### Disable roles
 To disable a role, you can add and set the attribute `disabled` to `true`.
 
-### Rule policy
+#### Rule policy
 By default, only one role must be fulfilled for the role to be applied.
 However, if you want to combine the rules, so that every rule must be fulfilled, set the attribute `all` to `true`.
 
-## Rules
+### Rules
 
 Each rule is defined by at least an `attribute` and `regex`.
 The `attribute` is the name of an attribute of the user object defined in the attribute mapping. The value of the attribute is matched with a regular expression. If the regular expression find a match the rule is fulfilled.
 
 To create and test regular expression you can use tools like: https://regex101.com/ or https://regexr.com/ . Please note: You have to double escape the `\` symbol.
 
-### Array attributes
+#### Array attributes
 If the attribute returns an array and not a string, by default the regular expression only has to match one array entry for the rule to pass.
 
 If the regular expression has to match all array entries, add the attribute `all` to the rule object and set its value to `true`.
 
-### Negate
+#### Negate
 To negate the result of the regex, add the attribute `not` to the rule object and set its value to `true`.
 
-#### Arrays
+##### Arrays
 The negation of arrays means: Check that regular expression doesn't match on any entry
 If the `all` attribute is also true: Check that regular expression doesn't match matches all entries
 
 
 
-## Examples
+### Examples
 
-## LDAP
+### LDAP
 
-### Attributes
+#### Attributes
 In this example the LDAP schema uses the common name (CN) as username and has the group memberships in the memberof attribute.
 
-### Roles
+#### Roles
 - The "admin" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
 
 - The "user" role is given to everyone.
@@ -214,12 +219,12 @@ In this example the LDAP schema uses the common name (CN) as username and has th
 }
 ```
 
-## Shibboleth
+### Shibboleth
 
-### Attributes
+#### Attributes
 The attribute names are the header names in which the attribute values are send by the apache mod_shib to the application. 
 
-### Roles
+#### Roles
 - The "admin" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
 
 - The "user" role is given to everyone.
