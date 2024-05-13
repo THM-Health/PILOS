@@ -26,7 +26,8 @@ for tag in "${TAGS[@]}"; do
 
   git checkout "$tag"
   if [ -f docusaurus.config.js ]; then
-    version="$(echo ${tag} | cut -d. -f1)"
+    majorVersion="$(echo ${tag} | cut -d. -f1)"
+    version=v${majorVersion}
     echo "Adding documentation for $version"
     npm run docusaurus docs:version "${version}"
   else
@@ -47,9 +48,9 @@ for branch in "${BRANCHES[@]}"; do
     if [ "$branch" == "master" ]; then
       version="v3"
     else
-    # Otherwise, name version as the branch name
-        version=v${branch:1}
-      fi
+      # Otherwise, name version as the branch name
+      majorVersion="$(echo ${branch} | cut -d. -f1)"
+      version=v${majorVersion}
     fi
 
     echo "Adding documentation for $version"
