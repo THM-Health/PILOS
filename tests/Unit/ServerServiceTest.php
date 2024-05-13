@@ -254,8 +254,8 @@ class ServerServiceTest extends TestCase
     public function testServerHealthFailing()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         Http::fake([
@@ -298,8 +298,8 @@ class ServerServiceTest extends TestCase
     public function testServerHealthSingleFailure()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         Http::fake([
@@ -342,8 +342,8 @@ class ServerServiceTest extends TestCase
     public function testServerHealthRecovering()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         Http::fake([
@@ -356,7 +356,7 @@ class ServerServiceTest extends TestCase
         ]);
 
         // Create server
-        $server = Server::factory()->create(['error_count' => config('bigbluebutton.server_unhealthy_threshold'), 'recover_count' => 0]);
+        $server = Server::factory()->create(['error_count' => config('bigbluebutton.server_offline_threshold'), 'recover_count' => 0]);
         $serverService = new ServerService($server);
 
         // Recover (1 recover)
@@ -393,8 +393,8 @@ class ServerServiceTest extends TestCase
     public function testDetachMeetingOnOffline()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         Http::fake([
@@ -448,8 +448,8 @@ class ServerServiceTest extends TestCase
     public function testEndDetachedMeetingOnOnline()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         Http::fake([
@@ -460,7 +460,7 @@ class ServerServiceTest extends TestCase
         ]);
 
         // Create server
-        $server = Server::factory()->create(['error_count' => config('bigbluebutton.server_unhealthy_threshold'), 'recover_count' => 0]);
+        $server = Server::factory()->create(['error_count' => config('bigbluebutton.server_offline_threshold'), 'recover_count' => 0]);
         $serverService = new ServerService($server);
 
         // Create detached meeting

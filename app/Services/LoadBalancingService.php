@@ -24,7 +24,7 @@ class LoadBalancingService
     {
         return $this->servers
             ->where('status', ServerStatus::ENABLED)
-            ->where('recover_count', '>=', config('bigbluebutton.server_healthy_threshold'))
+            ->where('recover_count', '>=', config('bigbluebutton.server_online_threshold'))
             ->where('error_count', '=', 0)
             ->whereNotNull('load')
             ->sortBy(function (Server $server) {

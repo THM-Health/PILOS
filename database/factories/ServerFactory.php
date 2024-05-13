@@ -27,7 +27,7 @@ class ServerFactory extends Factory
             'name' => $this->faker->unique()->word,
             'status' => \App\Enums\ServerStatus::ENABLED,
             'error_count' => 0,
-            'recover_count' => config('bigbluebutton.server_healthy_threshold'),
+            'recover_count' => config('bigbluebutton.server_online_threshold'),
             'version' => '2.4.5',
             'strength' => 1,
             'load' => 0,

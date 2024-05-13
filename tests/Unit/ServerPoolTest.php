@@ -19,8 +19,8 @@ class ServerPoolTest extends TestCase
     public function testLoadBalancing()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         $unhealthy = Server::factory()->create(['status' => ServerStatus::ENABLED]);
