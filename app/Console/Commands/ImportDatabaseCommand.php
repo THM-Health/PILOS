@@ -40,12 +40,9 @@ class ImportDatabaseCommand extends Command
 
         // Build command with pv to show progress of import
         switch ($db['driver']) {
+            case 'mariadb':
             case 'mysql':
                 $command = "pv -n -f $file | mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --port={$db['port']} --database {$db['database']}";
-
-                break;
-            case 'mariadb':
-                $command = "pv -n -f $file | mariadb --user={$db['username']} --password={$db['password']} --host={$db['host']} --port={$db['port']} --database {$db['database']}";
 
                 break;
             case 'pgsql':
