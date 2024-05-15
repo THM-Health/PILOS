@@ -45,7 +45,6 @@ class LoginController extends Controller
     {
         return [
             'password' => $request->input('password'),
-            'authenticator' => 'local',
             'email' => $request->input('email'),
         ];
     }

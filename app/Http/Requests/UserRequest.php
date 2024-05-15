@@ -19,7 +19,7 @@ class UserRequest extends FormRequest
             'bbb_skip_check_audio' => ['sometimes', 'required', 'boolean'],
             'timezone' => ['sometimes', 'required', 'string', Rule::in(timezone_identifiers_list())],
             'roles' => ['sometimes', 'required', 'array'],
-            'roles.*' => ['sometimes', 'distinct', 'exists:App\Models\Role,id'],
+            'roles.*' => ['sometimes', 'distinct', 'integer', 'exists:App\Models\Role,id'],
             'image' => ['sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100'],
         ];
 

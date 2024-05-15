@@ -33,12 +33,19 @@ class RoleController extends Controller
         $resource = Role::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['id', 'name', 'default']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
+            $sortBy = match ($request->query('sort_by')) {
+                'name' => 'LOWER(name)',
+                default => 'id',
+            };
+
+            // Sort direction, fallback/default is asc
+            $sortOrder = match ($request->query('sort_direction')) {
+                'desc' => 'DESC',
+                default => 'ASC',
+            };
+
+            $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
         }
 
         // count all before search

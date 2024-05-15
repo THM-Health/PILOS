@@ -28,10 +28,10 @@ class RolesAndPermissionsSeederTest extends TestCase
     public function testCleanInstall()
     {
         // Check if admin role has all permissions
-        $this->assertCount(Permission::all()->count(), Role::where('name', 'superuser')->where('superuser', true)->first()->permissions);
+        $this->assertCount(Permission::all()->count(), Role::where('name', 'Superuser')->where('superuser', true)->first()->permissions);
 
         // Check if user role has create room permission
-        $this->assertTrue(Role::where('name', 'user')->where('superuser', false)->first()->permissions->contains('name', 'rooms.create'));
+        $this->assertTrue(Role::where('name', 'User')->where('superuser', false)->first()->permissions->contains('name', 'rooms.create'));
     }
 
     /**
@@ -40,7 +40,7 @@ class RolesAndPermissionsSeederTest extends TestCase
     public function testUserRoleNotCreatedIfAlreadyChanged()
     {
         // Change user role
-        $userRole = Role::where('name', 'user')->first();
+        $userRole = Role::where('name', 'User')->first();
         $userRole->name = 'user2';
         $userRole->save();
 
@@ -56,11 +56,11 @@ class RolesAndPermissionsSeederTest extends TestCase
     public function testUserRoleNotCreatedIfAlreadyRemoved()
     {
         // Remove user role
-        Role::where('name', 'user')->first()->delete();
+        Role::where('name', 'User')->first()->delete();
 
         // Run seeder again
         $this->seed(RolesAndPermissionsSeeder::class);
         $this->assertDatabaseCount('roles', 1);
-        $this->assertDatabaseMissing('roles', ['name' => 'user']);
+        $this->assertDatabaseMissing('roles', ['name' => 'User']);
     }
 }

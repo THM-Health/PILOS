@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Auth\LDAP\LDAPProvider;
+use App\Auth\Local\LocalProvider;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -46,6 +47,10 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->app->auth->provider('ldap', function ($app, array $config) {
             return new LDAPProvider($app['hash'], $config['model']);
+        });
+
+        $this->app->auth->provider('local', function ($app, array $config) {
+            return new LocalProvider($app['hash'], $config['model']);
         });
 
         Gate::define('viewPulse', function (User $user) {

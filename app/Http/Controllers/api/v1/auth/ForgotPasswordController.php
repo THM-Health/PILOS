@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
@@ -23,7 +24,7 @@ class ForgotPasswordController extends Controller
 
         $user = User::where('authenticator', '=', 'local')
             ->where('initial_password_set', '=', false)
-            ->where('email', '=', $request->email)
+            ->where(DB::raw('LOWER(email)'), '=', strtolower($request->email))
             ->first();
 
         if (! empty($user)) {

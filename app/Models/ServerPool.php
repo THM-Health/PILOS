@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class ServerPool extends Model
 {
@@ -57,6 +58,6 @@ class ServerPool extends Model
      */
     public function scopeWithName(Builder $query, $name)
     {
-        return $query->where('name', 'like', '%'.$name.'%');
+        return $query->where(DB::raw('LOWER(name)'), 'like', '%'.strtolower($name).'%');
     }
 }

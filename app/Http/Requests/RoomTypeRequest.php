@@ -16,10 +16,10 @@ class RoomTypeRequest extends FormRequest
             'color' => ['required', 'string', 'hex_color'],
             'max_duration' => ['present', 'nullable', 'numeric', 'min:1'],
             'max_participants' => ['present', 'nullable', 'numeric', 'min:1'],
-            'server_pool' => ['required', 'exists:App\Models\ServerPool,id'],
+            'server_pool' => ['required', 'integer', 'exists:App\Models\ServerPool,id'],
             'restrict' => ['required', 'boolean'],
             'roles' => [Rule::requiredIf($this->boolean('restrict')), 'array'],
-            'roles.*' => ['distinct', 'exists:App\Models\Role,id'],
+            'roles.*' => ['distinct', 'integer', 'exists:App\Models\Role,id'],
             // Default room settings
             'has_access_code_default' => ['required', 'boolean'],
             'has_access_code_enforced' => ['required', 'boolean'],

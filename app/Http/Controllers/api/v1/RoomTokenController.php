@@ -11,6 +11,7 @@ use App\Models\RoomToken;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Log;
 
 class RoomTokenController extends Controller
@@ -27,15 +28,15 @@ class RoomTokenController extends Controller
 
         // Sort by column, fallback/default is firstname
         $sortBy = match ($request->query('sort_by')) {
-            'lastname' => 'lastname',
+            'lastname' => 'LOWER(lastname)',
             'last_usage' => 'last_usage',
-            default => 'firstname',
+            default => 'LOWER(firstname)',
         };
 
         // Sort direction, fallback/default is asc
         $sortOrder = match ($request->query('sort_direction')) {
-            'desc' => 'desc',
-            default => 'asc',
+            'desc' => 'DESC',
+            default => 'ASC',
         };
 
         // Filter by role, fallback/default is no filter
@@ -46,7 +47,13 @@ class RoomTokenController extends Controller
         };
 
         // Get all tokens of the room and sort them
-        $resource = $room->tokens()->orderBy($sortBy, $sortOrder);
+        $sortQuery = $sortBy.' '.$sortOrder;
+        // Fix last_usage column null values
+        if ($sortBy === 'last_usage') {
+            $sortQuery = 'last_usage IS NOT NULL '.$sortOrder.', '.$sortQuery;
+        }
+
+        $resource = $room->tokens()->orderByRaw($sortQuery);
 
         // count all before applying filters
         $additional['meta']['total_no_filter'] = $resource->count();
@@ -57,8 +64,9 @@ class RoomTokenController extends Controller
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {
-                    $query->where('firstname', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('lastname', 'like', '%'.$searchQuery.'%');
+                    $searchQuery = strtolower($searchQuery);
+                    $query->where(DB::raw('LOWER(firstname)'), 'like', '%'.$searchQuery.'%')
+                        ->orWhere(DB::raw('LOWER(lastname)'), 'like', '%'.$searchQuery.'%');
                 });
             }
         }

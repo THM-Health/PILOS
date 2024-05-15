@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Server extends Model
 {
@@ -96,7 +97,7 @@ class Server extends Model
      */
     public function scopeWithName(Builder $query, $name)
     {
-        return $query->where('name', 'like', '%'.$name.'%');
+        return $query->where(DB::raw('LOWER(name)'), 'like', '%'.strtolower($name).'%');
     }
 
     public function getLogLabel()
