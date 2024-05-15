@@ -43,7 +43,7 @@
         "@vitejs/plugin-vue": "^5.0.4",
         "@vueuse/components": "^10.7.2",
         "@vueuse/core": "^10.7.2",
-        "axe-core": "^4.9.0",
+        "axe-core": "^4.9.1",
         "axios": "^1.6.8",
         "axios-mock-adapter": "^1.22.0",
         "chart.js": "^4.4.1",
