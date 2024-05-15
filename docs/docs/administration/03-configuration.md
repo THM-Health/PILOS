@@ -40,7 +40,7 @@ For more information on logging, have a look at the [Getting started](./02-getti
 
 | Option          | Default Value | Description                                |
 |-----------------|---------------|--------------------------------------------|
-| `DB_CONNECTION` | `mysql`       | Database connection driver.                 |
+| `DB_CONNECTION` | `mariadb`     | Database connection driver.                 |
 | `DB_HOST`       | `db`          | Database host.                              |
 | `DB_PORT`       | `3306`        | Database port.                              |
 | `DB_DATABASE`   | `app`         | Database name.                              |
