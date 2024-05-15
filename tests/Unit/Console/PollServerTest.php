@@ -157,7 +157,7 @@ class PollServerTest extends TestCase
         $this->assertEquals(2, $meeting->stats()->count());
 
         // Check attendance data
-        $attendees = $meeting->attendees->all();
+        $attendees = $meeting->attendees()->orderBy('id')->get();
 
         $this->assertEquals('Marie Walker', $attendees[0]->name);
         $this->assertEquals('2023-09-28 12:00:00', $attendees[0]->join->format('Y-m-d H:i:s'));

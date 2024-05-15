@@ -12,8 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->integer('listed')->default(\App\Enums\RoomVisibility::PRIVATE)->change();
-            $table->renameColumn('listed', 'visibility');
+            $table->integer('visibility')->default(\App\Enums\RoomVisibility::PRIVATE);
+        });
+
+        foreach (\App\Models\Room::all() as $room) {
+            $room->visibility = $room->listed ? \App\Enums\RoomVisibility::PUBLIC : \App\Enums\RoomVisibility::PRIVATE;
+
+            $room->save();
+        }
+
+        Schema::table('rooms', function (Blueprint $table) {
+            $table->dropColumn('listed');
         });
     }
 
@@ -23,8 +32,17 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->boolean('visibility')->default(false)->change();
-            $table->renameColumn('visibility', 'listed');
+            $table->boolean('listed')->default(false);
+        });
+
+        foreach (\App\Models\Room::all() as $room) {
+            $room->listed = $room->visibility ? \App\Enums\RoomVisibility::PUBLIC : \App\Enums\RoomVisibility::PRIVATE;
+
+            $room->save();
+        }
+
+        Schema::table('rooms', function (Blueprint $table) {
+            $table->dropColumn('visibility');
         });
     }
 };

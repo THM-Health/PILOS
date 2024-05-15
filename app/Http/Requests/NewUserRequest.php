@@ -22,7 +22,7 @@ class NewUserRequest extends FormRequest
             'user_locale' => ['required', 'string', Rule::in(array_keys(config('app.enabled_locales')))],
             'timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'roles' => ['required', 'array'],
-            'roles.*' => ['distinct', 'exists:App\Models\Role,id'],
+            'roles.*' => ['distinct', 'integer', 'exists:App\Models\Role,id'],
             'generate_password' => ['required', 'boolean'],
             'new_password' => ['required_if:generate_password,false', 'string', 'min:8', 'confirmed', new Password()],
         ];

@@ -13,8 +13,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('room_types', function (Blueprint $table) {
-            $table->boolean('allow_record_attendance')->default(false)->change();
             $table->renameColumn('allow_record_attendance', 'record_attendance_default');
+        });
+
+        Schema::table('room_types', function (Blueprint $table) {
+            $table->boolean('record_attendance_default')->default(false)->change();
             $table->boolean('record_attendance_enforced')->default(false);
         });
 

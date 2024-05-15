@@ -122,19 +122,20 @@ class RoomController extends Controller
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $collection = $collection->where(function ($query) use ($searchQuery) {
-                    $query->where('rooms.name', 'like', '%'.$searchQuery.'%')
+                    $searchQuery = strtolower($searchQuery);
+                    $query->where(DB::raw('LOWER(rooms.name)'), 'like', '%'.$searchQuery.'%')
                         ->orWhereHas('owner', function ($query2) use ($searchQuery) {
-                            $query2->where('users.firstname', 'like', '%'.$searchQuery.'%')
-                                ->orWhere('users.lastname', 'like', '%'.$searchQuery.'%');
+                            $query2->where(DB::raw('LOWER(users.firstname)'), 'like', '%'.$searchQuery.'%')
+                                ->orWhere(DB::raw('LOWER(users.lastname)'), 'like', '%'.$searchQuery.'%');
                         });
                 });
             }
         }
         // sort rooms by different strategies
         $collection = match ($request->sort_by) {
-            RoomSortingType::ALPHA->value => $collection->orderBy('rooms.name'),
-            RoomSortingType::ROOM_TYPE->value => $collection->orderBy('room_types.name')->orderBy('rooms.name'),
-            default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name'),
+            RoomSortingType::ALPHA->value => $collection->orderByRaw('LOWER(rooms.name)'),
+            RoomSortingType::ROOM_TYPE->value => $collection->orderByRaw('LOWER(room_types.name)')->orderByRaw('LOWER(rooms.name)'),
+            default => $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderByRaw('LOWER(rooms.name)'),
         };
 
         // count own rooms
@@ -312,12 +313,12 @@ class RoomController extends Controller
 
         // Sort direction, fallback/default is asc
         $sortOrder = match ($request->query('sort_direction')) {
-            'desc' => 'desc',
-            default => 'asc',
+            'desc' => 'DESC',
+            default => 'ASC',
         };
 
         // Get all meeting of the room and sort them, only meetings that are not in the starting phase
-        $resource = $room->meetings()->orderBy($sortBy, $sortOrder)->whereNotNull('start');
+        $resource = $room->meetings()->orderByRaw($sortBy.' '.$sortOrder)->whereNotNull('start');
 
         return \App\Http\Resources\Meeting::collection($resource->paginate(setting('pagination_page_size')));
     }

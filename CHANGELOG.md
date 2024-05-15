@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
+- Various postgres incompatibility issues ([#1078], [#1079])
 
 ### Removed
 - Documentation for running PILOS without docker ([#617])
@@ -121,6 +122,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1059]: https://github.com/THM-Health/PILOS/pull/1059
 [#1071]: https://github.com/THM-Health/PILOS/issues/1071
 [#1076]: https://github.com/THM-Health/PILOS/issues/1076
+[#1078]: https://github.com/THM-Health/PILOS/issues/1078
+[#1079]: https://github.com/THM-Health/PILOS/pull/1079
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

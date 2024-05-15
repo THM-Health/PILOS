@@ -10,24 +10,28 @@ class SimplifyServerStatus extends Migration
     public function up()
     {
         Schema::table('servers', function (Blueprint $table) {
-            $table->smallInteger('status')->default(ServerStatus::DISABLED->value)->change();
+            $table->renameColumn('status', 'old_status');
+        });
+
+        Schema::table('servers', function (Blueprint $table) {
+            $table->smallInteger('status')->default(ServerStatus::DISABLED->value);
         });
 
         foreach (\App\Models\Server::all() as $server) {
-            if ($server->status == 0) {
-                $server->status = ServerStatus::DISABLED;
+            if ($server->old_status == 0) {
+                $server->status = -1; //v1 DISABLED
             } else {
                 if ($server->offline == 1) {
-                    $server->status = ServerStatus::OFFLINE;
+                    $server->status = 0; // v1 OFFLINE
                 } else {
-                    $server->status = ServerStatus::ONLINE;
+                    $server->status = 1; // v1 ONLINE
                 }
             }
             $server->save();
         }
 
         Schema::table('servers', function (Blueprint $table) {
-            $table->dropColumn('offline');
+            $table->dropColumn(['offline', 'old_status']);
         });
     }
 

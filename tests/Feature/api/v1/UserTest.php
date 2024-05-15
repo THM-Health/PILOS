@@ -115,8 +115,8 @@ class UserTest extends TestCase
         $this->getJson(route('api.v1.users.index').'?sort_by=external_id&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
-            ->assertJsonMissingExact(['firstname' => $user->firstname])
-            ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
+            ->assertJsonFragment(['firstname' => $user->firstname])
+            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname')
             ->assertSuccessful()
@@ -127,14 +127,14 @@ class UserTest extends TestCase
         $this->getJson(route('api.v1.users.index').'?sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
-            ->assertJsonMissingExact(['firstname' => $user->firstname])
-            ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
+            ->assertJsonFragment(['firstname' => $user->firstname])
+            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         $this->getJson(route('api.v1.users.index').'?sort_by=foo&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
-            ->assertJsonMissingExact(['firstname' => $user->firstname])
-            ->assertJsonMissingExact(['firstname' => $externalUser->firstname]);
+            ->assertJsonFragment(['firstname' => $user->firstname])
+            ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         $this->getJson(route('api.v1.users.index').'?sort_by=firstname&sort_direction=foo')
             ->assertSuccessful()
