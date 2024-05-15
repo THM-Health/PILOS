@@ -50,7 +50,7 @@ services:
           app:
             condition: service_healthy
     db:
-      image: 'mariadb:10'
+      image: 'mariadb:11'
       environment:
         MYSQL_DATABASE: '${DB_DATABASE}'
         MYSQL_USER: '${DB_USERNAME}'
@@ -59,7 +59,7 @@ services:
       volumes:
         - './db:/var/lib/mysql'
       healthcheck:
-        test: [ "CMD", "mysqladmin", "ping", "-u${DB_USERNAME}", "-p${DB_PASSWORD}" ]
+        test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
         interval: 5s
         retries: 12
         timeout: 5s

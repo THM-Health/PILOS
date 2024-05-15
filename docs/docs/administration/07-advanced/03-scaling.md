@@ -56,10 +56,10 @@ The shibboleth authentication is *only* available if the reverse proxy is apache
 You need a dedicated MySQL/MariaDB or PostgreSQL database for PILOS.
 The database credentials are stored in the `.env` file.
 
-**MySQL Example:**
+**MariaDb Example:**
 ```shell
 # Database config
-DB_CONNECTION=mysql
+DB_CONNECTION=mariadb
 DB_HOST=db.example.com
 DB_PORT=3306
 DB_DATABASE=test

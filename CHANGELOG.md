@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the room members list ([#1005])
 - Layout of the room files list ([#1006])
 - Layout of the personalized room links list ([#1007])
+- Bumped docker compose mariadb version to 11 ([#1080])
 - **Breaking:** Global application storage ([#958], [#989])
 
 ### Fixed
@@ -127,6 +128,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1076]: https://github.com/THM-Health/PILOS/issues/1076
 [#1078]: https://github.com/THM-Health/PILOS/issues/1078
 [#1079]: https://github.com/THM-Health/PILOS/pull/1079
+[#1080]: https://github.com/THM-Health/PILOS/pull/1080
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
