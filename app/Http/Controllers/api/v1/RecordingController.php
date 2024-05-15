@@ -19,7 +19,7 @@ class RecordingController extends Controller
     {
         $additional = [];
 
-        // Sort by column, fallback/default is filename
+        // Sort by column, fallback/default is description
         $sortBy = match ($request->query('sort_by')) {
             'start' => 'start',
             default => 'LOWER(description)',

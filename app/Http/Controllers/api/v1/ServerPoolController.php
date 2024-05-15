@@ -29,7 +29,7 @@ class ServerPoolController extends Controller
         $additionalMeta = [];
         $resource = ServerPool::withCount('servers');
 
-        // Sort table
+        // Sort by column, fallback/default is id
         $sortBy = match ($request->query('sort_by')) {
             'servers_count' => 'servers_count',
             'name' => 'LOWER(name)',

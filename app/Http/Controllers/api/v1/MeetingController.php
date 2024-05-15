@@ -65,7 +65,7 @@ class MeetingController extends Controller
             }
         }
 
-        // Sort table
+        // Sort by column, fallback/default is start
         $sortBy = match ($request->query('sort_by')) {
             'room.participant_count' => 'room.participant_count',
             'room.listener_count' => 'room.listener_count',

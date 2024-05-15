@@ -32,21 +32,19 @@ class RoleController extends Controller
         $additionalMeta = [];
         $resource = Role::query();
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'name' => 'LOWER(name)',
+            default => 'id',
+        };
 
-            $sortBy = match ($request->query('sort_by')) {
-                'name' => 'LOWER(name)',
-                default => 'id',
-            };
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
 
-            // Sort direction, fallback/default is asc
-            $sortOrder = match ($request->query('sort_direction')) {
-                'desc' => 'DESC',
-                default => 'ASC',
-            };
-
-            $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
-        }
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();

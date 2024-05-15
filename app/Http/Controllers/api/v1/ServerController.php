@@ -43,7 +43,7 @@ class ServerController extends Controller
         $additionalMeta = [];
         $resource = Server::query();
 
-        // Sort table
+        // Sort by column, fallback/default is id
         $sortBy = match ($request->query('sort_by')) {
             'participant_count' => 'participant_count',
             'video_count' => 'video_count',

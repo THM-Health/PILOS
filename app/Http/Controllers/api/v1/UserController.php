@@ -64,7 +64,7 @@ class UserController extends Controller
         $additionalMeta = [];
         $resource = User::query();
 
-        // Sort table
+        // Sort by column, fallback/default is id
         $sortBy = match ($request->query('sort_by')) {
             'authenticator' => 'authenticator',
             'email' => 'LOWER(email)',
