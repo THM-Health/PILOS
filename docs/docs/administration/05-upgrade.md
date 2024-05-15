@@ -55,9 +55,18 @@ This was necessary for many new features and a more stable global application se
 We try to migrate all old settings to new storage as good as possible, but some settings may be lost if they are not used anymore or the old option is not available in the new version.
 Please check the settings in the admin UI after the migration.
 
-## .env variables
+## .env options
 
-TODO
+**Work in progress...**
+
+*Missing .env changes of v4*
+
+| Option          | Old Default | New Default | Description                                                                                           |
+|-----------------|-------------|-----------|-------------------------------------------------------------------------------------------------------|
+| `DB_CONNECTION` | `mysql`     | `mariadb` | Database connection driver<br/>Explicitly set to mariadb to support db specific features in the future |
+| `MAIL_HOST`     | `mailhog`   | `mailpit` | [DEV ONLY] Replaced default local mailserver                                                          |
+
+
 
 ## Locales
 Many translations have been added and changed. Please check the `resources/lang` folder for new translations and adjust your custom translations accordingly.
