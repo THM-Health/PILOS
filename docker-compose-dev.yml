@@ -90,7 +90,7 @@ services:
         - '${FORWARD_MAILHOG_PORT:-1025}:1025'
         - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
     phpmyadmin:
-      image: phpmyadmin/phpmyadmin
+      image: 'phpmyadmin:latest'
       ports:
         - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
       environment:
