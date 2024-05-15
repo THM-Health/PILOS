@@ -38,14 +38,14 @@ For more information on logging, have a look at the [Getting started](./02-getti
 
 ## Database Configuration
 
-| Option          | Default Value | Description                                |
-|-----------------|---------------|--------------------------------------------|
-| `DB_CONNECTION` | `mysql`       | Database connection driver.                 |
-| `DB_HOST`       | `db`          | Database host.                              |
-| `DB_PORT`       | `3306`        | Database port.                              |
-| `DB_DATABASE`   | `app`         | Database name.                              |
-| `DB_USERNAME`   | `user`        | Database username.                          |
-| `DB_PASSWORD`   | `password`    | Database password.                          |
+| Option          | Default Value | Description                                                                                                                               |
+|-----------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `DB_CONNECTION` | `mariadb`     | Database connection driver.                                                                                                               |
+| `DB_HOST`       | `db`          | Database host<br/>Default is the docker compose service                                                                                   |
+| `DB_PORT`       | `3306`        | Database port.                                                                                                                            |
+| `DB_DATABASE`   | `app`         | Database name                                                                                                                             |
+| `DB_USERNAME`   | `user`        | Database username.                                                                                                                        |
+| `DB_PASSWORD`   | `password`    | Database password<br/>Default should be replaced with random value during setup (see [Getting Started](./02-getting-started.md#database)) |
 
 This default configuration used the MariaDB database of the docker compose setup.
 However, you can also use an external database.
@@ -75,18 +75,18 @@ If you use an external Redis server, you may need to configure additional option
 
 ## Email Configuration
 
-| Option               | Default Value | Description                                  |
-|----------------------|---------------|----------------------------------------------|
-| `MAIL_MAILER`        | `smtp`        | Mail driver (`smtp`).        |
-| `MAIL_HOST`          | `mailhog`     | Mail server hostname.                         |
-| `MAIL_PORT`          | `1025`        | Mail server port.                             |
-| `MAIL_USERNAME`      | `null`        | Mail username (if required).                  |
-| `MAIL_PASSWORD`      | `null`        | Mail password (if required).                  |
-| `MAIL_ENCRYPTION`    | `null`        | Mail encryption method (`ssl`, `tls`, `null`). |
-| `MAIL_FROM_ADDRESS`  | `admin@domain.tld` | Sender email address.                      |
-| `MAIL_FROM_NAME`     | `${APP_NAME}` | Sender name (uses `APP_NAME`).                |
+| Option               | Default Value      | Description                                                                               |
+|----------------------|--------------------|-------------------------------------------------------------------------------------------|
+| `MAIL_MAILER`        | `smtp`             | Mail driver (`smtp`).                                                                     |
+| `MAIL_HOST`          | `mailpit`          | Mail server hostname<br/>Default is local dev. mail server (only available in dev. setup) |
+| `MAIL_PORT`          | `1025`             | Mail server smtp port.                                                                    |
+| `MAIL_USERNAME`      | `null`             | Mail username (if required).                                                              |
+| `MAIL_PASSWORD`      | `null`             | Mail password (if required).                                                              |
+| `MAIL_ENCRYPTION`    | `null`             | Mail encryption method (`ssl`, `tls`, `null`).                                            |
+| `MAIL_FROM_ADDRESS`  | `admin@domain.tld` | Sender email address.                                                                     |
+| `MAIL_FROM_NAME`     | `${APP_NAME}`      | Sender name (uses `APP_NAME`).                                                            |
 
-This default configuration uses the MailHog mail server of the docker compose development setup.
+This default configuration uses the Mailpit mail server of the docker compose development setup.
 It is a mail testing tool that captures emails sent by the application.
 
 You need to configure a real mail server for production use.
@@ -136,15 +136,3 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 - [Scaling](./07-advanced/03-scaling.md)
 - [Greenlight Configuration](./07-advanced/04-migrate-greenlight.md)
 - [Development](../development/03-configuration.md)
-
-## Development Configuration
-
-| Option                 | Default Value | Description                                           |
-|------------------------|---------------|-------------------------------------------------------|
-| `VITE_ENABLE_AXE`      | `false`       | Enable axe accessibility check tools for Vite.         |
-| `VITE_SSL`             | `false`       | Use SSL for development.                               |
-| `VITE_HOST`            | `localhost`   | Domain and port for the Vite dev server.               |
-| `VITE_PORT`            | `1073`        | Port for the Vite dev server.                          |
-| `VITEST_UI_PORT`       | `1074`        | Port for VITEST WebUI.                                 |
-| `WWWGROUP`             | `1000`        | Group ID of the `www-data` user inside the container.  |
-| `WWWUSER`              | `1000`        | User ID of the `www-data` user inside the container.   |
