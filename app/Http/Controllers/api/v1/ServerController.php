@@ -44,14 +44,23 @@ class ServerController extends Controller
         $additionalMeta = [];
         $resource = Server::query();
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'participant_count' => 'participant_count',
+            'video_count' => 'video_count',
+            'meeting_count' => 'meeting_count',
+            'status' => 'status',
+            'version' => 'version',
+            'name' => 'LOWER(name)',
+            default => 'id',
+        };
 
-            if (in_array($by, ['id', 'name', 'participant_count', 'video_count', 'meeting_count', 'status', 'version']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
-        }
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();

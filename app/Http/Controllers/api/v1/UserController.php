@@ -52,7 +52,7 @@ class UserController extends Controller
             abort(204, 'Too many results');
         }
 
-        return UserSearch::collection($query->orderBy('lastname', 'ASC')->orderBy('firstname', 'ASC')->get());
+        return UserSearch::collection($query->orderByRaw('LOWER(lastname) ASC')->orderByRaw('LOWER(firstname) ASC')->get());
     }
 
     /**
@@ -65,14 +65,22 @@ class UserController extends Controller
         $additionalMeta = [];
         $resource = User::query();
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'authenticator' => 'authenticator',
+            'email' => 'LOWER(email)',
+            'lastname' => 'LOWER(lastname)',
+            'firstname' => 'LOWER(firstname)',
+            default => 'id',
+        };
 
-            if (in_array($by, ['id', 'firstname', 'lastname', 'email', 'authenticator']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
-        }
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
+
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();

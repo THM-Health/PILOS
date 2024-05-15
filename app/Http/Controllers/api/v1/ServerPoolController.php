@@ -30,14 +30,19 @@ class ServerPoolController extends Controller
         $additionalMeta = [];
         $resource = ServerPool::withCount('servers');
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'servers_count' => 'servers_count',
+            'name' => 'LOWER(name)',
+            default => 'id',
+        };
 
-            if (in_array($by, ['id', 'name', 'servers_count']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
-        }
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();

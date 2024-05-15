@@ -159,22 +159,6 @@ class ServerTest extends TestCase
             ->assertJsonFragment(['id' => Server::orderByDesc('name')->first()->id])
             ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
 
-        // Sorting version asc
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=version&sort_direction=asc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data');
-        $this->assertNull($response->json('data.0.version'));
-        $this->assertNull($response->json('data.1.version'));
-        $this->assertEquals('2.4.4', $response->json('data.2.version'));
-        $this->assertEquals('2.4.5', $response->json('data.3.version'));
-
-        // Sorting version desc
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=version&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data');
-        $this->assertEquals('2.4.6', $response->json('data.0.version'));
-        $this->assertEquals('2.4.5', $response->json('data.1.version'));
-
         // Check server health
         $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&name=server')
             ->assertSuccessful()

@@ -177,7 +177,7 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function scopeWithFirstName(Builder $query, $firstname)
     {
-        return $query->where('firstname', 'like', '%'.$firstname.'%');
+        return $query->where(DB::raw('LOWER(firstname)'), 'like', '%'.strtolower($firstname).'%');
     }
 
     /**
@@ -201,7 +201,7 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function scopeWithLastName(Builder $query, $lastname)
     {
-        return $query->where('lastname', 'like', '%'.$lastname.'%');
+        return $query->where(DB::raw('LOWER(lastname)'), 'like', '%'.strtolower($lastname).'%');
     }
 
     /**
