@@ -84,11 +84,11 @@ services:
         interval: 5s
         retries: 12
         timeout: 5s
-    mailhog:
-      image: 'mailhog/mailhog:latest'
+    mailpit:
+      image: 'axllent/mailpit:latest'
       ports:
-        - '${FORWARD_MAILHOG_PORT:-1025}:1025'
-        - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
+        - '${FORWARD_MAILPIT_PORT:-1025}:1025'
+        - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
     phpmyadmin:
       image: 'phpmyadmin:latest'
       ports:
