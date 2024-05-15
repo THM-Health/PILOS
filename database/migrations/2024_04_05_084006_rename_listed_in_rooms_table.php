@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\RoomVisibility;
+use App\Models\Room;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,11 +14,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->integer('visibility')->default(\App\Enums\RoomVisibility::PRIVATE);
+            $table->integer('visibility')->default(RoomVisibility::PRIVATE);
         });
 
-        foreach (\App\Models\Room::all() as $room) {
-            $room->visibility = $room->listed ? \App\Enums\RoomVisibility::PUBLIC : \App\Enums\RoomVisibility::PRIVATE;
+        foreach (Room::all() as $room) {
+            $room->visibility = $room->listed ? RoomVisibility::PUBLIC : RoomVisibility::PRIVATE;
 
             $room->save();
         }
@@ -35,8 +37,8 @@ return new class extends Migration
             $table->boolean('listed')->default(false);
         });
 
-        foreach (\App\Models\Room::all() as $room) {
-            $room->listed = $room->visibility ? \App\Enums\RoomVisibility::PUBLIC : \App\Enums\RoomVisibility::PRIVATE;
+        foreach (Room::all() as $room) {
+            $room->listed = $room->visibility == RoomVisibility::PUBLIC;
 
             $room->save();
         }

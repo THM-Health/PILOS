@@ -46,13 +46,13 @@ class RoomTokenController extends Controller
             default => null,
         };
 
-        // Get all tokens of the room and sort them
         $sortQuery = $sortBy.' '.$sortOrder;
         // Fix last_usage column null values
         if ($sortBy === 'last_usage') {
             $sortQuery = 'last_usage IS NOT NULL '.$sortOrder.', '.$sortQuery;
         }
 
+        // Get all tokens of the room and sort them
         $resource = $room->tokens()->orderByRaw($sortQuery);
 
         // count all before applying filters
