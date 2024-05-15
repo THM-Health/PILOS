@@ -44,6 +44,10 @@ class ImportDatabaseCommand extends Command
                 $command = "pv -n -f $file | mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --port={$db['port']} --database {$db['database']}";
 
                 break;
+            case 'mariadb':
+                $command = "pv -n -f $file | mariadb --user={$db['username']} --password={$db['password']} --host={$db['host']} --port={$db['port']} --database {$db['database']}";
+
+                break;
             case 'pgsql':
                 $connectionURI = "postgresql://{$db['username']}:{$db['password']}@{$db['host']}:{$db['port']}/{$db['database']}";
                 $command = "pv -n -f $file | psql {$connectionURI}";
