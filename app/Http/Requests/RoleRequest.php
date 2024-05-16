@@ -23,7 +23,7 @@ class RoleRequest extends FormRequest
 
         if ($this->role) {
             $rules['name'] = ['required', 'string', 'max:255', Rule::unique('roles', 'name')->ignore($this->role->id)];
-            $rules['updated_at'] = 'required|date';
+            $rules['updated_at'] = ['required', 'date'];
         }
 
         return $rules;

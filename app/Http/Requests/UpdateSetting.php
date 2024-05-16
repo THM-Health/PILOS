@@ -30,18 +30,18 @@ class UpdateSetting extends FormRequest
         }
 
         return [
-            'name' => 'required|string|max:255',
-            'room_limit' => 'required|numeric|min:-1|max:100',
-            'logo' => 'required_without:logo_file|string|max:255',
-            'logo_file' => 'required_without:logo|image|max:500', // 500 KB, larger files are bad for loading times
-            'favicon' => 'required_without:favicon_file|string|max:255',
-            'favicon_file' => 'required_without:favicon|mimes:ico|max:500', // 500 KB, larger files are bad for loading times
-            'room_pagination_page_size' => 'required|numeric|min:1|max:25',
-            'pagination_page_size' => 'required|numeric|min:1|max:100',
+            'name' => ['required', 'string', 'max:255'],
+            'room_limit' => ['required', 'numeric', 'min:-1', 'max:100'],
+            'logo' => ['required_without:logo_file', 'string', 'max:255'],
+            'logo_file' => ['required_without:logo', 'image', 'max:500'], // 500 KB, larger files are bad for loading times
+            'favicon' => ['required_without:favicon_file', 'string', 'max:255'],
+            'favicon_file' => ['required_without:favicon', 'mimes:ico', 'max:500'], // 500 KB, larger files are bad for loading times
+            'room_pagination_page_size' => ['required', 'numeric', 'min:1', 'max:25'],
+            'pagination_page_size' => ['required', 'numeric', 'min:1', 'max:100'],
             'password_change_allowed' => ['required', 'boolean'],
             'default_timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'banner' => ['required', 'array'],
-            'banner.enabled' => ['nullable', 'boolean'],
+            'banner.enabled' => ['required', 'boolean'],
             'banner.title' => ['nullable', 'string', 'max:255'],
             'banner.message' => ['nullable', Rule::requiredIf($this->boolean('banner.enabled')), 'string', 'max:500'],
             'banner.link' => ['nullable', 'string', 'url', 'max:255'],
@@ -59,9 +59,9 @@ class UpdateSetting extends FormRequest
             'statistics.meetings.enabled' => ['required', 'boolean'],
             'statistics.meetings.retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'attendance.retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
-            'bbb.logo' => 'string|max:255',
-            'bbb.logo_file' => 'image|max:500',
-            'bbb.style' => 'nullable|file|max:500',
+            'bbb.logo' => ['string', 'max:255'],
+            'bbb.logo_file' => ['image', 'max:500'],
+            'bbb.style' => ['nullable', 'file', 'max:500'],
             'bbb.default_presentation' => ['nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],
             'room_token_expiration' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete.inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],

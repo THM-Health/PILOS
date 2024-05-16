@@ -9,9 +9,9 @@ class UpdateRoomFile extends FormRequest
     public function rules()
     {
         return [
-            'use_in_meeting' => 'required|boolean',
-            'download' => 'required|boolean',
-            'default' => 'required|boolean',
+            'use_in_meeting' => ['required', 'boolean'],
+            'download' => ['required', 'boolean'],
+            'default' => ['required', 'boolean'],
         ];
     }
 }
