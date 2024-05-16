@@ -22,6 +22,12 @@ class CleanupRoomsCommand extends Command
         $neverUsedPeriod = app(RoomSettings::class)->auto_delete_never_used_period;
         $deadlinePeriod = app(RoomSettings::class)->auto_delete_deadline_period;
 
+        // Check if both periods are unlimited, in that case we don't need to do anything
+        // Do not remove, as this would result in the query to not filter at all!
+        if ($inactivePeriod == TimePeriod::UNLIMITED && $neverUsedPeriod == TimePeriod::UNLIMITED) {
+            return;
+        }
+
         $lastStartDate = now()->subDays($inactivePeriod->value);
         $createdDate = now()->subDays($neverUsedPeriod->value);
         $timeToDeleteDate = now()->addDays($deadlinePeriod->value);
