@@ -39,7 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Recording management ([#31], [#896]) 
 
 ### Changed
-- Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
 - Refactor user interface room details ([#681], [#724])
 - **Breaking:** Split container into separate containers for the application, cronjobs and queue workers ([#617])
