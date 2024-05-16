@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the room files list ([#1006])
 - Layout of the personalized room links list ([#1007])
 - Bumped docker compose mariadb version to 11 ([#1080])
-- **Breaking:** Global application storage ([#958], [#989])
+- **Breaking:** Global application settings storage ([#958], [#989])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
