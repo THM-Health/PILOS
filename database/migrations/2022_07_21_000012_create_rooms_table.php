@@ -45,7 +45,7 @@ return new class extends Migration
             $table->integer('listener_count')->nullable();
             $table->integer('voice_participant_count')->nullable();
             $table->integer('video_count')->nullable();
-            $table->boolean('visibility')->default(\App\Enums\RoomVisibility::PRIVATE);
+            $table->integer('visibility')->default(\App\Enums\RoomVisibility::PRIVATE);
 
             $table->boolean('record_attendance')->default(false);
             $table->boolean('record')->default(false);

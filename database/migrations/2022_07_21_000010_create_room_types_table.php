@@ -56,7 +56,7 @@ return new class extends Migration
             $table->boolean('record_enforced')->default(false);
             $table->boolean('auto_start_recording_default')->default(false);
             $table->boolean('auto_start_recording_enforced')->default(false);
-            $table->boolean('visibility_default')->default(\App\Enums\RoomVisibility::PRIVATE);
+            $table->integer('visibility_default')->default(\App\Enums\RoomVisibility::PRIVATE);
             $table->boolean('visibility_enforced')->default(false);
 
             $table->boolean('has_access_code_enforced')->default(false);
