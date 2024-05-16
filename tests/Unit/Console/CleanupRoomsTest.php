@@ -219,6 +219,39 @@ class CleanupRoomsTest extends TestCase
     }
 
     /**
+     * Check if command not run if both periods are disabled
+     *
+     * @throws \Exception
+     */
+    public function testBothTimePeriodsUnlimited()
+    {
+        // Set time periods both to unlimited
+        $this->roomSettings->auto_delete_inactive_period = TimePeriod::UNLIMITED;
+        $this->roomSettings->auto_delete_never_used_period = TimePeriod::UNLIMITED;
+        $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_WEEK;
+        $this->roomSettings->save();
+
+        // Create room that has been inactive very long
+        $roomInactiveTooLong = Room::factory()->create();
+        $meetingInactiveTooLong = Meeting::factory()->create(['room_id' => $roomInactiveTooLong->id, 'start' => now()->subYears(10), 'end' => now()->subYears(10)->addMinutes(10)]);
+        Meeting::factory()->create(['room_id' => $roomInactiveTooLong->id, 'start' => now()->subYears(10), 'end' => now()->subYears(10)->addMinutes(10)]);
+        $roomInactiveTooLong->latestMeeting()->associate($meetingInactiveTooLong);
+        $roomInactiveTooLong->save();
+
+        // Create room has was created a long time ago and never used
+        $roomNeverUsedTooLong = Room::factory()->create(['created_at' => now()->subYears(10)]);
+
+        // Run cleanup command
+        $this->artisan('cleanup:rooms');
+
+        $roomInactiveTooLong->refresh();
+        $this->assertNull($roomInactiveTooLong->delete_inactive);
+
+        $roomNeverUsedTooLong->refresh();
+        $this->assertNull($roomNeverUsedTooLong->delete_inactive);
+    }
+
+    /**
      * Check if rooms are deleted after their grace period
      */
     public function testDelete()
