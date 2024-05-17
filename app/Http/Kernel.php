@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AddContentSecurityPolicyHeaders;
 use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
@@ -10,6 +11,7 @@ use App\Http\Middleware\RouteEnableIfSetting;
 use App\Http\Middleware\StoreSessionData;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use Spatie\Csp\AddCspHeaders;
 
 class Kernel extends HttpKernel
 {
@@ -48,6 +50,7 @@ class Kernel extends HttpKernel
             'loggedin:ldap,users',
             StoreSessionData::class,
             LogContext::class,
+            AddCspHeaders::class,
         ],
 
         'api' => [
