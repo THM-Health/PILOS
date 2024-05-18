@@ -44,10 +44,12 @@
                 class: 'gap-1 px-2',
               },
               submenu: {
-                class: 'right-0'
+                class: 'right-0',
+                'data-test': 'submenu'
               },
               action: {
-                class: 'p-2'
+                class: 'p-2',
+                'data-test': 'submenu-action'
               }
             }"
       >
@@ -59,7 +61,7 @@
           </router-link>
           <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex align-items-center">
             <i :class="item.icon" />
-            <UserAvatar v-if="item.userAvatar" :firstname="authStore.currentUser.firstname" :lastname="authStore.currentUser.lastname" :image="authStore.currentUser.image" class="bg-secondary" />
+            <UserAvatar data-test="user-avatar" v-if="item.userAvatar" :firstname="authStore.currentUser.firstname" :lastname="authStore.currentUser.lastname" :image="authStore.currentUser.image" class="bg-secondary" />
             <span v-if="!item.userAvatar && !item.icon">{{ item.label }}</span>
             <i v-if="hasSubmenu" :class="['fa-solid fa-chevron-down text-xs', { 'fa-chevron-down ml-2': root, 'fa-chevron-right ml-auto': !root }]"></i>
           </a>
