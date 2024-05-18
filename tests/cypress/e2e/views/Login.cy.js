@@ -57,17 +57,15 @@ describe('Login', () => {
       });
     });
 
-    //ToDo think about using cy.spy() (will be difficult) or stop toast from vanishing in tests
-    // Check toast
+    // Check toast message (ToDo?)
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
     // Check if redirect works
     cy.url().should('contain', '/rooms').and('not.contain', 'login');
   });
 
-//ToDo maybe test all cases in one test with cy.reload()
   it('hide ldap login if disabled', () =>{
     // Intercept settings request to only show ldap login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           ldap: false
@@ -81,7 +79,7 @@ describe('Login', () => {
 
   it('ldap login with redirect query set', () => {
     // Intercept settings request to only show ldap login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           ldap: true
@@ -90,7 +88,7 @@ describe('Login', () => {
     });
 
     // Intercept login request
-    cy.intercept('api/v1/login/ldap',{
+    cy.intercept('POST', 'api/v1/login/ldap',{
       statusCode: 200
     }).as('loginRequest');
 
@@ -101,7 +99,7 @@ describe('Login', () => {
     cy.url().should('contain', '/login?redirect=/settings');
 
     // Intercept user request (user that has the permission to show the settings page)
-    cy.intercept('api/v1/currentUser', {
+    cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
         firstname: "John",
@@ -119,6 +117,9 @@ describe('Login', () => {
       cy.get('#ldap-password').type('password');
       cy.get('button').click();
     });
+
+    // Check toast message (ToDo?)
+    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
 
     // Check if redirect works
     cy.url().should('contain', 'settings').and('not.contain', 'login');
@@ -176,15 +177,14 @@ describe('Login', () => {
       });
     });
 
-    //ToDo think about using cy.spy() (will be difficult) or stop toast from vanishing in tests
-    // Check toast
+    // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
     // Check if redirect works
     cy.url().should('contain', '/rooms').and('not.contain', 'login');
   });
 
   it('hide local login if disabled', () =>{
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           local: false
@@ -198,7 +198,7 @@ describe('Login', () => {
 
   it('local login with query set', () =>{
     // Intercept settings request to only show local login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           local: true
@@ -207,7 +207,7 @@ describe('Login', () => {
     });
 
     // Intercept login request
-    cy.intercept('api/v1/login/local',{
+    cy.intercept('POST', 'api/v1/login/local',{
       statusCode: 200
     }).as('loginRequest');
 
@@ -218,7 +218,7 @@ describe('Login', () => {
     cy.url().should('contain', '/login?redirect=/settings');
 
     // Intercept user request (user that has the permission to show the settings page)
-    cy.intercept('api/v1/currentUser', {
+    cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
         firstname: "John",
@@ -237,13 +237,17 @@ describe('Login', () => {
       cy.get('button').click();
     });
 
+    // Check toast message (ToDo?)
+    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
+
     // Check if redirect works
     cy.url().should('contain', 'settings').and('not.contain', 'login');
   });
 
+  //ToDo ??? errors with other login types, all errors in 1 test case???
   it('unprocessable entity error gets displayed for the corresponding fields', () => {
     // Intercept settings request to only show local login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           local: true
@@ -252,7 +256,7 @@ describe('Login', () => {
     });
 
     // Intercept login request
-    cy.intercept('api/v1/login/local',{
+    cy.intercept('POST', 'api/v1/login/local',{
       statusCode: 422, //ToDo env.HTTP_UNPROCESSABLE_ENTITY
       body: {
         errors: {
@@ -271,14 +275,14 @@ describe('Login', () => {
     });
 
     // Check if error gets displayed
-    //ToDo change??
+    //ToDo
     cy.get('.p-inline-message').should('contain', 'Password or Email wrong!');
     //cy.should('contain', 'Password or Email wrong!'); //ToDo enough???
   });
 
   it('error for to many login requests gets displayed', () => {
     // Intercept settings request to only show local login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           local: true
@@ -287,7 +291,7 @@ describe('Login', () => {
     });
 
     // Intercept login request
-    cy.intercept('api/v1/login/local',{
+    cy.intercept('POST', 'api/v1/login/local',{
       statusCode: 429, //ToDo env.HTTP_TOO_MANY_REQUESTS
       body: {
         errors: {
@@ -311,9 +315,9 @@ describe('Login', () => {
     //cy.should('contain', 'Too many logins. Please try again later!'); //ToDo enough???
   });
 
-  it('other api errors get thrown and handled by the global error handler', ()=>{
+  it('other api errors', ()=>{
     // Intercept settings request to only show local login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           local: true
@@ -322,7 +326,7 @@ describe('Login', () => {
     });
 
     // Intercept login request
-    cy.intercept('api/v1/login/local',{
+    cy.intercept('POST', 'api/v1/login/local',{
       statusCode: 500,
     }).as('loginRequest');
 
@@ -335,13 +339,32 @@ describe('Login', () => {
       cy.get('button').click();
     });
 
-    //ToDo check if global error handler gets called (cy.spy()???? could be difficult (same as toast))
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.empty_message')
+
+    // Intercept login request with different error
+    cy.intercept('POST', 'api/v1/login/local',{
+      statusCode: 420,
+    }).as('loginRequest');
+
+    cy.get('[data-test="login-tab-local"]').within(()=>{
+      cy.get('button').click();
+    });
+    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.guests_only');
+    cy.url().should('not.contain', '/login');
+
+  });
+
+  it('visit login page with already logged in user', () => {
+    cy.intercept('GET', 'api/v1/currentUser', {fixture: 'exampleUser.json'});
+
+    cy.visit('/login');
+    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.guests_only');
+    cy.url().should('not.contain', '/login');
   });
 
   it('shibboleth login', () => {
     // Intercept settings request to only show local login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           shibboleth: true
@@ -358,7 +381,7 @@ describe('Login', () => {
 
   it('hide shibboleth login if disabled', () =>{
     // Intercept settings request to only show local login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           shibboleth: false
@@ -372,7 +395,7 @@ describe('Login', () => {
 
   it('shibboleth login with query set', () => {
     // Intercept settings request to only show ldap login tab
-    cy.intercept('api/v1/settings', {
+    cy.intercept('GET', 'api/v1/settings', {
       data: {
         auth: {
           shibboleth: true

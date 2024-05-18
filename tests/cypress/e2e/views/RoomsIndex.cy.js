@@ -7,7 +7,7 @@ describe('Room Index', () => {
   })
 
   it('check list of rooms', () => {
-    const interception = interceptIndefinitely( 'GET','api/v1/rooms?*', {fixture: 'exampleRoomsResponse.json'}, 'roomRequest');
+    const interception = interceptIndefinitely( 'GET','api/v1/rooms?*', {fixture: 'exampleRooms.json'}, 'roomRequest');
 
 
     cy.visit('/rooms');
@@ -16,8 +16,6 @@ describe('Room Index', () => {
       cy.get('.p-inputtext').should('be.disabled');
       cy.get('.p-button').should('be.disabled');
     });
-
-    cy.wait(1000); //ToDo delete again
 
     cy.get('.p-inputgroup').eq(1).within(()=> {
       cy.get('.p-dropdown-label').should('have.attr', 'aria-disabled', 'true');
