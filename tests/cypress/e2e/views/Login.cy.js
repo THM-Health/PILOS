@@ -312,7 +312,7 @@ describe('Login', () => {
     // Check if error gets displayed
     //ToDo change??
     cy.get('.p-inline-message').should('contain', 'Too many logins. Please try again later!');
-    //cy.should('contain', 'Too many logins. Please try again later!'); //ToDo enough???
+    //cy.contains('Too many logins. Please try again later!'); //ToDo enough???
   });
 
   it('other api errors', ()=>{

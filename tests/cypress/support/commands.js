@@ -25,12 +25,12 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('init', ()=>{
-  //Todo? settings?
   cy.intercept('GET','api/v1/currentUser', {fixture: 'exampleUser.json'});
   cy.intercept('GET', 'api/v1/locale/en', {});
+  cy.intercept('GET', 'api/v1/settings', []);
 });
 
 Cypress.Commands.add('interceptRoomIndexRequests', () => {
-  cy.intercept('get', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'});
-  cy.intercept('get', 'api/v1/rooms*', {fixture: 'exampleRooms.json'});
+  cy.intercept('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'});
+  cy.intercept('GET', 'api/v1/rooms*', {fixture: 'exampleRooms.json'});
 });

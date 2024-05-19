@@ -3,11 +3,10 @@ describe('App', () => {
   beforeEach(()=>{
     cy.init();
     cy.interceptRoomIndexRequests();
-    cy.intercept('GET', 'api/v1/settings', []);
   });
 
   //ToDo Think about moving to other test file
-  it('Successful logout no redirect', () => {
+  it('successful logout no redirect', () => {
     cy.intercept('POST', 'api/v1/logout',{
       statusCode: 204,
       data:{
@@ -15,16 +14,21 @@ describe('App', () => {
       }
     });
     cy.visit('rooms');
+
+    // Click on logout
     cy.get('[data-test=user-avatar]').click();
     cy.get('[data-test=submenu]').eq(0).within(()=>{
       cy.get('[data-test=submenu-action]').eq(1).should('contain', 'auth.logout').click();
     });
 
+    // Check if redirected to logout
     cy.url().should('contain', '/logout').should('not.contain', 'rooms');
+    cy.contains('auth.logout_success');
 
+    //ToDo?? Check if current user is reset (logout can only be accessed when logged out, should be enough)
   });
 
-  it('Successful logout with redirect', () => {
+  it('successful logout with redirect', () => {
     cy.intercept('POST', 'api/v1/logout',{
       statusCode: 200,
       body:{
@@ -32,6 +36,8 @@ describe('App', () => {
       }
     });
     cy.visit('rooms');
+
+    // Click on logout
     cy.get('[data-test=user-avatar]').click();
     cy.get('[data-test=submenu]').eq(0).within(()=>{
       cy.get('[data-test=submenu-action]').eq(1).should('contain', 'auth.logout').click().then(()=>{
@@ -39,6 +45,8 @@ describe('App', () => {
         //cy.url().should('contain', '/NewUrl');
       });
     });
+
+    // Check if redirect works
     cy.url().should('not.contain', 'logout');
   });
 
@@ -52,13 +60,15 @@ describe('App', () => {
 
     cy.visit('/rooms');
 
+    // Click on logout
     cy.get('[data-test=user-avatar]').click();
-
     cy.get('[data-test=submenu]').eq(0).within(()=>{
       cy.get('[data-test=submenu-action]').eq(1).should('contain', 'auth.logout').click();
     });
 
-    cy.get('.p-toast').should('contain', 'auth.flash.logout_error');
+    // Check if error gets shown and user stays logged in
+    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.logout_error');
+    cy.url().should('contain', '/rooms').and('not.contain', '/logout').and('not.contain', '/login');
   })
 
 })
