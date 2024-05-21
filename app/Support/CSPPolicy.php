@@ -18,9 +18,7 @@ class CSPPolicy extends Policy
             ->addDirective(Directive::IMG, '*')
             ->addDirective(Directive::MEDIA, Keyword::SELF)
             ->addDirective(Directive::OBJECT, Keyword::NONE)
-            ->addDirective(Directive::SCRIPT, Keyword::SELF)
             ->addDirective(Directive::STYLE, [Keyword::SELF, Keyword::UNSAFE_INLINE])
-            //->addNonceForDirective(Directive::STYLE)
             ->addNonceForDirective(Directive::SCRIPT);
     }
 }
