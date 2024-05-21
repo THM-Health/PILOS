@@ -27,6 +27,7 @@
           v-if="room.description !== null"
           :html="sanitizedHtml"
         />
+
         <div v-else>
           <InlineNote>{{ $t('rooms.description.missing') }}</InlineNote>
         </div>
@@ -81,8 +82,66 @@ const userPermissions = useUserPermissions();
 // Create a new DOMPurify instance
 const domPurify = createDOMPurify();
 
+// Add a hook to sanitize the style attribute
+domPurify.addHook(
+  'uponSanitizeAttribute',
+  function (currentNode, hookEvent, config) {
+    if (hookEvent.attrName === 'style') {
+      hookEvent.attrValue = sanitizeCss(currentNode);
+    }
+  }
+);
+
+/**
+ * Sanitize the CSS of a given node. It checks each style property of the node
+ * and removes those that are not in the allowlist or have invalid values.
+ * @param {Object} node - The DOM node whose style properties are to be sanitized.
+ * @returns {string} - The sanitized CSS as a string.
+ */
+function sanitizeCss (node) {
+  // Regular expressions for the css properties
+  const colorRegex = /^#([0-9a-fA-F]{3,6})|(rgb\(([\d ]+),([\d ]+),([\d ]+)\))$/i;
+  const textAlignRegex = /^(left|right|center)$/i;
+
+  // Allowlist of allowed CSS properties and their validation regex
+  const cssAllowlist = {
+    color: colorRegex,
+    'background-color': colorRegex,
+    'text-align': textAlignRegex
+  };
+
+  // Loop through each style property of the node
+  for (let i = node.style.length; i--;) {
+    const name = node.style[i];
+    // If the property is not in the allowlist, remove it
+    if (!Object.prototype.hasOwnProperty.call(cssAllowlist, name)) {
+      node.style.removeProperty(name);
+    } else {
+      // If the property is in the allowlist but its value is invalid, remove it
+      const value = node.style.getPropertyValue(name);
+      if (!cssAllowlist[name].test(value)) {
+        node.style.removeProperty(name);
+      }
+    }
+  }
+
+  // Return the sanitized CSS
+  return node.style.cssText;
+}
+
+/**
+ * Get sanitized HTML of the room description.
+ * It uses the DOMPurify library to sanitize the HTML, allowing only certain tags and attributes.
+ * @returns {string} - The sanitized HTML as a string.
+ */
 const sanitizedHtml = computed(() => {
-  return domPurify.sanitize(props.room.description, { USE_PROFILES: { html: true } });
+  // List of allowed HTML tags
+  const allowedTags = ['h1', 'h2', 'h3', 'p', 'a', 'img', 'ul', 'ol', 'li', 'strong', 'em', 'u', 's', 'span', 'blockquote', 'mark'];
+  // List of allowed HTML attributes
+  const allowedAttributes = ['alt', 'src', 'width', 'href', 'style'];
+
+  // Use DOMPurify to sanitize the HTML, allowing only the specified tags and attributes
+  return domPurify.sanitize(props.room.description, { ALLOWED_TAGS: allowedTags, ALLOWED_ATTR: allowedAttributes, ALLOW_DATA_ATTR: false, ALLOW_ARIA_ATTR: false });
 });
 
 /**
