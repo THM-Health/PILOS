@@ -75,7 +75,6 @@ function TipTapEditor (content, onUpdate) {
 }
 
 onMounted(() => {
-  console.log('mounted', props.modelValue);
   editor.value = TipTapEditor(props.modelValue, () => {
     emit('update:modelValue', editor.value.getHTML());
   });

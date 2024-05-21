@@ -455,7 +455,6 @@ function saveRole () {
  * @param value Value of the radio button that was selected.
  */
 function roomLimitModeChanged (value) {
-  console.log(value);
   switch (value) {
     case 'default':
       model.value.room_limit = null;

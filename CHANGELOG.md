@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search and filter options to list of room files ([#1006])
 - Search and filter options to list of personalized room links ([#1007])
 - Recording management ([#31], [#896]) 
+- Content-Security-Policy ([#315],[#1090])
 
 ### Changed
 - Refactor user interface for room search and home page ([#372], [#373])
@@ -92,6 +93,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
+[#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
 [#532]: https://github.com/THM-Health/PILOS/issues/532
@@ -128,6 +130,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1078]: https://github.com/THM-Health/PILOS/issues/1078
 [#1079]: https://github.com/THM-Health/PILOS/pull/1079
 [#1080]: https://github.com/THM-Health/PILOS/pull/1080
+[#1090]: https://github.com/THM-Health/PILOS/pull/1090
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
