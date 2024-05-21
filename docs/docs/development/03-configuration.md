@@ -17,3 +17,4 @@ Additionally to the [general configuration options](../administration/03-configu
 | `VITE_PORT`       | `1073`                | Port for the Vite dev server.                               |
 | `WWWGROUP`        | `82` (alpine default) | Group ID of the `www-data` user inside the container.       |
 | `WWWUSER`         | `82` (alpine default) | User ID of the `www-data` user inside the container.        |
+| `CSP_ENABLED`     | `true`                | Enable Content-Security-Policy.                             |
