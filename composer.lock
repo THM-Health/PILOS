@@ -10711,33 +10711,32 @@
         },
         {
             "name": "timacdonald/log-fake",
-            "version": "v2.2.0",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/timacdonald/log-fake.git",
-                "reference": "8e82ba3516c0da5d2a028ff93250352cabdf637d"
+                "reference": "981e84a026f7ee6469a9e7fc1d9732e49509e284"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/timacdonald/log-fake/zipball/8e82ba3516c0da5d2a028ff93250352cabdf637d",
-                "reference": "8e82ba3516c0da5d2a028ff93250352cabdf637d",
+                "url": "https://api.github.com/repos/timacdonald/log-fake/zipball/981e84a026f7ee6469a9e7fc1d9732e49509e284",
+                "reference": "981e84a026f7ee6469a9e7fc1d9732e49509e284",
                 "shasum": ""
             },
             "require": {
-                "illuminate/collections": "^9.0 || ^10.0 || ^11.0",
-                "illuminate/contracts": "^9.0 || ^10.0 || ^11.0",
-                "illuminate/log": "^9.0 || ^10.0 || ^11.0",
-                "illuminate/support": "^9.0 || ^10.0 || ^11.0",
+                "illuminate/collections": "^10.0 || ^11.0",
+                "illuminate/contracts": "^10.0 || ^11.0",
+                "illuminate/log": "^10.0 || ^11.0",
+                "illuminate/support": "^10.0 || ^11.0",
                 "php": "^8.1",
-                "phpunit/phpunit": "^9.0 || ^10.0 || ^11.0",
+                "phpunit/phpunit": "^10.0 || ^11.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/var-dumper": "^6.0 || ^7.0"
             },
             "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.4",
-                "illuminate/config": "^9.0 || ^10.0 || ^11.0",
-                "illuminate/container": "^9.0 || ^10.0 || ^11.0",
-                "timacdonald/callable-fake": "^1.5"
+                "illuminate/config": "^10.0 || ^11.0",
+                "illuminate/container": "^10.0 || ^11.0",
+                "timacdonald/callable-fake": "^1.0"
             },
             "type": "library",
             "autoload": {
@@ -10765,11 +10764,10 @@
                 "testing"
             ],
             "support": {
-                "docs": "https://github.com/timacdonald/log-fake/blob/master/readme.md",
                 "issues": "https://github.com/timacdonald/log-fake/issues",
-                "source": "https://github.com/timacdonald/log-fake/releases/latest"
+                "source": "https://github.com/timacdonald/log-fake/tree/v2.3.0"
             },
-            "time": "2024-03-16T00:23:40+00:00"
+            "time": "2024-05-20T03:59:04+00:00"
         }
     ],
     "aliases": [],
