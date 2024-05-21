@@ -40,7 +40,6 @@ const { floatingStyles } = useFloating(dropdownButton, dropdownMenu, {
 
 const onClickOutsideHandler = [
   (ev) => {
-    console.log(ev);
     closeDropdown();
   },
   { ignore: [dropdownButton] }

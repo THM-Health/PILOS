@@ -248,7 +248,6 @@ async function logout () {
 const locales = computed(() => {
   const locales = settingsStore.getSetting('enabled_locales');
   if (!locales) {
-    console.log('no locales');
     return [];
   }
 
