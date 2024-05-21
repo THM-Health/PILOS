@@ -48,5 +48,5 @@ if (config('greenlight.compatibility')) {
 }
 
 if (! env('DISABLE_CATCHALL_ROUTES')) {
-    Route::any('/{any}', [ApplicationController::class, 'index'])->where('any', '.*');
+    Route::any('/{any}', [ApplicationController::class, 'index'])->where('any', '.*')->middleware(Spatie\Csp\AddCspHeaders::class);
 }

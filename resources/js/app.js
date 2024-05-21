@@ -18,10 +18,16 @@ const { t } = i18n.global;
 let app = null;
 
 const setupApp = (app) => {
+  const nonce = document.querySelector('meta[name="csp-nonce"]').content;
+
   app.use(pinia);
   app.use(router);
   app.use(i18n);
-  app.use(PrimeVue);
+  app.use(PrimeVue, {
+    csp: {
+      nonce
+    }
+  });
   app.directive('tooltip', Tooltip);
   app.directive('styleclass', StyleClass);
   app.use(ConfirmationService);
