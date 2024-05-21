@@ -100,7 +100,7 @@ domPurify.addHook(
  */
 function sanitizeCss (node) {
   // Regular expressions for the css properties
-  const colorRegex = /^#([0-9a-fA-F]{3,6})|(rgb\(([\d ]+),([\d ]+),([\d ]+)\))$/i;
+  const colorRegex = /^#([0-9a-fA-F]{3,6})|(rgb\(([\d ]+),([\d ]+),([\d ]+)\))|(inherit)$/i;
   const textAlignRegex = /^(left|right|center)$/i;
 
   // Allowlist of allowed CSS properties and their validation regex
