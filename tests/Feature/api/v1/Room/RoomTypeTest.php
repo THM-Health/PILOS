@@ -91,7 +91,7 @@ class RoomTypeTest extends TestCase
                     'color',
                     'name',
                     'id',
-                    'model_name'
+                    'model_name',
                 ],
             ]])
             ->assertJsonCount(4, 'data');
@@ -261,6 +261,7 @@ class RoomTypeTest extends TestCase
                 'record_attendance_enforced',
                 'has_access_code_default',
                 'has_access_code_enforced',
+                'create_parameters',
             ]]);
 
         // Test deleted
@@ -322,6 +323,7 @@ class RoomTypeTest extends TestCase
             'auto_start_recording_enforced' => false,
             'has_access_code_default' => true,
             'has_access_code_enforced' => false,
+            'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
         ];
 
         // Test guests
@@ -385,6 +387,7 @@ class RoomTypeTest extends TestCase
                 'auto_start_recording_enforced' => false,
                 'has_access_code_default' => true,
                 'has_access_code_enforced' => false,
+                'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
             ]);
 
         // Test with invalid data
@@ -432,6 +435,7 @@ class RoomTypeTest extends TestCase
             'auto_start_recording_enforced' => 'no',
             'has_access_code_default' => 'yes',
             'has_access_code_enforced' => 'no',
+            'create_parameters' => $this->faker->textWithLength(65001),
         ];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
             ->assertJsonValidationErrors([
@@ -478,6 +482,7 @@ class RoomTypeTest extends TestCase
                 'auto_start_recording_enforced',
                 'has_access_code_default',
                 'has_access_code_enforced',
+                'create_parameters',
             ]);
 
         $data['roles'] = [1337];
@@ -589,6 +594,7 @@ class RoomTypeTest extends TestCase
             'auto_start_recording_enforced' => false,
             'has_access_code_default' => true,
             'has_access_code_enforced' => false,
+            'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
         ];
 
         // Test guests
@@ -658,6 +664,7 @@ class RoomTypeTest extends TestCase
                 'auto_start_recording_enforced' => false,
                 'has_access_code_default' => true,
                 'has_access_code_enforced' => false,
+                'create_parameters' => 'meetingLayout=PRESENTATION_FOCUS',
             ]);
 
         $roomType->refresh();
@@ -718,6 +725,7 @@ class RoomTypeTest extends TestCase
             'auto_start_recording_enforced' => 'no',
             'has_access_code_default' => 'yes',
             'has_access_code_enforced' => 'no',
+            'create_parameters' => fake()->text(65001),
             'updated_at' => $roomType->updated_at,
         ];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType' => $roomType->id]), $data)
