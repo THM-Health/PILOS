@@ -54,9 +54,8 @@ class RecordingTest extends TestCase
     public function testIndexNoAccessCodeGuestsAllowed()
     {
         $page_size = 20;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $room = Room::factory()->create();
         $room->allow_guests = true;
@@ -115,9 +114,8 @@ class RecordingTest extends TestCase
     public function testIndexWithAccessCodeGuestsAllowed()
     {
         $page_size = 20;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $room = Room::factory()->create();
         $room->allow_guests = true;
@@ -200,9 +198,8 @@ class RecordingTest extends TestCase
     public function testIndexWithAccessCodeGuestsNotAllowed()
     {
         $page_size = 20;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
@@ -242,9 +239,8 @@ class RecordingTest extends TestCase
     public function testIndexPagination()
     {
         $page_size = 5;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $room = Room::factory()->create();
         $room->allow_guests = false;
@@ -279,9 +275,8 @@ class RecordingTest extends TestCase
     public function testIndexOnlyListWithFormat()
     {
         $page_size = 5;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $room = Room::factory()->create();
         $room->save();
@@ -312,9 +307,8 @@ class RecordingTest extends TestCase
     public function testIndexRoomToken()
     {
         $page_size = 20;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $room = Room::factory()->create();
         $room->allow_guests = false;

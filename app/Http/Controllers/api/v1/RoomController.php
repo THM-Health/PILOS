@@ -19,6 +19,7 @@ use App\Models\RoomType;
 use App\Models\User;
 use App\Services\RoomAuthService;
 use App\Services\RoomService;
+use App\Settings\GeneralSettings;
 use Auth;
 use DB;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -141,7 +142,7 @@ class RoomController extends Controller
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 
-        $collection = $collection->paginate(setting('room_pagination_page_size'));
+        $collection = $collection->paginate(app(\App\Settings\RoomSettings::class)->pagination_page_size);
 
         return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
     }
@@ -320,7 +321,7 @@ class RoomController extends Controller
         // Get all meeting of the room and sort them, only meetings that are not in the starting phase
         $resource = $room->meetings()->orderByRaw($sortBy.' '.$sortOrder)->whereNotNull('start');
 
-        return \App\Http\Resources\Meeting::collection($resource->paginate(setting('pagination_page_size')));
+        return \App\Http\Resources\Meeting::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size));
     }
 
     /**

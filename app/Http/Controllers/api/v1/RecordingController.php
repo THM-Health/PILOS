@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateRecordingRequest;
 use App\Http\Resources\RecordingResource;
 use App\Models\Recording;
 use App\Models\Room;
+use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +73,7 @@ class RecordingController extends Controller
             $resource = $resource->where($filter[0], $filter[1]);
         }
 
-        return RecordingResource::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
+        return RecordingResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)

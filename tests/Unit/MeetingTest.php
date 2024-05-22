@@ -72,7 +72,8 @@ class MeetingTest extends TestCase
      */
     public function testStartParametersWithLogo()
     {
-        setting()->set('bbb_logo', url('logo.png'));
+        $this->bigBlueButtonSettings->logo = url('logo.png');
+        $this->bigBlueButtonSettings->save();
 
         $meeting = $this->meeting;
 
@@ -104,7 +105,8 @@ class MeetingTest extends TestCase
     {
         $meeting = $this->meeting;
 
-        setting()->set('default_presentation', url('default.pdf'));
+        $this->bigBlueButtonSettings->default_presentation = url('default.pdf');
+        $this->bigBlueButtonSettings->save();
 
         Http::fake([
             'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
@@ -168,7 +170,8 @@ class MeetingTest extends TestCase
     {
         $meeting = $this->meeting;
 
-        setting()->set('default_presentation', url('default.pdf'));
+        $this->bigBlueButtonSettings->default_presentation = url('default.pdf');
+        $this->bigBlueButtonSettings->save();
 
         Http::fake([
             'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),

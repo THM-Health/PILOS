@@ -10,6 +10,7 @@ use App\Http\Resources\Server as ServerResource;
 use App\Models\Server;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\ServerService;
+use App\Settings\GeneralSettings;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -68,7 +69,7 @@ class ServerController extends Controller
             $resource = $resource->withName($request->query('name'));
         }
 
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return ServerResource::collection($resource)->additional($additionalMeta);
     }

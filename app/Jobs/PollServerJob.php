@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Server;
 use App\Services\ServerService;
+use App\Settings\RecordingSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,8 +32,8 @@ class PollServerJob implements ShouldQueue
     {
         $serverService = new ServerService($this->server);
 
-        $updateServerStatistics = setting('statistics.servers.enabled');
-        $updateMeetingStatistics = setting('statistics.meetings.enabled');
+        $updateServerStatistics = app(RecordingSettings::class)->server_usage_enabled;
+        $updateMeetingStatistics = app(RecordingSettings::class)->meeting_usage_enabled;
 
         $serverService->updateUsage($updateServerStatistics, $updateMeetingStatistics, true);
     }

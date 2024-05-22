@@ -3,7 +3,7 @@
 {{-- Header --}}
 @slot('header')
 @component('mail::header', ['url' => config('app.url')])
-<img src="{{config('app.url')}}/{{ setting('logo') }}" class="logo" alt="Logo {{setting('name')}}">
+<img src="{{config('app.url')}}/{{ app(\App\Settings\GeneralSettings::class)->logo }}" class="logo" alt="Logo {{ app(\App\Settings\GeneralSettings::class)->name }}">
 @endcomponent
 @endslot
 
@@ -40,7 +40,7 @@
 
 {{-- Salutation --}}
 @lang('mail.regards')<br>
-{{ setting('name') }}
+{{ app(\App\Settings\GeneralSettings::class)->name }}
 
 {{-- Subcopy --}}
 @isset($actionText)
@@ -54,7 +54,7 @@
 {{-- Footer --}}
 @slot('footer')
     @component('mail::footer')
-        © {{ date('Y') }} {{ setting('name') }}. @lang('All rights reserved.')
+        © {{ date('Y') }} {{ app(\App\Settings\GeneralSettings::class)->name }}. @lang('All rights reserved.')
     @endcomponent
 @endslot
 

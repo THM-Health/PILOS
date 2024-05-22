@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Console;
 
+use App\Enums\TimePeriod;
 use App\Models\Meeting;
 use App\Models\MeetingStat;
 use App\Models\Server;
@@ -16,15 +17,16 @@ class CleanupStatisticsTest extends TestCase
 
     public function testClear()
     {
-        setting()->set('statistics.servers.retention_period', 10);
-        setting()->set('statistics.meetings.retention_period', 20);
+        $this->recordingSettings->server_usage_retention_period = TimePeriod::ONE_WEEK;
+        $this->recordingSettings->meeting_usage_retention_period = TimePeriod::TWO_WEEKS;
+        $this->recordingSettings->save();
 
         // Create fake data
         $server = Server::factory()->create();
         $meeting = Meeting::factory()->create();
 
         $serverStat1 = new ServerStat();
-        $serverStat1->created_at = now()->subDays(11)->toDateString();
+        $serverStat1->created_at = now()->subDays(8)->toDateString();
         $serverStat1->participant_count = 5;
         $serverStat1->listener_count = 5;
         $serverStat1->voice_participant_count = 5;
@@ -41,7 +43,7 @@ class CleanupStatisticsTest extends TestCase
         $server->stats()->save($serverStat2);
 
         $meetingStat1 = new MeetingStat();
-        $meetingStat1->created_at = now()->subDays(21)->toDateString();
+        $meetingStat1->created_at = now()->subDays(15)->toDateString();
         $meetingStat1->participant_count = 5;
         $meetingStat1->listener_count = 5;
         $meetingStat1->voice_participant_count = 5;

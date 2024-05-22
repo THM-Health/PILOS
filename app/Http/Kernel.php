@@ -6,7 +6,6 @@ use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIfConfig;
-use App\Http\Middleware\RouteEnableIfSetting;
 use App\Http\Middleware\StoreSessionData;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
@@ -82,7 +81,6 @@ class Kernel extends HttpKernel
         'loggedin' => \App\Http\Middleware\LoggedInUser::class,
         'check.stale' => EnsureModelNotStale::class,
         'enable_if_config' => RouteEnableIfConfig::class,
-        'enable_if_setting' => RouteEnableIfSetting::class,
         'shibboleth' => \App\Auth\Shibboleth\ShibbolethSessionMiddleware::class,
     ];
 }

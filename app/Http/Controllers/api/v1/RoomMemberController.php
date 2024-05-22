@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateRoomMember;
 use App\Http\Resources\RoomUser;
 use App\Models\Room;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,7 +78,7 @@ class RoomMemberController extends Controller
             $resource = $resource->where($filter[0], $filter[1]);
         }
 
-        return RoomUser::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
+        return RoomUser::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     /**

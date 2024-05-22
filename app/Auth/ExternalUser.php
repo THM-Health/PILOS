@@ -4,6 +4,7 @@ namespace App\Auth;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Hash;
 use Illuminate\Support\Facades\DB;
 use Log;
@@ -37,7 +38,7 @@ abstract class ExternalUser
             [
                 'password' => Hash::make(Str::random()),
                 'locale' => config('app.locale'),
-                'timezone' => setting('default_timezone'),
+                'timezone' => app(GeneralSettings::class)->default_timezone,
             ]
         );
     }

@@ -7,6 +7,7 @@ use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Exceptions\RoomIdGenerationFailed;
 use App\Services\RoomAuthService;
+use App\Settings\GeneralSettings;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -198,7 +199,7 @@ class Room extends Model
     /**
      * Recordings
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function recordings()
     {
@@ -377,7 +378,9 @@ class Room extends Model
      */
     public function getModeratorOnlyMessage()
     {
-        $message = __('rooms.invitation.room', ['roomname' => $this->name, 'platform' => setting('name')]).'<br>';
+        $appName = app(GeneralSettings::class)->name;
+
+        $message = __('rooms.invitation.room', ['roomname' => $this->name, 'platform' => $appName]).'<br>';
         $message .= __('rooms.invitation.link').': '.config('app.url').'/rooms/'.$this->id;
         if ($this->access_code != null) {
             $message .= '<br>'.__('rooms.invitation.code').': '.implode('-', str_split($this->access_code, 3));

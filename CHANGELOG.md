@@ -40,7 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Content-Security-Policy ([#315],[#1090])
 
 ### Changed
-- Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
 - Refactor user interface room details ([#681], [#724])
 - **Breaking:** Split container into separate containers for the application, cronjobs and queue workers ([#617])
@@ -57,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the room files list ([#1006])
 - Layout of the personalized room links list ([#1007])
 - Bumped docker compose mariadb version to 11 ([#1080])
+- **Breaking:** Global application settings storage ([#958], [#989])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
@@ -117,6 +117,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#967]: https://github.com/THM-Health/PILOS/pull/967
 [#968]: https://github.com/THM-Health/PILOS/pull/968
 [#977]: https://github.com/THM-Health/PILOS/pull/977
+[#985]: https://github.com/THM-Health/PILOS/issues/985
+[#989]: https://github.com/THM-Health/PILOS/pull/989
 [#1004]: https://github.com/THM-Health/PILOS/pull/1004
 [#1005]: https://github.com/THM-Health/PILOS/pull/1005
 [#1006]: https://github.com/THM-Health/PILOS/pull/1006

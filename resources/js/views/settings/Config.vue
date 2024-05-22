@@ -444,23 +444,6 @@
           </div>
         </div>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_auto_delete.enabled.title')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
-                inputId="room-auto-delete-enabled"
-                v-model="settings.room_auto_delete.enabled"
-                binary
-                :disabled="disabled"
-                :invalid="formErrors.fieldInvalid('room_auto_delete.enabled')"
-              />
-              <label for="room-auto-delete">{{ $t('app.enable') }}</label>
-            </div>
-            <p class="p-error" v-html="formErrors.fieldError('room_auto_delete.enabled')"></p>
-          </div>
-        </fieldset>
-
         <div class="grid">
           <label id="room-auto-delete-deadline-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_auto_delete.deadline_period.title')}}</label>
           <div class="col-12 md:col-8 flex flex-column gap-1">
@@ -696,7 +679,7 @@
           <legend id="default-presentation-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.default_presentation')}}</legend>
           <div class="col-12 md:col-8">
             <SettingsFileSelector
-              v-model:file-url="settings.default_presentation"
+              v-model:file-url="settings.bbb.default_presentation"
               v-model:file="defaultPresentation"
               v-model:file-deleted="defaultPresentationDeleted"
               :disabled="disabled"
@@ -704,8 +687,8 @@
               :max-file-size="settings.bbb.max_filesize*1000"
               show-delete
               :allowed-extensions="String(settings.bbb.file_mimes).split(',')"
-              :file-invalid="formErrors.fieldInvalid('default_presentation')"
-              :file-error="formErrors.fieldError('default_presentation')"
+              :file-invalid="formErrors.fieldInvalid('bbb.default_presentation')"
+              :file-error="formErrors.fieldError('bbb.default_presentation')"
             />
           </div>
         </fieldset>
@@ -756,9 +739,9 @@ const settings = ref({
   link_btn_styles: [],
   link_targets: [],
   bbb: {
-    style: undefined
+    style: undefined,
+    default_presentation: undefined
   },
-  default_presentation: undefined,
   room_token_expiration: undefined,
   statistics: {
     servers: {},
@@ -847,9 +830,9 @@ function updateSettings () {
   }
 
   if (defaultPresentation.value !== null) {
-    formData.append('default_presentation', defaultPresentation.value);
+    formData.append('bbb[default_presentation]', defaultPresentation.value);
   } else if (defaultPresentationDeleted.value) {
-    formData.append('default_presentation', '');
+    formData.append('bbb[default_presentation]', '');
   }
 
   formData.append('name', settings.value.name);
@@ -870,8 +853,6 @@ function updateSettings () {
   formData.append('attendance[retention_period]', settings.value.attendance.retention_period);
 
   formData.append('recording[retention_period]', settings.value.recording.retention_period);
-
-  formData.append('room_auto_delete[enabled]', settings.value.room_auto_delete.enabled ? 1 : 0);
   formData.append('room_auto_delete[deadline_period]', settings.value.room_auto_delete.deadline_period);
   formData.append('room_auto_delete[inactive_period]', settings.value.room_auto_delete.inactive_period);
   formData.append('room_auto_delete[never_used_period]', settings.value.room_auto_delete.never_used_period);

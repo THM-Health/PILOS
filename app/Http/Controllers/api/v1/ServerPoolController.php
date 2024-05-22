@@ -8,6 +8,7 @@ use App\Http\Requests\ServerPoolRequest;
 use App\Http\Resources\ServerPool as ServerPoolResource;
 use App\Models\Server;
 use App\Models\ServerPool;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -50,7 +51,7 @@ class ServerPoolController extends Controller
             $resource = $resource->withName($request->query('name'));
         }
 
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return ServerPoolResource::collection($resource)->additional($additionalMeta);
     }

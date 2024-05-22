@@ -9,6 +9,7 @@ use App\Http\Resources\PrivateRoomFile;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Services\RoomFileService;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Log;
 
@@ -67,10 +68,10 @@ class RoomFileController extends Controller
         if (\Gate::allows('viewAllFiles', $room)) {
             $additional['default'] = $room->files()->where('default', true)->first();
 
-            return PrivateRoomFile::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
+            return PrivateRoomFile::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
         }
 
-        return \App\Http\Resources\RoomFile::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
+        return \App\Http\Resources\RoomFile::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     /**

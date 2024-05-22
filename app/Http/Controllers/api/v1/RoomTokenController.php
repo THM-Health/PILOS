@@ -8,6 +8,7 @@ use App\Http\Requests\RoomTokenRequest;
 use App\Http\Resources\RoomToken as RoomTokenResource;
 use App\Models\Room;
 use App\Models\RoomToken;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -76,7 +77,7 @@ class RoomTokenController extends Controller
             $resource = $resource->where($filter[0], $filter[1]);
         }
 
-        return RoomTokenResource::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
+        return RoomTokenResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     /**

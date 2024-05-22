@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Console;
 
+use App\Enums\TimePeriod;
 use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,8 +15,8 @@ class CleanupAttendanceTest extends TestCase
 
     public function testClear()
     {
-        setting()->set('attendance.retention_period', 15);
-
+        $this->recordingSettings->attendance_retention_period = TimePeriod::TWO_WEEKS;
+        $this->recordingSettings->save();
         // Create fake data
         $meeting = Meeting::factory()->create();
 
@@ -30,7 +31,7 @@ class CleanupAttendanceTest extends TestCase
         $meetingAttendee2->meeting()->associate($meeting);
         $meetingAttendee2->name = 'John Doe';
         $meetingAttendee2->session_id = 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb';
-        $meetingAttendee2->join = now()->subDays(16)->toDateString();
+        $meetingAttendee2->join = now()->subDays(15)->toDateString();
         $meetingAttendee2->save();
 
         // Check if the datasets exit

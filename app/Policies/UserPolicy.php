@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Settings\UserSettings;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
@@ -91,7 +92,7 @@ class UserPolicy
     {
         return $model->authenticator === 'local'
             && $user->can('update', $model)
-            && (setting('password_change_allowed') || $model->id !== $user->id);
+            && (app(UserSettings::class)->password_change_allowed || $model->id !== $user->id);
     }
 
     /**

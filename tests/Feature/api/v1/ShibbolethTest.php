@@ -158,7 +158,8 @@ class ShibbolethTest extends TestCase
      */
     public function testCallbackRouteWithValidData()
     {
-        setting()->set('default_timezone', 'Europe/Paris');
+        $this->generalSettings->default_timezone = 'Europe/Paris';
+        $this->generalSettings->save();
 
         $header = [
             'Accept-Language' => 'fr',
@@ -213,7 +214,8 @@ class ShibbolethTest extends TestCase
 
         $user->roles()->sync([$guestRole->id => ['automatic' => true], $adminRole->id]);
 
-        setting()->set('default_timezone', 'Europe/Paris');
+        $this->generalSettings->default_timezone = 'Europe/Paris';
+        $this->generalSettings->save();
 
         $header = [
             'Accept-Language' => 'fr',

@@ -42,9 +42,8 @@ class ServerTest extends TestCase
     public function testIndex()
     {
         $page_size = 5;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         config([
             'bigbluebutton.server_online_threshold' => 3,
