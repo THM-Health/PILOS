@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\RecordingMode;
+
 return [
+    'mode' => RecordingMode::tryFrom(env('RECORDING_MODE', '')) ?: RecordingMode::INTEGRATED,
     'player' => env('RECORDING_PLAYER', '/playback/presentation/2.3'),
     'spool-sub-directory' => env('RECORDING_SPOOL_SUB_DIRECTORY', ''),
     'download_allowlist' => env('RECORDING_DOWNLOAD_ALLOWLIST', '.*'),

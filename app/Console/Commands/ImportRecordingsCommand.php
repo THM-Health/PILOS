@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\RecordingMode;
 use App\Jobs\ProcessRecording;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,10 @@ class ImportRecordingsCommand extends Command
 
     public function handle()
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            return;
+        }
+
         $files = Storage::disk('recordings-spool')->files();
         foreach ($files as $file) {
             if (! Str::endsWith($file, '.tar')) {

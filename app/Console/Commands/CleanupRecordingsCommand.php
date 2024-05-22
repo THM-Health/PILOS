@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\RecordingMode;
 use App\Enums\TimePeriod;
 use App\Models\Recording;
 use App\Settings\RecordingSettings;
@@ -26,11 +27,13 @@ class CleanupRecordingsCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle()
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            return;
+        }
+
         $retentionPeriod = app(RecordingSettings::class)->recording_retention_period;
 
         // Remove all recordings older than the retention period

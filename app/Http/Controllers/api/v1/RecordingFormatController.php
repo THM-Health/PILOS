@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\RecordingMode;
 use App\Http\Controllers\Controller;
 use App\Models\Recording;
 use App\Models\RecordingFormat;
@@ -11,6 +12,10 @@ class RecordingFormatController extends Controller
 {
     public function show(Room $room, Recording $recording, RecordingFormat $format)
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            abort(404);
+        }
+
         session()->push('access-format-'.$format->id, true);
 
         if ($format->format === 'presentation') {

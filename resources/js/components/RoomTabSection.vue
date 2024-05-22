@@ -78,6 +78,7 @@ import RoomTabHistory from './RoomTabHistory.vue';
 import RoomTabSettings from './RoomTabSettings.vue';
 import RoomTabRecordings from './RoomTabRecordings.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
   room: Object,
@@ -86,6 +87,7 @@ const props = defineProps({
 });
 
 const userPermissions = useUserPermissions();
+const settingsStore = useSettingsStore();
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -131,7 +133,10 @@ const availableTabs = computed(() => {
   }
 
   tabs.push({ key: 'files', label: t('rooms.files.title'), icon: 'fa-solid fa-folder-open', component: RoomTabFiles });
-  tabs.push({ key: 'recordings', label: t('rooms.recordings.title'), icon: 'fa-solid fa-play-circle', component: RoomTabRecordings });
+
+  if (settingsStore.getSetting('recording.mode') === 'integrated') {
+    tabs.push({ key: 'recordings', label: t('rooms.recordings.title'), icon: 'fa-solid fa-play-circle', component: RoomTabRecordings });
+  }
 
   if (userPermissions.can('viewSettings', props.room)) {
     tabs.push({ key: 'history', label: t('rooms.meeting_history.title'), icon: 'fa-solid fa-history', component: RoomTabHistory });

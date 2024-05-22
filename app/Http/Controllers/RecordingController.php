@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RecordingMode;
 use App\Models\Recording;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,10 @@ class RecordingController extends Controller
 {
     public function resource(string $formatName, Recording $recording, string $resource = 'index.html'): \Illuminate\Http\Response
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            abort(404);
+        }
+
         // Get format with the given name of the recording
         $format = $recording->formats()->where('format', $formatName)->firstOrFail();
 
@@ -47,6 +52,10 @@ class RecordingController extends Controller
 
     public function download(Recording $recording)
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            abort(404);
+        }
+
         $this->authorize('viewAllRecordings', $recording->room);
 
         // Get all files in the recording directory, remove the root folder and filter the files by the whitelist

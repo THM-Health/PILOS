@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\RecordingAccess;
+use App\Enums\RecordingMode;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateRecordingRequest;
 use App\Http\Resources\RecordingResource;
@@ -18,6 +19,10 @@ class RecordingController extends Controller
 {
     public function index(Room $room, Request $request)
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            abort(404);
+        }
+
         $additional = [];
 
         // Sort by column, fallback/default is description
@@ -78,6 +83,10 @@ class RecordingController extends Controller
 
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            abort(404);
+        }
+
         $recording->description = $request->description;
         $recording->access = $request->access;
         $recording->save();
@@ -95,6 +104,10 @@ class RecordingController extends Controller
 
     public function destroy(Room $room, Recording $recording)
     {
+        if (config('recording.mode') !== RecordingMode::INTEGRATED) {
+            abort(404);
+        }
+
         Log::info('Deleted recording {recording} in room {room}', ['room' => $room->getLogLabel(), 'recording' => $recording->getLogLabel()]);
 
         $recording->delete();

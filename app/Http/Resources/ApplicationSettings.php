@@ -120,6 +120,7 @@ class ApplicationSettings extends JsonResource
                 ],
             ],
             'recording' => [
+                'mode' => config('recording.mode'),
                 'retention_period' => $recordingSettings->recording_retention_period,
                 'max_retention_period' => config('recording.max_retention_period'),
                 'description_limit' => config('recording.description_limit'),

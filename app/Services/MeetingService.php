@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\RecordingMode;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Http\Requests\StartJoinMeeting;
@@ -9,6 +10,7 @@ use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\Room;
 use App\Models\User;
+use App\Plugins\Defaults\OpenCastRecordingPlugin;
 use App\Settings\BigBlueButtonSettings;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
@@ -117,6 +119,10 @@ class MeetingService
         // if a logo is defined, set logo
         if (app(BigBlueButtonSettings::class)->logo) {
             $meetingParams->setLogo(app(BigBlueButtonSettings::class)->logo);
+        }
+
+        if (config('recording.mode') == RecordingMode::OPENCAST) {
+            $this->setOpencastMetadata($meetingParams);
         }
 
         // Try to start meeting
@@ -367,5 +373,23 @@ class MeetingService
         }
 
         return $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
+    }
+
+    public function setOpenCastMetadata(CreateMeetingParameters $createMeetingParameters)
+    {
+        $opencastPlugin = app(OpenCastRecordingPlugin::class);
+        $metadata = $opencastPlugin->getMetadata(
+            $this->meeting->id,
+            $this->meeting->room->id,
+            $this->meeting->room->name,
+            Auth::user()->fullname,
+            Auth::user()->email,
+            Auth::user()->authenticator,
+            Auth::user()->external_id
+        );
+
+        foreach ($metadata as $key => $value) {
+            $createMeetingParameters->addMeta($key, $value);
+        }
     }
 }
