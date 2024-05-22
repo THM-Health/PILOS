@@ -73,14 +73,15 @@ Existing installations will keep their current values as they are stored in the 
 ## User Interface
 
 The UI framework was changed from BootstrapVue to PrimeVue.
-As we had to rebuild the whole frontend, we took the opportunity to redesign the whole UI.
-Our goal was to make the UI more user-friendly and modern.
-We tried to achieve this by having a single room overview page to make it easier to find your own and other people's rooms.
-The old 'Find rooms'/'All rooms' page has been integrated into the new 'Rooms' page.
+This required a complete rebuild of the frontend, providing an opportunity to redesign the entire UI.
+The goal was to make the UI more user-friendly and modern.
+To achieve this, a single room overview page was created to simplify finding individual and other people's rooms.
+The previous 'Find rooms'/'All rooms' page has been integrated into the new 'Rooms' page.
 
-We also moved many of the more advanced room settings into an expert mode to reduce complexity for the average user and to give administrators more control over the default settings, while still allowing users to override them if necessary and allowed by the administrator.
-The room type selection and changing the room type haven been redesigned to clarify the differences between the room types.
-To make it easier for users to select the right room type, we added the option to set a description for each room type so administrators can explain the differences between the room types in natural language.
+Additionally, many advanced room settings were moved into an expert mode to reduce complexity for the average user while giving administrators more control over default settings.
+Users can still override these settings if allowed by the administrator.
+The room type selection and the process for changing room types were redesigned to clarify the differences between them.
+To facilitate users in selecting the appropriate room type, an option was added to set a description for each room type, allowing administrators to explain the differences in natural language.
 
 ### Theme
 The colors used for the room history chart, room type colors and banner colors are no longer set via environment variables.
