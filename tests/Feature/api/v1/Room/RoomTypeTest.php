@@ -78,10 +78,6 @@ class RoomTypeTest extends TestCase
                     'name',
                     'id',
                     'model_name',
-                    'restrict',
-                    'updated_at',
-                    'max_participants',
-                    'max_duration',
                 ],
             ]])
             ->assertJsonCount(4, 'data');
@@ -95,11 +91,7 @@ class RoomTypeTest extends TestCase
                     'color',
                     'name',
                     'id',
-                    'model_name',
-                    'restrict',
-                    'updated_at',
-                    'max_participants',
-                    'max_duration',
+                    'model_name'
                 ],
             ]])
             ->assertJsonCount(4, 'data');
@@ -114,10 +106,6 @@ class RoomTypeTest extends TestCase
                     'name',
                     'id',
                     'model_name',
-                    'restrict',
-                    'updated_at',
-                    'max_participants',
-                    'max_duration',
                     'everyone_can_start_default',
                     'everyone_can_start_enforced',
                     'mute_on_start_default',

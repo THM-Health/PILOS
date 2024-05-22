@@ -19,7 +19,7 @@ class RoomTypeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(RoomType::class, 'roomType');
-        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withServerPool,withRoles', ['only' => 'update']);
+        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withDetails,withDefaultRoomSettings', ['only' => 'update']);
     }
 
     /**
@@ -74,7 +74,7 @@ class RoomTypeController extends Controller
     public function show(RoomType $roomType)
     {
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
+        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
     }
 
     /**
@@ -108,7 +108,7 @@ class RoomTypeController extends Controller
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
+        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
     }
 
     /**
@@ -143,7 +143,7 @@ class RoomTypeController extends Controller
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles()->withDefaultRoomSettings();
+        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
     }
 
     /**

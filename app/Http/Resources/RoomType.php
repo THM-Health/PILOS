@@ -7,14 +7,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class RoomType extends JsonResource
 {
     /**
-     * @var bool Indicates whether the server pool should be included or not.
+     * @var bool Indicates whether all details should be included or not.
      */
-    private $withServerPool = false;
-
-    /**
-     * @var bool Indicates whether the roles should be included or not.
-     */
-    private $withRoles = false;
+    private $withDetails = false;
 
     /**
      * @var bool Indicates whether the default room settings should be included or not.
@@ -22,25 +17,13 @@ class RoomType extends JsonResource
     private $withDefaultRoomSettings = false;
 
     /**
-     * Sets the flag to also load the server pool
-     *
-     * @return $this The server pool resource instance.
-     */
-    public function withServerPool(): self
-    {
-        $this->withServerPool = true;
-
-        return $this;
-    }
-
-    /**
-     * Sets the flag to also load the roles
+     * Sets the flag to also load all details
      *
      * @return $this The room type resource instance.
      */
-    public function withRoles(): self
+    public function withDetails(): self
     {
-        $this->withRoles = true;
+        $this->withDetails = true;
 
         return $this;
     }
@@ -89,18 +72,18 @@ class RoomType extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'color' => $this->color,
-            'server_pool' => $this->when($this->withServerPool, function () {
-                return new ServerPool($this->serverPool);
-            }),
             'model_name' => $this->model_name,
-            'updated_at' => $this->updated_at,
-            'restrict' => $this->restrict,
-            'max_participants' => $this->max_participants,
-            'max_duration' => $this->max_duration,
-            'create_parameters' => $this->create_parameters,
-            'roles' => $this->when($this->withRoles, function () {
-                return new RoleCollection($this->roles);
-            }),
+
+            $this->mergeWhen($this->withDetails, [
+                'server_pool' => new ServerPool($this->serverPool),
+                'updated_at' => $this->updated_at,
+                'restrict' => $this->restrict,
+                'max_participants' => $this->max_participants,
+                'max_duration' => $this->max_duration,
+                'create_parameters' => $this->create_parameters,
+                'roles' => new RoleCollection($this->roles),
+            ]),
+
             $this->mergeWhen($this->withDefaultRoomSettings, $this->getDefaultRoomSettings()),
         ];
     }
