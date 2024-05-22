@@ -66,7 +66,10 @@ class MeetingService
         // Set meeting parameters
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
 
-        $this->setCustomCreateMeetingParameters($meetingParams);
+        // Apply custom create parameters of the room type
+        if ($this->meeting->room->roomType->create_parameters != null) {
+            $this->setCustomCreateMeetingParameters($meetingParams, $this->meeting->room->roomType->create_parameters);
+        }
 
         // Room settings take precedence
         $meetingParams
@@ -153,46 +156,60 @@ class MeetingService
         return $result;
     }
 
-    private function setCustomCreateMeetingParameters($meetingParams): void
+    /**
+     * Set custom parameters for creating a meeting.
+     *
+     * It reads the custom parameters from the room type of the meeting room and applies them to the meeting parameters.
+     * Custom parameters are defined in the format "key=value" and separated by newlines.
+     * If a key starts with "meta_", it is added as a meta parameter.
+     * If a key corresponds to a property of the CreateMeetingParameters class, it is set by the corresponding setter method.
+     * If the property is an array, the value is exploded by comma before passing it to the setter method.
+     * If a key does not correspond to a meta parameter or a property of the CreateMeetingParameters class, a warning is logged.
+     *
+     * @param  CreateMeetingParameters  $meetingParams  The meeting parameters to which the custom parameters should be applied
+     * @param  string  $createParameters  The custom parameters in the format "key=value" and separated by newlines
+     */
+    private function setCustomCreateMeetingParameters(CreateMeetingParameters $meetingParams, string $createParameters): void
     {
-
-        if (! isset($this->meeting->room->roomType->create_parameters)) {
-            return;
-        }
-
         // Load custom create parameters of room type
-        foreach (explode("\n", $this->meeting->room->roomType->create_parameters) as $param) {
-            $paramParts = explode('=', $param, 2);
-            if (count($paramParts) !== 2) {
-                Log::warning('Custom create parameter for {param} has no value', ['param' => $param]);
+        foreach (explode("\n", $createParameters) as $createParameter) {
+            $parameterParts = explode('=', $createParameter, 2);
+            $parameter = $parameterParts[0];
+
+            // Log a warning if a parameter has no value
+            if (count($parameterParts) !== 2) {
+                Log::warning('Custom create parameter for {parameter} has no value', ['parameter' => $parameter]);
 
                 continue;
             }
 
-            [$key, $value] = $paramParts;
+            $value = $parameterParts[1];
 
             // Set meta parameters
-            if (Str::startsWith($key, 'meta_')) {
-                $meta = Str::after($key, 'meta_');
+            if (Str::startsWith($parameter, 'meta_')) {
+                $meta = Str::after($parameter, 'meta_');
                 $meetingParams->addMeta($meta, $value);
 
                 continue;
             }
 
-            // Set meeting parameters
-            if (property_exists($meetingParams, lcfirst($key))) {
-                $reflection = new \ReflectionClass(CreateMeetingParameters::class);
-                $property = $reflection->getProperty(lcfirst($key));
-                $setParamMethod = 'set'.ucfirst($key);
+            $reflection = new \ReflectionClass(CreateMeetingParameters::class);
 
-                // If the parameter is an array, explode the value by comma
-                if (is_array($property->getDefaultValue())) {
+            // Check if the parameter corresponds to a property of the CreateMeetingParameters class
+            if ($reflection->hasProperty($parameter)) {
+                // Get the setter method for the parameter
+                $setParamMethod = 'set'.ucfirst($parameter);
+
+                // If the property of the CreateMeetingParameters class is an array, explode the value by comma
+                if (is_array($reflection->getProperty($parameter)->getDefaultValue())) {
                     $value = explode(',', $value);
                 }
 
+                // Set the parameter
                 $meetingParams->$setParamMethod($value);
             } else {
-                Log::warning('Custom create parameter for {customCreateParam} can not be found', ['customCreateParam' => $key]);
+                // Log a warning if a parameter cannot be found
+                Log::warning('Custom create parameter for {parameter} can not be found', ['parameter' => $parameter]);
             }
         }
     }

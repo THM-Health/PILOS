@@ -898,7 +898,7 @@
               :invalid="formErrors.fieldInvalid('create_parameters')"
               :disabled="isBusy || modelLoadingError || viewOnly"
               aria-describedby="create-parameters-help"
-              :placeholder="'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'"
+              :placeholder="viewOnly ? '': 'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'"
             />
             <p id="create-parameters-help">{{$t('settings.room_types.bbb_api.create_parameters_description')}}</p>
             <p class="p-error" v-html="formErrors.fieldError('create_parameters')"></p>
