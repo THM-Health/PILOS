@@ -97,6 +97,8 @@ class RoomType extends JsonResource
             'restrict' => $this->restrict,
             'max_participants' => $this->max_participants,
             'max_duration' => $this->max_duration,
+            'create_meeting_plugin_config' => $this->create_meeting_plugin_config,
+            'join_meeting_plugin_config' => $this->join_meeting_plugin_config,
             'roles' => $this->when($this->withRoles, function () {
                 return new RoleCollection($this->roles);
             }),

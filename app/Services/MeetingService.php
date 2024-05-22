@@ -9,9 +9,9 @@ use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\Room;
 use App\Models\User;
+use App\Plugins\Contracts\CreateMeetingPluginContract;
+use App\Plugins\Contracts\JoinMeetingPluginContract;
 use Auth;
-use BigBlueButton\Core\MeetingLayout;
-use BigBlueButton\Enum\Feature;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
@@ -81,11 +81,7 @@ class MeetingService
             ->setLockSettingsDisableNotes($this->meeting->room->getRoomSetting('lock_settings_disable_note'))
             ->setLockSettingsHideUserList($this->meeting->room->getRoomSetting('lock_settings_hide_user_list'))
             ->setLockSettingsLockOnJoin(true)
-            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
-            ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setDisabledFeatures([Feature::LEARNING_DASHBOARD])
-            ->setRemindRecordingIsOn(true)
-            ->setNotifyRecordingIsOn(true);
+            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'));
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
@@ -117,6 +113,8 @@ class MeetingService
         if (setting()->has('bbb_logo')) {
             $meetingParams->setLogo(setting('bbb_logo'));
         }
+
+        app(CreateMeetingPluginContract::class)?->modify($meetingParams, $this->meeting, $this->meeting->room, $this->meeting->room->owner, $this->meeting->room->roomType->create_meeting_plugin_config);
 
         // Try to start meeting
         try {
@@ -364,6 +362,8 @@ class MeetingService
         if (setting()->has('bbb_style')) {
             $joinMeetingParams->addUserData('bbb_custom_style_url', setting('bbb_style'));
         }
+
+        app(JoinMeetingPluginContract::class)?->modify($joinMeetingParams, $this->meeting->room->roomType->join_meeting_plugin_config);
 
         return $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
     }

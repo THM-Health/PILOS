@@ -28,6 +28,10 @@ class PluginServiceProvider extends ServiceProvider
 
                 $pluginClass = "{$namespace}\\{$pluginName}";
 
+                if (! class_exists($pluginClass)) {
+                    return null;
+                }
+
                 return new $pluginClass();
             });
         }

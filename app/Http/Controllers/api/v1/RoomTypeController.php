@@ -90,6 +90,8 @@ class RoomTypeController extends Controller
         $roomType->restrict = $request->restrict;
         $roomType->max_participants = $request->max_participants;
         $roomType->max_duration = $request->max_duration;
+        $roomType->create_meeting_plugin_config = $request->create_meeting_plugin_config;
+        $roomType->join_meeting_plugin_config = $request->join_meeting_plugin_config;
         $roomType->serverPool()->associate($request->server_pool);
 
         // Save default room settings
@@ -124,6 +126,8 @@ class RoomTypeController extends Controller
         $roomType->restrict = $request->restrict;
         $roomType->max_participants = $request->max_participants;
         $roomType->max_duration = $request->max_duration;
+        $roomType->create_meeting_plugin_config = $request->create_meeting_plugin_config;
+        $roomType->join_meeting_plugin_config = $request->join_meeting_plugin_config;
         $roomType->serverPool()->associate($request->server_pool);
 
         // Safe default room settings

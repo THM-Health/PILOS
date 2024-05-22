@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search and filter options to list of personalized room links ([#1007])
 - Recording management ([#31], [#896]) 
 - Content-Security-Policy ([#315],[#1090])
+- Custom create parameters in room type settings ([#574])
 
 ### Changed
 - Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
@@ -57,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the room files list ([#1006])
 - Layout of the personalized room links list ([#1007])
 - Bumped docker compose mariadb version to 11 ([#1080])
+- The learning dashboard is no longer always disabled and the meeting layout is no longer always "custom". These settings can be overridden with the room type settings. If the two settings are not set in the room type settings, the previous values apply until the next release; afterwards, these settings can only be set via the room type settings. ([#574])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])

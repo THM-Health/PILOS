@@ -882,6 +882,44 @@
           </div>
         </div>
 
+        <Divider/>
+        <!-- Plugin settings -->
+        <h4>{{ $t('rooms.settings.plugins.title') }}</h4>
+
+        <!-- Create meeting plugin config -->
+        <div class="field grid">
+          <label for="create-meeting-plugin-config" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.create_meeting_plugin_config')}}</label>
+          <div class="col-12 md:col-8">
+            <Textarea
+              input-id="create-meeting-plugin-config"
+              class="w-full"
+              v-model="model.create_meeting_plugin_config"
+              :invalid="formErrors.fieldInvalid('create_meeting_plugin_config')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              aria-describedby="create-meeting-plugin-config-help"
+            />
+            <p id="create-meeting-plugin-config-help">{{$t('settings.room_types.create_meeting_plugin_config_description')}}</p>
+            <p class="p-error" v-html="formErrors.fieldError('create_meeting_plugin_config')"></p>
+          </div>
+        </div>
+
+        <!-- Join meeting plugin config -->
+        <div class="field grid">
+          <label for="join-meeting-plugin-config" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.join_meeting_plugin_config')}}</label>
+          <div class="col-12 md:col-8">
+            <Textarea
+              input-id="join-meeting-plugin-config"
+              class="w-full"
+              v-model="model.join_meeting_plugin_config"
+              :invalid="formErrors.fieldInvalid('join_meeting_plugin_config')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              aria-describedby="join-meeting-plugin-config-help"
+            />
+            <p id="join-meeting-plugin-config-help">{{$t('settings.room_types.join_meeting_plugin_config_description')}}</p>
+            <p class="p-error" v-html="formErrors.fieldError('join_meeting_plugin_config')"></p>
+          </div>
+        </div>
+
         <div v-if="!viewOnly">
           <Divider/>
           <div class="flex justify-content-end">
@@ -941,6 +979,8 @@ const model = ref({
   server_pool: null,
   max_duration: null,
   max_participants: null,
+  create_meeting_plugin_config: null,
+  join_meeting_plugin_config: null,
   restrict: false,
   roles: [],
   webcams_only_for_moderator_default: false,
