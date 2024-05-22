@@ -882,6 +882,29 @@
           </div>
         </div>
 
+        <Divider/>
+        <!-- BBB api settings -->
+        <h4>{{ $t('settings.room_types.bbb_api.title') }}</h4>
+
+        <!-- Create meeting plugin config -->
+        <div class="field grid">
+          <label for="create-parameters" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.bbb_api.create_parameters')}}</label>
+          <div class="col-12 md:col-8">
+            <Textarea
+              input-id="create-parameters"
+              class="w-full"
+              autoResize
+              v-model="model.create_parameters"
+              :invalid="formErrors.fieldInvalid('create_parameters')"
+              :disabled="isBusy || modelLoadingError || viewOnly"
+              aria-describedby="create-parameters-help"
+              :placeholder="'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'"
+            />
+            <p id="create-parameters-help">{{$t('settings.room_types.bbb_api.create_parameters_description')}}</p>
+            <p class="p-error" v-html="formErrors.fieldError('create_parameters')"></p>
+          </div>
+        </div>
+
         <div v-if="!viewOnly">
           <Divider/>
           <div class="flex justify-content-end">
@@ -941,6 +964,7 @@ const model = ref({
   server_pool: null,
   max_duration: null,
   max_participants: null,
+  create_parameters: null,
   restrict: false,
   roles: [],
   webcams_only_for_moderator_default: false,

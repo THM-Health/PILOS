@@ -11,8 +11,6 @@ use App\Models\Room;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
 use Auth;
-use BigBlueButton\Core\MeetingLayout;
-use BigBlueButton\Enum\Feature;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
@@ -20,6 +18,7 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Log;
 
 class MeetingService
@@ -66,6 +65,10 @@ class MeetingService
     {
         // Set meeting parameters
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
+
+        $this->setCustomCreateMeetingParameters($meetingParams);
+
+        // Room settings take precedence
         $meetingParams
             ->setRecord($this->meeting->record)
             ->setAutoStartRecording($this->meeting->room->auto_start_recording)
@@ -82,11 +85,7 @@ class MeetingService
             ->setLockSettingsDisableNotes($this->meeting->room->getRoomSetting('lock_settings_disable_note'))
             ->setLockSettingsHideUserList($this->meeting->room->getRoomSetting('lock_settings_hide_user_list'))
             ->setLockSettingsLockOnJoin(true)
-            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'))
-            ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setDisabledFeatures([Feature::LEARNING_DASHBOARD])
-            ->setRemindRecordingIsOn(true)
-            ->setNotifyRecordingIsOn(true);
+            ->setMuteOnStart($this->meeting->room->getRoomSetting('mute_on_start'));
 
         $meetingParams->addMeta('bbb-origin', 'PILOS');
         $meetingParams->addMeta('pilos-sub-spool-dir', config('recording.spool-sub-directory'));
@@ -152,6 +151,50 @@ class MeetingService
         }
 
         return $result;
+    }
+
+    private function setCustomCreateMeetingParameters($meetingParams): void
+    {
+
+        if (! isset($this->meeting->room->roomType->create_parameters)) {
+            return;
+        }
+
+        // Load custom create parameters of room type
+        foreach (explode("\n", $this->meeting->room->roomType->create_parameters) as $param) {
+            $paramParts = explode('=', $param, 2);
+            if (count($paramParts) !== 2) {
+                Log::warning('Custom create parameter for {param} has no value', ['param' => $param]);
+
+                continue;
+            }
+
+            [$key, $value] = $paramParts;
+
+            // Set meta parameters
+            if (Str::startsWith($key, 'meta_')) {
+                $meta = Str::after($key, 'meta_');
+                $meetingParams->addMeta($meta, $value);
+
+                continue;
+            }
+
+            // Set meeting parameters
+            if (property_exists($meetingParams, lcfirst($key))) {
+                $reflection = new \ReflectionClass(CreateMeetingParameters::class);
+                $property = $reflection->getProperty(lcfirst($key));
+                $setParamMethod = 'set'.ucfirst($key);
+
+                // If the parameter is an array, explode the value by comma
+                if (is_array($property->getDefaultValue())) {
+                    $value = explode(',', $value);
+                }
+
+                $meetingParams->$setParamMethod($value);
+            } else {
+                Log::warning('Custom create parameter for {customCreateParam} can not be found', ['customCreateParam' => $key]);
+            }
+        }
     }
 
     /**

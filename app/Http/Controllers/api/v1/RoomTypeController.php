@@ -90,6 +90,7 @@ class RoomTypeController extends Controller
         $roomType->restrict = $request->restrict;
         $roomType->max_participants = $request->max_participants;
         $roomType->max_duration = $request->max_duration;
+        $roomType->create_parameters = $request->create_parameters;
         $roomType->serverPool()->associate($request->server_pool);
 
         // Save default room settings
@@ -124,6 +125,7 @@ class RoomTypeController extends Controller
         $roomType->restrict = $request->restrict;
         $roomType->max_participants = $request->max_participants;
         $roomType->max_duration = $request->max_duration;
+        $roomType->create_parameters = $request->create_parameters;
         $roomType->serverPool()->associate($request->server_pool);
 
         // Safe default room settings
