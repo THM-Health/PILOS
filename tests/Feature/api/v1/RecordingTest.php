@@ -3,6 +3,7 @@
 namespace Tests\Feature\api\v1;
 
 use App\Enums\RecordingAccess;
+use App\Enums\RecordingMode;
 use App\Enums\RoomUserRole;
 use App\Models\Permission;
 use App\Models\Recording;
@@ -49,6 +50,8 @@ class RecordingTest extends TestCase
         $this->role = Role::factory()->create();
         $this->viewAllPermission = Permission::where('name', 'rooms.viewAll')->first();
         $this->managePermission = Permission::where('name', 'rooms.manage')->first();
+
+        config(['recording.mode' => RecordingMode::INTEGRATED]);
     }
 
     public function testIndexNoAccessCodeGuestsAllowed()
@@ -347,6 +350,16 @@ class RecordingTest extends TestCase
             ->assertJsonCount(11, 'data');
     }
 
+    public function testIndexOpenCastMode()
+    {
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+
+        $room = Room::factory()->create();
+        $this->actingAs($room->owner)
+            ->getJson(route('api.v1.rooms.recordings.index', ['room' => $room->id]))
+            ->assertNotFound();
+    }
+
     public function testShowNoAccessCodeGuestsAllowed()
     {
         $format = RecordingFormat::factory()->create(['format' => 'podcast']);
@@ -614,6 +627,19 @@ class RecordingTest extends TestCase
             ->assertJson(['url' => 'https://example.com/player/'.$recording->id.'/']);
     }
 
+    public function testShowOpenCastMode()
+    {
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+
+        $format = RecordingFormat::factory()->create(['format' => 'podcast']);
+        $recording = $format->recording;
+        $room = $recording->room;
+
+        $this->actingAs($room->owner)
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $format->id]))
+            ->assertNotFound();
+    }
+
     public function testUpdate()
     {
         $recording = Recording::factory()->create();
@@ -747,6 +773,28 @@ class RecordingTest extends TestCase
 
     }
 
+    public function testUpdateOpenCastMode()
+    {
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        $podcast = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'podcast']);
+
+        $payload = [
+            'description' => 'New description',
+            'access' => RecordingAccess::PARTICIPANT,
+            'formats' => [
+                ['id' => $podcast->id, 'disabled' => true],
+            ],
+        ];
+
+        $this->actingAs($room->owner)
+            ->putJson(route('api.v1.rooms.recordings.update', ['room' => $room->id, 'recording' => $recording->id]), $payload)
+            ->assertNotFound();
+    }
+
     public function testDelete()
     {
         Storage::fake('recordings');
@@ -875,6 +923,18 @@ class RecordingTest extends TestCase
             ->assertNotFound();
     }
 
+    public function testDeleteOpenCastMode()
+    {
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        $this->actingAs($room->owner)
+            ->deleteJson(route('api.v1.rooms.recordings.destroy', ['room' => $room->id, 'recording' => $recording->id]))
+            ->assertNotFound();
+    }
+
     /** Non-API Routes */
     public function testAccessRecordingResource()
     {
@@ -924,6 +984,35 @@ class RecordingTest extends TestCase
         $this->flushSession();
         $response = $this->actingAs($room->owner)->get($url);
         $response->assertForbidden();
+    }
+
+    public function testAccessRecordingResourceOpenCastMode()
+    {
+        Storage::fake('recordings');
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        // Create format
+        $notes = RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+
+        // Create folder with recording files
+        Storage::disk('recordings')->makeDirectory($recording->id);
+        Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
+        UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
+
+        $apiResponse = $this->actingAs($room->owner)
+            ->getJson(route('api.v1.rooms.recordings.formats.show', ['room' => $recording->room->id, 'recording' => $recording->id, 'format' => $notes->id]));
+
+        $apiResponse->assertOk();
+
+        $url = $apiResponse->json('url');
+
+        // Change recording mode to open cast
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+
+        // Access the resource
+        $this->actingAs($room->owner)->get($url)->assertNotFound();
     }
 
     public function testDownloadRecording()
@@ -1101,5 +1190,27 @@ class RecordingTest extends TestCase
         $this->role->permissions()->attach($this->managePermission);
         $this->actingAs($this->user)->get(route('recording.download', ['recording' => $recording]))
             ->assertSuccessful();
+    }
+
+    public function testDownloadRecordingOpenCastMode()
+    {
+        config(['recording.download_allowlist' => '.*']);
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+
+        Storage::fake('recordings');
+
+        $recording = Recording::factory()->create();
+        $room = $recording->room;
+
+        // Create formats
+        RecordingFormat::factory()->create(['recording_id' => $recording->id, 'format' => 'notes']);
+
+        // Create folder with recording files
+        Storage::disk('recordings')->makeDirectory($recording->id);
+        Storage::disk('recordings')->makeDirectory($recording->id.'/notes');
+        UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf')->storeAs($recording->id.'/notes', 'notes.pdf', 'recordings');
+
+        $this->actingAs($room->owner)->get(route('recording.download', ['recording' => $recording]))
+            ->assertNotFound();
     }
 }
