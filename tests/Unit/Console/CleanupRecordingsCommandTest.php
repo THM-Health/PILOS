@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Console;
 
+use App\Enums\RecordingMode;
 use App\Enums\TimePeriod;
 use App\Models\Recording;
 use App\Models\RecordingFormat;
@@ -68,5 +69,29 @@ class CleanupRecordingsCommandTest extends TestCase
         // Check storage
         $this->assertDirectoryDoesNotExist(Storage::disk('recordings')->path($recording1->id));
         $this->assertDirectoryExists(Storage::disk('recordings')->path($recording2->id));
+    }
+
+    /**
+     * Test if the command does not delete recordings when the recording mode is set to OpenCast.
+     *
+     * @return void
+     */
+    public function testOpenCastMode()
+    {
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+
+        // Create fake recordings
+        $recording1 = Recording::factory()->create(['start' => now()->subDays(10)]);
+        $recording2 = Recording::factory()->create(['start' => now()->subDays(5)]);
+
+        // Set the retention period to a week
+        $this->recordingSettings->recording_retention_period = TimePeriod::ONE_WEEK;
+        $this->recordingSettings->save();
+
+        $this->artisan('cleanup:recordings');
+
+        // Check database
+        $this->assertModelExists($recording1);
+        $this->assertModelExists($recording2);
     }
 }
