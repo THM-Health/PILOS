@@ -230,6 +230,7 @@ class MeetingTest extends TestCase
     /**
      * Test if the OpenCast plugin is used with the OpenCast recording mode
      * and the default metadata is sent
+     *
      * @return void
      */
     public function testStartWithDefaultOpenCastPlugin()
@@ -269,6 +270,7 @@ class MeetingTest extends TestCase
     /**
      * Test if the OpenCast plugin is used with the OpenCast recording mode
      * and a custom plugin
+     *
      * @return void
      */
     public function testStartWithCustomOpenCastPlugin()

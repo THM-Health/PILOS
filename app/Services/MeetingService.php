@@ -11,7 +11,6 @@ use App\Models\MeetingAttendee;
 use App\Models\Room;
 use App\Models\User;
 use App\Plugins\Contracts\OpenCastRecordingPluginContract;
-use App\Plugins\Defaults\OpenCastRecordingPlugin;
 use App\Settings\BigBlueButtonSettings;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
