@@ -2,12 +2,14 @@
 
 namespace Tests\Unit;
 
+use App\Enums\RecordingMode;
 use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Models\Server;
 use App\Services\MeetingService;
 use App\Services\ServerService;
+use Carbon\Carbon;
 use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -194,5 +196,115 @@ class MeetingTest extends TestCase
 
         // check order based on default and missing file 4 because use_in_meeting disabled
         $this->assertEquals(url('default.pdf'), $docs[0]->attributes()->url);
+    }
+
+    /**
+     * Test if the OpenCast plugin is not used with the integrated recording mode
+     *
+     * @return void
+     */
+    public function testStartWithoutOpenCastPlugin()
+    {
+        config(['recording.mode' => RecordingMode::INTEGRATED]);
+
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        $this->assertArrayNotHasKey('meta_opencast-dc-title', $data);
+    }
+
+    /**
+     * Test if the OpenCast plugin is used with the OpenCast recording mode
+     * and the default metadata is sent
+     * @return void
+     */
+    public function testStartWithDefaultOpenCastPlugin()
+    {
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+        config(['app.locale' => 'fr']);
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 01, 00));
+
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        $this->assertEquals('2023-09-28 - '.$meeting->room->name, $data['meta_opencast-dc-title']);
+        $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-dc-creator']);
+        $this->assertEquals('2023-09-28T12:01:00Z', $data['meta_opencast-dc-created']);
+        $this->assertEquals('fr', $data['meta_opencast-dc-language']);
+        $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-dc-rightsHolder']);
+        $this->assertEquals($meeting->room->id, $data['meta_opencast-dc-isPartOf']);
+        $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-acl-user-id']);
+        $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-series-acl-user-id']);
+        $this->assertEquals($meeting->room->name, $data['meta_opencast-series-dc-title']);
+    }
+
+    /**
+     * Test if the OpenCast plugin is used with the OpenCast recording mode
+     * and a custom plugin
+     * @return void
+     */
+    public function testStartWithCustomOpenCastPlugin()
+    {
+        config(['recording.mode' => RecordingMode::OPENCAST]);
+        config(['app.locale' => 'fr']);
+
+        // Register custom OpenCast plugin
+        config([
+            'plugins.enabled' => ['OpenCastRecordingPlugin'],
+            'plugins.namespaces.custom' => 'Tests\Utils',
+        ]);
+
+        $this->travelTo(Carbon::create(2023, 9, 28, 12, 01, 00));
+
+        $meeting = $this->meeting;
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        $this->assertEquals($meeting->room->name, $data['meta_opencast-dc-title']);
+        $this->assertEquals($meeting->id, $data['meta_opencast-dc-identifier']);
+        $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-dc-creator']);
+        $this->assertEquals('2023-09-28T12:01:00Z', $data['meta_opencast-dc-created']);
+        $this->assertEquals('DE', $data['meta_opencast-dc-language']);
     }
 }
