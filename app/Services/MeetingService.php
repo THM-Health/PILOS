@@ -10,6 +10,7 @@ use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\Room;
 use App\Models\User;
+use App\Plugins\Contracts\OpenCastRecordingPluginContract;
 use App\Plugins\Defaults\OpenCastRecordingPlugin;
 use App\Settings\BigBlueButtonSettings;
 use Auth;
@@ -377,15 +378,15 @@ class MeetingService
 
     public function setOpenCastMetadata(CreateMeetingParameters $createMeetingParameters)
     {
-        $opencastPlugin = app(OpenCastRecordingPlugin::class);
+        $opencastPlugin = app(OpenCastRecordingPluginContract::class);
         $metadata = $opencastPlugin->getMetadata(
             $this->meeting->id,
             $this->meeting->room->id,
             $this->meeting->room->name,
-            Auth::user()->fullname,
-            Auth::user()->email,
-            Auth::user()->authenticator,
-            Auth::user()->external_id
+            $this->meeting->room->owner->fullname,
+            $this->meeting->room->owner->email,
+            $this->meeting->room->owner->authenticator,
+            $this->meeting->room->owner->external_id
         );
 
         foreach ($metadata as $key => $value) {
