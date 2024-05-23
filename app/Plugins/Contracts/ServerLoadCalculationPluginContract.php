@@ -7,7 +7,10 @@ use BigBlueButton\Core\Meeting;
 interface ServerLoadCalculationPluginContract
 {
     /**
-     * @param  Meeting[]  $meetings
+     * Calculates and returns the server load based on the provided meetings.
+     *
+     * @param  Meeting[]  $meetings  An array of Meeting objects.
+     * @return int The calculated server load.
      */
     public function getLoad(array $meetings): int;
 }

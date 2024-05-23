@@ -8,7 +8,9 @@ description: Guide how to setup recording management with PILOS
 PILOS is able to manage recordings from BigBlueButton servers.
 This includes the transfer of the recordings to PILOS for permanent storage and serving.
 
-Follow the steps below to set up the recording management.
+As an alternative to the integrated recording management, you can use the OpenCast integration (see [Setup OpenCast](#setup-opencast)).
+
+Follow the steps below to set up the integrated recording management.
 
 ## Permissions
 
@@ -278,3 +280,36 @@ Next, use pilos-cli to build the player with the release version you want.
 ```bash
 docker compose exec app pilos-cli playback-player:build 5.0.2
 ```
+
+## Setup OpenCast
+
+### Enabling OpenCast Metadata Transmission in PILOS
+
+PILOS can send OpenCast metadata to BigBlueButton during the create meeting API call. To enable this feature, follow the steps below:
+
+#### Changing the Recording Mode
+
+1. Open the `.env` file in your PILOS installation.
+2. Change the recording mode from `INTEGRATED` to `OPENCAST`:
+
+   ```bash
+   RECORDING_MODE=OPENCAST
+   ```
+
+#### Effects of Changing the Recording Mode
+
+Switching to `OPENCAST` will disable all integrated recording management features in PILOS. This includes:
+
+- Processing of recording files
+- API endpoints related to recording management
+- UI recording views
+
+Additionally, the admin setting for the recording retention period will be ignored.
+
+### Setting Up OpenCast with BigBlueButton
+
+For detailed instructions on setting up OpenCast with BigBlueButton, refer to the [Opencast BigBlueButton Integration documentation](https://github.com/elan-ev/opencast-bigbluebutton-integration).
+
+### Customizing Metadata
+
+You can customize the metadata sent to OpenCast by creating your own `OpenCastRecordingPlugin` plugin. For more information on creating plugins, see the [PILOS documentation on plugins](../09-plugins/index.md).
