@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search and filter options to list of room files ([#1006])
 - Search and filter options to list of personalized room links ([#1007])
 - Recording management ([#31], [#896]) 
+- Alternative recording management using OpenCast ([#1068], [#1099])
 - Content-Security-Policy ([#315],[#1090])
 
 ### Changed
@@ -125,12 +126,14 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1007]: https://github.com/THM-Health/PILOS/pull/1007
 [#1045]: https://github.com/THM-Health/PILOS/issues/1045
 [#1059]: https://github.com/THM-Health/PILOS/pull/1059
+[#1068]: https://github.com/THM-Health/PILOS/issues/1068
 [#1071]: https://github.com/THM-Health/PILOS/issues/1071
 [#1076]: https://github.com/THM-Health/PILOS/issues/1076
 [#1078]: https://github.com/THM-Health/PILOS/issues/1078
 [#1079]: https://github.com/THM-Health/PILOS/pull/1079
 [#1080]: https://github.com/THM-Health/PILOS/pull/1080
 [#1090]: https://github.com/THM-Health/PILOS/pull/1090
+[#1099]: https://github.com/THM-Health/PILOS/pull/1099
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
