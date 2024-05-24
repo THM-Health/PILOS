@@ -725,7 +725,7 @@ class RoomTypeTest extends TestCase
             'auto_start_recording_enforced' => 'no',
             'has_access_code_default' => 'yes',
             'has_access_code_enforced' => 'no',
-            'create_parameters' => fake()->text(65001),
+            'create_parameters' => $this->faker->textWithLength(65001),
             'updated_at' => $roomType->updated_at,
         ];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType' => $roomType->id]), $data)
