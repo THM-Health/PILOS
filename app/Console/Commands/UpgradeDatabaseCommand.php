@@ -92,24 +92,14 @@ class UpgradeDatabaseCommand extends Command
         }
         $this->info('Created new migrations table');
 
+        $this->info('Apply latest migrations');
+        Artisan::call('migrate --force');
+
         $this->info('Migrating old application settings');
         $this->info('Overview of old settings:');
         $this->table(['Key', 'Value'], collect($oldSettings)->map(function ($value, $key) {
             return [$key, $value];
         }));
-        // Migrate new settings
-        $settingMigrations = [
-            '2023_04_14_095406_create_general_settings',
-            '2023_04_14_101741_create_banner_settings',
-            '2023_04_14_102134_create_room_settings',
-            '2023_04_14_103520_create_user_settings',
-            '2023_04_14_103845_create_recording_settings',
-            '2023_04_14_103858_create_big_blue_button_settings',
-        ];
-
-        foreach ($settingMigrations as $migration) {
-            Artisan::call('migrate --force --path=database/settings/'.$migration.'.php');
-        }
 
         // Apply old settings to new settings
         $generalSettings = app(GeneralSettings::class);
@@ -232,6 +222,6 @@ class UpgradeDatabaseCommand extends Command
 
         $this->info('Migrated old application settings, please check everything is correct in the settings page and adjust if necessary');
 
-        $this->alert('Upgrade to v4 completed. Please upgrade to latest v4 database: php artisan migrate');
+        $this->alert('Upgrade to v4 completed.');
     }
 }
