@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\RecordingMode;
+use Illuminate\Support\Str;
 
 return [
     'mode' => RecordingMode::tryFrom(Str::upper(env('RECORDING_MODE', ''))) ?: RecordingMode::INTEGRATED,
