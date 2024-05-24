@@ -17,6 +17,7 @@ class RoomTypeRequest extends FormRequest
             'max_duration' => ['present', 'nullable', 'numeric', 'min:1'],
             'max_participants' => ['present', 'nullable', 'numeric', 'min:1'],
             'server_pool' => ['required', 'integer', 'exists:App\Models\ServerPool,id'],
+            'create_parameters' => ['nullable', 'string', 'max:65000'],
             'restrict' => ['required', 'boolean'],
             'roles' => [Rule::requiredIf($this->boolean('restrict')), 'array'],
             'roles.*' => ['distinct', 'integer', 'exists:App\Models\Role,id'],

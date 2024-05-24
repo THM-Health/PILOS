@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Recording management ([#31], [#896]) 
 - Alternative recording management using OpenCast ([#1068], [#1099])
 - Content-Security-Policy ([#315],[#1090])
+- Custom create parameters in room type settings ([#574])
 
 ### Changed
 - Refactor user interface for room search and home page ([#372], [#373])
@@ -58,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the personalized room links list ([#1007])
 - Bumped docker compose mariadb version to 11 ([#1080])
 - **Breaking:** Global application settings storage ([#958], [#989])
+- **Breaking:** The learning dashboard is no longer disabled and the meeting layout is no longer always "custom". These settings can be set with create-api-parameters in the room type settings. ([#574])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])

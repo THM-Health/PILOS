@@ -171,6 +171,11 @@ return [
         'view' => 'Detailed information for the role :name',
     ],
     'room_types' => [
+        'bbb_api' => [
+            'title' => 'BigBlueButton API',
+            'create_parameters' => 'Additional Create API parameters',
+            'create_parameters_description' => 'Specify as attribute-value pair (one per line, without spaces), e.g. webcamsOnlyForModerator=true',
+        ],
         'color' => 'Color',
         'custom_color' => 'Custom color',
         'default_room_settings' => [

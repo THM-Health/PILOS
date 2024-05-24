@@ -1009,7 +1009,6 @@ class RoomTest extends TestCase
                         'name' => $room->roomType->name,
                         'color' => $room->roomType->color,
                         'model_name' => 'RoomType',
-                        'updated_at' => $room->roomType->updated_at->toJSON(),
                     ],
                     'model_name' => 'Room',
                     'short_description' => $room->short_description,
