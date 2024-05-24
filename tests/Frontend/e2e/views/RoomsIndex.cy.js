@@ -6,7 +6,7 @@ describe('Room Index', () => {
     cy.interceptRoomIndexRequests();
   });
 
-  //ToDo?? Visit with user that is not logged in
+  //ToDo?? Visit with user that is not logged in (Create command for this)
 
   it('check list of rooms', () => {
     const interception = interceptIndefinitely( 'GET','api/v1/rooms?*', {fixture: 'exampleRooms.json'}, 'roomRequest');
@@ -27,7 +27,7 @@ describe('Room Index', () => {
     cy.get('[data-test=room-type-dropdown]').within(()=>{
       cy.get('.p-dropdown-label').should('have.attr', 'aria-disabled', 'true');
     });
-    //ToDo?? filter button on small devices
+    //ToDo?? filter button for small devices does not exist
 
     // Sorting dropdown
     cy.get('[data-test=sorting-type-dropdown]').within(()=> {
@@ -71,8 +71,6 @@ describe('Room Index', () => {
     cy.visit('/rooms');
 
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
-    //ToDo check overlay displayed??
-    //ToDo RoomCardSkeleton??
 
     // Check that components are not disabled
     // Room search field
@@ -94,7 +92,7 @@ describe('Room Index', () => {
       cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    //ToDo filter button on small devices?
+    //ToDo filter button for small devices does not exist
 
     cy.intercept('GET', 'api/v1/rooms*', {fixture: 'exampleRooms.json'});
     // Check if reload button exists and click it
@@ -126,8 +124,7 @@ describe('Room Index', () => {
       cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    //ToDo filter button on small devices?
-    //ToDo test with pagination
+    //ToDo filter button for small devices does not exist
   });
 
   it('error loading room types', () => {

@@ -57,7 +57,7 @@ describe('Login', () => {
       });
     });
 
-    // Check toast message (ToDo?)
+    // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
     // Check if redirect works
     cy.url().should('contain', '/rooms').and('not.contain', 'login');
@@ -93,7 +93,7 @@ describe('Login', () => {
     }).as('loginRequest');
 
     // Visit page that can only be visited by logged in users
-    cy.visit('settings'); //ToDo think about changing
+    cy.visit('settings');
 
     // Check redirect to the login page
     cy.url().should('contain', '/login?redirect=/settings');
@@ -118,7 +118,7 @@ describe('Login', () => {
       cy.get('button').click();
     });
 
-    // Check toast message (ToDo?)
+    // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
 
     // Check if redirect works
@@ -212,7 +212,7 @@ describe('Login', () => {
     }).as('loginRequest');
 
     // Visit page that can only be visited by logged in users
-    cy.visit('settings'); //ToDo think about changing
+    cy.visit('settings');
 
     // Check redirect to the login page
     cy.url().should('contain', '/login?redirect=/settings');
@@ -237,14 +237,14 @@ describe('Login', () => {
       cy.get('button').click();
     });
 
-    // Check toast message (ToDo?)
+    // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
 
     // Check if redirect works
     cy.url().should('contain', 'settings').and('not.contain', 'login');
   });
 
-  //ToDo ??? errors with other login types, all errors in 1 test case???
+  //ToDo all errors in 1 test case???
   it('unprocessable entity error gets displayed for the corresponding fields', () => {
     // Intercept settings request to only show local login tab
     cy.intercept('GET', 'api/v1/settings', {
@@ -275,9 +275,7 @@ describe('Login', () => {
     });
 
     // Check if error gets displayed
-    //ToDo
-    cy.get('.p-inline-message').should('contain', 'Password or Email wrong!');
-    //cy.should('contain', 'Password or Email wrong!'); //ToDo enough???
+    cy.contains('Password or Email wrong!');
   });
 
   it('error for to many login requests gets displayed', () => {
@@ -310,9 +308,7 @@ describe('Login', () => {
     });
 
     // Check if error gets displayed
-    //ToDo change??
-    cy.get('.p-inline-message').should('contain', 'Too many logins. Please try again later!');
-    //cy.contains('Too many logins. Please try again later!'); //ToDo enough???
+    cy.contains('Too many logins. Please try again later!');
   });
 
   it('other api errors', ()=>{
@@ -404,7 +400,7 @@ describe('Login', () => {
     });
 
     // Visit page that can only be visited by logged in users
-    cy.visit('settings'); //ToDo think about changing
+    cy.visit('settings');
 
     // Check redirect to the login page
     cy.url().should('contain', '/login?redirect=/settings');
@@ -414,4 +410,6 @@ describe('Login', () => {
     });
   });
 
-})
+  //ToDo external login with urls (ShibbolethController)
+
+});
