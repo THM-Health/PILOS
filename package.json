@@ -10,6 +10,7 @@
         "test:watch": "vitest watch",
         "test:ui": "vitest --ui",
         "cover": "vitest run --coverage",
+        "docs:install": "cd docs && npm install",
         "docs:dev": "cd docs && npm run start -- --host 0.0.0.0"
     },
     "devDependencies": {
