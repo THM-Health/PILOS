@@ -17,14 +17,12 @@ return new class extends Migration
             $table->id();
             $table->string('firstname');
             $table->string('lastname');
-            $table->string('username')->nullable();
+            $table->string('external_id')->nullable();
             $table->string('email');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('initial_password_set')->default(false);
-            $table->string('authenticator')->default('users');
-            $table->string('guid')->unique()->nullable();
-            $table->string('domain')->nullable();
+            $table->string('authenticator')->default('local');
             $table->string('locale')->nullable();
             $table->string('timezone')->default('UTC');
             $table->string('image')->nullable();
@@ -32,7 +30,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
-            $table->unique(['email', 'authenticator']);
+            $table->unique(['email', 'authenticator', 'external_id']);
         });
     }
 

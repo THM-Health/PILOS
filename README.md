@@ -23,7 +23,7 @@ The interface is similar to another open-source project [Greenlight](https://git
 During the online semester 2020 many features araised that could not be solved or were hard to implement into Greenlight.
 The team behind Greenlight did an amazing job, and we want to thank for their hard work!
 
-✅/❌ [Comparison Greenlight and PILOS](https://github.com/THM-Health/PILOS/wiki/Comparison-Greenlight-and-PILOS)
+✅/❌ [Comparison Greenlight and PILOS](https://thm-health.github.io/PILOS/docs/administration/greenlight)
 
 However, due to the underlying ruby-on-rails software architecture and the small amount of rails software-packages
 we decided to build a new system with another architecture.
@@ -76,13 +76,13 @@ PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework
 
 A BigBlueButton server is necessary to use this application. See how to set up a BigBlueButton server [here](https://docs.bigbluebutton.org/).
 
-For information on installing PILOS have a look at our [documentation](docs/INSTALL.md).
+For information on installing PILOS have a look at our [documentation](https://thm-health.github.io/PILOS/docs/administration/getting-started).
 
-## Upgrade from PILOS v1
-If you have proviously used PILOS v1, follow our [upgrade instructions](docs/UPGRADE.md) .
+## Upgrade to PILOS v4
+If you have proviously used PILOS v2/v3, follow our [upgrade instructions](https://thm-health.github.io/PILOS/docs/administration/upgrade) .
 
 ## Migrate from Greenlight 2
-If you have proviously used Greenlight 2, follow our [migration guide](docs/MIGRATE_GREENLIGHT.md).
+If you have proviously used Greenlight 2, follow our [migration guide](https://thm-health.github.io/PILOS/docs/administration/advanced/migrate-greenlight).
 
 ## Stacks
 
@@ -97,7 +97,7 @@ A almost full list of libraries and other software components can be found [here
 
 ## Contributing
 
-Please check our contribution [guidelines](CONTRIBUTING.md).
+Please check our [development documentation](https://thm-health.github.io/PILOS/docs/development/intro).
 
 ## Localization
 

@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\TimePeriod;
 use App\Models\Recording;
+use App\Settings\RecordingSettings;
 use Illuminate\Console\Command;
 use Log;
 
@@ -29,11 +31,13 @@ class CleanupRecordingsCommand extends Command
      */
     public function handle()
     {
+        $retentionPeriod = app(RecordingSettings::class)->recording_retention_period;
+
         // Remove all recordings older than the retention period
-        if (setting('recording.retention_period') != -1) {
-            $deleteDay = now()->subDays(setting('recording.retention_period'))->toDateString();
-            Log::info('Removing recordings data older than '.$deleteDay);
-            Recording::where('start', '<', $deleteDay)->get()->each(function ($recording) {
+        if ($retentionPeriod != TimePeriod::UNLIMITED) {
+            $day = now()->subDays($retentionPeriod->value)->toDateString();
+            Log::info('Removing recordings data older than '.$day);
+            Recording::where('start', '<', $day)->get()->each(function ($recording) {
                 $recording->delete();
             });
         }

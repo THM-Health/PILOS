@@ -1,112 +1,111 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Default Settings Store
-    |--------------------------------------------------------------------------
-    |
-    | This option controls the default settings store that gets used while
-    | using this settings library.
-    |
-    | Supported: "json", "database"
-    |
-    */
-    'store' => 'database',
 
-    /*
-    |--------------------------------------------------------------------------
-    | JSON Store
-    |--------------------------------------------------------------------------
-    |
-    | If the store is set to "json", settings are stored in the defined
-    | file path in JSON format. Use full path to file.
-    |
-    */
-    'path' => storage_path().'/settings.json',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Database Store
-    |--------------------------------------------------------------------------
-    |
-    | The settings are stored in the defined file path in JSON format.
-    | Use full path to JSON file.
-    |
-    */
-    // If set to null, the default connection will be used.
-    'connection' => null,
-    // Name of the table used.
-    'table' => 'settings',
-    // If you want to use custom column names in database store you could
-    // set them in this configuration
-    'keyColumn' => 'key',
-    'valueColumn' => 'value',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache settings
-    |--------------------------------------------------------------------------
-    |
-    | If you want all setting calls to go through Laravel's cache system.
-    |
-    */
-    'enableCache' => true,
-    // Whether to reset the cache when changing a setting.
-    'forgetCacheByWrite' => true,
-    // TTL in seconds.
-    'cacheTtl' => 15,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default Settings
-    |--------------------------------------------------------------------------
-    |
-    | Define all default settings that will be used before any settings are set,
-    | this avoids all settings being set to false to begin with and avoids
-    | hardcoding the same defaults in all 'Settings::get()' calls
-    |
-    */
     'defaults' => [
-        'name' => env('APP_NAME', 'PILOS'),
-        'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
-        'favicon' => env('DEFAULT_FAVICON', '/images/favicon.ico'),
-        'room_limit' => (int) env('DEFAULT_ROOM_LIMIT', -1),
-        //@deprecate OWN_ROOMS_PAGINATION_PAGE_SIZE
-        'room_pagination_page_size' => (int) env('ROOM_PAGINATION_PAGE_SIZE', env('OWN_ROOMS_PAGINATION_PAGE_SIZE', 9)),
-        'pagination_page_size' => (int) env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
-        'statistics' => [
-            'servers' => [
-                'enabled' => env('STATISTICS_SERVERS_ENABLED', false),
-                'retention_period' => (int) env('STATISTICS_SERVERS_RETENTION_PERIOD', 30),
-            ],
-            'meetings' => [
-                'enabled' => env('STATISTICS_MEETINGS_ENABLED', false),
-                'retention_period' => (int) env('STATISTICS_MEETINGS_RETENTION_PERIOD', 30),
-            ],
-        ],
-        'attendance' => [
-            'enabled' => env('ATTENDANCE_ENABLED', false),
-            'retention_period' => (int) env('ATTENDANCE_RETENTION_PERIOD', 14),
-        ],
-        'banner' => [
-            'enabled' => false,
-        ],
-        //@deprecate PASSWORD_SELF_RESET_ENABLED
-        'password_change_allowed' => env('PASSWORD_CHANGE_ALLOWED', env('PASSWORD_SELF_RESET_ENABLED', true)),
-        'default_timezone' => env('DEFAULT_TIMEZONE', 'UTC'),
-        'help_url' => env('HELP_URL'),
-        'legal_notice_url' => env('LEGAL_NOTICE_URL'),
-        'privacy_policy_url' => env('PRIVACY_POLICY_URL'),
-        'room_token_expiration' => (int) env('ROOM_TOKEN_EXPIRATION', -1),
-        'recording' => [
-            'retention_period' => env('RECORDING_RETENTION_PERIOD', -1),
-        ],
-        'room_auto_delete' => [
-            'enabled' => env('ROOM_AUTO_DELETE_ENABLED', false),
-            'inactive_period' => (int) env('ROOM_AUTO_DELETE_INACTIVE_PERIOD', 365),
-            'never_used_period' => (int) env('ROOM_AUTO_DELETE_NEVER_USED_PERIOD', 90),
-            'deadline_period' => (int) env('ROOM_AUTO_DELETE_DEADLINE_PERIOD', 14),
+        'general' => [
+            'name' => env('APP_NAME', 'PILOS'),
+            'help_url' => env('DEFAULT_HELP_URL'),
+            'legal_notice_url' => env('DEFAULT_LEGAL_NOTICE_URL'),
+            'privacy_policy_url' => env('DEFAULT_PRIVACY_POLICY_URL'),
+            'favicon' => env('DEFAULT_FAVICON', '/images/favicon.ico'),
+            'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
+            'default_timezone' => env('DEFAULT_TIMEZONE', 'UTC'),
         ],
     ],
+
+    /*
+     * Each settings class used in your application must be registered, you can
+     * put them (manually) here.
+     */
+    'settings' => [
+        \App\Settings\GeneralSettings::class,
+        \App\Settings\BannerSettings::class,
+        \App\Settings\RoomSettings::class,
+        \App\Settings\UserSettings::class,
+        \App\Settings\RecordingSettings::class,
+        \App\Settings\BigBlueButtonSettings::class,
+    ],
+
+    /*
+     * The path where the settings classes will be created.
+     */
+    'setting_class_path' => app_path('Settings'),
+
+    /*
+     * In these directories settings migrations will be stored and ran when migrating. A settings
+     * migration created via the make:settings-migration command will be stored in the first path or
+     * a custom defined path when running the command.
+     */
+    'migrations_paths' => [
+        database_path('settings'),
+    ],
+
+    /*
+     * When no repository was set for a settings class the following repository
+     * will be used for loading and saving settings.
+     */
+    'default_repository' => 'database',
+
+    /*
+     * Settings will be stored and loaded from these repositories.
+     */
+    'repositories' => [
+        'database' => [
+            'type' => Spatie\LaravelSettings\SettingsRepositories\DatabaseSettingsRepository::class,
+            'model' => null,
+            'table' => null,
+            'connection' => null,
+        ],
+        'redis' => [
+            'type' => Spatie\LaravelSettings\SettingsRepositories\RedisSettingsRepository::class,
+            'connection' => null,
+            'prefix' => null,
+        ],
+    ],
+
+    /*
+     * The encoder and decoder will determine how settings are stored and
+     * retrieved in the database. By default, `json_encode` and `json_decode`
+     * are used.
+     */
+    'encoder' => null,
+    'decoder' => null,
+
+    /*
+     * The contents of settings classes can be cached through your application,
+     * settings will be stored within a provided Laravel store and can have an
+     * additional prefix.
+     */
+    'cache' => [
+        'enabled' => env('SETTINGS_CACHE_ENABLED', false),
+        'store' => null,
+        'prefix' => null,
+        'ttl' => null,
+    ],
+
+    /*
+     * These global casts will be automatically used whenever a property within
+     * your settings class isn't a default PHP type.
+     */
+    'global_casts' => [
+        DateTimeInterface::class => Spatie\LaravelSettings\SettingsCasts\DateTimeInterfaceCast::class,
+        DateTimeZone::class => Spatie\LaravelSettings\SettingsCasts\DateTimeZoneCast::class,
+        //        Spatie\DataTransferObject\DataTransferObject::class => Spatie\LaravelSettings\SettingsCasts\DtoCast::class,
+        //        Spatie\LaravelData\Data::class => Spatie\LaravelSettings\SettingsCasts\DataCast::class,
+    ],
+
+    /*
+     * The package will look for settings in these paths and automatically
+     * register them.
+     */
+    'auto_discover_settings' => [
+        app_path('Settings'),
+    ],
+
+    /*
+     * Automatically discovered settings classes can be cached, so they don't
+     * need to be searched each time the application boots up.
+     */
+    'discovered_settings_cache_path' => base_path('bootstrap/cache'),
 ];

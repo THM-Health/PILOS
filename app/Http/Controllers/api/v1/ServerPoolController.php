@@ -8,6 +8,7 @@ use App\Http\Requests\ServerPoolRequest;
 use App\Http\Resources\ServerPool as ServerPoolResource;
 use App\Models\Server;
 use App\Models\ServerPool;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -29,14 +30,19 @@ class ServerPoolController extends Controller
         $additionalMeta = [];
         $resource = ServerPool::withCount('servers');
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'servers_count' => 'servers_count',
+            'name' => 'LOWER(name)',
+            default => 'id',
+        };
 
-            if (in_array($by, ['id', 'name', 'servers_count']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
-        }
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
@@ -45,7 +51,7 @@ class ServerPoolController extends Controller
             $resource = $resource->withName($request->query('name'));
         }
 
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return ServerPoolResource::collection($resource)->additional($additionalMeta);
     }

@@ -42,18 +42,17 @@ class ServerTest extends TestCase
     public function testIndex()
     {
         $page_size = 5;
-        setting([
-            'pagination_page_size' => $page_size,
-        ]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         config([
-            'bigbluebutton.server_healthy_threshold' => 3,
-            'bigbluebutton.server_unhealthy_threshold' => 3,
+            'bigbluebutton.server_online_threshold' => 3,
+            'bigbluebutton.server_offline_threshold' => 3,
         ]);
 
         $servers = Server::factory()->count(6)->create(['description' => 'test', 'version' => '2.4.5']);
         $serverOnline = Server::factory()->create(['name' => 'serverOnline', 'version' => '2.4.5']);
-        $serverOffline = Server::factory()->create(['name' => 'serverOffline', 'version' => '2.4.5', 'error_count' => config('bigbluebutton.server_unhealthy_threshold'), 'recover_count' => 0]);
+        $serverOffline = Server::factory()->create(['name' => 'serverOffline', 'version' => '2.4.5', 'error_count' => config('bigbluebutton.server_offline_threshold'), 'recover_count' => 0]);
         $serverUnhealthy = Server::factory()->create(['name' => 'serverUnhealthy', 'version' => '2.4.5', 'error_count' => 1, 'recover_count' => 0]);
         $serverDisabled = Server::factory()->create(['name' => 'serverDisabled', 'status' => ServerStatus::DISABLED, 'version' => null]);
         $serverDraining = Server::factory()->create(['name' => 'serverDraining', 'status' => ServerStatus::DRAINING, 'version' => null]);
@@ -159,22 +158,6 @@ class ServerTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => Server::orderByDesc('name')->first()->id])
             ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
-
-        // Sorting version asc
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=version&sort_direction=asc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data');
-        $this->assertNull($response->json('data.0.version'));
-        $this->assertNull($response->json('data.1.version'));
-        $this->assertEquals('2.4.4', $response->json('data.2.version'));
-        $this->assertEquals('2.4.5', $response->json('data.3.version'));
-
-        // Sorting version desc
-        $response = $this->getJson(route('api.v1.servers.index').'?sort_by=version&sort_direction=desc')
-            ->assertSuccessful()
-            ->assertJsonCount($page_size, 'data');
-        $this->assertEquals('2.4.6', $response->json('data.0.version'));
-        $this->assertEquals('2.4.5', $response->json('data.1.version'));
 
         // Check server health
         $response = $this->getJson(route('api.v1.servers.index').'?sort_by=name&sort_direction=asc&name=server')

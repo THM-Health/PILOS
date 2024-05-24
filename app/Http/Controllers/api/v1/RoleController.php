@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\Role as RoleResource;
 use App\Models\Role;
+use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,14 +33,19 @@ class RoleController extends Controller
         $additionalMeta = [];
         $resource = Role::query();
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'name' => 'LOWER(name)',
+            default => 'id',
+        };
 
-            if (in_array($by, ['id', 'name', 'default']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
-        }
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
+
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
@@ -48,7 +54,7 @@ class RoleController extends Controller
             $resource = $resource->withName($request->query('name'));
         }
 
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return RoleResource::collection($resource)->additional($additionalMeta);
     }

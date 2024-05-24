@@ -13,8 +13,22 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432
+
       mariadb:
-        image: mariadb:10
+        image: mariadb:11
         ports:
           - 3306
         env:
@@ -22,7 +36,7 @@ jobs:
           MYSQL_PASSWORD: password
           MYSQL_DATABASE: test
           MYSQL_ROOT_PASSWORD: password
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=2s --health-retries=3
 
     strategy:
       fail-fast: false
@@ -38,6 +52,13 @@ jobs:
         PORT: ${{ job.services.mariadb.ports[3306] }}
       run: |
         while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+          sleep 1
+        done
+    - name: Verify Postgres connection
+      env:
+        PORT: ${{ job.services.postgres.ports[5432] }}
+      run: |
+        while ! pg_isready -h"127.0.0.1" -p"$PORT" > /dev/null 2> /dev/null; do
           sleep 1
         done
     - name: Install pipe viewer tool
@@ -73,6 +94,7 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: Migrate Database
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
@@ -83,6 +105,7 @@ jobs:
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
@@ -92,6 +115,7 @@ jobs:
     - name: Execute tests (Unit, Feature and Integration tests) via PHPUnit
       if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
@@ -99,6 +123,17 @@ jobs:
         LOG_CHANNEL: stack
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
+
+    - name: Execute tests (Unit and Feature tests) via PHPUnit using Postgres
+      env:
+        DB_CONNECTION: pgsql
+        DB_HOST: 127.0.0.1
+        DB_PORT: ${{ job.services.postgres.ports[5432] }}
+        DB_DATABASE: test
+        DB_USERNAME: user
+        DB_PASSWORD: password
+        LOG_CHANNEL: stack
+      run: php artisan test --parallel --testsuite=Unit,Feature
     - name: Upload coverage
       uses: codecov/codecov-action@v4
       with:

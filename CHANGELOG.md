@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to drain a server ([#911])
 - Show server connection status in server list ([#911])
 - End detached meetings after server failure ([#911])
-- Config options for server health `BBB_SERVER_HEALTHY_THRESHOLD` and `BBB_SERVER_UNHEALTHY_THRESHOLD` ([#911])
+- Config options for server health `BBB_SERVER_ONLINE_THRESHOLD` and `BBB_SERVER_OFFLINE_THRESHOLD` ([#911], [#1076])
 - Config option for server load calculation `BBB_LOAD_MIN_USER_COUNT` and `BBB_LOAD_MIN_USER_INTERVAL` ([#956])
 - Plugin to customize the server load calculation ([#956])
 - Save selected room tab in url to preserve selection on reload ([#977])
@@ -37,9 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search and filter options to list of room files ([#1006])
 - Search and filter options to list of personalized room links ([#1007])
 - Recording management ([#31], [#896]) 
+- Content-Security-Policy ([#315],[#1090])
 
 ### Changed
-- Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
 - Refactor user interface for room search and home page ([#372], [#373])
 - Refactor user interface room details ([#681], [#724])
 - **Breaking:** Split container into separate containers for the application, cronjobs and queue workers ([#617])
@@ -55,14 +55,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the room members list ([#1005])
 - Layout of the room files list ([#1006])
 - Layout of the personalized room links list ([#1007])
+- Bumped docker compose mariadb version to 11 ([#1080])
+- **Breaking:** Global application settings storage ([#958], [#989])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
+- Various postgres incompatibility issues ([#1078], [#1079])
 
 ### Removed
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
 - Global attendance logging setting ([#905])
+- Environment variables for room history chart colors, room type colors and banner colors; replaced by using the theme colors ([#1071])
 
 ## [v3.0.3] - 2024-05-02
 ### Fixed
@@ -89,6 +93,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 
 [#31]: https://github.com/THM-Health/PILOS/issues/31
 [#75]: https://github.com/THM-Health/PILOS/issues/75
+[#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
 [#532]: https://github.com/THM-Health/PILOS/issues/532
@@ -112,12 +117,20 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#967]: https://github.com/THM-Health/PILOS/pull/967
 [#968]: https://github.com/THM-Health/PILOS/pull/968
 [#977]: https://github.com/THM-Health/PILOS/pull/977
+[#985]: https://github.com/THM-Health/PILOS/issues/985
+[#989]: https://github.com/THM-Health/PILOS/pull/989
 [#1004]: https://github.com/THM-Health/PILOS/pull/1004
 [#1005]: https://github.com/THM-Health/PILOS/pull/1005
 [#1006]: https://github.com/THM-Health/PILOS/pull/1006
 [#1007]: https://github.com/THM-Health/PILOS/pull/1007
 [#1045]: https://github.com/THM-Health/PILOS/issues/1045
 [#1059]: https://github.com/THM-Health/PILOS/pull/1059
+[#1071]: https://github.com/THM-Health/PILOS/issues/1071
+[#1076]: https://github.com/THM-Health/PILOS/issues/1076
+[#1078]: https://github.com/THM-Health/PILOS/issues/1078
+[#1079]: https://github.com/THM-Health/PILOS/pull/1079
+[#1080]: https://github.com/THM-Health/PILOS/pull/1080
+[#1090]: https://github.com/THM-Health/PILOS/pull/1090
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

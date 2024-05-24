@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Config;
 use DB;
 use Hash;
@@ -148,7 +149,7 @@ class ImportGreenlight2Command extends Command
                     $dbUser->lastname = '';
                     $dbUser->password = $user->password_digest;
                     $dbUser->locale = config('app.locale');
-                    $dbUser->timezone = setting('default_timezone');
+                    $dbUser->timezone = app(GeneralSettings::class)->default_timezone;
                     $dbUser->save();
 
                     $dbUser->roles()->attach($defaultRole);
@@ -180,7 +181,7 @@ class ImportGreenlight2Command extends Command
                     $dbUser->lastname = '';
                     $dbUser->password = Hash::make(Str::random());
                     $dbUser->locale = config('app.locale');
-                    $dbUser->timezone = setting('default_timezone');
+                    $dbUser->timezone = app(GeneralSettings::class)->default_timezone;
                     $dbUser->save();
 
                     // user was successfully imported, link greenlight user id to id of new user
@@ -208,7 +209,7 @@ class ImportGreenlight2Command extends Command
                     $dbUser->lastname = '';
                     $dbUser->password = Hash::make(Str::random());
                     $dbUser->locale = config('app.locale');
-                    $dbUser->timezone = setting('default_timezone');
+                    $dbUser->timezone = app(GeneralSettings::class)->default_timezone;
                     $dbUser->save();
 
                     // user was successfully imported, link greenlight user id to id of new user

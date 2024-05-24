@@ -9,6 +9,7 @@ use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\Room;
 use App\Models\User;
+use App\Settings\BigBlueButtonSettings;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
 use BigBlueButton\Enum\Feature;
@@ -96,8 +97,8 @@ class MeetingService
             $meetingParams->addPresentation((new RoomFileService($file))->url(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
-        if (empty($meetingParams->getPresentations()) && ! empty(setting('default_presentation'))) {
-            $meetingParams->addPresentation(setting('default_presentation'));
+        if (empty($meetingParams->getPresentations()) && app(BigBlueButtonSettings::class)->default_presentation) {
+            $meetingParams->addPresentation(app(BigBlueButtonSettings::class)->default_presentation);
         }
 
         // Set welcome message if expert mode is activated
@@ -114,8 +115,8 @@ class MeetingService
         }
 
         // if a logo is defined, set logo
-        if (setting()->has('bbb_logo')) {
-            $meetingParams->setLogo(setting('bbb_logo'));
+        if (app(BigBlueButtonSettings::class)->logo) {
+            $meetingParams->setLogo(app(BigBlueButtonSettings::class)->logo);
         }
 
         // Try to start meeting
@@ -361,8 +362,8 @@ class MeetingService
         $joinMeetingParams->addUserData('bbb_record_video', $request->record_video);
 
         // If a custom style file is set, pass url to bbb html5 client
-        if (setting()->has('bbb_style')) {
-            $joinMeetingParams->addUserData('bbb_custom_style_url', setting('bbb_style'));
+        if (app(BigBlueButtonSettings::class)->style) {
+            $joinMeetingParams->addUserData('bbb_custom_style_url', app(BigBlueButtonSettings::class)->style);
         }
 
         return $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);

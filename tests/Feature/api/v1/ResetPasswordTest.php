@@ -27,7 +27,8 @@ class ResetPasswordTest extends TestCase
 
     public function testResetPassword()
     {
-        setting(['password_change_allowed' => true]);
+        $this->userSettings->password_change_allowed = true;
+        $this->userSettings->save();
         $user = User::factory()->create();
         $newUser = User::factory()->create([
             'initial_password_set' => true,
@@ -158,10 +159,12 @@ class ResetPasswordTest extends TestCase
         $user = User::factory()->create();
 
         // Check if the route is disabled when the password self reset is disabled
-        setting(['password_change_allowed' => false]);
+        $this->userSettings->password_change_allowed = false;
+        $this->userSettings->save();
         $this->postJson(route('api.v1.password.email'), ['email' => $user->email])
             ->assertNotFound();
-        setting(['password_change_allowed' => true]);
+        $this->userSettings->password_change_allowed = true;
+        $this->userSettings->save();
 
         // Check if the route is disabled when the local provider is disabled
         config([

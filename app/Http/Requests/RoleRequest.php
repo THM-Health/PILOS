@@ -16,14 +16,14 @@ class RoleRequest extends FormRequest
     {
         $rules = [
             'name' => ['required', 'string', 'max:255', Rule::unique('roles', 'name')],
-            'room_limit' => 'nullable|int|min:-1',
-            'permissions' => 'present|array',
-            'permissions.*' => 'distinct|exists:App\Models\Permission,id',
+            'room_limit' => ['nullable', 'integer', 'min:-1'],
+            'permissions' => ['present', 'array'],
+            'permissions.*' => ['distinct', 'integer', 'exists:App\Models\Permission,id'],
         ];
 
         if ($this->role) {
             $rules['name'] = ['required', 'string', 'max:255', Rule::unique('roles', 'name')->ignore($this->role->id)];
-            $rules['updated_at'] = 'required|date';
+            $rules['updated_at'] = ['required', 'date'];
         }
 
         return $rules;

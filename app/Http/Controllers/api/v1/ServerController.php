@@ -10,6 +10,7 @@ use App\Http\Resources\Server as ServerResource;
 use App\Models\Server;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\ServerService;
+use App\Settings\GeneralSettings;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,14 +44,23 @@ class ServerController extends Controller
         $additionalMeta = [];
         $resource = Server::query();
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'participant_count' => 'participant_count',
+            'video_count' => 'video_count',
+            'meeting_count' => 'meeting_count',
+            'status' => 'status',
+            'version' => 'version',
+            'name' => 'LOWER(name)',
+            default => 'id',
+        };
 
-            if (in_array($by, ['id', 'name', 'participant_count', 'video_count', 'meeting_count', 'status', 'version']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
-        }
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before search
         $additionalMeta['meta']['total_no_filter'] = $resource->count();
@@ -59,7 +69,7 @@ class ServerController extends Controller
             $resource = $resource->withName($request->query('name'));
         }
 
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
         return ServerResource::collection($resource)->additional($additionalMeta);
     }
@@ -89,7 +99,7 @@ class ServerController extends Controller
         $server->status = $request->status;
 
         $server->error_count = 0;
-        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+        $server->recover_count = config('bigbluebutton.server_online_threshold');
 
         // Check if server is online/offline and update usage data
         $serverService = new ServerService($server);
@@ -116,7 +126,7 @@ class ServerController extends Controller
         $server->status = $request->status;
 
         $server->error_count = 0;
-        $server->recover_count = config('bigbluebutton.server_healthy_threshold');
+        $server->recover_count = config('bigbluebutton.server_online_threshold');
 
         // Check if server is online/offline and update usage data
         $serverService = new ServerService($server);

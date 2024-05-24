@@ -24,7 +24,6 @@ const { t } = useI18n();
 const roomDescription = ref(null);
 
 function confirmOpenLink (link) {
-  console.log('confirmOpenLink', link);
   confirm.require({
     message: t('rooms.description.external_link_warning.description', { link }),
     header: t('rooms.description.external_link_warning.title'),

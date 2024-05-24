@@ -8,8 +8,10 @@ use App\Http\Requests\UpdateRecordingRequest;
 use App\Http\Resources\RecordingResource;
 use App\Models\Recording;
 use App\Models\Room;
+use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Log;
 
 class RecordingController extends Controller
@@ -18,16 +20,16 @@ class RecordingController extends Controller
     {
         $additional = [];
 
-        // Sort by column, fallback/default is filename
+        // Sort by column, fallback/default is description
         $sortBy = match ($request->query('sort_by')) {
             'start' => 'start',
-            default => 'description',
+            default => 'LOWER(description)',
         };
 
         // Sort direction, fallback/default is asc
         $sortOrder = match ($request->query('sort_direction')) {
-            'desc' => 'desc',
-            default => 'asc',
+            'desc' => 'DESC',
+            default => 'ASC',
         };
 
         // Filter, default is no filter
@@ -40,7 +42,7 @@ class RecordingController extends Controller
         };
 
         // Get all recordings of the room
-        $resource = $room->recordings()->with('formats')->has('formats')->orderBy($sortBy, $sortOrder);
+        $resource = $room->recordings()->with('formats')->has('formats')->orderByRaw($sortBy.' '.$sortOrder);
 
         // If user is not allowed to view all recordings, only query recordings that should be visible to the user
         if (! \Gate::allows('viewAllRecordings', $room)) {
@@ -63,7 +65,7 @@ class RecordingController extends Controller
 
         // Apply search filter
         if ($request->has('search')) {
-            $resource = $resource->where('description', 'like', '%'.$request->query('search').'%');
+            $resource = $resource->where(DB::raw('LOWER(description)'), 'like', '%'.strtolower($request->query('search')).'%');
         }
 
         // Apply filter if set, first element is the column, second the value to query
@@ -71,7 +73,7 @@ class RecordingController extends Controller
             $resource = $resource->where($filter[0], $filter[1]);
         }
 
-        return RecordingResource::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
+        return RecordingResource::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)

@@ -20,3 +20,4 @@ cypress.config.js
 /ssl
 /storage
 /tests
+/docs

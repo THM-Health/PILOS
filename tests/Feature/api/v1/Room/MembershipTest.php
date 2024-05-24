@@ -284,7 +284,8 @@ class MembershipTest extends TestCase
     public function testMemberList()
     {
         $page_size = 5;
-        setting(['pagination_page_size' => $page_size]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $room = Room::factory()->create([
             'allow_guests' => true,

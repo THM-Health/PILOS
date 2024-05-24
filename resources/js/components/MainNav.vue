@@ -84,6 +84,7 @@ import UserAvatar from './UserAvatar.vue';
 import env from '../env.js';
 import { useLocaleStore } from '../stores/locale.js';
 import { useApi } from '../composables/useApi.js';
+import {useToast} from "../composables/useToast.js";
 
 const menuBreakpoint = 991;
 
@@ -102,6 +103,7 @@ const localeStore = useLocaleStore();
 const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
+const toast = useToast();
 
 const mainMenuItems = computed(() => {
   const items = [];
@@ -233,7 +235,7 @@ async function logout () {
     response = await authStore.logout();
   } catch (error) {
     loadingStore.setLoadingFinished();
-    this.toastError(t('auth.flash.logout_error'));
+    toast.error(t('auth.flash.logout_error'));
     return;
   }
 
@@ -250,7 +252,6 @@ async function logout () {
 const locales = computed(() => {
   const locales = settingsStore.getSetting('enabled_locales');
   if (!locales) {
-    console.log('no locales');
     return [];
   }
 
@@ -273,7 +274,7 @@ async function changeLocale (locale) {
     await localeStore.setLocale(locale);
   } catch (error) {
     if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-      this.toastError(error.response.data.errors.locale.join(' '));
+      toast.error(error.response.data.errors.locale.join(' '));
     } else {
       loadingStore.setOverlayLoadingFinished();
       api.error(error);

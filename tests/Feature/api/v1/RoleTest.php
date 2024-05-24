@@ -25,7 +25,8 @@ class RoleTest extends TestCase
     public function testIndex()
     {
         $page_size = 1;
-        setting(['pagination_page_size' => $page_size]);
+        $this->generalSettings->pagination_page_size = $page_size;
+        $this->generalSettings->save();
 
         $user = User::factory()->create();
         $roleA = Role::factory()->create(['name' => 'Administrator']);
@@ -61,7 +62,8 @@ class RoleTest extends TestCase
             ->assertJsonFragment(['name' => $roleB->name]);
 
         // Test search
-        setting(['pagination_page_size' => 10]);
+        $this->generalSettings->pagination_page_size = 10;
+        $this->generalSettings->save();
         $this->getJson(route('api.v1.roles.index').'?name=Admin')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')

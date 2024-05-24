@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Settings\RecordingSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class Meeting extends JsonResource
@@ -19,7 +20,7 @@ class Meeting extends JsonResource
             'start' => $this->start,
             'end' => $this->end,
             'attendance' => $this->attendees()->count() > 0,
-            'statistical' => setting('statistics.meetings.enabled') && $this->stats()->count() > 0,
+            'statistical' => app(RecordingSettings::class)->meeting_usage_enabled && $this->stats()->count() > 0,
         ];
     }
 }

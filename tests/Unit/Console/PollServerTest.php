@@ -24,8 +24,8 @@ class PollServerTest extends TestCase
     public function testServerOffline()
     {
         config([
-            'bigbluebutton.server_healthy_threshold' => 2,
-            'bigbluebutton.server_unhealthy_threshold' => 2,
+            'bigbluebutton.server_online_threshold' => 2,
+            'bigbluebutton.server_offline_threshold' => 2,
         ]);
 
         // Create new meeting with fake server
@@ -91,8 +91,9 @@ class PollServerTest extends TestCase
         $user101 = User::factory()->create(['id' => 101]);
 
         $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance' => true]);
-        setting(['statistics.servers.enabled' => true]);
-        setting(['statistics.meetings.enabled' => true]);
+        $this->recordingSettings->server_usage_enabled = true;
+        $this->recordingSettings->meeting_usage_enabled = true;
+        $this->recordingSettings->save();
 
         // Create fake BBB-Server
         $bbbfaker = new BigBlueButtonServerFaker($meeting->server->base_url, $meeting->server->secret);
@@ -141,23 +142,25 @@ class PollServerTest extends TestCase
         $this->assertEquals(1, $meeting->server->meeting_count);
 
         // check with disabled server stats
-        setting(['statistics.servers.enabled' => false]);
-        setting(['statistics.meetings.enabled' => true]);
+        $this->recordingSettings->server_usage_enabled = false;
+        $this->recordingSettings->meeting_usage_enabled = true;
+        $this->recordingSettings->save();
         $this->travelTo(Carbon::create(2023, 9, 28, 12, 01, 00));
         $this->artisan('server:poll');
         $this->assertEquals(1, $meeting->server->stats()->count());
         $this->assertEquals(2, $meeting->stats()->count());
 
         // check with disabled meeting stats
-        setting(['statistics.servers.enabled' => true]);
-        setting(['statistics.meetings.enabled' => false]);
+        $this->recordingSettings->server_usage_enabled = true;
+        $this->recordingSettings->meeting_usage_enabled = false;
+        $this->recordingSettings->save();
         $this->travelTo(Carbon::create(2023, 9, 28, 12, 02, 00));
         $this->artisan('server:poll');
         $this->assertEquals(2, $meeting->server->stats()->count());
         $this->assertEquals(2, $meeting->stats()->count());
 
         // Check attendance data
-        $attendees = $meeting->attendees->all();
+        $attendees = $meeting->attendees()->orderBy('id')->get();
 
         $this->assertEquals('Marie Walker', $attendees[0]->name);
         $this->assertEquals('2023-09-28 12:00:00', $attendees[0]->join->format('Y-m-d H:i:s'));

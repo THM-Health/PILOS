@@ -12,8 +12,10 @@ use App\Http\Requests\UpdateRoomMember;
 use App\Http\Resources\RoomUser;
 use App\Models\Room;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Log;
 
 class RoomMemberController extends Controller
@@ -34,14 +36,14 @@ class RoomMemberController extends Controller
 
         // Sort by column, fallback/default is firstname
         $sortBy = match ($request->query('sort_by')) {
-            'lastname' => 'lastname',
-            default => 'firstname',
+            'lastname' => 'LOWER(lastname)',
+            default => 'LOWER(firstname)',
         };
 
         // Sort direction, fallback/default is asc
         $sortOrder = match ($request->query('sort_direction')) {
-            'desc' => 'desc',
-            default => 'asc',
+            'desc' => 'DESC',
+            default => 'ASC',
         };
 
         // Filter by role, fallback/default is no filter
@@ -53,7 +55,7 @@ class RoomMemberController extends Controller
         };
 
         // Get all members of the room and sort them
-        $resource = $room->members()->orderBy($sortBy, $sortOrder);
+        $resource = $room->members()->orderByRaw($sortBy.' '.$sortOrder);
 
         // count all before applying filters
         $additional['meta']['total_no_filter'] = $resource->count();
@@ -63,9 +65,10 @@ class RoomMemberController extends Controller
             // Split search query into single words and search for them in firstname and lastname
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
+                $searchQuery = strtolower($searchQuery);
                 $resource = $resource->where(function ($query) use ($searchQuery) {
-                    $query->where('firstname', 'like', '%'.$searchQuery.'%')
-                        ->orWhere('lastname', 'like', '%'.$searchQuery.'%');
+                    $query->where(DB::raw('LOWER(firstname)'), 'like', '%'.$searchQuery.'%')
+                        ->orWhere(DB::raw('LOWER(lastname)'), 'like', '%'.$searchQuery.'%');
                 });
             }
         }
@@ -75,7 +78,7 @@ class RoomMemberController extends Controller
             $resource = $resource->where($filter[0], $filter[1]);
         }
 
-        return RoomUser::collection($resource->paginate(setting('pagination_page_size')))->additional($additional);
+        return RoomUser::collection($resource->paginate(app(GeneralSettings::class)->pagination_page_size))->additional($additional);
     }
 
     /**
@@ -102,7 +105,7 @@ class RoomMemberController extends Controller
     public function bulkImport(Room $room, BulkImportRequest $request)
     {
         foreach ($request->user_emails as $userEmail) {
-            $user = User::firstWhere('email', $userEmail);
+            $user = User::firstWhere(DB::raw('LOWER(email)'), strtolower($userEmail));
             $room->members()->attach($user, ['role' => $request->role]);
         }
 

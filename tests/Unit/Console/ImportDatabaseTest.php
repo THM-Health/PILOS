@@ -5,6 +5,7 @@ namespace Tests\Unit\Console;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -67,7 +68,10 @@ class ImportDatabaseTest extends TestCase
         $this->artisan('db:wipe');
 
         // Try to import valid sql file
-        $file = base_path('tests/Fixtures/validDatabase.sql');
+        $file = DB::connection()->getDriverName() === 'pgsql' ?
+            base_path('tests/Fixtures/validDatabase-postgres.sql') :
+            base_path('tests/Fixtures/validDatabase-mysql.sql');
+
         $this->artisan('db:import', ['file' => $file])
             ->expectsOutput('Importing database, this may take a while')
             ->expectsOutput('Import complete')
