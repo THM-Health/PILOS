@@ -1,4 +1,5 @@
-import {interceptIndefinitely} from "../../support/utils/interceptIndefinitely.js";
+import {interceptIndefinitely} from "../support/utils/interceptIndefinitely.js";
+import env from '../../../resources/js/env.js';
 
 describe('Login', () => {
 
@@ -42,6 +43,7 @@ describe('Login', () => {
       cy.get('button').should('contain', 'auth.login').click();
       // Check if button is disabled after being clicked and loading and send response
       cy.get('button').should('be.disabled').and('have.class', 'p-button-loading').then(()=>{
+        cy.wait('@cookieRequest');
         loginRequest.sendResponse();
       });
     });
@@ -118,6 +120,8 @@ describe('Login', () => {
       cy.get('button').click();
     });
 
+    cy.wait('@loginRequest');
+
     // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
 
@@ -159,9 +163,10 @@ describe('Login', () => {
       cy.intercept('GET', 'api/v1/currentUser', {fixture: 'exampleUser.json'});
       cy.interceptRoomIndexRequests();
 
-      cy.get('button').should('contain', 'auth.login').click();
+      cy.get('.p-button').should('contain', 'auth.login').click();
       // Check if button is disabled after being clicked and loading and send response
-      cy.get('button').should('be.disabled').and('have.class', 'p-button-loading').then(()=>{
+      cy.get('.p-button').should('be.disabled').and('have.class', 'p-button-loading').then(()=>{
+        cy.wait('@cookieRequest');
         loginRequest.sendResponse();
       });
     });
@@ -234,9 +239,9 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-local"]').within(()=>{
       cy.get('#local-email').type('john.doe@domain.tld');
       cy.get('#local-password').type('password');
-      cy.get('button').click();
+      cy.get('.p-button').click();
     });
-
+    cy.wait('@loginRequest');
     // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
 
@@ -244,7 +249,6 @@ describe('Login', () => {
     cy.url().should('contain', 'settings').and('not.contain', 'login');
   });
 
-  //ToDo all errors in 1 test case???
   it('unprocessable entity error gets displayed for the corresponding fields', () => {
     // Intercept settings request to only show local login tab
     cy.intercept('GET', 'api/v1/settings', {
@@ -257,7 +261,7 @@ describe('Login', () => {
 
     // Intercept login request
     cy.intercept('POST', 'api/v1/login/local',{
-      statusCode: 422, //ToDo env.HTTP_UNPROCESSABLE_ENTITY
+      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
       body: {
         errors: {
           email: ['Password or Email wrong!']
@@ -271,8 +275,10 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-local"]').within(()=>{
       cy.get('#local-email').type('john.doe@domain.tld');
       cy.get('#local-password').type('password');
-      cy.get('button').click();
+      cy.get('.p-button').click();
     });
+
+    cy.wait('@loginRequest');
 
     // Check if error gets displayed
     cy.contains('Password or Email wrong!');
@@ -290,7 +296,7 @@ describe('Login', () => {
 
     // Intercept login request
     cy.intercept('POST', 'api/v1/login/local',{
-      statusCode: 429, //ToDo env.HTTP_TOO_MANY_REQUESTS
+      statusCode: env.HTTP_TOO_MANY_REQUESTS,
       body: {
         errors: {
           email: ['Too many logins. Please try again later!']
@@ -304,8 +310,10 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-local"]').within(()=>{
       cy.get('#local-email').type('john.doe@domain.tld');
       cy.get('#local-password').type('password');
-      cy.get('button').click();
+      cy.get('.p-button').click();
     });
+
+    cy.wait('@loginRequest');
 
     // Check if error gets displayed
     cy.contains('Too many logins. Please try again later!');
@@ -332,19 +340,23 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-local"]').within(()=>{
       cy.get('#local-email').type('john.doe@domain.tld');
       cy.get('#local-password').type('password');
-      cy.get('button').click();
+      cy.get('.p-button').click();
     });
+
+    cy.wait('@loginRequest');
 
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.empty_message')
 
     // Intercept login request with different error
     cy.intercept('POST', 'api/v1/login/local',{
-      statusCode: 420,
+      statusCode: env.HTTP_GUESTS_ONLY,
     }).as('loginRequest');
 
     cy.get('[data-test="login-tab-local"]').within(()=>{
-      cy.get('button').click();
+      cy.get('.p-button').click();
     });
+
+    cy.wait('@loginRequest');
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.guests_only');
     cy.url().should('not.contain', '/login');
 
@@ -371,7 +383,7 @@ describe('Login', () => {
     cy.visit('/login');
 
     cy.get('[data-test="login-tab-external"]').within(()=>{
-      cy.get('a').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect');
+      cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect');
     });
   });
 
@@ -406,7 +418,7 @@ describe('Login', () => {
     cy.url().should('contain', '/login?redirect=/settings');
 
     cy.get('[data-test="login-tab-external"]').within(()=>{
-      cy.get('a').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect?redirect=%2Fsettings');
+      cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect?redirect=%2Fsettings');
     });
   });
 

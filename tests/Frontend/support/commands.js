@@ -34,3 +34,10 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
   cy.intercept('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'});
   cy.intercept('GET', 'api/v1/rooms*', {fixture: 'exampleRooms.json'});
 });
+
+Cypress.Commands.add('testVisitWithoutCurrentUser', (path) =>{
+  cy.intercept('GET', 'api/v1/currentUser', {});
+
+  cy.visit(path);
+  cy.url().should('contain', 'login?redirect=' + path);
+})

@@ -9,6 +9,7 @@ export function interceptIndefinitely(methode, requestMatcher, response, alias) 
     });
   });
 
+  // Set an alias for the intercepted request
   if(alias){
     intercept.as(alias);
   }

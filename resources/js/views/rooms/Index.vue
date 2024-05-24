@@ -45,6 +45,7 @@
         <div class="flex justify-content-start gap-2">
           <!--button to open filter menu on small devices-->
           <Button
+            data-test="filter-button"
             class="block md:hidden"
             :severity="toggleMobileMenu?'primary':'secondary'"
             @click="toggleMobileMenu=!toggleMobileMenu"
