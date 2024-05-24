@@ -128,6 +128,11 @@ return [
         'three_month' => '3 Months (90 Days)',
         'tile_description' => 'Controls system-wide settings such as logo, maintenance banner and page sizes.',
         'title' => 'Application',
+        'toast_lifetime' => [
+            'custom' => 'Custom',
+            'description' => 'Time in seconds that a notification is displayed',
+            'title' => 'Display duration of pop-up messages',
+        ],
         'two_weeks' => '2 Weeks (14 Days)',
         'two_years' => '2 Year (730 Days)',
         'user_settings' => 'User settings',
@@ -172,9 +177,9 @@ return [
     ],
     'room_types' => [
         'bbb_api' => [
-            'title' => 'BigBlueButton API',
             'create_parameters' => 'Additional Create API parameters',
             'create_parameters_description' => 'Specify as attribute-value pair (one per line, without spaces), e.g. webcamsOnlyForModerator=true',
+            'title' => 'BigBlueButton API',
         ],
         'color' => 'Color',
         'custom_color' => 'Custom color',

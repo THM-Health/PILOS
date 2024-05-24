@@ -161,6 +161,61 @@
           </div>
         </div>
 
+        <fieldset class="grid">
+          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.toast_lifetime.title')}}</legend>
+          <div class="col-12 md:col-8 flex flex-column gap-1">
+            <div class="flex flex-wrap gap-3">
+              <div class="flex align-items-center">
+                <RadioButton
+                  v-model="toastLifetimeMode"
+                  inputId="toast-lifetime-mode-unlimited"
+                  name="toast-lifetime-mode"
+                  value="unlimited"
+                  :disabled="disabled"
+                  @update:modelValue="toastLifetimeModeChanged"
+                  :pt="{
+                  input: {
+                     'aria-describedby':'toast-lifetime-custom-help'
+                  }
+                }"
+                />
+                <label for="toast-lifetime-mode-unlimited" class="ml-2">{{ $t('app.unlimited') }}</label>
+              </div>
+              <div class="flex align-items-center">
+                <RadioButton
+                  v-model="toastLifetimeMode"
+                  inputId="toast-lifetime-custom"
+                  name="toast-lifetime-mode"
+                  value="custom"
+                  :disabled="disabled"
+                  @update:modelValue="toastLifetimeModeChanged"
+                  :pt="{
+                  input: {
+                     'aria-describedby':'toast-lifetime-custom-help'
+                  }
+                }"
+                />
+                <label for="toast-lifetime-mode-custom" id="toast-lifetime-mode-custom-label" class="ml-2">{{ $t('settings.application.toast_lifetime.custom') }}</label>
+              </div>
+            </div>
+            <InputText
+              v-if="toastLifetimeMode === 'custom'"
+              class="mt-1"
+              id="toast-lifetime-custom"
+              v-model.number="settings.toast_lifetime"
+              min="1"
+              max="30"
+              type="number"
+              :invalid="formErrors.fieldInvalid('toast_lifetime')"
+              :disabled="disabled"
+              aria-labelledby="toast-lifetime-custom-label"
+              aria-describedby="toast-lifetime-custom-help"
+            />
+            <small id="toast-lifetime-custom-help">{{ $t('settings.application.toast_lifetime.description') }}</small>
+            <p class="p-error" v-html="formErrors.fieldError('toast_lifetime')"></p>
+          </div>
+        </fieldset>
+
         <div class="grid">
           <label id="default-timezone-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.default_timezone')}}</label>
           <div class="col-12 md:col-8 flex flex-column gap-1">
@@ -721,6 +776,7 @@ import { useColors } from '../../composables/useColors.js';
 import { useI18n } from 'vue-i18n';
 
 const roomLimitMode = ref('custom');
+const toastLifetimeMode = ref('custom');
 
 const uploadFaviconFile = ref(null);
 const uploadLogoFile = ref(null);
@@ -784,6 +840,7 @@ function getSettings () {
     .then(response => {
       settings.value = response.data.data;
       roomLimitMode.value = (settings.value.room_limit === -1 ? 'unlimited' : 'custom');
+      toastLifetimeMode.value = (settings.value.toast_lifetime === 0 ? 'unlimited' : 'custom');
     })
     .catch((error) => {
       api.error(error);
@@ -837,6 +894,7 @@ function updateSettings () {
 
   formData.append('name', settings.value.name);
   formData.append('room_limit', settings.value.room_limit);
+  formData.append('toast_lifetime', settings.value.toast_lifetime);
   formData.append('room_token_expiration', settings.value.room_token_expiration);
   formData.append('pagination_page_size', settings.value.pagination_page_size);
   formData.append('room_pagination_page_size', settings.value.room_pagination_page_size);
@@ -895,6 +953,7 @@ function updateSettings () {
       // update form input
       settings.value = response.data.data;
       roomLimitMode.value = (settings.value.room_limit === -1 ? 'unlimited' : 'custom');
+      toastLifetimeMode.value = (settings.value.toast_lifetime === 0 ? 'unlimited' : 'custom');
     })
     .catch((error) => {
       if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -932,6 +991,22 @@ function roomLimitModeChanged (value) {
       break;
     case 'custom':
       settings.value.room_limit = 0;
+      break;
+  }
+}
+
+/**
+ * Sets the toastLifetime on the model depending on the selected radio button.
+ *
+ * @param value Value of the radio button that was selected.
+ */
+function toastLifetimeModeChanged (value) {
+  switch (value) {
+    case 'unlimited':
+      settings.value.toast_lifetime = 0;
+      break;
+    case 'custom':
+      settings.value.toast_lifetime = 5;
       break;
   }
 }

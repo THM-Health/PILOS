@@ -22,6 +22,8 @@ class GeneralSettings extends Settings
 
     public string $default_timezone;
 
+    public int $toast_lifetime;
+
     public static function group(): string
     {
         return 'general';
