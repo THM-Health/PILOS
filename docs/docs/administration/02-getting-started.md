@@ -24,8 +24,8 @@ It is **recommended** to use the image with the latest major version e.g. `v1.9.
 Additionally, we provide images for the latest commit on the `master` and the release branches, e.g. `dev-v1`.
 
 ### Latest
-We **don't** recommend using the `latest` tag for production, as breaking changes can cause you some trouble.
-**Always** check the changelog before changing the major version!
+**Never** use the `latest` tag for production, as upgrades between major versions is not supported.
+**Always** check the changelog and upgrade documentation before changing the major version!
 
 ## Installing PILOS
 Create a directory for the data and config of PILOS
@@ -109,16 +109,15 @@ DB_PORT=5432
 ```
 
 ## Webserver
-PILOS has a build in nginx webserver. However, it is **highly** recommended to not expose the container port.
+PILOS has a build in nginx webserver. However, it is **highly** recommended to not expose the container port to the public.
 You will need to set up a reverse proxy that routes the traffic to this application (default: 127.0.0.1:5000)
-
 
 ### Nginx (Recommended)
 
 ```nginx
 location / {
   proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Host $host;
   proxy_set_header    X-Forwarded-Port  $server_port;
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
@@ -138,7 +137,7 @@ location / {
   limit_req_status 429;
 
   proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Host $host;
   proxy_set_header    X-Forwarded-Port  $server_port;
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
@@ -160,13 +159,47 @@ RequestHeader set X-Forwarded-Port "443"
 You may need to adjust the X-Forwarded-Proto and X-Forwarded-Port settings, depending on your environment.
 
 ### Trusted proxies
-You have to add your proxy to the list of trusted proxies in the `.env` file.
+By default, the application uses the requesting IP for logging and rate limiting.
+It also uses the requests host, port and protocol to generate URLs and links.
+
+By running a reverse proxy in front of the application, the requesting IP will be the IP of the reverse proxy.
+As the ssl termination is done on the reverse proxy, the application will also not know if the request was made via https or http and on which port.
+Therefore, reverse proxies need to forward this information in a header (e.g. `X-Forwarded-For`).
+PILOS will use the following headers if the request comes from a trusted proxy and use them instead of the requests IP address, host, port and protocol:
+- `X-Forwarded-For` (Real client IP)
+- `X-Forwarded-Host` (Public hostname of the application)
+- `X-Forwarded-Port` (Public port of the application)
+- `X-Forwarded-Proto` (Public protocol of the application)
+
+**Warning** Make sure all these headers are set by the reverse proxy, otherwise an attacker might be able to pass fake headers trough a trusted proxy to the application.
+
+To prevent attackers from sending fake headers, the application needs to know which proxies are trustworthy.
+
+#### Reverse proxy on the same host (Default)
+If your reverse proxy is running on the same host as your application you should not expose the application port to the public (default 127.0.0.1:5000).
+As the traffic is going through the reverse proxy via the docker bridge network to the container the requesting IP will be the IP of the reverse proxy inside the docker network.
+This local IP cannot be predicted and therefore the application needs to trust all proxies.
+This will allow the application to use the headers from the reverse proxy.
+
 ```shell
-# Trusted proxies for reverse proxy setups
-# You can use "*" to trust all proxies that connect directly to the server
-# or you can use a comma separated list of trusted proxies, also with support for CIDR notation e.g. "192.0.0.1,10.0.0.0/8"
-TRUSTED_PROXIES=
+TRUSTED_PROXIES=*
 ```
+
+#### Reverse proxy on a different host
+If your reverse proxy is on a different host in your local network, and you expose the application port, the requesting IP will be the IP of the reverse proxy.
+The application can then validate the IP address of the reverse proxy and trust it. This should prevent other users in you local network from spoofing the IP address by sending requests with a fake `X-Forwarded-For` header.
+
+You can specify the IP address of the reverse proxy or a subnet of trusted IP addresses:
+```shell
+TRUSTED_PROXIES=127.0.0.1,10.0.0.0/8
+```
+
+If you don't know the IP address of the reverse proxy you also can use the wildcard `*` to trust all proxies. **Warning:** Setting `TRUSTED_PROXIES=*` can pose a security risk, as it allows attackers to spoof their true IP address and other information.
+You therefore need to make sure only traffic from the reverse proxy can reach the application, e.g. by using a firewall.
+
+**Warning:** If your reverse proxy is on a different host and therefore the ssl termination is done on the reverse proxy, all traffic between the reverse proxy and the application is unencrypted.
+
+You can learn more on the topic in the [Laravel documentation](https://laravel.com/docs/10.x/requests#configuring-trusted-proxies) and [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
 
 ## Starting
 To start the application and database run:
