@@ -26,7 +26,7 @@ describe('General', () => {
     cy.wait('@logoutRequest');
 
     // Check if redirected to logout
-    cy.url().should('contain', '/logout').should('not.contain', 'rooms');
+    cy.url().should('contain', '/logout').should('not.contain', '/rooms');
     cy.contains('auth.logout_success');
   });
 
@@ -184,7 +184,7 @@ describe('General', () => {
     // Check that the locale request was made
     cy.wait('@localeRequest');
     // Check that the request for the new language was not send (language stays the same after error)
-    cy.get('@deRequestSpy').should('not.be.called'); //ToDo test if needs to be waited
+    cy.get('@deRequestSpy').should('not.be.called'); //ToDo test if needs to be waited for a set time
 
     //Check if error message is shown
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');

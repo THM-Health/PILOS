@@ -11,8 +11,7 @@
       "type": {
         "id": 2,
         "name": "Meeting",
-        "color": "#4a5c66",
-        "default": false
+        "color": "#4a5c66"
       },
       "is_favorite": false,
       "short_description": "Own room"
@@ -31,8 +30,7 @@
       "type": {
         "id": 2,
         "name": "Meeting",
-        "color": "#4a5c66",
-        "default": false
+        "color": "#4a5c66"
       },
       "is_favorite": false,
       "short_description": null
@@ -51,8 +49,7 @@
       "type": {
         "id": 2,
         "name": "Meeting",
-        "color": "#4a5c66",
-        "default": false
+        "color": "#4a5c66"
       },
       "is_favorite": false,
       "short_description": null

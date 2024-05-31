@@ -62,7 +62,7 @@ describe('Login', () => {
     // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
     // Check if redirect works
-    cy.url().should('contain', '/rooms').and('not.contain', 'login');
+    cy.url().should('contain', '/rooms').and('not.contain', '/login');
   });
 
   it('hide ldap login if disabled', () =>{
@@ -126,7 +126,7 @@ describe('Login', () => {
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
 
     // Check if redirect works
-    cy.url().should('contain', 'settings').and('not.contain', 'login');
+    cy.url().should('contain', '/settings').and('not.contain', '/login');
 
   });
 
@@ -185,7 +185,7 @@ describe('Login', () => {
     // Check toast message
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
     // Check if redirect works
-    cy.url().should('contain', '/rooms').and('not.contain', 'login');
+    cy.url().should('contain', '/rooms').and('not.contain', '/login');
   });
 
   it('hide local login if disabled', () =>{
@@ -201,7 +201,7 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-local"]').should('not.exist');
   });
 
-  it('local login with query set', () =>{
+  it('local login with redirect query set', () =>{
     // Intercept settings request to only show local login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
@@ -246,7 +246,7 @@ describe('Login', () => {
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login')
 
     // Check if redirect works
-    cy.url().should('contain', 'settings').and('not.contain', 'login');
+    cy.url().should('contain', '/settings').and('not.contain', '/login');
   });
 
   it('unprocessable entity error gets displayed for the corresponding fields', () => {
@@ -385,6 +385,16 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-external"]').within(()=>{
       cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect');
     });
+
+    // Intercept requests that will be needed to show the room index page (needed to check redirect)
+    cy.intercept('/api/v1/currentUser', {fixture: 'exampleUser.json'});
+    cy.interceptRoomIndexRequests();
+
+    // Visit redirect page after external login
+    cy.visit('/external_login');
+
+    cy.url().should('contain', '/rooms').and('not.contain', '/login');
+
   });
 
   it('hide shibboleth login if disabled', () =>{
@@ -401,7 +411,7 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-external"]').should('not.exist');
   });
 
-  it('shibboleth login with query set', () => {
+  it('shibboleth login with redirect query set', () => {
     // Intercept settings request to only show ldap login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
@@ -420,8 +430,42 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-external"]').within(()=>{
       cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr','href', '/auth/shibboleth/redirect?redirect=%2Fsettings');
     });
+
+    // Intercept user request (user that has the permission to show the settings page)
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        locale: "en",
+        permissions: ["settings.manage"],
+        model_name: "User",
+        room_limit: -1
+      }
+    });
+
+    // Visit redirect page after external login (redirect query is set)
+    cy.visit('/external_login?redirect=/settings');
+
+    // Check if redirect works
+    cy.url().should('contain', '/settings').and('not.contain', '/login');
   });
 
-  //ToDo external login with urls (ShibbolethController)
+  it('shibboleth login callback missing attributes', ()=>{
+    // Visit redirect page after external login with error (missing attributes)
+    cy.visit('/external_login?error=missing_attributes');
 
+    // Check if error gets displayed
+    cy.contains('auth.error.login_failed');
+    cy.contains('auth.error.missing_attributes');
+  });
+
+  it('shibboleth login callback duplicate session', ()=>{
+    // Visit redirect page after external login with error (duplicate session)
+    cy.visit('/external_login?error=shibboleth_session_duplicate_exception');
+
+    // Check if error gets displayed
+    cy.contains('auth.error.login_failed');
+    cy.contains('auth.error.shibboleth_session_duplicate_exception');
+  });
 });
