@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-column gap-2 w-full" style="height: 250px">
+  <div class="flex flex-column gap-2 w-full" style="height: 250px" data-test="room-type-details">
     <RoomTypeBadge :roomType="roomType" class="w-full text-base" />
 
     <div class="overflow-y-auto w-full">

@@ -35,6 +35,15 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
   cy.intercept('GET', 'api/v1/rooms*', {fixture: 'exampleRooms.json'}).as('roomRequest');
 });
 
+Cypress.Commands.add('interceptRoomViewRequests', () =>{
+  cy.intercept('GET', 'api/v1/settings', {
+    data: {
+      room_refresh_rate: 5
+    }
+  });
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', {fixture: 'exampleRoom.json'});
+})
+
 Cypress.Commands.add('testVisitWithoutCurrentUser', (path) =>{
   cy.intercept('GET', 'api/v1/currentUser', {});
 
