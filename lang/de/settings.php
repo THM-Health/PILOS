@@ -128,6 +128,11 @@ return [
         'three_month' => '3 Monate (90 Tage)',
         'tile_description' => 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
         'title' => 'Konfiguration',
+        'toast_lifetime' => [
+            'custom' => 'Benutzerdefiniert',
+            'description' => 'Zeit in Sekunden, für die eine Benachrichtigung angezeigt wird',
+            'title' => 'Anzeigedauer von Pop-up-Nachrichten',
+        ],
         'two_weeks' => '2 Wochen (14 Tage)',
         'two_years' => '2 Jahre (730 Tage)',
         'user_settings' => 'Benutzereinstellungen',
@@ -172,9 +177,9 @@ return [
     ],
     'room_types' => [
         'bbb_api' => [
-            'title' => 'BigBlueButton API',
             'create_parameters' => 'Zusätzliche Create-API-Parameter',
             'create_parameters_description' => 'Angabe als Attribut-Wert-Paar (eins pro Zeile, ohne Leerzeichen), z.B. webcamsOnlyForModerator=true',
+            'title' => 'BigBlueButton API',
         ],
         'color' => 'Farbe',
         'custom_color' => 'Eigene Farbe',

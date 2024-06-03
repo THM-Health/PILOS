@@ -115,6 +115,7 @@ class ApplicationController extends Controller
         $generalSettings->help_url = $request->input('help_url');
         $generalSettings->legal_notice_url = $request->input('legal_notice_url');
         $generalSettings->privacy_policy_url = $request->input('privacy_policy_url');
+        $generalSettings->toast_lifetime = $request->integer('toast_lifetime');
 
         $roomSettings->limit = $request->integer('room_limit');
         $roomSettings->pagination_page_size = $request->integer('room_pagination_page_size');
