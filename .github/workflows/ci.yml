@@ -202,7 +202,7 @@ jobs:
         run: cat .env
 
       - name: Generate key
-        run: docker run --rm -v $(pwd)/.env:/var/www/html/.env --entrypoint pilos-cli pilos:latest key:generate
+        run: docker run --rm -v ${{ github.workspace }}/.env:/var/www/html/.env --entrypoint pilos-cli pilos:latest key:generate
 
       - name: (Debug) Show .env
         run: cat .env
