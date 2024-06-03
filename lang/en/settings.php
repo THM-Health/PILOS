@@ -130,7 +130,7 @@ return [
         'title' => 'Application',
         'toast_lifetime' => [
             'custom' => 'Custom',
-            'description' => 'Time in seconds that a notification is displayed',
+            'description' => 'Time in seconds for which a notification is displayed',
             'title' => 'Display duration of pop-up messages',
         ],
         'two_weeks' => '2 Weeks (14 Days)',

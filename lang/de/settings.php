@@ -130,7 +130,7 @@ return [
         'title' => 'Konfiguration',
         'toast_lifetime' => [
             'custom' => 'Benutzerdefiniert',
-            'description' => 'Zeit in Sekunden, die eine Benachrichtigung angezeigt wird',
+            'description' => 'Zeit in Sekunden, für die eine Benachrichtigung angezeigt wird',
             'title' => 'Anzeigedauer von Pop-up-Nachrichten',
         ],
         'two_weeks' => '2 Wochen (14 Tage)',
