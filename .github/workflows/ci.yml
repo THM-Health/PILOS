@@ -195,6 +195,11 @@ jobs:
 
       - name: Copy .env
         run: docker run --rm pilos:latest cat ./.env.ci > .env
+      - name: Change permissions
+        run: chmod 777 .env
+
+      - name: (Debug) Show .env
+        run: cat .env
 
       - name: Generate key
         run: docker run --rm -v $(pwd)/.env:/var/www/html/.env --entrypoint pilos-cli pilos:latest key:generate
