@@ -203,7 +203,7 @@ jobs:
           --entrypoint /bin/bash \
           pilos:latest \
           chown :www-data .env
-          -c ""chown :www-data .env && pilos-cli key:generate"
+          -c "chown :www-data .env && pilos-cli key:generate"
 
       - name: (Debug) Show .env
         run: cat .env
