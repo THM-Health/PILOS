@@ -1,6 +1,7 @@
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
+  projectId: "w8t3fx",
   //ToDo find port that works (only necessary for component testing)
   port: 5178,
 
