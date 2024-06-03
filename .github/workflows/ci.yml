@@ -215,9 +215,25 @@ jobs:
         run: docker compose -f docker-compose.yml -f docker-compose-ci.yml up -d
 
       - name: Wait for the application to start
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'http://localhost'
+          responseCode: 200
+
+      - name: Get NPM Cache Directory
+        id: npm-cache
         run: |
-          while ! curl -s http://localhost; do
-            sleep 1
-          done
-      - name: Get page content
-        run: curl -s http://localhost
+          echo "::set-output name=dir::$(npm config get cache)"
+      - name: Get NPM Cache Keys
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node-
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run cypress
+        run: cypress run
+
