@@ -204,7 +204,7 @@ jobs:
           --mount type=bind,source=${{ github.workspace }}/.env,target=/var/www/html/.env \
           --entrypoint /bin/bash \
           pilos:latest \
-          -c "chown www-data:www-data .env && chmod 664 .env && ls -la && pilos-cli key:generate"
+          -c "chown www-data:www-data .env && pilos-cli key:generate"
 
       - name: (Debug) Show .env
         run: cat .env
