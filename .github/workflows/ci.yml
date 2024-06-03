@@ -192,8 +192,8 @@ jobs:
           context: .
           load: true
           tags: pilos:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          #cache-from: type=gha
+          #cache-to: type=gha,mode=max
 
       - name: Copy .env
         run: docker run --rm pilos:latest cat ./.env.ci > .env
