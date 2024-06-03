@@ -190,8 +190,8 @@ jobs:
         with:
           file: docker/app/Dockerfile
           context: .
+          load: true
           tags: pilos:latest
-          push: false
 
       - name: Copy .env
         run: docker run --rm pilos:latest cat ./.env.ci > .env
