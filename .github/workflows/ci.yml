@@ -211,6 +211,13 @@ jobs:
           sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
           cat .env
 
-
       - name: Run docker compose
-        run: docker compose up -d
+        run: docker compose -f docker-compose-ci.yml up -d
+
+      - name: Wait for the application to start
+        run: |
+          while ! curl -s http://localhost; do
+            sleep 1
+          done
+      - name: Get page content
+        run: curl -s http://localhost
