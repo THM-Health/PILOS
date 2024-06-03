@@ -52,7 +52,7 @@ class UpgradeDatabaseTest extends TestCase
         $this->artisan('migrate:fresh');
         $migrations_v4 = DB::table('migrations')->pluck('migration')->toArray();
 
-        // Check migration table after upgrade looks like a fresh v4 database
+        // Check the migration table after the upgrade to see if it looks like a new v4 database
         $this->assertEquals($migrations_v4, $migrations_upgrade);
     }
 
