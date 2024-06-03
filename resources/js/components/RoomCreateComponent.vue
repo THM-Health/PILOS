@@ -1,6 +1,7 @@
 <template>
   <div>
     <Button
+      data-test="room-create-button"
       :disabled="props.disabled"
       @click="modalVisible = true"
       severity="success"
@@ -10,6 +11,7 @@
 
     <!-- new room modal-->
     <Dialog
+      data-test="room-create-dialog"
       v-model:visible="modalVisible"
       modal
       :header="$t('rooms.create.title')"

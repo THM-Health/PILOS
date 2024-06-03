@@ -57,6 +57,11 @@
         class="w-full hidden md:block"
         listStyle="max-height:250px"
         :aria-labelledby="ariaLabelledby"
+        :pt="{
+          item: {
+            'data-test': 'room-type-select-option'
+          }
+        }"
       >
         <template #option="slotProps">
           <span style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>

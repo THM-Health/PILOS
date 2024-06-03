@@ -23,7 +23,7 @@
     <div class="grid">
       <div class="col-12 md:col-4">
         <!--search-->
-        <InputGroup class="mb-2">
+        <InputGroup class="mb-2" data-test="room-search">
           <InputText
             ref="search"
             v-model="rawSearchQuery"
@@ -45,6 +45,7 @@
         <div class="flex justify-content-start gap-2">
           <!--button to open filter menu on small devices-->
           <Button
+            data-test="filter-button"
             class="block md:hidden"
             :severity="toggleMobileMenu?'primary':'secondary'"
             @click="toggleMobileMenu=!toggleMobileMenu"
@@ -54,6 +55,7 @@
 
           <!--only favorites button-->
           <Button
+            data-test="only-favorites-button"
             :severity="onlyShowFavorites?'primary':'secondary'"
             :disabled="loadingRooms"
             @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);"
@@ -103,7 +105,7 @@
       </div>
       <div class="flex flex-column md:flex-row align-items-start gap-2">
         <!-- room type select (on small devices only shown, when filter menu is open)-->
-        <InputGroup v-if="!onlyShowFavorites">
+        <InputGroup v-if="!onlyShowFavorites" data-test="room-type-inputgroup">
           <InputGroupAddon>
             <i class="fa-solid fa-tag"></i>
           </InputGroupAddon>
@@ -120,6 +122,7 @@
             </InlineMessage>
           </InputGroupAddon>
           <Dropdown
+            data-test="room-type-dropdown"
             v-else
             v-model="selectedRoomType"
             :disabled="loadingRooms||roomTypesBusy||onlyShowFavorites"
@@ -155,6 +158,7 @@
             <i class="fa-solid fa-sort"></i>
           </InputGroupAddon>
           <Dropdown
+            data-test="sorting-type-dropdown"
             v-model="selectedSortingType"
             @change="loadRooms(1)"
             :disabled="loadingRooms"
@@ -179,6 +183,7 @@
         <div class="text-center py-8">
           <i class="fa-solid fa-circle-notch fa-spin text-3xl" v-if="loadingRooms"  />
           <Button
+            data-test="reload-button"
             v-else
             @click="reload()"
           >
