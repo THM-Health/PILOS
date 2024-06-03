@@ -206,5 +206,11 @@ jobs:
           pilos:latest \
           -c "chown www-data:www-data .env && pilos-cli key:generate"
 
-      - name: (Debug) Show .env
-        run: cat .env
+      - name: Replace docker image
+        run: |
+          sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
+          cat .env
+
+
+      - name: Run docker compose
+        run: docker compose up -d
