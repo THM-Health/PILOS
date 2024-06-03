@@ -206,9 +206,11 @@ jobs:
           pilos:latest \
           -c "chown www-data:www-data .env && pilos-cli key:generate"
 
-      - name: Replace docker image
+      - name: Adjust .env
         run: |
           sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
+          sed -i 's/APP_ENV=.*/APP_ENV=production/g' .env
+          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/g' .env
           cat .env
 
       - name: Start app
