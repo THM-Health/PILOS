@@ -12,8 +12,11 @@ use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use TiMacDonald\Log\LogEntry;
+use TiMacDonald\Log\LogFake;
 
 class MeetingTest extends TestCase
 {
@@ -65,6 +68,83 @@ class MeetingTest extends TestCase
         $salt = urldecode(explode('?salt=', $data['meta_endCallbackUrl'])[1]);
         $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
         $this->assertArrayNotHasKey('logo', $data);
+    }
+
+    /**
+     * Test some default parameters for room start
+     */
+    public function testStartWithCustomCreateParameters()
+    {
+        Log::swap(new LogFake);
+
+        $meeting = $this->meeting;
+
+        $room = $this->meeting->room;
+        $room->auto_start_recording = true;
+        $room->save();
+
+        $roomType = $room->roomType;
+        $roomType->max_duration = 60;
+        $roomType->create_parameters = "autoStartRecording=false\nduration=10\nmeetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds";
+        $roomType->save();
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
+        ]);
+
+        $server = Server::factory()->create();
+        $meeting->server()->associate($server);
+
+        $serverService = new ServerService($server);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data = $request->data();
+
+        // Check if custom parameters are set
+        $this->assertEquals('PRESENTATION_FOCUS', $data['meetingLayout']);
+        $this->assertEquals('FINANCE', $data['meta_category']);
+        $this->assertEquals('learningDashboard,virtualBackgrounds', $data['disabledFeatures']);
+
+        // Check if parameters of the room and room type are not overwritten
+        $this->assertEquals('60', $data['duration']);
+        $this->assertEquals('true', $data['autoStartRecording']);
+
+        // Check if nothing was logged
+        Log::assertNothingLogged();
+
+        // Check with invalid create parameters
+        $roomType->create_parameters = "autoStartRecording\ninvalidParameter=10\n";
+        $roomType->save();
+
+        $meetingService->start();
+
+        $request = Http::recorded()[1][0];
+        $data = $request->data();
+
+        // Check if invalid parameters are not set
+        $this->assertArrayNotHasKey('invalidParameter', $data);
+
+        // Check if parameters of the room and room type are not overwritten
+        $this->assertEquals('true', $data['autoStartRecording']);
+
+        // Check if parameter with no value is logged
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Custom create parameter for {parameter} has no value'
+                && $log->context['parameter'] == 'autoStartRecording'
+        );
+
+        // Check if invalid parameter is logged
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Custom create parameter for {parameter} can not be found'
+                && $log->context['parameter'] == 'invalidParameter'
+        );
     }
 
     /**

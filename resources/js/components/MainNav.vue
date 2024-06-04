@@ -84,7 +84,7 @@ import UserAvatar from './UserAvatar.vue';
 import env from '../env.js';
 import { useLocaleStore } from '../stores/locale.js';
 import { useApi } from '../composables/useApi.js';
-import {useToast} from "../composables/useToast.js";
+import { useToast } from '../composables/useToast.js';
 
 const menuBreakpoint = 991;
 

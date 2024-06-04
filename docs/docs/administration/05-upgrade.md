@@ -208,11 +208,7 @@ Please check the settings in the admin UI after the migration.
    ```bash
    docker compose exec app pilos-cli db:upgrade
     ```
-3. Run all additional migrations
-    ```bash
-    docker compose exec app php artisan migrate
-    ```
-
+   
 ### Cleanup
 
 To revert the changes made for the upgrade process, please follow these steps:

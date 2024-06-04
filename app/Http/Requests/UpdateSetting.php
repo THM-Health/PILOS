@@ -40,6 +40,7 @@ class UpdateSetting extends FormRequest
             'pagination_page_size' => ['required', 'numeric', 'min:1', 'max:100'],
             'password_change_allowed' => ['required', 'boolean'],
             'default_timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
+            'toast_lifetime' => ['required', 'numeric', 'min:0', 'max:30'],
             'banner' => ['required', 'array'],
             'banner.enabled' => ['required', 'boolean'],
             'banner.title' => ['nullable', 'string', 'max:255'],

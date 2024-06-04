@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search and filter options to list of personalized room links ([#1007])
 - Recording management ([#31], [#896]) 
 - Content-Security-Policy ([#315],[#1090])
+- Custom create parameters in room type settings ([#574])
+- Setting to change the lifetime of toast messages ([#1102])
 
 ### Changed
 - Refactor user interface for room search and home page ([#372], [#373])
@@ -57,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the personalized room links list ([#1007])
 - Bumped docker compose mariadb version to 11 ([#1080])
 - **Breaking:** Global application settings storage ([#958], [#989])
+- **Breaking:** The learning dashboard is no longer disabled and the meeting layout is no longer always "custom". These settings can be set with create-api-parameters in the room type settings. ([#574])
 
 ### Fixed
 - Issue frontend recompiled on every restart due to a hashing issue ([#792])
@@ -131,6 +134,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1079]: https://github.com/THM-Health/PILOS/pull/1079
 [#1080]: https://github.com/THM-Health/PILOS/pull/1080
 [#1090]: https://github.com/THM-Health/PILOS/pull/1090
+[#1102]: https://github.com/THM-Health/PILOS/pull/1102
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
