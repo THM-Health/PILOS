@@ -337,14 +337,16 @@ class MeetingTest extends TestCase
         $data = $request->data();
 
         $this->assertEquals('2023-09-28 - '.$meeting->room->name, $data['meta_opencast-dc-title']);
-        $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-dc-creator']);
+        $this->assertEquals($meeting->room->owner->fullname, $data['meta_opencast-dc-creator']);
         $this->assertEquals('2023-09-28T12:01:00Z', $data['meta_opencast-dc-created']);
         $this->assertEquals('fr', $data['meta_opencast-dc-language']);
-        $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-dc-rightsHolder']);
+        $this->assertEquals($meeting->room->owner->fullname, $data['meta_opencast-dc-rightsHolder']);
         $this->assertEquals($meeting->room->id, $data['meta_opencast-dc-isPartOf']);
         $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-acl-user-id']);
         $this->assertEquals($meeting->room->owner->external_id, $data['meta_opencast-series-acl-user-id']);
         $this->assertEquals($meeting->room->name, $data['meta_opencast-series-dc-title']);
+        $this->assertEquals($meeting->room->owner->fullname, $data['meta_opencast-series-dc-creator']);
+        $this->assertEquals($meeting->room->owner->fullname, $data['meta_opencast-series-dc-rightsholder']);
     }
 
     /**

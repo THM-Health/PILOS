@@ -12,14 +12,16 @@ class OpenCastRecordingPlugin implements OpenCastRecordingPluginContract
 
         return [
             'opencast-dc-title' => now()->format('Y-m-d').' - '.$roomName,
-            'opencast-dc-creator' => $username,
+            'opencast-dc-creator' => $ownerName,
             'opencast-dc-created' => now()->toIso8601ZuluString(),
             'opencast-dc-language' => config('app.locale'),
-            'opencast-dc-rightsHolder' => $username,
+            'opencast-dc-rightsHolder' => $ownerName,
             'opencast-dc-isPartOf' => $roomId,
             'opencast-acl-user-id' => $username,
             'opencast-series-acl-user-id' => $username,
             'opencast-series-dc-title' => $roomName,
+            'opencast-series-dc-creator' => $ownerName,
+            'opencast-series-dc-rightsholder' => $ownerName,
         ];
     }
 }
