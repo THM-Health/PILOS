@@ -39,9 +39,9 @@ class UpgradeDatabaseCommand extends Command
             return;
         }
 
-        // Run migration of old db to have db to latest v1 version before upgrade
+        // Run migration of old db to have db to latest v2/v3 version before upgrade
         Artisan::call('migrate --force --path=database/migrations/v2');
-        $this->info('Upgraded to latest v2 database');
+        $this->info('Upgraded to latest v2/v3 database');
 
         $oldSettings = DB::table('settings')->pluck('value', 'key')->toArray();
 
