@@ -200,6 +200,7 @@ return [
                 'add' => 'Hinzufügen',
                 'no_options' => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
                 'no_result' => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
+                'placeholder' => 'Name oder Email',
                 'select_role' => 'Bitte wählen Sie eine Rolle aus',
                 'select_user' => 'Bitte wählen Sie einen Benutzer aus',
                 'too_many_results' => 'Es wurden zu viele Benutzer gefunden. Bitte geben Sie einen genaueren Suchbegriff ein.',

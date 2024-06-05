@@ -26,7 +26,7 @@
         v-model="user"
         label="lastname"
         track-by="id"
-        :placeholder="$t('app.user_name')"
+        :placeholder="$t('rooms.members.modals.add.placeholder')"
         open-direction="bottom"
         :options="users"
         :multiple="false"
