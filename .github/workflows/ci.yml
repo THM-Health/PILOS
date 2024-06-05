@@ -217,6 +217,7 @@ jobs:
         with:
           wait-on: 'http://localhost' # Waits for above
           record: true
+          group: CI
           tag: ${{ github.event_name }}
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
