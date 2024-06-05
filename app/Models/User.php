@@ -205,7 +205,7 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
-     * Scope a query to only get users that have a email like the passed one.
+     * Scope a query to only get users that have an email like the passed one.
      *
      * @param  Builder  $query  Query that should be scoped
      * @param  string  $email  Email to search for
