@@ -5,7 +5,7 @@ namespace App\Plugins\Contracts;
 interface OpenCastRecordingPluginContract
 {
     /**
-     * Provides the metadata send to the BigBlueButton server during the create meeting api call
+     * Provides the metadata that is sent to the BigBlueButton server during the create meeting api call
      * for the OpenCast Integration in BigBlueButton
      *
      * @param  string  $meetingId  The unique identifier of the meeting.
