@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Backend\Feature\api\v1\Room;
+namespace Tests\Backend\Utils;
 
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToModel;
