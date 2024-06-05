@@ -181,12 +181,12 @@ class UserTest extends TestCase
         config(['bigbluebutton.user_search_limit' => $searchLimit]);
 
         $users = [];
-        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas']);
-        $users[] = User::factory()->create(['firstname' => 'Mable', 'lastname' => 'Torres']);
-        $users[] = User::factory()->create(['firstname' => 'Bertha', 'lastname' => 'Luff']);
-        $users[] = User::factory()->create(['firstname' => 'Marie', 'lastname' => 'Walker']);
-        $users[] = User::factory()->create(['firstname' => 'Connie', 'lastname' => 'Braun']);
-        $users[] = User::factory()->create(['firstname' => 'Deborah', 'lastname' => 'Braun']);
+        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname' => 'Dumas', 'email' => 'gregory.dumas@example.com']);
+        $users[] = User::factory()->create(['firstname' => 'Mable', 'lastname' => 'Torres', 'email' => 'mable.torres@example.com']);
+        $users[] = User::factory()->create(['firstname' => 'Bertha', 'lastname' => 'Luff', 'email' => 'bertha.luff@example.com']);
+        $users[] = User::factory()->create(['firstname' => 'Marie', 'lastname' => 'Walker', 'email' => 'marie.walker@example.com']);
+        $users[] = User::factory()->create(['firstname' => 'Connie', 'lastname' => 'Braun', 'email' => 'connie.braun@example.com']);
+        $users[] = User::factory()->create(['firstname' => 'Deborah', 'lastname' => 'Braun', 'email' => 'deborah.brown@example.com']);
 
         // Unauthenticated user
         $this->getJson(route('api.v1.users.search'))->assertUnauthorized();
@@ -224,6 +224,12 @@ class UserTest extends TestCase
             ->assertJsonPath('data.1.firstname', $users[1]->firstname)
             ->assertJsonPath('data.2.firstname', $users[3]->firstname)
             ->assertJsonCount(3, 'data');
+
+        // check with email fragment
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=deborah.brown')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.firstname', $users[5]->firstname)
+            ->assertJsonCount(1, 'data');
     }
 
     public function testCreate()

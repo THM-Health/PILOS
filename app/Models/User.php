@@ -205,6 +205,18 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
+     * Scope a query to only get users that have an email like the passed one.
+     *
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $email  Email to search for
+     * @return Builder The scoped query
+     */
+    public function scopeWithEmail(Builder $query, $email)
+    {
+        return $query->where(DB::raw('LOWER(email)'), 'like', '%'.strtolower($email).'%');
+    }
+
+    /**
      * Scope a query to only get users that have a name like the passed one.
      *
      * The name gets split up by the whitespaces and each part will be searched
@@ -222,7 +234,7 @@ class User extends Authenticatable implements HasLocalePreference
         return $query->where(function (Builder $query) use ($splittedName) {
             foreach ($splittedName as $name) {
                 $query->where(function (Builder $query) use ($name) {
-                    $query->withFirstName($name)->orWhere->withLastName($name);
+                    $query->withFirstName($name)->orWhere->withLastName($name)->orWhere->withEmail($name);
                 });
             }
         });
