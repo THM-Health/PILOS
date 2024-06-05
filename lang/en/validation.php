@@ -100,6 +100,7 @@ return [
         'time' => 'Time',
         'timezone' => 'Timezone',
         'title' => 'Title',
+        'toast_lifetime' => 'Display duration of pop-up messages',
         'updated_at' => 'Updated at',
         'user' => 'User',
         'user_emails' => 'Email list',

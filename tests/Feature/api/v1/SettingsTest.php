@@ -43,6 +43,7 @@ class SettingsTest extends TestCase
         $this->generalSettings->help_url = 'http://localhost';
         $this->generalSettings->legal_notice_url = 'http://localhost';
         $this->generalSettings->privacy_policy_url = 'http://localhost';
+        $this->generalSettings->toast_lifetime = 10;
         $this->generalSettings->save();
 
         $this->bannerSettings->enabled = true;
@@ -85,6 +86,7 @@ class SettingsTest extends TestCase
                     'logo' => 'testlogo.svg',
                     'pagination_page_size' => 123,
                     'room_pagination_page_size' => 123,
+                    'toast_lifetime' => 10,
                     'room_limit' => -1,
                     'banner' => [
                         'enabled' => true,
@@ -353,6 +355,7 @@ class SettingsTest extends TestCase
             ],
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 15,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
@@ -408,6 +411,7 @@ class SettingsTest extends TestCase
                     'favicon' => 'favicon.ico',
                     'pagination_page_size' => 10,
                     'room_pagination_page_size' => 15,
+                    'toast_lifetime' => 10,
                     'room_limit' => -1,
                     'bbb' => [
                         'logo' => 'bbblogo.png',
@@ -485,6 +489,7 @@ class SettingsTest extends TestCase
             ],
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 15,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
@@ -559,6 +564,7 @@ class SettingsTest extends TestCase
             ],
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 5,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
@@ -641,6 +647,7 @@ class SettingsTest extends TestCase
             ],
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 15,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
@@ -720,6 +727,7 @@ class SettingsTest extends TestCase
             ],
             'pagination_page_size' => 'notnumber',
             'room_pagination_page_size' => 'notnumber',
+            'toast_lifetime' => 'notnumber',
             'room_limit' => 'notnumber',
             'password_change_allowed' => 'foo',
             'default_timezone' => 'timezone',
@@ -760,6 +768,7 @@ class SettingsTest extends TestCase
                 'logo_file',
                 'pagination_page_size',
                 'room_pagination_page_size',
+                'toast_lifetime',
                 'room_limit',
                 'banner',
                 'password_change_allowed',
@@ -788,6 +797,7 @@ class SettingsTest extends TestCase
             'logo' => '/storage/image/testfile.svg',
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 15,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => false,
             'password_change_allowed' => '1',
@@ -913,6 +923,7 @@ class SettingsTest extends TestCase
                 'logo' => '/storage/image/testfile.svg',
                 'pagination_page_size' => 0,
                 'room_pagination_page_size' => 0,
+                'toast_lifetime' => -1,
                 'room_limit' => -2,
                 'banner' => ['enabled' => false],
                 'statistics' => [
@@ -943,6 +954,7 @@ class SettingsTest extends TestCase
                 'pagination_page_size',
                 'room_pagination_page_size',
                 'room_limit',
+                'toast_lifetime',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
                 'attendance.retention_period',
@@ -963,6 +975,7 @@ class SettingsTest extends TestCase
                 'logo' => '/storage/image/testfile.svg',
                 'pagination_page_size' => 101,
                 'room_pagination_page_size' => 26,
+                'toast_lifetime' => 31,
                 'room_limit' => 101,
                 'banner' => ['enabled' => false],
                 'statistics' => [
@@ -992,6 +1005,7 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'pagination_page_size',
                 'room_pagination_page_size',
+                'toast_lifetime',
                 'room_limit',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
@@ -1034,6 +1048,7 @@ class SettingsTest extends TestCase
             'logo' => '/storage/image/testfile.svg',
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 15,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
@@ -1149,6 +1164,7 @@ class SettingsTest extends TestCase
             'logo' => '/storage/image/testfile.svg',
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 15,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => [
                 'enabled' => false,
@@ -1246,6 +1262,7 @@ class SettingsTest extends TestCase
             'logo' => '/storage/image/testfile.svg',
             'pagination_page_size' => 10,
             'room_pagination_page_size' => 15,
+            'toast_lifetime' => 10,
             'room_limit' => -1,
             'banner' => [
                 'enabled' => false,

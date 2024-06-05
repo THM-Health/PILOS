@@ -60,6 +60,7 @@ class ApplicationSettings extends JsonResource
             'pagination_page_size' => $generalSettings->pagination_page_size,
             'room_pagination_page_size' => $roomSettings->pagination_page_size,
             'password_change_allowed' => $userSettings->password_change_allowed,
+            'toast_lifetime' => $generalSettings->toast_lifetime,
             'default_locale' => config('app.locale'),
             'enabled_locales' => array_map(function ($locale) {
                 return $locale['name'];

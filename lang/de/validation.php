@@ -100,6 +100,7 @@ return [
         'time' => 'Uhrzeit',
         'timezone' => 'Zeitzone',
         'title' => 'Titel',
+        'toast_lifetime' => 'Anzeigedauer von Pop-up-Nachrichten',
         'updated_at' => 'Aktualisiert am',
         'user' => 'Benutzer',
         'user_emails' => 'E-Mail-Liste',

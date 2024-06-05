@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Alternative recording management using OpenCast ([#1068], [#1099])
 - Content-Security-Policy ([#315],[#1090])
 - Custom create parameters in room type settings ([#574])
+- Setting to change the lifetime of toast messages ([#1102])
 
 ### Changed
 - Refactor user interface for room search and home page ([#372], [#373])
@@ -136,6 +137,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1080]: https://github.com/THM-Health/PILOS/pull/1080
 [#1090]: https://github.com/THM-Health/PILOS/pull/1090
 [#1099]: https://github.com/THM-Health/PILOS/pull/1099
+[#1102]: https://github.com/THM-Health/PILOS/pull/1102
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

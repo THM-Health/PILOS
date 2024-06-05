@@ -37,7 +37,7 @@ class UpgradeDatabaseTest extends TestCase
             ->expectsOutput('Upgraded to v4 database')
             ->expectsOutput('Cleared old migrations table')
             ->expectsOutput('Created new migrations table')
-            ->expectsOutputToContain('Upgrade to v4 completed. Please upgrade to latest v4 database: php artisan migrate');
+            ->expectsOutputToContain('Upgrade to v4 completed.');
 
         $migrations_upgrade = DB::table('migrations')->pluck('migration')->toArray();
 
@@ -52,10 +52,8 @@ class UpgradeDatabaseTest extends TestCase
         $this->artisan('migrate:fresh');
         $migrations_v4 = DB::table('migrations')->pluck('migration')->toArray();
 
-        // Check migration table after upgrade starts with the same as a fresh v4 database
-        foreach ($migrations_upgrade as $key => $migration) {
-            $this->assertEquals($migration, $migrations_v4[$key]);
-        }
+        // Check the migration table after the upgrade to see if it looks like a new v4 database
+        $this->assertEquals($migrations_v4, $migrations_upgrade);
     }
 
     /**
