@@ -116,6 +116,7 @@ describe('General', () => {
   it('shows a corresponding error message and does not change the language on 422', ()=>{
     cy.intercept('GET', 'api/v1/settings',{
       data: {
+        toast_lifetime: 0,
         default_locale: 'en',
         enabled_locales:{
           de: 'Deutsch',
@@ -147,15 +148,16 @@ describe('General', () => {
     // Check that the locale request was made
     cy.wait('@localeRequest');
     // Check that the request for the new language was not send (language stays the same after error)
-    cy.get('@deRequestSpy').should('not.be.called'); //ToDo test if needs to be waited
+    cy.get('@deRequestSpy').should('not.be.called');
 
     //Check if error message is shown
     cy.get('.p-toast').should('be.visible').and('contain', 'Test');
   });
 
   it('test other errors', ()=>{
-    cy.intercept('GET', 'api/v1/settings',{ //ToDo think about moving outside of test cases
+    cy.intercept('GET', 'api/v1/settings',{
       data: {
+        toast_lifetime: 0,
         default_locale: 'en',
         enabled_locales:{
           de: 'Deutsch',
@@ -184,7 +186,7 @@ describe('General', () => {
     // Check that the locale request was made
     cy.wait('@localeRequest');
     // Check that the request for the new language was not send (language stays the same after error)
-    cy.get('@deRequestSpy').should('not.be.called'); //ToDo test if needs to be waited for a set time
+    cy.get('@deRequestSpy').should('not.be.called');
 
     //Check if error message is shown
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');

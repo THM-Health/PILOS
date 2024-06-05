@@ -1,6 +1,7 @@
 <template>
   <!-- If room is running, show join button -->
   <Button
+    data-test="room-join-button"
     v-if="props.running"
     class="p-button-block"
     :disabled="isLoadingAction || disabled"

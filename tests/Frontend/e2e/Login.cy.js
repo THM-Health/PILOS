@@ -11,6 +11,7 @@ describe('Login', () => {
     // Intercept settings request to only show ldap login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
+        toast_lifetime: 0,
         auth: {
           ldap: true
         }
@@ -83,6 +84,7 @@ describe('Login', () => {
     // Intercept settings request to only show ldap login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
+        toast_lifetime: 0,
         auth: {
           ldap: true
         }
@@ -134,6 +136,7 @@ describe('Login', () => {
     // Intercept settings request to only show local login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
+        toast_lifetime: 0,
         auth: {
           local: true
         }
@@ -205,6 +208,7 @@ describe('Login', () => {
     // Intercept settings request to only show local login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
+        toast_lifetime: 0,
         auth: {
           local: true
         }
@@ -323,6 +327,7 @@ describe('Login', () => {
     // Intercept settings request to only show local login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
+        toast_lifetime: 0,
         auth: {
           local: true
         }
@@ -355,8 +360,8 @@ describe('Login', () => {
     cy.get('[data-test="login-tab-local"]').within(()=>{
       cy.get('.p-button').click();
     });
-
     cy.wait('@loginRequest');
+
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.guests_only');
     cy.url().should('not.contain', '/login');
 

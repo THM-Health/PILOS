@@ -186,7 +186,7 @@ describe('Room Index', () => {
     cy.get('[data-test=room-create-button]').should('not.exist');
   });
 
-  it('create new room', ()=>{
+  it.only('create new room', ()=>{
     // Intercept room view requests (needed for redirect after room creation)
     cy.interceptRoomViewRequests();
 
@@ -252,7 +252,6 @@ describe('Room Index', () => {
 
         // Open default settings
         cy.get('a').should('contain','settings.room_types.default_room_settings.title').click();
-        // ToDo check other default settings (problem not visible because window to small (would need to scroll))
         // Check that default room settings are shown
         cy.contains('rooms.settings.general.title').should('be.visible');
       });
@@ -274,7 +273,93 @@ describe('Room Index', () => {
 
   });
 
-  //ToDo create rooms errors
+  it('create new room without name', () => {
+
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        locale: "en",
+        permissions: ["rooms.create"],
+        model_name: "User",
+        room_limit: -1
+      }
+    });
+
+    cy.intercept('POST', 'api/v1/rooms', {
+      statusCode: 422,
+      body: {
+        message: 'The given data was invalid',
+        errors: {
+          name: ['The Name field is required.']
+        }
+      }
+    }).as('createRoomRequest');
+
+    cy.visit('/rooms');
+
+    // Open room create modal
+    cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(()=>{
+      // Check that room name input is empty
+      cy.get('#room-name').should('have.text', '');
+      // Select a room type
+      cy.get('[data-test=room-type-select-option]').eq(0).click();
+
+      // Create new room
+      cy.get('.p-button').eq(1).should('contain', 'rooms.create.ok').click();
+    });
+
+    cy.wait('@createRoomRequest');
+
+    // Check that error gets displayed
+    cy.get('[data-test=room-create-dialog]').contains('The Name field is required.');
+  });
+
+  it('create new room without room type', ()=>{
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: "John",
+        lastname: "Doe",
+        locale: "en",
+        permissions: ["rooms.create"],
+        model_name: "User",
+        room_limit: -1
+      }
+    });
+
+    cy.intercept('POST', 'api/v1/rooms', {
+      statusCode: 422,
+      body: {
+        message: 'The given data was invalid',
+        errors: {
+          room_type: ['The Room type field is required.']
+        }
+      }
+    }).as('createRoomRequest');
+
+    cy.visit('/rooms');
+
+    // Open room create modal
+    cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(()=>{
+      // Enter room name
+      cy.get('#room-name').should('have.text', '').type('New Room');
+
+      // Create new room
+      cy.get('.p-button').eq(1).should('contain', 'rooms.create.ok').click();
+    });
+
+    cy.wait('@createRoomRequest');
+
+    // Check that error gets displayed
+    cy.get('[data-test=room-create-dialog]').contains('The Room type field is required.');
+
+  });
+
+  //ToDo create rooms errors (forbidden, reached room limit)
 
   //ToDo other tests (add rooms, search, filter (own, shared, public, all),)
 });

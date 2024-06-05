@@ -27,7 +27,11 @@
 Cypress.Commands.add('init', ()=>{
   cy.intercept('GET','api/v1/currentUser', {fixture: 'exampleUser.json'});
   cy.intercept('GET', 'api/v1/locale/en', {});
-  cy.intercept('GET', 'api/v1/settings', {});
+  cy.intercept('GET', 'api/v1/settings', {
+    data: {
+      toast_lifetime: 0
+    }
+  });
 });
 
 Cypress.Commands.add('interceptRoomIndexRequests', () => {
@@ -38,7 +42,8 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
 Cypress.Commands.add('interceptRoomViewRequests', () =>{
   cy.intercept('GET', 'api/v1/settings', {
     data: {
-      room_refresh_rate: 5
+      room_refresh_rate: Number.MAX_SAFE_INTEGER,
+      toast_lifetime: 0
     }
   });
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', {fixture: 'exampleRoom.json'});
