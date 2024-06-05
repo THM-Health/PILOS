@@ -17,8 +17,6 @@ describe('Room View general', () => {
     cy.url().should('contain', '/rooms/abc-def-123');
   });
 
-  // ToDo tabs, start room, stop room, guest access, access code
-
   it('join running meeting', ()=>{
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data:{
@@ -102,8 +100,6 @@ describe('Room View general', () => {
 
     cy.contains('rooms.only_used_by_authenticated_users');
     cy.get('.p-button').should('not.be.disabled').should('contain', 'rooms.try_again');
-
-    //ToDo reload
   });
 
   it('test error', ()=>{

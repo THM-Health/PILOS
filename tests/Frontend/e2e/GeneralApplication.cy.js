@@ -7,7 +7,6 @@ describe('General', () => {
     cy.interceptRoomIndexRequests();
   });
 
-  //ToDo Move to other test file?
   it('successful logout no redirect', () => {
     cy.intercept('POST', 'api/v1/logout',{
       statusCode: 204,

@@ -1,7 +1,6 @@
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
-  //ToDo find port that works (only necessary for component testing)
   port: 5178,
 
   downloadsFolder: 'tests/Frontend/downloads',

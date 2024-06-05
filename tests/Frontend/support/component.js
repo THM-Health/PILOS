@@ -20,21 +20,8 @@ import '../support/commands.js'
 // require('./commands')
 
 import { mount } from 'cypress/vue'
-import {createPinia} from "pinia";
-import PrimeVue from "primevue/config";
-import '../../../resources/sass/theme/thm/app.scss'
 
-Cypress.Commands.add('mount', (component, options= {}) =>{ //ToDo fix or delete
-  // Setup options object
-  options.global = options.global || {}
-  options.global.plugins = options.global.plugins || []
-  options.global.plugins.push(createPinia())
-  options.global.plugins.push(PrimeVue)
-
-
-
-  return mount(component, options)
-})
+Cypress.Commands.add('mount', mount);
 
 // Example use:
 // cy.mount(MyComponent)

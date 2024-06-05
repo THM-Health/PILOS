@@ -234,7 +234,7 @@ describe('Room Index', () => {
       cy.contains('rooms.create.title');
       cy.get('#room-name').should('have.text', '').type('New Room');
       // Check that the room types are shown correctly
-      cy.get('[data-test=room-type-select-option]').should('have.length', 4); //ToDo check if it would be enough to have data test on span element
+      cy.get('[data-test=room-type-select-option]').should('have.length', 4);
 
       cy.get('[data-test=room-type-select-option]').eq(0).should('contain', 'Vorlesung');
       cy.get('[data-test=room-type-select-option]').eq(1).should('contain', 'Meeting');
@@ -359,7 +359,4 @@ describe('Room Index', () => {
 
   });
 
-  //ToDo create rooms errors (forbidden, reached room limit)
-
-  //ToDo other tests (add rooms, search, filter (own, shared, public, all),)
 });
