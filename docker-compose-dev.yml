@@ -17,7 +17,6 @@ services:
           - '${APP_SSL_PORT:-443}:443'
           - '${DOCS_PORT:-3000}:3000'
           - '${VITE_PORT:-1073}:${VITE_PORT:-1073}'
-          - '${VITEST_UI_PORT:-1074}:${VITEST_UI_PORT:-1074}'
         environment:
           DEV_MODE: 'true'
           ENABLE_XDEBUG: '${ENABLE_XDEBUG:-no}'
