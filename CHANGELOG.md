@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layout of the room files list ([#1006])
 - Layout of the personalized room links list ([#1007])
 - Bumped docker compose mariadb version to 11 ([#1080])
-- **Breaking:** Global application settings storage ([#958], [#989])
+- **Breaking:** Global application settings storage ([#985], [#989])
 - **Breaking:** The learning dashboard is no longer disabled and the meeting layout is no longer always "custom". These settings can be set with create-api-parameters in the room type settings. ([#574])
 
 ### Fixed
@@ -101,6 +101,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
 [#532]: https://github.com/THM-Health/PILOS/issues/532
+[#574]: https://github.com/THM-Health/PILOS/pull/574
 [#617]: https://github.com/THM-Health/PILOS/pull/617
 [#649]: https://github.com/THM-Health/PILOS/issues/649
 [#650]: https://github.com/THM-Health/PILOS/pull/650
