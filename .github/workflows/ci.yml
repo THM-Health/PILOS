@@ -7,9 +7,13 @@ on:
       - develop
       - '[0-9].x'
   pull_request:
+
+env:
+  PHP_VERSION: 8.3
+
 jobs:
-  pilos-backend:
-    name: Backend (PHP ${{ matrix.php-versions }})
+  backend:
+    name: Backend
     runs-on: ubuntu-latest
 
     services:
@@ -68,7 +72,7 @@ jobs:
     - name: Setup PHP, with composer and extensions
       uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
       with:
-        php-version: ${{ matrix.php-versions }}
+        php-version: ${{ env.PHP_VERSION }}
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
         coverage: pcov
     - name: Copy .env
@@ -81,9 +85,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-${{ matrix.php-versions }}-composer-
+          composer-
     - name: Install php dependencies
       run: |
         composer self-update
@@ -143,40 +147,85 @@ jobs:
       uses: actions/upload-artifact@v2
       if: failure()
       with:
-        name: ${{ runner.os }}-${{ matrix.php-versions }}-laravel.log
+        name: laravel.log
         path: storage/logs/laravel.log
-  pilos-frontend:
-          name: Frontend
-          runs-on: ubuntu-latest
-          steps:
-            - name: Checkout
-              uses: actions/checkout@v2
-            - name: Copy .env
-              run: php -r "copy('.env.example', '.env');"
-            - name: Get NPM Cache Directory
-              id: npm-cache
-              run: |
-                echo "::set-output name=dir::$(npm config get cache)"
-            - name: Get NPM Cache Keys
-              uses: actions/cache@v2
-              with:
-                path: ${{ steps.npm-cache.outputs.dir }}
-                key: ${{ runner.os }}-${{ matrix.php-versions }}-node-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                  ${{ runner.os }}-${{ matrix.php-versions }}-node-
-            - name: Install dependencies
-              run: npm ci
-            - name: Execute frontend code style check via eslint
-              run: npm run lint
-            #- name: Execute frontend tests
-            #  env:
-            #    LARAVEL_BYPASS_ENV_CHECK: 1
-            #  run: npm run cover
-            #- name: Upload coverage
-            #  uses: codecov/codecov-action@v3
-            #- name: Upload npm logs
-            #  uses: actions/upload-artifact@v2
-            #  if: failure()
-            #  with:
-            #    name: npm-debug.log
-            #    path: /home/runner/.npm/_logs/*-debug.log
+  frontend-code-style-check:
+    name: Frontend Code Style Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Copy .env
+        run: php -r "copy('.env.example', '.env');"
+      - name: Get NPM Cache Directory
+        id: npm-cache
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+      - name: Get NPM Cache Keys
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node-
+      - name: Install dependencies
+        run: npm ci
+      - name: Execute frontend code style check via eslint
+        run: npm run lint
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and export
+        uses: docker/build-push-action@v5
+        with:
+          file: docker/app/Dockerfile
+          context: .
+          load: true
+          tags: pilos:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Copy .env
+        run: docker run --rm pilos:latest cat ./.env.ci > .env
+
+      - name: Generate key
+        run: |
+          docker run --rm \
+          --mount type=bind,source=${{ github.workspace }}/.env,target=/var/www/html/.env \
+          --entrypoint /bin/bash \
+          pilos:latest \
+          -c "chown www-data:www-data .env && pilos-cli key:generate"
+
+      - name: Adjust .env
+        run: |
+          sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
+          sed -i 's/APP_ENV=.*/APP_ENV=production/g' .env
+          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/g' .env
+          cat .env
+
+      - name: Start app
+        run: docker compose -f docker-compose.yml -f docker-compose-ci.yml up -d
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          wait-on: 'http://localhost' # Waits for above
+          record: true
+          tag: ${{ github.event_name }}
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+

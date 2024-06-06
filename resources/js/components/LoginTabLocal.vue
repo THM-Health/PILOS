@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-test="login-tab-local">
     <p class="p-card-title">{{ props.title }}</p>
     <form @submit.prevent="submit">
       <div class="flex flex-column gap-2">

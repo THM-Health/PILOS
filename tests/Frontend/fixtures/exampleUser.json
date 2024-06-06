@@ -1,0 +1,11 @@
+{
+  "data": {
+    "id": 1,
+    "firstname": "John",
+    "lastname": "Doe",
+    "locale": "en",
+    "permissions": [],
+    "model_name": "User",
+    "room_limit": -1
+  }
+}

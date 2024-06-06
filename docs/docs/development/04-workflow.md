@@ -35,9 +35,13 @@ TESTING_BBB='[{"url":"https://your-bbb-server.com/bigbluebutton/","secret":"your
 ```
 
 ### Frontend
-Since the refactoring of the frontend to Vue 3 and to PrimeVue the frontend tests are missing.
-We plan to replace the old vitest tests with (Cypress)[https://www.cypress.io] tests in the future.
-If you have experience with Cypress and want to help us, feel free to create a PR.
+Since the refactoring of the frontend to Vue 3 and PrimeVue, the frontend tests are still a work in progress. 
+We have started adding some basic [Cypress](https://www.cypress.io) tests, but they are currently incomplete, and code coverage is not yet implemented. 
+The old Vitest tests have been removed. If you need to reference them, please check the old branches.
+
+If you have experience with Cypress and would like to contribute, 
+your help is welcome! Please feel free to create a PR.
+
 
 ## Submit changes
 After implementing the new feature or bugfix you must create a new pull request to the original repository by using the

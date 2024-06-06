@@ -2,14 +2,12 @@
   "env":{
      "browser":true,
      "es6":true,
-     "jquery":true,
-     "vitest-globals/env":true
+     "jquery":true
   },
   "extends":[
       "plugin:vue/vue3-essential",
      "standard",
-     "plugin:jsonc/base",
-     "plugin:vitest-globals/recommended"
+     "plugin:jsonc/base"
   ],
   "globals":{
      "Atomics":"readonly",

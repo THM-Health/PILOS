@@ -16,11 +16,7 @@ updates:
         - "@tiptap*"
       primevue:
         patterns:
-        - "primevue*"  
-      vitest:
-        patterns:
-        - "vitest*"
-        - "@vitest*"
+        - "primevue*"
 
   # Maintain dependencies for Composer
   - package-ecosystem: "composer"

@@ -9,13 +9,12 @@ import {
 } from 'unplugin-vue-components/resolvers';
 
 export default ({ mode }) => {
-  const ENV_PREFIX = ['VITE_', 'VITEST_'];
+  const ENV_PREFIX = ['VITE_'];
 
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), ENV_PREFIX) };
 
   const VITE_HMR_HOST = process.env.VITE_HOST || 'localhost';
   const VITE_PORT = parseInt(process.env.VITE_PORT || 1073);
-  const VITEST_UI_PORT = parseInt(process.env.VITEST_UI_PORT || 1074);
   const THEME = process.env.VITE_THEME || 'default';
   const BUILD_DIR = process.env.VITE_BUILD_DIR || 'build';
 
@@ -32,7 +31,7 @@ export default ({ mode }) => {
   }
 
   function getSslConfig () {
-    if (process.env.VITEST || process.env.VITE_SSL !== 'true') {
+    if (process.env.VITE_SSL !== 'true') {
       return false;
     }
 
@@ -42,21 +41,6 @@ export default ({ mode }) => {
     };
   }
   return defineConfig({
-    test: {
-      coverage: {
-        provider: 'istanbul',
-        include: ['resources/js/**/*.{js,vue}'],
-        all: true
-      },
-      api: VITEST_UI_PORT,
-      globals: true,
-      open: false,
-      restoreMocks: true,
-      environment: 'jsdom',
-      include: ['tests/Frontend/**/*.spec.js'],
-      environmentOptions: { url: 'http://localhost' },
-      setupFiles: './tests/Frontend/setup.js'
-    },
     plugins: [
       laravel({
         input: [

@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Vorlesung",
+      "color": "#80BA27"
+    },
+    {
+      "id": 2,
+      "name": "Meeting",
+      "color": "#4a5c66"
+    },
+    {
+      "id": 3,
+      "name": "Pr\u00fcfung",
+      "color": "#9C132E"
+    },
+    {
+      "id": 4,
+      "name": "\u00dcbung",
+      "color": "#00B8E4"
+    }
+  ]
+}
