@@ -52,8 +52,8 @@
 </template>
 
 <script setup>
-import env from '@/env';
-import { useAuthStore } from '@/stores/auth';
+import env from '../env';
+import { useAuthStore } from '../stores/auth';
 import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';

@@ -200,11 +200,11 @@
 </template>
 
 <script setup>
-import RawText from '@/components/RawText.vue';
-import TextTruncate from '@/components/TextTruncate.vue';
+import RawText from '../components/RawText.vue';
+import TextTruncate from '../components/TextTruncate.vue';
 import { ref, onMounted } from 'vue';
-import { useApi } from '../../composables/useApi.js';
-import { usePaginator } from '../../composables/usePaginator.js';
+import { useApi } from '../composables/useApi.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const api = useApi();
 const paginator = usePaginator();

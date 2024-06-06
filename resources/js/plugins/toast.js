@@ -1,4 +1,4 @@
-import { setPrimeToastService } from '@/composables/useToast';
+import { setPrimeToastService } from '../composables/useToast';
 import ToastService from 'primevue/toastservice';
 
 export default {

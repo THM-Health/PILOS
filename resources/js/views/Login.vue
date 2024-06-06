@@ -63,14 +63,14 @@
 </template>
 
 <script setup>
-import env from '@/env';
-import { useSettingsStore } from '@/stores/settings';
-import { useAuthStore } from '@/stores/auth';
+import env from '../env';
+import { useSettingsStore } from '../stores/settings';
+import { useAuthStore } from '../stores/auth';
 import { computed, ref, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useApi } from '@/composables/useApi';
-import { useToast } from '@/composables/useToast.js';
+import { useApi } from '../composables/useApi';
+import { useToast } from '../composables/useToast.js';
 
 const settingsStore = useSettingsStore();
 const router = useRouter();

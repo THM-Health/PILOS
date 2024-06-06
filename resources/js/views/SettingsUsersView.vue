@@ -53,8 +53,8 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { useSettingsStore } from '@/stores/settings';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { useSettingsStore } from '../stores/settings';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();

@@ -924,10 +924,10 @@
 </template>
 
 <script setup>
-import env from '@/env.js';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { useFormErrors } from '@/composables/useFormErrors.js';
-import { useApi } from '@/composables/useApi.js';
+import env from '../env.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { useFormErrors } from '../composables/useFormErrors.js';
+import { useApi } from '../composables/useApi.js';
 import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import _ from 'lodash';
@@ -935,7 +935,7 @@ import { Multiselect } from 'vue-multiselect';
 import { useConfirm } from 'primevue/useconfirm';
 import { useI18n } from 'vue-i18n';
 import ConfirmDialog from 'primevue/confirmdialog';
-import { useColors } from '@/composables/useColors.js';
+import { useColors } from '../composables/useColors.js';
 
 const formErrors = useFormErrors();
 const userPermissions = useUserPermissions();

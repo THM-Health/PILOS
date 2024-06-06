@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
-import { useApi } from '@/composables/useApi';
+import { useApi } from '../composables/useApi';
 
 export const useAuthStore = defineStore('auth', {
   state: () => {

@@ -225,11 +225,11 @@
 </template>
 
 <script setup>
-import { useApi } from '@/composables/useApi.js';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { useActionColumn } from '@/composables/useActionColumn.js';
+import { useApi } from '../composables/useApi.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { useActionColumn } from '../composables/useActionColumn.js';
 import { onMounted, ref } from 'vue';
-import { usePaginator } from '../../../composables/usePaginator.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();

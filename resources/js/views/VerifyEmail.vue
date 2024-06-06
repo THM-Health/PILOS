@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import env from '@/env';
+import env from '../env';
 import { onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 

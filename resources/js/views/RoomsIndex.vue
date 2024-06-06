@@ -276,12 +276,12 @@
 
 <script setup>
 
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '../stores/auth';
 import { onMounted, ref, computed } from 'vue';
-import { useApi } from '@/composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 import { useI18n } from 'vue-i18n';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { usePaginator } from '../../composables/usePaginator.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const authStore = useAuthStore();
 const api = useApi();

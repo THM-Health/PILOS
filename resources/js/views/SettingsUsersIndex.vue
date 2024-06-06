@@ -215,13 +215,13 @@
 </template>
 
 <script setup>
-import { useApi } from '@/composables/useApi.js';
+import { useApi } from '../composables/useApi.js';
 import { onMounted, ref } from 'vue';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { useSettingsStore } from '@/stores/settings';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { useSettingsStore } from '../stores/settings';
 import { Multiselect } from 'vue-multiselect';
-import { useActionColumn } from '@/composables/useActionColumn.js';
-import { usePaginator } from '../../../composables/usePaginator.js';
+import { useActionColumn } from '../composables/useActionColumn.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const api = useApi();
 const userPermissions = useUserPermissions();

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import _ from 'lodash';
 import { useApi } from '../composables/useApi.js';
-import { setToastLifetime } from '@/composables/useToast';
+import { setToastLifetime } from '../composables/useToast';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => {
