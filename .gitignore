@@ -22,3 +22,5 @@ coverage.xml
 version
 components.d.ts
 public/playback-player
+tests/Frontend/screenshots
+tests/Frontend/videos
