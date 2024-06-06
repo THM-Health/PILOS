@@ -171,19 +171,19 @@
   </div>
 </template>
 <script setup>
-import env from '@/env.js';
-import { useAuthStore } from '@/stores/auth';
-import { useSettingsStore } from '@/stores/settings';
+import env from '../env.js';
+import { useAuthStore } from '../stores/auth';
+import { useSettingsStore } from '../stores/settings';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useToast } from '@/composables/useToast.js';
+import { useToast } from '../composables/useToast.js';
 import { useRouter } from 'vue-router';
-import { useApi } from '@/composables/useApi.js';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import RoomHeader from '../../components/RoomHeader.vue';
-import RoomShareButton from '../../components/RoomShareButton.vue';
-import EventBus from '../../services/EventBus.js';
-import { EVENT_CURRENT_ROOM_CHANGED } from '../../constants/events.js';
+import { useApi } from '../composables/useApi.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import RoomHeader from '../components/RoomHeader.vue';
+import RoomShareButton from '../components/RoomShareButton.vue';
+import EventBus from '../services/EventBus.js';
+import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events.js';
 import _ from 'lodash';
 
 const props = defineProps({

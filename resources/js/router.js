@@ -3,23 +3,23 @@ import Login from './views/Login.vue';
 import ExternalLogin from './views/ExternalLogin.vue';
 import Logout from './views/Logout.vue';
 import NotFound from './views/NotFound.vue';
-import RoomsIndex from './views/rooms/Index.vue';
-import RoomView from './views/rooms/View.vue';
-import Settings from './views/settings/Settings.vue';
-import RolesIndex from './views/settings/roles/Index.vue';
-import RolesView from './views/settings/roles/View.vue';
-import RoomTypesIndex from './views/settings/roomTypes/Index.vue';
-import RoomTypesView from './views/settings/roomTypes/View.vue';
-import UsersIndex from './views/settings/users/Index.vue';
-import UsersView from './views/settings/users/View.vue';
-import NewUser from './views/settings/users/New.vue';
-import Config from './views/settings/Config.vue';
-import SettingsHome from './views/settings/SettingsHome.vue';
-import ServersIndex from './views/settings/servers/Index.vue';
-import ServersView from './views/settings/servers/View.vue';
-import ServerPoolsIndex from './views/settings/serverPools/Index.vue';
-import ServerPoolsView from './views/settings/serverPools/View.vue';
-import MeetingsIndex from './views/meetings/Index.vue';
+import RoomsIndex from './views/RoomsIndex.vue';
+import RoomView from './views/RoomsView.vue';
+import Settings from './views/Settings.vue';
+import RolesIndex from './views/SettingsRolesIndex.vue';
+import RolesView from './views/SettingsRolesView.vue';
+import RoomTypesIndex from './views/SettingsRoomTypesIndex.vue';
+import RoomTypesView from './views/SettingsRoomTypesView.vue';
+import UsersIndex from './views/SettingsUsersIndex.vue';
+import UsersView from './views/SettingsUsersView.vue';
+import NewUser from './views/SettingsUsersNew.vue';
+import SettingsConfig from './views/SettingsConfig.vue';
+import SettingsHome from './views/SettingsIndex.vue';
+import ServersIndex from './views/SettingsServersIndex.vue';
+import ServersView from './views/SettingsServersView.vue';
+import ServerPoolsIndex from './views/SettingsServerPoolsIndex.vue';
+import ServerPoolsView from './views/SettingsServerPoolsView.vue';
+import MeetingsIndex from './views/MeetingsIndex.vue';
 import PasswordReset from './views/PasswordReset.vue';
 import ForgotPassword from './views/ForgotPassword.vue';
 import VerifyEmail from './views/VerifyEmail.vue';
@@ -260,7 +260,7 @@ export const routes = [
       {
         path: 'config',
         name: 'settings.config',
-        component: Config,
+        component: SettingsConfig,
         meta: {
           requiresAuth: true,
           accessPermitted: (userPermissions) => Promise.resolve(

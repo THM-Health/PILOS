@@ -163,10 +163,10 @@
 </template>
 
 <script setup>
-import env from '@/env.js';
-import { useApi } from '@/composables/useApi.js';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { useFormErrors } from '@/composables/useFormErrors.js';
+import env from '../env.js';
+import { useApi } from '../composables/useApi.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { useFormErrors } from '../composables/useFormErrors.js';
 import { useConfirm } from 'primevue/useconfirm';
 import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';

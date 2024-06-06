@@ -94,12 +94,12 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useApi } from '@/composables/useApi.js';
-import { useUserPermissions } from '@/composables/useUserPermission.js';
-import { useSettingsStore } from '@/stores/settings';
+import { useApi } from '../composables/useApi.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { useSettingsStore } from '../stores/settings';
 import { FilterMatchMode } from 'primevue/api';
-import { useActionColumn } from '@/composables/useActionColumn.js';
-import { usePaginator } from '../../../composables/usePaginator.js';
+import { useActionColumn } from '../composables/useActionColumn.js';
+import { usePaginator } from '../composables/usePaginator.js';
 
 const api = useApi();
 const settingsStore = useSettingsStore();

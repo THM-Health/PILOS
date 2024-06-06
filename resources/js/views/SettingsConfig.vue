@@ -766,13 +766,13 @@
 </template>
 
 <script setup>
-import env from '@/env';
-import { useSettingsStore } from '@/stores/settings';
+import env from '../env';
+import { useSettingsStore } from '../stores/settings';
 import { computed, onMounted, ref } from 'vue';
-import { useApi } from '../../composables/useApi.js';
-import { useFormErrors } from '../../composables/useFormErrors.js';
-import { useUserPermissions } from '../../composables/useUserPermission.js';
-import { useColors } from '../../composables/useColors.js';
+import { useApi } from '../composables/useApi.js';
+import { useFormErrors } from '../composables/useFormErrors.js';
+import { useUserPermissions } from '../composables/useUserPermission.js';
+import { useColors } from '../composables/useColors.js';
 import { useI18n } from 'vue-i18n';
 
 const roomLimitMode = ref('custom');
