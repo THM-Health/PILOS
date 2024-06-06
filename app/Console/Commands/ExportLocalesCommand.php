@@ -29,7 +29,7 @@ class ExportLocalesCommand extends Command
     {
         $disk = Storage::build([
             'driver' => 'local',
-            'root' => 'tests/Fixtures/Locales',
+            'root' => 'tests/Backend/Fixtures/Locales',
         ]);
 
         $locales = config('app.default_locales');

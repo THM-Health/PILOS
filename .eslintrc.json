@@ -78,7 +78,7 @@
   "settings":{
      "vue-i18n":{
         "localeDir":{
-           "pattern":"./tests/Fixtures/Locales/*.json",
+           "pattern":"./tests/Backend/Fixtures/Locales/*.json",
            "localeKey":"file"
         },
         "messageSyntaxVersion":"^8.26.8"
