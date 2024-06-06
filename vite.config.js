@@ -2,7 +2,6 @@ import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import * as fs from 'fs';
-import * as path from 'path';
 import Components from 'unplugin-vue-components/vite';
 import {
   PrimeVueResolver
@@ -17,18 +16,6 @@ export default ({ mode }) => {
   const VITE_PORT = parseInt(process.env.VITE_PORT || 1073);
   const THEME = process.env.VITE_THEME || 'default';
   const BUILD_DIR = process.env.VITE_BUILD_DIR || 'build';
-
-  /**
-   * Create aliases for the paths we use in our app
-   * Slightly different behaviour in testing mode
-   */
-  function getAlias () {
-    const alias = {
-      '@': path.resolve(__dirname, './resources/js')
-    };
-
-    return alias;
-  }
 
   function getSslConfig () {
     if (process.env.VITE_SSL !== 'true') {
@@ -69,9 +56,6 @@ export default ({ mode }) => {
       hmr: {
         host: VITE_HMR_HOST
       }
-    },
-    resolve: {
-      alias: getAlias()
     },
     optimizeDeps: {
       include: ['axe-core']

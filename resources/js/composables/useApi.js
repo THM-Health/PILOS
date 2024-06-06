@@ -1,8 +1,8 @@
 import axios from 'axios';
-import env from '@/env';
+import env from '../env';
 import { useToast } from './useToast';
-import i18n from '@/i18n';
-import { useAuthStore } from '@/stores/auth';
+import i18n from '../i18n';
+import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 
 axios.defaults.withCredentials = true;

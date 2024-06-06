@@ -27,12 +27,12 @@ import Profile from './views/Profile.vue';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
 import { useSettingsStore } from './stores/settings';
-import { useToast } from '@/composables/useToast';
-import i18n from '@/i18n';
+import { useToast } from './composables/useToast';
+import i18n from './i18n';
 import { useUserPermissions } from './composables/useUserPermission.js';
 import { useApi } from './composables/useApi.js';
 
-const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue'], { eager: true }))[0].default;
+const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', './views/Home.vue'], { eager: true }))[0].default;
 
 export const routes = [
   {
