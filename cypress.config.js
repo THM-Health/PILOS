@@ -1,7 +1,9 @@
 import { defineConfig } from 'cypress';
+import 'dotenv/config'
+
+const baseUrl = process.env.APP_URL  || 'http://localhost';
 
 export default defineConfig({
-  port: 5178,
 
   downloadsFolder: 'tests/Frontend/downloads',
   fixturesFolder: 'tests/Frontend/fixtures',
@@ -12,7 +14,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: 'http://localhost',
+    baseUrl: baseUrl,
     experimentalStudio: true,
     supportFile: 'tests/Frontend/support/e2e.{js,jsx,ts,tsx}',
     specPattern: 'tests/Frontend/e2e/**/*.cy.{js,jsx,ts,tsx}',
