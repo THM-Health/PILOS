@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
+use App\Rules\Antivirus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -40,13 +41,13 @@ class UpdateSettings extends FormRequest
             'general_no_welcome_page' => ['required', 'boolean'],
 
             'theme_logo' => ['required_without:theme_logo_file', 'string', 'max:255'],
-            'theme_logo_file' => ['required_without:theme_logo', 'image:allow_svg', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_logo_file' => ['bail', 'required_without:theme_logo', 'image:allow_svg', 'max:500', new Antivirus], // 500 KB, larger files are bad for loading times
             'theme_logo_dark' => ['required_without:theme_logo_dark_file', 'string', 'max:255'],
-            'theme_logo_dark_file' => ['required_without:theme_logo_dark', 'image:allow_svg', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_logo_dark_file' => ['bail', 'required_without:theme_logo_dark', 'image:allow_svg', 'max:500', new Antivirus], // 500 KB, larger files are bad for loading times
             'theme_favicon' => ['required_without:theme_favicon_file', 'string', 'max:255'],
-            'theme_favicon_file' => ['required_without:theme_favicon', 'mimes:ico', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_favicon_file' => ['bail', 'required_without:theme_favicon', 'mimes:ico', 'max:500', new Antivirus], // 500 KB, larger files are bad for loading times
             'theme_favicon_dark' => ['required_without:theme_favicon_dark_file', 'string', 'max:255'],
-            'theme_favicon_dark_file' => ['required_without:theme_favicon_dark', 'mimes:ico', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_favicon_dark_file' => ['bail', 'required_without:theme_favicon_dark', 'mimes:ico', 'max:500', new Antivirus], // 500 KB, larger files are bad for loading times
             'theme_primary_color' => ['required', 'string', 'hex_color'],
             'theme_rounded' => ['required', 'boolean'],
 
@@ -78,12 +79,12 @@ class UpdateSettings extends FormRequest
             'recording_recording_retention_period' => ['required', 'numeric',  Rule::enum(TimePeriod::class)->except($disabledRecordingRetentionPeriods)],
 
             'bbb_logo' => ['nullable', 'string', 'max:255'],
-            'bbb_logo_file' => ['image:allow_svg', 'max:500'],
+            'bbb_logo_file' => ['bail', 'image:allow_svg', 'max:500', new Antivirus],
             'bbb_logo_dark' => ['nullable', 'string', 'max:255'],
-            'bbb_logo_dark_file' => ['image:allow_svg', 'max:500'],
+            'bbb_logo_dark_file' => ['bail', 'image:allow_svg', 'max:500', new Antivirus],
 
-            'bbb_style' => ['nullable', 'file', 'max:500', 'extensions:css'],
-            'bbb_default_presentation' => ['nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],
+            'bbb_style' => ['bail', 'nullable', 'file', 'max:500', 'extensions:css', new Antivirus],
+            'bbb_default_presentation' => ['bail', 'nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes'), new Antivirus],
         ];
     }
 }
