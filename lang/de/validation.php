@@ -9,6 +9,10 @@ return [
     'alpha' => ':attribute darf nur aus Buchstaben bestehen.',
     'alpha_dash' => ':attribute darf nur aus Buchstaben, Zahlen, Binde- und Unterstrichen bestehen.',
     'alpha_num' => ':attribute darf nur aus Buchstaben und Zahlen bestehen.',
+    'antivirus' => [
+        'error' => 'Die Virenprüfung für :attribute ist fehlgeschlagen.',
+        'virus' => ':attribute enthält einen Virus.',
+    ],
     'array' => ':attribute muss ein Array sein.',
     'ascii' => 'Die :attribute darf nur alphanumerische Single-Byte-Zeichen und -Symbole enthalten.',
     'attached' => ':attribute ist bereits angehängt.',

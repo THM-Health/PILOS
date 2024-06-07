@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Antivirus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,7 +21,7 @@ class UserRequest extends FormRequest
             'timezone' => ['sometimes', 'required', 'string', Rule::in(timezone_identifiers_list())],
             'roles' => ['sometimes', 'required', 'array'],
             'roles.*' => ['sometimes', 'distinct', 'integer', 'exists:App\Models\Role,id'],
-            'image' => ['sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100'],
+            'image' => ['bail', 'sometimes', 'nullable', 'mimes:jpg', 'dimensions:width=100,height=100', new Antivirus()],
         ];
 
         if (! $this->user || $this->user->authenticator === 'local') {
