@@ -134,7 +134,7 @@ const availableTabs = computed(() => {
 
   tabs.push({ key: 'files', label: t('rooms.files.title'), icon: 'fa-solid fa-folder-open', component: RoomTabFiles });
 
-  if (settingsStore.getSetting('recording.mode') === 'integrated') {
+  if (settingsStore.getSetting('recording.mode') === 'INTEGRATED') {
     tabs.push({ key: 'recordings', label: t('rooms.recordings.title'), icon: 'fa-solid fa-play-circle', component: RoomTabRecordings });
   }
 
