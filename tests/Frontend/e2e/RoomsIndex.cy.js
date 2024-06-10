@@ -1,23 +1,23 @@
-import {interceptIndefinitely} from "../support/utils/interceptIndefinitely.js";
+import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
 
-describe('Room Index', () => {
-  beforeEach(()=>{
+describe('Room Index', function () {
+  beforeEach(function () {
     cy.init();
     cy.interceptRoomIndexRequests();
   });
 
-  it('visit with user that is not logged in', ()=>{
+  it('visit with user that is not logged in', function () {
     cy.testVisitWithoutCurrentUser('/rooms');
   });
 
-  it('check list of rooms', () => {
-    const roomRequestInterception = interceptIndefinitely( 'GET','api/v1/rooms?*', {fixture: 'exampleRooms.json'}, 'roomRequest');
+  it('check list of rooms', function () {
+    const roomRequestInterception = interceptIndefinitely('GET', 'api/v1/rooms?*', { fixture: 'exampleRooms.json' }, 'roomRequest');
 
     cy.visit('/rooms');
 
     // Test loading
     // Room search field
-    cy.get('[data-test=room-search]').eq(0).within(()=>{
+    cy.get('[data-test=room-search]').eq(0).within(() => {
       cy.get('.p-inputtext').should('be.disabled');
       cy.get('.p-button').should('be.disabled');
     });
@@ -26,22 +26,24 @@ describe('Room Index', () => {
     cy.get('[data-test=only-favorites-button]').should('be.disabled');
 
     // Room type dropdown
-    cy.get('[data-test=room-type-dropdown]').within(()=>{
+    cy.get('[data-test=room-type-dropdown]').within(() => {
       cy.get('.p-dropdown-label').should('have.attr', 'aria-disabled', 'true');
     });
 
     cy.get('[data-test=filter-button]').should('not.be.visible');
 
     // Sorting dropdown
-    cy.get('[data-test=sorting-type-dropdown]').within(()=> {
-      cy.get('.p-dropdown-label').should('have.attr', 'aria-disabled', 'true');
-    }).then(()=>{
-      roomRequestInterception.sendResponse();
+    cy.get('[data-test=sorting-type-dropdown]').within(() => {
+      cy.get('.p-dropdown-label')
+        .should('have.attr', 'aria-disabled', 'true')
+        .then(() => {
+          roomRequestInterception.sendResponse();
+        });
     });
 
     // Make sure that components are not disabled after response
     // Room search field
-    cy.get('[data-test=room-search]').eq(0).within(()=>{
+    cy.get('[data-test=room-search]').eq(0).within(() => {
       cy.get('.p-inputtext').should('not.be.disabled');
       cy.get('.p-button').should('not.be.disabled');
     });
@@ -50,12 +52,11 @@ describe('Room Index', () => {
     cy.get('[data-test=only-favorites-button]').should('not.be.disabled');
 
     // Room type dropdown
-    cy.get('[data-test=room-type-dropdown]').within(()=>{
+    cy.get('[data-test=room-type-dropdown]').within(() => {
       cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
     cy.get('[data-test=filter-button]').should('not.be.visible');
-
 
     // Check if rooms are shown and contain the correct data
     cy.get('.room-card').should('have.length', 3);
@@ -63,25 +64,24 @@ describe('Room Index', () => {
     cy.get('.room-card').eq(0).should('contain', 'Meeting One');
     cy.get('.room-card').eq(0).should('contain', 'John Doe');
     cy.get('.room-card').eq(0).should('contain', 'rooms.index.room_component.never_started');
-    cy.get('.room-card').eq(0).within(()=>{
-      cy.get('a').should('have.attr','href', '/rooms/abc-def-123');
+    cy.get('.room-card').eq(0).within(() => {
+      cy.get('a').should('have.attr', 'href', '/rooms/abc-def-123');
     });
     cy.get('.room-card').eq(1).should('contain', 'Meeting Two');
     cy.get('.room-card').eq(1).should('contain', 'John Doe');
     cy.get('.room-card').eq(1).should('contain', 'rooms.index.room_component.running_since');
-    cy.get('.room-card').eq(1).within(()=>{
-      cy.get('a').should('have.attr','href', '/rooms/def-abc-123');
+    cy.get('.room-card').eq(1).within(() => {
+      cy.get('a').should('have.attr', 'href', '/rooms/def-abc-123');
     });
-    cy.get('.room-card').eq(2).should('contain','Meeting Three');
+    cy.get('.room-card').eq(2).should('contain', 'Meeting Three');
     cy.get('.room-card').eq(2).should('contain', 'John Doe');
     cy.get('.room-card').eq(2).should('contain', 'rooms.index.room_component.last_ran_till');
-    cy.get('.room-card').eq(2).within(()=>{
-      cy.get('a').should('have.attr','href', '/rooms/def-abc-456');
+    cy.get('.room-card').eq(2).within(() => {
+      cy.get('a').should('have.attr', 'href', '/rooms/def-abc-456');
     });
-
   });
 
-  it('error loading rooms', () => {
+  it('error loading rooms', function () {
     cy.intercept('GET', 'api/v1/rooms*', {
       statusCode: 500,
       body: {
@@ -90,13 +90,13 @@ describe('Room Index', () => {
     }).as('roomRequest');
 
     cy.visit('/rooms');
-    cy.wait('@roomRequest')
+    cy.wait('@roomRequest');
 
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
 
     // Check that components are not disabled
     // Room search field
-    cy.get('[data-test=room-search]').eq(0).within(()=>{
+    cy.get('[data-test=room-search]').eq(0).within(() => {
       cy.get('.p-inputtext').should('not.be.disabled');
       cy.get('.p-button').should('not.be.disabled');
     });
@@ -105,28 +105,28 @@ describe('Room Index', () => {
     cy.get('[data-test=only-favorites-button]').should('not.be.disabled');
 
     // Room type dropdown
-    cy.get('[data-test=room-type-dropdown]').within(()=>{
+    cy.get('[data-test=room-type-dropdown]').within(() => {
       cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
     // Sorting dropdown
-    cy.get('[data-test=sorting-type-dropdown]').within(()=> {
+    cy.get('[data-test=sorting-type-dropdown]').within(() => {
       cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    cy.intercept('GET', 'api/v1/rooms*', {fixture: 'exampleRooms.json'});
+    cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' });
     // Check if reload button exists and click it
     cy.get('[data-test=reload-button]').should('contain', 'app.reload').click();
 
     // Check if rooms are shown and contain the correct data
     cy.get('.room-card').as('rooms').should('have.length', 3);
 
-    //Check that reload button does not exist
+    // Check that reload button does not exist
     cy.get('[data-test=reload-button]').should('not.exist');
 
     // Check that components are not disabled
     // Room search field
-    cy.get('[data-test=room-search]').eq(0).within(()=>{
+    cy.get('[data-test=room-search]').eq(0).within(() => {
       cy.get('.p-inputtext').should('not.be.disabled');
       cy.get('.p-button').should('not.be.disabled');
     });
@@ -135,19 +135,19 @@ describe('Room Index', () => {
     cy.get('[data-test=only-favorites-button]').should('not.be.disabled');
 
     // Room type dropdown
-    cy.get('[data-test=room-type-dropdown]').within(()=>{
+    cy.get('[data-test=room-type-dropdown]').within(() => {
       cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
     // Sorting dropdown
-    cy.get('[data-test=sorting-type-dropdown]').within(()=> {
+    cy.get('[data-test=sorting-type-dropdown]').within(() => {
       cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
     });
   });
 
-  it('error loading room types', () => {
+  it('error loading room types', function () {
     cy.intercept('GET', 'api/v1/roomTypes', {
-      statusCode:500,
+      statusCode: 500,
       body: {
         message: 'Test'
       }
@@ -158,14 +158,14 @@ describe('Room Index', () => {
     // Check that error message gets shown
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
 
-    const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'});
+    const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
 
     // Check that room type select is shown correctly and click on reload button
     cy.get('[data-test=room-type-dropdown').should('not.exist');
-    cy.get('[data-test=room-type-inputgroup]').should('contain', 'rooms.room_types.loading_error').within(()=>{
+    cy.get('[data-test=room-type-inputgroup]').should('contain', 'rooms.room_types.loading_error').within(() => {
       cy.get('.p-button').click();
       // Check that button is disabled
-      cy.get('.p-button').should('be.disabled').and('have.class', 'p-button-loading').then(()=>{
+      cy.get('.p-button').should('be.disabled').and('have.class', 'p-button-loading').then(() => {
         // Send correct response and check that reload button does not exist after reload
         roomTypeInterception.sendResponse();
         cy.get('.p-button').should('not.exist');
@@ -174,48 +174,46 @@ describe('Room Index', () => {
 
     // Check that dropdown exists and error message is not shown after correct response
     cy.get('[data-test=room-type-dropdown');
-    cy.get('[data-test=room-type-inputgroup]').should('not.contain', 'rooms.room_types.loading_error')
-
+    cy.get('[data-test=room-type-inputgroup]').should('not.contain', 'rooms.room_types.loading_error');
   });
 
-  it('button to create new room hidden', ()=>{
-
+  it('button to create new room hidden', function () {
     cy.visit('/rooms');
     cy.wait('@roomRequest');
     // Check that room create button is hidden for user that does not have the permission to create rooms
     cy.get('[data-test=room-create-button]').should('not.exist');
   });
 
-  it('create new room', ()=>{
+  it('create new room', function () {
     // Intercept room view requests (needed for redirect after room creation)
     cy.interceptRoomViewRequests();
 
     cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
-        locale: "en",
-        permissions: ["rooms.create"],
-        model_name: "User",
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.create'],
+        model_name: 'User',
         room_limit: -1
       }
     });
 
     cy.intercept('POST', 'api/v1/rooms', {
-      statusCode:201,
+      statusCode: 201,
       body: {
-        data:{
+        data: {
           id: 'abc-def-123',
-          owner:{
-            id:1,
-            name:"John Doe"
+          owner: {
+            id: 1,
+            name: 'John Doe'
           },
-          type:{
-            id:2,
-            name:"Meeting",
-            color:"#4a5c66"
-          },
+          type: {
+            id: 2,
+            name: 'Meeting',
+            color: '#4a5c66'
+          }
         }
       }
     }).as('createRoomRequest');
@@ -227,7 +225,7 @@ describe('Room Index', () => {
     // Open room create modal
     cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
 
-    cy.get('[data-test=room-create-dialog]').should('be.visible').within(()=>{
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
       // Check that room type details does not exist (no room type selected)
       cy.get('[data-test=room-type-details]').should('not.exist');
 
@@ -245,13 +243,13 @@ describe('Room Index', () => {
       cy.get('[data-test=room-type-select-option]').eq(0).click();
 
       // Check that room type details are shown correctly
-      cy.get('[data-test=room-type-details]').should('be.visible').within(()=>{
+      cy.get('[data-test=room-type-details]').should('be.visible').within(() => {
         cy.contains('settings.room_types.missing_description');
         // Check that default room settings are hidden
         cy.contains('rooms.settings.general.title').should('not.be.visible');
 
         // Open default settings
-        cy.get('a').should('contain','settings.room_types.default_room_settings.title').click();
+        cy.get('a').should('contain', 'settings.room_types.default_room_settings.title').click();
         // Check that default room settings are shown
         cy.contains('rooms.settings.general.title').should('be.visible');
       });
@@ -261,28 +259,26 @@ describe('Room Index', () => {
     });
 
     // Check if correct request is send
-    cy.wait('@createRoomRequest').then(interception=>{
+    cy.wait('@createRoomRequest').then(interception => {
       expect(interception.request.body).to.contain({
         name: 'New Room',
         room_type: 1
-      })
+      });
     });
 
     // Check if redirected to the created room
     cy.url().should('contain', '/rooms/abc-def-123');
-
   });
 
-  it('create new room without name', () => {
-
+  it('create new room without name', function () {
     cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
-        locale: "en",
-        permissions: ["rooms.create"],
-        model_name: "User",
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.create'],
+        model_name: 'User',
         room_limit: -1
       }
     });
@@ -301,7 +297,7 @@ describe('Room Index', () => {
 
     // Open room create modal
     cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
-    cy.get('[data-test=room-create-dialog]').should('be.visible').within(()=>{
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
       // Check that room name input is empty
       cy.get('#room-name').should('have.text', '');
       // Select a room type
@@ -317,15 +313,15 @@ describe('Room Index', () => {
     cy.get('[data-test=room-create-dialog]').contains('The Name field is required.');
   });
 
-  it('create new room without room type', ()=>{
+  it('create new room without room type', function () {
     cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
-        firstname: "John",
-        lastname: "Doe",
-        locale: "en",
-        permissions: ["rooms.create"],
-        model_name: "User",
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.create'],
+        model_name: 'User',
         room_limit: -1
       }
     });
@@ -344,7 +340,7 @@ describe('Room Index', () => {
 
     // Open room create modal
     cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
-    cy.get('[data-test=room-create-dialog]').should('be.visible').within(()=>{
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
       // Enter room name
       cy.get('#room-name').should('have.text', '').type('New Room');
 
@@ -356,7 +352,5 @@ describe('Room Index', () => {
 
     // Check that error gets displayed
     cy.get('[data-test=room-create-dialog]').contains('The Room type field is required.');
-
   });
-
 });

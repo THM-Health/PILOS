@@ -19,5 +19,6 @@ cypress.config.js
 /db
 /ssl
 /storage
-/tests
+/tests/Backend
+/tests/Utils
 /docs
