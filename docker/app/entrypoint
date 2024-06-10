@@ -55,6 +55,9 @@ if [ "$RUN_INIT" != "false" ]; then
     pilos-cli init
 fi
 
+# Link storage
+pilos-cli storage:link
+
 # Automatically run migrations if environment variable RUN_MIGRATIONS is not set to 'false'
 if [ "$RUN_MIGRATIONS" != "false" ]; then
     echo "Running migrations"
