@@ -186,7 +186,7 @@ describe('Room Index', () => {
     cy.get('[data-test=room-create-button]').should('not.exist');
   });
 
-  it.only('create new room', ()=>{
+  it('create new room', ()=>{
     // Intercept room view requests (needed for redirect after room creation)
     cy.interceptRoomViewRequests();
 
