@@ -15,7 +15,7 @@ class CSPPolicy extends Policy
             ->addDirective(Directive::CONNECT, Keyword::SELF)
             ->addDirective(Directive::DEFAULT, Keyword::SELF)
             ->addDirective(Directive::FORM_ACTION, Keyword::SELF)
-            ->addDirective(Directive::IMG, '*')
+            ->addDirective(Directive::IMG, ['*', 'data:'])
             ->addDirective(Directive::MEDIA, Keyword::SELF)
             ->addDirective(Directive::OBJECT, Keyword::NONE)
             ->addDirective(Directive::STYLE, [Keyword::SELF, Keyword::UNSAFE_INLINE])
