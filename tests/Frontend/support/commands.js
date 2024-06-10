@@ -24,8 +24,8 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('init', ()=>{
-  cy.intercept('GET','api/v1/currentUser', {fixture: 'exampleUser.json'});
+Cypress.Commands.add('init', () => {
+  cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
   cy.intercept('GET', 'api/v1/locale/en', {});
   cy.intercept('GET', 'api/v1/settings', {
     data: {
@@ -35,23 +35,23 @@ Cypress.Commands.add('init', ()=>{
 });
 
 Cypress.Commands.add('interceptRoomIndexRequests', () => {
-  cy.intercept('GET', 'api/v1/roomTypes*', {fixture: 'exampleRoomTypes.json'});
-  cy.intercept('GET', 'api/v1/rooms*', {fixture: 'exampleRooms.json'}).as('roomRequest');
+  cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
+  cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' }).as('roomRequest');
 });
 
-Cypress.Commands.add('interceptRoomViewRequests', () =>{
+Cypress.Commands.add('interceptRoomViewRequests', () => {
   cy.intercept('GET', 'api/v1/settings', {
     data: {
       room_refresh_rate: Number.MAX_SAFE_INTEGER,
       toast_lifetime: 0
     }
   });
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123', {fixture: 'exampleRoom.json'});
-})
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' });
+});
 
-Cypress.Commands.add('testVisitWithoutCurrentUser', (path) =>{
+Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
   cy.intercept('GET', 'api/v1/currentUser', {});
 
   cy.visit(path);
   cy.url().should('contain', '/login?redirect=' + path);
-})
+});

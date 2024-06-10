@@ -1,8 +1,9 @@
-export function interceptIndefinitely(methode, requestMatcher, response, alias) {
+export function interceptIndefinitely (methode, requestMatcher, response, alias) {
   let sendResponse;
   const trigger = new Promise((resolve) => {
     sendResponse = resolve;
   });
+  // eslint-disable-next-line cypress/no-assigning-return-values
   const intercept = cy.intercept(methode, requestMatcher, (request) => {
     return trigger.then(() => {
       request.reply(response);
@@ -10,7 +11,7 @@ export function interceptIndefinitely(methode, requestMatcher, response, alias) 
   });
 
   // Set an alias for the intercepted request
-  if(alias){
+  if (alias) {
     intercept.as(alias);
   }
   return { sendResponse };
