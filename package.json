@@ -35,7 +35,7 @@
         "@tiptap/starter-kit": "^2.4.0",
         "@tiptap/vue-3": "^2.4.0",
         "@vitejs/plugin-vue": "^5.0.5",
-        "@vueuse/components": "^10.10.0",
+        "@vueuse/components": "^10.11.0",
         "@vueuse/core": "^10.7.2",
         "axe-core": "^4.9.1",
         "axios": "^1.7.2",
