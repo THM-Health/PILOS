@@ -83,7 +83,7 @@
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
               :name="slotProps.data.name"
-              @deleted="fetchRoomTypes"
+              @deleted="loadData()"
             />
           </div>
         </template>
