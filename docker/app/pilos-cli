@@ -2,6 +2,14 @@
 
 ACTION=$1
 
+# Helper function to adjust permissions
+change_permissions() {
+    local dir=$1
+    chown -R :www-data $dir
+    find $dir -type f -exec chmod 664 {} \;
+    find $dir -type d -exec chmod 775 {} \;
+}
+
 case $ACTION in
 
   frontend:load)
@@ -34,19 +42,11 @@ case $ACTION in
 
   change-permissions)
     echo "Change permissions"
-    chown -R :www-data /var/www/html/resources/custom
-    chown -R :www-data /var/www/html/resources/sass/theme/custom
-    chown -R :www-data /var/www/html/storage/app
-    chown -R :www-data /var/www/html/storage/logs
-    chown -R :www-data /var/www/html/public/build
-    find /var/www/html/resources/custom/ -type f -exec chmod 664 {} \;
-    find /var/www/html/resources/custom/ -type d -exec chmod 775 {} \;
-    find /var/www/html/resources/sass/theme/custom/ -type f -exec chmod 664 {} \;
-    find /var/www/html/resources/sass/theme/custom/ -type d -exec chmod 775 {} \;
-    find /var/www/html/storage/ -type f -exec chmod 664 {} \;
-    find /var/www/html/storage/ -type d -exec chmod 775 {} \;
-    find /var/www/html/public/build/ -type f -exec chmod 664 {} \;
-    find /var/www/html/public/build/ -type d -exec chmod 775 {} \;
+    change_permissions /var/www/html/resources/custom
+    change_permissions /var/www/html/resources/sass/theme/custom
+    change_permissions /var/www/html/storage/app
+    change_permissions /var/www/html/storage/logs
+    change_permissions /var/www/html/public/build
     ;;
 
   create-spool-group)
