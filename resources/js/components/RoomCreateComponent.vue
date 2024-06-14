@@ -136,7 +136,7 @@ function handleOk () {
       }
       // permission denied
       if (error.response.status === env.HTTP_FORBIDDEN) {
-        toast.success(t('rooms.flash.no_new_room'));
+        toast.error(t('rooms.flash.no_new_room'));
         modalVisible.value = false;
         authStore.getCurrentUser();
         return;
