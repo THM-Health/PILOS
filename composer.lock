@@ -8152,16 +8152,16 @@
         },
         {
             "name": "brianium/paratest",
-            "version": "v7.4.5",
+            "version": "v7.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paratestphp/paratest.git",
-                "reference": "d4de825332842a7dee1ff350f0fd6caafa930d79"
+                "reference": "90a0ba27d1347e054d62fea30f3414f09fe9bad3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/d4de825332842a7dee1ff350f0fd6caafa930d79",
-                "reference": "d4de825332842a7dee1ff350f0fd6caafa930d79",
+                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/90a0ba27d1347e054d62fea30f3414f09fe9bad3",
+                "reference": "90a0ba27d1347e054d62fea30f3414f09fe9bad3",
                 "shasum": ""
             },
             "require": {
@@ -8172,28 +8172,27 @@
                 "fidry/cpu-core-counter": "^1.1.0",
                 "jean85/pretty-package-versions": "^2.0.6",
                 "php": "~8.2.0 || ~8.3.0",
-                "phpunit/php-code-coverage": "^10.1.14 || ^11.0.3",
-                "phpunit/php-file-iterator": "^4.1.0 || ^5.0.0",
-                "phpunit/php-timer": "^6.0.0 || ^7.0.0",
-                "phpunit/phpunit": "^10.5.20 || ^11.1.3",
-                "sebastian/environment": "^6.1.0 || ^7.1.0",
-                "symfony/console": "^6.4.7 || ^7.1.0",
-                "symfony/process": "^6.4.7 || ^7.1.0"
+                "phpunit/php-code-coverage": "^11.0.3",
+                "phpunit/php-file-iterator": "^5.0.0",
+                "phpunit/php-timer": "^7.0.0",
+                "phpunit/phpunit": "^11.2.1",
+                "sebastian/environment": "^7.1.0",
+                "symfony/console": "^6.4.8 || ^7.1.1",
+                "symfony/process": "^6.4.8 || ^7.1.1"
             },
             "require-dev": {
                 "doctrine/coding-standard": "^12.0.0",
                 "ext-pcov": "*",
                 "ext-posix": "*",
-                "phpstan/phpstan": "^1.11.2",
+                "phpstan/phpstan": "^1.11.4",
                 "phpstan/phpstan-deprecation-rules": "^1.2.0",
                 "phpstan/phpstan-phpunit": "^1.4.0",
                 "phpstan/phpstan-strict-rules": "^1.6.0",
                 "squizlabs/php_codesniffer": "^3.10.1",
-                "symfony/filesystem": "^6.4.3 || ^7.1.0"
+                "symfony/filesystem": "^6.4.8 || ^7.1.1"
             },
             "bin": [
                 "bin/paratest",
-                "bin/paratest.bat",
                 "bin/paratest_for_phpstorm"
             ],
             "type": "library",
@@ -8230,7 +8229,7 @@
             ],
             "support": {
                 "issues": "https://github.com/paratestphp/paratest/issues",
-                "source": "https://github.com/paratestphp/paratest/tree/v7.4.5"
+                "source": "https://github.com/paratestphp/paratest/tree/v7.5.0"
             },
             "funding": [
                 {
@@ -8242,7 +8241,7 @@
                     "type": "paypal"
                 }
             ],
-            "time": "2024-05-31T13:59:20+00:00"
+            "time": "2024-06-12T13:02:43+00:00"
         },
         {
             "name": "composer/class-map-generator",
@@ -8773,16 +8772,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.11.1",
+            "version": "1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c"
+                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
-                "reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
                 "shasum": ""
             },
             "require": {
@@ -8790,11 +8789,12 @@
             },
             "conflict": {
                 "doctrine/collections": "<1.6.8",
-                "doctrine/common": "<2.13.3 || >=3,<3.2.2"
+                "doctrine/common": "<2.13.3 || >=3 <3.2.2"
             },
             "require-dev": {
                 "doctrine/collections": "^1.6.8",
                 "doctrine/common": "^2.13.3 || ^3.2.2",
+                "phpspec/prophecy": "^1.10",
                 "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
             },
             "type": "library",
@@ -8820,7 +8820,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.11.1"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
             },
             "funding": [
                 {
@@ -8828,7 +8828,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-08T13:26:56+00:00"
+            "time": "2024-06-12T14:39:25+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -9356,16 +9356,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.2.0",
+            "version": "11.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "705eba0190afe04bc057f565ad843267717cf109"
+                "reference": "1b8775732e9c401bda32df3ffbdf90dec7533ceb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/705eba0190afe04bc057f565ad843267717cf109",
-                "reference": "705eba0190afe04bc057f565ad843267717cf109",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1b8775732e9c401bda32df3ffbdf90dec7533ceb",
+                "reference": "1b8775732e9c401bda32df3ffbdf90dec7533ceb",
                 "shasum": ""
             },
             "require": {
@@ -9436,7 +9436,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.2.0"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.2.1"
             },
             "funding": [
                 {
@@ -9452,7 +9452,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-07T04:48:50+00:00"
+            "time": "2024-06-11T07:30:35+00:00"
         },
         {
             "name": "sebastian/cli-parser",
