@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
+use App\Rules\Antivirus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -33,9 +34,9 @@ class UpdateSetting extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'room_limit' => ['required', 'numeric', 'min:-1', 'max:100'],
             'logo' => ['required_without:logo_file', 'string', 'max:255'],
-            'logo_file' => ['required_without:logo', 'image', 'max:500'], // 500 KB, larger files are bad for loading times
+            'logo_file' => ['bail', 'required_without:logo', 'image', 'max:500', new Antivirus()], // 500 KB, larger files are bad for loading times
             'favicon' => ['required_without:favicon_file', 'string', 'max:255'],
-            'favicon_file' => ['required_without:favicon', 'mimes:ico', 'max:500'], // 500 KB, larger files are bad for loading times
+            'favicon_file' => ['bail', 'required_without:favicon', 'mimes:ico', 'max:500', new Antivirus()], // 500 KB, larger files are bad for loading times
             'room_pagination_page_size' => ['required', 'numeric', 'min:1', 'max:25'],
             'pagination_page_size' => ['required', 'numeric', 'min:1', 'max:100'],
             'password_change_allowed' => ['required', 'boolean'],
@@ -61,9 +62,9 @@ class UpdateSetting extends FormRequest
             'statistics.meetings.retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'attendance.retention_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'bbb.logo' => ['string', 'max:255'],
-            'bbb.logo_file' => ['image', 'max:500'],
-            'bbb.style' => ['nullable', 'file', 'max:500'],
-            'bbb.default_presentation' => ['nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],
+            'bbb.logo_file' => ['bail', 'image', 'max:500', new Antivirus()],
+            'bbb.style' => ['bail', 'nullable', 'file', 'max:500', new Antivirus()],
+            'bbb.default_presentation' => ['bail', 'nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes'), new Antivirus()],
             'room_token_expiration' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete.inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete.never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
