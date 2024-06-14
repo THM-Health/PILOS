@@ -42,11 +42,11 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
 Cypress.Commands.add('interceptRoomViewRequests', () => {
   cy.intercept('GET', 'api/v1/settings', {
     data: {
-      room_refresh_rate: Number.MAX_SAFE_INTEGER,
+      room_refresh_rate: 5000,
       toast_lifetime: 0
     }
   });
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' });
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
 });
 
 Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {

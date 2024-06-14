@@ -13,6 +13,7 @@
 
   <!-- If room is not running -->
   <Button
+    data-test="room-start-button"
     v-else-if="canStart"
     class="p-button-block"
     :disabled="isLoadingAction || disabled"
@@ -26,6 +27,7 @@
   <InlineMessage v-else severity="info">{{ $t('rooms.not_running') }}</InlineMessage>
 
   <Dialog
+    data-test="room-join-dialog"
     v-model:visible="showModal"
     modal
     :header="running ? $t('rooms.join_room') : $t('rooms.start_room')"
