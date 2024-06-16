@@ -1,58 +1,10 @@
 import env from '../../../resources/js/env.js';
 
-describe('General', function () {
+describe('Locales', function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomIndexRequests();
-  });
 
-  // ToDo? Move logout tests to other test file???
-  it('successful logout no redirect', function () {
-    cy.intercept('POST', 'api/v1/logout', {
-      statusCode: 204,
-      data: {
-        redirect: false
-      }
-    }).as('logoutRequest');
-    cy.visit('rooms');
-
-    // Click on logout
-    cy.get('[data-test=user-avatar]').click();
-    cy.get('[data-test=submenu]').eq(0).within(() => {
-      cy.get('[data-test=submenu-action]').eq(1).should('contain', 'auth.logout').click();
-    });
-
-    cy.wait('@logoutRequest');
-
-    // Check if redirected to logout
-    cy.url().should('contain', '/logout').should('not.contain', '/rooms');
-    cy.contains('auth.logout_success');
-  });
-
-  it('failed logout', function () {
-    cy.intercept('POST', 'api/v1/logout', {
-      statusCode: 500,
-      body: {
-        message: 'Test'
-      }
-    }).as('logoutRequest');
-
-    cy.visit('/rooms');
-
-    // Click on logout
-    cy.get('[data-test=user-avatar]').click();
-    cy.get('[data-test=submenu]').eq(0).within(() => {
-      cy.get('[data-test=submenu-action]').eq(1).should('contain', 'auth.logout').click();
-    });
-
-    cy.wait('@logoutRequest');
-
-    // Check if error gets shown and user stays logged in
-    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.logout_error');
-    cy.url().should('contain', '/rooms').and('not.contain', '/logout').and('not.contain', '/login');
-  });
-
-  it('all locales get rendered', function () {
     cy.intercept('GET', 'api/v1/settings', {
       data: {
         enabled_locales: {
@@ -62,6 +14,9 @@ describe('General', function () {
         }
       }
     });
+  });
+
+  it('all locales get rendered', function () {
 
     cy.visit('/rooms');
 
@@ -69,23 +24,13 @@ describe('General', function () {
     cy.get('.p-menuitem').eq(4).click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').should('have.length', 3);
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch');
-      cy.get('[data-test=submenu-action]').eq(1).should('contain', 'English');
-      cy.get('[data-test=submenu-action]').eq(2).should('contain', 'Français');
+      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch');
+      cy.get('[data-test=submenu-action]').eq(1).should('have.text', 'English');
+      cy.get('[data-test=submenu-action]').eq(2).should('have.text', 'Français');
     });
   });
 
   it('changing selected locale', function () {
-    cy.intercept('GET', 'api/v1/settings', {
-      data: {
-        default_locale: 'en',
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
-        }
-      }
-    });
 
     // Intercept locale and de request
     cy.intercept('POST', '/api/v1/locale', {
@@ -100,7 +45,7 @@ describe('General', function () {
     // Open menu and click on a different locale than the current one
     cy.get('.p-menuitem').eq(4).click();
     cy.get('[data-test=submenu]').eq(1).should('be.visible').within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
+      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the correct requests are made
@@ -111,18 +56,9 @@ describe('General', function () {
     cy.get('[data-test=submenu]').should('not.be.visible');
   });
 
-  it('shows a corresponding error message and does not change the language on 422', function () {
-    cy.intercept('GET', 'api/v1/settings', {
-      data: {
-        toast_lifetime: 0,
-        default_locale: 'en',
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
-        }
-      }
-    });
+  it('changing selected locale error', function () {
+
+    // Shows a corresponding error message and does not change the language on 422
 
     cy.intercept('POST', '/api/v1/locale', {
       statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
@@ -140,7 +76,7 @@ describe('General', function () {
     // Open menu and click on a different locale than the current one
     cy.get('.p-menuitem').eq(4).click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
+      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the locale request was made
@@ -149,21 +85,9 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('contain', 'Test');
-  });
+    cy.get('.p-toast').should('be.visible').and('have.text', 'Test').find('button').click();
 
-  it('test other errors', function () {
-    cy.intercept('GET', 'api/v1/settings', {
-      data: {
-        toast_lifetime: 0,
-        default_locale: 'en',
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
-        }
-      }
-    });
+    // Test other errors
 
     cy.intercept('POST', '/api/v1/locale', {
       statusCode: 500,
@@ -175,10 +99,9 @@ describe('General', function () {
     cy.intercept('GET', '/api/v1/locale/de', cy.spy().as('deRequestSpy'));
 
     // Open menu and click on a different locale than the current one
-    cy.visit('/rooms');
     cy.get('.p-menuitem').eq(4).click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
+      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the locale request was made
@@ -187,6 +110,7 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
+    cy.get('.p-toast').should('be.visible').and('include.text', 'app.flash.server_error.message');
+
   });
 });

@@ -6,8 +6,6 @@ describe('Rooms view meetings', function () {
     cy.interceptRoomViewRequests();
   });
 
-  // ToDo tabs, start room, join room, guest access, access code
-
   it('join running meeting', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -60,10 +58,13 @@ describe('Rooms view meetings', function () {
 
     // Check that room join dialog is closed and click on join button
     cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-join-button]').should('not.be.disabled').and('contain', 'rooms.join').click();
+    cy.get('[data-test=room-join-button]').should('not.be.disabled').and('have.text', 'rooms.join').click();
 
     // Test loading
-    cy.get('[data-test=room-join-dialog]').should('be.visible'); // ToDo
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(()=>{
+      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').and('be.disabled');
+      cy.get('.p-button').eq(1).should('have.text', 'app.continue').and('be.disabled');
+    });
     cy.get('[data-test=room-join-button]').should('be.disabled').then(() => {
       joinRequest.sendResponse();
     });
@@ -136,15 +137,15 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123');
     cy.wait('@roomRequest');
 
-    cy.get('[data-test=room-join-button]').should('contain', 'rooms.join').click();
+    cy.get('[data-test=room-join-button]').should('have.text', 'rooms.join').click();
 
     cy.wait('@joinRequest');
 
     // Check if error message is shown
-    cy.contains('rooms.only_used_by_authenticated_users');
+    cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
     // Reload room
-    cy.get('.p-button').should('contain', 'rooms.try_again').click();
+    cy.get('.p-button').should('have.text', 'rooms.try_again').click();
 
     cy.wait('@roomRequest');
     // test invalid access token (invalid_code)
@@ -162,7 +163,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Check if error message is shown and close it
-    cy.get('.p-toast').should('be.visible').and('contain', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
 
     // test invalid access token (require_code)
     // ToDo improve test reset of access code (separate test??)
@@ -179,7 +180,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Check if error message is shown and close it
-    cy.get('.p-toast').should('be.visible').and('contain', 'rooms.flash.access_code_invalid').find('button').eq(1).click();
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
 
     // test invalid token
     // ToDo improve test (move to other test case)
@@ -195,8 +196,8 @@ describe('Rooms view meetings', function () {
     cy.wait('@joinRequest');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('contain', 'rooms.flash.token_invalid').find('button').eq(1).click();
-    cy.contains('rooms.invalid_personal_link');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.token_invalid').find('button').click();
+    cy.contains('rooms.invalid_personal_link').should('be.visible');
     // ToDo think about adding other errors directly after this or in a new test case
   });
 
@@ -258,11 +259,11 @@ describe('Rooms view meetings', function () {
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
       // Test join with missing record attendance agreement
       cy.get('#record-agreement').click();
-      cy.get('.p-button').eq(1).should('contain', 'app.continue').click();
+      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
 
       cy.wait('@joinRequest');
 
-      cy.contains('Consent to record attendance is required.');
+      cy.contains('Consent to record attendance is required.').should('be.visible');
 
       // Test join with missing record agreement
       cy.get('#record-agreement').click();
@@ -280,9 +281,9 @@ describe('Rooms view meetings', function () {
       cy.wait('@joinRequest');
 
       cy.contains('Consent to record attendance is required.').should('not.exist');
-      cy.contains('Consent to the recording is required.');
+      cy.contains('Consent to the recording is required.').should('be.visible');
 
-      cy.get('.p-button').eq(0).should('contain', 'app.cancel').click();
+      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').click();
     });
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');
@@ -348,10 +349,10 @@ describe('Rooms view meetings', function () {
     cy.wait('@reloadRequest');
 
     // Check if error message is shown and button has switched to start room
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.errors.not_running');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'app.errors.not_running');
 
     cy.get('[data-test=room-join-button]').should('not.exist');
-    cy.get('[data-test=room-start-button]').should('contain', 'rooms.start');
+    cy.get('[data-test=room-start-button]').should('have.text', 'rooms.start');
   });
 
   it('start meeting', function () {
@@ -364,7 +365,7 @@ describe('Rooms view meetings', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.get('[data-test=room-start-button]').should('not.be.disabled').and('contain', 'rooms.start').click();
+    cy.get('[data-test=room-start-button]').should('not.be.disabled').and('have.text', 'rooms.start').click();
     cy.get('[data-test=room-start-button]').should('be.disabled').then(() => {
       startRequest.sendResponse();
     });
@@ -395,15 +396,15 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123');
     cy.wait('@roomRequest');
 
-    cy.get('[data-test=room-start-button]').should('contain', 'rooms.start').click();
+    cy.get('[data-test=room-start-button]').should('have.text', 'rooms.start').click();
 
     cy.wait('@startRequest');
 
     // Check if error message is shown
-    cy.contains('rooms.only_used_by_authenticated_users');
+    cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
     // Reload room
-    cy.get('.p-button').should('contain', 'rooms.try_again').click();
+    cy.get('.p-button').should('have.text', 'rooms.try_again').click();
 
     cy.wait('@roomRequest');
     // test invalid access token (invalid_code)
@@ -421,7 +422,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Check if error message is shown and close it
-    cy.get('.p-toast').should('be.visible').and('contain', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
 
     // test invalid access token (require_code)
     // ToDo improve test reset of access code (separate test??)
@@ -438,7 +439,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Check if error message is shown and close it
-    cy.get('.p-toast').should('be.visible').and('contain', 'rooms.flash.access_code_invalid').find('button').eq(1).click();
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
 
     // test invalid token
     // ToDo improve test (move to other test case)
@@ -454,8 +455,8 @@ describe('Rooms view meetings', function () {
     cy.wait('@startRequest');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('contain', 'rooms.flash.token_invalid').find('button').eq(1).click();
-    cy.contains('rooms.invalid_personal_link');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.token_invalid').find('button').click();
+    cy.contains('rooms.invalid_personal_link').should('be.visible');
     // ToDo think about adding other errors directly after this or in a new test case
   });
 
@@ -517,11 +518,11 @@ describe('Rooms view meetings', function () {
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
       // Test start with missing record attendance agreement
       cy.get('#record-agreement').click();
-      cy.get('.p-button').eq(1).should('contain', 'app.continue').click();
+      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
 
       cy.wait('@startRequest');
 
-      cy.contains('Consent to record attendance is required.');
+      cy.contains('Consent to record attendance is required.').should('be.visible')
 
       // Test start with missing record agreement
       cy.get('#record-agreement').click();
@@ -539,9 +540,9 @@ describe('Rooms view meetings', function () {
       cy.wait('@startRequest');
 
       cy.contains('Consent to record attendance is required.').should('not.exist');
-      cy.contains('Consent to the recording is required.');
+      cy.contains('Consent to the recording is required.').should('be.visible');
 
-      cy.get('.p-button').eq(0).should('contain', 'app.cancel').click();
+      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').click();
     });
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');

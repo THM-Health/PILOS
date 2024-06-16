@@ -40,7 +40,7 @@ describe('Login', function () {
       cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
       cy.interceptRoomIndexRequests();
 
-      cy.get('button').should('contain', 'auth.login').click();
+      cy.get('button').should('have.text', 'auth.login').click();
       // Check if button is disabled after being clicked and loading and send response
       cy.get('button').should('be.disabled').and('have.class', 'p-button-loading').then(() => {
         cy.wait('@cookieRequest');
@@ -60,9 +60,9 @@ describe('Login', function () {
     });
 
     // Check toast message
-    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'auth.flash.login');
     // Check if redirect works
-    cy.url().should('contain', '/rooms').and('not.contain', '/login');
+    cy.url().should('include', '/rooms').and('not.include', '/login');
   });
 
   it('hide ldap login if disabled', function () {
@@ -99,7 +99,7 @@ describe('Login', function () {
     cy.visit('settings');
 
     // Check redirect to the login page
-    cy.url().should('contain', '/login?redirect=/settings');
+    cy.url().should('include', '/login?redirect=/settings');
 
     // Intercept user request (user that has the permission to show the settings page)
     cy.intercept('GET', 'api/v1/currentUser', {
@@ -124,10 +124,10 @@ describe('Login', function () {
     cy.wait('@loginRequest');
 
     // Check toast message
-    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'auth.flash.login');
 
     // Check if redirect works
-    cy.url().should('contain', '/settings').and('not.contain', '/login');
+    cy.url().should('include', '/settings').and('not.include', '/login');
   });
 
   it('local login', function () {
@@ -164,7 +164,7 @@ describe('Login', function () {
       cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
       cy.interceptRoomIndexRequests();
 
-      cy.get('.p-button').should('contain', 'auth.login').click();
+      cy.get('.p-button').should('have.text', 'auth.login').click();
       // Check if button is disabled after being clicked and loading and send response
       cy.get('.p-button').should('be.disabled').and('have.class', 'p-button-loading').then(() => {
         cy.wait('@cookieRequest');
@@ -184,9 +184,9 @@ describe('Login', function () {
     });
 
     // Check toast message
-    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'auth.flash.login');
     // Check if redirect works
-    cy.url().should('contain', '/rooms').and('not.contain', '/login');
+    cy.url().should('include', '/rooms').and('not.include', '/login');
   });
 
   it('hide local login if disabled', function () {
@@ -222,7 +222,7 @@ describe('Login', function () {
     cy.visit('settings');
 
     // Check redirect to the login page
-    cy.url().should('contain', '/login?redirect=/settings');
+    cy.url().should('include', '/login?redirect=/settings');
 
     // Intercept user request (user that has the permission to show the settings page)
     cy.intercept('GET', 'api/v1/currentUser', {
@@ -245,13 +245,13 @@ describe('Login', function () {
     });
     cy.wait('@loginRequest');
     // Check toast message
-    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'auth.flash.login');
 
     // Check if redirect works
-    cy.url().should('contain', '/settings').and('not.contain', '/login');
+    cy.url().should('include', '/settings').and('not.include', '/login');
   });
 
-  it('unprocessable entity error gets displayed for the corresponding fields', function () {
+  it('login errors', function () {
     // Intercept settings request to only show local login tab
     cy.intercept('GET', 'api/v1/settings', {
       data: {
@@ -260,6 +260,8 @@ describe('Login', function () {
         }
       }
     });
+
+    // Unprocessable entity error gets displayed
 
     // Intercept login request
     cy.intercept('POST', 'api/v1/login/local', {
@@ -283,18 +285,9 @@ describe('Login', function () {
     cy.wait('@loginRequest');
 
     // Check if error gets displayed
-    cy.contains('Password or Email wrong!');
-  });
+    cy.contains('Password or Email wrong!').should('be.visible');
 
-  it('error for to many login requests gets displayed', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
-      data: {
-        auth: {
-          local: true
-        }
-      }
-    });
+    // Error for to many login requests gets displayed
 
     // Intercept login request
     cy.intercept('POST', 'api/v1/login/local', {
@@ -306,49 +299,35 @@ describe('Login', function () {
       }
     }).as('loginRequest');
 
-    cy.visit('/login');
-
     // Try to log in the user
     cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get('#local-email').type('john.doe@domain.tld');
-      cy.get('#local-password').type('password');
       cy.get('.p-button').click();
     });
 
     cy.wait('@loginRequest');
 
     // Check if error gets displayed
-    cy.contains('Too many logins. Please try again later!');
-  });
+    cy.contains('Too many logins. Please try again later!').should('be.visible');
+    cy.contains('Password or Email wrong!').should('not.exist');
 
-  it('other api errors', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
-      data: {
-        toast_lifetime: 0,
-        auth: {
-          local: true
-        }
-      }
-    });
+    // Other api errors
 
     // Intercept login request
     cy.intercept('POST', 'api/v1/login/local', {
       statusCode: 500
     }).as('loginRequest');
 
-    cy.visit('/login');
-
     // Try to log in the user
     cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get('#local-email').type('john.doe@domain.tld');
-      cy.get('#local-password').type('password');
       cy.get('.p-button').click();
     });
 
     cy.wait('@loginRequest');
 
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.empty_message');
+    cy.contains('Too many logins. Please try again later!').should('not.exist');
+    cy.contains('Password or Email wrong!').should('not.exist');
+
+    cy.get('.p-toast').should('be.visible').and('include.text', 'app.flash.server_error.empty_message').find('button').click();
 
     // Intercept login request with different error
     cy.intercept('POST', 'api/v1/login/local', {
@@ -360,16 +339,16 @@ describe('Login', function () {
     });
     cy.wait('@loginRequest');
 
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.guests_only');
-    cy.url().should('not.contain', '/login');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'app.flash.guests_only');
+    cy.url().should('not.include', '/login');
   });
 
   it('visit login page with already logged in user', function () {
     cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
 
     cy.visit('/login');
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.guests_only');
-    cy.url().should('not.contain', '/login');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'app.flash.guests_only');
+    cy.url().should('not.include', '/login');
   });
 
   it('shibboleth login', function () {
@@ -385,7 +364,7 @@ describe('Login', function () {
     cy.visit('/login');
 
     cy.get('[data-test="login-tab-external"]').within(() => {
-      cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect');
+      cy.get('.p-button').should('include.text', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect');
     });
 
     // Intercept requests that will be needed to show the room index page (needed to check redirect)
@@ -395,7 +374,7 @@ describe('Login', function () {
     // Visit redirect page after external login
     cy.visit('/external_login');
 
-    cy.url().should('contain', '/rooms').and('not.contain', '/login');
+    cy.url().should('include', '/rooms').and('not.include', '/login');
   });
 
   it('hide shibboleth login if disabled', function () {
@@ -426,10 +405,10 @@ describe('Login', function () {
     cy.visit('settings');
 
     // Check redirect to the login page
-    cy.url().should('contain', '/login?redirect=/settings');
+    cy.url().should('include', '/login?redirect=/settings');
 
     cy.get('[data-test="login-tab-external"]').within(() => {
-      cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect?redirect=%2Fsettings');
+      cy.get('.p-button').should('include.text', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect?redirect=%2Fsettings');
     });
 
     // Intercept user request (user that has the permission to show the settings page)
@@ -449,7 +428,7 @@ describe('Login', function () {
     cy.visit('/external_login?redirect=/settings');
 
     // Check if redirect works
-    cy.url().should('contain', '/settings').and('not.contain', '/login');
+    cy.url().should('include', '/settings').and('not.include', '/login');
   });
 
   it('shibboleth login callback missing attributes', function () {
@@ -457,8 +436,8 @@ describe('Login', function () {
     cy.visit('/external_login?error=missing_attributes');
 
     // Check if error gets displayed
-    cy.contains('auth.error.login_failed');
-    cy.contains('auth.error.missing_attributes');
+    cy.contains('auth.error.login_failed').should('be.visible');
+    cy.contains('auth.error.missing_attributes').should('be.visible');
   });
 
   it('shibboleth login callback duplicate session', function () {
@@ -466,7 +445,63 @@ describe('Login', function () {
     cy.visit('/external_login?error=shibboleth_session_duplicate_exception');
 
     // Check if error gets displayed
-    cy.contains('auth.error.login_failed');
-    cy.contains('auth.error.shibboleth_session_duplicate_exception');
+    cy.contains('auth.error.login_failed').should('be.visible');
+    cy.contains('auth.error.shibboleth_session_duplicate_exception').should('be.visible');
+  });
+});
+
+describe('Logout', function () {
+  beforeEach(function(){
+    cy.init();
+    cy.interceptRoomIndexRequests();
+  });
+
+  it('successful logout no redirect', function () {
+    cy.intercept('POST', 'api/v1/logout', {
+      statusCode: 204,
+      data: {
+        redirect: false
+      }
+    }).as('logoutRequest');
+    cy.visit('rooms');
+
+    // Click on logout
+    cy.get('[data-test=user-avatar]').click();
+    cy.get('[data-test=submenu]').eq(0).within(() => {
+      cy.get('[data-test=submenu-action]').eq(1).should('have.text', 'auth.logout').click();
+    });
+
+    cy.wait('@logoutRequest');
+
+    // Check if redirected to logout
+    cy.url().should('include', '/logout').should('not.include', '/rooms');
+    cy.contains('auth.logout_success').should('be.visible');
+
+    // Check redirect to home page
+    cy.get('.p-button').should('have.text', 'app.home').click();
+    cy.url().should('not.include', '/logout');
+  });
+
+  it('failed logout', function () {
+    cy.intercept('POST', 'api/v1/logout', {
+      statusCode: 500,
+      body: {
+        message: 'Test'
+      }
+    }).as('logoutRequest');
+
+    cy.visit('/rooms');
+
+    // Click on logout
+    cy.get('[data-test=user-avatar]').click();
+    cy.get('[data-test=submenu]').eq(0).within(() => {
+      cy.get('[data-test=submenu-action]').eq(1).should('have.text', 'auth.logout').click();
+    });
+
+    cy.wait('@logoutRequest');
+
+    // Check if error gets shown and user stays logged in
+    cy.get('.p-toast').should('be.visible').and('have.text', 'auth.flash.logout_error');
+    cy.url().should('include', '/rooms').and('not.include', '/logout').and('not.include', '/login');
   });
 });

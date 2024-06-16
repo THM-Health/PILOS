@@ -61,21 +61,21 @@ describe('Room Index', function () {
     // Check if rooms are shown and contain the correct data
     cy.get('.room-card').should('have.length', 3);
 
-    cy.get('.room-card').eq(0).should('contain', 'Meeting One');
-    cy.get('.room-card').eq(0).should('contain', 'John Doe');
-    cy.get('.room-card').eq(0).should('contain', 'rooms.index.room_component.never_started');
+    cy.get('.room-card').eq(0).should('include.text', 'Meeting One');
+    cy.get('.room-card').eq(0).should('include.text', 'John Doe');
+    cy.get('.room-card').eq(0).should('include.text', 'rooms.index.room_component.never_started');
     cy.get('.room-card').eq(0).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/abc-def-123');
     });
-    cy.get('.room-card').eq(1).should('contain', 'Meeting Two');
-    cy.get('.room-card').eq(1).should('contain', 'John Doe');
-    cy.get('.room-card').eq(1).should('contain', 'rooms.index.room_component.running_since');
+    cy.get('.room-card').eq(1).should('include.text', 'Meeting Two');
+    cy.get('.room-card').eq(1).should('include.text', 'John Doe');
+    cy.get('.room-card').eq(1).should('include.text', 'rooms.index.room_component.running_since');
     cy.get('.room-card').eq(1).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/def-abc-123');
     });
-    cy.get('.room-card').eq(2).should('contain', 'Meeting Three');
-    cy.get('.room-card').eq(2).should('contain', 'John Doe');
-    cy.get('.room-card').eq(2).should('contain', 'rooms.index.room_component.last_ran_till');
+    cy.get('.room-card').eq(2).should('include.text', 'Meeting Three');
+    cy.get('.room-card').eq(2).should('include.text', 'John Doe');
+    cy.get('.room-card').eq(2).should('include.text', 'rooms.index.room_component.last_ran_till');
     cy.get('.room-card').eq(2).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/def-abc-456');
     });
@@ -92,7 +92,8 @@ describe('Room Index', function () {
     cy.visit('/rooms');
     cy.wait('@roomRequest');
 
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
+    // Check that error message gets shown
+    cy.get('.p-toast').should('be.visible').and('include.text', 'app.flash.server_error.message');
 
     // Check that components are not disabled
     // Room search field
@@ -116,10 +117,14 @@ describe('Room Index', function () {
 
     cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' });
     // Check if reload button exists and click it
-    cy.get('[data-test=reload-button]').should('contain', 'app.reload').click();
+    cy.get('[data-test=reload-button]').should('include.text', 'app.reload').click();
 
     // Check if rooms are shown and contain the correct data
     cy.get('.room-card').as('rooms').should('have.length', 3);
+
+    cy.get('.room-card').eq(0).should('include.text', 'Meeting One');
+    cy.get('.room-card').eq(1).should('include.text', 'Meeting Two');
+    cy.get('.room-card').eq(2).should('include.text', 'Meeting Three');
 
     // Check that reload button does not exist
     cy.get('[data-test=reload-button]').should('not.exist');
@@ -156,15 +161,15 @@ describe('Room Index', function () {
     cy.visit('/rooms');
 
     // Check that error message gets shown
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
+    cy.get('.p-toast').should('be.visible').and('include.text', 'app.flash.server_error.message');
 
     const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
 
     // Check that room type select is shown correctly and click on reload button
     cy.get('[data-test=room-type-dropdown').should('not.exist');
-    cy.get('[data-test=room-type-inputgroup]').should('contain', 'rooms.room_types.loading_error').within(() => {
+    cy.get('[data-test=room-type-inputgroup]').should('include.text', 'rooms.room_types.loading_error').within(() => {
       cy.get('.p-button').click();
-      // Check that button is disabled
+      // Check that button is disabled after click
       cy.get('.p-button').should('be.disabled').and('have.class', 'p-button-loading').then(() => {
         // Send correct response and check that reload button does not exist after reload
         roomTypeInterception.sendResponse();
@@ -174,8 +179,7 @@ describe('Room Index', function () {
 
     // Check that dropdown exists and error message is not shown after correct response
     cy.get('[data-test=room-type-dropdown');
-    cy.get('[data-test=room-type-inputgroup]').should('not.contain', 'rooms.room_types.loading_error');
+    cy.get('[data-test=room-type-inputgroup]').should('not.include.text', 'rooms.room_types.loading_error');
   });
 
-  // ToDo other tests (search, filter (own, shared, public, all))
 });
