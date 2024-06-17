@@ -17,7 +17,6 @@ describe('Locales', function () {
   });
 
   it('all locales get rendered', function () {
-
     cy.visit('/rooms');
 
     // Open menu to check if the correct locales are shown
@@ -31,7 +30,6 @@ describe('Locales', function () {
   });
 
   it('changing selected locale', function () {
-
     // Intercept locale and de request
     cy.intercept('POST', '/api/v1/locale', {
       statusCode: 200
@@ -57,7 +55,6 @@ describe('Locales', function () {
   });
 
   it('changing selected locale error', function () {
-
     // Shows a corresponding error message and does not change the language on 422
 
     cy.intercept('POST', '/api/v1/locale', {
@@ -111,6 +108,5 @@ describe('Locales', function () {
 
     // Check if error message is shown
     cy.get('.p-toast').should('be.visible').and('include.text', 'app.flash.server_error.message');
-
   });
 });

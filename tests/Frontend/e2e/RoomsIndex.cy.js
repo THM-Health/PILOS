@@ -181,5 +181,4 @@ describe('Room Index', function () {
     cy.get('[data-test=room-type-dropdown');
     cy.get('[data-test=room-type-inputgroup]').should('not.include.text', 'rooms.room_types.loading_error');
   });
-
 });

@@ -1,4 +1,4 @@
-import {interceptIndefinitely} from "../support/utils/interceptIndefinitely.js";
+import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
 
 describe('Room View general', function () {
   beforeEach(function () {
@@ -31,9 +31,9 @@ describe('Room View general', function () {
     cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
     // Get reload button and reload without error
-    const reloadRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' },'roomRequest');
+    const reloadRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }, 'roomRequest');
     cy.get('.p-button').should('have.text', 'rooms.try_again').click();
-    cy.get('.p-button').should('be.disabled').then(()=>{
+    cy.get('.p-button').should('be.disabled').then(() => {
       reloadRequest.sendResponse();
     });
 

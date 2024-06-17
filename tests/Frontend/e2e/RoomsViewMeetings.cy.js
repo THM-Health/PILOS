@@ -61,7 +61,7 @@ describe('Rooms view meetings', function () {
     cy.get('[data-test=room-join-button]').should('not.be.disabled').and('have.text', 'rooms.join').click();
 
     // Test loading
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(()=>{
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
       cy.get('.p-button').eq(0).should('have.text', 'app.cancel').and('be.disabled');
       cy.get('.p-button').eq(1).should('have.text', 'app.continue').and('be.disabled');
     });
@@ -522,7 +522,7 @@ describe('Rooms view meetings', function () {
 
       cy.wait('@startRequest');
 
-      cy.contains('Consent to record attendance is required.').should('be.visible')
+      cy.contains('Consent to record attendance is required.').should('be.visible');
 
       // Test start with missing record agreement
       cy.get('#record-agreement').click();

@@ -451,7 +451,7 @@ describe('Login', function () {
 });
 
 describe('Logout', function () {
-  beforeEach(function(){
+  beforeEach(function () {
     cy.init();
     cy.interceptRoomIndexRequests();
   });

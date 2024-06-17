@@ -1,4 +1,4 @@
-import {interceptIndefinitely} from "../support/utils/interceptIndefinitely.js";
+import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
 
 describe('Rooms index create new room', function () {
   beforeEach(function () {
@@ -104,7 +104,7 @@ describe('Rooms index create new room', function () {
       // Check loading
       cy.get('#room-name').should('be.disabled');
       cy.get('.p-listbox-list').should('have.attr', 'aria-disabled', 'true');
-      cy.get('.p-button').eq(1).should('be.disabled').then(()=>{
+      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
         createRoomRequest.sendResponse();
       });
     });
@@ -122,7 +122,6 @@ describe('Rooms index create new room', function () {
   });
 
   it('create new room errors', function () {
-
     // Create new room without room type
 
     cy.intercept('POST', 'api/v1/rooms', {
@@ -189,9 +188,7 @@ describe('Rooms index create new room', function () {
       statusCode: 403
     }).as('createRoomRequest');
 
-
     cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
-
       // Create new room
       cy.get('.p-button').eq(1).should('have.text', 'rooms.create.ok').click();
     });
@@ -205,10 +202,9 @@ describe('Rooms index create new room', function () {
   });
 
   it('create new room limit reached', function () {
-
     cy.intercept('GET', 'api/v1/locale/en', {
-      data:{
-        rooms:{
+      data: {
+        rooms: {
           room_limit: 'rooms.room_limit: :has/:max'
         }
       }
