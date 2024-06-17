@@ -204,6 +204,13 @@ describe('Rooms index create new room', function () {
   it('create new room limit reached', function () {
     cy.intercept('GET', 'api/v1/locale/en', {
       data: {
+        app: {
+          flash: {
+            server_error: {
+              message: ':message'
+            }
+          }
+        },
         rooms: {
           room_limit: 'rooms.room_limit: :has/:max'
         }
@@ -241,7 +248,7 @@ describe('Rooms index create new room', function () {
     cy.intercept('POST', 'api/v1/rooms', {
       statusCode: 463,
       body: {
-        message: 'test'
+        message: 'Test'
       }
     }).as('createRoomRequest');
 
@@ -271,7 +278,7 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test=room-create-dialog]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast').should('be.visible').and('include.text', 'app.flash.server_error.message');
+    cy.get('.p-toast').should('be.visible').and('include.text', 'Test');
     cy.get('[data-test=room-create-button]').should('be.disabled');
 
     // Check if room limit is updated
