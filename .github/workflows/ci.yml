@@ -211,7 +211,8 @@ jobs:
       - name: Adjust .env
         run: |
           sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
-          cat .env
+          sed -i 's/BBB_TEST_SERVER_HOST=.*/BBB_TEST_SERVER_HOST=${{ secrets.BBB_TEST_SERVER_HOST }}/g' .env
+          sed -i 's/BBB_TEST_SERVER_SECRET=.*/BBB_TEST_SERVER_SECRET=${{ secrets.BBB_TEST_SERVER_SECRET }}/g' .env
 
       - name: Start app
         run: docker compose -f docker-compose-ci.yml up -d
