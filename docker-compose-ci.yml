@@ -1,6 +1,79 @@
-version: '3'
+name: "PILOS-CI"
 
+x-docker-pilos-common: &pilos-common
+  image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+  volumes:
+    - './:/var/www/html/'
+  env_file: .env
+  environment:
+    APP_URL: http://localhost:9080
+    APP_ENV: production
+    APP_DEBUG: false
+    DB_DATABASE: app
+    DB_USERNAME: user
+    DB_PASSWORD: password
+    LDAP_ENABLED: false
+    LOCAL_AUTH_ENABLED: true
+    SHIBBOLETH_ENABLED: false
 services:
   app:
     ports:
-      - '80:80'
+      - '9080:80'
+    <<: *pilos-common
+    sysctls:
+      net.core.somaxconn: 65536
+      net.ipv4.ip_local_port_range: "2000 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_fin_timeout: 30
+    healthcheck:
+      test: curl --fail http://localhost/ping || exit 1
+      interval: 10s
+      retries: 6
+      timeout: 5s
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  cron:
+    <<: *pilos-common
+    entrypoint: [ 'pilos-cli', 'run:cron' ]
+    depends_on:
+      app:
+        condition: service_healthy
+  horizon:
+    <<: *pilos-common
+    entrypoint: [ 'pilos-cli', 'run:horizon' ]
+    depends_on:
+      app:
+        condition: service_healthy
+  db:
+    image: 'mariadb:11'
+    environment:
+      MYSQL_DATABASE: 'app'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_RANDOM_ROOT_PASSWORD: 'true'
+    volumes:
+      - mariadb:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 5s
+      retries: 12
+      timeout: 5s
+  redis:
+    image: redis:7.2-alpine3.18
+    restart: unless-stopped
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      retries: 12
+      timeout: 5s
+volumes:
+  mariadb:
+    driver: local
+  redis:
+    driver: local
+

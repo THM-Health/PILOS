@@ -42,7 +42,7 @@ class CreateDemoSystem extends Command
             return;
         }
 
-        $this->callSilent('migrate:fresh', ['--seed' => true]);
+        $this->callSilent('migrate:fresh', ['--seed' => true, '--force' => true]);
 
         Model::unguard();
 
@@ -109,7 +109,7 @@ class CreateDemoSystem extends Command
         $anatomy->save();
 
         $math = new Room();
-        $math->id = 'abc-def-456';
+        $math->id = 'abc-def-234';
         $math->name = 'Math';
         $math->description = 'Math class';
         $math->owner()->associate($daniel);
@@ -117,7 +117,7 @@ class CreateDemoSystem extends Command
         $math->save();
 
         $meetingRoom = new Room();
-        $meetingRoom->id = 'abc-def-789';
+        $meetingRoom->id = 'abc-def-345';
         $meetingRoom->name = 'Meeting Room';
         $meetingRoom->description = 'Meeting room';
         $meetingRoom->owner()->associate($angela);
@@ -125,7 +125,7 @@ class CreateDemoSystem extends Command
         $meetingRoom->save();
 
         $examRoom = new Room();
-        $examRoom->id = 'abc-def-012';
+        $examRoom->id = 'abc-def-456';
         $examRoom->name = 'Exam Room';
         $examRoom->description = 'Exam room';
         $examRoom->owner()->associate($angela);
@@ -133,7 +133,7 @@ class CreateDemoSystem extends Command
         $examRoom->save();
 
         $seminarRoom = new Room();
-        $seminarRoom->id = 'abc-def-345';
+        $seminarRoom->id = 'abc-def-567';
         $seminarRoom->name = 'Seminar Room';
         $seminarRoom->description = 'Seminar room';
         $seminarRoom->owner()->associate($angela);
@@ -155,7 +155,6 @@ class CreateDemoSystem extends Command
         $seminarRoom->members()->attach($daniel, ['role' => RoomUserRole::MODERATOR]);
         $seminarRoom->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);
 
-
         // Add files to room
         $introduction = new RoomFile();
         $introduction->path = 'abc-def-123/anatomy-introduction.pdf';
@@ -175,16 +174,15 @@ class CreateDemoSystem extends Command
         $foot->room()->associate($anatomy);
         $foot->save();
 
-
         $this->table(['Name', 'Role', 'Email', 'Password'], [
             ['John Doe', 'admin', 'john.doe@example.org', 'johndoe'],
             ['Daniel Osorio', 'teacher', 'daniel.osorio@example.org', 'danielosorio'],
-            ['Angela Jones','teacher',  'angela.jones@example.org', 'angelajones'],
+            ['Angela Jones', 'teacher',  'angela.jones@example.org', 'angelajones'],
             ['Hoyt Hastings', 'student', 'hoyt.hastings@example.org', 'hoythastings'],
             ['William White', 'student', 'william.white@example.org', 'williamwhite'],
             ['Thomas Bolden', 'student', 'thomas.bolden@example.org', 'thomasbolden'],
         ]);
 
-                Model::reguard();
+        Model::reguard();
     }
 }

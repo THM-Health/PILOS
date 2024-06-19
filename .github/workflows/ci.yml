@@ -174,8 +174,8 @@ jobs:
         run: npm ci
       - name: Execute frontend code style check via eslint
         run: npm run lint
-  frontend-tests:
-    name: Frontend Tests
+  frontend-and-integration-tests:
+    name: Frontend and Integration Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -211,19 +211,30 @@ jobs:
       - name: Adjust .env
         run: |
           sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
-          sed -i 's/APP_ENV=.*/APP_ENV=production/g' .env
-          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/g' .env
           cat .env
 
       - name: Start app
-        run: docker compose -f docker-compose.yml -f docker-compose-ci.yml up -d
+        run: docker compose -f docker-compose-ci.yml up -d
 
-      - name: Cypress run
+      - name: Cypress run frontend tests
         uses: cypress-io/github-action@v6
         with:
-          wait-on: 'http://localhost' # Waits for above
+          wait-on: 'http://localhost:9080' # Waits for above
           record: true
           tag: ${{ github.event_name }}
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+      - name: Cypress run integration tests
+        uses: cypress-io/github-action@v6
+        with:
+          wait-on: 'http://localhost:9080' # Waits for above
+          record: true
+          tag: ${{ github.event_name }}
+          project: ./tests/Integration
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
