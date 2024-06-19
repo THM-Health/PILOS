@@ -18,22 +18,27 @@ class ServerSeeder extends Seeder
     public function run()
     {
         $faker = Factory::create();
-        $servers = config('bigbluebutton.testserver');
+        $host = config('bigbluebutton.test_server.host');
+        $secret = config('bigbluebutton.test_server.secret');
 
-        foreach ($servers as $server) {
-            $server = Server::create([
-                'base_url' => $server->url,
-                'secret' => $server->secret,
-                'name' => $faker->unique()->word,
-                'status' => ServerStatus::ENABLED,
-                'error_count' => 0,
-                'recover_count' => config('bigbluebutton.server_online_threshold'),
-                'load' => 0,
-            ]);
-            foreach (ServerPool::all() as $serverPool) {
-                $serverPool->servers()->attach($server);
-            }
+        // If host or secret are not set, skip
+        if (! $host || ! $secret) {
+            return;
         }
 
+        $server = Server::create([
+            'base_url' => $host,
+            'secret' => $secret,
+            'name' => 'Test Server',
+            'status' => ServerStatus::ENABLED,
+            'error_count' => 0,
+            'recover_count' => config('bigbluebutton.server_online_threshold'),
+            'load' => 0,
+        ]);
+
+        // Attach the server to all server pools
+        foreach (ServerPool::all() as $serverPool) {
+            $serverPool->servers()->attach($server);
+        }
     }
 }
