@@ -2,8 +2,6 @@ name: pilos-ci
 
 x-docker-pilos-common: &pilos-common
   image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
-  volumes:
-    - './:/var/www/html/'
   env_file: .env
   environment:
     APP_URL: http://localhost:9080
