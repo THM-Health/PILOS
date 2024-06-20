@@ -33,18 +33,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-  cron:
-    <<: *pilos-common
-    entrypoint: [ 'pilos-cli', 'run:cron' ]
-    depends_on:
-      app:
-        condition: service_healthy
-  horizon:
-    <<: *pilos-common
-    entrypoint: [ 'pilos-cli', 'run:horizon' ]
-    depends_on:
-      app:
-        condition: service_healthy
   db:
     image: 'mariadb:11'
     environment:
