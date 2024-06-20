@@ -174,8 +174,8 @@ jobs:
         run: npm ci
       - name: Execute frontend code style check via eslint
         run: npm run lint
-  frontend-and-integration-tests:
-    name: Frontend and Integration Tests
+  frontend-and-system-tests:
+    name: Frontend and System Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -221,6 +221,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           wait-on: 'http://localhost:9080' # Waits for above
+          group: 'Frontend tests'
           record: true
           tag: ${{ github.event_name }}
         env:
@@ -230,13 +231,14 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: 'http://localhost:9080'
-      - name: Cypress run integration tests
+      - name: Cypress run system tests
         uses: cypress-io/github-action@v6
         with:
           wait-on: 'http://localhost:9080' # Waits for above
+          group: 'System tests'
           record: true
           tag: ${{ github.event_name }}
-          project: ./tests/Integration
+          project: ./tests/System
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

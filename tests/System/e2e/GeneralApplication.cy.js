@@ -4,7 +4,6 @@ describe('General', function () {
   });
 
   it('all locales get rendered', function () {
-
     cy.loginAs('john');
 
     cy.visit('/rooms');
