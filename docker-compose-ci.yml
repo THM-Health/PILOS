@@ -1,4 +1,4 @@
-name: "PILOS-CI"
+name: pilos-ci
 
 x-docker-pilos-common: &pilos-common
   image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
