@@ -212,8 +212,7 @@ jobs:
         run: |
           sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
           sed -i 's|BBB_TEST_SERVER_HOST=.*|BBB_TEST_SERVER_HOST=${{ secrets.BBB_TEST_SERVER_HOST }}|g' .env
-          sed -i 's|BBB_TEST_SERVER_SECRET=.*|BBB_TEST_SERVER_SECRET=${{ secrets.BBB_TEST_SERVER_HOST }}|g' .env
-          cat .env
+          sed -i 's|BBB_TEST_SERVER_SECRET=.*|BBB_TEST_SERVER_SECRET=${{ secrets.BBB_TEST_SERVER_SECRET }}|g' .env
 
       - name: Start app
         run: docker compose -f docker-compose-ci.yml up -d
@@ -230,6 +229,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          APP_URL: 'http://localhost:9080'
       - name: Cypress run integration tests
         uses: cypress-io/github-action@v6
         with:
@@ -243,4 +243,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          APP_URL: 'http://localhost:9080'
 
