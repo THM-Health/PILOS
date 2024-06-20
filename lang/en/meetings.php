@@ -23,7 +23,7 @@ return [
     'no_historical_data' => 'There are no historical meetings available',
     'now' => 'now',
     'owner' => 'Owner',
-    'participant_count' => 'Participant',
+    'participant_count' => 'Participant(s)',
     'retention_period' => 'Retention period',
     'start' => 'Begin',
     'stats' => [
