@@ -4,6 +4,7 @@ namespace Database\Seeders\Demo;
 
 use App\Enums\RoomUserRole;
 use App\Enums\ServerStatus;
+use App\Models\Meeting;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomFile;
@@ -100,21 +101,21 @@ class CreateDemoSystem extends Command
         $seminar = RoomType::where('name', 'Seminar')->first();
 
         // Create rooms
-        $anatomy = new Room();
-        $anatomy->id = 'abc-def-123';
-        $anatomy->name = 'Anatomy';
-        $anatomy->description = 'Anatomy class';
-        $anatomy->owner()->associate($daniel);
-        $anatomy->roomType()->associate($lecture);
-        $anatomy->save();
+        $anatomyRoom = new Room();
+        $anatomyRoom->id = 'abc-def-123';
+        $anatomyRoom->name = 'Anatomy';
+        $anatomyRoom->description = 'Anatomy class';
+        $anatomyRoom->owner()->associate($daniel);
+        $anatomyRoom->roomType()->associate($lecture);
+        $anatomyRoom->save();
 
-        $math = new Room();
-        $math->id = 'abc-def-234';
-        $math->name = 'Math';
-        $math->description = 'Math class';
-        $math->owner()->associate($daniel);
-        $math->roomType()->associate($lecture);
-        $math->save();
+        $mathRoom = new Room();
+        $mathRoom->id = 'abc-def-234';
+        $mathRoom->name = 'Math';
+        $mathRoom->description = 'Math class';
+        $mathRoom->owner()->associate($daniel);
+        $mathRoom->roomType()->associate($lecture);
+        $mathRoom->save();
 
         $meetingRoom = new Room();
         $meetingRoom->id = 'abc-def-345';
@@ -141,17 +142,13 @@ class CreateDemoSystem extends Command
         $seminarRoom->save();
 
         // Attach users to rooms
-        $anatomy->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
-        $anatomy->members()->attach($william, ['role' => RoomUserRole::USER]);
-
-        $math->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
-        $math->members()->attach($william, ['role' => RoomUserRole::USER]);
-        $math->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);
-
+        $anatomyRoom->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
+        $anatomyRoom->members()->attach($william, ['role' => RoomUserRole::USER]);
+        $mathRoom->members()->attach($hoyt, ['role' => RoomUserRole::USER]);
+        $mathRoom->members()->attach($william, ['role' => RoomUserRole::USER]);
+        $mathRoom->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);
         $meetingRoom->members()->attach($daniel, ['role' => RoomUserRole::USER]);
-
         $examRoom->members()->attach($daniel, ['role' => RoomUserRole::CO_OWNER]);
-
         $seminarRoom->members()->attach($daniel, ['role' => RoomUserRole::MODERATOR]);
         $seminarRoom->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);
 
@@ -162,7 +159,7 @@ class CreateDemoSystem extends Command
         $introduction->download = true;
         $introduction->use_in_meeting = true;
         $introduction->default = false;
-        $introduction->room()->associate($anatomy);
+        $introduction->room()->associate($anatomyRoom);
         $introduction->save();
 
         $foot = new RoomFile();
@@ -171,8 +168,58 @@ class CreateDemoSystem extends Command
         $foot->download = false;
         $foot->use_in_meeting = true;
         $foot->default = true;
-        $foot->room()->associate($anatomy);
+        $foot->room()->associate($anatomyRoom);
         $foot->save();
+
+        // Add meetings to rooms
+        $meeting = new Meeting();
+        $meeting->start = '2021-01-01 10:00:00';
+        $meeting->end = '2021-01-01 11:00:00';
+        $meeting->room()->associate($meetingRoom);
+        $meeting->server()->associate($server);
+        $meeting->save();
+        $meetingRoom->latestMeeting()->associate($meeting);
+        $meetingRoom->save();
+
+        // Add meetings to rooms
+        $meeting = new Meeting();
+        $meeting->start = '2024-01-01 10:00:00';
+        $meeting->end = '2024-01-01 11:00:00';
+        $meeting->room()->associate($anatomyRoom);
+        $meeting->server()->associate($server);
+        $meeting->save();
+        $anatomyRoom->latestMeeting()->associate($meeting);
+        $anatomyRoom->participant_count = 30;
+        $anatomyRoom->listener_count = 10;
+        $anatomyRoom->voice_participant_count = 20;
+        $anatomyRoom->video_count = 1;
+        $anatomyRoom->save();
+
+        $meeting = new Meeting();
+        $meeting->start = '2024-01-01 10:00:00';
+        $meeting->end = '2024-01-01 12:00:00';
+        $meeting->room()->associate($mathRoom);
+        $meeting->server()->associate($server);
+        $meeting->save();
+        $mathRoom->latestMeeting()->associate($meeting);
+        $mathRoom->participant_count = 30;
+        $mathRoom->listener_count = 10;
+        $mathRoom->voice_participant_count = 20;
+        $mathRoom->video_count = 1;
+        $mathRoom->save();
+
+        $meeting = new Meeting();
+        $meeting->start = '2024-01-01 08:00:00';
+        $meeting->end = null;
+        $meeting->room()->associate($meetingRoom);
+        $meeting->server()->associate($server);
+        $meeting->save();
+        $meetingRoom->latestMeeting()->associate($meeting);
+        $meetingRoom->participant_count = 2;
+        $meetingRoom->listener_count = 0;
+        $meetingRoom->voice_participant_count = 2;
+        $meetingRoom->video_count = 2;
+        $meetingRoom->save();
 
         $this->table(['Name', 'Role', 'Email', 'Password'], [
             ['John Doe', 'admin', 'john.doe@example.org', 'johndoe'],
