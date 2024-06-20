@@ -89,6 +89,9 @@ domPurify.addHook(
     if (hookEvent.attrName === 'style') {
       hookEvent.attrValue = sanitizeCss(currentNode);
     }
+    if (hookEvent.attrName === 'src') {
+      hookEvent.attrValue = sanitizeSrc(currentNode);
+    }
   }
 );
 
@@ -127,6 +130,18 @@ function sanitizeCss (node) {
 
   // Return the sanitized CSS
   return node.style.cssText;
+}
+
+/**
+ * Sanitize the src attribute of a given node. It checks if the src attribute is a valid URL.
+ * @param {Object} node - The DOM node whose src attribute is to be sanitized.
+ * @returns {string} - The sanitized src attribute as a string.
+ */
+function sanitizeSrc (node) {
+  if (node.src.startsWith('https://')) {
+    return node.src;
+  }
+  return '';
 }
 
 /**
