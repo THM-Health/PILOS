@@ -105,6 +105,7 @@ class CreateDemoSystem extends Command
         $anatomyRoom->id = 'abc-def-123';
         $anatomyRoom->name = 'Anatomy';
         $anatomyRoom->description = 'Anatomy class';
+        $anatomyRoom->access_code = 123456789;
         $anatomyRoom->owner()->associate($daniel);
         $anatomyRoom->roomType()->associate($lecture);
         $anatomyRoom->save();
@@ -113,6 +114,8 @@ class CreateDemoSystem extends Command
         $mathRoom->id = 'abc-def-234';
         $mathRoom->name = 'Math';
         $mathRoom->description = 'Math class';
+        $mathRoom->access_code = 123456789;
+        $mathRoom->allow_guests = true;
         $mathRoom->owner()->associate($daniel);
         $mathRoom->roomType()->associate($lecture);
         $mathRoom->save();
@@ -121,6 +124,7 @@ class CreateDemoSystem extends Command
         $meetingRoom->id = 'abc-def-345';
         $meetingRoom->name = 'Meeting Room';
         $meetingRoom->description = 'Meeting room';
+        $meetingRoom->access_code = 123456789;
         $meetingRoom->owner()->associate($angela);
         $meetingRoom->roomType()->associate($meeting);
         $meetingRoom->save();
@@ -129,6 +133,7 @@ class CreateDemoSystem extends Command
         $examRoom->id = 'abc-def-456';
         $examRoom->name = 'Exam Room';
         $examRoom->description = 'Exam room';
+        $examRoom->access_code = 123456789;
         $examRoom->owner()->associate($angela);
         $examRoom->roomType()->associate($exam);
         $examRoom->save();
@@ -137,6 +142,7 @@ class CreateDemoSystem extends Command
         $seminarRoom->id = 'abc-def-567';
         $seminarRoom->name = 'Seminar Room';
         $seminarRoom->description = 'Seminar room';
+        $seminarRoom->access_code = 123456789;
         $seminarRoom->owner()->associate($angela);
         $seminarRoom->roomType()->associate($seminar);
         $seminarRoom->save();

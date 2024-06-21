@@ -12,9 +12,9 @@ describe('General', function () {
     cy.get('.fa-solid.fa-language').click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').should('have.length', 3);
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch');
-      cy.get('[data-test=submenu-action]').eq(1).should('contain', 'English');
-      cy.get('[data-test=submenu-action]').eq(2).should('contain', 'Français');
+      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch');
+      cy.get('[data-test=submenu-action]').eq(1).should('have.text', 'English');
+      cy.get('[data-test=submenu-action]').eq(2).should('have.text', 'Français');
     });
   });
 
@@ -26,9 +26,9 @@ describe('General', function () {
     // Open menu and click on a different locale than the current one
     cy.get('.fa-solid.fa-language').click();
     cy.get('[data-test=submenu]').eq(1).should('be.visible').within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
+      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
     });
 
-    cy.contains('Räume');
+    cy.contains('Räume').should('be.visible');
   });
 });

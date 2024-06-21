@@ -25,7 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('seed', () => {
-  cy.exec('docker compose -f ../../docker-compose-ci.yml exec app pilos-cli demo:create --force');
+  cy.exec('docker compose -f ../../compose.test.yml exec app pilos-cli demo:create --force');
 });
 
 Cypress.Commands.add('loginAs', (name) => {
@@ -47,16 +47,16 @@ Cypress.Commands.add('loginAs', (name) => {
     cy.get('#local-email').type(user.email);
     cy.get('#local-password').type(user.password);
 
-    cy.get('.p-button').should('contain', 'Login').click();
+    cy.get('.p-button').should('have.text', 'Login').click();
   });
 
   // Check toast message
-  cy.get('.p-toast').should('be.visible').and('contain', 'Successfully logged in');
+  cy.get('.p-toast').should('be.visible').and('have.text', 'Successfully logged in');
 });
 
 Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
   cy.intercept('GET', 'api/v1/currentUser', {});
 
   cy.visit(path);
-  cy.url().should('contain', '/login?redirect=' + path);
+  cy.url().should('include', '/login?redirect=' + path);
 });

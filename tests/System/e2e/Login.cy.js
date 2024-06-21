@@ -11,13 +11,13 @@ describe('Login', function () {
       cy.get('#local-email').type('john.doe@example.org');
       cy.get('#local-password').type('johndoe');
 
-      cy.get('.p-button').should('contain', 'Login').click();
+      cy.get('.p-button').should('have.text', 'Login').click();
     });
 
     // Check toast message
-    cy.get('.p-toast').should('be.visible').and('contain', 'Successfully logged in');
+    cy.get('.p-toast').should('be.visible').and('have.text', 'Successfully logged in');
     // Check if redirect works
-    cy.url().should('contain', '/rooms').and('not.contain', '/login');
+    cy.url().should('include', '/rooms').and('not.contain', '/login');
   });
 
   it('local login invalid', function () {
@@ -28,10 +28,10 @@ describe('Login', function () {
       cy.get('#local-email').type('john.doe@example.org');
       cy.get('#local-password').type('johndoe2');
 
-      cy.get('.p-button').should('contain', 'Login').click();
+      cy.get('.p-button').should('have.text', 'Login').click();
     });
 
     // Check error message
-    cy.contains('These credentials do not match our records.');
+    cy.contains('These credentials do not match our records.').should('be.visible');
   });
 });
