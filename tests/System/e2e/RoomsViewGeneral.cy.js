@@ -17,8 +17,16 @@ describe('Room View general', function () {
     cy.visit('/rooms/abc-def-123');
 
     cy.contains('Anatomy').should('be.visible');
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
 
-    // Enter wrong and correct access code
+    cy.get('[data-test="room-access-code"] input').type('111111111');
+    cy.get('[data-test="room-access-code"] button').click();
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+    cy.get('[data-test="room-access-code"] input').clear();
+
+    cy.get('[data-test="room-access-code"] input').type('123456789');
+    cy.get('[data-test="room-access-code"] button').click();
+    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
   });
 
   it('guest forbidden', function () {
@@ -31,7 +39,16 @@ describe('Room View general', function () {
     cy.visit('/rooms/abc-def-234');
 
     cy.contains('Math').should('be.visible');
-    // Enter wrong and correct access code
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+
+    cy.get('[data-test="room-access-code"] input').type('111111111');
+    cy.get('[data-test="room-access-code"] button').click();
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+    cy.get('[data-test="room-access-code"] input').clear();
+
+    cy.get('[data-test="room-access-code"] input').type('123456789');
+    cy.get('[data-test="room-access-code"] button').click();
+    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
   });
 
   it('room not found', function () {
