@@ -99,6 +99,7 @@
               <InputText
                 id="base_url"
                 autocomplete="off"
+                placeholder="https://bbb01.example.com/bigbluebutton/"
                 v-model="model.base_url"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 :invalid="formErrors.fieldInvalid('base_url')"
