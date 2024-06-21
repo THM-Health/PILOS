@@ -103,7 +103,7 @@ jobs:
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
-      run: php artisan migrate --no-interaction -vvv
+      run: php artisan migrate --no-interaction -vvv --force
     - name: Execute code style check via Laravel Pint
       run: vendor/bin/pint --test
     - name: Execute tests (Unit and Feature tests) via PHPUnit
@@ -216,7 +216,7 @@ jobs:
           sed -i 's|BBB_TEST_SERVER_SECRET=.*|BBB_TEST_SERVER_SECRET=${{ secrets.BBB_TEST_SERVER_SECRET }}|g' .env
 
       - name: Start app
-        run: docker compose -f docker-compose-ci.yml up -d
+        run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Cypress run frontend tests
         uses: cypress-io/github-action@v6
