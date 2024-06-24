@@ -81,6 +81,16 @@ describe('Room Index', function () {
     });
   });
 
+  it('click on room card to open room view', function () {
+    cy.interceptRoomViewRequests();
+    cy.visit('/rooms');
+    cy.wait('@roomRequest');
+
+    cy.get('.room-card').eq(0).click();
+
+    cy.url().should('include', '/rooms/abc-def-123');
+  });
+
   it('error loading rooms', function () {
     cy.intercept('GET', 'api/v1/locale/en', {
       data: {

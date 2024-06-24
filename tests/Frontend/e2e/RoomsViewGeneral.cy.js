@@ -6,16 +6,6 @@ describe('Room View general', function () {
     cy.interceptRoomViewRequests();
   });
 
-  it('click on room card to open room view', function () {
-    cy.interceptRoomIndexRequests();
-    cy.visit('/rooms');
-    cy.wait('@roomRequest');
-
-    cy.get('.room-card').eq(0).click();
-
-    cy.url().should('include', '/rooms/abc-def-123');
-  });
-
   it('guest forbidden', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 403,

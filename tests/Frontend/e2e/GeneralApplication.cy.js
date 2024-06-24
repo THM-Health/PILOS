@@ -1,6 +1,6 @@
 import env from '../../../resources/js/env.js';
 
-describe('Locales', function () {
+describe('General', function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomIndexRequests();
@@ -20,7 +20,7 @@ describe('Locales', function () {
     cy.visit('/rooms');
 
     // Open menu to check if the correct locales are shown
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.fa-solid.fa-language').click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').should('have.length', 3);
       cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch');
@@ -41,7 +41,7 @@ describe('Locales', function () {
 
     cy.visit('/rooms');
     // Open menu and click on a different locale than the current one
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.fa-solid.fa-language').click();
     cy.get('[data-test=submenu]').eq(1).should('be.visible').within(() => {
       cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
     });
@@ -82,7 +82,7 @@ describe('Locales', function () {
     cy.visit('/rooms');
 
     // Open menu and click on a different locale than the current one
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.fa-solid.fa-language').click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
     });
@@ -107,7 +107,7 @@ describe('Locales', function () {
     cy.intercept('GET', '/api/v1/locale/de', cy.spy().as('deRequestSpy'));
 
     // Open menu and click on a different locale than the current one
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.fa-solid.fa-language').click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
     });

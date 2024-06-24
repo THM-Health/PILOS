@@ -85,6 +85,477 @@ describe('Rooms view meetings', function () {
     });
   });
 
+  it('join running meeting attendance logging', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    });
+
+    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/join*', {
+      statusCode: 200,
+      body: {
+        url: 'http://example.org/?foo=a&bar=b'
+      }
+    }, 'joinRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test=room-join-button]').should('not.be.disabled').and('have.text', 'rooms.join').click();
+
+    // Check if join dialog is shown correctly
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.recording_attendance_info').should('be.visible');
+      cy.contains('rooms.recording_attendance_accept').should('be.visible');
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+
+      // Check loading
+      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
+      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+        joinRequest.sendResponse();
+      });
+    });
+
+    // Check that correct query is sent
+    cy.wait('@joinRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: '',
+        record_attendance: '1',
+        record: '0',
+        record_video: '0'
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('join running meeting with recording', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: true,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    });
+
+    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/join*', {
+      statusCode: 200,
+      body: {
+        url: 'http://example.org/?foo=a&bar=b'
+      }
+    }, 'joinRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test=room-join-button]').should('not.be.disabled').and('have.text', 'rooms.join').click();
+
+    // Check if join dialog is shown correctly
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.recording_info').should('be.visible');
+      cy.contains('rooms.recording_accept').should('be.visible');
+      cy.contains('rooms.recording_video_accept').should('be.visible');
+
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+
+      // Check loading
+      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
+      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+        joinRequest.sendResponse();
+      });
+    });
+
+    // Check that correct query is sent
+    cy.wait('@joinRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: '',
+        record_attendance: '0',
+        record: '1',
+        record_video: '1'
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('join running meeting guests', function () { // ToDo intercept files request??
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    });
+
+    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+      statusCode: 422,
+      body: {
+        message: 'The given data was invalid',
+        errors: {
+          name: ['The name contains the following non-permitted characters: 123!']
+        }
+      }
+    }).as('joinRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.get('[data-test=room-join-button').click();
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.first_and_lastname');
+      cy.get('#guest-name').type('John Doe 123!');
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@joinRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe 123!',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+    });
+
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
+      cy.get('#guest-name').clear();
+      cy.get('#guest-name').type('John Doe');
+
+      cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+        statusCode: 200,
+        body: {
+          url: 'http://example.org/?foo=a&bar=b'
+        }
+      }).as('joinRequest');
+
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@joinRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('join running meeting guests with access code', function () { // ToDo improve setting access code???
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
+
+    cy.get('#access-code').type('123456789');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: false,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.get('.p-button').eq(1).should('have.text', 'rooms.login').click();
+
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+      statusCode: 422,
+      body: {
+        message: 'The given data was invalid',
+        errors: {
+          name: ['The name contains the following non-permitted characters: 123!']
+        }
+      }
+    }).as('joinRequest');
+
+    cy.get('[data-test=room-join-button').click();
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.first_and_lastname');
+      cy.get('#guest-name').type('John Doe 123!');
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@joinRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe 123!',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
+      cy.get('#guest-name').clear();
+      cy.get('#guest-name').type('John Doe');
+
+      cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+        statusCode: 200,
+        body: {
+          url: 'http://example.org/?foo=a&bar=b'
+        }
+      }).as('joinRequest');
+
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@joinRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('join running meeting token', function () {
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+      statusCode: 200,
+      body: {
+        url: 'http://example.org/?foo=a&bar=b'
+      }
+    }).as('joinRequest');
+
+    cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers.token).to.eq('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    });
+
+    cy.get('[data-test=room-join-button').click();
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@joinRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+      expect(interception.request.headers.token).to.eq('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
   it('join meeting error', function () { // ToDo improve error tests
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -379,6 +850,477 @@ describe('Rooms view meetings', function () {
       });
     });
 
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('start meeting attendance logging', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    });
+
+    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 200,
+      body: {
+        url: 'http://example.org/?foo=a&bar=b'
+      }
+    }, 'startRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test=room-start-button]').should('not.be.disabled').and('have.text', 'rooms.start').click();
+
+    // Check if join dialog is shown correctly
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.recording_attendance_info').should('be.visible');
+      cy.contains('rooms.recording_attendance_accept').should('be.visible');
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+
+      // Check loading
+      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
+      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+        joinRequest.sendResponse();
+      });
+    });
+
+    // Check that correct query is sent
+    cy.wait('@startRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: '',
+        record_attendance: '1',
+        record: '0',
+        record_video: '0'
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('start meeting with recording', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: true,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    });
+
+    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 200,
+      body: {
+        url: 'http://example.org/?foo=a&bar=b'
+      }
+    }, 'startRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test=room-start-button]').should('not.be.disabled').and('have.text', 'rooms.start').click();
+
+    // Check if join dialog is shown correctly
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.recording_info').should('be.visible');
+      cy.contains('rooms.recording_accept').should('be.visible');
+      cy.contains('rooms.recording_video_accept').should('be.visible');
+
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+
+      // Check loading
+      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
+      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+        joinRequest.sendResponse();
+      });
+    });
+
+    // Check that correct query is sent
+    cy.wait('@startRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: '',
+        record_attendance: '0',
+        record: '1',
+        record_video: '1'
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('start meeting guests', function () {
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    });
+
+    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 422,
+      body: {
+        message: 'The given data was invalid',
+        errors: {
+          name: ['The name contains the following non-permitted characters: 123!']
+        }
+      }
+    }).as('startRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.get('[data-test=room-start-button').click();
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.first_and_lastname');
+      cy.get('#guest-name').type('John Doe 123!');
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@startRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe 123!',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+    });
+
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
+      cy.get('#guest-name').clear();
+      cy.get('#guest-name').type('John Doe');
+
+      cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+        statusCode: 200,
+        body: {
+          url: 'http://example.org/?foo=a&bar=b'
+        }
+      }).as('startRequest');
+
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@startRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('start meeting guests with access code', function () { // ToDo improve setting access code???
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
+
+    cy.get('#access-code').type('123456789');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.get('.p-button').eq(1).should('have.text', 'rooms.login').click();
+
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 422,
+      body: {
+        message: 'The given data was invalid',
+        errors: {
+          name: ['The name contains the following non-permitted characters: 123!']
+        }
+      }
+    }).as('startRequest');
+
+    cy.get('[data-test=room-start-button').click();
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('rooms.first_and_lastname');
+      cy.get('#guest-name').type('John Doe 123!');
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@startRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe 123!',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
+      cy.get('#guest-name').clear();
+      cy.get('#guest-name').type('John Doe');
+
+      cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+        statusCode: 200,
+        body: {
+          url: 'http://example.org/?foo=a&bar=b'
+        }
+      }).as('startRequest');
+
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@startRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        name: 'John Doe',
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    // Check if redirect worked
+    cy.origin('http://example.org', () => {
+      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    });
+  });
+
+  it('start meeting token', function () {
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 200,
+      body: {
+        url: 'http://example.org/?foo=a&bar=b'
+      }
+    }).as('startRequest');
+
+    cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers.token).to.eq('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    });
+
+    cy.get('[data-test=room-start-button').click();
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.get('#record-attendance-agreement').should('not.be.checked').click();
+      cy.get('#record-agreement').should('not.be.checked').click();
+      cy.get('#record-video-agreement').should('not.be.checked').click();
+      cy.get('.p-button').eq(1).click();
+    });
+
+    cy.wait('@startRequest').then((interception) => {
+      expect(interception.request.query).to.contain({
+        record_attendance: '1',
+        record: '1',
+        record_video: '1'
+      });
+      expect(interception.request.headers.token).to.eq('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    });
+
+    // Check if redirect worked
     cy.origin('http://example.org', () => {
       cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
     });
