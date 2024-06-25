@@ -71,7 +71,7 @@
       <label>{{ $t('rooms.recordings.access') }}</label>
       <div v-for="accessType in accessTypes" :key="accessType" class="flex align-items-center">
         <RadioButton v-model="newAccess" :inputId="'access-'+accessType" name="access" :value="accessType" />
-        <label :for="'access-'+accessType" class="ml-2"><RoomRecodingAccessBadge :access="accessType"/></label>
+        <label :for="'access-'+accessType" class="ml-2"><RoomRecordingAccessBadge :access="accessType"/></label>
       </div>
       <p class="p-error" v-html="formErrors.fieldError('access')" />
     </div>

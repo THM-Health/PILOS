@@ -102,7 +102,7 @@
                     </div>
                     <div class="flex flex-row gap-2" v-if="userPermissions.can('manageSettings', props.room)">
                       <i class="fa-solid fa-lock"></i>
-                      <RoomRecodingAccessBadge :access="item.access" />
+                      <RoomRecordingAccessBadge :access="item.access" />
                     </div>
                   </div>
                   <div class="flex flex-row flex-wrap gap-1" v-if="userPermissions.can('manageSettings', props.room)">

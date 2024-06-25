@@ -125,7 +125,9 @@ jobs:
         DB_USERNAME: root
         DB_PASSWORD: password
         LOG_CHANNEL: stack
-        TESTING_BBB: ${{ secrets.TESTING_BBB }}
+        BBB_TEST_SERVER_HOST: ${{ secrets.BBB_TEST_SERVER_HOST }}
+        BBB_TEST_SERVER_SECRET: ${{ secrets.BBB_TEST_SERVER_SECRET }}
+
       run: php artisan test --parallel --testsuite=Unit,Feature --coverage-clover=coverage.xml
 
     - name: Execute tests (Unit and Feature tests) via PHPUnit using Postgres

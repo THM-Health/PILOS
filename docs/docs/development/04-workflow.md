@@ -31,7 +31,8 @@ checkout the [Laravel testing guides](https://laravel.com/docs/9.x/testing).
 To run the integration tests against a real BigBlueButton server you need to set the test server in
 the `.env` file:
 ```bash
-TESTING_BBB='[{"url":"https://your-bbb-server.com/bigbluebutton/","secret":"your-secret"}]'
+BBB_TEST_SERVER_HOST=https://your-bbb-server.com/bigbluebutton/
+BBB_TEST_SERVER_SECRET=your-secret
 ```
 
 ### Frontend
