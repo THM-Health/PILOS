@@ -1,11 +1,9 @@
 <script setup>
 
 defineProps({
-  id: Object,
   label: String,
   value: [Boolean, Number],
   enforced: Boolean,
-  roomType: Object,
   type: String,
   options: Object
 });
@@ -25,7 +23,7 @@ defineProps({
         <span class="sr-only">{{ $t('app.enabled') }}</span>
       </Tag>
       <Tag v-if="type === 'switch' && !value" class="round-tag" rounded severity="secondary">
-        <span class="fas fa-times" aria-hidden="true"></span>
+        <span class="fa-solid fa-xmark" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.disabled') }}</span>
       </Tag>
 

@@ -22,7 +22,7 @@ defineProps({
         <span class="sr-only">{{ $t('app.enabled') }}</span>
       </Tag>
       <Tag v-if="type === 'switch' && !currentValue" class="round-tag" rounded severity="secondary">
-        <span class="fas fa-times" aria-hidden="true"></span>
+        <span class="fa-solid fa-xmark" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.disabled') }}</span>
       </Tag>
 
@@ -43,7 +43,7 @@ defineProps({
         <span class="sr-only">{{ $t('app.enabled') }}</span>
       </Tag>
       <Tag v-if="type === 'switch' && !newValue" class="round-tag" rounded severity="secondary">
-        <span class="fas fa-times" aria-hidden="true"></span>
+        <span class="fa-solid fa-xmark" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.disabled') }}</span>
       </Tag>
 

@@ -21,18 +21,16 @@
           >
 
             <!-- Show all room setting grouped by category -->
-            <div v-for="setting in roomTypeSettings" :key="setting.title">
-              <h4 class="my-2">{{ setting.title }}</h4>
+            <div v-for="settingGroup in roomTypeSettings" :key="settingGroup.title">
+              <h4 class="my-2">{{ settingGroup.title }}</h4>
               <RoomTypeSettingsField
-                v-for="field in setting.settings"
-                :key="field.key"
-                :id="field.key"
-                :value="roomType[field.key+'_default']"
-                :enforced="roomType[field.key+'_enforced']"
-                :label="field.label"
-                :roomType="roomType"
-                :type="field.type"
-                :options="field.options"
+                v-for="setting in settingGroup.settings"
+                :key="setting.key"
+                :value="roomType[setting.key+'_default']"
+                :enforced="roomType[setting.key+'_enforced']"
+                :label="setting.label"
+                :type="setting.type"
+                :options="setting.options"
               />
             </div>
 

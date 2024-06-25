@@ -10,6 +10,7 @@ export function useRoomTypeSettings () {
         settings: [
           {
             key: 'has_access_code',
+            current_value_key: 'access_code',
             label: t('rooms.settings.general.has_access_code'),
             type: 'switch'
           },

@@ -13,19 +13,19 @@
       {{ $t('rooms.change_type.changing_settings') }}
 
       <!-- Show all room setting grouped by category -->
-      <div v-for="setting in roomTypeSettings" :key="setting.title">
-        <h4 class="my-2">{{ setting.title }}</h4>
+      <div v-for="settingGroup in roomTypeSettings" :key="settingGroup.title">
+        <h4 class="my-2">{{ settingGroup.title }}</h4>
 
         <RoomTypeCompareSettingsField
-          v-for="field in setting.settings"
-          :key="field.key"
-          :current-value="currentSettings[field.key]"
-          :current-enforced="currentSettings.room_type[field.key+'_enforced']"
-          :new-value="getResultingSetting(field.key)"
-          :new-enforced="newRoomType[field.key+'_enforced']"
-          :label="field.label"
-          :type="field.type"
-          :options="field.options"
+          v-for="setting in settingGroup.settings"
+          :key="setting.key"
+          :current-value="currentSettings[(setting.current_value_key ? setting.current_value_key : setting.key)]"
+          :current-enforced="currentSettings.room_type[setting.key+'_enforced']"
+          :new-value="getResultingSetting(setting.key)"
+          :new-enforced="newRoomType[setting.key+'_enforced']"
+          :label="setting.label"
+          :type="setting.type"
+          :options="setting.options"
         />
       </div>
     </div>
