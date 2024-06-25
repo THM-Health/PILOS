@@ -77,15 +77,21 @@ const resetToDefaults = ref(false);
  * @returns {*|boolean} resulting setting value for the given setting name
  */
 function getResultingSetting (settingName) {
+  // Access code will always keep its value if not enforced
+  if (settingName === 'has_access_code') {
+    if (props.newRoomType[settingName + '_enforced']) {
+      return props.newRoomType[settingName + '_default'];
+    }
+
+    return props.currentSettings.access_code !== null;
+  }
+
   // Check if setting will be changed to default value
   if (resetToDefaults.value || props.newRoomType[settingName + '_enforced']) {
     // Return default value
     return props.newRoomType[settingName + '_default'];
   } else {
     // Return current setting value
-    if (settingName === 'has_access_code') {
-      return props.currentSettings.access_code !== null;
-    }
     return props.currentSettings[settingName];
   }
 }
