@@ -18,11 +18,11 @@ defineProps({
     </span>
 
     <div class="col-4 justify-content-center flex align-items-center">
-      <Tag v-if="type === 'switch' && value" class="round-tag" rounded severity="primary">
+      <Tag v-if="type === 'switch' && value" class="p-tag-circle" rounded severity="primary">
         <span class="fas fa-check"  aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.enabled') }}</span>
       </Tag>
-      <Tag v-if="type === 'switch' && !value" class="round-tag" rounded severity="secondary">
+      <Tag v-if="type === 'switch' && !value" class="p-tag-circle" rounded severity="secondary">
         <span class="fa-solid fa-xmark" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.disabled') }}</span>
       </Tag>
@@ -33,13 +33,3 @@ defineProps({
     </div>
   </div>
 </template>
-<style scoped>
-.round-tag {
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>
