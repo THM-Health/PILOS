@@ -44,7 +44,7 @@ return [
             'image' => [
                 'alt' => 'Alternative text',
                 'edit' => 'Edit image',
-                'invalid_src' => 'The URL must start with http:// or https://',
+                'invalid_src' => 'The URL must start with https://',
                 'new' => 'Add new image',
                 'src' => 'URL',
                 'width' => 'Width',
