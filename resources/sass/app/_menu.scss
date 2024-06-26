@@ -7,3 +7,13 @@
         }
     }
 }
+
+.p-menubar .p-menuitem {
+    margin: 2px 0;
+}
+.p-menubar .p-menuitem:first-child {
+    margin-top: 2px;
+}
+.p-menubar .p-menuitem:last-child {
+    margin-bottom: 2px;
+}

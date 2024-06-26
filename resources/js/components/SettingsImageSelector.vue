@@ -1,7 +1,7 @@
 <template>
   <div class="grid">
-    <div class="col-12 lg:col-9 flex flex-column gap-2">
-      <div class="flex gap-2 align-items-start">
+    <div class="col-12 xl:col-9 flex flex-column gap-2">
+      <div class="flex flex-column lg:flex-row gap-2 lg:align-items-start">
         <InputText
           v-if="!image && !imageDeleted && !readonly"
           :disabled="disabled"
@@ -57,7 +57,7 @@
         <p class="p-error" v-html="urlError"/>
       </div>
     </div>
-    <div class="col-12 lg:col-3 text-left lg:text-right">
+    <div class="col-12 xl:col-3 text-left xl:text-right">
       <img
         v-if="newImageUrl || imageUrl"
         :src="newImageUrl ?? imageUrl"

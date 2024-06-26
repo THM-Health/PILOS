@@ -539,8 +539,8 @@
 
       </OverlayComponent>
       <Divider/>
-      <div class="flex flex-wrap flex-column-reverse md:flex-row md:justify-content-between gap-2 align-items-start ">
-        <div class="flex flex-shrink-0 flex-column md:flex-row align-items-start gap-2">
+      <div class="flex flex-wrap flex-column-reverse md:flex-row md:justify-content-between gap-2 md:align-items-start ">
+        <div class="flex flex-shrink-0 flex-column md:flex-row md:align-items-start gap-2">
           <RoomDeleteButton
             :disabled="disabled"
             :room="room"
@@ -565,6 +565,7 @@
             icon="fa-solid fa-save"
             severity="success"
             type="submit"
+            class="w-full"
           />
         </div>
       </div>

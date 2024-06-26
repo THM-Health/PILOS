@@ -22,7 +22,7 @@
         />
       </div>
 
-      <div class="flex justify-content-end gap-2" v-if="step === 1">
+      <div class="w-full flex flex-column gap-2" v-if="step === 1">
         <Button
           :disabled="isLoadingAction"
           severity="secondary"
@@ -39,7 +39,7 @@
         />
       </div>
 
-      <div class="flex justify-content-end gap-2" v-if="step === 2">
+      <div class="w-full flex flex-column gap-2" v-if="step === 2">
         <Button
           severity="success"
           @click="finish"

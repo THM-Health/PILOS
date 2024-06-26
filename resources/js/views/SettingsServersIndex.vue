@@ -32,7 +32,7 @@
           />
         </InputGroup>
       </div>
-      <div class="flex gap-2 justify-content-between  mt-2">
+      <div class="flex gap-2 justify-content-between gap-2 flex-wrap mt-2">
         <Button
           :disabled="isBusy"
           severity="info"

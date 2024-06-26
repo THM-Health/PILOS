@@ -1,5 +1,5 @@
 <template>
-    <div class="flex">
+    <div class="flex gap-2 flex-wrap">
         <div
             role="button"
             v-for="color in props.colors"

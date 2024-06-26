@@ -8,3 +8,11 @@
         margin: 0;
     }
 }
+
+@media (max-width: 575px) {
+    .p-toast {
+        width: 100%;
+        right: unset !important;
+        padding: 0 10px;
+    }
+}

@@ -1,6 +1,6 @@
 <template>
   <div class="grid">
-    <div class="col-12 lg:col-9 flex gap-2 align-items-start" v-if="!viewOnly">
+    <div class="col-12 lg:col-9 flex md:flex-row flex-column gap-2 md:align-items-start" v-if="!viewOnly">
     <FileUpload
       v-if="!imageDeleted"
       mode="basic"
@@ -9,9 +9,10 @@
       auto
       @uploader="onFileSelect"
       :choose-label="$t('settings.users.image.upload')"
+      class="w-full"
     >
-      <template #chooseicon>
-        <i class="fa-solid fa-upload" />
+      <template #uploadicon>
+        <i class="fa-solid fa-upload mr-2" />
       </template>
     </FileUpload>
 
