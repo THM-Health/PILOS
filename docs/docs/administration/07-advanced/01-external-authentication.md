@@ -176,7 +176,7 @@ If the `all` attribute is also true: Check that regular expression doesn't match
 In this example the LDAP schema uses the common name (CN) as username and has the group memberships in the memberof attribute.
 
 #### Roles
-- The "admin" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
+- The "superuser" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
 
 - The "user" role is given to everyone.
 
@@ -201,7 +201,7 @@ In this example the LDAP schema uses the common name (CN) as username and has th
             ]
         },
         {
-            "name": "admin",
+            "name": "superuser",
             "disabled": false,
             "all": true,
             "rules": [
@@ -210,7 +210,7 @@ In this example the LDAP schema uses the common name (CN) as username and has th
                     "regex":"/@its\\.university\\.org$/i"
                 },
                 {
-                    "attribute": "memberof",
+                    "attribute": "groups",
                     "regex": "/^cn=admin,ou=Groups,dc=university,dc=org$/im"
                 }
       ]
@@ -225,7 +225,7 @@ In this example the LDAP schema uses the common name (CN) as username and has th
 The attribute names are the header names in which the attribute values are send by the apache mod_shib to the application. 
 
 #### Roles
-- The "admin" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
+- The "superuser" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
 
 - The "user" role is given to everyone.
 
@@ -240,7 +240,7 @@ The attribute names are the header names in which the attribute values are send 
     },
     "roles":[
         {
-            "name":"admin",
+            "name":"superuser",
             "disabled":false,
             "all":true,
             "rules":[
@@ -249,7 +249,7 @@ The attribute names are the header names in which the attribute values are send 
                     "regex":"/.*(@its\\.university\\.org)$/i"
                 },
                 {
-                    "attribute":"affiliation",
+                    "attribute":"roles",
                     "regex":"/^(staff)$/im"
                 }
             ]

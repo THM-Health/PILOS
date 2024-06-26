@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0bcea59f2eca2585b52ca49855a183d",
+    "content-hash": "eb1408c95488b706cde298d5fbaec500",
     "packages": [
         {
             "name": "brick/math",
@@ -2637,16 +2637,16 @@
         },
         {
             "name": "littleredbutton/bigbluebutton-api-php",
-            "version": "v5.3.0",
+            "version": "5.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/littleredbutton/bigbluebutton-api-php.git",
-                "reference": "19dede18613f05957f68ce87ac7b3ddce081b052"
+                "reference": "1d2f4231d778c9c248eee2650c276c319b5d3bb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/19dede18613f05957f68ce87ac7b3ddce081b052",
-                "reference": "19dede18613f05957f68ce87ac7b3ddce081b052",
+                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/1d2f4231d778c9c248eee2650c276c319b5d3bb3",
+                "reference": "1d2f4231d778c9c248eee2650c276c319b5d3bb3",
                 "shasum": ""
             },
             "require": {
@@ -2660,7 +2660,7 @@
                 "nyholm/psr7": "^1.4",
                 "psr/http-client": "^1.0",
                 "psr/http-factory": "^1.0",
-                "psr/http-message": "^1.0",
+                "psr/http-message": "^1.0 || ^2.0",
                 "symfony/dotenv": "^3.4|^4.0|^5.0",
                 "symfony/http-client": "^4.4|^5.0",
                 "symfony/http-client-contracts": "^1.1|^2.0",
@@ -2694,7 +2694,6 @@
                         }
                     },
                     "friendsofphp/php-cs-fixer": "^3.3",
-                    "php-coveralls/php-coveralls": "^2.4",
                     "phpunit/phpunit": "^9",
                     "vimeo/psalm": "^4.22"
                 }
@@ -2760,7 +2759,7 @@
                 "issues": "https://github.com/littleredbutton/bigbluebutton-api-php/issues",
                 "source": "https://github.com/littleredbutton/bigbluebutton-api-php/"
             },
-            "time": "2024-02-19T18:37:24+00:00"
+            "time": "2024-06-24T16:22:00+00:00"
         },
         {
             "name": "livewire/livewire",

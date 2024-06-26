@@ -518,7 +518,7 @@
 
             <div class="flex">
               <SelectButton
-                v-model="settings.room_type.visibility_default"
+                v-model="settings.visibility"
                 :allowEmpty="false"
                 :disabled="disabled || settings.room_type.visibility_enforced"
                 :invalid="formErrors.fieldInvalid('visibility_default')"
