@@ -4,6 +4,4 @@ namespace App\Exceptions;
 
 use Exception;
 
-class RecordingExtractionFailed extends Exception
-{
-}
+class RecordingExtractionFailed extends Exception {}
