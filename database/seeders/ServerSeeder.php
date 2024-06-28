@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Enums\ServerStatus;
 use App\Models\Server;
 use App\Models\ServerPool;
-use Faker\Factory;
 use Illuminate\Database\Seeder;
 
 class ServerSeeder extends Seeder
@@ -17,7 +16,6 @@ class ServerSeeder extends Seeder
      */
     public function run()
     {
-        $faker = Factory::create();
         $host = config('bigbluebutton.test_server.host');
         $secret = config('bigbluebutton.test_server.secret');
 

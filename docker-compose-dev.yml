@@ -1,5 +1,4 @@
-# For more information: https://laravel.com/docs/sail
-version: '3'
+name: pilos-dev
 
 x-docker-build-data: &app-image
   image: 'pilos/pilos:local-dev'

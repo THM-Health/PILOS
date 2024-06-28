@@ -132,6 +132,11 @@
             showClear
             optionLabel="name"
             optionValue="id"
+            :pt="{
+              panel: {
+                'data-test': 'room-type-dropdown-items'
+              }
+            }"
           >
             <template #clearicon="{ clearCallback }">
               <span class="p-dropdown-clear" role="button" @click.stop="clearCallback">
@@ -165,6 +170,11 @@
             :options="sortingTypes"
             optionLabel="label"
             optionValue="type"
+            :pt="{
+              panel: {
+                'data-test': 'sorting-type-dropdown-items'
+              }
+            }"
           />
         </InputGroup>
       </div>
@@ -264,6 +274,7 @@
       <InlineMessage severity="error">{{ $t('rooms.index.no_rooms_selected') }}</InlineMessage>
       <br>
       <Button
+        data-test="filter-reset-button"
         class="mt-2"
         ref="reset"
         @click="resetRoomFilter"

@@ -12,6 +12,7 @@ use App\Console\Commands\DeleteUnverifiedNewUsersCommand;
 use App\Console\Commands\ImportGreenlight2Command;
 use App\Console\Commands\ImportRecordingsCommand;
 use App\Console\Commands\PollServerCommand;
+use Database\Seeders\Demo\CreateDemoSystem;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -32,6 +33,7 @@ class Kernel extends ConsoleKernel
         CleanupRoomsCommand::class,
         CleanupRecordingsCommand::class,
         ImportRecordingsCommand::class,
+        CreateDemoSystem::class,
     ];
 
     /**
