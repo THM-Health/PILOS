@@ -141,6 +141,7 @@ function sanitizeSrc (node) {
   if (node.src.startsWith('https://')) {
     return node.src;
   }
+  node.remove();
   return '';
 }
 
