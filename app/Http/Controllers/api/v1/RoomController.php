@@ -170,6 +170,14 @@ class RoomController extends Controller
         if ($room->roomType->has_access_code_default) {
             $room->access_code = random_int(111111111, 999999999);
         }
+
+        // Apply non-expert settings of the room type
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            if (! $config['expert']) {
+                $room[$setting] = $room->roomType[$setting.'_default'];
+            }
+        }
+
         $room->save();
 
         Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
