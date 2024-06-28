@@ -8,7 +8,7 @@
         )
       }}
     </h2>
-    <div class="flex justify-content-between">
+    <div class="flex justify-content-between gap-2 flex-wrap">
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"

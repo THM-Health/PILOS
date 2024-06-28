@@ -129,6 +129,10 @@
     &.room-role-co-owner {
         background-color: $secondary;
     }
+
+    &.room-role-no-role {
+        background-color: $warning;
+    }
 }
 
 .room-recording-access-badge {

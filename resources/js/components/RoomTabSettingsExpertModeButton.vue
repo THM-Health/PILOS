@@ -19,7 +19,7 @@
       {{expertMode? $t('rooms.settings.expert_mode.warning.deactivate'): $t('rooms.settings.expert_mode.warning.activate') }}
     </div>
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="w-full flex flex-column md:flex-row md:justify-content-end gap-2">
         <Button
           :label=" $t('app.cancel')"
           severity="secondary"
