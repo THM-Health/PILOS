@@ -165,7 +165,7 @@ const sanitizedHtml = computed(() => {
  */
 function edit () {
   editorOpen.value = true;
-  newContent.value = props.room.description;
+  newContent.value = sanitizedHtml.value;
 }
 
 /**
