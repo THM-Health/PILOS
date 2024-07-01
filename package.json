@@ -23,7 +23,7 @@
         "eslint-plugin-vue": "^9.26.0"
     },
     "dependencies": {
-        "@floating-ui/vue": "^1.0.4",
+        "@floating-ui/vue": "^1.1.0",
         "@fortawesome/fontawesome-free": "^6.5.2",
         "@tiptap/extension-color": "^2.4.0",
         "@tiptap/extension-highlight": "^2.4.0",
