@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
+    <div class="flex justify-between items-center">
       <h2>{{ $t('app.room_types') }}</h2>
       <router-link
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
@@ -12,7 +12,7 @@
       </router-link>
     </div>
 
-    <div class="flex flex-column md:flex-row">
+    <div class="flex flex-col md:flex-row">
       <div>
         <InputGroup>
           <InputText
@@ -97,7 +97,6 @@ import { onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useSettingsStore } from '../stores/settings';
-import { FilterMatchMode } from 'primevue/api';
 import { useActionColumn } from '../composables/useActionColumn.js';
 import { usePaginator } from '../composables/usePaginator.js';
 
@@ -111,7 +110,7 @@ const isBusy = ref(false);
 const roomTypes = ref([]);
 const nameSearch = ref('');
 const filters = ref({
-  name: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  name: { value: null, matchMode: 'contains' }
 });
 
 onMounted(() => {

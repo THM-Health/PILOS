@@ -1,11 +1,11 @@
 <template>
-  <div class="bg-white py-2 border-bottom-1 border-300">
-    <div class="container flex flex-row justify-content-between">
+  <div class="bg-white py-2 border-b border-slate-300">
+    <div class="container flex flex-row justify-between">
       <Menubar
         :breakpoint="menuBreakpoint+'px'"
         :model="mainMenuItems"
         :pt="{
-          root: 'm-0 border-none',
+          root: 'm-0 border-0',
           menu: {
             class: 'gap-1 px-2',
           },
@@ -15,7 +15,7 @@
         }"
       >
         <template #start>
-          <RouterLink v-if="settingsStore.getSetting('logo')" :to="{ name: 'home' }" class="mr-6">
+          <RouterLink v-if="settingsStore.getSetting('logo')" :to="{ name: 'home' }" class="mr-12">
             <img
               style="height: 2rem;"
               :src="settingsStore.getSetting('logo')"
@@ -25,11 +25,11 @@
         </template>
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-            <a :href="href" v-bind="props.action" @click="navigate" class="flex align-items-center">
+            <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center">
               <span>{{ item.label }}</span>
             </a>
           </router-link>
-          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex align-items-center">
+          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex items-center">
             <span>{{ item.label }}</span>
             <i v-if="hasSubmenu" :class="['fa-solid fa-chevron-down text-xs', { 'fa-chevron-down ml-2': root, 'fa-chevron-right ml-auto': !root }]"></i>
           </a>
@@ -39,7 +39,7 @@
         v-if="!isMobile"
         :model="userMenuItems"
         :pt="{
-              root: 'main-menu-right flex-shrink-0 m-0 border-none',
+              root: 'main-menu-right shrink-0 m-0 border-0',
               menu: {
                 class: 'gap-1 px-2',
               },
@@ -55,11 +55,11 @@
       >
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-            <a :href="href" v-bind="props.action" @click="navigate" class="flex align-items-center">
+            <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center">
               <span v-if="!item.icon">{{ item.label }}</span>
             </a>
           </router-link>
-          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex align-items-center">
+          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex items-center">
             <i :class="item.icon" />
             <UserAvatar data-test="user-avatar" v-if="item.userAvatar" :firstname="authStore.currentUser.firstname" :lastname="authStore.currentUser.lastname" :image="authStore.currentUser.image" class="bg-secondary" />
             <span v-if="!item.userAvatar && !item.icon">{{ item.label }}</span>

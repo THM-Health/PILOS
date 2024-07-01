@@ -6,7 +6,7 @@
         : $t('settings.roles.edit', { name })
       ) }}
     </h2>
-    <div class="flex justify-content-between">
+    <div class="flex justify-between">
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
@@ -51,9 +51,9 @@
         :aria-hidden="modelLoadingError"
         @submit.prevent="saveRole"
       >
-          <div class="field grid">
-            <label for="name" class="col-12 md:col-4">{{$t('app.model_name')}}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label for="name" class="col-span-12 md:col-span-4">{{$t('app.model_name')}}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 class="w-full"
                 id="name"
@@ -66,9 +66,9 @@
             </div>
           </div>
 
-          <div class="field grid">
-            <label for="room-limit" class="col-12 md:col-4 align-items-start">
-              <span class="flex align-items-center">
+          <div class="field grid grid-cols-12 gap-4">
+            <label for="room-limit" class="col-span-12 md:col-span-4 items-start">
+              <span class="flex items-center">
                 {{ $t('app.room_limit') }}
                 <Button
                 @click="helpRoomLimitModalVisible=true"
@@ -79,7 +79,7 @@
                 />
               </span>
             </label>
-            <div class="col-12 md:col-8">
+            <div class="col-span-12 md:col-span-8">
               <div v-for="option in roomLimitModeOptions" :key="option.value" class="mb-2">
                 <RadioButton
                   v-model="roomLimitMode"
@@ -106,38 +106,38 @@
 
           </div>
             <h3>{{ $t('settings.roles.permissions') }}</h3>
-            <div class="grid" v-if="!isBusy && Object.keys(permissions).length > 0">
-              <div class="col-8">
+            <div class="grid grid-cols-12 gap-4" v-if="!isBusy && Object.keys(permissions).length > 0">
+              <div class="col-span-8">
                 <b>{{ $t('settings.roles.permission_name') }}</b>
               </div>
-              <div class="col-2" style="word-wrap: break-word">
+              <div class="col-span-2" style="word-wrap: break-word">
                 <b>{{ $t('settings.roles.permission_explicit') }}</b>
               </div>
-              <div class="col-2" style="word-wrap: break-word">
+              <div class="col-span-2" style="word-wrap: break-word">
                 <b>{{ $t('settings.roles.permission_included') }}
                   <i
                     class="fa-solid fa-circle-info"
                     v-tooltip="$t('settings.roles.permission_included_help')"
                   /></b>
               </div>
-              <div class="col-12">
+              <div class="col-span-12">
                 <Divider/>
-                <div class="grid"
+                <div class="grid grid-cols-12 gap-4"
                   v-for="key in Object.keys(permissions)"
                   :key="key"
                 >
-                  <div class="col-12">
+                  <div class="col-span-12">
                     <b>{{ $t(`app.permissions.${key}.title`) }}</b>
                   </div>
-                  <div class="col-12">
-                    <div class="grid"
+                  <div class="col-span-12">
+                    <div class="grid grid-cols-12 gap-4"
                       v-for="permission in permissions[key]"
                       :key="permission.id"
                     >
-                      <div class="col-8">
+                      <div class="col-span-8">
                         <label :for="permission.name">{{ $t(`app.permissions.${permission.name}`) }}</label>
                       </div>
-                      <div class="col-2 flex">
+                      <div class="col-span-2 flex">
                         <Checkbox
                           :input-id="permission.name"
                           v-model="model.permissions"
@@ -146,7 +146,7 @@
                           :invalid="formErrors.fieldInvalid('permissions', true)"
                         />
                       </div>
-                      <div class="col-2">
+                      <div class="col-span-2">
                         <i
                           v-if="includedPermissions.includes(permission.id)"
                           class="fa-solid fa-check-circle text-green-500"
@@ -166,14 +166,14 @@
 
             <div
               v-if="!isBusy && Object.keys(permissions).length === 0"
-              class="ml-3"
+              class="ml-4"
             >
               {{ $t('settings.roles.no_options') }}
             </div>
             <p class="p-error" v-html="formErrors.fieldError('permissions', true)"></p>
         <div v-if="!viewOnly">
           <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError"
               severity="success"

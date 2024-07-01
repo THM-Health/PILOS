@@ -8,7 +8,7 @@
         )
       }}
     </h2>
-    <div class="flex justify-content-between">
+    <div class="flex justify-between">
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
@@ -53,9 +53,9 @@
         @submit.prevent="saveServerPool"
         :aria-hidden="modelLoadingError"
       >
-        <div class="field grid">
-          <label for="name" class="col-12 md:col-4 md:mb-0">{{ $t('app.model_name') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.model_name') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               class="w-full"
               id="name"
@@ -67,9 +67,9 @@
             <p class="p-error" v-html="formErrors.fieldError('name')"></p>
           </div>
         </div>
-        <div class="field grid">
-          <label for="description" class="col-12 md:col-4 md:mb-0">{{ $t('app.description') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="description" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.description') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               class="w-full"
               id="description"
@@ -81,9 +81,9 @@
             <p class="p-error" v-html="formErrors.fieldError('description')"></p>
           </div>
         </div>
-        <div class="field grid">
-          <label for="servers" class="col-12 md:col-4 md:mb-0">{{ $t('app.servers') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="servers" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.servers') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <multiselect
                 id="servers"
@@ -146,7 +146,7 @@
         </div>
         <div v-if="!viewOnly">
           <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError || serversLoadingError || serversLoading"
               severity="success"

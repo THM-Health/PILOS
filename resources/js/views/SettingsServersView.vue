@@ -8,7 +8,7 @@
         )
       }}
     </h2>
-    <div class="flex justify-content-between">
+    <div class="flex justify-between">
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
@@ -53,9 +53,9 @@
         :aria-hidden="modelLoadingError"
         @submit.prevent="saveServer"
       >
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="name">{{ $t('app.model_name') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="name">{{ $t('app.model_name') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="name"
               v-model="model.name"
@@ -67,9 +67,9 @@
             <p class="p-error" v-html="formErrors.fieldError('name')"></p>
           </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="description">{{ $t('app.description') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="description">{{ $t('app.description') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 id="description"
                 v-model="model.description"
@@ -81,9 +81,9 @@
               <p class="p-error" v-html="formErrors.fieldError('description')"></p>
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="version">{{ $t('settings.servers.version') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="version">{{ $t('settings.servers.version') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 id="version"
                 :disabled="true"
@@ -93,9 +93,9 @@
               />
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="base_url">{{ $t('settings.servers.base_url') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="base_url">{{ $t('settings.servers.base_url') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 id="base_url"
                 autocomplete="off"
@@ -109,9 +109,9 @@
               <p class="p-error" v-html="formErrors.fieldError('base_url')"></p>
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="secret">{{ $t('settings.servers.secret') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="secret">{{ $t('settings.servers.secret') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <Password
                 class="w-full"
                 id="secret"
@@ -125,11 +125,11 @@
               <p class="p-error" v-html="formErrors.fieldError('secret')"></p>
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="strength">{{
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="strength">{{
                 $t('settings.servers.strength')
               }}</label>
-            <div class="col-12 md:col-8">
+            <div class="col-span-12 md:col-span-8">
               <Rating
                 id="strength"
                 v-model="model.strength"
@@ -138,16 +138,16 @@
                 :invalid="formErrors.fieldInvalid('strength')"
                 :stars="10"
                 aria-describedby="strength-help"
-                class="border-1 border-300 border-round px-4 py-3 flex justify-content-between"
+                class="border border-surface-300 dark:border-surface-500 rounded-border px-6 py-4 flex justify-between"
               />
               <small id="strength-help">{{ $t('settings.servers.strength_description') }}</small>
               <p class="p-error" v-html="formErrors.fieldError('strength')"></p>
             </div>
           </div>
 
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="status">{{ $t('settings.servers.status') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="status">{{ $t('settings.servers.status') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <div>
                 <Dropdown
                   id="status"
@@ -165,9 +165,9 @@
             </div>
           </div>
 
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="healthStatus">{{ $t('settings.servers.connection') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="healthStatus">{{ $t('settings.servers.connection') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputGroup>
                 <InputText
                   id="healthStatus"
@@ -190,7 +190,7 @@
           </div>
         <div v-if="!viewOnly">
           <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError"
               :label="$t('app.save')"
@@ -203,10 +203,10 @@
       </form>
       <div
         v-if="!modelLoadingError && viewOnly && !isDisabled && model.id!==null"
-        class="mt-3"
+        class="mt-4"
       >
-        <div class="grid">
-          <div class="col-12 md:col">
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-12 md:col">
             <h3 class="mt-0">
               {{ $t('settings.servers.current_usage') }}
             </h3>
@@ -214,9 +214,9 @@
           </div>
         </div>
 
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="meetingCount">{{ $t('settings.servers.meeting_count') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="meetingCount">{{ $t('settings.servers.meeting_count') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="meetingCount"
               v-model="model.meeting_count"
@@ -228,10 +228,10 @@
             <small id="meetingCount-help">{{ $t('settings.servers.meeting_description') }}</small>
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0"
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0"
                  for="ownMeetingCount">{{ $t('settings.servers.own_meeting_count') }}</label>
-          <div class="col-12 md:col-8">
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="ownMeetingCount"
               v-model="model.own_meeting_count"
@@ -243,11 +243,11 @@
             <small id="ownMeetingCount-help">{{ $t('settings.servers.own_meeting_description') }}</small>
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="participantCount">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="participantCount">
             {{$t('settings.servers.participant_count') }}
           </label>
-          <div class="col-12 md:col-8">
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="participantCount"
               v-model="model.participant_count"
@@ -257,9 +257,9 @@
             />
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="videoCount">{{ $t('settings.servers.video_count') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="videoCount">{{ $t('settings.servers.video_count') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="videoCount"
               v-model="model.video_count"
@@ -272,10 +272,10 @@
 
         <div
           v-if="userPermissions.can('update', model)"
-          class="field grid"
+          class="field grid grid-cols-12 gap-4"
         >
-          <label class="col-12 md:col-4 md:mb-0" for="panic">{{ $t('settings.servers.panic') }}</label>
-          <div class="col-12 md:col-8">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="panic">{{ $t('settings.servers.panic') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <div>
               <Button
                 id="panic"

@@ -6,7 +6,7 @@
         : $t('settings.room_types.edit', { name })
       ) }}
     </h2>
-    <div class="flex justify-content-between">
+    <div class="flex justify-between">
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
@@ -50,9 +50,9 @@
         <h3>{{ $t('rooms.settings.general.title') }}</h3>
 
         <!-- Room type name -->
-        <div class="field grid">
-          <label for="room-type-name" class="col-12 md:col-4 md:mb-0">{{$t('app.model_name')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="room-type-name" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.model_name')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               class="w-full"
               id="room-type-name"
@@ -66,9 +66,9 @@
         </div>
 
         <!-- Room type description -->
-        <div class="field grid">
-          <label for="description" class="col-12 md:col-4 md:mb-0">{{$t('app.description')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="description" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.description')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <Textarea
               class="w-full"
               id="description"
@@ -81,9 +81,9 @@
         </div>
 
         <!-- Room type color -->
-        <div class="field grid">
-          <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="color" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{ $t('settings.room_types.color') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <ColorSelect
               id="color"
               class="mb-2"
@@ -105,17 +105,17 @@
         </div>
 
         <!-- Preview -->
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0">{{$t('settings.room_types.preview')}}</label>
-          <div class="col-12 md:col-8 flex align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.room_types.preview')}}</label>
+          <div class="col-span-12 md:col-span-8 flex items-center">
             <RoomTypeBadge :room-type="model" />
           </div>
         </div>
 
         <!-- Server pool for this room type -->
-        <div class="field grid">
-          <label id="server-pool-label" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('app.server_pool')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label id="server-pool-label" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('app.server_pool')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <multiselect
                 aria-labelledby="server-pool-label"
@@ -177,9 +177,9 @@
         </div>
 
         <!-- Option to restrict the usage of this room type to selected roles-->
-        <div class="field grid">
-          <label for="restrict" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.restrict')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="restrict" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('settings.room_types.restrict')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <div>
               <InputSwitch
                 input-id="restrict"
@@ -195,9 +195,9 @@
         </div>
 
         <!-- Selection of the roles -->
-        <div class="field grid" v-if="model.restrict">
-          <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4" v-if="model.restrict">
+          <label for="roles" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.roles')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <RoleSelect
               v-model="model.roles"
               :invalid="formErrors.fieldInvalid('roles')"
@@ -211,9 +211,9 @@
         </div>
 
         <!-- Maximum number of participants -->
-        <div class="field grid">
-          <label for="max-participants" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.max_participants')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="max-participants" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('settings.room_types.max_participants')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <InputNumber
                 input-id="max-participants"
@@ -233,9 +233,9 @@
         </div>
 
         <!-- Maximum duration -->
-        <div class="field grid">
-          <label for="max-duration" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.max_duration')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="max-duration" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('settings.room_types.max_duration')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <InputNumber
                 input-id="max-duration"
@@ -263,10 +263,10 @@
         <h4>{{ $t('rooms.settings.general.title') }}</h4>
 
         <!-- Has access code setting (defines if the room should have an access code) -->
-        <div class="field grid">
-          <label for="has-access-code-default" class="col-12 md:col-4 md:m-0 align-items-center"> {{ $t('rooms.settings.general.has_access_code')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="has-access-code-default" class="col-span-12 md:col-span-4 md:m-0 items-center"> {{ $t('rooms.settings.general.has_access_code')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="has-access-code-default"
                 v-model="model.has_access_code_default"
@@ -285,7 +285,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4 ">
+            <div class="flex justify-between gap-6 ">
               <p class="p-error" v-html="formErrors.fieldError('has_access_code_default')"></p>
               <p class="p-error" v-html="formErrors.fieldError('has_access_code_enforced')"></p>
             </div>
@@ -293,10 +293,10 @@
         </div>
 
         <!-- Allow guests to access the room -->
-        <div class="field grid">
-          <label for="allow-guests-default" class="col-12 md:col-4 md:m-0 align-items-center">{{$t('rooms.settings.general.allow_guests')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="allow-guests-default" class="col-span-12 md:col-span-4 md:m-0 items-center">{{$t('rooms.settings.general.allow_guests')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="allow-guests-default"
                 v-model="model.allow_guests_default"
@@ -315,7 +315,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4 ">
+            <div class="flex justify-between gap-6 ">
               <p class="p-error" v-html="formErrors.fieldError('allow_guests_default')"></p>
               <p class="p-error" v-html="formErrors.fieldError('allow_guests_enforced')"></p>
             </div>
@@ -329,10 +329,10 @@
         <!-- Everyone can start a new meeting, not only the moderator -->
         <h4>{{ $t('rooms.settings.video_conference.title') }}</h4>
 
-        <div class="field grid">
-          <label for="everyone-can-start-default" class="col-12 md:col-4  md:mb-0  align-items-center">{{$t('rooms.settings.video_conference.everyone_can_start')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="everyone-can-start-default" class="col-span-12 md:col-span-4  md:mb-0  items-center">{{$t('rooms.settings.video_conference.everyone_can_start')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="everyone-can-start-default"
                 v-model="model.everyone_can_start_default"
@@ -351,7 +351,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('everyone_can_start_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('everyone_can_start_enforced')"></p>
             </div>
@@ -359,10 +359,10 @@
         </div>
 
         <!-- Mute everyone*s microphone on meeting join -->
-        <div class="field grid">
-          <label for="mute-on-start-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.video_conference.mute_on_start')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="mute-on-start-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.video_conference.mute_on_start')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="mute-on-start-default"
                 v-model="model.mute_on_start_default"
@@ -381,7 +381,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('mute_on_start_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('mute_on_start_enforced')"></p>
             </div>
@@ -389,12 +389,12 @@
         </div>
 
         <!-- Usage of the waiting room/guest lobby -->
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.video_conference.lobby.title') }}</label>
-          <div class="col-12 md:col-8 mb-2">
-            <div class="flex flex-row justify-content-between align-items-center">
-              <div class="flex flex-column gap-2">
-                <div class="flex align-items-center gap-2">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.video_conference.lobby.title') }}</label>
+          <div class="col-span-12 md:col-span-8 mb-2">
+            <div class="flex flex-row justify-between items-center">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2">
                   <RadioButton
                     v-model.number="model.lobby_default"
                     :disabled="isBusy || modelLoadingError || viewOnly"
@@ -404,7 +404,7 @@
                   />
                   <label for="lobby-disabled">{{ $t('app.disabled') }}</label>
                 </div>
-                <div class="flex align-items-center gap-2">
+                <div class="flex items-center gap-2">
                   <RadioButton
                     v-model.number="model.lobby_default"
                     :disabled="isBusy || modelLoadingError || viewOnly"
@@ -414,7 +414,7 @@
                   />
                   <label for="lobby-enabled">{{ $t('app.enabled') }}</label>
                 </div>
-                <div class="flex align-items-center gap-2">
+                <div class="flex items-center gap-2">
                   <RadioButton
                     v-model.number="model.lobby_default"
                     :disabled="isBusy || modelLoadingError || viewOnly"
@@ -437,12 +437,12 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('lobby_default')"/>
               <p class="p-error text-right" v-html="formErrors.fieldError('lobby_enforced')"></p>
             </div>
           </div>
-          <div class="col-12">
+          <div class="col-span-12">
             <!-- Alert shown when default role is moderator and waiting room is active -->
             <InlineNote
               class="w-full"
@@ -458,10 +458,10 @@
         <h4>{{ $t('rooms.settings.recordings.title') }}</h4>
 
         <!-- Record attendance of users and guests -->
-        <div class="field grid">
-          <label for="record-attendance-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="record-attendance-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="record-attendance-default"
                 v-model="model.record_attendance_default"
@@ -480,7 +480,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('record_attendance_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('record_attendance_enforced')"></p>
             </div>
@@ -488,10 +488,10 @@
         </div>
 
         <!-- Record video-conf -->
-        <div class="field grid">
-          <label for="record-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.record_video_conference') }}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="record-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.recordings.record_video_conference') }}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="record-default"
                 v-model="model.record_default"
@@ -510,7 +510,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('record_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('record_enforced')"></p>
             </div>
@@ -518,10 +518,10 @@
         </div>
 
         <!-- Auto start recording video-conf -->
-        <div class="field grid">
-          <label for="auto-start-recording-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.recordings.auto_start_recording') }}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="auto-start-recording-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.recordings.auto_start_recording') }}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="auto-start-recording-default"
                 v-model="model.auto_start_recording_default"
@@ -540,7 +540,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('auto_start_recording_enforced')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('auto_start_recording_enforced')"></p>
             </div>
@@ -551,10 +551,10 @@
         <h4>{{ $t('rooms.settings.restrictions.title') }}</h4>
 
         <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
-        <div class="field grid">
-          <label for="disable-cam-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_cam')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="disable-cam-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_cam')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="disable-cam-default"
                 v-model="model.lock_settings_disable_cam_default"
@@ -573,7 +573,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_cam_enforced')"></p>
             </div>
@@ -584,10 +584,10 @@
         Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
         can be changed during the meeting
         -->
-        <div class="field grid">
-          <label for="webcams-only-for-moderator-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.webcams_only_for_moderator')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="webcams-only-for-moderator-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.webcams_only_for_moderator')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="webcams-only-for-moderator-default"
                 v-model="model.webcams_only_for_moderator_default"
@@ -607,7 +607,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('webcams_only_for_moderator_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('webcams_only_for_moderator_enforced')"></p>
             </div>
@@ -615,10 +615,10 @@
         </div>
 
         <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
-        <div class="field grid">
-          <label for="disable-mic-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_mic')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="disable-mic-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_mic')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="disable-mic-default"
                 v-model="model.lock_settings_disable_mic_default"
@@ -637,7 +637,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_mic_enforced')"></p>
             </div>
@@ -645,10 +645,10 @@
         </div>
 
         <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
-        <div class="field grid">
-          <label for="disable-public-chat-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_public_chat')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="disable-public-chat-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_public_chat')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="disable-public-chat-default"
                 v-model="model.lock_settings_disable_public_chat_default"
@@ -667,7 +667,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_public_chat_enforced')"></p>
             </div>
@@ -679,10 +679,10 @@
         private chats with the moderators is still possible
         can be changed during the meeting
         -->
-        <div class="field grid">
-          <label for="disable-private-chat-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_private_chat')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="disable-private-chat-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_private_chat')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="disable-private-chat-default"
                 v-model="model.lock_settings_disable_private_chat_default"
@@ -701,7 +701,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_private_chat_enforced')"></p>
             </div>
@@ -709,10 +709,10 @@
         </div>
 
         <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
-        <div class="field grid">
-          <label for="disable-note-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_note')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="disable-note-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_note')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="disable-note-default"
                 v-model="model.lock_settings_disable_note_default"
@@ -731,7 +731,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_note_enforced')"></p>
             </div>
@@ -739,10 +739,10 @@
         </div>
 
         <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
-        <div class="field grid">
-          <label for="hide-user-list-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.restrictions.lock_settings_hide_user_list')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="hide-user-list-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_hide_user_list')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="hide-user-list-default"
                 v-model="model.lock_settings_hide_user_list_default"
@@ -761,7 +761,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_hide_user_list_enforced')"></p>
             </div>
@@ -772,10 +772,10 @@
         <h4>{{ $t('rooms.settings.participants.title') }}</h4>
 
         <!-- Allow users to become room members -->
-        <div class="field grid">
-          <label for="allow-membership-default" class="col-12 md:col-4 md:mb-0 align-items-center">{{$t('rooms.settings.participants.allow_membership')}}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="allow-membership-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.participants.allow_membership')}}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <InputSwitch
                 input-id="allow-membership-default"
                 v-model="model.allow_membership_default"
@@ -794,7 +794,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('allow_membership_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('allow_membership_enforced')"></p>
             </div>
@@ -802,10 +802,10 @@
         </div>
 
         <!-- Default user role for logged in users only -->
-        <div class="field grid">
-          <label id="default-role-label" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.participants.default_role.title') }} {{ $t('rooms.settings.participants.default_role.only_logged_in') }}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-start md:align-items-center flex-column md:flex-row gap-2">
+        <div class="field grid grid-cols-12 gap-4">
+          <label id="default-role-label" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.participants.default_role.title') }} {{ $t('rooms.settings.participants.default_role.only_logged_in') }}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-start md:items-center flex-col md:flex-row gap-2">
               <SelectButton
                 v-model="model.default_role_default"
                 :allowEmpty="false"
@@ -815,7 +815,7 @@
                     { role: 1, label: $t('rooms.roles.participant')},
                     { role: 2, label: $t('rooms.roles.moderator')}
                   ]"
-                class="flex-shrink-0"
+                class="shrink-0"
                 dataKey="role"
                 aria-labelledby="default-role-label"
                 optionLabel="label"
@@ -833,7 +833,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('default_role_default')"/>
               <p class="p-error text-right" v-html="formErrors.fieldError('default_role_enforced')"></p>
             </div>
@@ -844,10 +844,10 @@
         <h4>{{ $t('rooms.settings.advanced.title') }}</h4>
 
         <!-- Room visibility setting -->
-        <div class="field grid">
-          <label id="visibility-label" class="col-12 md:col-4 md:mb-0 align-items-center">{{ $t('rooms.settings.advanced.visibility.title') }}</label>
-          <div class="col-12 md:col-8">
-            <div class="flex justify-content-between align-items-center">
+        <div class="field grid grid-cols-12 gap-4">
+          <label id="visibility-label" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.advanced.visibility.title') }}</label>
+          <div class="col-span-12 md:col-span-8">
+            <div class="flex justify-between items-center">
               <SelectButton
                 v-model="model.visibility_default"
                 :allowEmpty="false"
@@ -857,7 +857,7 @@
                     { visibility: 0, label: $t('rooms.settings.advanced.visibility.private')},
                     { visibility: 1, label: $t('rooms.settings.advanced.visibility.public')}
                   ]"
-                class="flex-shrink-0"
+                class="shrink-0"
                 dataKey="visibility"
                 aria-labelledby="visibility-label"
                 optionLabel="label"
@@ -875,7 +875,7 @@
                 :aria-label="$t('rooms.settings.general.enforced_setting')"
               />
             </div>
-            <div class="flex justify-content-between gap-4">
+            <div class="flex justify-between gap-6">
               <p class="p-error" v-html="formErrors.fieldError('visibility_default')"></p>
               <p class="p-error text-right" v-html="formErrors.fieldError('visibility_enforced')"></p>
             </div>
@@ -887,9 +887,9 @@
         <h4>{{ $t('settings.room_types.bbb_api.title') }}</h4>
 
         <!-- Create meeting plugin config -->
-        <div class="field grid">
-          <label for="create-parameters" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.bbb_api.create_parameters')}}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="create-parameters" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('settings.room_types.bbb_api.create_parameters')}}</label>
+          <div class="col-span-12 md:col-span-8">
             <Textarea
               input-id="create-parameters"
               class="w-full"
@@ -907,7 +907,7 @@
 
         <div v-if="!viewOnly">
           <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
               severity="success"

@@ -21,7 +21,7 @@
     />
 
     <template #footer>
-      <div class="w-full flex justify-content-end gap-2">
+      <div class="w-full flex justify-end gap-2">
           <Button
             severity="secondary"
             @click="modalVisible = false"

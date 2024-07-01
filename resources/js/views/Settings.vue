@@ -1,6 +1,6 @@
 <template>
-  <div class="container mt-3 mb-5">
-    <div class="flex flex-row align-items-center gap-4">
+  <div class="container mt-4 mb-8">
+    <div class="flex flex-row items-center gap-6">
       <router-link
         v-if="$route.name!=='settings'"
         v-tooltip="$t('settings.home_button')"

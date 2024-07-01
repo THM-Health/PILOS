@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <div class="grid mt-4 mb-5">
-      <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
+    <div class="grid grid-cols-12 gap-4 mt-6 mb-8">
+      <div class="col-span-12 md:col-span-8 lg:col-span-6 md:col-start-3 lg:col-start-4">
         <Card v-if="error">
           <template #title> {{ $t('auth.error.login_failed') }} </template>
           <template #content>

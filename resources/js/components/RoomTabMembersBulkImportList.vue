@@ -2,7 +2,7 @@
   <div>
     <div
       v-if="list.length > 0"
-      class="mb-3"
+      class="mb-4"
     >
       <p class="font-bold">
         {{ description }} <Badge :severity="variant">
@@ -22,7 +22,7 @@
             headerAction: {
               class: {
                 'p-2': true,
-                'justify-content-end': !user.error
+                'justify-end': !user.error
               }
             },
             headerIcon: {

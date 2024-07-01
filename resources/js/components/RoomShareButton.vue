@@ -4,13 +4,13 @@
     icon="fa-solid fa-share-nodes"
     severity="secondary"
     @click="toggle"
-    class="flex-shrink-0"
+    class="shrink-0"
   />
   <OverlayPanel ref="op" aria-labelledby="room-invitation-title">
-    <div class="flex flex-column align-items-start gap-3 min-w-min p-2">
-      <fieldset class="flex w-full flex-column gap-2">
-        <legend id="room-invitation-title" class="font-bold block white-space-nowrap">{{ $t('rooms.invitation.title') }}</legend>
-        <div class="flex-grow-1">
+    <div class="flex flex-col items-start gap-4 min-w-min p-2">
+      <fieldset class="flex w-full flex-col gap-2">
+        <legend id="room-invitation-title" class="font-bold block whitespace-nowrap">{{ $t('rooms.invitation.title') }}</legend>
+        <div class="grow">
           <IconField iconPosition="left">
             <InputIcon>
               <i
@@ -19,7 +19,7 @@
               />
             </InputIcon>
             <InputText
-              class="border-0 shadow-none w-full text-overflow-ellipsis"
+              class="border-surface-0 dark:border-surface-900 shadow-none w-full text-ellipsis"
               id="invitationLink"
               :aria-label="$t('rooms.invitation.link')"
               readonly
@@ -36,7 +36,7 @@
               />
             </InputIcon>
             <InputText
-              class="border-0 shadow-none w-full"
+              class="border-surface-0 dark:border-surface-900 shadow-none w-full"
               id="invitationCode"
               :aria-label="$t('rooms.invitation.code')"
               readonly

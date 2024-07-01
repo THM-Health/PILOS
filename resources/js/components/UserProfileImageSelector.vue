@@ -1,6 +1,6 @@
 <template>
-  <div class="grid">
-    <div class="col-12 lg:col-9 flex gap-2 align-items-start" v-if="!viewOnly">
+  <div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12 lg:col-span-9 flex gap-2 items-start" v-if="!viewOnly">
     <FileUpload
       v-if="!imageDeleted"
       mode="basic"
@@ -38,7 +38,7 @@
       icon="fa-solid fa-undo"
     />
     </div>
-    <div class="col-12 lg:col-3 text-left"  :class="{'lg:text-right': !viewOnly}">
+    <div class="col-span-12 lg:col-span-3 text-left"  :class="{'lg:text-right': !viewOnly}">
     <UserAvatar
       v-if="(croppedImage!==null || image!==null) && !imageDeleted"
       :image="croppedImage ? croppedImage : image"
@@ -68,7 +68,7 @@
     :closable="false"
   >
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" outlined @click="showModal = false" :disabled="isLoadingAction" />
         <Button :label="$t('settings.users.image.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
       </div>

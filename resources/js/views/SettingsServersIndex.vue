@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
+    <div class="flex justify-between items-center">
       <h2>
         {{ $t('app.servers') }}
       </h2>
@@ -15,7 +15,7 @@
       </router-link>
     </div>
 
-    <div class="flex flex-column md:flex-row justify-content-between">
+    <div class="flex flex-col md:flex-row justify-between">
       <div>
         <InputGroup>
           <InputText
@@ -32,7 +32,7 @@
           />
         </InputGroup>
       </div>
-      <div class="flex gap-2 justify-content-between  mt-2">
+      <div class="flex gap-2 justify-between  mt-2">
         <Button
           :disabled="isBusy"
           severity="info"

@@ -1,7 +1,10 @@
 body {
-    background-color: var(--surface-ground);
+    background-color: var(--ground-background);
 }
 
+html {
+    font-size: 14px;
+}
 
 html, body, #app, #app > .overlay-wrap {
     height: 100%;
@@ -32,35 +35,10 @@ footer {
 
 
 .container {
-    width: 100%;
     padding-right: 15px;
     padding-left: 15px;
     margin-right: auto;
     margin-left: auto
-}
-
-@media (min-width: 576px) {
-    .container {
-        max-width:540px
-    }
-}
-
-@media (min-width: 768px) {
-    .container {
-        max-width:720px
-    }
-}
-
-@media (min-width: 992px) {
-    .container {
-        max-width:960px
-    }
-}
-
-@media (min-width: 1200px) {
-    .container {
-        max-width:1140px
-    }
 }
 
 fieldset:not(.p-fieldset) {
@@ -87,5 +65,5 @@ a.link {
 
 a.link-color,
 .link-color a{
-    color: $linkColor;
+    color: var(--p-primary-color);
 }

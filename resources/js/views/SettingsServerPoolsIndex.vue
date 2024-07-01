@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
+    <div class="flex justify-between items-center">
       <h2>
         {{ $t('app.server_pools') }}
       </h2>
@@ -15,7 +15,7 @@
       </router-link>
     </div>
 
-    <div class="flex flex-column md:flex-row">
+    <div class="flex flex-col md:flex-row">
       <div>
         <InputGroup>
           <InputText

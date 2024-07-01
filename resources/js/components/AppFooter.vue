@@ -3,10 +3,10 @@
     <div
       v-if="settingsStore.getSetting('legal_notice_url') || settingsStore.getSetting('privacy_policy_url') || settingsStore.getSetting('version') || !settingsStore.getSetting('whitelabel')"
       ref="footer_container"
-      class="border-top-1 border-300 bg-white p-2"
+      class="border-t border-surface-300 dark:border-surface-500 bg-white p-2"
     >
       <div class="container">
-        <div class="flex justify-content-between flex-column sm:flex-row text-center sm:text-left">
+        <div class="flex justify-between flex-col sm:flex-row text-center sm:text-left">
           <div>
             <a
               v-if="settingsStore.getSetting('legal_notice_url')"

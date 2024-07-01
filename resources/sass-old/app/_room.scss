@@ -1,0 +1,153 @@
+.room-details {
+    &__icon{
+        width: 1.5rem;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+        text-align: center
+    }
+
+    &__text{
+        flex-grow: 1;
+    }
+}
+
+.room-card{
+    pointer-events: auto;
+    cursor: pointer;
+
+    &--running{
+        border-color: $green !important;
+        border-width: 2.5px !important;
+    }
+
+    &__buttons {
+        z-index: 2;
+        position: relative;
+
+        .p-button{
+            margin-left: 0.25rem;
+            padding: 0;
+            height: 25px;
+            width: 25px;
+            font-size: 12px;
+        }
+    }
+}
+
+.room-dropdown {
+    ul {
+        i {
+            width: 1rem;
+            margin-right: 0.5rem;
+            text-align: center;
+        }
+    }
+}
+
+
+
+
+
+/* Basic editor styles */
+.ProseMirror {
+
+    margin-top: 10px;
+    padding: 10px;
+    outline: none;
+    border: 1px solid;
+    border-radius: $borderRadius;
+
+    > * + * {
+        margin-top: 0.75em;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+        &.ProseMirror-selectednode {
+            outline: 3px solid #68CEF8;
+        }
+    }
+    blockquote {
+        padding-left: 1rem;
+        border-left: 3px solid rgba(#0D0D0D, 0.1);
+    }
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+}
+
+.room-description {
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    blockquote {
+        padding-left: 1rem;
+        border-left: 3px solid rgba(#0D0D0D, 0.1);
+    }
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+}
+
+.color-picker-block {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.room-bulk-import-preview {
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.room-type-badge {
+    white-space: normal;
+    color: #FFF;
+}
+
+.room-role-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-role-guest {
+        background-color: $info;
+    }
+
+    &.room-role-participant {
+        background-color: $success;
+    }
+
+    &.room-role-moderator {
+        background-color: $danger;
+    }
+
+    &.room-role-co-owner {
+        background-color: $secondary;
+    }
+}
+
+.room-recording-access-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-access-everyone {
+        background-color: $info;
+    }
+
+    &.room-access-participant {
+        background-color: $success;
+    }
+
+    &.room-access-moderator {
+        background-color: $danger;
+    }
+
+    &.room-access-owner {
+        background-color: $secondary;
+    }
+}

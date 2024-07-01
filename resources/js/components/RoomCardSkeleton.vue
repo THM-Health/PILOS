@@ -3,14 +3,14 @@
     <!--      room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative bg-white border-1 border-300 border-round shadow-none hover:shadow-2"
+      class="room-card h-full relative bg-white border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow"
     >
-      <div class="p-3 h-100">
-        <div class="flex flex-column h-100">
-          <div class="flex-grow-1">
-            <div class="flex justify-content-between align-items-start">
+      <div class="p-4 h-100">
+        <div class="flex flex-col h-100">
+          <div class="grow">
+            <div class="flex justify-between items-start">
               <Skeleton :animation="animation" height="1.5rem" width="5rem" class="mb-2"></Skeleton>
-              <div class="room-card__buttons flex-shrink-0">
+              <div class="room-card__buttons shrink-0">
                 <Skeleton :animation="animation" size="1.5rem" class="mr-2"></Skeleton>
               </div>
             </div>
@@ -22,7 +22,7 @@
             </p>
           </div>
           <div
-            class="flex flex-column gap-2 text-color"
+            class="flex flex-col gap-2 text-color"
           >
             <div class="flex">
               <div class="room-details__icon">

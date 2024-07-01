@@ -1,0 +1,22 @@
+.p-togglebutton {
+    .p-button {
+
+        &::before {
+            transition: none;
+        }
+    }
+
+    &.p-highlight {
+        .p-button {
+            .p-button-label {
+                color: $buttonTextColor;
+            }
+
+            &::before {
+                background: $buttonBg;
+                border-color: $buttonBg;
+                border-radius: var(--border-radius);
+            }
+        }
+    }
+}

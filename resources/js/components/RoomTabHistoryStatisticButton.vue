@@ -33,7 +33,7 @@
       {{ $t('meetings.stats.no_breakout_support') }}
     </InlineNote>
 
-    <OverlayComponent :show="isLoadingAction" style="min-height: 100px;" class="mt-4">
+    <OverlayComponent :show="isLoadingAction" style="min-height: 100px;" class="mt-6">
       <Chart v-if="!isLoadingAction" type="line" :data="chartData" :options="chartOptions" class="w-full"/>
     </OverlayComponent>
 

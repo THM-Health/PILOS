@@ -10,7 +10,7 @@
         class="mb-2"
       >
         <template #header>
-          <div class="flex align-items-center gap-2">
+          <div class="flex items-center gap-2">
             <i
               v-if="session.user_agent.device.type === 'mobile'"
               class="fa-solid fa-mobile-screen mr-2"
@@ -51,11 +51,11 @@
           <strong>{{ $t('auth.sessions.ip') }}</strong> {{ session.ip_address }}
         </p>
       </Panel>
-      <div class="flex justify-content-end">
+      <div class="flex justify-end">
         <Button
           severity="danger"
           :disabled="loading || loadingError"
-          class="mt-3"
+          class="mt-4"
           @click="deleteAllSessions"
           :label="$t('auth.sessions.logout_all')"
           icon="fa-solid fa-right-from-bracket"

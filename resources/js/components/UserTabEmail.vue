@@ -2,9 +2,9 @@
   <div>
     <h4>{{ $t('app.email') }}</h4>
     <form @submit="save">
-      <div class="field grid" v-if="!viewOnly && isOwnUser && userPermissions.can('updateAttributes', user)">
-        <label for="current_password" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.current_password') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4" v-if="!viewOnly && isOwnUser && userPermissions.can('updateAttributes', user)">
+        <label for="current_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.current_password') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="current_password"
             v-model="currentPassword"
@@ -18,9 +18,9 @@
         </div>
       </div>
 
-      <div class="field grid">
-        <label for="email" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.email') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="email" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.email') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="email"
             v-model="email"
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="flex justify-content-end">
+      <div class="flex justify-end">
         <Button
           v-if="!viewOnly && userPermissions.can('updateAttributes', user)"
           :disabled="isBusy"
@@ -49,7 +49,7 @@
       <div v-if="validationRequiredEmail">
         <Message
           severity="success"
-          class="mt-3"
+          class="mt-4"
         >
           {{ $t('auth.send_email_confirm_mail', {email: validationRequiredEmail}) }}
         </Message>

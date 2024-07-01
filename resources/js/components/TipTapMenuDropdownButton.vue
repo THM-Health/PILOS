@@ -5,7 +5,7 @@
         <i class="fa-solid fa-caret-down ml-auto lg:ml-2"></i>
       </span>
     </Button>
-    <ul ref="dropdownMenu" v-if="dropdown" v-on-click-outside="onClickOutsideHandler" @click="closeDropdown" :style="floatingStyles" class="list-none py-1 px-3 m-0 lg:px-0 lg:py-2 border-round shadow-0 lg:shadow-2 lg:border-1 border-50 lg:absolute lg:z-1 bg-white origin-top w-full right lg:w-15rem cursor-pointer">
+    <ul ref="dropdownMenu" v-if="dropdown" v-on-click-outside="onClickOutsideHandler" @click="closeDropdown" :style="floatingStyles" class="list-none py-1 px-4 m-0 lg:px-0 lg:py-2 rounded-border shadow-0 lg:shadow lg:border border-surface-50 dark:border-surface-800 lg:absolute lg:z-10 bg-white origin-top w-full right lg:w-60 cursor-pointer">
       <slot/>
     </ul>
 </template>

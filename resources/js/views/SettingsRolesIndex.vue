@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
+    <div class="flex justify-between items-center">
       <h2>
         {{ $t('app.roles') }}
       </h2>
@@ -15,7 +15,7 @@
       </router-link>
     </div>
 
-    <div class="flex flex-column md:flex-row">
+    <div class="flex flex-col md:flex-row">
       <div>
         <InputGroup>
           <InputText
@@ -67,7 +67,7 @@
 
       <Column field="name" :header="$t('app.model_name')" sortable>
         <template #body="slotProps">
-          <div class="flex flex-row gap-2 align-items-center">
+          <div class="flex flex-row gap-2 items-center">
             <TextTruncate>
               {{ slotProps.data.name }}
             </TextTruncate>

@@ -3,11 +3,11 @@
 }
 
 .p-fileupload-choose.p-invalid {
-    outline: $danger solid 1px;
+    //outline: $danger solid 1px;
 }
 
 .p-dropdown-clear{
-    color: $inputIconColor;
+    //color: $inputIconColor;
     padding: 0 0.25rem;
     border-top-right-radius: 6px;
     border-bottom-right-radius: 6px;
@@ -17,10 +17,10 @@
     flex-shrink: 0;
 
     &:hover {
-        color: $inputTextColor;
+        //color: $inputTextColor;
     }
 }
 
 .p-dropdown.p-dropdown-clearable .p-dropdown-label {
-    padding: $inputPadding;
+    //padding: $inputPadding;
 }

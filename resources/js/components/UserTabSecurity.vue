@@ -13,7 +13,7 @@
 
     <div
       v-if="!viewOnly && user.authenticator === 'local' && canChangePassword"
-      class="mt-3"
+      class="mt-4"
     >
       <Divider/>
       <h4>{{ $t('auth.change_password') }}</h4>
@@ -26,7 +26,7 @@
 
     <div
       v-if="isOwnUser"
-      class="mt-3"
+      class="mt-4"
     >
       <Divider/>
       <h4>{{ $t('auth.sessions.active') }}</h4>

@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="modelLoadingError" class="flex flex-column gap-2 align-items-start">
+  <div v-if="modelLoadingError" class="flex flex-col gap-2 items-start">
     <Message
       severity="error"
       :closable="false"
@@ -20,8 +20,8 @@
     />
   </div>
   <OverlayComponent v-else :show="isLoadingAction">
-  <div class="grid">
-    <div :class="modelValue ? 'md:col-6' : 'md:col'" class="col-12">
+  <div class="grid grid-cols-12 gap-4">
+    <div :class="modelValue ? 'md:col-6' : 'md:col'" class="col-span-12">
       <Dropdown
         v-model="roomTypeId"
         :disabled="disabled || isLoadingAction"
@@ -37,7 +37,7 @@
             class: 'max-w-full'
           },
           item: {
-            class: 'white-space-normal'
+            class: 'whitespace-normal'
           }
         }"
       >
@@ -68,7 +68,7 @@
         </template>
       </Listbox>
     </div>
-    <div class="col-12 md:col-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
+    <div class="col-span-12 md:col-span-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
       <RoomTypeDetails :roomType="modelValue" />
     </div>
   </div>

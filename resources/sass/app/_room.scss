@@ -16,7 +16,7 @@
     cursor: pointer;
 
     &--running{
-        border-color: $green !important;
+        //border-color: $green !important;
         border-width: 2.5px !important;
     }
 
@@ -55,7 +55,7 @@
     padding: 10px;
     outline: none;
     border: 1px solid;
-    border-radius: $borderRadius;
+    //border-radius: $borderRadius;
 
     > * + * {
         margin-top: 0.75em;
@@ -115,19 +115,19 @@
     color: #FFF;
 
     &.room-role-guest {
-        background-color: $info;
+        //background-color: $info;
     }
 
     &.room-role-participant {
-        background-color: $success;
+        //background-color: $success;
     }
 
     &.room-role-moderator {
-        background-color: $danger;
+        //background-color: $danger;
     }
 
     &.room-role-co-owner {
-        background-color: $secondary;
+        //background-color: $secondary;
     }
 }
 
@@ -136,18 +136,18 @@
     color: #FFF;
 
     &.room-access-everyone {
-        background-color: $info;
+        //background-color: $info;
     }
 
     &.room-access-participant {
-        background-color: $success;
+        //background-color: $success;
     }
 
     &.room-access-moderator {
-        background-color: $danger;
+        //background-color: $danger;
     }
 
     &.room-access-owner {
-        background-color: $secondary;
+        //background-color: $secondary;
     }
 }

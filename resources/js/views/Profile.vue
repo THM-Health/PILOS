@@ -1,5 +1,5 @@
 <template>
-  <div class="container pt-4 mb-5">
+  <div class="container pt-6 mb-8">
     <Card>
       <template #title> {{ $t('app.profile') }} </template>
       <template #content>

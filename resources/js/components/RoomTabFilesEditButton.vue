@@ -22,15 +22,15 @@
   >
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
         <Button :label="$t('app.save')" severity="success" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
       </div>
     </template>
 
-    <div class="field grid">
-      <label for="download" class="col-12 mb-2 md:col-6 md:mb-0">{{ $t('rooms.files.downloadable') }}</label>
-      <div class="col-12 md:col-6">
+    <div class="field grid grid-cols-12 gap-4">
+      <label for="download" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.downloadable') }}</label>
+      <div class="col-span-12 md:col-span-6">
         <InputSwitch
           id="download"
           v-model="newDownload"
@@ -42,9 +42,9 @@
       </div>
     </div>
 
-    <div class="field grid">
-      <label for="use_in_meeting" class="col-12 mb-2 md:col-6 md:mb-0">{{ $t('rooms.files.use_in_next_meeting') }}</label>
-      <div class="col-12 md:col-6">
+    <div class="field grid grid-cols-12 gap-4">
+      <label for="use_in_meeting" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.use_in_next_meeting') }}</label>
+      <div class="col-span-12 md:col-span-6">
         <InputSwitch
           id="use_in_meeting"
           v-model="newUseInMeeting"
@@ -56,9 +56,9 @@
       </div>
     </div>
 
-    <div class="field grid">
-      <label for="default" class="col-12 mb-2 md:col-6 md:mb-0">{{ $t('rooms.files.default') }}</label>
-      <div class="col-12 md:col-6">
+    <div class="field grid grid-cols-12 gap-4">
+      <label for="default" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.default') }}</label>
+      <div class="col-span-12 md:col-span-6">
         <InputSwitch
           id="default"
           v-model="newDefault"

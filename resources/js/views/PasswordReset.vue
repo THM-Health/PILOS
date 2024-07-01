@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <div class="grid mt-4 mb-5">
-      <div class="col-12 md:col-8 lg:col-6 md:col-offset-2 lg:col-offset-3">
+    <div class="grid grid-cols-12 gap-4 mt-6 mb-8">
+      <div class="col-span-12 md:col-span-8 lg:col-span-6 md:col-start-3 lg:col-start-4">
         <Card>
           <template #title> {{ welcome ? $t('auth.input_new_password_new_user') : $t('auth.input_new_password') }} </template>
           <template #content>
             <form @submit.prevent="submit">
-              <div class="flex flex-column gap-2">
+              <div class="flex flex-col gap-2">
                 <label for="new_password">{{ $t('auth.new_password') }}</label>
                 <InputText
                   id="new_password"
@@ -20,7 +20,7 @@
                 <p class="p-error" v-html="formErrors.fieldError('password')" />
               </div>
 
-              <div class="flex flex-column gap-2">
+              <div class="flex flex-col gap-2">
                 <label for="password_confirmation">{{ $t('auth.new_password_confirmation') }}</label>
                 <InputText
                   id="password_confirmation"

@@ -1,0 +1,10 @@
+.p-toast-message-text {
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .p-toast-detail {
+        margin: 0;
+    }
+}

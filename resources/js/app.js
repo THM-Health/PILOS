@@ -4,6 +4,7 @@ import App from './components/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
 import PrimeVue from 'primevue/config';
+import Aura from '@primevue/themes/aura';
 import Tooltip from 'primevue/tooltip';
 import StyleClass from 'primevue/styleclass';
 import ConfirmationService from 'primevue/confirmationservice';
@@ -24,6 +25,15 @@ const setupApp = (app) => {
   app.use(router);
   app.use(i18n);
   app.use(PrimeVue, {
+    theme: {
+      preset: Aura,
+      options: {
+        cssLayer: {
+          name: 'primevue',
+          order: 'tailwind-base, primevue, tailwind-utilities'
+        }
+      },
+    },
     csp: {
       nonce
     }

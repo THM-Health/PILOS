@@ -9,7 +9,7 @@
         lazy
         :pt="{
             root: { class: 'room-tabs' },
-            navContent: { class: 'border-round-top' }
+            navContent: { class: 'rounded-t' }
           }"
       >
         <TabPanel>
@@ -74,7 +74,7 @@
       :closable="false"
     >
       <template #footer>
-        <div class="flex justify-content-end gap-2">
+        <div class="flex justify-end gap-2">
           <Button :label="$t('app.reload')" :loading="isBusy" :disabled="isBusy" @click="refreshUser" />
         </div>
       </template>

@@ -15,9 +15,9 @@
         <form @submit.prevent="save">
           <div>
             <h3>{{ $t('rooms.settings.general.title') }}</h3>
-            <div class="field grid">
-              <label for="firstname" class="col-12 md:col-4 md:mb-0">{{$t('app.firstname')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4">
+              <label for="firstname" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.firstname')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <InputText
                   id="firstname"
                   class="w-full"
@@ -30,9 +30,9 @@
                 <p class="p-error" v-html="formErrors.fieldError('firstname')"></p>
               </div>
             </div>
-            <div class="field grid">
-              <label for="lastname" class="col-12 md:col-4 md:mb-0">{{$t('app.lastname')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4">
+              <label for="lastname" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.lastname')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <InputText
                   id="lastname"
                   class="w-full"
@@ -45,9 +45,9 @@
                 <p class="p-error" v-html="formErrors.fieldError('lastname')"></p>
               </div>
             </div>
-            <div class="field grid">
-              <label for="email" class="col-12 md:col-4 md:mb-0">{{$t('app.email')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4">
+              <label for="email" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.email')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <InputText
                   id="email"
                   autocomplete="off"
@@ -61,9 +61,9 @@
                 <p class="p-error" v-html="formErrors.fieldError('email')"></p>
               </div>
             </div>
-            <div class="field grid">
-              <label for="user_locale" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.user_locale')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4">
+              <label for="user_locale" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.users.user_locale')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <LocaleSelect
                   class="w-full"
                   id="user_locale"
@@ -76,9 +76,9 @@
               </div>
             </div>
 
-            <div class="field grid">
-              <label for="timezone" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.timezone')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4">
+              <label for="timezone" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.users.timezone')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <TimezoneSelect
                   id="timezone"
                   v-model="model.timezone"
@@ -92,9 +92,9 @@
                 <p class="p-error" v-html="formErrors.fieldError('timezone')"></p>
               </div>
             </div>
-            <div class="field grid">
-              <label for="roles" class="col-12 md:col-4 md:mb-0">{{$t('app.roles')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4">
+              <label for="roles" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.roles')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <RoleSelect
                   id="roles"
                   v-model="model.roles"
@@ -110,9 +110,9 @@
           </div>
           <div>
           <h3>{{$t('auth.password')}}</h3>
-            <div class="field grid">
-              <label for="generate_password" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.users.generate_password')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4">
+              <label for="generate_password" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('settings.users.generate_password')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <div>
                   <InputSwitch
                     id="generate_password"
@@ -126,9 +126,9 @@
                 <small id="generate_password-help">{{$t('settings.users.generate_password_description')}}</small>
               </div>
             </div>
-            <div class="field grid" v-if="!generatePassword">
-              <label for="new_password" class="col-12 md:col-4 md:mb-0">{{$t('auth.new_password')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4" v-if="!generatePassword">
+              <label for="new_password" class="col-span-12 md:col-span-4 md:mb-0">{{$t('auth.new_password')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <Password
                   class="w-full"
                   id="new_password"
@@ -144,9 +144,9 @@
               </div>
             </div>
 
-            <div class="field grid" v-if="!generatePassword">
-              <label for="new_password_confirmation" class="col-12 md:col-4 md:mb-0">{{$t('auth.new_password_confirmation')}}</label>
-              <div class="col-12 md:col-8">
+            <div class="field grid grid-cols-12 gap-4" v-if="!generatePassword">
+              <label for="new_password_confirmation" class="col-span-12 md:col-span-4 md:mb-0">{{$t('auth.new_password_confirmation')}}</label>
+              <div class="col-span-12 md:col-span-8">
                 <Password
                   id="new_password_confirmation"
                   class="w-full"
@@ -162,7 +162,7 @@
             </div>
           </div>
             <Divider/>
-            <div class="flex justify-content-end">
+            <div class="flex justify-end">
               <Button
                 :disabled="isBusy || rolesLoadingError || timezonesLoadingError || rolesLoading || timezonesLoading"
                 severity="success"

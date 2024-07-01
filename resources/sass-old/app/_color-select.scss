@@ -1,0 +1,45 @@
+.color-select{
+    width: 42px;
+    height: 42px;
+    margin-right: 11px;
+    border-radius: $borderRadius;
+    position: relative;
+    overflow: hidden;
+    outline: 0.5px solid #000;
+
+    &.disabled{
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+
+    &:hover {
+        transition: 0.3s;
+        box-shadow: inset 0 0 2px #000000bf;
+    }
+
+    .overlay:hover {
+        transition: 0.3s;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    &.selected{
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .overlay{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        color: #FFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .overlay i {
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+}

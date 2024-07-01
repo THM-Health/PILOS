@@ -9,12 +9,12 @@
     &.p-highlight {
         .p-button {
             .p-button-label {
-                color: $buttonTextColor;
+                //color: $buttonTextColor;
             }
 
             &::before {
-                background: $buttonBg;
-                border-color: $buttonBg;
+                //background: $buttonBg;
+                //border-color: $buttonBg;
                 border-radius: var(--border-radius);
             }
         }

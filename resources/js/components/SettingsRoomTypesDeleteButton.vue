@@ -22,7 +22,7 @@
       {{ $t('settings.room_types.delete.confirm', { name: props.name }) }}
     </span>
     <Divider/>
-    <div class="flex flex-column gap-2">
+    <div class="flex flex-col gap-2">
       <label for="replacement-room-type">{{$t('settings.room_types.delete.replacement')}}</label>
       <Dropdown
         id="replacement-room-type"

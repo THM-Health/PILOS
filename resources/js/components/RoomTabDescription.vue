@@ -1,6 +1,6 @@
 <template>
   <div class="px-2">
-    <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-content-end mb-3">
+    <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-end mb-4">
       <Button
         v-if="!editorOpen"
         severity="secondary"
@@ -44,7 +44,7 @@
         />
       </div>
     </OverlayComponent>
-    <div class="flex justify-content-end mt-2">
+    <div class="flex justify-end mt-2">
       <Button
         v-if="editorOpen"
         severity="success"

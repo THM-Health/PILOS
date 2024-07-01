@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex justify-content-between flex-column-reverse lg:flex-row gap-2 px-2">
-      <div class="flex justify-content-between flex-column lg:flex-row flex-grow-1 gap-2">
+    <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
+      <div class="flex justify-between flex-col lg:flex-row grow gap-2">
         <div>
           <InputGroup>
             <InputText
@@ -19,7 +19,7 @@
             />
           </InputGroup>
         </div>
-        <div class="flex gap-2 flex-column lg:flex-row">
+        <div class="flex gap-2 flex-col lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
@@ -33,15 +33,15 @@
             </InputGroupAddon>
             <Dropdown :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
             <InputGroupAddon class="p-0">
-              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
+              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="rounded-l-none"  />
             </InputGroupAddon>
           </InputGroup>
         </div>
       </div>
-      <div class="flex gap-2 justify-content-end">
+      <div class="flex gap-2 justify-end">
         <!-- Reload list -->
         <Button
-          class="flex-shrink-0"
+          class="shrink-0"
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
@@ -70,7 +70,7 @@
         :loading="isBusy"
         rowHover
         @page="onPage"
-        class="mt-4"
+        class="mt-6"
       >
 
         <!-- Show message on empty recording list -->
@@ -84,12 +84,12 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2 border-top-1 border-bottom-1 surface-border">
+          <div class="px-2 border-t border-b border-surface">
             <div v-for="(item, index) in slotProps.items" :key="index">
-              <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
-                <div class="flex flex-column gap-2">
+              <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-top-1 surface-border': index !== 0 }">
+                <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0">{{ item.description }}</p>
-                  <div class="flex flex-column gap-2 align-items-start">
+                  <div class="flex flex-col gap-2 items-start">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="text-sm m-0">{{ $d(new Date(item.start),'datetimeShort') }}</p>
@@ -114,7 +114,7 @@
                     />
                   </div>
                 </div>
-                <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" >
+                <div class="shrink-0 flex flex-row gap-1 items-start justify-end" >
 
                   <RoomTabRecordingsViewButton
                     :roomId="props.room.id"

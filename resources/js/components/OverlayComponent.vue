@@ -40,7 +40,7 @@ const props = defineProps({
 
 const wrapperClass = computed(() => {
   return {
-    'flex justify-content-center align-items-center': !props.noCenter
+    'flex justify-center items-center': !props.noCenter
   };
 });
 

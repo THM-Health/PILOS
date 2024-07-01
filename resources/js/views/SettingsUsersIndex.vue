@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
+    <div class="flex justify-between items-center">
       <h2>
         {{ $t('app.users') }}
       </h2>
@@ -15,8 +15,8 @@
       </router-link>
     </div>
 
-    <div class="grid">
-      <div class="col flex flex-column md:flex-row">
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col flex flex-col md:flex-row">
         <div>
           <InputGroup>
             <InputText
@@ -36,7 +36,7 @@
         </div>
       </div>
 
-      <div class="col-12 sm:col-12 md:col-4 md:col-offset-4">
+      <div class="col-span-12 sm:col-span-12 md:col-span-4 md:col-start-5">
         <InputGroup>
           <multiselect
             id="roles"

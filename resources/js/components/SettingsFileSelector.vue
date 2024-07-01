@@ -1,7 +1,7 @@
 <template>
-  <div class="grid">
-    <div class="col-12 flex flex-column gap-2">
-      <div class="flex gap-2 align-items-start">
+  <div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12 flex flex-col gap-2">
+      <div class="flex gap-2 items-start">
         <FileInput
           v-if="!fileDeleted && !readonly"
           :disabled="disabled"

@@ -3,19 +3,19 @@
     <!-- room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative bg-white border-1 border-300 border-round shadow-none hover:shadow-2"
+      class="room-card h-full relative bg-white border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow"
       :class="{'room-card--running': running}"
       @click="open"
       @keyup.enter="open"
     >
-      <div class="p-3 h-100">
-        <div class="flex flex-column h-100">
-          <div class="flex-grow-1">
-            <div class="flex justify-content-between align-items-start">
+      <div class="p-4 h-100">
+        <div class="flex flex-col h-100">
+          <div class="grow">
+            <div class="flex justify-between items-start">
               <RoomTypeBadge
                 :room-type="props.room.type"
               />
-              <div class="room-card__buttons flex-shrink-0">
+              <div class="room-card__buttons shrink-0">
                 <Button
                   v-if="props.room.short_description!=null"
                   severity="secondary"
@@ -58,9 +58,9 @@
       :draggable="false"
     >
 
-      <div class="flex justify-content-between align-items-start mt-2">
+      <div class="flex justify-between items-start mt-2">
         <RoomTypeBadge :room-type="props.room.type" />
-        <div class="room-card-buttons flex-shrink-0">
+        <div class="room-card-buttons shrink-0">
           <room-favorite-button
             :room="props.room"
             @favorites-changed="$emit('favoritesChanged')"
@@ -78,7 +78,7 @@
         :show-description="true"
       />
       <template #footer>
-        <div class="flex justify-content-end gap-2">
+        <div class="flex justify-end gap-2">
           <Button :label="$t('app.close')" outlined @click="handleCancel" />
           <router-link :to="link" class="p-button">
             {{ $t('rooms.index.room_component.open') }}

@@ -9,16 +9,16 @@
       >
         <OverlayComponent :show="isBusy || modelLoadingError" :no-center="true">
           <template #overlay>
-            <div class="flex justify-content-center mt-4">
+            <div class="flex justify-center mt-6">
               <LoadingRetryButton :error="modelLoadingError" @click="getSettings" />
             </div>
           </template>
 
         <h4 class="text-xl">{{ $t('settings.application.application') }}</h4>
 
-        <div class="grid">
-          <label for="application-name" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.name.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="application-name" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.name.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="application-name"
               v-model="settings.name"
@@ -33,9 +33,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="help-url" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.help_url.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="help-url" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.help_url.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="help-url"
               v-model="settings.help_url"
@@ -49,9 +49,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="legal-notice-url" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.legal_notice_url.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="legal-notice-url" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.legal_notice_url.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="legal-notice-url"
               v-model="settings.legal_notice_url"
@@ -65,9 +65,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="privacy-policy-url" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.privacy_policy_url.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="privacy-policy-url" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.privacy_policy_url.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="privacy-policy-url"
               v-model="settings.privacy_policy_url"
@@ -81,9 +81,9 @@
           </div>
         </div>
 
-        <fieldset class="grid">
-          <legend id="favicon-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.favicon.title')}}</legend>
-          <div class="col-12 md:col-8">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend id="favicon-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.favicon.title')}}</legend>
+          <div class="col-span-12 md:col-span-8">
             <SettingsImageSelector
               v-model:image-url="settings.favicon"
               v-model:image="uploadFaviconFile"
@@ -102,9 +102,9 @@
           </div>
         </fieldset>
 
-        <fieldset class="grid">
-          <legend id="logo-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.logo.title')}}</legend>
-          <div class="col-12 md:col-8">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend id="logo-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.logo.title')}}</legend>
+          <div class="col-span-12 md:col-span-8">
             <SettingsImageSelector
               v-model:image-url="settings.logo"
               v-model:image="uploadLogoFile"
@@ -123,9 +123,9 @@
           </div>
         </fieldset>
 
-        <div class="grid">
-          <label for="pagination-page-size" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.pagination_page_size.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="pagination-page-size" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.pagination_page_size.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="pagination-page-size"
               v-model.number="settings.pagination_page_size"
@@ -142,9 +142,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="room-pagination-page-size" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_pagination_page_size.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="room-pagination-page-size" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.room_pagination_page_size.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="room-pagination-page-size"
               v-model.number="settings.room_pagination_page_size"
@@ -161,11 +161,11 @@
           </div>
         </div>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.toast_lifetime.title')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex flex-wrap gap-3">
-              <div class="flex align-items-center">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.toast_lifetime.title')}}</legend>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+            <div class="flex flex-wrap gap-4">
+              <div class="flex items-center">
                 <RadioButton
                   v-model="toastLifetimeMode"
                   inputId="toast-lifetime-mode-unlimited"
@@ -181,7 +181,7 @@
                 />
                 <label for="toast-lifetime-mode-unlimited" class="ml-2">{{ $t('app.unlimited') }}</label>
               </div>
-              <div class="flex align-items-center">
+              <div class="flex items-center">
                 <RadioButton
                   v-model="toastLifetimeMode"
                   inputId="toast-lifetime-custom"
@@ -216,9 +216,9 @@
           </div>
         </fieldset>
 
-        <div class="grid">
-          <label id="default-timezone-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.default_timezone')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="default-timezone-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.default_timezone')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <TimezoneSelect
               aria-labelledby="default-timezone-label"
               v-model="settings.default_timezone"
@@ -236,10 +236,10 @@
         <Divider/>
         <h4 class="text-xl">{{ $t('settings.application.banner.title') }}</h4>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.enabled')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex align-items-center gap-2">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.enabled')}}</legend>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+            <div class="flex items-center gap-2">
               <InputSwitch
                 inputId="banner-enabled"
                 v-model="settings.banner.enabled"
@@ -253,9 +253,9 @@
           </div>
         </fieldset>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.preview')}}</legend>
-          <div class="col-12 md:col-8">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.preview')}}</legend>
+          <div class="col-span-12 md:col-span-8">
             <AppBanner
               :background="settings.banner.background"
               :color="settings.banner.color"
@@ -271,9 +271,9 @@
           </div>
         </fieldset>
 
-        <div class="grid">
-          <label for="banner-title" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.banner_title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-title" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.banner_title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="banner-title"
               v-model="settings.banner.title"
@@ -285,9 +285,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-icon" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.icon')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-icon" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.icon')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="banner-icon"
               v-model="settings.banner.icon"
@@ -301,9 +301,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-message" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.message')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-message" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.message')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Textarea
               id="banner-message"
               v-model="settings.banner.message"
@@ -315,9 +315,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-link" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-link" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.link')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="banner-link"
               v-model="settings.banner.link"
@@ -329,9 +329,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-link-text" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_text')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-link-text" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.link_text')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <InputText
               id="banner-link-text"
               v-model="settings.banner.link_text"
@@ -343,9 +343,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-link-style" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_style')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-link-style" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.link_style')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               input-id="banner-link-style"
               v-model="settings.banner.link_style"
@@ -360,9 +360,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-link-target" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.link_target')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-link-target" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.link_target')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               input-id="banner-link-target"
               v-model="settings.banner.link_target"
@@ -377,9 +377,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-color" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.color')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-color" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.color')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <ColorSelect
               class="my-2"
               :disabled='disabled'
@@ -398,9 +398,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label for="banner-background" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.banner.background')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label for="banner-background" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.banner.background')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <ColorSelect
               class="my-2"
               :disabled='disabled'
@@ -422,11 +422,11 @@
         <Divider/>
         <h4 class="text-xl">{{ $t('app.rooms') }}</h4>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_limit.title')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex flex-wrap gap-3">
-              <div class="flex align-items-center">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.room_limit.title')}}</legend>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+            <div class="flex flex-wrap gap-4">
+              <div class="flex items-center">
                 <RadioButton
                   v-model="roomLimitMode"
                   inputId="room-limit-mode-unlimited"
@@ -442,7 +442,7 @@
                 />
                 <label for="room-limit-mode-unlimited" class="ml-2">{{ $t('app.unlimited') }}</label>
               </div>
-              <div class="flex align-items-center">
+              <div class="flex items-center">
                 <RadioButton
                   v-model="roomLimitMode"
                   inputId="room-limit-mode-custom"
@@ -477,9 +477,9 @@
           </div>
         </fieldset>
 
-        <div class="grid">
-          <label id="room-token-expiration-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_token_expiration.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="room-token-expiration-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.room_token_expiration.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.room_token_expiration"
               :options="timePeriods"
@@ -499,9 +499,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label id="room-auto-delete-deadline-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_auto_delete.deadline_period.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="room-auto-delete-deadline-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.room_auto_delete.deadline_period.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.room_auto_delete.deadline_period"
               :options="roomDeleteDeadlineOptions"
@@ -521,9 +521,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label id="room-auto-delete-inactive-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_auto_delete.inactive_period.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="room-auto-delete-inactive-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.room_auto_delete.inactive_period.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.room_auto_delete.inactive_period"
               :options="timePeriods"
@@ -543,9 +543,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label id="room-auto-delete-never-used-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.room_auto_delete.never_used_period.title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="room-auto-delete-never-used-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.room_auto_delete.never_used_period.title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.room_auto_delete.never_used_period"
               :options="timePeriods"
@@ -568,10 +568,10 @@
         <Divider/>
         <h4 class="text-xl">{{ $t('app.users') }}</h4>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.password_change_allowed')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex align-items-center gap-2">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.password_change_allowed')}}</legend>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+            <div class="flex items-center gap-2">
               <InputSwitch
                 inputId="password-change-allowed"
                 v-model="settings.password_change_allowed"
@@ -588,10 +588,10 @@
         <Divider/>
         <h4 class="text-xl">{{ $t('settings.application.attendance_and_statistics_title') }}</h4>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.servers.enabled_title')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex align-items-center gap-2">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.statistics.servers.enabled_title')}}</legend>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+            <div class="flex items-center gap-2">
               <InputSwitch
                 inputId="statistics-servers-enabled"
                 v-model="settings.statistics.servers.enabled"
@@ -605,9 +605,9 @@
           </div>
         </fieldset>
 
-        <div class="grid">
-          <label id="statistics-servers-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.servers.retention_period_title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="statistics-servers-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.statistics.servers.retention_period_title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.statistics.servers.retention_period"
               :options="timePeriods"
@@ -621,10 +621,10 @@
           </div>
         </div>
 
-        <fieldset class="grid">
-          <legend class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.meetings.enabled_title')}}</legend>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
-            <div class="flex align-items-center gap-2">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.statistics.meetings.enabled_title')}}</legend>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+            <div class="flex items-center gap-2">
               <InputSwitch
                 inputId="statistics-meetings-enabled"
                 v-model="settings.statistics.meetings.enabled"
@@ -638,9 +638,9 @@
           </div>
         </fieldset>
 
-        <div class="grid">
-          <label id="statistics-meetings-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.statistics.meetings.retention_period_title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="statistics-meetings-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.statistics.meetings.retention_period_title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.statistics.meetings.retention_period"
               :options="timePeriods"
@@ -654,9 +654,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label id="attendance-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.attendance.retention_period_title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="attendance-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.attendance.retention_period_title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.attendance.retention_period"
               :options="timePeriods"
@@ -670,9 +670,9 @@
           </div>
         </div>
 
-        <div class="grid">
-          <label id="recording-retention-period-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.recording.retention_period_title')}}</label>
-          <div class="col-12 md:col-8 flex flex-column gap-1">
+        <div class="grid grid-cols-12 gap-4">
+          <label id="recording-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.recording.retention_period_title')}}</label>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <Dropdown
               v-model="settings.recording.retention_period"
               :options="recordingRetentionPeriods"
@@ -689,9 +689,9 @@
         <Divider/>
         <h4 class="text-xl">{{ $t('settings.application.bbb.title') }}</h4>
 
-        <fieldset class="grid">
-          <legend id="bbb-logo-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.logo.title')}}</legend>
-          <div class="col-12 md:col-8">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend id="bbb-logo-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.logo.title')}}</legend>
+          <div class="col-span-12 md:col-span-8">
             <SettingsImageSelector
               v-model:image-url="settings.bbb.logo"
               v-model:image="uploadBBBLogoFile"
@@ -712,9 +712,9 @@
           </div>
         </fieldset>
 
-        <fieldset class="grid">
-          <legend id="bbb-style-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.bbb.style.title')}}</legend>
-          <div class="col-12 md:col-8">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend id="bbb-style-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.bbb.style.title')}}</legend>
+          <div class="col-span-12 md:col-span-8">
             <SettingsFileSelector
               v-model:file-url="settings.bbb.style"
               v-model:file="bbbStyle"
@@ -730,9 +730,9 @@
           </div>
         </fieldset>
 
-        <fieldset class="grid">
-          <legend id="default-presentation-label" class="col-12 md:col-4 md:mb-0">{{$t('settings.application.default_presentation')}}</legend>
-          <div class="col-12 md:col-8">
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend id="default-presentation-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('settings.application.default_presentation')}}</legend>
+          <div class="col-span-12 md:col-span-8">
             <SettingsFileSelector
               v-model:file-url="settings.bbb.default_presentation"
               v-model:file="defaultPresentation"
@@ -750,7 +750,7 @@
         </OverlayComponent>
         <div v-if="!viewOnly">
         <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
                 severity="success"
                 type="submit"

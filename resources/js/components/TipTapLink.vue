@@ -13,7 +13,7 @@
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
   >
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label for="url">{{ $t('rooms.description.modals.link.url') }}</label>
       <InputText
         id="url"
@@ -24,7 +24,7 @@
     </div>
 
     <template #footer>
-      <div class="w-full flex justify-content-between gap-2">
+      <div class="w-full flex justify-between gap-2">
         <div>
           <Button
             v-if="!newLink"

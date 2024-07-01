@@ -1,14 +1,14 @@
 <template>
       <Card
         :pt="{
-          body: { class: 'p-4' }
+          body: { class: 'p-6' }
         }"
       >
         <template #content>
           <!-- Tab header -->
-          <div role="tablist" class="flex flex-row justify-content-between m-0 px-2 border-0">
+          <div role="tablist" class="flex flex-row justify-between m-0 px-2 border-surface-0 dark:border-surface-900">
             <!-- Current tab -->
-            <div class="flex flex-row gap-2 align-items-center">
+            <div class="flex flex-row gap-2 items-center">
               <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>
             </div>
             <!-- Tab navigation -->

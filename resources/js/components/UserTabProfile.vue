@@ -3,9 +3,9 @@
     <h4>{{ $t('settings.users.base_data') }}</h4>
     <form @submit.prevent="save">
 
-      <div class="field grid">
-        <label for="firstname" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.firstname') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="firstname" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.firstname') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="firstname"
             v-model="model.firstname"
@@ -19,9 +19,9 @@
         </div>
       </div>
 
-      <div class="field grid">
-        <label for="lastname" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.lastname') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="lastname" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.lastname') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="lastname"
             v-model="model.lastname"
@@ -35,9 +35,9 @@
         </div>
       </div>
 
-      <div class="field grid">
-        <label for="authenticator" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.authenticator') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="authenticator" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.authenticator') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="authenticator"
             :value="$t(`settings.users.authenticator.${model.authenticator}`)"
@@ -48,9 +48,9 @@
         </div>
       </div>
 
-      <div class="field grid" v-if="model.authenticator !== 'local'">
-        <label for="authenticator_id" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.authenticator_id') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4" v-if="model.authenticator !== 'local'">
+        <label for="authenticator_id" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.authenticator_id') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="authenticator_id"
             v-model="model.external_id"
@@ -62,9 +62,9 @@
       </div>
 
       <!-- Profile image-->
-      <div class="grid">
-        <label class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('settings.users.image.title') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="grid grid-cols-12 gap-4">
+        <label class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('settings.users.image.title') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <UserProfileImageSelector
             :image="model.image"
             :busy="isBusy"
@@ -79,9 +79,9 @@
         </div>
       </div>
 
-      <div class="field grid">
-        <label for="user_locale" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('settings.users.user_locale') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="user_locale" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('settings.users.user_locale') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <LocaleSelect
             id="user_locale"
             v-model="model.user_locale"
@@ -93,9 +93,9 @@
         </div>
       </div>
 
-      <div class="field grid">
-        <label for="timezone" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('settings.users.timezone') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="timezone" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('settings.users.timezone') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <timezone-select
             id="timezone"
             v-model="model.timezone"
@@ -110,7 +110,7 @@
         </div>
       </div>
 
-      <div class="flex justify-content-end">
+      <div class="flex justify-end">
         <Button
           v-if="!viewOnly"
           :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"

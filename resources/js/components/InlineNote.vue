@@ -9,5 +9,5 @@ defineProps({
 </script>
 
 <template>
-  <InlineMessage :severity="severity" aria-live="off" role="presentation"><slot /></InlineMessage>
+  <Message :severity="severity" aria-live="off" role="presentation"><slot /></Message>
 </template>

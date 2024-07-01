@@ -3,17 +3,17 @@
     <h2>{{ $t('settings.overview') }}</h2>
     <p>{{ $t('settings.overview_description') }}</p>
     <Divider/>
-    <div class="grid mt-1">
+    <div class="grid grid-cols-12 gap-4 mt-1">
       <div
         v-if="userPermissions.can('viewAny', 'ConfigPolicy')"
-        class="col-12 md:col-4 lg:col-4 sm:col-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
       >
         <router-link
           :to="{ name: 'settings.config' }"
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
+            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -31,14 +31,14 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'UserPolicy')"
-        class="col-12 md:col-4 lg:col-4 sm:col-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
       >
         <router-link
           :to="{ name: 'settings.users' }"
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
+            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
           >
           <template #title>
             <h2 class="m-0">
@@ -56,14 +56,14 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RolePolicy')"
-        class="col-12 md:col-4 lg:col-4 sm:col-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
       >
         <router-link
           :to="{ name: 'settings.roles' }"
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
+            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -81,14 +81,14 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RoomTypePolicy')"
-        class="col-12 md:col-4 lg:col-4 sm:col-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
       >
         <router-link
           :to="{ name: 'settings.room_types' }"
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
+            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -106,14 +106,14 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPolicy')"
-        class="col-12 md:col-4 lg:col-4 sm:col-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
       >
         <router-link
           :to="{ name: 'settings.servers' }"
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
+            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -131,14 +131,14 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPoolPolicy')"
-        class="col-12 md:col-4 lg:col-4 sm:col-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
       >
         <router-link
           :to="{ name: 'settings.server_pools' }"
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border-1 border-300 border-round shadow-none hover:shadow-2 text-center"
+            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
           >
             <template #title>
               <h2 class="m-0">
