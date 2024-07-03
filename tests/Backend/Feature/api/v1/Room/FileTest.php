@@ -790,7 +790,7 @@ class FileTest extends TestCase
             ->assertSuccessful();
 
         // Start room
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0, 'record' => 0, 'record_video' => 0]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'consent_record_attendance' => 0, 'consent_record' => 0, 'consent_record_video' => 0]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
 
