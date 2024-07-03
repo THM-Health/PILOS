@@ -6,6 +6,7 @@ use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
 use App\Http\Controllers\api\v1\auth\ResetPasswordController;
 use App\Http\Controllers\api\v1\auth\VerificationController;
+use App\Http\Controllers\api\v1\SettingsController;
 use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\MeetingController;
 use App\Http\Controllers\api\v1\PermissionController;
@@ -38,7 +39,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('locale/{locale}', [LocaleController::class, 'show'])->name('locale.get');
     Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
 
-    Route::get('settings', [ApplicationController::class, 'settings'])->name('application');
+    Route::get('config', [ApplicationController::class, 'config'])->name('config');
     Route::get('currentUser', [ApplicationController::class, 'currentUser'])->name('currentUser');
 
     Route::post('login/local', [LoginController::class, 'login'])->name('login.local')->middleware(['enable_if_config:auth.local.enabled']);
@@ -53,8 +54,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if_config:auth.local.enabled', 'guest', 'throttle:password_email']);
 
     Route::middleware('auth:users,ldap')->group(function () {
-        Route::get('settings/all', [ApplicationController::class, 'allSettings'])->name('application.complete')->middleware('can:applicationSettings.viewAny');
-        Route::put('settings', [ApplicationController::class, 'updateSettings'])->name('application.update')->middleware('can:applicationSettings.update');
+        Route::get('settings', [SettingsController::class, 'view'])->name('settings.view')->middleware('can:settings.viewAny');
+        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('can:settings.update');
 
         Route::apiResource('roles', RoleController::class);
         Route::apiResource('roomTypes', RoomTypeController::class);

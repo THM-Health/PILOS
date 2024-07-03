@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'application' => [
+    'settings' => [
         'application' => 'Application',
         'attendance' => [
             'retention_period_title' => 'Retention period of the attendance logging in days',
@@ -127,7 +127,7 @@ return [
         ],
         'three_month' => '3 Months (90 Days)',
         'tile_description' => 'Controls system-wide settings such as logo, maintenance banner and page sizes.',
-        'title' => 'Application',
+        'title' => 'Settings',
         'toast_lifetime' => [
             'custom' => 'Custom',
             'description' => 'Time in seconds for which a notification is displayed',
@@ -282,7 +282,7 @@ return [
         'video_count' => 'Videos',
         'view' => 'Detailed information for the server :name',
     ],
-    'title' => 'Settings',
+    'title' => 'Administration',
     'users' => [
         'authenticator' => [
             'ldap' => 'LDAP',

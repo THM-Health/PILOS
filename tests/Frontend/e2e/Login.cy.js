@@ -108,7 +108,7 @@ describe('Login', function () {
         firstname: 'John',
         lastname: 'Doe',
         locale: 'en',
-        permissions: ['settings.manage'],
+        permissions: ['admin.view'],
         model_name: 'User',
         room_limit: -1
       }
@@ -231,7 +231,7 @@ describe('Login', function () {
         firstname: 'John',
         lastname: 'Doe',
         locale: 'en',
-        permissions: ['settings.manage'],
+        permissions: ['admin.view'],
         model_name: 'User',
         room_limit: -1
       }
@@ -439,7 +439,7 @@ describe('Login', function () {
         firstname: 'John',
         lastname: 'Doe',
         locale: 'en',
-        permissions: ['settings.manage'],
+        permissions: ['admin.view'],
         model_name: 'User',
         room_limit: -1
       }

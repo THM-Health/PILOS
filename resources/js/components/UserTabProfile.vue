@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>{{ $t('settings.users.base_data') }}</h4>
+    <h4>{{ $t('admin.users.base_data') }}</h4>
     <form @submit.prevent="save">
 
       <div class="field grid">
@@ -40,7 +40,7 @@
         <div class="col-12 md:col-9">
           <InputText
             id="authenticator"
-            :value="$t(`settings.users.authenticator.${model.authenticator}`)"
+            :value="$t(`admin.users.authenticator.${model.authenticator}`)"
             type="text"
             disabled
             class="w-full"
@@ -63,7 +63,7 @@
 
       <!-- Profile image-->
       <div class="grid">
-        <label class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('settings.users.image.title') }}</label>
+        <label class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('admin.users.image.title') }}</label>
         <div class="col-12 md:col-9">
           <UserProfileImageSelector
             :image="model.image"
@@ -80,7 +80,7 @@
       </div>
 
       <div class="field grid">
-        <label for="user_locale" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('settings.users.user_locale') }}</label>
+        <label for="user_locale" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('admin.users.user_locale') }}</label>
         <div class="col-12 md:col-9">
           <LocaleSelect
             id="user_locale"
@@ -94,7 +94,7 @@
       </div>
 
       <div class="field grid">
-        <label for="timezone" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('settings.users.timezone') }}</label>
+        <label for="timezone" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('admin.users.timezone') }}</label>
         <div class="col-12 md:col-9">
           <timezone-select
             id="timezone"
@@ -102,7 +102,7 @@
             required
             :invalid="formErrors.fieldInvalid('timezone')"
             :disabled="isBusy || viewOnly"
-            :placeholder="$t('settings.users.timezone')"
+            :placeholder="$t('admin.users.timezone')"
             @loading-error="(value) => timezonesLoadingError = value"
             @busy="(value) => timezonesLoading = value"
           />

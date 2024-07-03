@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'application' => [
+    'settings' => [
         'application' => 'Anwendung',
         'attendance' => [
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
@@ -127,7 +127,7 @@ return [
         ],
         'three_month' => '3 Monate (90 Tage)',
         'tile_description' => 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
-        'title' => 'Konfiguration',
+        'title' => 'Einstellungen',
         'toast_lifetime' => [
             'custom' => 'Benutzerdefiniert',
             'description' => 'Zeit in Sekunden, für die eine Benachrichtigung angezeigt wird',
@@ -282,7 +282,7 @@ return [
         'video_count' => 'Videos',
         'view' => 'Detaillierte Informationen über Server :name',
     ],
-    'title' => 'Einstellungen',
+    'title' => 'Administration',
     'users' => [
         'authenticator' => [
             'ldap' => 'LDAP',

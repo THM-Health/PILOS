@@ -1,16 +1,16 @@
 <template>
   <div>
     <h2>
-      {{ id === 'new' ? $t('settings.roles.new') : (
-        viewOnly ? $t('settings.roles.view', { name })
-        : $t('settings.roles.edit', { name })
+      {{ id === 'new' ? $t('admin.roles.new') : (
+        viewOnly ? $t('admin.roles.view', { name })
+        : $t('admin.roles.edit', { name })
       ) }}
     </h2>
     <div class="flex justify-content-between">
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
-        :to="{ name: 'settings.roles' }"
+        :to="{ name: 'admin.roles' }"
       >
         <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
       </router-link>
@@ -19,7 +19,7 @@
           v-if="!viewOnly && userPermissions.can('view', model)"
           class="p-button p-button-secondary"
           :disabled="isBusy"
-          :to="{ name: 'settings.roles.view', params: { id: model.id }, query: { view: '1' } }"
+          :to="{ name: 'admin.roles.view', params: { id: model.id }, query: { view: '1' } }"
         >
           <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
         </router-link>
@@ -27,7 +27,7 @@
           v-if="viewOnly && userPermissions.can('update', model)"
           class="p-button p-button-secondary"
           :disabled="isBusy"
-          :to="{ name: 'settings.roles.view', params: { id: model.id } }"
+          :to="{ name: 'admin.roles.view', params: { id: model.id } }"
         >
           <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
         </router-link>
@@ -35,7 +35,7 @@
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
           :name="name"
-          @deleted="$router.push({ name: 'settings.roles' })"
+          @deleted="$router.push({ name: 'admin.roles' })"
         />
       </div>
     </div>
@@ -105,19 +105,19 @@
             </div>
 
           </div>
-            <h3>{{ $t('settings.roles.permissions') }}</h3>
+            <h3>{{ $t('admin.roles.permissions') }}</h3>
             <div class="grid" v-if="!isBusy && Object.keys(permissions).length > 0">
               <div class="col-8">
-                <b>{{ $t('settings.roles.permission_name') }}</b>
+                <b>{{ $t('admin.roles.permission_name') }}</b>
               </div>
               <div class="col-2" style="word-wrap: break-word">
-                <b>{{ $t('settings.roles.permission_explicit') }}</b>
+                <b>{{ $t('admin.roles.permission_explicit') }}</b>
               </div>
               <div class="col-2" style="word-wrap: break-word">
-                <b>{{ $t('settings.roles.permission_included') }}
+                <b>{{ $t('admin.roles.permission_included') }}
                   <i
                     class="fa-solid fa-circle-info"
-                    v-tooltip="$t('settings.roles.permission_included_help')"
+                    v-tooltip="$t('admin.roles.permission_included_help')"
                   /></b>
               </div>
               <div class="col-12">
@@ -150,12 +150,12 @@
                         <i
                           v-if="includedPermissions.includes(permission.id)"
                           class="fa-solid fa-check-circle text-green-500"
-                          v-tooltip="$t('settings.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                          v-tooltip="$t('admin.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                         />
                         <i
                           v-else
                           class="fa-solid fa-minus-circle text-red-500"
-                          v-tooltip="$t('settings.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                          v-tooltip="$t('admin.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                         />
                       </div>
                     </div>
@@ -168,7 +168,7 @@
               v-if="!isBusy && Object.keys(permissions).length === 0"
               class="ml-3"
             >
-              {{ $t('settings.roles.no_options') }}
+              {{ $t('admin.roles.no_options') }}
             </div>
             <p class="p-error" v-html="formErrors.fieldError('permissions', true)"></p>
         <div v-if="!viewOnly">
@@ -200,20 +200,20 @@
       :header="$t('app.room_limit')"
     >
       <div class="overflow-auto">
-      <p>{{ $t('settings.roles.room_limit.help_modal.info') }}</p>
+      <p>{{ $t('admin.roles.room_limit.help_modal.info') }}</p>
 
-      <p class="font-bold text-lg">{{ $t('settings.roles.room_limit.help_modal.examples') }}</p>
+      <p class="font-bold text-lg">{{ $t('admin.roles.room_limit.help_modal.examples') }}</p>
       <table class="p-datatable p-datatable-table">
         <thead class="p-datatable-thead">
           <tr>
           <th scope="col">
-            {{ $t('settings.roles.room_limit.help_modal.system_default') }}
+            {{ $t('admin.roles.room_limit.help_modal.system_default') }}
           </th>
           <th scope="col">
-            {{ $t('settings.roles.room_limit.help_modal.role_a') }}
+            {{ $t('admin.roles.room_limit.help_modal.role_a') }}
           </th>
           <th scope="col">
-            {{ $t('settings.roles.room_limit.help_modal.role_b') }}
+            {{ $t('admin.roles.room_limit.help_modal.role_b') }}
           </th>
           <th scope="col">
             {{ $t('app.room_limit') }}
@@ -247,13 +247,13 @@
           </tr>
           <tr>
             <td><raw-text>5</raw-text></td>
-            <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
+            <td>{{ $t('admin.roles.room_limit.help_modal.system_default') }}</td>
             <td><raw-text>2</raw-text></td>
             <td><raw-text>5</raw-text></td>
           </tr>
           <tr>
             <td><raw-text>5</raw-text></td>
-            <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
+            <td>{{ $t('admin.roles.room_limit.help_modal.system_default') }}</td>
             <td><raw-text>10</raw-text></td>
             <td><raw-text>10</raw-text></td>
           </tr>
@@ -265,7 +265,7 @@
           </tr>
         </tbody>
       </table>
-      <p>{{ $t('settings.roles.room_limit.help_modal.note') }}</p>
+      <p>{{ $t('admin.roles.room_limit.help_modal.note') }}</p>
       </div>
     </Dialog>
   </div>
@@ -324,15 +324,15 @@ const helpRoomLimitModalVisible = ref(false);
 const roomLimitModeOptions = computed(() => {
   return [
     {
-      text: t('settings.roles.room_limit.default', {
-        value: parseInt(settingsStore.getSetting('room_limit'), 10) === -1
+      text: t('admin.roles.room_limit.default', {
+        value: parseInt(settingsStore.getSetting('room.limit'), 10) === -1
           ? t('app.unlimited').toLowerCase()
-          : settingsStore.getSetting('room_limit')
+          : settingsStore.getSetting('room.limit')
       }),
       value: 'default'
     },
     { text: t('app.unlimited'), value: 'unlimited' },
-    { text: t('settings.roles.room_limit.custom'), value: 'custom' }
+    { text: t('admin.roles.room_limit.custom'), value: 'custom' }
   ];
 });
 
@@ -374,7 +374,7 @@ function load () {
       roomLimitMode.value = model.value.room_limit === null ? 'default' : (model.value.room_limit === -1 ? 'unlimited' : 'custom');
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'settings.roles' });
+        router.push({ name: 'admin.roles' });
       } else {
         modelLoadingError.value = true;
       }
@@ -431,7 +431,7 @@ function saveRole () {
 
   api.call(props.id === 'new' ? 'roles' : `roles/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'settings.roles.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.roles.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
@@ -439,7 +439,7 @@ function saveRole () {
       handleStaleError(error.response.data);
     } else {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'settings.roles' });
+        router.push({ name: 'admin.roles' });
       }
 
       api.error(error);

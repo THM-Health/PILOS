@@ -1,7 +1,7 @@
 <template>
   <Button
-    v-tooltip="$t('settings.roles.delete.item', { id: props.name })"
-    :aria-label="$t('settings.roles.delete.item', { id: props.name })"
+    v-tooltip="$t('admin.roles.delete.item', { id: props.name })"
+    :aria-label="$t('admin.roles.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
     @click="showDeleteModal"
@@ -11,7 +11,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('settings.roles.delete.title')"
+    :header="$t('admin.roles.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :closeOnEscape="!isBusy"
@@ -20,7 +20,7 @@
     :draggable = false
   >
     <span>
-      {{ $t('settings.roles.delete.confirm', { name: props.name })}}
+      {{ $t('admin.roles.delete.confirm', { name: props.name })}}
     </span>
     <template #footer>
       <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>

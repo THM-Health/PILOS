@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
+use App\Models\Permission;
 use App\Settings\BannerSettings;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
@@ -221,6 +222,12 @@ class UpgradeDatabaseCommand extends Command
         $bigBlueButtonSettings->save();
 
         $this->info('Migrated old application settings, please check everything is correct in the settings page and adjust if necessary');
+
+        // Apply changes to permissions and run seeder
+        Permission::where('name', 'settings.manage')->update(['name' => 'admin.view']);
+        Permission::where('name', 'applicationSettings.viewAny')->update(['name' => 'settings.viewAny']);
+        Permission::where('name', 'applicationSettings.update')->update(['name' => 'settings.update']);
+        Artisan::call('db:seed --force');
 
         $this->alert('Upgrade to v4 completed.');
     }
