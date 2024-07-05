@@ -132,12 +132,19 @@ class RoomTest extends TestCase
             'has_access_code_enforced' => true,
         ]);
 
+        // Non-expert settings
+        $roomType->allow_guests_default = true;
+        $roomType->save();
+
         $room = ['room_type' => $roomType->id, 'name' => RoomFactory::createValidRoomName()];
 
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertCreated();
         $createdRoom = Room::find($response->json('data.id'));
         $this->assertNotNull($createdRoom->access_code);
+
+        // Check default values of non-expert settings are applied
+        $this->assertTrue($createdRoom->allow_guests);
 
         // Access code set by default
         $roomType->has_access_code_enforced = false;
@@ -153,12 +160,19 @@ class RoomTest extends TestCase
             'has_access_code_enforced' => true,
         ]);
 
+        // Non-expert settings
+        $roomType->allow_guests_default = false;
+        $roomType->save();
+
         $room = ['room_type' => $roomType->id, 'name' => RoomFactory::createValidRoomName()];
 
         $response = $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertCreated();
         $createdRoom = Room::find($response->json('data.id'));
         $this->assertNull($createdRoom->access_code);
+
+        // Check default values of non-expert settings are applied
+        $this->assertFalse($createdRoom->allow_guests);
 
         // No Access code by default
         $roomType->has_access_code_enforced = false;
