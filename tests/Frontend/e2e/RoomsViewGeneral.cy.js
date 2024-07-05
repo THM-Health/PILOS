@@ -74,9 +74,9 @@ describe('Room View general', function () {
     cy.wait('@joinRequest').then((interception) => {
       expect(interception.request.query).to.contain({
         name: '',
-        record_attendance: '0',
-        record: '0',
-        record_video: '0'
+        consent_record_attendance: '0',
+        consent_record: '0',
+        consent_record_video: '0'
       });
     });
 

@@ -10,7 +10,8 @@ class JoinMeeting extends FormRequest
 {
     protected RoomAuthService $roomAuthService;
 
-    public function __construct(RoomAuthService $roomAuthService){
+    public function __construct(RoomAuthService $roomAuthService)
+    {
         parent::__construct();
         $this->roomAuthService = $roomAuthService;
     }
