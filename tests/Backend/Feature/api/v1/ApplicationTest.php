@@ -63,13 +63,20 @@ class ApplicationTest extends TestCase
         $this->recordingSettings->recording_retention_period = TimePeriod::ONE_MONTH;
         $this->recordingSettings->save();
 
-        config(['bigbluebutton.room_refresh_rate' => 20]);
+
         config(['app.url' => 'https://domain.tld']);
         config(['app.version' => 'v1.0.0']);
         config(['app.whitelabel' => false]);
         config(['auth.local.enabled' => true]);
         config(['ldap.enabled' => false]);
+        config(['services.shibboleth.enabled' => false]);
         config(['recording.max_retention_period' => -1]);
+        config(['recording.description_limit' => 255]);
+        config(['bigbluebutton.room_refresh_rate' => 20]);
+        config(['bigbluebutton.allowed_file_mimes' => 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png']);
+        config(['bigbluebutton.max_filesize' => 30]);
+        config(['bigbluebutton.room_name_limit' => 50]);
+        config(['bigbluebutton.welcome_message_limit' => 500]);
 
         $this->getJson(route('api.v1.config'))
             ->assertJson([
@@ -113,6 +120,13 @@ class ApplicationTest extends TestCase
                     'auth' => [
                         'local' => true,
                         'ldap' => false,
+                        'shibboleth' => false,
+                    ],
+                    'bbb' => [
+                        'file_mimes' => 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                        'max_filesize' => 30,
+                        'room_name_limit' => 50,
+                        'welcome_message_limit' => 500,
                     ],
                 ],
             ])
