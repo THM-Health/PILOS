@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\LinkButtonStyle;
-use App\Enums\LinkTarget;
 use App\Settings\BannerSettings;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;

@@ -5,15 +5,9 @@ namespace Backend\Feature\api\v1;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\User;
-use App\Settings\BigBlueButtonSettings;
-use App\Settings\GeneralSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\Backend\TestCase;
 
 class ApplicationTest extends TestCase
@@ -180,6 +174,4 @@ class ApplicationTest extends TestCase
             ])
             ->assertSuccessful();
     }
-
-
 }

@@ -6,7 +6,6 @@ use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
 use App\Http\Controllers\api\v1\auth\ResetPasswordController;
 use App\Http\Controllers\api\v1\auth\VerificationController;
-use App\Http\Controllers\api\v1\SettingsController;
 use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\MeetingController;
 use App\Http\Controllers\api\v1\PermissionController;
@@ -21,6 +20,7 @@ use App\Http\Controllers\api\v1\RoomTypeController;
 use App\Http\Controllers\api\v1\ServerController;
 use App\Http\Controllers\api\v1\ServerPoolController;
 use App\Http\Controllers\api\v1\SessionController;
+use App\Http\Controllers\api\v1\SettingsController;
 use App\Http\Controllers\api\v1\UserController;
 use Illuminate\Support\Facades\Route;
 
