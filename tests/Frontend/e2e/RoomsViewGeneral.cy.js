@@ -57,7 +57,7 @@ describe('Room View general', function () {
       }
     });
 
-    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/join*', {
+    const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
       body: {
         url: 'https://example.org/?foo=a&bar=b'
@@ -72,11 +72,11 @@ describe('Room View general', function () {
     });
 
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: '',
-        consent_record_attendance: '0',
-        consent_record: '0',
-        consent_record_video: '0'
+        consent_record_attendance: false,
+        consent_record: false,
+        consent_record_video: false
       });
     });
 

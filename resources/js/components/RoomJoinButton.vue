@@ -200,11 +200,12 @@ function getJoinUrl () {
 
   // Build url, add accessCode and token if needed
   const config = {
-    params: {
+    method: 'post',
+    data: {
       name: props.token ? null : name.value,
-      consent_record_attendance: recordAttendanceAgreement.value ? 1 : 0,
-      consent_record: recordAgreement.value ? 1 : 0,
-      consent_record_video: recordVideoAgreement.value ? 1 : 0
+      consent_record_attendance: recordAttendanceAgreement.value,
+      consent_record: recordAgreement.value,
+      consent_record_video: recordVideoAgreement.value
     }
   };
 
