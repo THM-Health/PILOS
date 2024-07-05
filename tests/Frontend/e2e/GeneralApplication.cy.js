@@ -52,12 +52,14 @@ describe('General', function () {
   });
 
   it('all locales get rendered', function () {
-    cy.intercept('GET', 'api/v1/settings', {
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
+        general: {
+          enabled_locales: {
+            de: 'Deutsch',
+            en: 'English',
+            fr: 'Français'
+          }
         }
       }
     });
@@ -75,13 +77,15 @@ describe('General', function () {
   });
 
   it('changing selected locale', function () {
-    cy.intercept('GET', 'api/v1/settings', {
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        default_locale: 'en',
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
+        general: {
+          default_locale: 'en',
+          enabled_locales: {
+            de: 'Deutsch',
+            en: 'English',
+            fr: 'Français'
+          }
         }
       }
     });
@@ -111,14 +115,16 @@ describe('General', function () {
   });
 
   it('shows a corresponding error message and does not change the language on 422', function () {
-    cy.intercept('GET', 'api/v1/settings', {
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        toast_lifetime: 0,
-        default_locale: 'en',
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
+        general: {
+          toast_lifetime: 0,
+          default_locale: 'en',
+          enabled_locales: {
+            de: 'Deutsch',
+            en: 'English',
+            fr: 'Français'
+          }
         }
       }
     });
@@ -152,14 +158,16 @@ describe('General', function () {
   });
 
   it('test other errors', function () {
-    cy.intercept('GET', 'api/v1/settings', {
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        toast_lifetime: 0,
-        default_locale: 'en',
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
+        general: {
+          toast_lifetime: 0,
+          default_locale: 'en',
+          enabled_locales: {
+            de: 'Deutsch',
+            en: 'English',
+            fr: 'Français'
+          }
         }
       }
     });
