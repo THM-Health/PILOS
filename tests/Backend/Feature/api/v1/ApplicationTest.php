@@ -63,7 +63,6 @@ class ApplicationTest extends TestCase
         $this->recordingSettings->recording_retention_period = TimePeriod::ONE_MONTH;
         $this->recordingSettings->save();
 
-
         config(['app.url' => 'https://domain.tld']);
         config(['app.version' => 'v1.0.0']);
         config(['app.whitelabel' => false]);
