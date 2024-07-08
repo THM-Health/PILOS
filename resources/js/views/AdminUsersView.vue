@@ -1,12 +1,12 @@
 <template>
   <div>
     <h2>
-      {{ viewOnly ? $t('settings.users.view', { firstname: firstname, lastname: lastname }) : $t('settings.users.edit', { firstname: firstname, lastname: lastname }) }}
+      {{ viewOnly ? $t('admin.users.view', { firstname: firstname, lastname: lastname }) : $t('admin.users.edit', { firstname: firstname, lastname: lastname }) }}
     </h2>
     <div class="flex justify-content-between">
       <router-link
         class="p-button p-button-secondary"
-        :to="{ name: 'settings.users' }"
+        :to="{ name: 'admin.users' }"
       >
         <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
       </router-link>
@@ -14,14 +14,14 @@
         <router-link
           v-if="!viewOnly && userPermissions.can('view', user)"
           class="p-button p-button-secondary"
-          :to="{ name: 'settings.users.view', params: { id: user.id }, query: { view: '1' } }"
+          :to="{ name: 'admin.users.view', params: { id: user.id }, query: { view: '1' } }"
         >
           <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
         </router-link>
         <router-link
           v-if="viewOnly && userPermissions.can('update', user)"
           class="p-button p-button-secondary"
-          :to="{ name: 'settings.users.view', params: { id: user.id } }"
+          :to="{ name: 'admin.users.view', params: { id: user.id } }"
         >
           <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
         </router-link>
@@ -37,7 +37,7 @@
           :id="user.id"
           :firstname="user.firstname"
           :lastname="user.lastname"
-          @deleted="$router.push({ name: 'settings.users' })"
+          @deleted="$router.push({ name: 'admin.users' })"
         />
       </div>
     </div>
@@ -82,7 +82,7 @@ const lastname = computed(() => {
 
 function updateUser (newUser) {
   if (user.value) {
-    router.push({ name: 'settings.users.view', params: { id: newUser.id }, query: { view: '1' } });
+    router.push({ name: 'admin.users.view', params: { id: newUser.id }, query: { view: '1' } });
   }
   user.value = newUser;
 }

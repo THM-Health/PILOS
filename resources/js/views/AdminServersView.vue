@@ -2,9 +2,9 @@
   <div>
     <h2>
       {{
-        id === 'new' ? $t('settings.servers.new') : (
-          viewOnly ? $t('settings.servers.view', { name })
-            : $t('settings.servers.edit', { name })
+        id === 'new' ? $t('admin.servers.new') : (
+          viewOnly ? $t('admin.servers.view', { name })
+            : $t('admin.servers.edit', { name })
         )
       }}
     </h2>
@@ -12,7 +12,7 @@
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
-        :to="{ name: 'settings.servers' }"
+        :to="{ name: 'admin.servers' }"
       >
         <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
       </router-link>
@@ -20,7 +20,7 @@
         <router-link
           v-if="!viewOnly && userPermissions.can('view', model)"
           :disabled="isBusy"
-          :to="{ name: 'settings.servers.view', params: { id: model.id }, query: { view: '1' } }"
+          :to="{ name: 'admin.servers.view', params: { id: model.id }, query: { view: '1' } }"
           class="p-button p-button-secondary"
         >
           <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
@@ -28,7 +28,7 @@
         <router-link
           v-if="viewOnly && userPermissions.can('update', model)"
           :disabled="isBusy"
-          :to="{ name: 'settings.servers.view', params: { id: model.id } }"
+          :to="{ name: 'admin.servers.view', params: { id: model.id } }"
           class="p-button p-button-secondary"
         >
           <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
@@ -37,7 +37,7 @@
           v-if="userPermissions.can('delete', model) && isDisabled"
           :id="model.id"
           :name="name"
-          @deleted="$router.push({ name: 'settings.servers' })"
+          @deleted="$router.push({ name: 'admin.servers' })"
         ></SettingsServersDeleteButton>
       </div>
     </div>
@@ -82,7 +82,7 @@
             </div>
           </div>
           <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="version">{{ $t('settings.servers.version') }}</label>
+            <label class="col-12 md:col-4 md:mb-0" for="version">{{ $t('admin.servers.version') }}</label>
             <div class="col-12 md:col-8">
               <InputText
                 id="version"
@@ -94,7 +94,7 @@
             </div>
           </div>
           <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="base_url">{{ $t('settings.servers.base_url') }}</label>
+            <label class="col-12 md:col-4 md:mb-0" for="base_url">{{ $t('admin.servers.base_url') }}</label>
             <div class="col-12 md:col-8">
               <InputText
                 id="base_url"
@@ -110,7 +110,7 @@
             </div>
           </div>
           <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="secret">{{ $t('settings.servers.secret') }}</label>
+            <label class="col-12 md:col-4 md:mb-0" for="secret">{{ $t('admin.servers.secret') }}</label>
             <div class="col-12 md:col-8">
               <Password
                 class="w-full"
@@ -127,7 +127,7 @@
           </div>
           <div class="field grid">
             <label class="col-12 md:col-4 md:mb-0" for="strength">{{
-                $t('settings.servers.strength')
+                $t('admin.servers.strength')
               }}</label>
             <div class="col-12 md:col-8">
               <Rating
@@ -140,13 +140,13 @@
                 aria-describedby="strength-help"
                 class="border-1 border-300 border-round px-4 py-3 flex justify-content-between"
               />
-              <small id="strength-help">{{ $t('settings.servers.strength_description') }}</small>
+              <small id="strength-help">{{ $t('admin.servers.strength_description') }}</small>
               <p class="p-error" v-html="formErrors.fieldError('strength')"></p>
             </div>
           </div>
 
           <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="status">{{ $t('settings.servers.status') }}</label>
+            <label class="col-12 md:col-4 md:mb-0" for="status">{{ $t('admin.servers.status') }}</label>
             <div class="col-12 md:col-8">
               <div>
                 <Dropdown
@@ -166,7 +166,7 @@
           </div>
 
           <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="healthStatus">{{ $t('settings.servers.connection') }}</label>
+            <label class="col-12 md:col-4 md:mb-0" for="healthStatus">{{ $t('admin.servers.connection') }}</label>
             <div class="col-12 md:col-8">
               <InputGroup>
                 <InputText
@@ -177,14 +177,14 @@
                 />
                 <Button
                   :disabled="isBusy || modelLoadingError || checking"
-                  :label="$t('settings.servers.test_connection')"
+                  :label="$t('admin.servers.test_connection')"
                   icon="fa-solid fa-link"
                   severity="info"
                   @click="testConnection()"
                 />
               </InputGroup>
               <p v-if="offlineReason" class="p-error">
-                {{ $t('settings.servers.offline_reason.' + offlineReason) }}
+                {{ $t('admin.servers.offline_reason.' + offlineReason) }}
               </p>
             </div>
           </div>
@@ -208,14 +208,14 @@
         <div class="grid">
           <div class="col-12 md:col">
             <h3 class="mt-0">
-              {{ $t('settings.servers.current_usage') }}
+              {{ $t('admin.servers.current_usage') }}
             </h3>
             <Divider/>
           </div>
         </div>
 
         <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="meetingCount">{{ $t('settings.servers.meeting_count') }}</label>
+          <label class="col-12 md:col-4 md:mb-0" for="meetingCount">{{ $t('admin.servers.meeting_count') }}</label>
           <div class="col-12 md:col-8">
             <InputText
               id="meetingCount"
@@ -225,12 +225,12 @@
               class="w-full"
               type="text"
             />
-            <small id="meetingCount-help">{{ $t('settings.servers.meeting_description') }}</small>
+            <small id="meetingCount-help">{{ $t('admin.servers.meeting_description') }}</small>
           </div>
         </div>
         <div class="field grid">
           <label class="col-12 md:col-4 md:mb-0"
-                 for="ownMeetingCount">{{ $t('settings.servers.own_meeting_count') }}</label>
+                 for="ownMeetingCount">{{ $t('admin.servers.own_meeting_count') }}</label>
           <div class="col-12 md:col-8">
             <InputText
               id="ownMeetingCount"
@@ -240,12 +240,12 @@
               class="w-full"
               type="text"
             />
-            <small id="ownMeetingCount-help">{{ $t('settings.servers.own_meeting_description') }}</small>
+            <small id="ownMeetingCount-help">{{ $t('admin.servers.own_meeting_description') }}</small>
           </div>
         </div>
         <div class="field grid">
           <label class="col-12 md:col-4 md:mb-0" for="participantCount">
-            {{$t('settings.servers.participant_count') }}
+            {{$t('admin.servers.participant_count') }}
           </label>
           <div class="col-12 md:col-8">
             <InputText
@@ -258,7 +258,7 @@
           </div>
         </div>
         <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="videoCount">{{ $t('settings.servers.video_count') }}</label>
+          <label class="col-12 md:col-4 md:mb-0" for="videoCount">{{ $t('admin.servers.video_count') }}</label>
           <div class="col-12 md:col-8">
             <InputText
               id="videoCount"
@@ -274,20 +274,20 @@
           v-if="userPermissions.can('update', model)"
           class="field grid"
         >
-          <label class="col-12 md:col-4 md:mb-0" for="panic">{{ $t('settings.servers.panic') }}</label>
+          <label class="col-12 md:col-4 md:mb-0" for="panic">{{ $t('admin.servers.panic') }}</label>
           <div class="col-12 md:col-8">
             <div>
               <Button
                 id="panic"
                 :disabled="isBusy || modelLoadingError || checking || panicking"
-                :label="$t('settings.servers.panic_server')"
+                :label="$t('admin.servers.panic_server')"
                 aria-describedby="panic-help"
                 icon="fa-solid fa-exclamation-triangle"
                 severity="danger"
                 @click="panic()"
               />
             </div>
-            <small id="panic-help">{{ $t('settings.servers.panic_description') }}</small>
+            <small id="panic-help">{{ $t('admin.servers.panic_description') }}</small>
           </div>
         </div>
       </div>
@@ -342,21 +342,21 @@ const offlineReason = ref(null);
 const healthStatus = computed(() => {
   switch (health.value) {
     case -1:
-      return t('settings.servers.offline');
+      return t('admin.servers.offline');
     case 0:
-      return t('settings.servers.unhealthy');
+      return t('admin.servers.unhealthy');
     case 1:
-      return t('settings.servers.online');
+      return t('admin.servers.online');
     default:
-      return t('settings.servers.unknown');
+      return t('admin.servers.unknown');
   }
 });
 
 const serverStatusOptions = computed(() => {
   return [
-    { name: t('settings.servers.enabled'), value: 1 },
-    { name: t('settings.servers.draining'), value: 0 },
-    { name: t('settings.servers.disabled'), value: -1 }
+    { name: t('admin.servers.enabled'), value: 1 },
+    { name: t('admin.servers.draining'), value: 0 },
+    { name: t('admin.servers.disabled'), value: -1 }
   ];
 });
 
@@ -372,10 +372,10 @@ function panic () {
 
   api.call(`servers/${props.id}/panic`).then(response => {
     if (response.status === 200) {
-      toast.success(t('settings.servers.flash.panic.description', {
+      toast.success(t('admin.servers.flash.panic.description', {
         total: response.data.total,
         success: response.data.success
-      }), t('settings.servers.flash.panic.title'));
+      }), t('admin.servers.flash.panic.title'));
       load();
     }
   }).catch(error => {
@@ -439,7 +439,7 @@ function load () {
       offlineReason.value = null;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'settings.servers' });
+        router.push({ name: 'admin.servers' });
       } else {
         modelLoadingError.value = true;
       }
@@ -464,7 +464,7 @@ function saveServer () {
 
   api.call(props.id === 'new' ? 'servers' : `servers/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'settings.servers.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.servers.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
@@ -473,7 +473,7 @@ function saveServer () {
       handleStaleError(error.response.data);
     } else {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'settings.servers' });
+        router.push({ name: 'admin.servers' });
       }
       api.error(error);
     }

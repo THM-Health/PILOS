@@ -46,7 +46,7 @@ const settingsStore = useSettingsStore();
  * Copies the room link for the personalized token to the users' clipboard.
  */
 function copyLink () {
-  const link = settingsStore.getSetting('base_url') + router.resolve({ name: 'rooms.view', params: { id: props.roomId, token: props.token } }).href;
+  const link = settingsStore.getSetting('general.base_url') + router.resolve({ name: 'rooms.view', params: { id: props.roomId, token: props.token } }).href;
   navigator.clipboard.writeText(link);
   toast.info(t('rooms.tokens.room_link_copied', { firstname: props.firstname, lastname: props.lastname }));
 }

@@ -3,7 +3,7 @@
     <multiselect
       :id="id"
       ref="rolesMultiselectRef"
-      :placeholder="$t('settings.roles.select_roles')"
+      :placeholder="$t('admin.roles.select_roles')"
       :model-value="selectedRoles"
       @update:modelValue="input"
       track-by='id'
@@ -22,7 +22,7 @@
       :class="{ 'is-invalid': props.invalid, 'multiselect-form-control': true }"
     >
       <template #noOptions>
-        {{ $t('settings.roles.no_data') }}
+        {{ $t('admin.roles.no_data') }}
       </template>
       <template v-slot:option="{ option }">
         {{ option.name }}

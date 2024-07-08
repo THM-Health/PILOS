@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <h4>{{ $t('settings.users.roles_and_permissions') }}</h4>
+      <h4>{{ $t('admin.users.roles_and_permissions') }}</h4>
       <UserTabSecurityRolesAndPermissionsSection
         :user="user"
         :view-only="viewOnly"
@@ -61,7 +61,7 @@ const isOwnUser = computed(() => {
 });
 
 const canChangePassword = computed(() => {
-  return !isOwnUser.value || settingsStore.getSetting('password_change_allowed');
+  return !isOwnUser.value || settingsStore.getSetting('user.password_change_allowed');
 });
 
 function handleStaleError (error) {
