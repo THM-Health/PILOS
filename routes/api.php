@@ -142,8 +142,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('rooms/{room}', [RoomController::class, 'show'])->name('rooms.show')->middleware('room.authenticate:true');
 
     Route::middleware('room.authenticate')->scopeBindings()->group(function () {
-        Route::get('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
-        Route::get('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
+        Route::post('rooms/{room}/start', [RoomController::class, 'start'])->name('rooms.start')->middleware('can:start,room');
+        Route::post('rooms/{room}/join', [RoomController::class, 'join'])->name('rooms.join');
         Route::get('rooms/{room}/files', [RoomFileController::class, 'index'])->name('rooms.files.get');
         Route::get('rooms/{room}/files/{file}', [RoomFileController::class, 'show'])->name('rooms.files.show')->middleware('can:downloadFile,room,file');
         Route::get('rooms/{room}/recordings', [RecordingController::class, 'index'])->name('rooms.recordings.index');

@@ -38,4 +38,24 @@ class RoomTypeRequest extends FormRequest
 
         return $rules;
     }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        $locales = [
+            'has_access_code_default' => __('validation.room_type_attribute_default', ['attribute' => __('validation.attributes.has_access_code')]),
+            'has_access_code_enforced' => __('validation.room_type_attribute_enforced', ['attribute' => __('validation.attributes.has_access_code')]),
+        ];
+
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $locales[$setting.'_default'] = __('validation.room_type_attribute_default', ['attribute' => __('validation.attributes.'.$setting)]);
+            $locales[$setting.'_enforced'] = __('validation.room_type_attribute_enforced', ['attribute' => __('validation.attributes.'.$setting)]);
+        }
+
+        return $locales;
+    }
 }
