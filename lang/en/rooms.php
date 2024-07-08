@@ -149,7 +149,7 @@ return [
         'reset_filter' => 'Reset filter',
         'room_component' => [
             'details' => 'Details',
-            'last_ran_till' => 'Last ran till :date',
+            'last_ran_till' => 'Last run until :date',
             'never_started' => 'Never started before',
             'open' => 'Open',
             'running_since' => 'Running since :date',

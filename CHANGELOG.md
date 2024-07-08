@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom create parameters in room type settings ([#574])
 - Setting to change the lifetime of toast messages ([#1102])
 - User search can find user by email ([#1120])
+- Cypress system tests ([#1166])
 
 ### Changed
 - Refactor user interface for room search and home page ([#372], [#373])
@@ -143,6 +144,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1120]: https://github.com/THM-Health/PILOS/pull/1120
 [#1126]: https://github.com/THM-Health/PILOS/pull/1126
 [#1159]: https://github.com/THM-Health/PILOS/pull/1159
+[#1166]: https://github.com/THM-Health/PILOS/pull/1166
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

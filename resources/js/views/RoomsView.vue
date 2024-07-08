@@ -74,7 +74,7 @@
         <div v-if="!room.authenticated"
            class="flex justify-content-center mt-8"
         >
-          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}" data-test="room-access-code-overlay">
             <template #header>
               <Badge severity="danger" class="border-circle flex justify-content-center align-items-center h-4rem w-4rem -mt-5">
                 <i class="fa-solid fa-lock text-2xl text-white"></i>
@@ -88,7 +88,7 @@
               {{ $t('rooms.require_access_code') }}
             </span>
 
-            <div class="flex flex-column w-full gap-2 mt-4">
+            <div class="flex flex-column w-full gap-2 mt-4" data-test="room-access-code">
               <label for="access-code">{{ $t('rooms.access_code') }}</label>
               <InputGroup>
                   <InputMask

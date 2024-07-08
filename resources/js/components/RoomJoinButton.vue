@@ -13,6 +13,7 @@
 
   <!-- If room is not running -->
   <Button
+    data-test="room-start-button"
     v-else-if="canStart"
     class="p-button-block"
     :disabled="isLoadingAction || disabled"
