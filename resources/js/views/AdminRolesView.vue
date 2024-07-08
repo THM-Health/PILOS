@@ -105,7 +105,7 @@
             </div>
 
           </div>
-            <h3>{{ $t('admin.roles.permissions') }}</h3>
+            <h3>{{ $t('admin.roles.permissions_title') }}</h3>
             <div class="grid" v-if="!isBusy && Object.keys(permissions).length > 0">
               <div class="col-8">
                 <b>{{ $t('admin.roles.permission_name') }}</b>
@@ -127,7 +127,7 @@
                   :key="key"
                 >
                   <div class="col-12">
-                    <b>{{ $t(`app.permissions.${key}.title`) }}</b>
+                    <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
                   </div>
                   <div class="col-12">
                     <div class="grid"
@@ -135,7 +135,7 @@
                       :key="permission.id"
                     >
                       <div class="col-8">
-                        <label :for="permission.name">{{ $t(`app.permissions.${permission.name}`) }}</label>
+                        <label :for="permission.name">{{ $t(`admin.roles.permissions.${permission.name}`) }}</label>
                       </div>
                       <div class="col-2 flex">
                         <Checkbox
@@ -150,12 +150,12 @@
                         <i
                           v-if="includedPermissions.includes(permission.id)"
                           class="fa-solid fa-check-circle text-green-500"
-                          v-tooltip="$t('admin.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                          v-tooltip="$t('admin.roles.has_included_permission',{'name':$t(`admin.roles.permissions.${permission.name}`)})"
                         />
                         <i
                           v-else
                           class="fa-solid fa-minus-circle text-red-500"
-                          v-tooltip="$t('admin.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
+                          v-tooltip="$t('admin.roles.has_not_included_permission',{'name':$t(`admin.roles.permissions.${permission.name}`)})"
                         />
                       </div>
                     </div>
@@ -391,19 +391,34 @@ function loadPermissions () {
   busyCounter.value++;
 
   api.call('permissions').then(response => {
-    permissions.value = {};
+    const newPermissions = {};
     response.data.data.forEach(permission => {
       permission.name = permission.name.split('.').map(fragment => _.snakeCase(fragment)).join('.');
 
       const group = permission.name.split('.')[0];
 
-      if (!permissions.value[group]) {
-        permissions.value[group] = [];
+      if (!newPermissions[group]) {
+        newPermissions[group] = [];
       }
 
-      permissions.value[group].push(permission);
+      newPermissions[group].push(permission);
       includedPermissionMap.value[permission.id] = permission.included_permissions;
     });
+
+    // Sort permissions array by custom sort order
+    const sortOrder = ['rooms', 'meetings', 'admin', 'settings', 'system', 'users', 'roles', 'room_types', 'servers', 'server_pools'];
+    sortOrder.forEach(key => {
+      if (newPermissions[key]) {
+        permissions.value[key] = newPermissions[key];
+        delete newPermissions[key];
+      }
+    });
+    // Add any remaining permissions in alphabetical order
+    Object.keys(newPermissions)
+      .sort()
+      .forEach((key) => {
+        permissions.value[key] = newPermissions[key];
+      });
   }).catch(error => {
     modelLoadingError.value = true;
     api.error(error);
