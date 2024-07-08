@@ -53,7 +53,7 @@
         "primevue-sass-theme": "primefaces/primevue-sass-theme#semver:^3.52.0",
         "sass": "^1.77.6",
         "ua-parser-js": "^1.0.38",
-        "unplugin-vue-components": "^0.27.0",
+        "unplugin-vue-components": "^0.27.2",
         "vite": "^5.3.3",
         "vue": "^3.4",
         "vue-axe": "^3.1.2",
