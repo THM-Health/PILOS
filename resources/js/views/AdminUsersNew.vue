@@ -1,12 +1,12 @@
 <template>
   <div>
     <h2>
-      {{ $t('settings.users.new') }}
+      {{ $t('admin.users.new') }}
     </h2>
     <router-link
       class="p-button p-button-secondary"
       :disabled="isBusy"
-      :to="{ name: 'settings.users' }"
+      :to="{ name: 'admin.users' }"
     >
       <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
     </router-link>
@@ -62,7 +62,7 @@
               </div>
             </div>
             <div class="field grid">
-              <label for="user_locale" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.user_locale')}}</label>
+              <label for="user_locale" class="col-12 md:col-4 md:mb-0">{{$t('admin.users.user_locale')}}</label>
               <div class="col-12 md:col-8">
                 <LocaleSelect
                   class="w-full"
@@ -77,7 +77,7 @@
             </div>
 
             <div class="field grid">
-              <label for="timezone" class="col-12 md:col-4 md:mb-0">{{$t('settings.users.timezone')}}</label>
+              <label for="timezone" class="col-12 md:col-4 md:mb-0">{{$t('admin.users.timezone')}}</label>
               <div class="col-12 md:col-8">
                 <TimezoneSelect
                   id="timezone"
@@ -85,7 +85,7 @@
                   required
                   :invalid="formErrors.fieldInvalid('timezone')"
                   :disabled="isBusy"
-                  :placeholder="$t('settings.users.timezone')"
+                  :placeholder="$t('admin.users.timezone')"
                   @loading-error="(value) => timezonesLoadingError = value"
                   @busy="(value) => timezonesLoading = value"
                 />
@@ -111,7 +111,7 @@
           <div>
           <h3>{{$t('auth.password')}}</h3>
             <div class="field grid">
-              <label for="generate_password" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.users.generate_password')}}</label>
+              <label for="generate_password" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('admin.users.generate_password')}}</label>
               <div class="col-12 md:col-8">
                 <div>
                   <InputSwitch
@@ -123,7 +123,7 @@
                   />
                 </div>
                 <p class="p-error" v-html="formErrors.fieldError('generate_password')"></p>
-                <small id="generate_password-help">{{$t('settings.users.generate_password_description')}}</small>
+                <small id="generate_password-help">{{$t('admin.users.generate_password_description')}}</small>
               </div>
             </div>
             <div class="field grid" v-if="!generatePassword">
@@ -213,8 +213,8 @@ const timezonesLoadingError = ref(false);
  * of the current user gets changed.
  */
 onMounted(() => {
-  model.user_locale = settingsStore.getSetting('default_locale');
-  model.timezone = settingsStore.getSetting('default_timezone');
+  model.user_locale = settingsStore.getSetting('general.default_locale');
+  model.timezone = settingsStore.getSetting('general.default_timezone');
 });
 
 /**
@@ -245,7 +245,7 @@ function save () {
     method: 'POST',
     data
   }).then(response => {
-    router.push({ name: 'settings.users.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.users.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

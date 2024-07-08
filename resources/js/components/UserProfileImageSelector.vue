@@ -8,7 +8,7 @@
       customUpload
       auto
       @uploader="onFileSelect"
-      :choose-label="$t('settings.users.image.upload')"
+      :choose-label="$t('admin.users.image.upload')"
     >
       <template #chooseicon>
         <i class="fa-solid fa-upload" />
@@ -27,7 +27,7 @@
       :disabled="isBusy"
       severity="danger"
       @click="emit('deleteImage', true)"
-      :label="$t('settings.users.image.delete')"
+      :label="$t('admin.users.image.delete')"
       icon="fa-solid fa-trash"
     />
     <Button
@@ -42,7 +42,7 @@
     <UserAvatar
       v-if="(croppedImage!==null || image!==null) && !imageDeleted"
       :image="croppedImage ? croppedImage : image"
-      :alt="$t('settings.users.image.title')"
+      :alt="$t('admin.users.image.title')"
       size="xlarge"
       shape="square"
     />
@@ -50,7 +50,7 @@
       v-else
       :firstname="firstname"
       :lastname="lastname"
-      :alt="$t('settings.users.image.title')"
+      :alt="$t('admin.users.image.title')"
       size="xlarge"
       shape="square"
     />
@@ -59,7 +59,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('settings.users.image.crop')"
+    :header="$t('admin.users.image.crop')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
@@ -70,7 +70,7 @@
     <template #footer>
       <div class="flex justify-content-end gap-2">
         <Button :label="$t('app.cancel')" outlined @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('settings.users.image.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('admin.users.image.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
       </div>
     </template>
 
@@ -81,7 +81,7 @@
       :aspect-ratio="1"
       :view-mode="1"
       :src="selectedFile"
-      :alt="$t('settings.users.image.title')"
+      :alt="$t('admin.users.image.title')"
     />
 
   </Dialog>

@@ -5,12 +5,14 @@ describe('General', function () {
     cy.init();
     cy.interceptRoomIndexRequests();
 
-    cy.intercept('GET', 'api/v1/settings', {
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
+        general: {
+          enabled_locales: {
+            de: 'Deutsch',
+            en: 'English',
+            fr: 'Français'
+          }
         }
       }
     });

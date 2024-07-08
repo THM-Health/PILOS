@@ -102,7 +102,7 @@ class RoleController extends Controller
 
             $user = Auth::user();
 
-            if (! ($user->hasPermission('settings.manage')
+            if (! ($user->hasPermission('admin.view')
                 && $user->hasPermission('roles.viewAny')
                 && $user->hasPermission('roles.view')
                 && $user->hasPermission('roles.update'))) {

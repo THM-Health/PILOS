@@ -1,8 +1,8 @@
 <template>
   <Button
     :id="'resetPassword' + props.id"
-    v-tooltip="$t('settings.users.reset_password.item', { firstname: props.firstname, lastname: props.lastname })"
-    :aria-label="$t('settings.users.reset_password.item', { firstname: props.firstname, lastname: props.lastname })"
+    v-tooltip="$t('admin.users.reset_password.item', { firstname: props.firstname, lastname: props.lastname })"
+    :aria-label="$t('admin.users.reset_password.item', { firstname: props.firstname, lastname: props.lastname })"
     :disabled="isBusy"
     severity="warning"
     @click="showResetPasswordModal"
@@ -12,7 +12,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('settings.users.reset_password.title')"
+    :header="$t('admin.users.reset_password.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :closeOnEscape="!isBusy"
@@ -21,7 +21,7 @@
     :draggable = false
   >
     <span>
-      {{ $t('settings.users.reset_password.confirm', { firstname: props.firstname, lastname: props.lastname }) }}
+      {{ $t('admin.users.reset_password.confirm', { firstname: props.firstname, lastname: props.lastname }) }}
     </span>
     <template #footer>
       <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
@@ -77,7 +77,7 @@ function resetPassword () {
     method: 'post'
   }).then(() => {
     showModal.value = false;
-    toast.success(t('settings.users.password_reset_success', { mail: props.email }));
+    toast.success(t('admin.users.password_reset_success', { mail: props.email }));
   }).catch(error => {
     api.error(error);
   }).finally(() => {

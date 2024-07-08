@@ -4,9 +4,9 @@
       <h2>{{ $t('app.room_types') }}</h2>
       <router-link
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
-        v-tooltip="$t('settings.room_types.new')"
+        v-tooltip="$t('admin.room_types.new')"
         class="p-button p-button-success p-button-icon-only"
-        :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
+        :to="{ name: 'admin.room_types.view', params: { id: 'new' } }"
       >
         <i class="fa-solid fa-plus" />
       </router-link>
@@ -48,8 +48,8 @@
       class="table-auto lg:table-fixed"
     >
       <template #empty>
-        <InlineNote v-if="roomTypes.length === 0">{{ $t('settings.room_types.no_data') }}</InlineNote>
-        <InlineNote v-else>{{ $t('settings.room_types.no_data_filtered') }}</InlineNote>
+        <InlineNote v-if="roomTypes.length === 0">{{ $t('admin.room_types.no_data') }}</InlineNote>
+        <InlineNote v-else>{{ $t('admin.room_types.no_data_filtered') }}</InlineNote>
       </template>
       <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true">
         <template #body="slotProps">
@@ -62,20 +62,20 @@
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
               class="p-button p-button-icon-only p-button-info"
-              v-tooltip="$t('settings.room_types.view', { name: slotProps.data.name })"
-              :aria-label="$t('settings.room_types.view', { name: slotProps.data.name })"
+              v-tooltip="$t('admin.room_types.view', { name: slotProps.data.name })"
+              :aria-label="$t('admin.room_types.view', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+              :to="{ name: 'admin.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
             >
               <i class="fa-solid fa-eye" />
             </router-link>
             <router-link
               v-if="userPermissions.can('update', slotProps.data)"
               class="p-button p-button-icon-only p-button-secondary"
-              v-tooltip="$t('settings.room_types.edit', { name: slotProps.data.name })"
-              :aria-label="$t('settings.room_types.edit', { name: slotProps.data.name })"
+              v-tooltip="$t('admin.room_types.edit', { name: slotProps.data.name })"
+              :aria-label="$t('admin.room_types.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'settings.room_types.view', params: { id: slotProps.data.id } }"
+              :to="{ name: 'admin.room_types.view', params: { id: slotProps.data.id } }"
             >
               <i class="fa-solid fa-edit" />
             </router-link>

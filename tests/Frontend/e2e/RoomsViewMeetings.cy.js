@@ -47,10 +47,10 @@ describe('Rooms view meetings', function () {
       }
     });
 
-    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/join*', {
+    const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }, 'joinRequest');
 
@@ -71,17 +71,17 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: '',
-        record_attendance: '0',
-        record: '0',
-        record_video: '0'
+        consent_record_attendance: false,
+        consent_record: false,
+        consent_record_video: false
       });
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -126,10 +126,10 @@ describe('Rooms view meetings', function () {
       }
     });
 
-    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/join*', {
+    const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }, 'joinRequest');
 
@@ -154,17 +154,17 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: '',
-        record_attendance: '1',
-        record: '0',
-        record_video: '0'
+        consent_record_attendance: true,
+        consent_record: false,
+        consent_record_video: false
       });
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -209,10 +209,10 @@ describe('Rooms view meetings', function () {
       }
     });
 
-    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/join*', {
+    const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }, 'joinRequest');
 
@@ -240,17 +240,17 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: '',
-        record_attendance: '0',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: false,
+        consent_record: true,
+        consent_record_video: true
       });
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -288,7 +288,7 @@ describe('Rooms view meetings', function () {
       }
     });
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 422,
       body: {
         message: 'The given data was invalid',
@@ -311,11 +311,11 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe 123!',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
     });
 
@@ -324,10 +324,10 @@ describe('Rooms view meetings', function () {
       cy.get('#guest-name').clear();
       cy.get('#guest-name').type('John Doe');
 
-      cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+      cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
         statusCode: 200,
         body: {
-          url: 'http://example.org/?foo=a&bar=b'
+          url: 'https://example.org/?foo=a&bar=b'
         }
       }).as('joinRequest');
 
@@ -335,17 +335,17 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -425,7 +425,7 @@ describe('Rooms view meetings', function () {
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 422,
       body: {
         message: 'The given data was invalid',
@@ -446,11 +446,11 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe 123!',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
@@ -460,10 +460,10 @@ describe('Rooms view meetings', function () {
       cy.get('#guest-name').clear();
       cy.get('#guest-name').type('John Doe');
 
-      cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+      cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
         statusCode: 200,
         body: {
-          url: 'http://example.org/?foo=a&bar=b'
+          url: 'https://example.org/?foo=a&bar=b'
         }
       }).as('joinRequest');
 
@@ -471,18 +471,18 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -520,10 +520,10 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }).as('joinRequest');
 
@@ -542,17 +542,17 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+      expect(interception.request.body).to.contain({
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
       expect(interception.request.headers.token).to.eq('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -598,7 +598,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     // test guests not allowed
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 403,
       body: {
         message: 'guests_not_allowed'
@@ -621,7 +621,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
     // test invalid access token (invalid_code)
     // ToDo improve test reset of access code (separate test??)
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 401,
       body: {
         message: 'invalid_code'
@@ -638,7 +638,7 @@ describe('Rooms view meetings', function () {
 
     // test invalid access token (require_code)
     // ToDo improve test reset of access code (separate test??)
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 403,
       body: {
         message: 'require_code'
@@ -655,7 +655,7 @@ describe('Rooms view meetings', function () {
 
     // test invalid token
     // ToDo improve test (move to other test case)
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 401,
       body: {
         message: 'invalid_token'
@@ -713,10 +713,18 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 470,
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
+      statusCode: 422,
       body: {
-        message: 'Consent to record attendance is required.'
+        message: 'The consent record attendance must be accepted. (and 1 more error)',
+        errors: {
+          consent_record_attendance: [
+            'The consent record attendance must be accepted.'
+          ],
+          consent_record: [
+            'The consent record must be accepted.'
+          ]
+        }
       }
     }).as('joinRequest');
 
@@ -728,36 +736,21 @@ describe('Rooms view meetings', function () {
     cy.get('[data-test=room-join-button]').click();
 
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      // Test join with missing record attendance agreement
-      cy.get('#record-agreement').click();
+      // Test join with missing agreements
       cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
 
       cy.wait('@joinRequest');
 
-      cy.contains('Consent to record attendance is required.').should('be.visible');
-
-      // Test join with missing record agreement
-      cy.get('#record-agreement').click();
-      cy.get('#record-attendance-agreement').click();
-
-      cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
-        statusCode: 473,
-        body: {
-          message: 'Consent to the recording is required.'
-        }
-      }).as('joinRequest');
-
-      cy.get('.p-button').eq(1).click();
-
-      cy.wait('@joinRequest');
-
-      cy.contains('Consent to record attendance is required.').should('not.exist');
-      cy.contains('Consent to the recording is required.').should('be.visible');
+      cy.contains('The consent record attendance must be accepted.').should('be.visible');
+      cy.contains('The consent record must be accepted.').should('be.visible');
 
       cy.get('.p-button').eq(0).should('have.text', 'app.cancel').click();
     });
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');
+
+    // ToDo add test if one agreement is not shown before clicking on join
+    // Form field and error message should be shown
   });
 
   it('join meeting error room closed', function () { // ToDo improve and maybe put together with other tests
@@ -801,7 +794,7 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/join*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 460,
       body: {
         message: 'Joining failed! The room is currently closed.'
@@ -827,10 +820,10 @@ describe('Rooms view meetings', function () {
   });
 
   it('start meeting', function () {
-    const startRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/start*', {
+    const startRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }, 'startRequest');
 
@@ -842,16 +835,16 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: '',
-        record_attendance: '0',
-        record: '0',
-        record_video: '0'
+        consent_record_attendance: false,
+        consent_record: false,
+        consent_record_video: false
       });
     });
 
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -896,10 +889,10 @@ describe('Rooms view meetings', function () {
       }
     });
 
-    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/start*', {
+    const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }, 'startRequest');
 
@@ -924,17 +917,17 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: '',
-        record_attendance: '1',
-        record: '0',
-        record_video: '0'
+        consent_record_attendance: true,
+        consent_record: false,
+        consent_record_video: false
       });
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -979,10 +972,10 @@ describe('Rooms view meetings', function () {
       }
     });
 
-    const joinRequest = interceptIndefinitely('GET', '/api/v1/rooms/abc-def-123/start*', {
+    const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }, 'startRequest');
 
@@ -1010,17 +1003,17 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: '',
-        record_attendance: '0',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: false,
+        consent_record: true,
+        consent_record_video: true
       });
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -1058,7 +1051,7 @@ describe('Rooms view meetings', function () {
       }
     });
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 422,
       body: {
         message: 'The given data was invalid',
@@ -1081,11 +1074,11 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe 123!',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
     });
 
@@ -1094,10 +1087,10 @@ describe('Rooms view meetings', function () {
       cy.get('#guest-name').clear();
       cy.get('#guest-name').type('John Doe');
 
-      cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+      cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
         statusCode: 200,
         body: {
-          url: 'http://example.org/?foo=a&bar=b'
+          url: 'https://example.org/?foo=a&bar=b'
         }
       }).as('startRequest');
 
@@ -1105,17 +1098,17 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -1195,7 +1188,7 @@ describe('Rooms view meetings', function () {
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 422,
       body: {
         message: 'The given data was invalid',
@@ -1216,11 +1209,11 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe 123!',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
@@ -1230,10 +1223,10 @@ describe('Rooms view meetings', function () {
       cy.get('#guest-name').clear();
       cy.get('#guest-name').type('John Doe');
 
-      cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+      cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
         statusCode: 200,
         body: {
-          url: 'http://example.org/?foo=a&bar=b'
+          url: 'https://example.org/?foo=a&bar=b'
         }
       }).as('startRequest');
 
@@ -1241,18 +1234,18 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
+      expect(interception.request.body).to.contain({
         name: 'John Doe',
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
@@ -1290,10 +1283,10 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
       body: {
-        url: 'http://example.org/?foo=a&bar=b'
+        url: 'https://example.org/?foo=a&bar=b'
       }
     }).as('startRequest');
 
@@ -1312,23 +1305,23 @@ describe('Rooms view meetings', function () {
     });
 
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.query).to.contain({
-        record_attendance: '1',
-        record: '1',
-        record_video: '1'
+      expect(interception.request.body).to.contain({
+        consent_record_attendance: true,
+        consent_record: true,
+        consent_record_video: true
       });
       expect(interception.request.headers.token).to.eq('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     });
 
     // Check if redirect worked
-    cy.origin('http://example.org', () => {
-      cy.url().should('eq', 'http://example.org/?foo=a&bar=b');
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
   });
 
   it('start meeting errors', function () {
     // test guests not allowed
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 403,
       body: {
         message: 'guests_not_allowed'
@@ -1351,7 +1344,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
     // test invalid access token (invalid_code)
     // ToDo improve test reset of access code (separate test??)
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 401,
       body: {
         message: 'invalid_code'
@@ -1368,7 +1361,7 @@ describe('Rooms view meetings', function () {
 
     // test invalid access token (require_code)
     // ToDo improve test reset of access code (separate test??)
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 403,
       body: {
         message: 'require_code'
@@ -1385,7 +1378,7 @@ describe('Rooms view meetings', function () {
 
     // test invalid token
     // ToDo improve test (move to other test case)
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 401,
       body: {
         message: 'invalid_token'
@@ -1443,10 +1436,18 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 470,
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 422,
       body: {
-        message: 'Consent to record attendance is required.'
+        message: 'The consent record attendance must be accepted. (and 1 more error)',
+        errors: {
+          consent_record_attendance: [
+            'The consent record attendance must be accepted.'
+          ],
+          consent_record: [
+            'The consent record must be accepted.'
+          ]
+        }
       }
     }).as('startRequest');
 
@@ -1458,35 +1459,20 @@ describe('Rooms view meetings', function () {
     cy.get('[data-test=room-start-button]').click();
 
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      // Test start with missing record attendance agreement
-      cy.get('#record-agreement').click();
+      // Test start with missing agreements
       cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
 
       cy.wait('@startRequest');
 
-      cy.contains('Consent to record attendance is required.').should('be.visible');
-
-      // Test start with missing record agreement
-      cy.get('#record-agreement').click();
-      cy.get('#record-attendance-agreement').click();
-
-      cy.intercept('GET', '/api/v1/rooms/abc-def-123/start*', {
-        statusCode: 473,
-        body: {
-          message: 'Consent to the recording is required.'
-        }
-      }).as('startRequest');
-
-      cy.get('.p-button').eq(1).click();
-
-      cy.wait('@startRequest');
-
-      cy.contains('Consent to record attendance is required.').should('not.exist');
-      cy.contains('Consent to the recording is required.').should('be.visible');
+      cy.contains('The consent record attendance must be accepted.').should('be.visible');
+      cy.contains('The consent record must be accepted.').should('be.visible');
 
       cy.get('.p-button').eq(0).should('have.text', 'app.cancel').click();
     });
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');
+
+    // ToDo add test if one agreement is not shown before clicking on start
+    // Form field and error message should be shown
   });
 });

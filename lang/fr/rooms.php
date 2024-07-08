@@ -31,7 +31,7 @@ return [
             'image' => [
                 'alt' => 'Text alternatif',
                 'edit' => 'Modifier une image',
-                'invalid_src' => 'L\'URL doit commencer par http:// ou https://',
+                'invalid_src' => 'L\'URL doit commencer par https://',
                 'new' => 'Ajouter une image',
                 'src' => 'URL',
                 'width' => 'Largeur',

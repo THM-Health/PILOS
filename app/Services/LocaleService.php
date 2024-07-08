@@ -111,7 +111,7 @@ class LocaleService
      * @param  string  $locale  Locale name (e.g. 'en')
      * @param  bool  $withFallback  Load fallback locale for untranslated strings
      * @param  bool  $withCustom  Load custom locale to overwrite existing translations
-     * @return void
+     * @return string
      */
     public function buildJsonLocale(string $locale, bool $withFallback = true, bool $withCustom = true)
     {

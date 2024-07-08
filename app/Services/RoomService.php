@@ -39,82 +39,74 @@ class RoomService
             // Block the lock for a max. of 45sec
             $lock->block($timeout);
 
+            // Get latest of the room
             $meeting = $this->room->latestMeeting;
-            // If no meeting found, or meeting is already ended or detached, create a new one
-            if (! $meeting || $meeting->end != null || $meeting->detached != null) {
-                Log::info('Room {room} not running, creating a new meeting', ['room' => $this->room->getLogLabel()]);
-                if ($this->room->roomTypeInvalid) {
-                    $lock->release();
-                    Log::warning('Failed to create meeting for room {room}; invalid room type', ['room' => $this->room->getLogLabel()]);
-                    abort(CustomStatusCodes::ROOM_TYPE_INVALID->value, __('app.errors.room_type_invalid'));
-                }
 
-                // Check if user didn't see the attendance recording note, but the attendance is recorded
-                if ($this->room->getRoomSetting('record_attendance') && ! $agreedToAttendance) {
-                    $lock->release();
-                    Log::warning('Failed to create meeting for room {room}; attendance agreement missing', ['room' => $this->room->getLogLabel()]);
-                    abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value, __('app.errors.attendance_agreement_missing'));
-                }
-
-                // Check if user didn't see the recording note, but the meeting is recorded
-                if ($this->room->getRoomSetting('record') && ! $agreedToRecord) {
-                    $lock->release();
-                    Log::warning('Failed to create meeting for room {room}; record agreement missing', ['room' => $this->room->getLogLabel()]);
-                    abort(CustomStatusCodes::RECORD_AGREEMENT_MISSING->value, __('app.errors.record_agreement_missing'));
-                }
-
-                Log::info('Finding server with lowest usage for room {room}', ['room' => $this->room->getLogLabel()]);
-
-                // Basic load balancing: get server with the lowest usage
-                $loadBalancingService = new LoadBalancingService();
-                $server = $loadBalancingService
-                    ->setServerPool($this->room->roomType->serverPool)
-                    ->getLowestUsageServer();
-
-                // If no server found, throw error
-                if ($server == null) {
-                    $lock->release();
-                    Log::error('Failed to create meeting for room {room}; no servers found', ['room' => $this->room->getLogLabel()]);
-                    abort(CustomStatusCodes::NO_SERVER_AVAILABLE->value, __('app.errors.no_server_available'));
-                }
-
-                // Create new meeting
-                $meeting = new Meeting();
-                $meeting->record_attendance = $this->room->getRoomSetting('record_attendance');
-                $meeting->record = $this->room->getRoomSetting('record');
-                $meeting->server()->associate($server);
-                $meeting->room()->associate($this->room);
-                $meeting->save();
-
-                $meetingService = new MeetingService($meeting);
-
-                Log::info('Starting new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
-                if (! $meetingService->start()) {
-                    $lock->release();
-                    Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
-                    abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
-                }
-
-                Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
-
-                // Set start time after successful api call, prevents user from tying to join this meeting before it is ready
-                $meeting->start = date('Y-m-d H:i:s');
-                $meeting->save();
-
-                $this->room->latestMeeting()->associate($meeting);
-                $this->room->participant_count = 0;
-                $this->room->listener_count = 0;
-                $this->room->voice_participant_count = 0;
-                $this->room->video_count = 0;
-                $this->room->save();
-
-                $lock->release();
-            } else {
+            // Do not create a new meeting, if there is already a running meeting and it is not detached
+            if ($meeting && $meeting->end == null && $meeting->detached == null) {
                 Log::info('Room {room} already has running meeting', ['room' => $this->room->getLogLabel()]);
 
                 $lock->release();
                 abort(CustomStatusCodes::ROOM_ALREADY_RUNNING->value, __('app.errors.room_already_running'));
             }
+
+            // No running meeting found, or the meeting is detached
+            Log::info('Room {room} not running, creating a new meeting', ['room' => $this->room->getLogLabel()]);
+            if ($this->room->roomTypeInvalid) {
+                $lock->release();
+                Log::warning('Failed to create meeting for room {room}; invalid room type', ['room' => $this->room->getLogLabel()]);
+                abort(CustomStatusCodes::ROOM_TYPE_INVALID->value, __('app.errors.room_type_invalid'));
+            }
+
+            Log::info('Finding server with lowest usage for room {room}', ['room' => $this->room->getLogLabel()]);
+
+            // Basic load balancing: get server with the lowest usage
+            $loadBalancingService = new LoadBalancingService();
+            $server = $loadBalancingService
+                ->setServerPool($this->room->roomType->serverPool)
+                ->getLowestUsageServer();
+
+            // If no server found, throw error
+            if ($server == null) {
+                $lock->release();
+                Log::error('Failed to create meeting for room {room}; no servers found', ['room' => $this->room->getLogLabel()]);
+                abort(CustomStatusCodes::NO_SERVER_AVAILABLE->value, __('app.errors.no_server_available'));
+            }
+
+            // Create new meeting
+            $meeting = new Meeting();
+            $meeting->start = date('Y-m-d H:i:s');
+            $meeting->record_attendance = $this->room->getRoomSetting('record_attendance');
+            $meeting->record = $this->room->getRoomSetting('record');
+            $meeting->server()->associate($server);
+            $meeting->room()->associate($this->room);
+            $meeting->save();
+
+            $meetingService = new MeetingService($meeting);
+
+            Log::info('Starting new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
+            if (! $meetingService->start()) {
+                // Creating Meeting failed, remove meeting
+                $meeting->forceDelete();
+
+                $lock->release();
+                Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
+                abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
+            }
+
+            Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
+
+            // Change latest meeting or the room to newly created meeting
+            $this->room->latestMeeting()->associate($meeting);
+
+            // Reset room usage data
+            $this->room->participant_count = 0;
+            $this->room->listener_count = 0;
+            $this->room->voice_participant_count = 0;
+            $this->room->video_count = 0;
+            $this->room->save();
+
+            $lock->release();
         } catch (LockTimeoutException $e) {
             abort(CustomStatusCodes::ROOM_START_FAILED->value, __('app.errors.room_start'));
         }
@@ -163,18 +155,6 @@ class RoomService
         }
 
         Log::info('Meeting for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
-
-        // Check if user didn't see the attendance recording note, but the attendance is recorded
-        if ($meeting->record_attendance && ! $agreedToAttendance) {
-            Log::warning('Failed to join meeting for room {room}; attendance agreement missing', ['room' => $this->room->getLogLabel()]);
-            abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING->value, __('app.errors.attendance_agreement_missing'));
-        }
-
-        // Check if user didn't see the recording note, but the meeting is recorded
-        if ($meeting->record && ! $agreedToRecord) {
-            Log::warning('Failed to join meeting for room {room}; record agreement missing', ['room' => $this->room->getLogLabel()]);
-            abort(CustomStatusCodes::RECORD_AGREEMENT_MISSING->value, __('app.errors.attendance_agreement_missing'));
-        }
 
         return $meetingService;
     }

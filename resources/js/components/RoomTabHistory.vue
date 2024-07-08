@@ -98,11 +98,11 @@
     <div id="retentionPeriodInfo">
       <Divider/>
       <b>{{ $t('meetings.retention_period') }}</b><br>
-      <span v-if="settingsStore.getSetting('statistics.meetings.enabled') && settingsStore.getSetting('statistics.meetings.retention_period') !== -1">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('statistics.meetings.retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('statistics.meetings.enabled') && settingsStore.getSetting('statistics.meetings.retention_period') === -1">{{ $t('meetings.stats.retention_period_unlimited') }}</span><br>
+      <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') !== -1">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('recording.meeting_usage_retention_period')}) }}</span><br>
+      <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') === -1">{{ $t('meetings.stats.retention_period_unlimited') }}</span><br>
 
-      <span v-if="settingsStore.getSetting('attendance.retention_period') !== -1">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('attendance.retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('attendance.retention_period') === -1">{{ $t('meetings.attendance.retention_period_unlimited') }}</span><br>
+      <span v-if="settingsStore.getSetting('recording.attendance_retention_period') !== -1">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('recording.attendance_retention_period')}) }}</span><br>
+      <span v-if="settingsStore.getSetting('recording.attendance_retention_period') === -1">{{ $t('meetings.attendance.retention_period_unlimited') }}</span><br>
     </div>
   </div>
 </template>
