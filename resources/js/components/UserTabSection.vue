@@ -14,7 +14,7 @@
       >
         <TabPanel>
           <template #header>
-            <i class="fa-solid fa-user mr-2" /> {{ $t('settings.users.base_data') }}
+            <i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}
           </template>
           <UserTabProfile
             :user="user"
@@ -49,7 +49,7 @@
         </TabPanel>
         <TabPanel>
           <template #header>
-            <i class="fa-solid fa-user-gear mr-2" /> {{ $t('settings.users.other_settings') }}
+            <i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}
           </template>
           <UserTabOtherSettings
             :user="user"
@@ -117,7 +117,7 @@ onMounted(() => {
 });
 
 function handleNotFoundError (error) {
-  router.push({ name: 'settings.users' });
+  router.push({ name: 'admin.users' });
   api.error(error);
 }
 
@@ -159,7 +159,7 @@ function loadUser () {
     emit('updateUser', user.value);
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-      router.push({ name: 'settings.users' });
+      router.push({ name: 'admin.users' });
     }
 
     loadingError.value = true;

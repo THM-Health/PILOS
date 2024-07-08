@@ -2,9 +2,9 @@
   <div>
     <h2>
       {{
-        id === 'new' ? $t('settings.server_pools.new') : (
-          viewOnly ? $t('settings.server_pools.view', { name })
-            : $t('settings.server_pools.edit', { name })
+        id === 'new' ? $t('admin.server_pools.new') : (
+          viewOnly ? $t('admin.server_pools.view', { name })
+            : $t('admin.server_pools.edit', { name })
         )
       }}
     </h2>
@@ -12,7 +12,7 @@
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
-        :to="{ name: 'settings.server_pools' }"
+        :to="{ name: 'admin.server_pools' }"
       >
         <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
       </router-link>
@@ -20,7 +20,7 @@
         <router-link
           v-if="!viewOnly && userPermissions.can('view', model)"
           :disabled="isBusy"
-          :to="{ name: 'settings.server_pools.view', params: { id: model.id }, query: { view: '1' } }"
+          :to="{ name: 'admin.server_pools.view', params: { id: model.id }, query: { view: '1' } }"
           class="p-button p-button-secondary"
         >
           <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
@@ -28,7 +28,7 @@
         <router-link
           v-if="viewOnly && userPermissions.can('update', model)"
           :disabled="isBusy"
-          :to="{ name: 'settings.server_pools.view', params: { id: model.id } }"
+          :to="{ name: 'admin.server_pools.view', params: { id: model.id } }"
           class="p-button p-button-secondary"
         >
           <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
@@ -37,7 +37,7 @@
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
           :name="name"
-          @deleted="$router.push({ name: 'settings.server_pools' })"
+          @deleted="$router.push({ name: 'admin.server_pools' })"
         >
         </SettingsServerPoolsDeleteButton>
       </div>
@@ -89,7 +89,7 @@
                 id="servers"
                 ref="serversMultiselectRef"
                 v-model="model.servers"
-                :placeholder="$t('settings.server_pools.select_servers')"
+                :placeholder="$t('admin.server_pools.select_servers')"
                 track-by="id"
                 open-direction="bottom"
                 :multiple="true"
@@ -106,7 +106,7 @@
                 :class="{ 'is-invalid': formErrors.fieldInvalid('servers', true), 'multiselect-form-control': true }"
               >
                 <template #noOptions>
-                  {{ $t('settings.servers.no_data') }}
+                  {{ $t('admin.servers.no_data') }}
                 </template>
                 <template v-slot:option="{ option }">
                   {{ option.name }}
@@ -231,7 +231,7 @@ function load () {
       name.value = response.data.data.name;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'settings.server_pools' });
+        router.push({ name: 'admin.server_pools' });
       } else {
         modelLoadingError.value = true;
       }
@@ -286,7 +286,7 @@ function saveServerPool () {
 
   api.call(props.id === 'new' ? 'serverPools' : `serverPools/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'settings.server_pools.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.server_pools.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
@@ -295,7 +295,7 @@ function saveServerPool () {
       handleStaleError(error.response.data);
     } else {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'settings.server_pools' });
+        router.push({ name: 'admin.server_pools' });
       }
 
       api.error(error);

@@ -1,16 +1,16 @@
 <template>
   <div>
     <h2>
-      {{ id === 'new' ? $t('settings.room_types.new') : (
-        viewOnly ? $t('settings.room_types.view', { name })
-        : $t('settings.room_types.edit', { name })
+      {{ id === 'new' ? $t('admin.room_types.new') : (
+        viewOnly ? $t('admin.room_types.view', { name })
+        : $t('admin.room_types.edit', { name })
       ) }}
     </h2>
     <div class="flex justify-content-between">
       <router-link
         class="p-button p-button-secondary"
         :disabled="isBusy"
-        :to="{ name: 'settings.room_types' }"
+        :to="{ name: 'admin.room_types' }"
       >
         <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
       </router-link>
@@ -19,7 +19,7 @@
           v-if="!viewOnly && userPermissions.can('view', model)"
           class="p-button p-button-secondary"
           :disabled="isBusy"
-          :to="{ name: 'settings.room_types.view', params: { id: model.id }, query: { view: '1' } }"
+          :to="{ name: 'admin.room_types.view', params: { id: model.id }, query: { view: '1' } }"
         >
           <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
         </router-link>
@@ -27,7 +27,7 @@
           v-if="viewOnly && userPermissions.can('update', model)"
           class="p-button p-button-secondary"
           :disabled="isBusy"
-          :to="{ name: 'settings.room_types.view', params: { id: model.id } }"
+          :to="{ name: 'admin.room_types.view', params: { id: model.id } }"
         >
           <i class="fa-solid fa-edit mr-2" /> {{$t('app.edit')}}
         </router-link>
@@ -35,7 +35,7 @@
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
           :name="name"
-          @deleted="$router.push({ name: 'settings.room_types' })"
+          @deleted="$router.push({ name: 'admin.room_types' })"
         />
       </div>
     </div>
@@ -82,7 +82,7 @@
 
         <!-- Room type color -->
         <div class="field grid">
-          <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('settings.room_types.color') }}</label>
+          <label for="color" class="col-12 md:col-4 md:mb-0 align-items-start">{{ $t('admin.room_types.color') }}</label>
           <div class="col-12 md:col-8">
             <ColorSelect
               id="color"
@@ -91,7 +91,7 @@
               :colors="colors.getAllColors()"
               v-model="model.color"
             />
-            <label for="custom-color">{{ $t('settings.room_types.custom_color') }}</label>
+            <label for="custom-color">{{ $t('admin.room_types.custom_color') }}</label>
             <InputText
               class="w-full"
               id="custom-color"
@@ -106,7 +106,7 @@
 
         <!-- Preview -->
         <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0">{{$t('settings.room_types.preview')}}</label>
+          <label class="col-12 md:col-4 md:mb-0">{{$t('admin.room_types.preview')}}</label>
           <div class="col-12 md:col-8 flex align-items-center">
             <RoomTypeBadge :room-type="model" />
           </div>
@@ -121,7 +121,7 @@
                 aria-labelledby="server-pool-label"
                 ref="serverPoolMultiselectRef"
                 v-model="model.server_pool"
-                :placeholder="$t('settings.room_types.select_server_pool')"
+                :placeholder="$t('admin.room_types.select_server_pool')"
                 track-by="id"
                 label="name"
                 open-direction="bottom"
@@ -140,7 +140,7 @@
                 aria-describedby="server_pool-help"
               >
                 <template #noOptions>
-                  {{ $t('settings.server_pools.no_data') }}
+                  {{ $t('admin.server_pools.no_data') }}
                 </template>
                 <template #afterList>
                   <div class="flex p-2 gap-2">
@@ -172,13 +172,13 @@
               />
             </InputGroup>
             <p class="p-error" v-html="formErrors.fieldError('server_pool')"></p>
-            <small id="server_pool-help">{{$t('settings.room_types.server_pool_description')}}</small>
+            <small id="server_pool-help">{{$t('admin.room_types.server_pool_description')}}</small>
           </div>
         </div>
 
         <!-- Option to restrict the usage of this room type to selected roles-->
         <div class="field grid">
-          <label for="restrict" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.restrict')}}</label>
+          <label for="restrict" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('admin.room_types.restrict')}}</label>
           <div class="col-12 md:col-8">
             <div>
               <InputSwitch
@@ -190,7 +190,7 @@
               />
             </div>
             <p class="p-error" v-html="formErrors.fieldError('restrict')"></p>
-            <small id="restrict-help">{{$t('settings.room_types.restrict_description')}}</small>
+            <small id="restrict-help">{{$t('admin.room_types.restrict_description')}}</small>
           </div>
         </div>
 
@@ -212,7 +212,7 @@
 
         <!-- Maximum number of participants -->
         <div class="field grid">
-          <label for="max-participants" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.max_participants')}}</label>
+          <label for="max-participants" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('admin.room_types.max_participants')}}</label>
           <div class="col-12 md:col-8">
             <InputGroup>
               <InputNumber
@@ -234,7 +234,7 @@
 
         <!-- Maximum duration -->
         <div class="field grid">
-          <label for="max-duration" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.max_duration')}}</label>
+          <label for="max-duration" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('admin.room_types.max_duration')}}</label>
           <div class="col-12 md:col-8">
             <InputGroup>
               <InputNumber
@@ -257,7 +257,7 @@
 
         <Divider/>
         <!-- Default room settings -->
-        <h3>{{ $t('settings.room_types.default_room_settings.title')}}</h3>
+        <h3>{{ $t('admin.room_types.default_room_settings.title')}}</h3>
 
         <!-- General room settings -->
         <h4>{{ $t('rooms.settings.general.title') }}</h4>
@@ -277,8 +277,8 @@
                 v-model="model.has_access_code_enforced"
                 :invalid="formErrors.fieldInvalid('has_access_code_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="has-access-code-enforced"
@@ -307,8 +307,8 @@
                 v-model="model.allow_guests_enforced"
                 :invalid="formErrors.fieldInvalid('allow_guests_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="allow-guests-enforced"
@@ -343,8 +343,8 @@
                 v-model="model.everyone_can_start_enforced"
                 :invalid="formErrors.fieldInvalid('everyone_can_start_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="everyone-can-start-enforced"
@@ -373,8 +373,8 @@
                 v-model="model.mute_on_start_enforced"
                 :invalid="formErrors.fieldInvalid('mute_on_start_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="mute-on-start-enforced"
@@ -429,8 +429,8 @@
                 v-model="model.lobby_enforced"
                 :invalid="formErrors.fieldInvalid('lobby_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="lobby-enforced"
@@ -472,8 +472,8 @@
                 v-model="model.record_attendance_enforced"
                 :invalid="formErrors.fieldInvalid('record_attendance_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="record-attendance-enforced"
@@ -502,8 +502,8 @@
                 v-model="model.record_enforced"
                 :invalid="formErrors.fieldInvalid('record_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="record-attendance-enforced"
@@ -532,8 +532,8 @@
                 v-model="model.auto_start_recording_enforced"
                 :invalid="formErrors.fieldInvalid('auto_start_recording_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="record-attendance-enforced"
@@ -565,8 +565,8 @@
                 v-model="model.lock_settings_disable_cam_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_cam_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="disable-cam-enforced"
@@ -599,8 +599,8 @@
                 v-model="model.webcams_only_for_moderator_enforced"
                 :invalid="formErrors.fieldInvalid('webcams_only_for_moderator_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="webcams-only-for-moderator-enforced"
@@ -629,8 +629,8 @@
                 v-model="model.lock_settings_disable_mic_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_mic_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="disable-mic-enforced"
@@ -659,8 +659,8 @@
                 v-model="model.lock_settings_disable_public_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="disable-public-chat-enforced"
@@ -693,8 +693,8 @@
                 v-model="model.lock_settings_disable_private_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="disable-private-chat-enforced"
@@ -723,8 +723,8 @@
                 v-model="model.lock_settings_disable_note_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_note_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="disable-note-enforced"
@@ -753,8 +753,8 @@
                 v-model="model.lock_settings_hide_user_list_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="hide-user-list-enforced"
@@ -786,8 +786,8 @@
                 v-model="model.allow_membership_enforced"
                 :invalid="formErrors.fieldInvalid('allow_membership_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="allow-membership-enforced"
@@ -825,8 +825,8 @@
                 v-model="model.default_role_enforced"
                 :invalid="formErrors.fieldInvalid('default_role_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="default-role-enforced"
@@ -867,8 +867,8 @@
                 v-model="model.visibility_enforced"
                 :invalid="formErrors.fieldInvalid('visibility_enforced')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                :on-label=" $t('settings.room_types.default_room_settings.enforced')"
-                :off-label=" $t('settings.room_types.default_room_settings.default')"
+                :on-label=" $t('admin.room_types.default_room_settings.enforced')"
+                :off-label=" $t('admin.room_types.default_room_settings.default')"
                 on-icon="fa-solid fa-lock"
                 off-icon="fa-solid fa-lock-open"
                 input-id="visibility-enforced"
@@ -884,11 +884,11 @@
 
         <Divider/>
         <!-- BBB api settings -->
-        <h4>{{ $t('settings.room_types.bbb_api.title') }}</h4>
+        <h4>{{ $t('admin.room_types.bbb_api.title') }}</h4>
 
         <!-- Create meeting plugin config -->
         <div class="field grid">
-          <label for="create-parameters" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('settings.room_types.bbb_api.create_parameters')}}</label>
+          <label for="create-parameters" class="col-12 md:col-4 md:mb-0 align-items-start">{{$t('admin.room_types.bbb_api.create_parameters')}}</label>
           <div class="col-12 md:col-8">
             <Textarea
               input-id="create-parameters"
@@ -900,7 +900,7 @@
               aria-describedby="create-parameters-help"
               :placeholder="viewOnly ? '': 'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'"
             />
-            <p id="create-parameters-help">{{$t('settings.room_types.bbb_api.create_parameters_description')}}</p>
+            <p id="create-parameters-help">{{$t('admin.room_types.bbb_api.create_parameters_description')}}</p>
             <p class="p-error" v-html="formErrors.fieldError('create_parameters')"></p>
           </div>
         </div>
@@ -1049,7 +1049,7 @@ function loadRoomType () {
       modelLoadingError.value = false;
     }).catch(error => {
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'settings.room_types' });
+        router.push({ name: 'admin.room_types' });
       } else {
         modelLoadingError.value = true;
       }
@@ -1104,7 +1104,7 @@ function saveRoomType () {
 
   api.call(props.id === 'new' ? 'roomTypes' : `roomTypes/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'settings.room_types.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.room_types.view', params: { id: response.data.data.id }, query: { view: '1' } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
@@ -1113,7 +1113,7 @@ function saveRoomType () {
       handleStaleError(error.response.data);
     } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
       api.error(error);
-      router.push({ name: 'settings.room_types' });
+      router.push({ name: 'admin.room_types' });
     } else {
       api.error(error);
     }

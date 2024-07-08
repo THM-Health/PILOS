@@ -6,10 +6,10 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
-        v-tooltip="$t('settings.users.new')"
-        :aria-label="$t('settings.users.new')"
+        v-tooltip="$t('admin.users.new')"
+        :aria-label="$t('admin.users.new')"
         class="p-button p-button-success p-button-icon-only"
-        :to="{ name: 'settings.users.new' }"
+        :to="{ name: 'admin.users.new' }"
       >
         <i class="fa-solid fa-plus" />
       </router-link>
@@ -43,7 +43,7 @@
             ref="rolesMultiselectRef"
             v-model="filter.role"
             @update:modelValue="loadData(1)"
-            :placeholder="$t('settings.users.role_filter')"
+            :placeholder="$t('admin.users.role_filter')"
             track-by="id"
             open-direction="bottom"
             :multiple="false"
@@ -60,7 +60,7 @@
             class="multiselect-form-control"
           >
             <template #noOptions>
-              {{ $t('settings.roles.no_data') }}
+              {{ $t('admin.roles.no_data') }}
             </template>
             <template v-slot:option="{ option }">
               {{ option.name }}
@@ -134,8 +134,8 @@
       <!-- Show message on empty user list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('settings.users.no_data') }}</InlineNote>
-          <InlineNote v-else>{{ $t('settings.users.no_data_filtered') }}</InlineNote>
+          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('admin.users.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('admin.users.no_data_filtered') }}</InlineNote>
         </div>
       </template>
 
@@ -150,14 +150,14 @@
           <TextTruncate>{{ slotProps.data.lastname }}</TextTruncate>
         </template>
       </Column>
-      <Column field="email" :header="$t('settings.users.email')" sortable>
+      <Column field="email" :header="$t('admin.users.email')" sortable>
         <template #body="slotProps">
           <TextTruncate>{{ slotProps.data.email }}</TextTruncate>
         </template>
       </Column>
-      <Column field="authenticator" :header="$t('settings.users.authenticator.title')" sortable>
+      <Column field="authenticator" :header="$t('admin.users.authenticator.title')" sortable>
         <template #body="slotProps">
-          {{ $t(`settings.users.authenticator.${slotProps.data.authenticator}`) }}
+          {{ $t(`admin.users.authenticator.${slotProps.data.authenticator}`) }}
         </template>
       </Column>
       <Column field="roles" :header="$t('app.roles')">
@@ -176,20 +176,20 @@
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
               class="p-button p-button-icon-only p-button-info"
-              v-tooltip="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :aria-label="$t('settings.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              v-tooltip="$t('admin.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :aria-label="$t('admin.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
               :disabled="isBusy"
-              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+              :to="{ name: 'admin.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
             >
               <i class="fa-solid fa-eye" />
             </router-link>
             <router-link
               v-if="userPermissions.can('update', slotProps.data)"
               class="p-button p-button-icon-only p-button-secondary"
-              v-tooltip="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
-              :aria-label="$t('settings.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              v-tooltip="$t('admin.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
+              :aria-label="$t('admin.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
               :disabled="isBusy"
-              :to="{ name: 'settings.users.view', params: { id: slotProps.data.id } }"
+              :to="{ name: 'admin.users.view', params: { id: slotProps.data.id } }"
             >
               <i class="fa-solid fa-edit" />
             </router-link>

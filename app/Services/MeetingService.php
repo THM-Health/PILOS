@@ -4,7 +4,8 @@ namespace App\Services;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
-use App\Http\Requests\StartJoinMeeting;
+use App\Http\Requests\JoinMeeting;
+use App\Http\Requests\StartMeeting;
 use App\Models\Meeting;
 use App\Models\MeetingAttendee;
 use App\Models\Room;
@@ -126,8 +127,7 @@ class MeetingService
             $result = $this->serverService->getBigBlueButton()->createMeeting($meetingParams);
         } // Catch exceptions, e.g. network connection issues
         catch (\Exception $exception) {
-            // Remove meeting and handle failed api call
-            $this->meeting->forceDelete();
+            // Handle failed api call
             $this->serverService->handleApiCallFailed();
 
             return null;
@@ -135,8 +135,6 @@ class MeetingService
 
         // Check server response for meeting creation
         if (! $result->success()) {
-            // Meeting creation failed, remove meeting
-            $this->meeting->forceDelete();
             // Check for some errors
             switch ($result->getMessageKey()) {
                 // checksum error, api token invalid, handle api error, try to create on other server
@@ -388,10 +386,9 @@ class MeetingService
     }
 
     /**
-     * @param  mixed  $token
-     * @param  Room  $room
+     * @return string Join url
      */
-    public function getJoinUrl(StartJoinMeeting $request): string
+    public function getJoinUrl(JoinMeeting|StartMeeting $request): string
     {
         $roomAuthService = app()->make(RoomAuthService::class);
         $token = $roomAuthService->getRoomToken($this->meeting->room);
@@ -424,7 +421,7 @@ class MeetingService
         }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
 
-        $joinMeetingParams->addUserData('bbb_record_video', $request->record_video);
+        $joinMeetingParams->addUserData('bbb_record_video', $request->consent_record_video);
 
         // If a custom style file is set, pass url to bbb html5 client
         if (app(BigBlueButtonSettings::class)->style) {

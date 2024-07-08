@@ -9,7 +9,7 @@ export default {
    * @return {boolean}
    */
   viewAny (user) {
-    return !user ? false : user.permissions.includes('applicationSettings.viewAny');
+    return !user ? false : user.permissions.includes('settings.viewAny');
   },
 
   /**
@@ -19,6 +19,6 @@ export default {
    * @return {boolean}
    */
   update (user) {
-    return !user ? false : user.permissions.includes('applicationSettings.update');
+    return !user ? false : user.permissions.includes('settings.update');
   }
 };

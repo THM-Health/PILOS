@@ -31,7 +31,7 @@ const props = defineProps({
 
 const downloadUrl = computed(() => {
   if (props.disabled) { return null; }
-  return settingsStore.getSetting('base_url') + '/download/recording/' + props.recordingId;
+  return settingsStore.getSetting('general.base_url') + '/download/recording/' + props.recordingId;
 });
 
 </script>

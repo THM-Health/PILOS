@@ -1,5 +1,5 @@
-import SettingPolicy from './SettingPolicy';
-import ConfigPolicy from './ConfigPolicy';
+import AdminPolicy from './AdminPolicy';
+import SettingsPolicy from './SettingsPolicy';
 import RolePolicy from './RolePolicy';
 import RoomPolicy from './RoomPolicy';
 import UserPolicy from './UserPolicy';
@@ -10,8 +10,8 @@ import SystemPolicy from './SystemPolicy';
 import MeetingPolicy from './MeetingPolicy';
 
 export default {
-  SettingPolicy,
-  ConfigPolicy,
+  AdminPolicy,
+  SettingsPolicy,
   RolePolicy,
   RoomPolicy,
   UserPolicy,

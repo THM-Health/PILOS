@@ -26,8 +26,8 @@
             icon="fa-solid fa-sync"
             :loading="props.loading"
           />
-          <RoomFavoriteButton v-if="!hideFavorites" :room="props.room" @favorites-changed="emit('reload')" />
-          <RoomMembershipButton v-if="!hideMembership" :room="props.room" @added="emit('reload')" @removed="emit('reload')" />
+          <RoomFavoriteButton v-if="!hideFavorites && authStore.isAuthenticated" :room="props.room" @favorites-changed="emit('reload')" />
+          <RoomMembershipButton v-if="!hideMembership && authStore.isAuthenticated" :room="props.room" @added="emit('reload')" @removed="emit('reload')" />
         </div>
       </div>
     </div>
@@ -43,6 +43,9 @@
   </div>
 </template>
 <script setup>
+import { useAuthStore } from '../stores/auth.js';
+
+const authStore = useAuthStore();
 
 const props = defineProps({
   room: {

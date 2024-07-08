@@ -6,9 +6,9 @@
       </h2>
       <router-link
         v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip="$t('settings.servers.new')"
-        :aria-label="$t('settings.servers.new')"
-        :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
+        v-tooltip="$t('admin.servers.new')"
+        :aria-label="$t('admin.servers.new')"
+        :to="{ name: 'admin.servers.view', params: { id: 'new' } }"
         class="p-button p-button-icon-only p-button-success"
       >
         <i class="fa-solid fa-plus"/>
@@ -38,7 +38,7 @@
           severity="info"
           @click="loadData(null,true);"
           icon="fa-solid fa-repeat"
-          :label="$t('settings.servers.reload')"
+          :label="$t('admin.servers.reload')"
         />
         <Button
           :disabled="isBusy"
@@ -76,8 +76,8 @@
       <!-- Show message on empty server list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('settings.servers.no_data') }}</InlineNote>
-          <InlineNote v-else>{{ $t('settings.servers.no_data_filtered') }}</InlineNote>
+          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('admin.servers.no_data') }}</InlineNote>
+          <InlineNote v-else>{{ $t('admin.servers.no_data_filtered') }}</InlineNote>
         </div>
       </template>
       <Column :header="$t('app.model_name')" field="name" sortable>
@@ -87,12 +87,12 @@
           </TextTruncate>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.status')" field="status" sortable>
+      <Column :header="$t('admin.servers.status')" field="status" sortable>
         <template #body="slotProps">
           <Tag
             v-if="slotProps.data.status === -1"
-            v-tooltip="$t('settings.servers.disabled')"
-            :aria-label="$t('settings.servers.disabled')"
+            v-tooltip="$t('admin.servers.disabled')"
+            :aria-label="$t('admin.servers.disabled')"
             class="p-2"
             severity="danger"
           >
@@ -100,8 +100,8 @@
           </Tag>
           <Tag
             v-else-if="slotProps.data.status === 0"
-            v-tooltip="$t('settings.servers.draining')"
-            :aria-label="$t('settings.servers.draining')"
+            v-tooltip="$t('admin.servers.draining')"
+            :aria-label="$t('admin.servers.draining')"
             class="p-2"
             severity="info"
           >
@@ -109,8 +109,8 @@
           </Tag>
           <Tag
             v-else
-            v-tooltip="$t('settings.servers.enabled')"
-            :aria-label="$t('settings.servers.enabled')"
+            v-tooltip="$t('admin.servers.enabled')"
+            :aria-label="$t('admin.servers.enabled')"
             class="p-2"
             severity="success"
           >
@@ -118,12 +118,12 @@
           </Tag>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.connection')" field="health">
+      <Column :header="$t('admin.servers.connection')" field="health">
         <template #body="slotProps">
           <Tag
             v-if="slotProps.data.health === -1"
-            v-tooltip="$t('settings.servers.offline')"
-            :aria-label="$t('settings.servers.offline')"
+            v-tooltip="$t('admin.servers.offline')"
+            :aria-label="$t('admin.servers.offline')"
             class="p-2"
             severity="danger"
           >
@@ -131,8 +131,8 @@
           </Tag>
           <Tag
             v-else-if="slotProps.data.health === 0"
-            v-tooltip="$t('settings.servers.unhealthy')"
-            :aria-label="$t('settings.servers.unhealthy')"
+            v-tooltip="$t('admin.servers.unhealthy')"
+            :aria-label="$t('admin.servers.unhealthy')"
             class="p-2"
             severity="warning"
           >
@@ -140,8 +140,8 @@
           </Tag>
           <Tag
             v-else-if="slotProps.data.health === 1"
-            v-tooltip="$t('settings.servers.online')"
-            :aria-label="$t('settings.servers.online')"
+            v-tooltip="$t('admin.servers.online')"
+            :aria-label="$t('admin.servers.online')"
             class="p-2"
             severity="success"
           >
@@ -152,7 +152,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.version')" field="version" sortable>
+      <Column :header="$t('admin.servers.version')" field="version" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.version !== null">{{ slotProps.data.version }}</span>
           <raw-text v-else>
@@ -160,7 +160,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.meeting_count')" field="meeting_count" sortable>
+      <Column :header="$t('admin.servers.meeting_count')" field="meeting_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.meeting_count !== null">{{ slotProps.data.meeting_count }}</span>
           <raw-text v-else>
@@ -168,7 +168,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.participant_count')" field="participant_count" sortable>
+      <Column :header="$t('admin.servers.participant_count')" field="participant_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.participant_count !== null">{{ slotProps.data.participant_count }}</span>
           <raw-text v-else>
@@ -176,7 +176,7 @@
           </raw-text>
         </template>
       </Column>
-      <Column :header="$t('settings.servers.video_count')" field="video_count" sortable>
+      <Column :header="$t('admin.servers.video_count')" field="video_count" sortable>
         <template #body="slotProps">
           <span v-if="slotProps.data.video_count !== null">{{ slotProps.data.video_count }}</span>
           <raw-text v-else>
@@ -190,9 +190,9 @@
             <router-link
               v-if="userPermissions.can('view', slotProps.data)"
               :disabled="isBusy"
-              v-tooltip="$t('settings.servers.view', { name: slotProps.data.name })"
-              :aria-label="$t('settings.servers.view', { name: slotProps.data.name })"
-              :to="{ name: 'settings.servers.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
+              v-tooltip="$t('admin.servers.view', { name: slotProps.data.name })"
+              :aria-label="$t('admin.servers.view', { name: slotProps.data.name })"
+              :to="{ name: 'admin.servers.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
               class="p-button p-button-info p-button-icon-only"
             >
               <i class="fa-solid fa-eye"/>
@@ -200,9 +200,9 @@
             <router-link
               v-if="userPermissions.can('update', slotProps.data)"
               :disabled="isBusy"
-              v-tooltip="$t('settings.servers.edit', { name: slotProps.data.name })"
-              :aria-label="$t('settings.servers.edit', { name: slotProps.data.name })"
-              :to="{ name: 'settings.servers.view', params: { id: slotProps.data.id } }"
+              v-tooltip="$t('admin.servers.edit', { name: slotProps.data.name })"
+              :aria-label="$t('admin.servers.edit', { name: slotProps.data.name })"
+              :to="{ name: 'admin.servers.view', params: { id: slotProps.data.id } }"
               class="p-button p-button-secondary p-button-icon-only"
             >
               <i class="fa-solid fa-edit"/>
@@ -219,7 +219,7 @@
     </DataTable>
 
     <InlineNote severity="info" class="mt-2 w-full">
-      {{ $t('settings.servers.usage_info') }}
+      {{ $t('admin.servers.usage_info') }}
     </InlineNote>
   </div>
 </template>

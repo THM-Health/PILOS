@@ -243,7 +243,7 @@ function startAutoRefresh () {
  * @returns {number} random refresh internal in seconds
  */
 function getRandomRefreshInterval () {
-  const base = Math.abs(settingsStore.getSetting('room_refresh_rate'));
+  const base = Math.abs(settingsStore.getSetting('room.refresh_rate'));
   // 15% range to scatter the values around the base refresh rate
   const percentageRange = 0.15;
   const absoluteRange = base * percentageRange;
@@ -418,7 +418,7 @@ function reload () {
   * @param {string} roomName Name of the room
   */
 function setPageTitle (roomName) {
-  document.title = roomName + ' - ' + settingsStore.getSetting('name');
+  document.title = roomName + ' - ' + settingsStore.getSetting('general.name');
 }
 
 /**

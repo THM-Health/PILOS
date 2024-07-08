@@ -17,7 +17,7 @@ docker compose down
 Next replace the container used by docker compose in the `.env` file:
 
 ```bash
-CONTAINER_IMAGE=pilos/pilos:v4
+CONTAINER_IMAGE=pilos/pilos:4.0.0-beta.1
 ```
 
 
@@ -164,23 +164,12 @@ In v4, the MariaDB version has been bumped to 11.
 All new installations will use this version, existing installations will not be automatically upgraded.
 
 #### Upgrade MariaDB container (optional)
-To upgrade your MariaDB container, please follow these steps:
+To upgrade your MariaDB container, you need to edit your `docker-compose.yml` file:
 
-1. Edit your `docker-compose.yml` file and change the MariaDB image from:
+- Change the MariaDB image tag to `11`.
+- Add a new environment variable `MARIADB_AUTO_UPGRADE` to trigger the service to upgrade the database:
 
-    ```yaml
-        db:
-          image: 'mariadb:11'
-    ```
-    
-    to the new version:
-    
-    ```yaml
-        db:
-          image: 'mariadb:11'
-    ```
 
-2. Add a new environment variable `MARIADB_AUTO_UPGRADE` to the service to upgrade the database:
     ```yaml
        db:
          image: 'mariadb:11'
@@ -208,7 +197,7 @@ Please check the settings in the admin UI after the migration.
    ```bash
    docker compose exec app pilos-cli db:upgrade
     ```
-   
+
 ### Cleanup
 
 To revert the changes made for the upgrade process, please follow these steps:
