@@ -80,7 +80,7 @@ const props = defineProps({
 });
 
 function copyInvitationText () {
-  let message = t('rooms.invitation.room', { roomname: props.room.name, platform: settingsStore.getSetting('name') }) + '\n';
+  let message = t('rooms.invitation.room', { roomname: props.room.name, platform: settingsStore.getSetting('general.name') }) + '\n';
   message += t('rooms.invitation.link') + ': ' + roomUrl.value;
   // If room has access code, include access code in the message
   if (props.room.access_code) {
@@ -91,7 +91,7 @@ function copyInvitationText () {
 }
 
 const roomUrl = computed(() => {
-  return settingsStore.getSetting('base_url') + router.resolve({
+  return settingsStore.getSetting('general.base_url') + router.resolve({
     name: 'rooms.view',
     params: { id: props.room.id }
   }).href;

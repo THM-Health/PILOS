@@ -20,13 +20,13 @@
         "eslint-plugin-jsonc": "^2.16.0",
         "eslint-plugin-mocha": "^10.4.3",
         "eslint-plugin-node": "^11.1.0",
-        "eslint-plugin-promise": "^6.2.0",
+        "eslint-plugin-promise": "^6.4.0",
         "eslint-plugin-vue": "^9.26.0",
         "postcss": "^8.4.38",
         "tailwindcss": "^3.4.4"
     },
     "dependencies": {
-        "@floating-ui/vue": "^1.0.4",
+        "@floating-ui/vue": "^1.1.1",
         "@fortawesome/fontawesome-free": "^6.5.2",
         "@primevue/themes": "^4.0.0-rc.3",
         "@tiptap/extension-color": "^2.4.0",
@@ -53,20 +53,20 @@
         "mitt": "^3.0.1",
         "pinia": "^2.1.7",
         "primeflex": "^3.3.1",
-        "primevue": "^4.0.0-rc.3",
+        "primevue": "^4.0.0",
         "primevue-sass-theme": "primefaces/primevue-sass-theme#semver:^3.52.0",
-        "sass": "^1.77.4",
-        "tailwindcss-primeui": "^0.3.2",
+        "sass": "^1.77.6",
+        "tailwindcss-primeui": "^0.3.3",
         "ua-parser-js": "^1.0.38",
         "unplugin-vue-components": "^0.27.0",
-        "vite": "^5.3.1",
+        "vite": "^5.3.3",
         "vue": "^3.4",
         "vue-axe": "^3.1.2",
         "vue-chartjs": "^5.3.1",
         "vue-cropperjs": "^5.0.0",
         "vue-i18n": "^9.13",
         "vue-multiselect": "^3.0.0",
-        "vue-router": "^4.3.2"
+        "vue-router": "^4.4.0"
     },
     "engines": {
         "node": "^10.12.0 || >=12.0.0"

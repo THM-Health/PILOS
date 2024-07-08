@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>{{ $t('settings.users.base_data') }}</h4>
+    <h4>{{ $t('admin.users.base_data') }}</h4>
     <form @submit.prevent="save">
 
       <div class="field grid grid-cols-12 gap-4">
@@ -40,7 +40,7 @@
         <div class="col-span-12 md:col-span-9">
           <InputText
             id="authenticator"
-            :value="$t(`settings.users.authenticator.${model.authenticator}`)"
+            :value="$t(`admin.users.authenticator.${model.authenticator}`)"
             type="text"
             disabled
             class="w-full"
@@ -63,7 +63,7 @@
 
       <!-- Profile image-->
       <div class="grid grid-cols-12 gap-4">
-        <label class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('settings.users.image.title') }}</label>
+        <label class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.image.title') }}</label>
         <div class="col-span-12 md:col-span-9">
           <UserProfileImageSelector
             :image="model.image"
@@ -80,7 +80,7 @@
       </div>
 
       <div class="field grid grid-cols-12 gap-4">
-        <label for="user_locale" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('settings.users.user_locale') }}</label>
+        <label for="user_locale" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.user_locale') }}</label>
         <div class="col-span-12 md:col-span-9">
           <LocaleSelect
             id="user_locale"
@@ -94,7 +94,7 @@
       </div>
 
       <div class="field grid grid-cols-12 gap-4">
-        <label for="timezone" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('settings.users.timezone') }}</label>
+        <label for="timezone" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.timezone') }}</label>
         <div class="col-span-12 md:col-span-9">
           <timezone-select
             id="timezone"
@@ -102,7 +102,7 @@
             required
             :invalid="formErrors.fieldInvalid('timezone')"
             :disabled="isBusy || viewOnly"
-            :placeholder="$t('settings.users.timezone')"
+            :placeholder="$t('admin.users.timezone')"
             @loading-error="(value) => timezonesLoadingError = value"
             @busy="(value) => timezonesLoading = value"
           />

@@ -87,7 +87,7 @@ const srcInvalid = computed(() => {
   if (src.value === null || src.value === '') {
     return null;
   }
-  const regex = /^(https|http):\/\//;
+  const regex = /^(https):\/\//;
   return regex.exec(src.value) == null;
 });
 

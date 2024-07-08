@@ -3,10 +3,10 @@
     <div class="row">
       <div class="col-md-12 col-sm-12 text-center">
         <img
-          v-if="settingsStore.getSetting('logo')"
+          v-if="settingsStore.getSetting('general.logo')"
           class="logo"
           alt="Logo"
-          :src="settingsStore.getSetting('logo')"
+          :src="settingsStore.getSetting('general.logo')"
         >
         <h1 class="mb-6 text-color">
           {{ $t('home.title') }}

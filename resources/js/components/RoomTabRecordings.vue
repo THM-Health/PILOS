@@ -172,8 +172,8 @@
     <div id="retentionPeriodInfo">
       <Divider/>
       <b>{{ $t('rooms.recordings.retention_period.title') }}</b><br>
-      <span v-if="settingsStore.getSetting('recording.retention_period') !== -1">{{ $t('rooms.recordings.retention_period.days', {'days': settingsStore.getSetting('recording.retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('recording.retention_period') === -1">{{ $t('rooms.recordings.retention_period.unlimited') }}</span><br>
+      <span v-if="settingsStore.getSetting('recording.recording_retention_period') !== -1">{{ $t('rooms.recordings.retention_period.days', {'days': settingsStore.getSetting('recording.recording_retention_period')}) }}</span><br>
+      <span v-if="settingsStore.getSetting('recording.recording_retention_period') === -1">{{ $t('rooms.recordings.retention_period.unlimited') }}</span><br>
     </div>
   </div>
 </template>

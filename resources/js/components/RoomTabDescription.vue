@@ -89,6 +89,9 @@ domPurify.addHook(
     if (hookEvent.attrName === 'style') {
       hookEvent.attrValue = sanitizeCss(currentNode);
     }
+    if (hookEvent.attrName === 'src') {
+      hookEvent.attrValue = sanitizeSrc(currentNode);
+    }
   }
 );
 
@@ -130,6 +133,19 @@ function sanitizeCss (node) {
 }
 
 /**
+ * Sanitize the src attribute of a given node. It checks if the src attribute is a valid URL.
+ * @param {Object} node - The DOM node whose src attribute is to be sanitized.
+ * @returns {string} - The sanitized src attribute as a string.
+ */
+function sanitizeSrc (node) {
+  if (node.src.startsWith('https://')) {
+    return node.src;
+  }
+  node.remove();
+  return '';
+}
+
+/**
  * Get sanitized HTML of the room description.
  * It uses the DOMPurify library to sanitize the HTML, allowing only certain tags and attributes.
  * @returns {string} - The sanitized HTML as a string.
@@ -149,7 +165,7 @@ const sanitizedHtml = computed(() => {
  */
 function edit () {
   editorOpen.value = true;
-  newContent.value = props.room.description;
+  newContent.value = sanitizedHtml.value;
 }
 
 /**

@@ -164,6 +164,6 @@ function loadData () {
 }
 
 const downloadUrl = computed(() => {
-  return settingsStore.getSetting('base_url') + '/download/attendance/' + props.meetingId;
+  return settingsStore.getSetting('general.base_url') + '/download/attendance/' + props.meetingId;
 });
 </script>

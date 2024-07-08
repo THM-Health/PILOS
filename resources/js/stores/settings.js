@@ -18,7 +18,7 @@ export const useSettingsStore = defineStore('settings', {
     async getSettings () {
       const api = useApi();
 
-      const response = await api.call('settings');
+      const response = await api.call('config');
       this.settings = response.data.data;
 
       setToastLifetime(this.settings.toast_lifetime);

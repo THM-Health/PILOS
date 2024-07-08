@@ -7,12 +7,12 @@
 
         <!-- Description for the room type -->
         <span class="font-bold">{{ $t('app.description') }}</span>
-        <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: $t('settings.room_types.missing_description')}}</div>
+        <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: $t('admin.room_types.missing_description')}}</div>
 
         <!-- Information about the default and enforced room settings for the room type -->
         <Accordion>
           <AccordionTab
-            :header="$t('settings.room_types.default_room_settings.title')"
+            :header="$t('admin.room_types.default_room_settings.title')"
             :pt="{
               headerAction: {
                 class: 'pl-0'

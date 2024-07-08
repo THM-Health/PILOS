@@ -74,7 +74,7 @@
         <div v-if="!room.authenticated"
            class="flex justify-center mt-20"
         >
-          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}" data-test="room-access-code-overlay">
             <template #header>
               <Badge severity="danger" class="rounded-full flex justify-center items-center h-16 w-16 -mt-8">
                 <i class="fa-solid fa-lock text-2xl text-white"></i>
@@ -88,7 +88,7 @@
               {{ $t('rooms.require_access_code') }}
             </span>
 
-            <div class="flex flex-col w-full gap-2 mt-6">
+            <div class="flex flex-col w-full gap-2 mt-6" data-test="room-access-code">
               <label for="access-code">{{ $t('rooms.access_code') }}</label>
               <InputGroup>
                   <InputMask
@@ -243,7 +243,7 @@ function startAutoRefresh () {
  * @returns {number} random refresh internal in seconds
  */
 function getRandomRefreshInterval () {
-  const base = Math.abs(settingsStore.getSetting('room_refresh_rate'));
+  const base = Math.abs(settingsStore.getSetting('room.refresh_rate'));
   // 15% range to scatter the values around the base refresh rate
   const percentageRange = 0.15;
   const absoluteRange = base * percentageRange;
@@ -418,7 +418,7 @@ function reload () {
   * @param {string} roomName Name of the room
   */
 function setPageTitle (roomName) {
-  document.title = roomName + ' - ' + settingsStore.getSetting('name');
+  document.title = roomName + ' - ' + settingsStore.getSetting('general.name');
 }
 
 /**

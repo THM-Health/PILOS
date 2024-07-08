@@ -13,6 +13,7 @@
 
   <!-- If room is not running -->
   <Button
+    data-test="room-start-button"
     v-else-if="canStart"
     class="p-button-block"
     :disabled="isLoadingAction || disabled"
@@ -59,11 +60,11 @@
               inputId="record-attendance-agreement"
               v-model="recordAttendanceAgreement"
               binary
-              :invalid="formErrors.fieldInvalid('record_attendance')"
+              :invalid="formErrors.fieldInvalid('consent_record_attendance')"
             />
             <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
+          <p class="p-error" v-html="formErrors.fieldError('consent_record_attendance')" />
         </div>
 
         <div class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col" v-if="record">
@@ -74,21 +75,21 @@
               inputId="record-agreement"
               v-model="recordAgreement"
               binary
-              :class="{'p-invalid': formErrors.fieldInvalid('record')}"
+              :class="{'p-invalid': formErrors.fieldInvalid('consent_record')}"
             />
             <label for="record-agreement" class="required">{{ $t('rooms.recording_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('record')" />
+          <p class="p-error" v-html="formErrors.fieldError('consent_record')" />
           <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-video-agreement"
               v-model="recordVideoAgreement"
               binary
-              :class="{'p-invalid': formErrors.fieldInvalid('record_video')}"
+              :class="{'p-invalid': formErrors.fieldInvalid('consent_record_video')}"
             />
             <label for="record-video-agreement">{{ $t('rooms.recording_video_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('record_video')" />
+          <p class="p-error" v-html="formErrors.fieldError('consent_record_video')" />
         </div>
       </div>
     </OverlayComponent>
@@ -200,11 +201,12 @@ function getJoinUrl () {
 
   // Build url, add accessCode and token if needed
   const config = {
-    params: {
+    method: 'post',
+    data: {
       name: props.token ? null : name.value,
-      record_attendance: recordAttendanceAgreement.value ? 1 : 0,
-      record: recordAgreement.value ? 1 : 0,
-      record_video: recordVideoAgreement.value ? 1 : 0
+      consent_record_attendance: recordAttendanceAgreement.value,
+      consent_record: recordAgreement.value,
+      consent_record_video: recordVideoAgreement.value
     }
   };
 
@@ -236,7 +238,7 @@ function getJoinUrl () {
           return;
         }
 
-        // Access code invalid
+        // Access code is required
         if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
           emit('invalidCode');
           showModal.value = false;
@@ -269,19 +271,6 @@ function getJoinUrl () {
         // Form validation error
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
-          return;
-        }
-
-        // Attendance logging agreement required but not accepted
-        if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
-          formErrors.set({ record_attendance: [error.response.data.message] });
-          emit('changed');
-          return;
-        }
-
-        // Record agreement required but not accepted
-        if (error.response.status === env.HTTP_RECORD_AGREEMENT_MISSING) {
-          formErrors.set({ record: [error.response.data.message] });
           emit('changed');
           return;
         }

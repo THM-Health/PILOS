@@ -7,10 +7,10 @@ describe('Login', function () {
   });
 
   it('ldap login', function () {
-    // Intercept settings request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show ldap login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        toast_lifetime: 0,
+        general: { toast_lifetime: 0 },
         auth: {
           ldap: true
         }
@@ -66,8 +66,8 @@ describe('Login', function () {
   });
 
   it('hide ldap login if disabled', function () {
-    // Intercept settings request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show ldap login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
         auth: {
           ldap: false
@@ -80,10 +80,10 @@ describe('Login', function () {
   });
 
   it('ldap login with redirect query set', function () {
-    // Intercept settings request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show ldap login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        toast_lifetime: 0,
+        general: { toast_lifetime: 0 },
         auth: {
           ldap: true
         }
@@ -96,19 +96,19 @@ describe('Login', function () {
     }).as('loginRequest');
 
     // Visit page that can only be visited by logged in users
-    cy.visit('settings');
+    cy.visit('admin');
 
     // Check redirect to the login page
-    cy.url().should('contain', '/login?redirect=/settings');
+    cy.url().should('contain', '/login?redirect=/admin');
 
-    // Intercept user request (user that has the permission to show the settings page)
+    // Intercept user request (user that has the permission to show the admin page)
     cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
         firstname: 'John',
         lastname: 'Doe',
         locale: 'en',
-        permissions: ['settings.manage'],
+        permissions: ['admin.view'],
         model_name: 'User',
         room_limit: -1
       }
@@ -127,14 +127,14 @@ describe('Login', function () {
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login');
 
     // Check if redirect works
-    cy.url().should('contain', '/settings').and('not.contain', '/login');
+    cy.url().should('contain', '/admin').and('not.contain', '/login');
   });
 
   it('local login', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show local login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        toast_lifetime: 0,
+        general: { toast_lifetime: 0 },
         auth: {
           local: true
         }
@@ -190,7 +190,7 @@ describe('Login', function () {
   });
 
   it('hide local login if disabled', function () {
-    cy.intercept('GET', 'api/v1/settings', {
+    cy.intercept('GET', 'api/v1/config', {
       data: {
         auth: {
           local: false
@@ -203,10 +203,10 @@ describe('Login', function () {
   });
 
   it('local login with redirect query set', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show local login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        toast_lifetime: 0,
+        general: { toast_lifetime: 0 },
         auth: {
           local: true
         }
@@ -219,19 +219,19 @@ describe('Login', function () {
     }).as('loginRequest');
 
     // Visit page that can only be visited by logged in users
-    cy.visit('settings');
+    cy.visit('admin');
 
     // Check redirect to the login page
-    cy.url().should('contain', '/login?redirect=/settings');
+    cy.url().should('contain', '/login?redirect=/admin');
 
-    // Intercept user request (user that has the permission to show the settings page)
+    // Intercept user request (user that has the permission to show the admin page)
     cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
         firstname: 'John',
         lastname: 'Doe',
         locale: 'en',
-        permissions: ['settings.manage'],
+        permissions: ['admin.view'],
         model_name: 'User',
         room_limit: -1
       }
@@ -248,12 +248,12 @@ describe('Login', function () {
     cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.login');
 
     // Check if redirect works
-    cy.url().should('contain', '/settings').and('not.contain', '/login');
+    cy.url().should('contain', '/admin').and('not.contain', '/login');
   });
 
   it('unprocessable entity error gets displayed for the corresponding fields', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show local login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
         auth: {
           local: true
@@ -287,8 +287,8 @@ describe('Login', function () {
   });
 
   it('error for to many login requests gets displayed', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show local login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
         auth: {
           local: true
@@ -322,10 +322,10 @@ describe('Login', function () {
   });
 
   it('other api errors', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show local login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
-        toast_lifetime: 0,
+        general: { toast_lifetime: 0 },
         auth: {
           local: true
         }
@@ -373,8 +373,8 @@ describe('Login', function () {
   });
 
   it('shibboleth login', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept setticonfigngs request to only show local login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
         auth: {
           shibboleth: true
@@ -399,8 +399,8 @@ describe('Login', function () {
   });
 
   it('hide shibboleth login if disabled', function () {
-    // Intercept settings request to only show local login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show local login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
         auth: {
           shibboleth: false
@@ -413,8 +413,8 @@ describe('Login', function () {
   });
 
   it('shibboleth login with redirect query set', function () {
-    // Intercept settings request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/settings', {
+    // Intercept config request to only show ldap login tab
+    cy.intercept('GET', 'api/v1/config', {
       data: {
         auth: {
           shibboleth: true
@@ -423,33 +423,33 @@ describe('Login', function () {
     });
 
     // Visit page that can only be visited by logged in users
-    cy.visit('settings');
+    cy.visit('admin');
 
     // Check redirect to the login page
-    cy.url().should('contain', '/login?redirect=/settings');
+    cy.url().should('contain', '/login?redirect=/admin');
 
     cy.get('[data-test="login-tab-external"]').within(() => {
-      cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect?redirect=%2Fsettings');
+      cy.get('.p-button').should('contain', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect?redirect=%2Fadmin');
     });
 
-    // Intercept user request (user that has the permission to show the settings page)
+    // Intercept user request (user that has the permission to show the admin page)
     cy.intercept('GET', 'api/v1/currentUser', {
       data: {
         id: 1,
         firstname: 'John',
         lastname: 'Doe',
         locale: 'en',
-        permissions: ['settings.manage'],
+        permissions: ['admin.view'],
         model_name: 'User',
         room_limit: -1
       }
     });
 
     // Visit redirect page after external login (redirect query is set)
-    cy.visit('/external_login?redirect=/settings');
+    cy.visit('/external_login?redirect=/admin');
 
     // Check if redirect works
-    cy.url().should('contain', '/settings').and('not.contain', '/login');
+    cy.url().should('contain', '/admin').and('not.contain', '/login');
   });
 
   it('shibboleth login callback missing attributes', function () {

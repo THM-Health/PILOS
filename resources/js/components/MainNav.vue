@@ -15,10 +15,10 @@
         }"
       >
         <template #start>
-          <RouterLink v-if="settingsStore.getSetting('logo')" :to="{ name: 'home' }" class="mr-12">
+          <RouterLink v-if="settingsStore.getSetting('general.logo')" :to="{ name: 'home' }" class="mr-12">
             <img
               style="height: 2rem;"
-              :src="settingsStore.getSetting('logo')"
+              :src="settingsStore.getSetting('general.logo')"
               alt="Logo"
             />
           </RouterLink>
@@ -121,10 +121,10 @@ const mainMenuItems = computed(() => {
       });
     }
 
-    if (userPermissions.can('manage', 'SettingPolicy')) {
+    if (userPermissions.can('view', 'AdminPolicy')) {
       items.push({
-        label: t('settings.title'),
-        route: { name: 'settings' }
+        label: t('admin.title'),
+        route: { name: 'admin' }
       });
     }
 
@@ -192,12 +192,12 @@ const userMenuItems = computed(() => {
     });
   }
 
-  if (settingsStore.getSetting('help_url')) {
+  if (settingsStore.getSetting('general.help_url')) {
     items.push({
       icon: 'fa-solid fa-circle-question text-xl',
       label: t('app.help'),
       target: '_blank',
-      url: settingsStore.getSetting('help_url')
+      url: settingsStore.getSetting('general.help_url')
     });
   }
 
@@ -250,7 +250,7 @@ async function logout () {
 }
 
 const locales = computed(() => {
-  const locales = settingsStore.getSetting('enabled_locales');
+  const locales = settingsStore.getSetting('general.enabled_locales');
   if (!locales) {
     return [];
   }

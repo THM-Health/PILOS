@@ -43,7 +43,7 @@
         v-model="newDescription"
         :disabled="isLoadingAction"
         :invalid="formErrors.fieldInvalid('description')"
-        :maxlength="settingsStore.getSetting('recording.description_limit')"
+        :maxlength="settingsStore.getSetting('recording.recording_description_limit')"
       />
       <p class="p-error" v-html="formErrors.fieldError('description')" />
       <small>
@@ -139,7 +139,7 @@ const accessTypes = ref([0, 1, 2, 3]);
  * @returns {string} amount of chars in comparison to the limit
  */
 const charactersLeftDescription = computed(() => {
-  return newDescription.value.length + ' / ' + settingsStore.getSetting('recording.description_limit');
+  return newDescription.value.length + ' / ' + settingsStore.getSetting('recording.recording_description_limit');
 });
 
 /**

@@ -244,12 +244,12 @@ describe('Room Index', function () {
 
       // Check that room type details are shown correctly
       cy.get('[data-test=room-type-details]').should('be.visible').within(() => {
-        cy.contains('settings.room_types.missing_description');
+        cy.contains('admin.room_types.missing_description');
         // Check that default room settings are hidden
         cy.contains('rooms.settings.general.title').should('not.be.visible');
 
         // Open default settings
-        cy.get('a').should('contain', 'settings.room_types.default_room_settings.title').click();
+        cy.get('a').should('contain', 'admin.room_types.default_room_settings.title').click();
         // Check that default room settings are shown
         cy.contains('rooms.settings.general.title').should('be.visible');
       });
