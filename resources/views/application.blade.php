@@ -13,7 +13,7 @@
     <!-- Scripts -->
     @vite(['resources/js/app.js', 'resources/sass/theme/'.config('app.theme').'/app.scss'])
 </head>
-<body>
+<body class="bg-surface-50 dark:bg-surface-950">
     <div id='app'>
     </div>
 </body>

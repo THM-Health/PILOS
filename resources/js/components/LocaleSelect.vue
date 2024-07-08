@@ -1,6 +1,6 @@
 <template>
   <div>
-  <Dropdown
+  <Select
     :inputId="props.id"
     :options="locales"
     optionLabel="text"

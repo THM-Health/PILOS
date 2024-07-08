@@ -14,7 +14,7 @@
           :invalid="props.errors !== null && props.errors.email && props.errors.email.length > 0"
           required
         />
-        <Message v-for="(error, index) in props.errors?.email" :key="index">
+        <Message severity="error" v-for="(error, index) in props.errors?.email" :key="index">
           {{ error }}
         </Message>
       </div>
@@ -28,6 +28,7 @@
           :feedback="false"
           toggleMask
           required
+          fluid
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
           :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
@@ -40,7 +41,7 @@
         >
           {{ $t('auth.forgot_password') }}
         </router-link>
-        <Message v-for="(error, index) in props.errors?.password" :key="index">
+        <Message severity="error" v-for="(error, index) in props.errors?.password" :key="index">
           {{ error }}
         </Message>
       </div>

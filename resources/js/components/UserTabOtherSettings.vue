@@ -5,7 +5,7 @@
       <div class="field grid grid-cols-12 gap-4">
         <label for="bbb_skip_check_audio" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.skip_check_audio') }}</label>
         <div class="col-span-12 md:col-span-9">
-          <InputSwitch
+          <ToggleSwitch
             id="bbb_skip_check_audio"
             v-model="model.bbb_skip_check_audio"
             required

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white py-2 border-b border-slate-300">
+  <div class="border-surface-300 dark:border-surface-500 bg-white dark:bg-zinc-900 py-2 border-b">
     <div class="container flex flex-row justify-between">
       <Menubar
         :breakpoint="menuBreakpoint+'px'"
@@ -43,6 +43,9 @@
               menu: {
                 class: 'gap-1 px-2',
               },
+              item: {
+                class: 'relative',
+              },
               submenu: {
                 class: 'right-0',
                 'data-test': 'submenu'
@@ -77,7 +80,7 @@ import { useSettingsStore } from '../stores/settings.js';
 import { useAuthStore } from '../stores/auth.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useI18n } from 'vue-i18n';
-import { useBreakpoints } from '@vueuse/core';
+import { useBreakpoints, useDark, useToggle } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import { useLoadingStore } from '../stores/loading.js';
 import UserAvatar from './UserAvatar.vue';
@@ -104,6 +107,9 @@ const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
 const toast = useToast();
+
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
 
 const mainMenuItems = computed(() => {
   const items = [];
@@ -200,6 +206,12 @@ const userMenuItems = computed(() => {
       url: settingsStore.getSetting('general.help_url')
     });
   }
+
+  items.push({
+    icon: 'fa-solid text-xl ' + (isDark.value ? ' fa-moon' : ' fa-sun'),
+    label: t('app.dark_mode'),
+    command: () => toggleDark()
+  });
 
   const localeItem = {
     icon: 'fa-solid fa-language text-xl',

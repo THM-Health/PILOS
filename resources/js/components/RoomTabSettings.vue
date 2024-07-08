@@ -95,7 +95,7 @@
             </label>
 
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.allow_guests"
                 :disabled="disabled || settings.room_type.allow_guests_enforced"
                 :invalid="formErrors.fieldInvalid('allow_guests')"
@@ -147,7 +147,7 @@
             </label>
 
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.everyone_can_start"
                 :disabled="disabled || settings.room_type.everyone_can_start_enforced"
                 :invalid="formErrors.fieldInvalid('everyone_can_start')"
@@ -167,7 +167,7 @@
             </label>
 
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.mute_on_start"
                 :disabled="disabled || settings.room_type.mute_on_start_enforced"
                 :invalid="formErrors.fieldInvalid('mute_on_start')"
@@ -257,7 +257,7 @@
           <!-- Checkbox record attendance of users and guests -->
           <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.record_attendance"
                 :disabled="disabled || settings.room_type.record_attendance_enforced"
                 :invalid="formErrors.fieldInvalid('record_attendance')"
@@ -275,7 +275,7 @@
           <!-- Checkbox record video conference -->
           <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.record"
                 :disabled="disabled || settings.room_type.record_enforced"
                 :invalid="formErrors.fieldInvalid('record')"
@@ -293,7 +293,7 @@
           <!-- Checkbox auto start recording of video conference -->
           <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.auto_start_recording"
                 :disabled="disabled || settings.room_type.auto_start_recording_enforced"
                 :invalid="formErrors.fieldInvalid('auto_start_recording')"
@@ -318,7 +318,7 @@
           <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2 h-full">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_cam"
                 :disabled="disabled ||settings.room_type.lock_settings_disable_cam_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_cam')"
@@ -339,7 +339,7 @@
           -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2 h-full">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.webcams_only_for_moderator"
                 :disabled="disabled || settings.room_type.webcams_only_for_moderator_enforced"
                 :invalid="formErrors.fieldInvalid('webcams_only_for_moderator')"
@@ -357,7 +357,7 @@
           <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2 h-full">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_mic"
                 :disabled="disabled || settings.room_type.lock_settings_disable_mic_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_mic')"
@@ -375,7 +375,7 @@
           <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2 h-full">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_public_chat"
                 :disabled="disabled || settings.room_type.lock_settings_disable_public_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat')"
@@ -397,7 +397,7 @@
           -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2 h-full">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_private_chat"
                 :disabled="disabled || settings.room_type.lock_settings_disable_private_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat')"
@@ -415,7 +415,7 @@
           <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2 h-full">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_note"
                 :disabled="disabled || settings.room_type.lock_settings_disable_note_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_note')"
@@ -433,7 +433,7 @@
           <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2 h-full">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.lock_settings_hide_user_list"
                 :disabled="disabled || settings.room_type.lock_settings_hide_user_list_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list')"
@@ -458,7 +458,7 @@
           <!-- Checkbox allow users to become room members -->
           <div class="col-span-12 md:col-span-3">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 v-model="settings.allow_membership"
                 :disabled="disabled ||settings.room_type.allow_membership_enforced"
                 :invalid="formErrors.fieldInvalid('allow_membership')"

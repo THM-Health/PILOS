@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white pt-8 mt-2 mb-8">
-    <div class="bg-surface-0 dark:bg-surface-950 container text-center">
-        <div class="mb-4 font-bold text-color text-3xl">
+  <div class="bg-white dark:bg-zinc-800 pt-8 mt-2 mb-8">
+    <div class="container text-center">
+        <div class="mb-4 font-bold text-color text-2xl">
             <span>{{ $t('home.possibilities.title') }}</span>
         </div>
         <div class="grid grid-cols-12 gap-4">

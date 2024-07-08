@@ -20,7 +20,7 @@
         <span class="col-span-12 mb-2">{{ $t('rooms.settings.general.has_access_code') }}</span>
         <!-- Current setting value -->
         <div class="col-span-3 flex items-center justify-center">
-          <InputSwitch
+          <ToggleSwitch
             input-id="has-access-code-current"
             :model-value="currentSettings.access_code !== null"
             disabled
@@ -33,7 +33,7 @@
         <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
         <!-- Resulting setting value -->
         <div class="col-span-3 flex items-center justify-center">
-          <InputSwitch
+          <ToggleSwitch
             input-id="has-access-code-resulting"
             :model-value="getResultingSetting('has_access_code')"
             disabled
@@ -50,7 +50,7 @@
         <span class="col-span-12 mb-2">{{$t('rooms.settings.general.allow_guests')}}</span>
         <!-- Current setting value -->
         <div class="col-span-3 flex justify-center items-center">
-          <InputSwitch
+          <ToggleSwitch
             input-id="allow-guests-current"
             :model-value="currentSettings.allow_guests"
             disabled
@@ -63,7 +63,7 @@
         <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
         <!-- Resulting setting value -->
         <div class="col-span-3 flex justify-center items-center">
-          <InputSwitch
+          <ToggleSwitch
             input-id="allow-guests-resulting"
             :model-value="getResultingSetting('allow_guests')"
             disabled
@@ -88,7 +88,7 @@
           <!-- Current setting value -->
           <span class="col-span-12 mb-2">{{$t('rooms.settings.video_conference.everyone_can_start')}}</span>
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="everyone-can-start-current"
               :model-value="currentSettings.everyone_can_start"
               disabled
@@ -101,7 +101,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="everyone-can-start-resulting"
               :model-value="getResultingSetting('everyone_can_start')"
               disabled
@@ -118,7 +118,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.video_conference.mute_on_start')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="mute-on-start-current"
               :model-value="currentSettings.mute_on_start"
               disabled
@@ -131,7 +131,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="mute-on-start-resulting"
               :model-value="getResultingSetting('mute_on_start')"
               disabled
@@ -174,7 +174,7 @@
         <div class="field grid grid-cols-12 gap-4 mx-0">
           <span class="col-span-12 mb-2">{{ $t('rooms.settings.recordings.record_attendance') }}</span>
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="record-attendance-current"
               :model-value="currentSettings.record_attendance"
               disabled
@@ -187,7 +187,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="record-attendance-resulting"
               :model-value="getResultingSetting('record_attendance')"
               disabled
@@ -203,7 +203,7 @@
         <div class="field grid grid-cols-12 gap-4 mx-0">
           <span class="col-span-12 mb-2">{{ $t('rooms.settings.recordings.record_video_conference') }}</span>
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="record-current"
               :model-value="currentSettings.record"
               disabled
@@ -216,7 +216,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="record-resulting"
               :model-value="getResultingSetting('record')"
               disabled
@@ -232,7 +232,7 @@
         <div class="field grid grid-cols-12 gap-4 mx-0">
           <span class="col-span-12 mb-2">{{ $t('rooms.settings.recordings.auto_start_recording') }}</span>
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="auto-start-recording-current"
               :model-value="currentSettings.auto_start_recording"
               disabled
@@ -245,7 +245,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="auto-start-recording-resulting"
               :model-value="getResultingSetting('auto_start_recording')"
               disabled
@@ -265,7 +265,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.restrictions.lock_settings_disable_cam')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-cam-current"
               :model-value="currentSettings.lock_settings_disable_cam"
               disabled
@@ -278,7 +278,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-cam-resulting"
               :model-value="getResultingSetting('lock_settings_disable_cam')"
               disabled
@@ -298,7 +298,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.restrictions.webcams_only_for_moderator')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="webcams-only-for-moderator-current"
               :model-value="currentSettings.webcams_only_for_moderator"
               disabled
@@ -311,7 +311,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="webcam-only-for-moderator-resulting"
               :model-value="getResultingSetting('webcams_only_for_moderator')"
               disabled
@@ -328,7 +328,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.restrictions.lock_settings_disable_mic')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-mic-current"
               :model-value="currentSettings.lock_settings_disable_mic"
               disabled
@@ -341,7 +341,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-mic-resulting"
               :model-value="getResultingSetting('lock_settings_disable_mic')"
               disabled
@@ -358,7 +358,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.restrictions.lock_settings_disable_public_chat')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-public-chat-current"
               :model-value="currentSettings.lock_settings_disable_public_chat"
               disabled
@@ -371,7 +371,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-public-chat-resulting"
               :model-value="getResultingSetting('lock_settings_disable_public_chat')"
               disabled
@@ -392,7 +392,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.restrictions.lock_settings_disable_private_chat')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-private-chat-current"
               :model-value="currentSettings.lock_settings_disable_private_chat"
               disabled
@@ -405,7 +405,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-private-chat-resulting"
               :model-value="getResultingSetting('lock_settings_disable_private_chat')"
               disabled
@@ -422,7 +422,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.restrictions.lock_settings_disable_note')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-note-current"
               :model-value="currentSettings.lock_settings_disable_note"
               disabled
@@ -435,7 +435,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="disable-note-resulting"
               :model-value="getResultingSetting('lock_settings_disable_note')"
               disabled
@@ -452,7 +452,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.restrictions.lock_settings_hide_user_list')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="hide-user-list-current"
               :model-value="currentSettings.lock_settings_hide_user_list"
               disabled
@@ -465,7 +465,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="hide-user-list-resulting"
               :model-value="getResultingSetting('lock_settings_hide_user_list')"
               disabled
@@ -485,7 +485,7 @@
           <span class="col-span-12 mb-2">{{$t('rooms.settings.participants.allow_membership')}}</span>
           <!-- Current setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="allow-membership-current"
               :model-value="currentSettings.allow_membership"
               disabled
@@ -498,7 +498,7 @@
           <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
           <!-- Resulting setting value -->
           <div class="col-span-3 flex justify-center items-center">
-            <InputSwitch
+            <ToggleSwitch
               input-id="allow-membership-resulting"
               :model-value="getResultingSetting('allow_membership')"
               disabled
@@ -560,7 +560,7 @@
     <Divider class="mt-0"/>
 
     <div class="flex items-center gap-2">
-      <InputSwitch
+      <ToggleSwitch
         input-id="reset-to-defaults"
         v-model="resetToDefaults"
       />

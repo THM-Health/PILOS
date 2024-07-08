@@ -114,7 +114,7 @@
               <label for="generate_password" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('admin.users.generate_password')}}</label>
               <div class="col-span-12 md:col-span-8">
                 <div>
-                  <InputSwitch
+                  <ToggleSwitch
                     id="generate_password"
                     v-model="generatePassword"
                     :invalid="formErrors.fieldInvalid('generate_password')"

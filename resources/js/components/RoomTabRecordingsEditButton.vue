@@ -55,7 +55,7 @@
     <div class="flex flex-col gap-2 mt-6">
       <label>{{ $t('rooms.recordings.available_formats') }}</label>
       <div class="flex items-center" v-for="format in newFormats" :key="format.id">
-        <InputSwitch
+        <ToggleSwitch
           :inputId="format.id"
           v-model="format.disabled"
           :true-value="false"

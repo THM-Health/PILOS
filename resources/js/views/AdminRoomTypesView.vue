@@ -181,7 +181,7 @@
           <label for="restrict" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('admin.room_types.restrict')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div>
-              <InputSwitch
+              <ToggleSwitch
                 input-id="restrict"
                 v-model="model.restrict"
                 :invalid="formErrors.fieldInvalid('restrict')"
@@ -267,7 +267,7 @@
           <label for="has-access-code-default" class="col-span-12 md:col-span-4 md:m-0 items-center"> {{ $t('rooms.settings.general.has_access_code')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="has-access-code-default"
                 v-model="model.has_access_code_default"
                 :invalid="formErrors.fieldInvalid('has_access_code_default')"
@@ -297,7 +297,7 @@
           <label for="allow-guests-default" class="col-span-12 md:col-span-4 md:m-0 items-center">{{$t('rooms.settings.general.allow_guests')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="allow-guests-default"
                 v-model="model.allow_guests_default"
                 :invalid="formErrors.fieldInvalid('allow_guests_default')"
@@ -333,7 +333,7 @@
           <label for="everyone-can-start-default" class="col-span-12 md:col-span-4  md:mb-0  items-center">{{$t('rooms.settings.video_conference.everyone_can_start')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="everyone-can-start-default"
                 v-model="model.everyone_can_start_default"
                 :invalid="formErrors.fieldInvalid('everyone_can_start_default')"
@@ -363,7 +363,7 @@
           <label for="mute-on-start-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.video_conference.mute_on_start')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="mute-on-start-default"
                 v-model="model.mute_on_start_default"
                 :invalid="formErrors.fieldInvalid('mute_on_start_default')"
@@ -462,7 +462,7 @@
           <label for="record-attendance-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.recordings.record_attendance') }}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="record-attendance-default"
                 v-model="model.record_attendance_default"
                 :invalid="formErrors.fieldInvalid('record_attendance_default')"
@@ -492,7 +492,7 @@
           <label for="record-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.recordings.record_video_conference') }}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="record-default"
                 v-model="model.record_default"
                 :invalid="formErrors.fieldInvalid('record_default')"
@@ -522,7 +522,7 @@
           <label for="auto-start-recording-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{ $t('rooms.settings.recordings.auto_start_recording') }}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="auto-start-recording-default"
                 v-model="model.auto_start_recording_default"
                 :invalid="formErrors.fieldInvalid('auto_start_recording_default')"
@@ -555,7 +555,7 @@
           <label for="disable-cam-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_cam')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="disable-cam-default"
                 v-model="model.lock_settings_disable_cam_default"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_cam_default')"
@@ -588,7 +588,7 @@
           <label for="webcams-only-for-moderator-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.webcams_only_for_moderator')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="webcams-only-for-moderator-default"
                 v-model="model.webcams_only_for_moderator_default"
                 :invalid="formErrors.fieldInvalid('webcams_only_for_moderator_default')"
@@ -619,7 +619,7 @@
           <label for="disable-mic-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_mic')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="disable-mic-default"
                 v-model="model.lock_settings_disable_mic_default"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_mic_default')"
@@ -649,7 +649,7 @@
           <label for="disable-public-chat-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_public_chat')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="disable-public-chat-default"
                 v-model="model.lock_settings_disable_public_chat_default"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat_default')"
@@ -683,7 +683,7 @@
           <label for="disable-private-chat-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_private_chat')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="disable-private-chat-default"
                 v-model="model.lock_settings_disable_private_chat_default"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat_default')"
@@ -713,7 +713,7 @@
           <label for="disable-note-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_disable_note')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="disable-note-default"
                 v-model="model.lock_settings_disable_note_default"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_note_default')"
@@ -743,7 +743,7 @@
           <label for="hide-user-list-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.restrictions.lock_settings_hide_user_list')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="hide-user-list-default"
                 v-model="model.lock_settings_hide_user_list_default"
                 :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list_default')"
@@ -776,7 +776,7 @@
           <label for="allow-membership-default" class="col-span-12 md:col-span-4 md:mb-0 items-center">{{$t('rooms.settings.participants.allow_membership')}}</label>
           <div class="col-span-12 md:col-span-8">
             <div class="flex justify-between items-center">
-              <InputSwitch
+              <ToggleSwitch
                 input-id="allow-membership-default"
                 v-model="model.allow_membership_default"
                 :invalid="formErrors.fieldInvalid('allow_membership_default')"

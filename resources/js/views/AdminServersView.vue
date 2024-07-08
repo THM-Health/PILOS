@@ -149,7 +149,7 @@
             <label class="col-span-12 md:col-span-4 md:mb-0" for="status">{{ $t('admin.servers.status') }}</label>
             <div class="col-span-12 md:col-span-8">
               <div>
-                <Dropdown
+                <Select
                   id="status"
                   v-model="model.status"
                   :options="serverStatusOptions"

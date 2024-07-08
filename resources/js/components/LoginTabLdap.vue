@@ -15,9 +15,9 @@
           required
         />
         <small id="username-help-block">{{ $t('auth.ldap.username_help') }}</small>
-        <Message v-for="(error, index) in props.errors?.username" :key="index">
+        <p class="text-red-500" v-for="(error, index) in props.errors?.username" :key="index" >
           {{ error }}
-        </Message>
+        </p>
       </div>
 
       <div class="flex flex-col gap-2 mt-6">
@@ -29,10 +29,11 @@
           :feedback="false"
           toggleMask
           required
+          fluid
           :placeholder="props.passwordLabel"
           :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-        <Message v-for="(error, index) in props.errors?.password" :key="index">
+        <Message severity="error" v-for="(error, index) in props.errors?.password" :key="index">
           {{ error }}
         </Message>
       </div>

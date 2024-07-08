@@ -43,7 +43,7 @@
       stripedRows
       row-hover
       :loading="isBusy"
-      :rows="settingsStore.getSetting('pagination_page_size')"
+      :rows="settingsStore.getSetting('general.pagination_page_size')"
       v-model:filters="filters"
       class="table-auto lg:table-fixed"
     >

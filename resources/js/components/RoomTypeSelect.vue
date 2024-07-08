@@ -21,8 +21,8 @@
   </div>
   <OverlayComponent v-else :show="isLoadingAction">
   <div class="grid grid-cols-12 gap-4">
-    <div :class="modelValue ? 'md:col-6' : 'md:col'" class="col-span-12">
-      <Dropdown
+    <div :class="modelValue ? 'md:col-span-6' : 'md:col-span-12'" class="col-span-12">
+      <Select
         v-model="roomTypeId"
         :disabled="disabled || isLoadingAction"
         @change="changeRoomType"
@@ -44,7 +44,7 @@
         <template #option="slotProps">
           <span class="max-w-full" style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
         </template>
-      </Dropdown>
+      </Select>
 
       <Listbox
         v-model="roomTypeId"

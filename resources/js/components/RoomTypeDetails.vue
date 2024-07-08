@@ -31,7 +31,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="has-access-code-default"
                   :model-value="roomType.has_access_code_default"
                   disabled
@@ -47,7 +47,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="allow-guests-default"
                   :model-value="roomType.allow_guests_default"
                   disabled
@@ -67,7 +67,7 @@
                 </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="everyone-can-start-default"
                   :model-value="roomType.everyone_can_start_default"
                   disabled
@@ -82,7 +82,7 @@
                 {{$t('rooms.settings.video_conference.mute_on_start')}}
               </label>
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="mute-on-start-default"
                   :model-value="roomType.mute_on_start_default"
                   disabled
@@ -115,7 +115,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="record-attendance-default"
                   :model-value="roomType.record_attendance_default"
                   disabled
@@ -131,7 +131,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="record-default"
                   :model-value="roomType.record_default"
                   disabled
@@ -147,7 +147,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="auto-start-recording-default"
                   :model-value="roomType.auto_start_recording_default"
                   disabled
@@ -166,7 +166,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="disable-cam-default"
                   :model-value="roomType.lock_settings_disable_cam_default"
                   disabled
@@ -185,7 +185,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="webcams-only-for-moderator-default"
                   :model-value="roomType.webcams_only_for_moderator_default"
                   disabled
@@ -201,7 +201,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="disable-mic-default"
                   :model-value="roomType.lock_settings_disable_mic_default"
                   disabled
@@ -217,7 +217,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="disable-public-chat-default"
                   :model-value="roomType.lock_settings_disable_public_chat_default"
                   disabled
@@ -237,7 +237,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="disable-private-chat-default"
                   :model-value="roomType.lock_settings_disable_private_chat_default"
                   disabled
@@ -253,7 +253,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-                <InputSwitch
+                <ToggleSwitch
                   input-id="disable-note-default"
                   :model-value="roomType.lock_settings_disable_note_default"
                   disabled
@@ -269,7 +269,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-              <InputSwitch
+              <ToggleSwitch
                   input-id="hide-user-list-default"
                   :model-value="roomType.lock_settings_hide_user_list_default"
                   disabled
@@ -288,7 +288,7 @@
               </label>
 
               <div class="col-span-4 justify-center flex items-center">
-              <InputSwitch
+              <ToggleSwitch
                   input-id="allow-membership-default"
                   :model-value="roomType.allow_membership_default"
                   disabled

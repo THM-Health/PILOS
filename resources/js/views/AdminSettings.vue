@@ -240,7 +240,7 @@
           <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.enabled')}}</legend>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 inputId="banner-enabled"
                 v-model="settings.banner_enabled"
                 binary
@@ -346,7 +346,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label for="banner-link-style" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_style')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               input-id="banner-link-style"
               v-model="settings.banner_link_style"
               :options="linkBtnStyles"
@@ -363,7 +363,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label for="banner-link-target" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_target')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               input-id="banner-link-target"
               v-model="settings.banner_link_target"
               :options="linkTargets"
@@ -480,7 +480,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="room-token-expiration-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.room_token_expiration.title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.room_token_expiration"
               :options="timePeriods"
               optionLabel="text"
@@ -502,7 +502,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="room-auto-delete-deadline-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.room_auto_delete.deadline_period.title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.room_auto_delete_deadline_period"
               :options="roomDeleteDeadlineOptions"
               optionLabel="text"
@@ -524,7 +524,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="room-auto-delete-inactive-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.room_auto_delete.inactive_period.title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.room_auto_delete_inactive_period"
               :options="timePeriods"
               optionLabel="text"
@@ -546,7 +546,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="room-auto-delete-never-used-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.room_auto_delete.never_used_period.title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.room_auto_delete_never_used_period"
               :options="timePeriods"
               optionLabel="text"
@@ -572,7 +572,7 @@
           <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.password_change_allowed')}}</legend>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 inputId="password-change-allowed"
                 v-model="settings.user_password_change_allowed"
                 binary
@@ -592,7 +592,7 @@
           <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.statistics.servers.enabled_title')}}</legend>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 inputId="statistics-servers-enabled"
                 v-model="settings.recording_server_usage_enabled"
                 binary
@@ -608,7 +608,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="statistics-servers-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.statistics.servers.retention_period_title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.recording_server_usage_retention_period"
               :options="timePeriods"
               optionLabel="text"
@@ -625,7 +625,7 @@
           <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.statistics.meetings.enabled_title')}}</legend>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
             <div class="flex items-center gap-2">
-              <InputSwitch
+              <ToggleSwitch
                 inputId="statistics-meetings-enabled"
                 v-model="settings.recording_meeting_usage_enabled"
                 binary
@@ -641,7 +641,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="statistics-meetings-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.statistics.meetings.retention_period_title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.recording_meeting_usage_retention_period"
               :options="timePeriods"
               optionLabel="text"
@@ -657,7 +657,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="attendance-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.attendance.retention_period_title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.recording_attendance_retention_period"
               :options="timePeriods"
               optionLabel="text"
@@ -673,7 +673,7 @@
         <div class="grid grid-cols-12 gap-4">
           <label id="recording-retention-period-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.recording.retention_period_title')}}</label>
           <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="settings.recording_recording_retention_period"
               :options="recordingRetentionPeriods"
               optionLabel="text"

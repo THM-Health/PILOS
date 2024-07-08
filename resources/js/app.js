@@ -31,8 +31,9 @@ const setupApp = (app) => {
         cssLayer: {
           name: 'primevue',
           order: 'tailwind-base, primevue, tailwind-utilities'
-        }
-      },
+        },
+        darkModeSelector: '.dark'
+      }
     },
     csp: {
       nonce

@@ -105,7 +105,7 @@
             </div>
 
           </div>
-            <h3>{{ $t('settings.roles.permissions') }}</h3>
+            <h3>{{ $t('admin.roles.permissions_title') }}</h3>
             <div class="grid grid-cols-12 gap-4" v-if="!isBusy && Object.keys(permissions).length > 0">
               <div class="col-span-8">
                 <b>{{ $t('admin.roles.permission_name') }}</b>
@@ -127,7 +127,7 @@
                   :key="key"
                 >
                   <div class="col-span-12">
-                    <b>{{ $t(`admin.permissions.${key}.title`) }}</b>
+                    <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
                   </div>
                   <div class="col-span-12">
                     <div class="grid grid-cols-12 gap-4"
@@ -135,7 +135,7 @@
                       :key="permission.id"
                     >
                       <div class="col-span-8">
-                        <label :for="permission.name">{{ $t(`admin.permissions.${permission.name}`) }}</label>
+                        <label :for="permission.name">{{ $t(`admin.roles.permissions.${permission.name}`) }}</label>
                       </div>
                       <div class="col-span-2 flex">
                         <Checkbox

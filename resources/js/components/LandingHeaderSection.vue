@@ -4,11 +4,11 @@
       <div class="col-md-12 col-sm-12 text-center">
         <img
           v-if="settingsStore.getSetting('general.logo')"
-          class="logo"
+          class="logo inline"
           alt="Logo"
           :src="settingsStore.getSetting('general.logo')"
         >
-        <h1 class="mb-6 text-color">
+        <h1 class="mb-6 text-color text-3xl font-bold">
           {{ $t('home.title') }}
         </h1>
         <p class="text-color">

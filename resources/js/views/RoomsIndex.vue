@@ -6,7 +6,7 @@
         <div class="flex justify-between">
           <div>
             <h1 class="m-0 text-3xl">
-              {{ $t('app.rooms') }} {{ breakpoints.active().value }}
+              {{ $t('app.rooms') }}
             </h1>
           </div>
           <div v-if="userPermissions.can('create', 'RoomPolicy')" class="flex items-end gap-2 flex-col">
@@ -97,6 +97,7 @@
           optionLabel="name"
           optionValue="value"
           multiple
+          :allowEmpty="roomFilter.length > 1"
           @change="loadRooms(1)"
           class="border border-surface-300 dark:border-surface-500 rounded-border"
           :pt="{
@@ -125,7 +126,7 @@
               {{ $t('rooms.room_types.loading_error') }}
             </Message>
           </InputGroupAddon>
-          <Dropdown
+          <Select
             data-test="room-type-dropdown"
             v-else
             v-model="selectedRoomType"
@@ -141,13 +142,7 @@
                 'data-test': 'room-type-dropdown-items'
               }
             }"
-          >
-            <template #clearicon="{ clearCallback }">
-              <span class="p-dropdown-clear" role="button" @click.stop="clearCallback">
-                <i class="fa-solid fa-times"/>
-              </span>
-            </template>
-          </Dropdown>
+          />
           <!-- reload the room types -->
           <Button
               v-if="roomTypesLoadingError"
@@ -166,7 +161,7 @@
           <InputGroupAddon>
             <i class="fa-solid fa-sort"></i>
           </InputGroupAddon>
-          <Dropdown
+          <Select
             data-test="sorting-type-dropdown"
             v-model="selectedSortingType"
             @change="loadRooms(1)"
@@ -187,7 +182,6 @@
     <!--rooms overlay-->
     <OverlayComponent
       class="mt-4"
-      v-if="!showNoFilterMessage"
       :show="loadingRoomsError && !loadingRooms"
       :noCenter="true"
       :opacity="0"
@@ -271,21 +265,6 @@
           </template>
         </DataView>
     </OverlayComponent>
-    <div
-      v-else
-      class="text-center mt-4"
-    >
-      <Message severity="error">{{ $t('rooms.index.no_rooms_selected') }}</Message>
-      <br>
-      <Button
-        data-test="filter-reset-button"
-        class="mt-2"
-        ref="reset"
-        @click="resetRoomFilter"
-        :label="$t('rooms.index.reset_filter')"
-        icon="fa-solid fa-rotate-left"
-      />
-    </div>
 
       </template>
     </Card>
@@ -317,7 +296,6 @@ const rawSearchQuery = ref('');
 const roomFilter = ref(['own', 'shared']);
 const roomFilterAll = ref(false);
 
-const showNoFilterMessage = ref(false);
 const onlyShowFavorites = ref(false);
 const selectedRoomType = ref(null);
 const selectedSortingType = ref('last_started');
@@ -404,15 +382,6 @@ const filterOptions = computed(() => {
 });
 
 /**
- * Resets the room filters and reloads the rooms
- */
-function resetRoomFilter () {
-  roomFilter.value = ['own', 'shared'];
-  roomFilterAll.value = false;
-  loadRooms(1);
-}
-
-/**
  *  Reload rooms
  */
 function reload () {
@@ -441,11 +410,6 @@ function loadRoomTypes () {
  * Load the rooms of the current user based on the given inputs
  */
 function loadRooms (page = null) {
-  if (roomFilter.value.length === 0 && roomFilterAll.value === false) {
-    showNoFilterMessage.value = true;
-    return;
-  }
-  showNoFilterMessage.value = false;
   loadingRooms.value = true;
 
   api.call('rooms', {

@@ -1,6 +1,6 @@
 <template>
   <InputGroup class="w-full">
-    <Dropdown
+    <Select
       :aria-labelledby="props.ariaLabelledby"
       :options="timezones"
       :required="props.required"

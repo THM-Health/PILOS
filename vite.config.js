@@ -3,9 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import * as fs from 'fs';
 import Components from 'unplugin-vue-components/vite';
-import {
-  PrimeVueResolver
-} from 'unplugin-vue-components/resolvers';
+import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
 export default ({ mode }) => {
   const ENV_PREFIX = ['VITE_'];

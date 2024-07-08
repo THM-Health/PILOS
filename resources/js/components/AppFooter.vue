@@ -3,7 +3,7 @@
     <div
       v-if="settingsStore.getSetting('general.legal_notice_url') || settingsStore.getSetting('general.privacy_policy_url') || settingsStore.getSetting('general.version') || !settingsStore.getSetting('general.whitelabel')"
       ref="footer_container"
-      class="border-t border-surface-300 dark:border-surface-500 bg-white p-2"
+      class="border-t border-surface-300 dark:border-surface-500 bg-white dark:bg-zinc-900 p-2"
     >
       <div class="container">
         <div class="flex justify-between flex-col sm:flex-row text-center sm:text-left">

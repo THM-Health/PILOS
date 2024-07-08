@@ -5,7 +5,7 @@
         v-if="props.show"
         class="absolute" style="inset: 0; backdrop-filter: blur(2px);" :style="{'z-index': props.zIndex}"
       >
-        <div class="absolute" style="inset: 0; background-color: #f8f9fa" :style="{opacity: props.opacity}" />
+        <div class="absolute bg-surface-100 dark:bg-surface-900" style="inset: 0;" :style="{opacity: props.opacity}" />
 
         <div class="overlay-wrapper absolute top-0 left-0 right-0 bottom-0" :class="wrapperClass" >
           <slot name="overlay">

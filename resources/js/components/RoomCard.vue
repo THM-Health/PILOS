@@ -3,7 +3,7 @@
     <!-- room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative bg-white border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow"
+      class="room-card h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:bg-surface-50 dark:hover:bg-surface-800"
       :class="{'room-card--running': running}"
       @click="open"
       @keyup.enter="open"

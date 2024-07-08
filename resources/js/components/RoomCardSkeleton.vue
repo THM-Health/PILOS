@@ -3,7 +3,7 @@
     <!--      room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative bg-white border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow"
+      class="room-card h-full relative border-surface-300 dark:border-surface-500 rounded-border shadow-none"
     >
       <div class="p-4 h-100">
         <div class="flex flex-col h-100">

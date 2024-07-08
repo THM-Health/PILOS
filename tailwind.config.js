@@ -4,6 +4,7 @@ export default {
     './resources/**/*.blade.php',
     './resources/js/**/*.vue'
   ],
+  darkMode: ['selector'],
   theme: {
     extend: {}
   },

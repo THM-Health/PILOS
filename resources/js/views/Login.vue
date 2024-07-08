@@ -4,56 +4,50 @@
       <div class="col-span-12 md:col-span-8 lg:col-span-6 md:col-start-3 lg:col-start-4">
         <Card>
           <template #content>
-            <TabView
+            <Tabs
               :lazy="true"
-              :pt="{
-              navContent: {
-                class: 'rounded-t'
-              },
-              }"
+              :value="activeTab"
             >
-              <TabPanel
-                v-if="settingsStore.getSetting('auth.ldap')"
-                :header="$t('auth.ldap.tab_title')"
-              >
-                <LoginTabLdap
-                  id="ldap"
-                  :title="$t('auth.ldap.title')"
-                  :submit-label="$t('auth.login')"
-                  :password-label="$t('auth.password')"
-                  :username-label="$t('auth.ldap.username')"
-                  :loading="loading"
-                  :errors="errors.ldap"
-                  @submit="handleLogin"
-                />
-              </TabPanel>
-              <TabPanel
-                v-if="settingsStore.getSetting('auth.shibboleth')"
-                :header="$t('auth.shibboleth.tab_title')"
-              >
-                <LoginTabExternal
-                  id="shibboleth"
-                  :title="$t('auth.shibboleth.title')"
-                  :redirect-label="$t('auth.shibboleth.redirect')"
-                  :redirect-url="shibbolethRedirectUrl"
-                />
-              </TabPanel>
-              <TabPanel
-                v-if="settingsStore.getSetting('auth.local')"
-                :header="$t('auth.email.tab_title')"
-              >
-                <LoginTabLocal
-                  id="local"
-                  :title="$t('auth.email.title')"
-                  :submit-label="$t('auth.login')"
-                  :password-label="$t('auth.password')"
-                  :email-label="$t('app.email')"
-                  :loading="loading"
-                  :errors="errors.local"
-                  @submit="handleLogin"
-                />
-              </TabPanel>
-            </TabView>
+              <TabList>
+                <Tab value="ldap" v-if="settingsStore.getSetting('auth.ldap')">{{ $t('auth.ldap.tab_title') }}</Tab>
+                <Tab value="shibboleth" v-if="settingsStore.getSetting('auth.shibboleth')">{{ $t('auth.shibboleth.tab_title') }}</Tab>
+                <Tab value="local" v-if="settingsStore.getSetting('auth.local')">{{ $t('auth.email.tab_title') }}</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel value="ldap" v-if="settingsStore.getSetting('auth.ldap')">
+                  <LoginTabLdap
+                    id="ldap"
+                    :title="$t('auth.ldap.title')"
+                    :submit-label="$t('auth.login')"
+                    :password-label="$t('auth.password')"
+                    :username-label="$t('auth.ldap.username')"
+                    :loading="loading"
+                    :errors="errors.ldap"
+                    @submit="handleLogin"
+                  />
+                </TabPanel>
+                <TabPanel value="shibboleth" v-if="settingsStore.getSetting('auth.shibboleth')">
+                  <LoginTabExternal
+                    id="shibboleth"
+                    :title="$t('auth.shibboleth.title')"
+                    :redirect-label="$t('auth.shibboleth.redirect')"
+                    :redirect-url="shibbolethRedirectUrl"
+                  />
+                </TabPanel>
+                <TabPanel value="local" v-if="settingsStore.getSetting('auth.local')">
+                  <LoginTabLocal
+                    id="local"
+                    :title="$t('auth.email.title')"
+                    :submit-label="$t('auth.login')"
+                    :password-label="$t('auth.password')"
+                    :email-label="$t('app.email')"
+                    :loading="loading"
+                    :errors="errors.local"
+                    @submit="handleLogin"
+                  />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </template>
 
         </Card>
@@ -66,7 +60,7 @@
 import env from '../env';
 import { useSettingsStore } from '../stores/settings';
 import { useAuthStore } from '../stores/auth';
-import { computed, ref, reactive } from 'vue';
+import { computed, ref, reactive, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useApi } from '../composables/useApi';
@@ -84,6 +78,17 @@ const loading = ref(false);
 const errors = reactive({
   local: null,
   ldap: null
+});
+
+const activeTab = ref('');
+onMounted(() => {
+  if (settingsStore.getSetting('auth.ldap')) {
+    activeTab.value = 'ldap';
+  } else if (settingsStore.getSetting('auth.shibboleth')) {
+    activeTab.value = 'shibboleth';
+  } else {
+    activeTab.value = 'local';
+  }
 });
 
 const shibbolethRedirectUrl = computed(() => {

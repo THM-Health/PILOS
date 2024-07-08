@@ -6,7 +6,7 @@
     @click="toggle"
     class="shrink-0"
   />
-  <OverlayPanel ref="op" aria-labelledby="room-invitation-title">
+  <Popover ref="op" aria-labelledby="room-invitation-title">
     <div class="flex flex-col items-start gap-4 min-w-min p-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend id="room-invitation-title" class="font-bold block whitespace-nowrap">{{ $t('rooms.invitation.title') }}</legend>
@@ -53,7 +53,7 @@
         autofocus
       />
     </div>
-  </OverlayPanel>
+  </Popover>
 </template>
 <script setup>
 import { useSettingsStore } from '../stores/settings';
