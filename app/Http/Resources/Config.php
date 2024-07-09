@@ -6,6 +6,7 @@ use App\Settings\BannerSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,6 +28,7 @@ class Config extends JsonResource
         $roomSettings = app(RoomSettings::class);
         $userSettings = app(UserSettings::class);
         $recordingSettings = app(RecordingSettings::class);
+        $theme = app(ThemeSettings::class);
 
         return [
             'general' => [
@@ -46,6 +48,10 @@ class Config extends JsonResource
                 'version' => config('app.version'),
                 'whitelabel' => config('app.whitelabel'),
                 'base_url' => config('app.url'),
+            ],
+            'theme' => [
+                'primary_color' => $theme->primary_color,
+                'rounded' => $theme->rounded,
             ],
             'room' => [
                 'limit' => $roomSettings->limit,

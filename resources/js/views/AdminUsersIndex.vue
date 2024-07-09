@@ -4,15 +4,14 @@
       <h2>
         {{ $t('app.users') }}
       </h2>
-      <router-link
+      <Button
+        as="router-link"
         v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
         v-tooltip="$t('admin.users.new')"
         :aria-label="$t('admin.users.new')"
-        class="p-button p-button-success p-button-icon-only"
+        icon="fa-solid fa-plus"
         :to="{ name: 'admin.users.new' }"
-      >
-        <i class="fa-solid fa-plus" />
-      </router-link>
+      />
     </div>
 
     <div class="grid grid-cols-12 gap-4">

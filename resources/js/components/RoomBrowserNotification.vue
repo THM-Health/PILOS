@@ -1,7 +1,7 @@
 <template>
   <Button
     v-if="notificationSupport && !running"
-    :severity="notificationEnabled ? 'primary' : 'secondary'"
+    :severity="notificationEnabled ? 'contrast' : 'secondary'"
     @click="notificationEnabled ? disableNotification() : enableNotification()"
     icon="fa-solid fa-bell"
     :aria-label="notificationEnabled ? $t('rooms.notification.disable') : $t('rooms.notification.enable')"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>{{ $t('admin.users.bbb') }}</h4>
+    <h2 class="text-2xl">{{ $t('admin.users.bbb') }}</h2>
     <form @submit="save" v-if="model">
       <div class="field grid grid-cols-12 gap-4">
         <label for="bbb_skip_check_audio" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.skip_check_audio') }}</label>
@@ -20,7 +20,6 @@
         <Button
           v-if="!viewOnly"
           :disabled="isBusy"
-          severity="success"
           type="submit"
           :loading="isBusy"
           icon="fa-solid fa-save"

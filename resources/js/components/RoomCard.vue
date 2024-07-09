@@ -3,7 +3,7 @@
     <!-- room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:bg-surface-50 dark:hover:bg-surface-800"
+      class="room-card h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:bg-emphasis"
       :class="{'room-card--running': running}"
       @click="open"
       @keyup.enter="open"
@@ -80,9 +80,7 @@
       <template #footer>
         <div class="flex justify-end gap-2">
           <Button :label="$t('app.close')" outlined @click="handleCancel" />
-          <router-link :to="link" class="p-button">
-            {{ $t('rooms.index.room_component.open') }}
-          </router-link>
+          <Button as="router-link" :to="link" :label="$t('rooms.index.room_component.open')"/>
         </div>
       </template>
     </Dialog>

@@ -232,6 +232,44 @@
             <p class="p-error" v-html="formErrors.fieldError('general_default_timezone')"></p>
           </div>
         </div>
+        <Divider/>
+        <h4 class="text-xl">{{ $t('admin.settings.theme') }}</h4>
+        <div class="grid grid-cols-12 gap-4">
+            <label for="theme-primary-color" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.primary_color')}}</label>
+            <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <ColorSelect
+                class="my-2"
+                :disabled='disabled'
+                :colors="colors.getAllColors()"
+                v-model="settings.theme_primary_color"
+              />
+              <label for="banner-color">{{ $t('admin.settings.theme.custom_color') }}</label>
+              <InputText
+                id="theme-primary-color"
+                v-model="settings.theme_primary_color"
+                type="text"
+                :invalid="formErrors.fieldInvalid('theme_primary_color')"
+                :disabled="disabled"
+              />
+              <p class="p-error" v-html="formErrors.fieldError('theme_primary_color')"></p>
+            </div>
+          </div>
+          <fieldset class="grid grid-cols-12 gap-4">
+            <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.rounded')}}</legend>
+            <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="flex items-center gap-2">
+                <ToggleSwitch
+                  inputId="theme-rounded"
+                  v-model="settings.theme_rounded"
+                  binary
+                  :disabled="disabled"
+                  :invalid="formErrors.fieldInvalid('theme_rounded')"
+                />
+                <label for="theme-rounded">{{ $t('admin.settings.theme.rounded') }}</label>
+              </div>
+              <p class="p-error" v-html="formErrors.fieldError('theme_rounded')"></p>
+            </div>
+          </fieldset>
 
         <Divider/>
         <h4 class="text-xl">{{ $t('admin.settings.banner.title') }}</h4>
@@ -752,7 +790,6 @@
         <Divider/>
           <div class="flex justify-end">
             <Button
-                severity="success"
                 type="submit"
                 :disabled="disabled || timezonesLoadingError || timezonesLoading"
                 :loading="isBusy"
@@ -768,12 +805,13 @@
 <script setup>
 import env from '../env';
 import { useSettingsStore } from '../stores/settings';
-import { computed, onMounted, ref } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useColors } from '../composables/useColors.js';
 import { useI18n } from 'vue-i18n';
+import { updateTheme } from '../composables/useTheme';
 
 const roomLimitMode = ref('custom');
 const toastLifetimeMode = ref('custom');
@@ -1013,6 +1051,20 @@ const recordingRetentionPeriods = computed(() => {
 const roomDeleteDeadlineOptions = computed(() => {
   return timePeriods.value.filter((period) => period.value <= 30 && period.value !== -1);
 });
+
+watch(
+  () => settings.value.theme_rounded,
+  (rounded) => {
+    updateTheme(settings.value.theme_primary_color, rounded);
+  }
+);
+
+watch(
+  () => settings.value.theme_primary_color,
+  (color) => {
+    updateTheme(color, settings.value.theme_rounded);
+  }
+);
 
 onMounted(() => {
   getSettings();

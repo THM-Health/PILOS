@@ -4,15 +4,14 @@
       <h2>
         {{ $t('app.roles') }}
       </h2>
-      <router-link
+      <Button
+        as="router-link"
         v-if="userPermissions.can('create', 'RolePolicy')"
-        class="p-button p-button-success p-button-icon-only"
+        icon="fa-solid fa-plus"
         v-tooltip="$t('admin.roles.new')"
         :aria-label="$t('admin.roles.new')"
         :to="{ name: 'admin.roles.view', params: { id: 'new' } }"
-      >
-        <i class="fa-solid fa-plus" />
-      </router-link>
+      />
     </div>
 
     <div class="flex flex-col md:flex-row">

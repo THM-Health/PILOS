@@ -4,15 +4,14 @@
       <h2>
         {{ $t('app.servers') }}
       </h2>
-      <router-link
+      <Button
+        as="router-link"
         v-if="userPermissions.can('create', 'ServerPolicy')"
         v-tooltip="$t('admin.servers.new')"
         :aria-label="$t('admin.servers.new')"
         :to="{ name: 'admin.servers.view', params: { id: 'new' } }"
-        class="p-button p-button-icon-only p-button-success"
-      >
-        <i class="fa-solid fa-plus"/>
-      </router-link>
+        icon="fa-solid fa-plus"
+      />
     </div>
 
     <div class="flex flex-col md:flex-row justify-between">

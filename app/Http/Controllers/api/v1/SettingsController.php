@@ -14,6 +14,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Storage;
 
@@ -41,6 +42,7 @@ class SettingsController extends Controller
     public function update(UpdateSettings $request)
     {
         $generalSettings = app(GeneralSettings::class);
+        $themeSettings = app(ThemeSettings::class);
         $bannerSettings = app(BannerSettings::class);
         $roomSettings = app(RoomSettings::class);
         $userSettings = app(UserSettings::class);
@@ -112,6 +114,9 @@ class SettingsController extends Controller
         $generalSettings->privacy_policy_url = $request->input('general_privacy_policy_url');
         $generalSettings->toast_lifetime = $request->integer('general_toast_lifetime');
 
+        $themeSettings->primary_color = $request->input('theme_primary_color');
+        $themeSettings->rounded = $request->boolean('theme_rounded');
+
         $roomSettings->limit = $request->integer('room_limit');
         $roomSettings->pagination_page_size = $request->integer('room_pagination_page_size');
         $roomSettings->token_expiration = $request->enum('room_token_expiration', TimePeriod::class);
@@ -140,6 +145,7 @@ class SettingsController extends Controller
         $recordingSettings->recording_retention_period = $request->enum('recording_recording_retention_period', TimePeriod::class);
 
         $generalSettings->save();
+        $themeSettings->save();
         $roomSettings->save();
         $userSettings->save();
         $bannerSettings->save();

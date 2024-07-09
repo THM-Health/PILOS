@@ -9,12 +9,11 @@
             <Message v-if="props.error === 'shibboleth_session_duplicate_exception'" severity="error" :closable="false">{{ $t('auth.error.shibboleth_session_duplicate_exception') }}</Message>
           </template>
           <template #footer>
-            <router-link
+            <Button
+              as="a"
               :to="{ name: 'home'}"
-              class="p-button"
-            >
-              {{ $t('app.home') }}
-            </router-link>
+              :label="$t('app.home')"
+            />
           </template>
         </Card>
       </div>

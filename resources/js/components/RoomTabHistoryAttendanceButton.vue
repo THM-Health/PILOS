@@ -2,7 +2,6 @@
   <Button
     v-tooltip="$t('meetings.attendance.view')"
     :disabled="disabled"
-    severity="secondary"
     @click="showAttendanceModal"
     icon="fa-solid fa-user-clock"
   />
@@ -51,15 +50,15 @@
               <InputText v-model="filters['global'].value" :placeholder="$t('app.search')" />
           </IconField>
 
-          <a
+          <Button
+            as="a"
             target="_blank"
             :href="downloadUrl"
-            class="p-button p-button-icon-only p-button-secondary"
+            icon="fa-solid fa-file-excel"
+            severity="secondary"
             :aria-label="$t('meetings.attendance.download')"
             v-tooltip:top="$t('meetings.attendance.download')"
-          >
-            <i class="fa-solid fa-file-excel" />
-          </a>
+          />
         </div>
       </template>
 

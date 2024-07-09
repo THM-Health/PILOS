@@ -70,6 +70,11 @@ function TipTapEditor (content, onUpdate) {
         linkOnPaste: true
       })
     ],
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mt-2 p-2 focus:outline rounded-border border-surface border'
+      }
+    },
     onUpdate
   });
 }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>{{ $t('app.email') }}</h4>
+    <h2 class="text-2xl">{{ $t('app.email') }}</h2>
     <form @submit="save">
       <div class="field grid grid-cols-12 gap-4" v-if="!viewOnly && isOwnUser && userPermissions.can('updateAttributes', user)">
         <label for="current_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.current_password') }}</label>
@@ -38,7 +38,6 @@
         <Button
           v-if="!viewOnly && userPermissions.can('updateAttributes', user)"
           :disabled="isBusy"
-          severity="success"
           type="submit"
           :loading="isBusy"
           :label="$t('auth.change_email')"

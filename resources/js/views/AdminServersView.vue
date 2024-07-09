@@ -195,7 +195,6 @@
               :disabled="isBusy || modelLoadingError"
               :label="$t('app.save')"
               icon="fa-solid fa-save"
-              severity="success"
               type="submit"
             />
           </div>

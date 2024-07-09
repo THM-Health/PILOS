@@ -9,7 +9,7 @@
       class="flex justify-center mt-20"
     >
       <!-- Show message that room can only be used by logged in users -->
-      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-center'}}">
         <template #header>
           <Badge severity="danger" class="rounded-full flex justify-center items-center h-16 w-16 -mt-8">
             <i class="fa-solid fa-unlink text-2xl text-white"></i>
@@ -28,7 +28,7 @@
       v-else-if="guestsNotAllowed"
       class="flex justify-center mt-20"
     >
-      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-center'}}">
         <template #header>
           <Badge severity="danger" class="rounded-full flex justify-center items-center h-16 w-16 -mt-8">
             <i class="fa-solid fa-lock text-2xl text-white"></i>
@@ -74,7 +74,7 @@
         <div v-if="!room.authenticated"
            class="flex justify-center mt-20"
         >
-          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}" data-test="room-access-code-overlay">
+          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-center'}}" data-test="room-access-code-overlay">
             <template #header>
               <Badge severity="danger" class="rounded-full flex justify-center items-center h-16 w-16 -mt-8">
                 <i class="fa-solid fa-lock text-2xl text-white"></i>
@@ -115,19 +115,21 @@
           </Card>
         </div>
         <div v-else>
-          <RoomHeader :room="room" :loading="loading" @reload="reload" :details-inline="true" />
-          <div
+          <Card>
+          <template #header>
+            <RoomHeader class="mx-6 mt-6" :room="room" :loading="loading" @reload="reload" :details-inline="true" />
+          </template>
+          <template #content>
+            <div
             v-if="room.can_start && room.room_type_invalid"
           >
             <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">
               {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
             </Message>
           </div>
-
-          <Divider />
           <!-- Room join/start -->
 
-          <div class="flex justify-between items-start gap-2 mb-4">
+          <div class="flex justify-between items-start gap-2">
             <div class="flex justify-start gap-2">
               <RoomJoinButton
                 :roomId="room.id"
@@ -154,6 +156,8 @@
             <RoomShareButton v-if="viewInvitation" :room="room" />
           </div>
 
+          </template>
+          </Card>
           <!-- Show room tabs -->
           <RoomTabSection
             :access-code="accessCode"

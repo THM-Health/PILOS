@@ -4,7 +4,6 @@
     class="shrink-0"
     v-tooltip="$t('rooms.files.upload')"
     :aria-label="$t('rooms.files.upload')"
-    severity="success"
     :disabled="disabled"
     @click="openModal"
     icon="fa-solid fa-upload"

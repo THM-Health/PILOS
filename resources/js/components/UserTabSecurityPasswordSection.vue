@@ -52,7 +52,6 @@
       <div class="flex justify-end">
         <Button
           :disabled="isBusy"
-          severity="success"
           type="submit"
           :loading="isBusy"
           :label="$t('auth.change_password')"

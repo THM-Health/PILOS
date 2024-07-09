@@ -5,7 +5,7 @@
       <template #title>
         <div class="flex justify-between">
           <div>
-            <h1 class="m-0 text-3xl">
+            <h1 class="text-3xl">
               {{ $t('app.rooms') }}
             </h1>
           </div>
@@ -60,7 +60,7 @@
           <!--only favorites button-->
           <Button
             data-test="only-favorites-button"
-            :severity="onlyShowFavorites?'primary':'secondary'"
+            :severity="onlyShowFavorites?'contrast':'secondary'"
             :disabled="loadingRooms"
             @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);"
             icon="fa-solid fa-star"
@@ -241,7 +241,7 @@
           <!-- Show message on empty room list -->
           <template #empty>
             <div>
-              <div class="text-center" v-if="rooms && !loadingRooms && !loadingRoomsError">
+              <div class="text-center mb-2" v-if="rooms && !loadingRooms && !loadingRoomsError">
                 <Message severity="info" v-if="onlyShowFavorites && paginator.isEmptyUnfiltered()"> {{ $t('rooms.index.no_favorites') }} </Message>
                 <Message severity="info" v-else-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.no_rooms_available') }}</Message>
                 <Message severity="info" v-else-if="!rooms.length">{{ $t('rooms.no_rooms_found') }}</Message>

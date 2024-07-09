@@ -2,6 +2,7 @@
   <Button
     v-tooltip="$t('rooms.description.tooltips.link')"
     :severity="props.editor.isActive('link') ? 'primary' : 'secondary'"
+    text
     @click="openModal"
     icon="fa-solid fa-link"
   />
@@ -40,7 +41,6 @@
             :label="$t('app.cancel')"
           />
           <Button
-            severity="success"
             :disabled="urlInvalid !== false"
             @click="save"
             :label="$t('app.save')"

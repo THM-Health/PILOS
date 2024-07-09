@@ -1,15 +1,14 @@
 <template>
-  <a
+  <Button
+    as="a"
     target="_blank"
     :href="downloadUrl"
-    class="p-button p-button-icon-only p-button-info"
-    :class="{ 'p-disabled': props.disabled}"
+    severity="help"
+    icon="fa-solid fa-download"
+    :disabled="props.disabled"
     :aria-label="$t('rooms.recordings.download')"
     v-tooltip:top="$t('rooms.recordings.download')"
-  >
-    <span class="p-button-icon fa-solid fa-download" />
-    <span class="p-button-label" data-pc-section="label">&nbsp;</span>
-  </a>
+  />
 </template>
 <script setup>
 

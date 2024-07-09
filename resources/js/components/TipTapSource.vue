@@ -2,6 +2,7 @@
   <Button
     v-tooltip="$t('rooms.description.tooltips.source_code')"
     severity="secondary"
+    text
     @click="openModal"
     icon="fa-solid fa-code"
   />
@@ -28,7 +29,6 @@
             :label="$t('app.cancel')"
           />
           <Button
-            severity="success"
             @click="save"
             :label="$t('app.save')"
           />

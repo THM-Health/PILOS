@@ -2,7 +2,6 @@
   <Button
     v-tooltip="$t('meetings.view_meeting_stats')"
     :disabled="disabled"
-    severity="secondary"
     @click="showStatisticModal"
     icon="fa-solid fa-chart-line"
   />

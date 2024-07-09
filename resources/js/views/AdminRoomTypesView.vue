@@ -910,7 +910,6 @@
           <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError"
-              severity="success"
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"

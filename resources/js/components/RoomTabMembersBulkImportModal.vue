@@ -15,7 +15,6 @@
       <div class="flex justify-end gap-2" v-if="step === 0">
         <Button
           :disabled="rawList.length === 0 || isLoadingAction"
-          severity="success"
           @click="importUsers(true)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
@@ -32,7 +31,6 @@
         <Button
           v-if="validUsers.length > 0"
           :disabled="isLoadingAction"
-          severity="success"
           @click="importUsers(false)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.bulk_import.import_importable_button')"
@@ -41,7 +39,6 @@
 
       <div class="flex justify-end gap-2" v-if="step === 2">
         <Button
-          severity="success"
           @click="finish"
           :label="$t('app.close')"
         />

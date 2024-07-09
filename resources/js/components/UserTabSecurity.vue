@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <h4>{{ $t('admin.users.roles_and_permissions') }}</h4>
+      <h2 class="text-2xl">{{ $t('admin.users.roles_and_permissions') }}</h2>
       <UserTabSecurityRolesAndPermissionsSection
         :user="user"
         :view-only="viewOnly"
@@ -16,7 +16,7 @@
       class="mt-4"
     >
       <Divider/>
-      <h4>{{ $t('auth.change_password') }}</h4>
+      <h2 class="text-2xl">{{ $t('auth.change_password') }}</h2>
       <UserTabSecurityPasswordSection
         :user="user"
         @update-user="updateUser"
@@ -29,7 +29,7 @@
       class="mt-4"
     >
       <Divider/>
-      <h4>{{ $t('auth.sessions.active') }}</h4>
+      <h2 class="text-2xl">{{ $t('auth.sessions.active') }}</h2>
       <UserTabSecuritySessionsSection />
     </div>
   </div>

@@ -563,7 +563,6 @@
             :label="$t('app.save')"
             :loading="isBusy"
             icon="fa-solid fa-save"
-            severity="success"
             type="submit"
           />
         </div>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>{{ $t('admin.users.base_data') }}</h4>
+    <h2 class="text-2xl">{{ $t('admin.users.base_data') }}</h2>
     <form @submit.prevent="save">
 
       <div class="field grid grid-cols-12 gap-4">
@@ -115,7 +115,6 @@
           v-if="!viewOnly"
           :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
           type="submit"
-          severity="success"
           :loading="isBusy"
           icon="fa-solid fa-save"
           :label="$t('app.save')"

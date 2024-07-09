@@ -15,6 +15,7 @@
     v-if="room.is_member"
     :disabled="isLoadingAction || disabled"
     @click="showModal = true"
+    severity="contrast"
     icon="fa-solid fa-user"
     v-tooltip="$t('rooms.end_membership.button')"
     :aria-label="$t('rooms.end_membership.button')"

@@ -3,7 +3,7 @@
     <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-end mb-4">
       <Button
         v-if="!editorOpen"
-        severity="secondary"
+        severity="info"
         :disabled="isBusy"
         @click="edit"
         icon="fa-solid fa-edit"
@@ -47,7 +47,6 @@
     <div class="flex justify-end mt-2">
       <Button
         v-if="editorOpen"
-        severity="success"
         :disabled="isBusy"
         @click="save"
         icon="fa-solid fa-save"

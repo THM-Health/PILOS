@@ -9,12 +9,11 @@
             <Message v-if="props.message === 'session_expired'" severity="warning" :closable="false">{{ $t('auth.session_expired') }}</Message>
           </template>
           <template #footer>
-            <router-link
+            <Button
+              as="router-link"
               :to="{ name: 'home'}"
-              class="p-button"
-            >
-              {{ $t('app.home') }}
-            </router-link>
+              :label="$t('app.home')"
+            />
           </template>
         </Card>
       </div>

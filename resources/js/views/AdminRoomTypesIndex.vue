@@ -2,14 +2,13 @@
   <div>
     <div class="flex justify-between items-center">
       <h2>{{ $t('app.room_types') }}</h2>
-      <router-link
+      <Button
+        as="router-link"
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
         v-tooltip="$t('admin.room_types.new')"
-        class="p-button p-button-success p-button-icon-only"
+        icon="fa-solid fa-plus"
         :to="{ name: 'admin.room_types.view', params: { id: 'new' } }"
-      >
-        <i class="fa-solid fa-plus" />
-      </router-link>
+      />
     </div>
 
     <div class="flex flex-col md:flex-row">

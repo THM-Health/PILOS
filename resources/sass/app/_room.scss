@@ -51,12 +51,6 @@
 /* Basic editor styles */
 .ProseMirror {
 
-    margin-top: 10px;
-    padding: 10px;
-    outline: none;
-    border: 1px solid;
-    //border-radius: $borderRadius;
-
     > * + * {
         margin-top: 0.75em;
     }
@@ -114,20 +108,20 @@
     white-space: normal;
     color: #FFF;
 
-    &.room-role-guest {
-        //background-color: $info;
-    }
-
     &.room-role-participant {
-        //background-color: $success;
+        background-color: var(--p-emerald-500);
     }
 
     &.room-role-moderator {
-        //background-color: $danger;
+        background-color: var(--p-sky-500);
     }
 
     &.room-role-co-owner {
-        //background-color: $secondary;
+        background-color: var(--p-amber-500);
+    }
+
+    &.room-role-ro-role {
+        background-color: var(--p-slate-500);
     }
 }
 

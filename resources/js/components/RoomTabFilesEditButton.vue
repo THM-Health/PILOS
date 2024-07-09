@@ -3,7 +3,7 @@
   <Button
     v-tooltip="$t('rooms.files.edit')"
     :disabled="disabled"
-    severity="secondary"
+    severity="info"
     @click="showEditModal"
     icon="fa-solid fa-edit"
   />

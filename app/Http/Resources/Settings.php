@@ -7,6 +7,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +25,7 @@ class Settings extends JsonResource
     public function toArray($request)
     {
         $generalSettings = app(GeneralSettings::class);
+        $themeSettings = app(ThemeSettings::class);
         $bannerSettings = app(BannerSettings::class);
         $roomSettings = app(RoomSettings::class);
         $userSettings = app(UserSettings::class);
@@ -40,6 +42,8 @@ class Settings extends JsonResource
             'general_help_url' => $generalSettings->help_url,
             'general_legal_notice_url' => $generalSettings->legal_notice_url,
             'general_privacy_policy_url' => $generalSettings->privacy_policy_url,
+            'theme_primary_color' => $themeSettings->primary_color,
+            'theme_rounded' => $themeSettings->rounded,
             'banner_enabled' => $bannerSettings->enabled,
             'banner_message' => $bannerSettings->message,
             'banner_link' => $bannerSettings->link,

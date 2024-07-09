@@ -149,7 +149,6 @@
           <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError || serversLoadingError || serversLoading"
-              severity="success"
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"

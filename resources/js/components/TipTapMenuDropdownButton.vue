@@ -1,5 +1,5 @@
 <template>
-    <Button ref="dropdownButton" class="p-button-icon-only" @click="dropdown = !dropdown" v-bind="$attrs">
+    <Button ref="dropdownButton" text @click="dropdown = !dropdown" v-bind="$attrs">
       <span class="p-button-icon">
         <slot name="button-content">{{ props.text }}</slot>
         <i class="fa-solid fa-caret-down ml-auto lg:ml-2"></i>

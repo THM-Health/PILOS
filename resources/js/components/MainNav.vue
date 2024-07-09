@@ -63,7 +63,7 @@
             </a>
           </router-link>
           <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex items-center">
-            <i :class="item.icon" />
+            <i v-if="item.icon" :class="item.icon" />
             <UserAvatar data-test="user-avatar" v-if="item.userAvatar" :firstname="authStore.currentUser.firstname" :lastname="authStore.currentUser.lastname" :image="authStore.currentUser.image" class="bg-secondary" />
             <span v-if="!item.userAvatar && !item.icon">{{ item.label }}</span>
             <i v-if="hasSubmenu" :class="['fa-solid fa-chevron-down text-xs', { 'fa-chevron-down ml-2': root, 'fa-chevron-right ml-auto': !root }]"></i>
@@ -89,7 +89,7 @@ import { useLocaleStore } from '../stores/locale.js';
 import { useApi } from '../composables/useApi.js';
 import { useToast } from '../composables/useToast.js';
 
-const menuBreakpoint = 991;
+const menuBreakpoint = 1023;
 
 const breakpoints = useBreakpoints({
   desktop: menuBreakpoint

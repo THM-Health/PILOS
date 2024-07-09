@@ -4,15 +4,14 @@
       <h2>
         {{ $t('app.server_pools') }}
       </h2>
-      <router-link
+      <Button
+        as="router-link"
+        icon="fa-solid fa-plus"
         v-if="userPermissions.can('create', 'ServerPolicy')"
         v-tooltip="$t('admin.server_pools.new')"
         :aria-label="$t('admin.server_pools.new')"
         :to="{ name: 'admin.server_pools.view', params: { id: 'new' } }"
-        class="p-button p-button-success p-button-icon-only"
-      >
-        <i class="fa-solid fa-plus"/>
-      </router-link>
+      />
     </div>
 
     <div class="flex flex-col md:flex-row">

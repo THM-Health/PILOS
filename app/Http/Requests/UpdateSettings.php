@@ -42,6 +42,9 @@ class UpdateSettings extends FormRequest
             'general_legal_notice_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_privacy_policy_url' => ['nullable', 'string', 'url', 'max:255'],
 
+            'theme_primary_color' => ['required', 'string', 'hex_color'],
+            'theme_rounded' => ['required', 'boolean'],
+
             'banner_enabled' => ['required', 'boolean'],
             'banner_title' => ['nullable', 'string', 'max:255'],
             'banner_message' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'max:500'],

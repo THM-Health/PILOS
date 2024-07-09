@@ -21,7 +21,6 @@
         <Button
           v-if="!viewOnly && userPermissions.can('editUserRole', model)"
           :disabled="isBusy || rolesLoadingError || rolesLoading"
-          severity="success"
           type="submit"
           :loading="isBusy"
           :label="$t('app.save')"
