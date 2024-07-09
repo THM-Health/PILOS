@@ -69,6 +69,7 @@ describe('Login', function () {
     // Intercept config request to only show ldap login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
         auth: {
           ldap: false
         }
@@ -192,6 +193,7 @@ describe('Login', function () {
   it('hide local login if disabled', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
         auth: {
           local: false
         }
@@ -255,6 +257,7 @@ describe('Login', function () {
     // Intercept config request to only show local login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
         auth: {
           local: true
         }
@@ -290,6 +293,7 @@ describe('Login', function () {
     // Intercept config request to only show local login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
         auth: {
           local: true
         }
@@ -376,6 +380,7 @@ describe('Login', function () {
     // Intercept setticonfigngs request to only show local login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
         auth: {
           shibboleth: true
         }
@@ -402,6 +407,7 @@ describe('Login', function () {
     // Intercept config request to only show local login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
         auth: {
           shibboleth: false
         }
@@ -416,6 +422,7 @@ describe('Login', function () {
     // Intercept config request to only show ldap login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
         auth: {
           shibboleth: true
         }
