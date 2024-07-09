@@ -34,7 +34,7 @@
         />
         <router-link
           id="password-help-block"
-          v-if="settingsStore.getSetting('users.password_change_allowed')"
+          v-if="settingsStore.getSetting('user.password_change_allowed')"
           class="link-color link"
           to="/forgot_password"
         >

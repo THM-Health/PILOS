@@ -21,7 +21,7 @@ export const useSettingsStore = defineStore('settings', {
       const response = await api.call('config');
       this.settings = response.data.data;
 
-      setToastLifetime(this.settings.toast_lifetime);
+      setToastLifetime(this.settings.general.toast_lifetime);
     }
   }
 });
