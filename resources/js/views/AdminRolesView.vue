@@ -62,7 +62,7 @@
                 :invalid="formErrors.fieldInvalid('name')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
-              <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+              <FormError :errors="formErrors.fieldError('name')"/>
             </div>
           </div>
 
@@ -101,7 +101,7 @@
                 :invalid="formErrors.fieldInvalid('room_limit')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
-              <p class="p-error" v-html="formErrors.fieldError('room_limit')"></p>
+              <FormError :errors="formErrors.fieldError('room_limit')"/>
             </div>
 
           </div>
@@ -170,7 +170,7 @@
             >
               {{ $t('admin.roles.no_options') }}
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('permissions', true)"></p>
+            <FormError :errors="formErrors.fieldError('permissions', true)"/>
         <div v-if="!viewOnly">
           <Divider/>
           <div class="flex justify-end">

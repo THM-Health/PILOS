@@ -54,7 +54,7 @@
         <p class="p-error" v-if="fileInvalidExtension">
           {{ $t('app.validation.invalid_type') }}
         </p>
-        <p class="p-error" v-html="fileError"/>
+        <FormError :errors="fileError"/>
       </div>
     </div>
   </div>

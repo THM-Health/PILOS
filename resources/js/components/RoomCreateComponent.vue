@@ -32,7 +32,7 @@
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('name')"
         />
-        <p class="p-error" v-html="formErrors.fieldError('name')" />
+        <FormError :errors="formErrors.fieldError('name')" />
       </div>
 
       <!-- Room type -->
@@ -47,7 +47,7 @@
           @loading-error="(value) => roomTypeSelectLoadingError = value"
           @busy="(value) => roomTypeSelectBusy = value"
         />
-        <p class="p-error" v-html="formErrors.fieldError('room_type')" />
+        <FormError :errors="formErrors.fieldError('room_type')" />
       </div>
 
       <template #footer>

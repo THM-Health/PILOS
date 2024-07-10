@@ -59,7 +59,7 @@
 
       <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
       <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
-      <p class="p-error" v-html="formErrors.fieldError('file')" />
+      <FormError :errors="formErrors.fieldError('file')" />
 
       <Message v-if="uploaded" severity="success" icon="fa-solid fa-check-circle">
         {{ $t('rooms.files.uploaded') }}

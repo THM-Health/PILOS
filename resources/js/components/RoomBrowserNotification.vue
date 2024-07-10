@@ -84,7 +84,7 @@ const noSupportHandler = (showToast = false) => {
 const sendNotification = () => {
   const options = {
     body: t('rooms.notification.body', { time: d(new Date(), 'time') }),
-    icon: settingsStore.getSetting('general.favicon')
+    icon: settingsStore.getSetting('theme.favicon')
   };
   try {
     notification.value = new Notification(props.roomName, options);

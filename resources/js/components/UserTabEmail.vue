@@ -14,7 +14,7 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('current_password')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('current_password')" />
+          <FormError :errors="formErrors.fieldError('current_password')" />
         </div>
       </div>
 
@@ -30,7 +30,7 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('email')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('email')" />
+          <FormError :errors="formErrors.fieldError('email')" />
         </div>
       </div>
 

@@ -116,9 +116,9 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2 border-t border-b border-surface">
+          <div class="px-2">
             <div v-for="(item, index) in slotProps.items" :key="index">
-              <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-top-1 surface-border': index !== 0 }">
+              <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-t border-surface': index !== 0 }">
                 <div class="flex flex-row gap-6">
                   <div class="flex items-center">
                     <Checkbox

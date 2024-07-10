@@ -65,7 +65,7 @@
             {{ option.firstname }} {{ option.lastname }}
           </template>
         </multiselect>
-        <p class="p-error" v-html="formErrors.fieldError('user')" />
+        <FormError :errors="formErrors.fieldError('user')" />
       </div>
 
       <!--select new role with which the current owner should be added as a member of the room -->
@@ -97,7 +97,7 @@
           <small>{{$t('rooms.modals.transfer_ownership.warning')}}</small>
         </div>
 
-        <p class="p-error" v-html="formErrors.fieldError('role')" />
+        <FormError :errors="formErrors.fieldError('role')" />
       </div>
 
       <template #footer>

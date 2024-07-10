@@ -15,7 +15,7 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('firstname')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('firstname')" />
+          <FormError :errors="formErrors.fieldError('firstname')" />
         </div>
       </div>
 
@@ -31,7 +31,7 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('lastname')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('lastname')" />
+          <FormError :errors="formErrors.fieldError('lastname')" />
         </div>
       </div>
 
@@ -75,7 +75,7 @@
             @newImage="onNewImage"
             @deleteImage="onDeleteImage"
           />
-          <p class="p-error" v-html="formErrors.fieldError('image')" />
+          <FormError :errors="formErrors.fieldError('image')" />
         </div>
       </div>
 
@@ -89,7 +89,7 @@
             :invalid="formErrors.fieldInvalid('user_locale')"
             :disabled="isBusy || viewOnly"
           />
-          <p class="p-error" v-html="formErrors.fieldError('user_locale')" />
+          <FormError :errors="formErrors.fieldError('user_locale')" />
         </div>
       </div>
 
@@ -106,7 +106,7 @@
             @loading-error="(value) => timezonesLoadingError = value"
             @busy="(value) => timezonesLoading = value"
           />
-          <p class="p-error" v-html="formErrors.fieldError('timezone')" />
+          <FormError :errors="formErrors.fieldError('timezone')" />
         </div>
       </div>
 

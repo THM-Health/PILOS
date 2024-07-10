@@ -12,7 +12,7 @@
             :disabled="isBusy || viewOnly"
             :invalid="formErrors.fieldInvalid('bbb_skip_check_audio')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('bbb_skip_check_audio')" />
+          <FormError :errors="formErrors.fieldError('bbb_skip_check_audio')" />
         </div>
       </div>
 

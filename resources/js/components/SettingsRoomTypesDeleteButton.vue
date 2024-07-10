@@ -43,7 +43,7 @@
           </span>
         </template>
       </Select>
-      <p class="p-error" v-html="formErrors.fieldError('replacement_room_type')" />
+      <FormError :errors="formErrors.fieldError('replacement_room_type')" />
       <small id="replacement-help">{{$t('admin.room_types.delete.replacement_info')}}</small>
     </div>
     <template #footer>

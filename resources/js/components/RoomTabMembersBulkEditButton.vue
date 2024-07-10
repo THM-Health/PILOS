@@ -46,7 +46,7 @@
         <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
 
-      <p class="p-error" v-html="formErrors.fieldError('role')" />
+      <FormError :errors="formErrors.fieldError('role')" />
     </div>
   </Dialog>
 </template>

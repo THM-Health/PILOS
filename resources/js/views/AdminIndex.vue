@@ -13,7 +13,7 @@
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
+            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -38,7 +38,7 @@
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
+            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
           >
           <template #title>
             <h2 class="m-0">
@@ -63,7 +63,7 @@
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
+            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -88,7 +88,7 @@
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
+            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -113,7 +113,7 @@
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
+            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
           >
             <template #title>
               <h2 class="m-0">
@@ -138,7 +138,7 @@
         >
           <Card
             :pt="{title:{class:'text-center text-primary'},content:{class:'p-0'}}"
-            class="h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:shadow text-center"
+            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
           >
             <template #title>
               <h2 class="m-0">

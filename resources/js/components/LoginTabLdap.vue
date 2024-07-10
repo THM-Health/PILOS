@@ -15,9 +15,7 @@
           required
         />
         <small id="username-help-block">{{ $t('auth.ldap.username_help') }}</small>
-        <p class="text-red-500" v-for="(error, index) in props.errors?.username" :key="index" >
-          {{ error }}
-        </p>
+        <FormError :errors="props.errors?.username" />
       </div>
 
       <div class="flex flex-col gap-2 mt-6">
@@ -33,9 +31,7 @@
           :placeholder="props.passwordLabel"
           :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-        <Message severity="error" v-for="(error, index) in props.errors?.password" :key="index">
-          {{ error }}
-        </Message>
+        <FormError :errors="props.errors?.password" />
       </div>
       <Button
         type="submit"
@@ -51,6 +47,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import FormError from "./FormError.vue";
 
 const emit = defineEmits(['submit']);
 const props = defineProps({

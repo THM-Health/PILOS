@@ -57,7 +57,7 @@ class FormError {
       errors = Object.keys(this.errors).filter(key => key.startsWith(field)).map(key => this.errors[key]).flat();
     }
 
-    return errors.length > 1 ? ('<ul><li>' + errors.join('</li><li>') + '</li></ul>') : errors[0];
+    return errors;
   }
 }
 

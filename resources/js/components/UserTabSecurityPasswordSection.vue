@@ -14,7 +14,7 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('current_password')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('current_password')" />
+          <FormError :errors="formErrors.fieldError('current_password')" />
         </div>
       </div>
 
@@ -30,7 +30,7 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('new_password')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('new_password')" />
+          <FormError :errors="formErrors.fieldError('new_password')" />
         </div>
       </div>
 
@@ -46,7 +46,7 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('new_password_confirmation')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('new_password_confirmation')" />
+          <FormError :errors="formErrors.fieldError('new_password_confirmation')" />
         </div>
       </div>
       <div class="flex justify-end">

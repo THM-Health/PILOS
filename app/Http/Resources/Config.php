@@ -33,8 +33,6 @@ class Config extends JsonResource
         return [
             'general' => [
                 'name' => $generalSettings->name,
-                'logo' => $generalSettings->logo,
-                'favicon' => $generalSettings->favicon,
                 'pagination_page_size' => $generalSettings->pagination_page_size,
                 'toast_lifetime' => $generalSettings->toast_lifetime,
                 'default_timezone' => $generalSettings->default_timezone,
@@ -50,6 +48,10 @@ class Config extends JsonResource
                 'base_url' => config('app.url'),
             ],
             'theme' => [
+                'logo' => $theme->logo,
+                'logo_dark' => $theme->logo_dark,
+                'favicon' => $theme->favicon,
+                'favicon_dark' => $theme->favicon_dark,
                 'primary_color' => $theme->primary_color,
                 'rounded' => $theme->rounded,
             ],

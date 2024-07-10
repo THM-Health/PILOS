@@ -11,29 +11,6 @@
     }
 }
 
-.room-card{
-    pointer-events: auto;
-    cursor: pointer;
-
-    &--running{
-        //border-color: $green !important;
-        border-width: 2.5px !important;
-    }
-
-    &__buttons {
-        z-index: 2;
-        position: relative;
-
-        .p-button{
-            margin-left: 0.25rem;
-            padding: 0;
-            height: 25px;
-            width: 25px;
-            font-size: 12px;
-        }
-    }
-}
-
 .room-dropdown {
     ul {
         i {

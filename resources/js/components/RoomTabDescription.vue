@@ -39,9 +39,7 @@
           :class="{'is-invalid': formErrors.fieldInvalid('description') === false}"
           :disabled="isBusy"
         />
-        <p class="p-error" v-if="formErrors.fieldInvalid('description')"
-          v-html="formErrors.fieldError('description')"
-        />
+        <FormError :errors="formErrors.fieldError('description')" />
       </div>
     </OverlayComponent>
     <div class="flex justify-end mt-2">

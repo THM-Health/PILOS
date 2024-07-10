@@ -14,9 +14,7 @@
           :invalid="props.errors !== null && props.errors.email && props.errors.email.length > 0"
           required
         />
-        <Message severity="error" v-for="(error, index) in props.errors?.email" :key="index">
-          {{ error }}
-        </Message>
+        <FormError :errors="props.errors?.email" />
       </div>
 
       <div class="flex flex-col gap-2 mt-6">
@@ -43,9 +41,7 @@
         >
           {{ $t('auth.forgot_password') }}
         </Button>
-        <Message severity="error" v-for="(error, index) in props.errors?.password" :key="index">
-          {{ error }}
-        </Message>
+        <FormError :errors="props.errors?.password" />
       </div>
       <Button
         type="submit"
@@ -62,6 +58,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useSettingsStore } from '../stores/settings';
+import FormError from "./FormError.vue";
 
 const settingsStore = useSettingsStore();
 

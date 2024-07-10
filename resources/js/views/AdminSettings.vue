@@ -29,7 +29,7 @@
               aria-describedby="application-name-help"
             />
             <small id="application-name-help">{{ $t('admin.settings.name.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('general_name')"></p>
+            <FormError :errors="formErrors.fieldError('general_name')"/>
           </div>
         </div>
 
@@ -45,7 +45,7 @@
               aria-describedby="help-url-help"
             />
             <small id="help-url-help">{{ $t('admin.settings.help_url.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('general_help_url')"></p>
+            <FormError :errors="formErrors.fieldError('general_help_url')"/>
           </div>
         </div>
 
@@ -61,7 +61,7 @@
               aria-describedby="legal-notice-url-help"
             />
             <small id="legal-notice-url-help">{{ $t('admin.settings.legal_notice_url.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('general_legal_notice_url')"></p>
+            <FormError :errors="formErrors.fieldError('general_legal_notice_url')"/>
           </div>
         </div>
 
@@ -77,51 +77,9 @@
               aria-describedby="privacy-policy-url-help"
             />
             <small id="privacy-policy-url-help">{{ $t('admin.settings.privacy_policy_url.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('general_privacy_policy_url')"></p>
+            <FormError :errors="formErrors.fieldError('general_privacy_policy_url')"/>
           </div>
         </div>
-
-        <fieldset class="grid grid-cols-12 gap-4">
-          <legend id="favicon-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.favicon.title')}}</legend>
-          <div class="col-span-12 md:col-span-8">
-            <SettingsImageSelector
-              v-model:image-url="settings.general_favicon"
-              v-model:image="uploadFaviconFile"
-              :disabled="disabled"
-              :readonly="viewOnly"
-              :max-file-size="500000"
-              preview-width="32"
-              :preview-alt="$t('admin.settings.favicon.alt')"
-              :allowed-extensions="['ico']"
-              inputId="favicon"
-              :url-invalid="formErrors.fieldInvalid('general_favicon')"
-              :file-invalid="formErrors.fieldInvalid('general_favicon_file')"
-              :url-error="formErrors.fieldError('general_favicon')"
-              :file-error="formErrors.fieldError('general_favicon_file')"
-            />
-          </div>
-        </fieldset>
-
-        <fieldset class="grid grid-cols-12 gap-4">
-          <legend id="logo-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.logo.title')}}</legend>
-          <div class="col-span-12 md:col-span-8">
-            <SettingsImageSelector
-              v-model:image-url="settings.general_logo"
-              v-model:image="uploadLogoFile"
-              :disabled="disabled"
-              :readonly="viewOnly"
-              :max-file-size="500000"
-              preview-width="150"
-              :preview-alt="$t('admin.settings.logo.alt')"
-              :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
-              inputId="logo"
-              :url-invalid="formErrors.fieldInvalid('general_logo')"
-              :file-invalid="formErrors.fieldInvalid('general_logo_file')"
-              :url-error="formErrors.fieldError('general_logo')"
-              :file-error="formErrors.fieldError('general_logo_file')"
-            />
-          </div>
-        </fieldset>
 
         <div class="grid grid-cols-12 gap-4">
           <label for="pagination-page-size" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.pagination_page_size.title')}}</label>
@@ -138,7 +96,7 @@
               aria-describedby="pagination-page-size-help"
             />
             <small id="pagination-page-size-help">{{ $t('admin.settings.pagination_page_size.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('pagination_page_size')"></p>
+            <FormError :errors="formErrors.fieldError('pagination_page_size')"/>
           </div>
         </div>
 
@@ -157,7 +115,7 @@
               aria-describedby="room-pagination-page-size-help"
             />
             <small id="room-pagination-page-size-help">{{ $t('admin.settings.room_pagination_page_size.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('room_pagination_page_size')"></p>
+            <FormError :errors="formErrors.fieldError('room_pagination_page_size')"/>
           </div>
         </div>
 
@@ -212,7 +170,7 @@
               aria-describedby="toast-lifetime-custom-help"
             />
             <small id="toast-lifetime-custom-help">{{ $t('admin.settings.toast_lifetime.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('general_toast_lifetime')"></p>
+            <FormError :errors="formErrors.fieldError('general_toast_lifetime')"/>
           </div>
         </fieldset>
 
@@ -229,11 +187,91 @@
               @loading-error="(value) => timezonesLoadingError = value"
               @busy="(value) => timezonesLoading = value"
             />
-            <p class="p-error" v-html="formErrors.fieldError('general_default_timezone')"></p>
+            <FormError :errors="formErrors.fieldError('general_default_timezone')"/>
           </div>
         </div>
         <Divider/>
         <h4 class="text-xl">{{ $t('admin.settings.theme') }}</h4>
+          <fieldset class="grid grid-cols-12 gap-4">
+            <legend id="favicon-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.favicon.title')}}</legend>
+            <div class="col-span-12 md:col-span-8">
+              <SettingsImageSelector
+                v-model:image-url="settings.theme_favicon"
+                v-model:image="uploadFaviconFile"
+                :disabled="disabled"
+                :readonly="viewOnly"
+                :max-file-size="500000"
+                preview-width="32"
+                :preview-alt="$t('admin.settings.favicon.alt')"
+                :allowed-extensions="['ico']"
+                inputId="favicon"
+                :url-invalid="formErrors.fieldInvalid('theme_favicon')"
+                :file-invalid="formErrors.fieldInvalid('theme_favicon_file')"
+                :url-error="formErrors.fieldError('theme_favicon')"
+                :file-error="formErrors.fieldError('theme_favicon_file')"
+              />
+            </div>
+          </fieldset>
+          <fieldset class="grid grid-cols-12 gap-4">
+            <legend id="favicon-dark-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.favicon_dark.title')}}</legend>
+            <div class="col-span-12 md:col-span-8">
+              <SettingsImageSelector
+                v-model:image-url="settings.theme_favicon_dark"
+                v-model:image="uploadFaviconDarkFile"
+                :disabled="disabled"
+                :readonly="viewOnly"
+                :max-file-size="500000"
+                preview-width="32"
+                :preview-alt="$t('admin.settings.favicon.alt')"
+                :allowed-extensions="['ico']"
+                inputId="favicon-dark"
+                :url-invalid="formErrors.fieldInvalid('theme_favicon_dark')"
+                :file-invalid="formErrors.fieldInvalid('theme_favicon_dark_file')"
+                :url-error="formErrors.fieldError('theme_favicon_dark')"
+                :file-error="formErrors.fieldError('theme_favicon_dark_file')"
+              />
+            </div>
+          </fieldset>
+          <fieldset class="grid grid-cols-12 gap-4">
+            <legend id="logo-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.logo.title')}}</legend>
+            <div class="col-span-12 md:col-span-8">
+              <SettingsImageSelector
+                v-model:image-url="settings.theme_logo"
+                v-model:image="uploadLogoFile"
+                :disabled="disabled"
+                :readonly="viewOnly"
+                :max-file-size="500000"
+                preview-width="150"
+                :preview-alt="$t('admin.settings.logo.alt')"
+                :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                inputId="logo"
+                :url-invalid="formErrors.fieldInvalid('theme_logo')"
+                :file-invalid="formErrors.fieldInvalid('theme_logo_file')"
+                :url-error="formErrors.fieldError('theme_logo')"
+                :file-error="formErrors.fieldError('theme_logo_file')"
+              />
+            </div>
+          </fieldset>
+          <fieldset class="grid grid-cols-12 gap-4">
+            <legend id="logo-dark-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.logo_dark.title')}}</legend>
+            <div class="col-span-12 md:col-span-8">
+              <SettingsImageSelector
+                v-model:image-url="settings.theme_logo_dark"
+                v-model:image="uploadLogoDarkFile"
+                :disabled="disabled"
+                :readonly="viewOnly"
+                :max-file-size="500000"
+                preview-width="150"
+                :preview-alt="$t('admin.settings.logo.alt')"
+                :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
+                inputId="logo-dark"
+                :url-invalid="formErrors.fieldInvalid('theme_logo_dark')"
+                :file-invalid="formErrors.fieldInvalid('theme_logo_dark_file')"
+                :url-error="formErrors.fieldError('theme_logo_dark')"
+                :file-error="formErrors.fieldError('theme_logo_dark_file')"
+              />
+            </div>
+          </fieldset>
         <div class="grid grid-cols-12 gap-4">
             <label for="theme-primary-color" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.primary_color')}}</label>
             <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
@@ -251,25 +289,25 @@
                 :invalid="formErrors.fieldInvalid('theme_primary_color')"
                 :disabled="disabled"
               />
-              <p class="p-error" v-html="formErrors.fieldError('theme_primary_color')"></p>
+              <FormError :errors="formErrors.fieldError('theme_primary_color')"/>
             </div>
           </div>
-          <fieldset class="grid grid-cols-12 gap-4">
-            <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.rounded')}}</legend>
-            <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-              <div class="flex items-center gap-2">
-                <ToggleSwitch
-                  inputId="theme-rounded"
-                  v-model="settings.theme_rounded"
-                  binary
-                  :disabled="disabled"
-                  :invalid="formErrors.fieldInvalid('theme_rounded')"
-                />
-                <label for="theme-rounded">{{ $t('admin.settings.theme.rounded') }}</label>
-              </div>
-              <p class="p-error" v-html="formErrors.fieldError('theme_rounded')"></p>
+        <fieldset class="grid grid-cols-12 gap-4">
+          <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.rounded')}}</legend>
+          <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
+                inputId="theme-rounded"
+                v-model="settings.theme_rounded"
+                binary
+                :disabled="disabled"
+                :invalid="formErrors.fieldInvalid('theme_rounded')"
+              />
+              <label for="theme-rounded">{{ $t('admin.settings.theme.rounded') }}</label>
             </div>
-          </fieldset>
+            <FormError :errors="formErrors.fieldError('theme_rounded')"/>
+          </div>
+        </fieldset>
 
         <Divider/>
         <h4 class="text-xl">{{ $t('admin.settings.banner.title') }}</h4>
@@ -287,7 +325,7 @@
               />
               <label for="banner-enabled">{{ $t('app.enable') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('banner_enabled')"></p>
+            <FormError :errors="formErrors.fieldError('banner_enabled')"/>
           </div>
         </fieldset>
 
@@ -319,7 +357,7 @@
               :invalid="formErrors.fieldInvalid('banner_title')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_title')"></p>
+            <FormError :errors="formErrors.fieldError('banner_title')"/>
           </div>
         </div>
 
@@ -335,7 +373,7 @@
               aria-describedby="banner-icon-help"
             />
             <small id="banner-icon-help">{{ $t('admin.settings.banner.icon_description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('banner_icon')"></p>
+            <FormError :errors="formErrors.fieldError('banner_icon')"/>
           </div>
         </div>
 
@@ -349,7 +387,7 @@
               :invalid="formErrors.fieldInvalid('banner_message')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_message')"></p>
+            <FormError :errors="formErrors.fieldError('banner_message')"/>
           </div>
         </div>
 
@@ -363,7 +401,7 @@
               :invalid="formErrors.fieldInvalid('banner_link')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_link')"></p>
+            <FormError :errors="formErrors.fieldError('banner_link')"/>
           </div>
         </div>
 
@@ -377,7 +415,7 @@
               :invalid="formErrors.fieldInvalid('banner_link_text')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_link_text')"></p>
+            <FormError :errors="formErrors.fieldError('banner_link_text')"/>
           </div>
         </div>
 
@@ -394,7 +432,7 @@
               :invalid="formErrors.fieldInvalid('banner_link_style')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_link_style')"></p>
+            <FormError :errors="formErrors.fieldError('banner_link_style')"/>
           </div>
         </div>
 
@@ -411,7 +449,7 @@
               :invalid="formErrors.fieldInvalid('banner_link_target')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_link_target')"></p>
+            <FormError :errors="formErrors.fieldError('banner_link_target')"/>
           </div>
         </div>
 
@@ -432,7 +470,7 @@
               :invalid="formErrors.fieldInvalid('banner_color')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_color')"></p>
+            <FormError :errors="formErrors.fieldError('banner_color')"/>
           </div>
         </div>
 
@@ -453,7 +491,7 @@
               :invalid="formErrors.fieldInvalid('banner_background')"
               :disabled="disabled"
             />
-            <p class="p-error" v-html="formErrors.fieldError('banner_background')"></p>
+            <FormError :errors="formErrors.fieldError('banner_background')"/>
           </div>
         </div>
 
@@ -511,7 +549,7 @@
               aria-describedby="room-limit-custom-help"
             />
             <small id="room-limit-custom-help">{{ $t('admin.settings.room_limit.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('room_limit')"></p>
+            <FormError :errors="formErrors.fieldError('room_limit')"/>
           </div>
         </fieldset>
 
@@ -533,7 +571,7 @@
                   }"
             />
             <small id="room-token-expiration-help">{{ $t('admin.settings.room_token_expiration.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('room_token_expiration')"></p>
+            <FormError :errors="formErrors.fieldError('room_token_expiration')"/>
           </div>
         </div>
 
@@ -555,7 +593,7 @@
                   }"
             />
             <small id="room-auto-delete-deadline-period-help">{{ $t('admin.settings.room_auto_delete.deadline_period.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('room_auto_delete_deadline_period')"></p>
+            <FormError :errors="formErrors.fieldError('room_auto_delete_deadline_period')"/>
           </div>
         </div>
 
@@ -577,7 +615,7 @@
                   }"
             />
             <small id="room-auto-delete-inactive-period-help">{{ $t('admin.settings.room_auto_delete.inactive_period.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('room_auto_delete_inactive_period')"></p>
+            <FormError :errors="formErrors.fieldError('room_auto_delete_inactive_period')"/>
           </div>
         </div>
 
@@ -599,7 +637,7 @@
                   }"
             />
             <small id="room-auto-delete-never-used-period-help">{{ $t('admin.settings.room_auto_delete.never_used_period.description') }}</small>
-            <p class="p-error" v-html="formErrors.fieldError('room_auto_delete_never_used_period')"></p>
+            <FormError :errors="formErrors.fieldError('room_auto_delete_never_used_period')"/>
           </div>
         </div>
 
@@ -619,7 +657,7 @@
               />
               <label for="password-change-allowed">{{ $t('app.enable') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('user_password_change_allowed')"></p>
+            <FormError :errors="formErrors.fieldError('user_password_change_allowed')"/>
           </div>
         </fieldset>
 
@@ -639,7 +677,7 @@
               />
               <label for="statistics-servers-enabled">{{ $t('app.enable') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('recording_server_usage_enabled')"></p>
+            <FormError :errors="formErrors.fieldError('recording_server_usage_enabled')"/>
           </div>
         </fieldset>
 
@@ -655,7 +693,7 @@
               :disabled="disabled"
               aria-labelledby="statistics-servers-retention-period-label"
             />
-            <p class="p-error" v-html="formErrors.fieldError('recording_server_usage_retention_period')"></p>
+            <FormError :errors="formErrors.fieldError('recording_server_usage_retention_period')"/>
           </div>
         </div>
 
@@ -672,7 +710,7 @@
               />
               <label for="statistics-meetings-enabled">{{ $t('app.enable') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('recording_meeting_usage_enabled')"></p>
+            <FormError :errors="formErrors.fieldError('recording_meeting_usage_enabled')"/>
           </div>
         </fieldset>
 
@@ -688,7 +726,7 @@
               :disabled="disabled"
               aria-labelledby="statistics-meetings-retention-period-label"
             />
-            <p class="p-error" v-html="formErrors.fieldError('recording_meeting_usage_retention_period')"></p>
+            <FormError :errors="formErrors.fieldError('recording_meeting_usage_retention_period')"/>
           </div>
         </div>
 
@@ -704,7 +742,7 @@
               :disabled="disabled"
               aria-labelledby="attendance-retention-period-label"
             />
-            <p class="p-error" v-html="formErrors.fieldError('recording_attendance_retention_period')"></p>
+            <FormError :errors="formErrors.fieldError('recording_attendance_retention_period')"/>
           </div>
         </div>
 
@@ -720,7 +758,7 @@
               :disabled="disabled"
               aria-labelledby="recording-retention-period-label"
             />
-            <p class="p-error" v-html="formErrors.fieldError('recording_recording_retention_period')"></p>
+            <FormError :errors="formErrors.fieldError('recording_recording_retention_period')"/>
           </div>
         </div>
 
@@ -818,6 +856,8 @@ const toastLifetimeMode = ref('custom');
 
 const uploadFaviconFile = ref(null);
 const uploadLogoFile = ref(null);
+const uploadFaviconDarkFile = ref(null);
+const uploadLogoDarkFile = ref(null);
 const uploadBBBLogoFile = ref(null);
 const bbbLogoDeleted = ref(false);
 const defaultPresentation = ref(null);
@@ -887,15 +927,26 @@ function updateSettings () {
   const formData = new FormData();
 
   if (uploadFaviconFile.value) {
-    formData.append('general_favicon_file', uploadFaviconFile.value);
+    formData.append('theme_favicon_file', uploadFaviconFile.value);
   } else {
-    formData.append('general_favicon', settings.value.general_favicon);
+    formData.append('theme_favicon', settings.value.theme_favicon);
+  }
+  if (uploadFaviconDarkFile.value) {
+    formData.append('theme_favicon_dark_file', uploadFaviconDarkFile.value);
+  } else {
+    formData.append('theme_favicon_dark', settings.value.theme_favicon_dark);
   }
 
   if (uploadLogoFile.value) {
-    formData.append('general_logo_file', uploadLogoFile.value);
+    formData.append('theme_logo_file', uploadLogoFile.value);
   } else {
-    formData.append('general_logo', settings.value.general_logo);
+    formData.append('theme_logo', settings.value.theme_logo);
+  }
+
+  if (uploadLogoDarkFile.value) {
+    formData.append('theme_logo_dark_file', uploadLogoDarkFile.value);
+  } else {
+    formData.append('theme_logo_dark', settings.value.theme_logo_dark);
   }
 
   if (uploadBBBLogoFile.value) {
@@ -916,7 +967,7 @@ function updateSettings () {
     formData.append('bbb_default_presentation', '');
   }
 
-  const exclude = ['general_favicon', 'general_logo', 'bbb_logo', 'bbb_style', 'bbb_default_presentation'];
+  const exclude = ['theme_logo', 'theme_logo_dark', 'theme_favicon', 'theme_favicon_dark', 'bbb_logo', 'bbb_style', 'bbb_default_presentation'];
   Object.keys(settings.value).forEach(key => {
     if (exclude.includes(key)) {
       return;
@@ -947,7 +998,9 @@ function updateSettings () {
     .then(response => {
       settingsStore.getSettings();
       uploadLogoFile.value = null;
+      uploadLogoDarkFile.value = null;
       uploadFaviconFile.value = null;
+      uploadFaviconDarkFile.value = null;
       defaultPresentation.value = null;
       defaultPresentationDeleted.value = false;
       uploadBBBLogoFile.value = null;

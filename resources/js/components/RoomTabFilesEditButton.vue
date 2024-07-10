@@ -38,7 +38,7 @@
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('download')"
         />
-        <p class="p-error" v-html="formErrors.fieldError('download')" />
+        <FormError :errors="formErrors.fieldError('download')" />
       </div>
     </div>
 
@@ -52,7 +52,7 @@
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('use_in_meeting')"
         />
-        <p class="p-error" v-html="formErrors.fieldError('use_in_meeting')" />
+        <FormError :errors="formErrors.fieldError('use_in_meeting')" />
       </div>
     </div>
 
@@ -66,7 +66,7 @@
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('default')"
         />
-        <p class="p-error" v-html="formErrors.fieldError('default')" />
+        <FormError :errors="formErrors.fieldError('default')" />
       </div>
     </div>
 

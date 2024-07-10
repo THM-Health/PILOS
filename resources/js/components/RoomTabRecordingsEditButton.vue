@@ -45,7 +45,7 @@
         :invalid="formErrors.fieldInvalid('description')"
         :maxlength="settingsStore.getSetting('recording.recording_description_limit')"
       />
-      <p class="p-error" v-html="formErrors.fieldError('description')" />
+      <FormError :errors="formErrors.fieldError('description')" />
       <small>
         {{ $t('app.char_counter', {chars: charactersLeftDescription}) }}
       </small>
@@ -63,7 +63,7 @@
         />
         <label :for="format.id" class="ml-2">{{ $t('rooms.recordings.format_types.'+format.format)}}</label>
       </div>
-      <p class="p-error" v-html="formErrors.fieldError('formats', true)" />
+      <FormError :errors="formErrors.fieldError('formats', true)" />
     </div>
 
     <!-- access -->
@@ -73,7 +73,7 @@
         <RadioButton v-model="newAccess" :inputId="'access-'+accessType" name="access" :value="accessType" />
         <label :for="'access-'+accessType" class="ml-2"><RoomRecordingAccessBadge :access="accessType"/></label>
       </div>
-      <p class="p-error" v-html="formErrors.fieldError('access')" />
+      <FormError :errors="formErrors.fieldError('access')" />
     </div>
 
   </Dialog>

@@ -17,7 +17,7 @@
                   class="w-full"
                   :invalid="formErrors.fieldInvalid('email')"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('email')" />
+                <FormError :errors="formErrors.fieldError('email')" />
               </div>
 
               <Button

@@ -14,7 +14,7 @@
             @loading-error="(value) => rolesLoadingError = value"
             @busy="(value) => rolesLoading = value"
           />
-          <p class="p-error" v-html="formErrors.fieldError('roles')" />
+          <FormError :errors="formErrors.fieldError('roles')" />
         </div>
       </div>
       <div class="flex justify-end">

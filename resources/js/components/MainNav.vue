@@ -1,5 +1,5 @@
 <template>
-  <div class="border-surface-300 dark:border-surface-500 bg-white dark:bg-zinc-900 py-2 border-b">
+  <div class="border-surface bg-white dark:bg-surface-900 py-2 border-b">
     <div class="container flex flex-row justify-between">
       <Menubar
         :breakpoint="menuBreakpoint+'px'"
@@ -7,7 +7,7 @@
         :pt="{
           root: 'm-0 border-0',
           menu: {
-            class: 'gap-1 px-2',
+            class: 'gap-1 px-2'
           },
           action: {
             class: 'p-2'
@@ -15,10 +15,10 @@
         }"
       >
         <template #start>
-          <RouterLink v-if="settingsStore.getSetting('general.logo')" :to="{ name: 'home' }" class="mr-12">
+          <RouterLink v-if="settingsStore.getSetting('theme.logo')" :to="{ name: 'home' }" class="mr-12">
             <img
               style="height: 2rem;"
-              :src="settingsStore.getSetting('general.logo')"
+              :src="isDark ? settingsStore.getSetting('theme.logo_dark') : settingsStore.getSetting('theme.logo')"
               alt="Logo"
             />
           </RouterLink>

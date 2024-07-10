@@ -62,7 +62,7 @@
           rows="8"
         />
         <small id="user-emails-help">{{ $t('rooms.members.modals.bulk_import.list_description') }}</small>
-        <p class="p-error" v-html="formErrors.fieldError('user_emails')" />
+        <FormError :errors="formErrors.fieldError('user_emails')" />
       </div>
       <!-- select role -->
       <div class="flex flex-col gap-2 mt-6">
@@ -83,7 +83,7 @@
           <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
         </div>
 
-        <p class="p-error" v-html="formErrors.fieldError('role')" />
+        <FormError :errors="formErrors.fieldError('role')" />
       </div>
     </div>
 

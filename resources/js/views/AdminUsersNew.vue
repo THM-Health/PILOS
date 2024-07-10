@@ -27,7 +27,7 @@
                   :invalid="formErrors.fieldInvalid('firstname')"
                   :disabled="isBusy"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('firstname')"></p>
+                <FormError :errors="formErrors.fieldError('firstname')"/>
               </div>
             </div>
             <div class="field grid grid-cols-12 gap-4">
@@ -42,7 +42,7 @@
                   :invalid="formErrors.fieldInvalid('lastname')"
                   :disabled="isBusy"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('lastname')"></p>
+                <FormError :errors="formErrors.fieldError('lastname')"/>
               </div>
             </div>
             <div class="field grid grid-cols-12 gap-4">
@@ -58,7 +58,7 @@
                   :invalid="formErrors.fieldInvalid('email')"
                   :disabled="isBusy"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('email')"></p>
+                <FormError :errors="formErrors.fieldError('email')"/>
               </div>
             </div>
             <div class="field grid grid-cols-12 gap-4">
@@ -72,7 +72,7 @@
                   :invalid="formErrors.fieldInvalid('user_locale')"
                   :disabled="isBusy"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('user_locale')"></p>
+                <FormError :errors="formErrors.fieldError('user_locale')"/>
               </div>
             </div>
 
@@ -89,7 +89,7 @@
                   @loading-error="(value) => timezonesLoadingError = value"
                   @busy="(value) => timezonesLoading = value"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('timezone')"></p>
+                <FormError :errors="formErrors.fieldError('timezone')"/>
               </div>
             </div>
             <div class="field grid grid-cols-12 gap-4">
@@ -103,7 +103,7 @@
                   @loading-error="(value) => rolesLoadingError = value"
                   @busy="(value) => rolesLoading = value"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('roles', true)"></p>
+                <FormError :errors="formErrors.fieldError('roles', true)"/>
               </div>
             </div>
             <Divider/>
@@ -122,7 +122,7 @@
                     aria-describedby="generate_password-help"
                   />
                 </div>
-                <p class="p-error" v-html="formErrors.fieldError('generate_password')"></p>
+                <FormError :errors="formErrors.fieldError('generate_password')"/>
                 <small id="generate_password-help">{{$t('admin.users.generate_password_description')}}</small>
               </div>
             </div>
@@ -140,7 +140,7 @@
                   :invalid="formErrors.fieldInvalid('new_password')"
                   :disabled="isBusy"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('new_password')"></p>
+                <FormError :errors="formErrors.fieldError('new_password')"/>
               </div>
             </div>
 
@@ -157,7 +157,7 @@
                   :invalid="formErrors.fieldInvalid('new_password_confirmation')"
                   :disabled="isBusy"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('new_password_confirmation')"></p>
+                <FormError :errors="formErrors.fieldError('new_password_confirmation')"/>
               </div>
             </div>
           </div>

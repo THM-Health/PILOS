@@ -64,7 +64,7 @@
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+            <FormError :errors="formErrors.fieldError('name')"/>
           </div>
         </div>
         <div class="field grid grid-cols-12 gap-4">
@@ -78,7 +78,7 @@
               :invalid="formErrors.fieldInvalid('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+            <FormError :errors="formErrors.fieldError('description')"/>
           </div>
         </div>
         <div class="field grid grid-cols-12 gap-4">
@@ -142,7 +142,7 @@
               />
             </InputGroup>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('servers', true)"></p>
+          <FormError :errors="formErrors.fieldError('servers', true)"/>
         </div>
         <div v-if="!viewOnly">
           <Divider/>

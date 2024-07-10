@@ -224,19 +224,6 @@
           rowHover
           class="mt-6"
           @page="onPage"
-          :pt="{
-            content: {
-              class: 'bg-transparent'
-            },
-            paginator: {
-              root: {
-                class: 'bg-transparent'
-              },
-              pageButton: ({ props, state, context }) => ({
-                class: context.active ? 'bg-primary text-primary-contrast' : undefined
-              })
-            }
-          }"
         >
           <!-- Show message on empty room list -->
           <template #empty>
@@ -250,9 +237,9 @@
           </template>
 
           <template #list="slotProps">
-            <div v-if="!loadingRooms && !loadingRoomsError" class="grid grid-cols-12 gap-4 p-1">
+            <div v-if="!loadingRooms && !loadingRoomsError" class="grid grid-cols-12 gap-4 py-1">
               <div
-                class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3 p-2"
+                class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
                 v-for="(room, index) in slotProps.items"
                 :key="index"
               >

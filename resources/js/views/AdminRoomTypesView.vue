@@ -61,7 +61,7 @@
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+            <FormError :errors="formErrors.fieldError('name')"/>
           </div>
         </div>
 
@@ -76,7 +76,7 @@
               :invalid="formErrors.fieldInvalid('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+            <FormError :errors="formErrors.fieldError('description')"/>
           </div>
         </div>
 
@@ -100,7 +100,7 @@
               :invalid="formErrors.fieldInvalid('color')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('color')"></p>
+            <FormError :errors="formErrors.fieldError('color')"/>
           </div>
         </div>
 
@@ -171,7 +171,7 @@
                 icon="fa-solid fa-sync"
               />
             </InputGroup>
-            <p class="p-error" v-html="formErrors.fieldError('server_pool')"></p>
+            <FormError :errors="formErrors.fieldError('server_pool')"/>
             <small id="server_pool-help">{{$t('admin.room_types.server_pool_description')}}</small>
           </div>
         </div>
@@ -189,7 +189,7 @@
                 aria-describedby="restrict-help"
               />
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('restrict')"></p>
+            <FormError :errors="formErrors.fieldError('restrict')"/>
             <small id="restrict-help">{{$t('admin.room_types.restrict_description')}}</small>
           </div>
         </div>
@@ -206,7 +206,7 @@
               @busy="(value) => rolesLoading = value"
               @rolesLoadingError="(value) => rolesLoadingError = value"
             />
-            <p class="p-error" v-html="formErrors.fieldError('roles')"></p>
+            <FormError :errors="formErrors.fieldError('roles')"/>
           </div>
         </div>
 
@@ -228,7 +228,7 @@
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
             </InputGroup>
-            <p class="p-error" v-html="formErrors.fieldError('max_participants')"></p>
+            <FormError :errors="formErrors.fieldError('max_participants')"/>
           </div>
         </div>
 
@@ -251,7 +251,7 @@
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
             </InputGroup>
-            <p class="p-error" v-html="formErrors.fieldError('max_duration')"></p>
+            <FormError :errors="formErrors.fieldError('max_duration')"/>
           </div>
         </div>
 
@@ -286,8 +286,8 @@
               />
             </div>
             <div class="flex justify-between gap-6 ">
-              <p class="p-error" v-html="formErrors.fieldError('has_access_code_default')"></p>
-              <p class="p-error" v-html="formErrors.fieldError('has_access_code_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('has_access_code_default')"/>
+              <FormError :errors="formErrors.fieldError('has_access_code_enforced')"/>
             </div>
           </div>
         </div>
@@ -316,8 +316,8 @@
               />
             </div>
             <div class="flex justify-between gap-6 ">
-              <p class="p-error" v-html="formErrors.fieldError('allow_guests_default')"></p>
-              <p class="p-error" v-html="formErrors.fieldError('allow_guests_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('allow_guests_default')"/>
+              <FormError :errors="formErrors.fieldError('allow_guests_enforced')"/>
             </div>
           </div>
         </div>
@@ -352,8 +352,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('everyone_can_start_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('everyone_can_start_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('everyone_can_start_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('everyone_can_start_enforced')"/>
             </div>
           </div>
         </div>
@@ -382,8 +382,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('mute_on_start_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('mute_on_start_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('mute_on_start_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('mute_on_start_enforced')"/>
             </div>
           </div>
         </div>
@@ -438,8 +438,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('lobby_default')"/>
-              <p class="p-error text-right" v-html="formErrors.fieldError('lobby_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('lobby_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('lobby_enforced')"/>
             </div>
           </div>
           <div class="col-span-12">
@@ -481,8 +481,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('record_attendance_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('record_attendance_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('record_attendance_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('record_attendance_enforced')"/>
             </div>
           </div>
         </div>
@@ -511,8 +511,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('record_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('record_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('record_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('record_enforced')"/>
             </div>
           </div>
         </div>
@@ -541,8 +541,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('auto_start_recording_enforced')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('auto_start_recording_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('auto_start_recording_enforced')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('auto_start_recording_enforced')"/>
             </div>
           </div>
         </div>
@@ -574,8 +574,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_cam_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('lock_settings_disable_cam_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('lock_settings_disable_cam_enforced')"/>
             </div>
           </div>
         </div>
@@ -608,8 +608,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('webcams_only_for_moderator_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('webcams_only_for_moderator_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('webcams_only_for_moderator_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('webcams_only_for_moderator_enforced')"/>
             </div>
           </div>
         </div>
@@ -638,8 +638,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_mic_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('lock_settings_disable_mic_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('lock_settings_disable_mic_enforced')"/>
             </div>
           </div>
         </div>
@@ -668,8 +668,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_public_chat_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('lock_settings_disable_public_chat_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('lock_settings_disable_public_chat_enforced')"/>
             </div>
           </div>
         </div>
@@ -702,8 +702,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_private_chat_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('lock_settings_disable_private_chat_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('lock_settings_disable_private_chat_enforced')"/>
             </div>
           </div>
         </div>
@@ -732,8 +732,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_disable_note_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('lock_settings_disable_note_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('lock_settings_disable_note_enforced')"/>
             </div>
           </div>
         </div>
@@ -762,8 +762,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('lock_settings_hide_user_list_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('lock_settings_hide_user_list_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('lock_settings_hide_user_list_enforced')"/>
             </div>
           </div>
         </div>
@@ -795,8 +795,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('allow_membership_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('allow_membership_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('allow_membership_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('allow_membership_enforced')"/>
             </div>
           </div>
         </div>
@@ -834,8 +834,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('default_role_default')"/>
-              <p class="p-error text-right" v-html="formErrors.fieldError('default_role_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('default_role_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('default_role_enforced')"/>
             </div>
           </div>
         </div>
@@ -876,8 +876,8 @@
               />
             </div>
             <div class="flex justify-between gap-6">
-              <p class="p-error" v-html="formErrors.fieldError('visibility_default')"></p>
-              <p class="p-error text-right" v-html="formErrors.fieldError('visibility_enforced')"></p>
+              <FormError :errors="formErrors.fieldError('visibility_default')"/>
+              <FormError class="text-right" :errors="formErrors.fieldError('visibility_enforced')"/>
             </div>
           </div>
         </div>
@@ -901,7 +901,7 @@
               :placeholder="viewOnly ? '': 'meetingLayout=PRESENTATION_FOCUS\nmeta_category=FINANCE\ndisabledFeatures=learningDashboard,virtualBackgrounds'"
             />
             <p id="create-parameters-help">{{$t('admin.room_types.bbb_api.create_parameters_description')}}</p>
-            <p class="p-error" v-html="formErrors.fieldError('create_parameters')"></p>
+            <FormError :errors="formErrors.fieldError('create_parameters')"/>
           </div>
         </div>
 

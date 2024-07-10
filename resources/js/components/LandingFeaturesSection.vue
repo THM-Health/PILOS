@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-zinc-800 pt-8 mt-2 mb-8">
+  <div class="bg-white dark:bg-surface-900 pt-8 mt-2 mb-8">
     <div class="container text-center">
         <div class="mb-4 font-bold text-color text-2xl">
             <span>{{ $t('home.possibilities.title') }}</span>

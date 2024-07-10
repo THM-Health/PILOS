@@ -56,9 +56,9 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2 border-t border-b border-surface">
+          <div class="px-2">
             <div v-for="(item, index) in slotProps.items" :key="index">
-              <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-top-1 surface-border': index !== 0 }">
+              <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t border-surface">
                 <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0">{{ $d(new Date(item.start),'datetimeShort') }}</p>
                   <div class="flex flex-col gap-2 items-start">
@@ -95,15 +95,16 @@
       </DataView>
     </OverlayComponent>
 
-    <div id="retentionPeriodInfo">
-      <Divider/>
-      <b>{{ $t('meetings.retention_period') }}</b><br>
-      <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') !== -1">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('recording.meeting_usage_retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') === -1">{{ $t('meetings.stats.retention_period_unlimited') }}</span><br>
+    <Message class="mt-2" severity="secondary" id="retentionPeriodInfo" aria-live="off" role="presentation">
+      <div class="leading-3 font-normal">
+        <p class="text-xl font-semibold">{{ $t('meetings.retention_period') }}</p><br>
+        <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') !== -1">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('recording.meeting_usage_retention_period')}) }}</span><br>
+        <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') === -1">{{ $t('meetings.stats.retention_period_unlimited') }}</span><br>
 
-      <span v-if="settingsStore.getSetting('recording.attendance_retention_period') !== -1">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('recording.attendance_retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('recording.attendance_retention_period') === -1">{{ $t('meetings.attendance.retention_period_unlimited') }}</span><br>
-    </div>
+        <span v-if="settingsStore.getSetting('recording.attendance_retention_period') !== -1">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('recording.attendance_retention_period')}) }}</span><br>
+        <span v-if="settingsStore.getSetting('recording.attendance_retention_period') === -1">{{ $t('meetings.attendance.retention_period_unlimited') }}</span><br>
+      </div>
+    </Message>
   </div>
 </template>
 

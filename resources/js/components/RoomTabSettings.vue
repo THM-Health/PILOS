@@ -29,7 +29,7 @@
               :current-settings="settings"
               @room-type-changed="(resetToDefaults) => resetToRoomTypeSettings(resetToDefaults)"
             />
-            <p class="p-error" v-html="formErrors.fieldError('room_type')"/>
+            <FormError :errors="formErrors.fieldError('room_type')"/>
           </div>
 
           <!-- Room name -->
@@ -42,7 +42,7 @@
               :disabled="disabled"
               :invalid="formErrors.fieldInvalid('name')"
             />
-            <p class="p-error" v-html="formErrors.fieldError('name')"/>
+            <FormError :errors="formErrors.fieldError('name')"/>
           </div>
 
           <!-- Access code -->
@@ -84,7 +84,7 @@
             <small v-if="settings.room_type.has_access_code_enforced">
               {{settings.room_type.has_access_code_default?  $t('rooms.settings.general.access_code_enforced'): $t('rooms.settings.general.access_code_prohibited') }}
             </small>
-            <p class="p-error" v-html="formErrors.fieldError('access_code')"/>
+            <FormError :errors="formErrors.fieldError('access_code')"/>
           </div>
 
           <!-- Checkbox allow guests to access the room -->
@@ -104,7 +104,7 @@
               />
               <label for="allow-guests">{{ $t('rooms.settings.general.allow') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('allow_guests')"/>
+            <FormError :errors="formErrors.fieldError('allow_guests')"/>
           </div>
 
           <!-- Short description-->
@@ -123,7 +123,7 @@
             <small>
               {{ $t('rooms.settings.general.chars', {chars: charactersLeftShortDescription}) }}
             </small>
-            <p class="p-error" v-html="formErrors.fieldError('short_description')"/>
+            <FormError :errors="formErrors.fieldError('short_description')"/>
           </div>
         </div>
 
@@ -156,7 +156,7 @@
               />
               <label for="everyone-can-start">{{ $t('rooms.settings.general.allow_everyone') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('everyone_can_start')"/>
+            <FormError :errors="formErrors.fieldError('everyone_can_start')"/>
           </div>
 
           <!-- Mute everyone's microphone on meeting join -->
@@ -176,7 +176,7 @@
               />
               <label for="mute-on-start">{{ $t('rooms.settings.video_conference.mute_on_start') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('mute_on_start')"/>
+            <FormError :errors="formErrors.fieldError('mute_on_start')"/>
           </div>
 
           <!-- Radio usage of the waiting room/guest lobby -->
@@ -217,7 +217,7 @@
                 />
                 <label for="lobby-only-for-guests">{{ $t('rooms.settings.video_conference.lobby.only_for_guests_enabled') }}</label>
               </div>
-              <p class="p-error" v-html="formErrors.fieldError('lobby')"/>
+              <FormError :errors="formErrors.fieldError('lobby')"/>
             </fieldset>
 
             <!-- Alert shown when default role is moderator and waiting room is active -->
@@ -244,7 +244,7 @@
             <small>
               {{ $t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage}) }}
             </small>
-            <p class="p-error" v-html="formErrors.fieldError('welcome')"/>
+            <FormError :errors="formErrors.fieldError('welcome')"/>
           </div>
 
           <Divider/>
@@ -269,7 +269,7 @@
                 {{ $t('rooms.settings.recordings.record_attendance') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('record_attendance')"/>
+            <FormError :errors="formErrors.fieldError('record_attendance')"/>
           </div>
 
           <!-- Checkbox record video conference -->
@@ -287,7 +287,7 @@
                 {{ $t('rooms.settings.recordings.record_video_conference') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('record')"/>
+            <FormError :errors="formErrors.fieldError('record')"/>
           </div>
 
           <!-- Checkbox auto start recording of video conference -->
@@ -305,7 +305,7 @@
                 {{ $t('rooms.settings.recordings.auto_start_recording') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('auto_start_recording')"/>
+            <FormError :errors="formErrors.fieldError('auto_start_recording')"/>
           </div>
 
           <Divider/>
@@ -330,7 +330,7 @@
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_cam') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_cam')"/>
           </div>
 
           <!--
@@ -351,7 +351,7 @@
                 {{ $t('rooms.settings.restrictions.webcams_only_for_moderator') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('webcams_only_for_moderator')"/>
+            <FormError :errors="formErrors.fieldError('webcams_only_for_moderator')"/>
           </div>
 
           <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
@@ -369,7 +369,7 @@
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_mic') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_mic')"/>
           </div>
 
           <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
@@ -387,7 +387,7 @@
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_public_chat') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_public_chat')"/>
           </div>
 
           <!--
@@ -409,7 +409,7 @@
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_private_chat') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_private_chat')"/>
           </div>
 
           <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
@@ -427,7 +427,7 @@
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_note') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_note')"/>
           </div>
 
           <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
@@ -445,7 +445,7 @@
                 {{ $t('rooms.settings.restrictions.lock_settings_hide_user_list') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_hide_user_list')"/>
           </div>
 
           <Divider/>
@@ -470,7 +470,7 @@
                 {{ $t('rooms.settings.participants.allow_membership') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('allow_membership')"/>
+            <FormError :errors="formErrors.fieldError('allow_membership')"/>
           </div>
 
           <!-- Default user role for logged in users only -->
@@ -500,7 +500,7 @@
                 optionValue="role"
               />
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('default_role')"/>
+            <FormError :errors="formErrors.fieldError('default_role')"/>
           </div>
           <Divider/>
 
@@ -533,7 +533,7 @@
                 optionValue="visibility"
               />
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('visibility')"/>
+            <FormError :errors="formErrors.fieldError('visibility')"/>
           </div>
         </div>
 

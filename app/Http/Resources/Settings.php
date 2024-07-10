@@ -34,14 +34,16 @@ class Settings extends JsonResource
 
         return [
             'general_name' => $generalSettings->name,
-            'general_logo' => $generalSettings->logo,
-            'general_favicon' => $generalSettings->favicon,
             'general_pagination_page_size' => $generalSettings->pagination_page_size,
             'general_toast_lifetime' => $generalSettings->toast_lifetime,
             'general_default_timezone' => $generalSettings->default_timezone,
             'general_help_url' => $generalSettings->help_url,
             'general_legal_notice_url' => $generalSettings->legal_notice_url,
             'general_privacy_policy_url' => $generalSettings->privacy_policy_url,
+            'theme_logo' => $themeSettings->logo,
+            'theme_favicon' => $themeSettings->favicon,
+            'theme_logo_dark' => $themeSettings->logo_dark,
+            'theme_favicon_dark' => $themeSettings->favicon_dark,
             'theme_primary_color' => $themeSettings->primary_color,
             'theme_rounded' => $themeSettings->rounded,
             'banner_enabled' => $bannerSettings->enabled,

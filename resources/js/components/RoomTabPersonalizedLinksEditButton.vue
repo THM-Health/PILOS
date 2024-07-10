@@ -36,7 +36,7 @@
         v-model.trim="newFirstname"
         :invalid="formErrors.fieldInvalid('firstname')"
       />
-      <p class="p-error" v-html="formErrors.fieldError('firstname')" />
+      <FormError :errors="formErrors.fieldError('firstname')" />
     </div>
 
     <!-- last name -->
@@ -47,7 +47,7 @@
         v-model.trim="newLastname"
         :invalid="formErrors.fieldInvalid('lastname')"
       />
-      <p class="p-error" v-html="formErrors.fieldError('lastname')" />
+      <FormError :errors="formErrors.fieldError('lastname')" />
     </div>
 
     <!-- select role -->
@@ -64,7 +64,7 @@
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
-      <p class="p-error" v-html="formErrors.fieldError('role')" />
+      <FormError :errors="formErrors.fieldError('role')" />
     </div>
   </Dialog>
 </template>

@@ -64,7 +64,7 @@
               class="w-full"
               type="text"
             />
-            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+            <FormError :errors="formErrors.fieldError('name')"/>
           </div>
           </div>
           <div class="field grid grid-cols-12 gap-4">
@@ -78,7 +78,7 @@
                 class="w-full"
                 type="text"
               />
-              <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+              <FormError :errors="formErrors.fieldError('description')"/>
             </div>
           </div>
           <div class="field grid grid-cols-12 gap-4">
@@ -106,7 +106,7 @@
                 class="w-full"
                 type="text"
               />
-              <p class="p-error" v-html="formErrors.fieldError('base_url')"></p>
+              <FormError :errors="formErrors.fieldError('base_url')"/>
             </div>
           </div>
           <div class="field grid grid-cols-12 gap-4">
@@ -122,7 +122,7 @@
                 :feedback="false"
                 :toggleMask="true"
               />
-              <p class="p-error" v-html="formErrors.fieldError('secret')"></p>
+              <FormError :errors="formErrors.fieldError('secret')"/>
             </div>
           </div>
           <div class="field grid grid-cols-12 gap-4">
@@ -141,7 +141,7 @@
                 class="border border-surface-300 dark:border-surface-500 rounded-border px-6 py-4 flex justify-between"
               />
               <small id="strength-help">{{ $t('admin.servers.strength_description') }}</small>
-              <p class="p-error" v-html="formErrors.fieldError('strength')"></p>
+              <FormError :errors="formErrors.fieldError('strength')"/>
             </div>
           </div>
 
@@ -161,7 +161,7 @@
                   name="status"
                 />
               </div>
-              <p class="p-error" v-html="formErrors.fieldError('status')"></p>
+              <FormError :errors="formErrors.fieldError('status')"/>
             </div>
           </div>
 

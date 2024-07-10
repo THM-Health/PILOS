@@ -3,8 +3,8 @@
     <!-- room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative border border-surface-300 dark:border-surface-500 rounded-border shadow-none hover:bg-emphasis"
-      :class="{'room-card--running': running}"
+      class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis"
+      :class="{'!border-green-500': running}"
       @click="open"
       @keyup.enter="open"
     >
@@ -15,15 +15,17 @@
               <RoomTypeBadge
                 :room-type="props.room.type"
               />
-              <div class="room-card__buttons shrink-0">
+              <div class="z-10 relative shrink-0 flex gap-2">
                 <Button
                   v-if="props.room.short_description!=null"
                   severity="secondary"
+                  class="p-0 h-8 w-8 text-sm"
                   icon="fa-solid fa-info"
                   @click.stop="showModal = true"
                 />
                 <room-favorite-button
                   :room="props.room"
+                  class="p-0 h-8 w-8 text-sm"
                   @favorites-changed="$emit('favoritesChanged')"
                 />
               </div>

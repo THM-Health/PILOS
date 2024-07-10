@@ -50,7 +50,7 @@
             :placeholder="$t('rooms.placeholder_name')"
             :invalid="formErrors.fieldInvalid('name')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('name')" />
+          <FormError :errors="formErrors.fieldError('name')" />
         </div>
 
         <div class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col" v-if="recordAttendance">
@@ -64,7 +64,7 @@
             />
             <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('consent_record_attendance')" />
+          <FormError :errors="formErrors.fieldError('consent_record_attendance')" />
         </div>
 
         <div class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col" v-if="record">
@@ -79,7 +79,7 @@
             />
             <label for="record-agreement" class="required">{{ $t('rooms.recording_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('consent_record')" />
+          <FormError :errors="formErrors.fieldError('consent_record')" />
           <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-video-agreement"
@@ -89,7 +89,7 @@
             />
             <label for="record-video-agreement">{{ $t('rooms.recording_video_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('consent_record_video')" />
+          <FormError :errors="formErrors.fieldError('consent_record_video')" />
         </div>
       </div>
     </OverlayComponent>

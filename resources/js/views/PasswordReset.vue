@@ -17,7 +17,7 @@
                   class="w-full"
                   :invalid="formErrors.fieldInvalid('password')"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('password')" />
+                <FormError :errors="formErrors.fieldError('password')" />
               </div>
 
               <div class="flex flex-col gap-2">
@@ -31,11 +31,11 @@
                   class="w-full"
                   :invalid="formErrors.fieldInvalid('password_confirmation')"
                 />
-                <p class="p-error" v-html="formErrors.fieldError('password_confirmation')" />
+                <FormError :errors="formErrors.fieldError('password_confirmation')" />
               </div>
 
-              <p class="p-error my-2" v-html="formErrors.fieldError('email')" />
-              <p class="p-error my-2" v-html="formErrors.fieldError('token')" />
+              <FormError :errors="formErrors.fieldError('email')" />
+              <FormError :errors="formErrors.fieldError('token')" />
 
               <Button
                 type="submit"
