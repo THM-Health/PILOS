@@ -107,9 +107,9 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2 border-t border-b border-surface">
+          <div class="px-2">
             <div v-for="(item, index) in slotProps.items" :key="index">
-              <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-top-1 surface-border': index !== 0 }">
+              <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
                 <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0 text-word-break">{{ item.filename }}</p>
                   <div class="flex flex-col gap-2 items-start">

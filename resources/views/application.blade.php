@@ -12,7 +12,7 @@
     <title>{{ app(\App\Settings\GeneralSettings::class)->name }}</title>
 
     <!-- Scripts -->
-    @vite(['resources/js/app.js', 'resources/sass/theme/'.config('app.theme').'/app.scss'])
+    @vite(['resources/js/app.js', 'resources/sass/app.scss'])
 </head>
 <body class="bg-surface-50 dark:bg-surface-950">
     <div id='app'>

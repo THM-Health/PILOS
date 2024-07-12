@@ -11,6 +11,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Artisan;
 use DB;
@@ -104,12 +105,6 @@ class UpgradeDatabaseCommand extends Command
 
         // Apply old settings to new settings
         $generalSettings = app(GeneralSettings::class);
-        if (isset($oldSettings['logo'])) {
-            $generalSettings->logo = $oldSettings['logo'];
-        }
-        if (isset($oldSettings['favicon'])) {
-            $generalSettings->favicon = $oldSettings['favicon'];
-        }
         if (isset($oldSettings['name'])) {
             $generalSettings->name = $oldSettings['name'];
         }
@@ -130,6 +125,17 @@ class UpgradeDatabaseCommand extends Command
             $generalSettings->privacy_policy_url = $oldSettings['privacy_policy_url'];
         }
         $generalSettings->save();
+
+        $themeSettings = app(ThemeSettings::class);
+        if (isset($oldSettings['logo'])) {
+            $themeSettings->logo = $oldSettings['logo'];
+            $themeSettings->logo_dark = $oldSettings['logo'];
+        }
+        if (isset($oldSettings['favicon'])) {
+            $themeSettings->favicon = $oldSettings['favicon'];
+            $themeSettings->favicon_dark = $oldSettings['favicon'];
+        }
+        $themeSettings->save();
 
         $bannerSettings = app(BannerSettings::class);
         if (isset($oldSettings['banner.enabled'])) {

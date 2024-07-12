@@ -75,6 +75,7 @@
     </template>
 
     <VueCropper
+      class="my-2"
       v-show="selectedFile"
       ref="cropperRef"
       :auto-crop-area="1"

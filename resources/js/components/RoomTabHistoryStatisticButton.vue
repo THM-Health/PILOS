@@ -121,9 +121,6 @@ function loadData () {
 const textColor = computed(() => {
   return useCssVar('--p-text-color').value;
 });
-const textColorPrimary = computed(() => {
-  return useCssVar('--p-primary-color').value;
-});
 const surfaceBorder = computed(() => {
   return useCssVar('--p-content-border-color').value;
 });

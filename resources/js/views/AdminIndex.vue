@@ -1,12 +1,11 @@
 <template>
   <div>
-    <h2>{{ $t('admin.overview') }}</h2>
+    <h2 class="text-2xl mb-2">{{ $t('admin.overview') }}</h2>
     <p>{{ $t('admin.overview_description') }}</p>
-    <Divider/>
-    <div class="grid grid-cols-12 gap-4 mt-1">
+    <div class="grid grid-cols-12 gap-4 my-4">
       <div
         v-if="userPermissions.can('viewAny', 'SettingsPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
       >
         <router-link
           :to="{ name: 'admin.settings' }"
@@ -31,7 +30,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'UserPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
       >
         <router-link
           :to="{ name: 'admin.users' }"
@@ -56,7 +55,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RolePolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
       >
         <router-link
           :to="{ name: 'admin.roles' }"
@@ -81,7 +80,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RoomTypePolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
       >
         <router-link
           :to="{ name: 'admin.room_types' }"
@@ -106,7 +105,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
       >
         <router-link
           :to="{ name: 'admin.servers' }"
@@ -131,7 +130,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPoolPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6 p-2"
+        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
       >
         <router-link
           :to="{ name: 'admin.server_pools' }"

@@ -19,7 +19,7 @@
       :disabled="props.disabled || loading || loadingError"
       :loading="loading"
       :allow-empty="allowEmpty"
-      :class="{ 'is-invalid': props.invalid, 'multiselect-form-control': true }"
+      :class="{ 'is-invalid': props.invalid }"
     >
       <template #noOptions>
         {{ $t('admin.roles.no_data') }}

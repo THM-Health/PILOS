@@ -84,45 +84,8 @@ The room type selection and the process for changing room types were redesigned 
 To facilitate users in selecting the appropriate room type, an option was added to set a description for each room type, allowing administrators to explain the differences in natural language.
 
 ### Theme
-The colors used for the room history chart, room type colors and banner colors are no longer set via environment variables.
-The color values are extracted from the css variables of the selected theme during runtime.
-
-You can therefore remove the following environment variables from your `.env` file:
-
-- `VITE_HISTORY_PARTICIPANT_COLOR`
-- `VITE_HISTORY_VOICES_COLOR`
-- `VITE_HISTORY_VIDEO_COLOR`
-- `VITE_ROOM_TYPE_COLORS`
-- `VITE_BANNER_BACKGROUND_COLORS`
-- `VITE_BANNER_TEXT_COLORS`
-
-As a result of the UI transition, the entire theme system was reworked. To ease the transition, we have tried to keep the default theme sass variables as close to the old theme colours as possible.
-However, you need to change the name of the following sass variables in your custom theme file:
-
-- `$body-bg` -> `$bodyBg`
-- `$link-color` -> `$linkColor`
-- `$enable-rounded` -> `$enableRounded`
-
-The option to change the default text color using `$body-color` has been removed.
-
-The following colors have been added to the default theme:
-
-```scss
-$purple: #8e44ad;
-$indigo: #6366F1;
-$cyan: #06B6D4;
-$yellow: #EAB308;
-$pink: #EC4899;
-$teal: #0b8e93;
-$bluegray: #3a4d5d;
-```
-
-Overwriting the text colors on buttons, badges, etc. was possible using the `$text-color` array.
-This has been replaced by dedicated variables for each color and element.
-Please have a look at the THM theme (`resources/sass/theme/thm/_variables.scss`) and the base.scss (`resources/sass/base.scss`) file to find out how to adjust your custom theme.
-
-Any additional customizations to the theme should be checked and adjusted accordingly.
-
+Custom theming via SASS files has been removed. Instead, you can dynamically change the base color and toggle the rounded corners in the admin interface.
+Users can also choose between light and dark mode, so a new option for a dark logo and a favicon version has been introduced.
 
 ### Locales
 Many translations have been added, moved and changed. Please check the `resources/lang` folder for new translations and adjust your custom translations accordingly.

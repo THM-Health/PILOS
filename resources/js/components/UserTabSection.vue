@@ -11,7 +11,7 @@
           <Tab value="security"><i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}</Tab>
           <Tab value="others"><i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}</Tab>
         </TabList>
-        <TabPanels>
+        <TabPanels class="px-0">
           <TabPanel value="base">
             <UserTabProfile
               :user="user"

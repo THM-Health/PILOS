@@ -1,16 +1,5 @@
 <template>
   <div>
-    <h2>
-      {{ $t('admin.users.new') }}
-    </h2>
-    <router-link
-      class="p-button p-button-secondary"
-      :disabled="isBusy"
-      :to="{ name: 'admin.users' }"
-    >
-      <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
-    </router-link>
-    <Divider/>
       <OverlayComponent :show="isBusy">
         <form @submit.prevent="save">
           <div>
@@ -244,7 +233,7 @@ function save () {
     method: 'POST',
     data
   }).then(response => {
-    router.push({ name: 'admin.users.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.users.view', params: { id: response.data.data.id } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

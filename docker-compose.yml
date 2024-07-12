@@ -7,7 +7,6 @@ x-docker-pilos-common: &pilos-common
     - './storage/app:/var/www/html/storage/app'
     - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
     - './resources/custom:/var/www/html/resources/custom'
-    - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
     - './app/Auth/config:/var/www/html/app/Auth/config'
     - './app/Plugins/Custom:/var/www/html/app/Plugins/Custom'
     - './public/images/custom:/var/www/html/public/images/custom'

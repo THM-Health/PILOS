@@ -125,7 +125,6 @@ docker pull $IMAGE
 # Pre-build frontend for this image
 docker run -it --rm \
 -v "$PWD/resources/custom:/var/www/html/resources/custom" \
--v "$PWD/resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom" \
 -v "$PWD/public/build:/var/www/html/public/build" \
 --entrypoint=pilos-cli \
 $IMAGE \

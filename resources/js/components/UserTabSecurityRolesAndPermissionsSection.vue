@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form @submit="save" v-if="model">
+    <form @submit="save" v-if="model" class="flex flex-col gap-4">
 
       <div class="field grid grid-cols-12 gap-4">
         <label for="roles" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.roles') }}</label>

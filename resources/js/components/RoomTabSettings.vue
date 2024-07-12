@@ -17,7 +17,7 @@
           </div>
 
           <!-- Room type setting -->
-          <div class="col-span-12 md:col-span-3 flex flex-col">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
             <label for="room-type" class="mb-2">{{ $t('rooms.settings.general.type') }}</label>
 
             <RoomTypeChangeButton
@@ -33,7 +33,7 @@
           </div>
 
           <!-- Room name -->
-          <div class="col-span-12 md:col-span-3 flex flex-col">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
             <label for="room-name" class="mb-2">{{ $t('rooms.name') }}</label>
             <InputText
               class="w-full"
@@ -46,7 +46,7 @@
           </div>
 
           <!-- Access code -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <label for="access-code" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.has_access_code_enforced"/>
               {{ $t('rooms.access_code') }}
@@ -88,7 +88,7 @@
           </div>
 
           <!-- Checkbox allow guests to access the room -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <label for="allow-guests" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.allow_guests_enforced"/>
               {{$t('rooms.settings.general.access_by_guests')}}
@@ -132,7 +132,7 @@
         When the expert mode is deactivated the default values from the room type will be used
         -->
         <div class="grid grid-cols-12 gap-4" v-if="settings.expert_mode">
-          <Divider />
+          <Divider class="col-span-12" />
 
           <!-- Video conference settings -->
           <div class="col-span-12">
@@ -140,7 +140,7 @@
           </div>
 
           <!-- Everyone can start a new meeting, not only the moderator -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <label for="everyone-can-start" class="items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.everyone_can_start_enforced"/>
               {{$t('rooms.settings.video_conference.allow_starting')}}
@@ -160,7 +160,7 @@
           </div>
 
           <!-- Mute everyone's microphone on meeting join -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <label for="mute-on-start" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.mute_on_start_enforced"/>
               {{$t('rooms.settings.video_conference.microphone')}}
@@ -180,7 +180,7 @@
           </div>
 
           <!-- Radio usage of the waiting room/guest lobby -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <fieldset class="flex flex-col gap-2">
               <legend class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lobby_enforced"/>
@@ -247,7 +247,7 @@
             <FormError :errors="formErrors.fieldError('welcome')"/>
           </div>
 
-          <Divider/>
+          <Divider class="col-span-12" />
 
           <!-- Recording settings -->
           <div class="col-span-12">
@@ -255,7 +255,7 @@
           </div>
 
           <!-- Checkbox record attendance of users and guests -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.record_attendance"
@@ -273,7 +273,7 @@
           </div>
 
           <!-- Checkbox record video conference -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.record"
@@ -291,7 +291,7 @@
           </div>
 
           <!-- Checkbox auto start recording of video conference -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.auto_start_recording"
@@ -308,7 +308,7 @@
             <FormError :errors="formErrors.fieldError('auto_start_recording')"/>
           </div>
 
-          <Divider/>
+          <Divider class="col-span-12" />
 
           <!-- Restriction settings -->
           <div class="col-span-12">
@@ -316,7 +316,7 @@
           </div>
 
           <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_cam"
@@ -337,7 +337,7 @@
           Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
           can be changed during the meeting
           -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.webcams_only_for_moderator"
@@ -355,7 +355,7 @@
           </div>
 
           <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_mic"
@@ -373,7 +373,7 @@
           </div>
 
           <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_public_chat"
@@ -395,7 +395,7 @@
           private chats with the moderators is still possible
           can be changed during the meeting
           -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_private_chat"
@@ -413,7 +413,7 @@
           </div>
 
           <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_note"
@@ -431,7 +431,7 @@
           </div>
 
           <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_hide_user_list"
@@ -448,7 +448,7 @@
             <FormError :errors="formErrors.fieldError('lock_settings_hide_user_list')"/>
           </div>
 
-          <Divider/>
+          <Divider class="col-span-12" />
 
           <!-- Participants settings -->
           <div class="col-span-12">
@@ -456,7 +456,7 @@
           </div>
 
           <!-- Checkbox allow users to become room members -->
-          <div class="col-span-12 md:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.allow_membership"
@@ -474,7 +474,7 @@
           </div>
 
           <!-- Default user role for logged in users only -->
-          <div class="col-span-12 md:col-span-3 flex flex-col">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
             <label id="default-role-label" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.default_role_enforced"/>
               {{ $t('rooms.settings.participants.default_role.title') }}
@@ -502,7 +502,8 @@
             </div>
             <FormError :errors="formErrors.fieldError('default_role')"/>
           </div>
-          <Divider/>
+
+          <Divider class="col-span-12" />
 
           <!-- Advanced settings -->
           <div class="col-span-12">
@@ -510,7 +511,7 @@
           </div>
 
           <!-- Room visibility setting -->
-          <div class="col-span-12 md:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
             <label id="visibility-label" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.visibility_enforced"/>
               {{ $t('rooms.settings.advanced.visibility.title') }}

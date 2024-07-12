@@ -57,7 +57,7 @@
         <FormError :errors="urlError"/>
       </div>
     </div>
-    <div class="col-span-12 lg:col-span-3 text-left lg:text-right">
+    <div class="col-span-12 lg:col-span-3 flex justify-center rounded border p-2" :class="previewBgClass">
       <img
         v-if="newImageUrl || imageUrl"
         :src="newImageUrl ?? imageUrl"
@@ -92,6 +92,9 @@ defineProps({
   previewWidth: {
     type: String,
     default: '100%'
+  },
+  previewBgClass: {
+    type: String
   },
   maxFileSize: {
     type: Number

@@ -1,19 +1,5 @@
 <template>
   <div>
-    <div class="flex justify-between items-center">
-      <h2>
-        {{ $t('app.servers') }}
-      </h2>
-      <Button
-        as="router-link"
-        v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip="$t('admin.servers.new')"
-        :aria-label="$t('admin.servers.new')"
-        :to="{ name: 'admin.servers.view', params: { id: 'new' } }"
-        icon="fa-solid fa-plus"
-      />
-    </div>
-
     <div class="flex flex-col md:flex-row justify-between">
       <div>
         <InputGroup>
@@ -46,6 +32,14 @@
           icon="fa-solid fa-sync"
           v-tooltip="$t('app.reload')"
           :aria-label="$t('app.reload')"
+        />
+        <Button
+          as="router-link"
+          v-if="userPermissions.can('create', 'ServerPolicy')"
+          v-tooltip="$t('admin.servers.new')"
+          :aria-label="$t('admin.servers.new')"
+          :to="{ name: 'admin.servers.view', params: { id: 'new' } }"
+          icon="fa-solid fa-plus"
         />
       </div>
     </div>
@@ -186,26 +180,25 @@
       <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
-            <router-link
+            <Button
+              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
               :disabled="isBusy"
               v-tooltip="$t('admin.servers.view', { name: slotProps.data.name })"
               :aria-label="$t('admin.servers.view', { name: slotProps.data.name })"
-              :to="{ name: 'admin.servers.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-              class="p-button p-button-info p-button-icon-only"
-            >
-              <i class="fa-solid fa-eye"/>
-            </router-link>
-            <router-link
+              :to="{ name: 'admin.servers.view', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-eye"
+            />
+            <Button
+              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
               :disabled="isBusy"
               v-tooltip="$t('admin.servers.edit', { name: slotProps.data.name })"
               :aria-label="$t('admin.servers.edit', { name: slotProps.data.name })"
-              :to="{ name: 'admin.servers.view', params: { id: slotProps.data.id } }"
-              class="p-button p-button-secondary p-button-icon-only"
-            >
-              <i class="fa-solid fa-edit"/>
-            </router-link>
+              :to="{ name: 'admin.servers.edit', params: { id: slotProps.data.id } }"
+              severity="info"
+              icon="fa-solid fa-edit"
+            />
             <SettingsServersDeleteButton
               v-if="userPermissions.can('delete', slotProps.data) && slotProps.data.status===-1"
               :id="slotProps.data.id"

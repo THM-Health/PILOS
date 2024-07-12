@@ -43,7 +43,6 @@ case $ACTION in
   change-permissions)
     echo "Change permissions"
     change_permissions /var/www/html/resources/custom
-    change_permissions /var/www/html/resources/sass/theme/custom
     change_permissions /var/www/html/storage/app
     change_permissions /var/www/html/storage/logs
     change_permissions /var/www/html/public/build

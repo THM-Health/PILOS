@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h2 class="text-2xl">{{ $t('admin.users.bbb') }}</h2>
-    <form @submit="save" v-if="model">
+    <AdminPanel :title="$t('admin.users.bbb')" >
+      <form @submit="save" v-if="model" class="flex flex-col gap-4">
       <div class="field grid grid-cols-12 gap-4">
         <label for="bbb_skip_check_audio" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.skip_check_audio') }}</label>
         <div class="col-span-12 md:col-span-9">
@@ -27,6 +27,7 @@
         />
       </div>
     </form>
+    </AdminPanel>
   </div>
 </template>
 

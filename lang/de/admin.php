@@ -1,6 +1,39 @@
 <?php
 
 return [
+    'breakcrumbs' => [
+        'roles' => [
+            'edit' => ':name bearbeiten',
+            'index' => 'Rollen',
+            'new' => 'Neu',
+            'view' => ':name',
+        ],
+        'room_types' => [
+            'edit' => ':name bearbeiten',
+            'index' => 'Raumarten',
+            'new' => 'Neu',
+            'view' => ':name',
+        ],
+        'server_pools' => [
+            'edit' => ':name bearbeiten',
+            'index' => 'Serverpools',
+            'new' => 'Neu',
+            'view' => ':name',
+        ],
+        'servers' => [
+            'edit' => ':name bearbeiten',
+            'index' => 'Server',
+            'new' => 'Neu',
+            'view' => ':name',
+        ],
+        'settings' => 'Einstellungen',
+        'users' => [
+            'edit' => ':firstname :lastname bearbeiten',
+            'index' => 'Benutzer',
+            'new' => 'Neu',
+            'view' => ':firstname :lastname',
+        ],
+    ],
     'home_button' => 'Zurück zur Übersicht',
     'overview' => 'Übersicht',
     'overview_description' => 'Hier können die Einstellungen der Anwendung verwaltet werden. Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.',
@@ -258,6 +291,14 @@ return [
             'upload_title' => 'Favicon hochladen (max. 500 KB, Format: .ico)',
             'url_title' => 'URL zu Favicon-Datei',
         ],
+        'favicon_dark' => [
+            'alt' => 'Favicon-Vorschau der dunklen Version',
+            'hint' => 'https://domain.tld/path/favicon.ico',
+            'select_file' => 'Dunkle Version der Favicon-Datei auswählen',
+            'title' => 'Dunkle Version Favicon',
+            'upload_title' => 'Favicon hochladen (max. 500 KB, Format: .ico)',
+            'url_title' => 'URL der Favicon-Datei für die dunkle Version',
+        ],
         'help_url' => [
             'description' => 'Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.',
             'title' => 'URL zur Hilfeseite',
@@ -273,6 +314,14 @@ return [
             'title' => 'Logo',
             'upload_title' => 'Logo hochladen (max. 500 KB)',
             'url_title' => 'URL zu Logo-Datei',
+        ],
+        'logo_dark' => [
+            'alt' => 'Logo-Vorschau für die dunkle Version',
+            'hint' => 'https://domain.tld/path/logo.svg',
+            'select_file' => 'Dunkle Version der Logodatei auswählen',
+            'title' => 'Logo der dunklen Version',
+            'upload_title' => 'Laden Sie ein Logo in dunkler Version hoch (max. 500 KB)',
+            'url_title' => 'URL zur dunklen Version der Logodatei',
         ],
         'name' => [
             'description' => 'Ändert den Seitentitel',
@@ -334,6 +383,12 @@ return [
                 'enabled_title' => 'Auslastung der Server aufzeichnen',
                 'retention_period_title' => 'Speicherdauer der Serverauslastung in Tagen',
             ],
+        ],
+        'theme' => [
+            'custom_color' => 'Eigene Farbe',
+            'primary_color' => 'Primärfarbe',
+            'rounded' => 'Rounded corners',
+            'title' => 'Design',
         ],
         'three_month' => '3 Monate (90 Tage)',
         'tile_description' => 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',

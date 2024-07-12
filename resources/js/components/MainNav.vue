@@ -209,13 +209,13 @@ const userMenuItems = computed(() => {
 
   items.push({
     icon: 'fa-solid text-xl ' + (isDark.value ? ' fa-moon' : ' fa-sun'),
-    label: t('app.dark_mode'),
+    label: isDark.value ? t('app.dark_mode_disable') : t('app.dark_mode_enable'),
     command: () => toggleDark()
   });
 
   const localeItem = {
     icon: 'fa-solid fa-language text-xl',
-    label: t('app.select_locale'),
+    label: t('app.change_locale'),
     items: []
   };
 

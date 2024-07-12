@@ -41,6 +41,36 @@ export function updateTheme (color, rounded) {
         content: {
           padding: '0 0 1rem 0'
         }
+      },
+      datatable: {
+        paginatorBottom: {
+          borderWidth: '0'
+        }
+      },
+      avatar: {
+        root: {
+          fontSize: '0.85rem'
+        },
+        lg: {
+          fontSize: '1.25rem'
+        },
+        xl: {
+          fontSize: '1.85rem'
+        }
+      },
+      radiobutton: {
+        icon: {
+          size: '0.6rem'
+        }
+      },
+      toggleswitch: {
+        root: {
+          width: '2.25rem',
+          height: '1.35rem'
+        },
+        handle: {
+          size: '0.85rem'
+        }
       }
     }
   };

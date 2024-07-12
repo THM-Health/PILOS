@@ -47,7 +47,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import FormError from "./FormError.vue";
+import FormError from './FormError.vue';
 
 const emit = defineEmits(['submit']);
 const props = defineProps({

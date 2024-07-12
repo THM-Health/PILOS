@@ -1,38 +1,25 @@
 <template>
   <div>
-    <h2>
-      {{
-        id === 'new' ? $t('admin.servers.new') : (
-          viewOnly ? $t('admin.servers.view', { name })
-            : $t('admin.servers.edit', { name })
-        )
-      }}
-    </h2>
-    <div class="flex justify-between">
-      <router-link
-        class="p-button p-button-secondary"
-        :disabled="isBusy"
-        :to="{ name: 'admin.servers' }"
-      >
-        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
-      </router-link>
+    <div class="flex justify-end mb-6">
       <div v-if="model.id!== null && id!=='new'" class="flex gap-2">
-        <router-link
+        <Button
+          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
           :disabled="isBusy"
-          :to="{ name: 'admin.servers.view', params: { id: model.id }, query: { view: '1' } }"
-          class="p-button p-button-secondary"
-        >
-          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
-        </router-link>
-        <router-link
+          :to="{ name: 'admin.servers.view', params: { id: model.id } }"
+          severity="secondary"
+          :label="$t('app.cancel_editing')"
+          icon="fa-solid fa-times"
+        />
+        <Button
+          as="router-link"
           v-if="viewOnly && userPermissions.can('update', model)"
           :disabled="isBusy"
-          :to="{ name: 'admin.servers.view', params: { id: model.id } }"
-          class="p-button p-button-secondary"
-        >
-          <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
-        </router-link>
+          :to="{ name: 'admin.servers.edit', params: { id: model.id } }"
+          severity="info"
+          :label="$t('app.edit')"
+          icon="fa-solid fa-edit"
+        />
         <SettingsServersDeleteButton
           v-if="userPermissions.can('delete', model) && isDisabled"
           :id="model.id"
@@ -42,8 +29,6 @@
       </div>
     </div>
 
-    <Divider/>
-
     <OverlayComponent :show="isBusy">
       <template #loading>
         <LoadingRetryButton :error="modelLoadingError" @reload="load"></LoadingRetryButton>
@@ -52,6 +37,7 @@
       <form
         :aria-hidden="modelLoadingError"
         @submit.prevent="saveServer"
+        class="flex flex-col gap-4"
       >
         <div class="field grid grid-cols-12 gap-4">
           <label class="col-span-12 md:col-span-4 md:mb-0" for="name">{{ $t('app.model_name') }}</label>
@@ -113,7 +99,7 @@
             <label class="col-span-12 md:col-span-4 md:mb-0" for="secret">{{ $t('admin.servers.secret') }}</label>
             <div class="col-span-12 md:col-span-8">
               <Password
-                class="w-full"
+                fluid
                 id="secret"
                 :inputProps="{ autocomplete: 'off' }"
                 v-model="model.secret"
@@ -138,7 +124,7 @@
                 :invalid="formErrors.fieldInvalid('strength')"
                 :stars="10"
                 aria-describedby="strength-help"
-                class="border border-surface-300 dark:border-surface-500 rounded-border px-6 py-4 flex justify-between"
+                class="border border-surface-300 dark:border-surface-700 rounded-border px-6 py-3 flex justify-between"
               />
               <small id="strength-help">{{ $t('admin.servers.strength_description') }}</small>
               <FormError :errors="formErrors.fieldError('strength')"/>
@@ -189,7 +175,6 @@
             </div>
           </div>
         <div v-if="!viewOnly">
-          <Divider/>
           <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError"
@@ -202,7 +187,7 @@
       </form>
       <div
         v-if="!modelLoadingError && viewOnly && !isDisabled && model.id!==null"
-        class="mt-4"
+        class="flex flex-col gap-4 mt-4"
       >
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12 md:col">
@@ -303,7 +288,7 @@ import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useI18n } from 'vue-i18n';
-import { computed, onMounted, ref } from 'vue';
+import { computed, inject, onMounted, ref, watch } from 'vue';
 import { useToast } from '../composables/useToast.js';
 
 const toast = useToast();
@@ -313,6 +298,7 @@ const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
 const { t } = useI18n();
+const breakcrumbLabelData = inject('breakcrumbLabelData');
 
 const props = defineProps({
   id: {
@@ -330,6 +316,13 @@ const model = ref({
   id: null
 });
 const name = ref('');
+
+watch(() => name.value, (value) => {
+  breakcrumbLabelData.value = {
+    name: name.value
+  };
+});
+
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);
@@ -463,7 +456,7 @@ function saveServer () {
 
   api.call(props.id === 'new' ? 'servers' : `servers/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'admin.servers.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.servers.view', params: { id: response.data.data.id } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

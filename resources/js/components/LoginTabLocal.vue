@@ -58,7 +58,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useSettingsStore } from '../stores/settings';
-import FormError from "./FormError.vue";
+import FormError from './FormError.vue';
 
 const settingsStore = useSettingsStore();
 

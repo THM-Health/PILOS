@@ -1,7 +1,6 @@
 <template>
-  <div>
-    <div>
-      <h2 class="text-2xl">{{ $t('admin.users.roles_and_permissions') }}</h2>
+  <div class="flex flex-col gap-4">
+    <AdminPanel :title="$t('admin.users.roles_and_permissions')">
       <UserTabSecurityRolesAndPermissionsSection
         :user="user"
         :view-only="viewOnly"
@@ -9,29 +8,19 @@
         @stale-error="handleStaleError"
         @not-found-error="handleNotFoundError"
       />
-    </div>
+    </AdminPanel>
 
-    <div
-      v-if="!viewOnly && user.authenticator === 'local' && canChangePassword"
-      class="mt-4"
-    >
-      <Divider/>
-      <h2 class="text-2xl">{{ $t('auth.change_password') }}</h2>
+    <AdminPanel :title="$t('auth.change_password')"  v-if="!viewOnly && user.authenticator === 'local' && canChangePassword">
       <UserTabSecurityPasswordSection
         :user="user"
         @update-user="updateUser"
         @not-found-error="handleNotFoundError"
       />
-    </div>
+    </AdminPanel>
 
-    <div
-      v-if="isOwnUser"
-      class="mt-4"
-    >
-      <Divider/>
-      <h2 class="text-2xl">{{ $t('auth.sessions.active') }}</h2>
+    <AdminPanel :title="$t('auth.sessions.active')" v-if="isOwnUser">
       <UserTabSecuritySessionsSection />
-    </div>
+    </AdminPanel>
   </div>
 </template>
 

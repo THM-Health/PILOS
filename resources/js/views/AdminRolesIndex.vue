@@ -1,20 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-between items-center">
-      <h2>
-        {{ $t('app.roles') }}
-      </h2>
-      <Button
-        as="router-link"
-        v-if="userPermissions.can('create', 'RolePolicy')"
-        icon="fa-solid fa-plus"
-        v-tooltip="$t('admin.roles.new')"
-        :aria-label="$t('admin.roles.new')"
-        :to="{ name: 'admin.roles.view', params: { id: 'new' } }"
-      />
-    </div>
-
-    <div class="flex flex-col md:flex-row">
+    <div class="flex flex-col md:flex-row justify-between mb-6">
       <div>
         <InputGroup>
           <InputText
@@ -31,8 +17,16 @@
           />
         </InputGroup>
       </div>
+
+      <Button
+        as="router-link"
+        v-if="userPermissions.can('create', 'RolePolicy')"
+        icon="fa-solid fa-plus"
+        v-tooltip="$t('admin.roles.new')"
+        :aria-label="$t('admin.roles.new')"
+        :to="{ name: 'admin.roles.new' }"
+      />
     </div>
-    <Divider/>
 
     <DataTable
       :totalRecords="paginator.getTotalRecords()"
@@ -77,26 +71,25 @@
       <Column :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
-            <router-link
+            <Button
+              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
-              class="p-button p-button-info p-button-icon-only"
               v-tooltip="$t('admin.roles.view', { name: slotProps.data.name })"
               :aria-label="$t('admin.roles.view', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'admin.roles.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-            >
-              <i class="fa-solid fa-eye" />
-            </router-link>
-            <router-link
+              :to="{ name: 'admin.roles.view', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-eye"
+            />
+            <Button
+              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
-              class="p-button p-button-secondary p-button-icon-only"
+              severity="info"
               v-tooltip="$t('admin.roles.edit', { name: slotProps.data.name })"
               :aria-label="$t('admin.roles.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'admin.roles.view', params: { id: slotProps.data.id } }"
-            >
-              <i class="fa-solid fa-edit" />
-            </router-link>
+              :to="{ name: 'admin.roles.edit', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-edit"
+            />
             <SettingsRolesDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
