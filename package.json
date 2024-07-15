@@ -49,7 +49,7 @@
         "mitt": "^3.0.1",
         "pinia": "^2.1.7",
         "primeflex": "^3.3.1",
-        "primevue": "^3.53.0",
+        "primevue": "^4.0.0",
         "primevue-sass-theme": "primefaces/primevue-sass-theme#semver:^3.52.0",
         "sass": "^1.77.6",
         "ua-parser-js": "^1.0.38",
