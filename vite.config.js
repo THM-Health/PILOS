@@ -29,7 +29,7 @@ export default ({ mode }) => {
         input: [
           'resources/js/app.js',
           'resources/sass/app.scss'
-        ],
+        ]
       }),
       vue(),
       Components({
