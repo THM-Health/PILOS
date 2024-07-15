@@ -35,6 +35,7 @@
       </div>
       <Button
         type="submit"
+        data-test="login-button"
         class="mt-6"
         :disabled="props.loading"
         :loading="props.loading"

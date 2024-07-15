@@ -94,7 +94,6 @@
                   <InputMask
                     autofocus
                     v-model="accessCodeInput"
-                    unmask
                     mask="999-999-999"
                     placeholder="123-456-789"
                     :invalid="accessCodeInvalid"
@@ -430,7 +429,7 @@ function setPageTitle (roomName) {
  */
 function login () {
   // Parse to int
-  accessCode.value = parseInt(accessCodeInput.value);
+  accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, ''));
   // Reload the room with an access code
   reload();
 }

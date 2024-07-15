@@ -81,12 +81,6 @@
           v-if="!onlyShowFavorites && userPermissions.can('viewAll', 'RoomPolicy')"
           :on-label="$t('rooms.index.show_all')"
           :off-label="$t('rooms.index.show_all')"
-          class="border border-surface-300 dark:border-surface-500 rounded-border"
-          :pt="{
-            box: {
-              class: 'bg-white'
-            }
-          }"
         >
         </ToggleButton>
         <SelectButton
@@ -99,12 +93,6 @@
           multiple
           :allowEmpty="roomFilter.length > 1"
           @change="loadRooms(1)"
-          class="border border-surface-300 dark:border-surface-500 rounded-border"
-          :pt="{
-            button: {
-              class: 'bg-white'
-            }
-          }"
         />
 
       </div>
@@ -138,7 +126,7 @@
             optionLabel="name"
             optionValue="id"
             :pt="{
-              panel: {
+              listContainer: {
                 'data-test': 'room-type-dropdown-items'
               }
             }"
@@ -170,7 +158,7 @@
             optionLabel="label"
             optionValue="type"
             :pt="{
-              panel: {
+              listContainer: {
                 'data-test': 'sorting-type-dropdown-items'
               }
             }"
