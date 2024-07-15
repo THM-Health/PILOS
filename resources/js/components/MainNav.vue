@@ -50,8 +50,7 @@
                 class: 'right-0',
                 'data-test': 'submenu'
               },
-              action: {
-                class: 'p-2',
+              itemLink: {
                 'data-test': 'submenu-action'
               }
             }"

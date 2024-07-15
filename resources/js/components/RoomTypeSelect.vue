@@ -58,7 +58,7 @@
         listStyle="max-height:250px"
         :aria-labelledby="ariaLabelledby"
         :pt="{
-          item: {
+          option: {
             'data-test': 'room-type-select-option'
           }
         }"

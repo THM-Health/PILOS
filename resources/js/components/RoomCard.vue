@@ -3,6 +3,7 @@
     <!-- room card-->
     <div
       tabindex="0"
+      data-test="room-card"
       class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis"
       :class="{'!border-green-500': running}"
       @click="open"

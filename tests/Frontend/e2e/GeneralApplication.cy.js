@@ -60,14 +60,15 @@ describe('General', function () {
             en: 'English',
             fr: 'Français'
           }
-        }
+        },
+        theme: { primary_color: '#14b8a6', rounded: true }
       }
     });
 
     cy.visit('/rooms');
 
     // Open menu to check if the correct locales are shown
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.p-menubar-item').eq(5).click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').should('have.length', 3);
       cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch');
@@ -86,7 +87,8 @@ describe('General', function () {
             en: 'English',
             fr: 'Français'
           }
-        }
+        },
+        theme: { primary_color: '#14b8a6', rounded: true }
       }
     });
 
@@ -101,7 +103,7 @@ describe('General', function () {
 
     cy.visit('/rooms');
     // Open menu and click on a different locale than the current one
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.p-menubar-item').eq(5).click();
     cy.get('[data-test=submenu]').eq(1).should('be.visible').within(() => {
       cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
     });
@@ -125,7 +127,8 @@ describe('General', function () {
             en: 'English',
             fr: 'Français'
           }
-        }
+        },
+        theme: { primary_color: '#14b8a6', rounded: true }
       }
     });
 
@@ -143,7 +146,7 @@ describe('General', function () {
     cy.visit('/rooms');
 
     // Open menu and click on a different locale than the current one
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.p-menubar-item').eq(5).click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
     });
@@ -168,7 +171,8 @@ describe('General', function () {
             en: 'English',
             fr: 'Français'
           }
-        }
+        },
+        theme: { primary_color: '#14b8a6', rounded: true }
       }
     });
 
@@ -183,7 +187,7 @@ describe('General', function () {
 
     // Open menu and click on a different locale than the current one
     cy.visit('/rooms');
-    cy.get('.p-menuitem').eq(4).click();
+    cy.get('.p-menubar-item').eq(5).click();
     cy.get('[data-test=submenu]').eq(1).within(() => {
       cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
     });

@@ -11,7 +11,7 @@ describe('Room View general', function () {
     cy.visit('/rooms');
     cy.wait('@roomRequest');
 
-    cy.get('.room-card').eq(0).click();
+    cy.get('[data-test="room-card"]').eq(0).click();
 
     cy.url().should('contain', '/rooms/abc-def-123');
   });
@@ -112,7 +112,7 @@ describe('Room View general', function () {
 
     // Get reload button and reload without error
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
-    cy.get('.p-button').should('not.be.disabled').should('contain', 'app.reload').click();
+    cy.get('.p-button').eq(0).should('not.be.disabled').should('contain', 'app.reload').click();
 
     cy.wait('@roomRequest');
     cy.contains('Meeting One');
