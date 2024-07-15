@@ -57,7 +57,6 @@ class Config extends JsonResource
             ],
             'room' => [
                 'limit' => $roomSettings->limit,
-                'pagination_page_size' => $roomSettings->pagination_page_size,
                 'token_expiration' => $roomSettings->token_expiration,
                 'refresh_rate' => config('bigbluebutton.room_refresh_rate'),
             ],

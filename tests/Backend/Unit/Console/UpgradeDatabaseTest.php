@@ -129,7 +129,6 @@ class UpgradeDatabaseTest extends TestCase
             ['key' => 'banner.link_target', 'value' => 'self'],
 
             ['key' => 'room_limit', 'value' => '5'],
-            ['key' => 'room_pagination_page_size', 'value' => '6'],
             ['key' => 'room_token_expiration', 'value' => '-1'],
             ['key' => 'room_auto_delete.inactive_period', 'value' => '365'],
             ['key' => 'room_auto_delete.never_used_period', 'value' => '90'],
@@ -183,7 +182,6 @@ class UpgradeDatabaseTest extends TestCase
         // Check room settings
         $roomSettings = app(RoomSettings::class);
         $this->assertEquals(5, $roomSettings->limit);
-        $this->assertEquals(6, $roomSettings->pagination_page_size);
         $this->assertEquals(TimePeriod::UNLIMITED, $roomSettings->token_expiration);
         $this->assertEquals(TimePeriod::ONE_YEAR, $roomSettings->auto_delete_inactive_period);
         $this->assertEquals(TimePeriod::THREE_MONTHS, $roomSettings->auto_delete_never_used_period);

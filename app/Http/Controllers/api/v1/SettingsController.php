@@ -138,7 +138,6 @@ class SettingsController extends Controller
         $themeSettings->rounded = $request->boolean('theme_rounded');
 
         $roomSettings->limit = $request->integer('room_limit');
-        $roomSettings->pagination_page_size = $request->integer('room_pagination_page_size');
         $roomSettings->token_expiration = $request->enum('room_token_expiration', TimePeriod::class);
         $roomSettings->auto_delete_inactive_period = $request->enum('room_auto_delete_inactive_period', TimePeriod::class);
         $roomSettings->auto_delete_never_used_period = $request->enum('room_auto_delete_never_used_period', TimePeriod::class);

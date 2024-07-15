@@ -60,7 +60,6 @@ class ApplicationTest extends TestCase
         $this->bannerSettings->save();
 
         $this->roomSettings->limit = -1;
-        $this->roomSettings->pagination_page_size = 123;
         $this->roomSettings->token_expiration = TimePeriod::UNLIMITED;
         $this->roomSettings->save();
 
@@ -107,7 +106,6 @@ class ApplicationTest extends TestCase
                     ],
                     'room' => [
                         'limit' => -1,
-                        'pagination_page_size' => 123,
                         'token_expiration' => -1,
                         'refresh_rate' => 20,
                     ],
@@ -188,7 +186,6 @@ class ApplicationTest extends TestCase
                     ],
                     'room' => [
                         'limit' => -1,
-                        'pagination_page_size' => 123,
                         'token_expiration' => 90,
                         'refresh_rate' => 5,
                     ],

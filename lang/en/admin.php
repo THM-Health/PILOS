@@ -365,10 +365,6 @@ return [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
         ],
-        'room_pagination_page_size' => [
-            'description' => 'Number of rooms displayed simultaneously on the home page',
-            'title' => 'Room pagination page size',
-        ],
         'room_token_expiration' => [
             'description' => 'Time period since last usage, after which personalized room links gets automatically removed.',
             'title' => 'Expiration time for personalized room links',

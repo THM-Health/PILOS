@@ -71,7 +71,6 @@ class SettingsTest extends TestCase
         $this->bannerSettings->save();
 
         $this->roomSettings->limit = -1;
-        $this->roomSettings->pagination_page_size = 123;
         $this->roomSettings->auto_delete_inactive_period = TimePeriod::ONE_WEEK;
         $this->roomSettings->auto_delete_never_used_period = TimePeriod::TWO_WEEKS;
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
@@ -137,7 +136,6 @@ class SettingsTest extends TestCase
                     'banner_icon' => 'fas fa-door-open',
 
                     'room_limit' => -1,
-                    'room_pagination_page_size' => 123,
                     'room_auto_delete_inactive_period' => 7,
                     'room_auto_delete_never_used_period' => 14,
                     'room_auto_delete_deadline_period' => 30,
@@ -196,7 +194,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -255,7 +252,6 @@ class SettingsTest extends TestCase
                     'banner_icon' => 'fas fa-door-open',
 
                     'room_limit' => -1,
-                    'room_pagination_page_size' => 15,
                     'room_token_expiration' => -1,
                     'room_auto_delete_inactive_period' => 14,
                     'room_auto_delete_never_used_period' => 30,
@@ -325,7 +321,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -400,7 +395,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -478,7 +472,6 @@ class SettingsTest extends TestCase
             'banner_background' => 'test',
 
             'room_limit' => 'notnumber',
-            'room_pagination_page_size' => 'notnumber',
             'room_token_expiration' => 'notnumber',
             'room_auto_delete_inactive_period' => 'notnumber',
             'room_auto_delete_never_used_period' => 'notnumber',
@@ -530,7 +523,6 @@ class SettingsTest extends TestCase
                 'banner_background',
 
                 'room_limit',
-                'room_pagination_page_size',
                 'room_token_expiration',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
@@ -605,7 +597,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -2,
-            'room_pagination_page_size' => 0,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 1,
             'room_auto_delete_never_used_period' => 1,
@@ -626,7 +617,6 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'general_pagination_page_size',
                 'general_toast_lifetime',
-                'room_pagination_page_size',
                 'room_limit',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
@@ -660,7 +650,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => 101,
-            'room_pagination_page_size' => 101,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 1000,
             'room_auto_delete_never_used_period' => 1000,
@@ -681,7 +670,6 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'general_pagination_page_size',
                 'general_toast_lifetime',
-                'room_pagination_page_size',
                 'room_limit',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
@@ -739,7 +727,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -849,7 +836,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -944,7 +930,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,

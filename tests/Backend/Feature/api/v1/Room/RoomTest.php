@@ -1102,9 +1102,6 @@ class RoomTest extends TestCase
      */
     public function testRoomList()
     {
-        $this->roomSettings->pagination_page_size = 20;
-        $this->roomSettings->save();
-
         $roomType1 = RoomType::factory()->create();
         $roomTypePublicEnforced = RoomType::factory()->create([
             'visibility_default' => RoomVisibility::PUBLIC,

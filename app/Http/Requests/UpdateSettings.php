@@ -61,7 +61,6 @@ class UpdateSettings extends FormRequest
             'banner_background' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'hex_color'],
 
             'room_limit' => ['required', 'numeric', 'min:-1', 'max:100'],
-            'room_pagination_page_size' => ['required', 'numeric', 'min:1', 'max:25'],
             'room_token_expiration' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],

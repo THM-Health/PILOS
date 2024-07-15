@@ -57,7 +57,6 @@ class Settings extends JsonResource
             'banner_link_text' => $bannerSettings->link_text,
             'banner_link_target' => $bannerSettings->link_target,
             'room_limit' => $roomSettings->limit,
-            'room_pagination_page_size' => $roomSettings->pagination_page_size,
             'room_auto_delete_inactive_period' => $roomSettings->auto_delete_inactive_period,
             'room_auto_delete_never_used_period' => $roomSettings->auto_delete_never_used_period,
             'room_auto_delete_deadline_period' => $roomSettings->auto_delete_deadline_period,

@@ -174,9 +174,6 @@ class UpgradeDatabaseCommand extends Command
         if (isset($oldSettings['room_limit'])) {
             $roomSettings->limit = (int) $oldSettings['room_limit'];
         }
-        if (isset($oldSettings['room_pagination_page_size'])) {
-            $roomSettings->pagination_page_size = (int) $oldSettings['room_pagination_page_size'];
-        }
         if (isset($oldSettings['room_token_expiration'])) {
             $roomSettings->token_expiration = TimePeriod::tryFrom($oldSettings['room_token_expiration']) ?: TimePeriod::THREE_MONTHS;
         }

@@ -91,24 +91,6 @@
                   <FormError :errors="formErrors.fieldError('pagination_page_size')"/>
                 </div>
               </div>
-              <div class="grid grid-cols-12 gap-4">
-                <label for="room-pagination-page-size" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.room_pagination_page_size.title')}}</label>
-                <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
-                  <InputText
-                    id="room-pagination-page-size"
-                    v-model.number="settings.room_pagination_page_size"
-                    required
-                    min="1"
-                    max="25"
-                    type="number"
-                    :invalid="formErrors.fieldInvalid('room_pagination_page_size')"
-                    :disabled="disabled"
-                    aria-describedby="room-pagination-page-size-help"
-                  />
-                  <small id="room-pagination-page-size-help">{{ $t('admin.settings.room_pagination_page_size.description') }}</small>
-                  <FormError :errors="formErrors.fieldError('room_pagination_page_size')"/>
-                </div>
-              </div>
               <fieldset class="grid grid-cols-12 gap-4">
                 <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.toast_lifetime.title')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
