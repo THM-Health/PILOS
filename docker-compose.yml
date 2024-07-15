@@ -6,12 +6,7 @@ x-docker-pilos-common: &pilos-common
   volumes:
     - './storage/app:/var/www/html/storage/app'
     - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
-    - './resources/custom:/var/www/html/resources/custom'
     - './app/Auth/config:/var/www/html/app/Auth/config'
-    - './app/Plugins/Custom:/var/www/html/app/Plugins/Custom'
-    - './public/images/custom:/var/www/html/public/images/custom'
-    - './public/build:/var/www/html/public/build'
-
 services:
     app:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'

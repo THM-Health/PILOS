@@ -25,28 +25,37 @@ To override a page or component you need to first copy the file to the `resource
 
 ### Example custom welcome page
 
-**1. Copy the view file**
+**1. Adjust docker-compose file**
 
-    You can do this using the following docker compose command:
-    ```bash
-    docker compose cp app:/var/www/html/resources/js/views/Home.vue ./resources/custom/js/views/Home.vue
-    ```
-**2. Change the file content**
+Custom components, pages and locales are stored in the `resources/custom` folder.
+You need to adjust the docker-compose file to mount this folder into the container.
+To preserve the changes between restarts of the container, you should set the environment variable `BUILD_FRONTEND` in the `.env` file to `true`.
+This will automatically build the frontend when the container is started.
+The build is stored in the `public/build` folder, therefore you must also mount this folder in the container in order to preserve the build between container restarts.
 
-   You can change anything you like in the file.
+```yaml
+- './resources/custom:/var/www/html/resources/custom'
+- './public/build:/var/www/html/public/build'
+```
 
-   In case you want to add a new translation key, you need to add it to the `resources/custom/lang` folder.
-   For more information on how to customize the locales, see the [Locales](./03-locales.md) documentation.
+**2. Copy the view file**
 
-**3. Rebuild the frontend**
+You can do this using the following docker compose command:
+```bash
+docker compose cp app:/var/www/html/resources/js/views/Home.vue ./resources/custom/js/views/Home.vue
+```
 
-   After changing any view or component, you need to rebuild the frontend to apply the changes.
-   By default, the frontend is built during the startup of the container, so you can just restart the container.
-    ```bash
-    docker compose down && docker compose up -d
-    ```
+**3. Change the file content**
 
-   You can also build the frontend manually without restarting the container, by running the following command:
-    ```bash
-    docker compose exec app pilos-cli frontend:build
-    ```
+You can change anything you like in the file.
+
+In case you want to add a new translation key, you need to add it to the `resources/custom/lang` folder.
+For more information on how to customize the locales, see the [Locales](./03-locales.md) documentation.
+
+**4. Rebuild the frontend**
+
+After changing any view or component, you can rebuild the frontend to apply the changes directly without restarting the container.
+
+```bash
+docker compose exec app pilos-cli frontend:build
+```

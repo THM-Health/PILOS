@@ -12,28 +12,8 @@ change_permissions() {
 
 case $ACTION in
 
-  frontend:load)
-      echo "Loading frontend..."
-      # If a pre-build frontend exists, use it to speed up the startup
-      if [ -f "/var/www/html/public/build/next/manifest.json" ]; then
-          echo "Pre-build frontend found, use it to speed up the startup"
-          # Clean up the assets directory
-          rm -r /var/www/html/public/build/assets
-          # Copy the pre-build frontend to the build folder
-          cp -r /var/www/html/public/build/next/assets /var/www/html/public/build/assets
-          cp /var/www/html/public/build/next/manifest.json /var/www/html/public/build/manifest.json
-          cp /var/www/html/public/build/next/hash /var/www/html/public/build/hash
-      else
-          pilos-cli frontend:build
-      fi
-      ;;
-
   frontend:build)
-    su-exec www-data /usr/local/etc/frontend/run.sh
-    ;;
-
-  frontend:pre-build)
-    su-exec www-data /usr/local/etc/frontend/run.sh --pre-build
+    su-exec www-data npm run build
     ;;
 
   playback-player:build)
@@ -76,7 +56,6 @@ case $ACTION in
   init)
     pilos-cli change-permissions
     pilos-cli create-spool-group
-    pilos-cli frontend:load
     pilos-cli optimize
     ;;
 

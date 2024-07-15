@@ -26,18 +26,6 @@ Can be used to rebuild the frontend after changes to the frontend code.
 docker compose exec app pilos-cli frontend:build
 ```
 
-### frontend\:pre-build
-
-Build the PILOS frontend and save as a pre-build to the `public/build/next` directory.
-If the pre-build exists, it will be used instead of building the frontend on container start.
-This can speed up the container start time.
-
-See [Scaling PILOS](./07-advanced/03-scaling.md#reduce-downtime--container-startup-time) for more information.
-
-```bash
-docker compose exec app pilos-cli frontend:pre-build
-```
-
 ### playback-player\:build
 
 Build the BigBlueButton recording player with the release version you want.

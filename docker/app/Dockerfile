@@ -91,6 +91,9 @@ COPY --chown=www-data:www-data ./ /var/www/html
 # Run npm install command
 RUN su-exec www-data npm install --omit=dev
 
+# Build frontend
+RUN su-exec www-data npm run build
+
 # Run and optimize composer for production
 RUN su-exec www-data composer install --no-dev
 RUN su-exec www-data composer dump-autoload -o

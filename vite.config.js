@@ -12,7 +12,6 @@ export default ({ mode }) => {
 
   const VITE_HMR_HOST = process.env.VITE_HOST || 'localhost';
   const VITE_PORT = parseInt(process.env.VITE_PORT || 1073);
-  const BUILD_DIR = process.env.VITE_BUILD_DIR || 'build';
 
   function getSslConfig () {
     if (process.env.VITE_SSL !== 'true') {
@@ -31,7 +30,6 @@ export default ({ mode }) => {
           'resources/js/app.js',
           'resources/sass/app.scss'
         ],
-        buildDirectory: BUILD_DIR
       }),
       vue(),
       Components({

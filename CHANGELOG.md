@@ -15,7 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Laravel Pulse for system monitoring ([#617])
 - Laravel Horizon for queue management ([#617])
 - PILOS CLI for common tasks ([#617])
-- Option to pre-build frontend assets for quicker startup ([#617])
 - Docker container healthcheck ([#617])
 - Documentation for scaling PILOS ([#617])
 - Transfer room ownership ([#532], [#686])
@@ -66,7 +65,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable for BigBlueButton Test-Server in integration tests ([#1159])
 
 ### Fixed
-- Issue frontend recompiled on every restart due to a hashing issue ([#792])
 - Various postgres incompatibility issues ([#1078], [#1079])
 
 ### Removed
