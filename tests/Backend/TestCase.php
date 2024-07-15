@@ -7,6 +7,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -29,6 +30,8 @@ abstract class TestCase extends BaseTestCase
     }
 
     public GeneralSettings $generalSettings;
+
+    public ThemeSettings $themeSettings;
 
     public BannerSettings $bannerSettings;
 
@@ -56,6 +59,7 @@ abstract class TestCase extends BaseTestCase
     protected function initSettings()
     {
         $this->generalSettings = app(GeneralSettings::class);
+        $this->themeSettings = app(ThemeSettings::class);
         $this->bannerSettings = app(BannerSettings::class);
         $this->roomSettings = app(RoomSettings::class);
         $this->userSettings = app(UserSettings::class);

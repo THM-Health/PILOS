@@ -10,6 +10,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use DB;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -153,13 +154,18 @@ class UpgradeDatabaseTest extends TestCase
         // Check settings
         $generalSettings = app(GeneralSettings::class);
         $this->assertEquals('Old App Name', $generalSettings->name);
-        $this->assertEquals('/images/old-logo.svg', $generalSettings->logo);
-        $this->assertEquals('/images/old-favicon.ico', $generalSettings->favicon);
         $this->assertEquals(10, $generalSettings->pagination_page_size);
         $this->assertEquals('Europe/Berlin', $generalSettings->default_timezone);
         $this->assertEquals('https://help.example.com', $generalSettings->help_url);
         $this->assertEquals('https://legal.example.com', $generalSettings->legal_notice_url);
         $this->assertEquals('https://privacy.example.com', $generalSettings->privacy_policy_url);
+
+        // Check theme settings
+        $themeSettings = app(ThemeSettings::class);
+        $this->assertEquals('/images/old-logo.svg', $themeSettings->logo);
+        $this->assertEquals('/images/old-logo.svg', $themeSettings->logo_dark);
+        $this->assertEquals('/images/old-favicon.ico', $themeSettings->favicon);
+        $this->assertEquals('/images/old-favicon.ico', $themeSettings->favicon_dark);
 
         // Check banner settings
         $bannerSettings = app(BannerSettings::class);

@@ -32,13 +32,20 @@ class ApplicationTest extends TestCase
      */
     public function testConfig()
     {
-        $this->generalSettings->logo = 'testlogo.svg';
         $this->generalSettings->pagination_page_size = 123;
         $this->generalSettings->help_url = 'http://localhost';
         $this->generalSettings->legal_notice_url = 'http://localhost';
         $this->generalSettings->privacy_policy_url = 'http://localhost';
         $this->generalSettings->toast_lifetime = 10;
         $this->generalSettings->save();
+
+        $this->themeSettings->logo = 'testlogo.svg';
+        $this->themeSettings->logo_dark = 'testlogo-dark.svg';
+        $this->themeSettings->favicon = 'testfavicon.ico';
+        $this->themeSettings->favicon_dark = 'testfavicon-dark.ico';
+        $this->themeSettings->primary_color = '#4a5c66';
+        $this->themeSettings->rounded = true;
+        $this->themeSettings->save();
 
         $this->bannerSettings->enabled = true;
         $this->bannerSettings->message = 'Welcome to Test!';
@@ -84,12 +91,19 @@ class ApplicationTest extends TestCase
                         'version' => 'v1.0.0',
                         'whitelabel' => false,
                         'base_url' => 'https://domain.tld',
-                        'logo' => 'testlogo.svg',
                         'pagination_page_size' => 123,
                         'toast_lifetime' => 10,
                         'help_url' => 'http://localhost',
                         'legal_notice_url' => 'http://localhost',
                         'privacy_policy_url' => 'http://localhost',
+                    ],
+                    'theme' => [
+                        'logo' => 'testlogo.svg',
+                        'logo_dark' => 'testlogo-dark.svg',
+                        'favicon' => 'testfavicon.ico',
+                        'favicon_dark' => 'testfavicon-dark.ico',
+                        'primary_color' => '#4a5c66',
+                        'rounded' => true,
                     ],
                     'room' => [
                         'limit' => -1,
@@ -158,12 +172,19 @@ class ApplicationTest extends TestCase
                         'version' => null,
                         'whitelabel' => true,
                         'base_url' => 'https://domain.tld',
-                        'logo' => 'testlogo.svg',
                         'pagination_page_size' => 123,
                         'toast_lifetime' => 10,
                         'help_url' => null,
                         'legal_notice_url' => null,
                         'privacy_policy_url' => null,
+                    ],
+                    'theme' => [
+                        'logo' => 'testlogo.svg',
+                        'logo_dark' => 'testlogo-dark.svg',
+                        'favicon' => 'testfavicon.ico',
+                        'favicon_dark' => 'testfavicon-dark.ico',
+                        'primary_color' => '#4a5c66',
+                        'rounded' => true,
                     ],
                     'room' => [
                         'limit' => -1,
