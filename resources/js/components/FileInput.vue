@@ -7,13 +7,13 @@
     @keyup.enter="fileInputRef.click()"
     @keyup.space="fileInputRef.click()"
   >
-    <i class="fa-solid fa-upload mr-2"></i> {{ model?.name ?? $t('app.browse') }}
+    <i class="fa-solid fa-upload mr-2"></i> <span class="p-button-label">{{ model?.name ?? $t('app.browse') }}</span>
   </label>
   <input
     type="file"
     ref="fileInputRef"
     :id="inputId"
-    class="hidden"
+    class="sr-only"
     :disabled="disabled"
     @input="fileSelected"
     :accept="accept"
@@ -67,6 +67,7 @@ watch(() => model.value, (value) => {
   } else {
     invalidExtension.value = false;
     tooBig.value = false;
+    fileInputRef.value.value = null;
   }
 });
 

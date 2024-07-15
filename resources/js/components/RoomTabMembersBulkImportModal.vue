@@ -12,7 +12,7 @@
     :closable="!isLoadingAction"
   >
     <template #footer>
-      <div class="flex justify-end gap-2" v-if="step === 0">
+      <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 0">
         <Button
           :disabled="rawList.length === 0 || isLoadingAction"
           @click="importUsers(true)"
@@ -21,7 +21,7 @@
         />
       </div>
 
-      <div class="flex justify-end gap-2" v-if="step === 1">
+      <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 1">
         <Button
           :disabled="isLoadingAction"
           severity="secondary"
@@ -37,7 +37,7 @@
         />
       </div>
 
-      <div class="flex justify-end gap-2" v-if="step === 2">
+      <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 2">
         <Button
           @click="finish"
           :label="$t('app.close')"

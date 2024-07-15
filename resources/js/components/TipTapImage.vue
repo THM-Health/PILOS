@@ -21,7 +21,7 @@
         v-model.trim="src"
         :invalid="srcInvalid"
       />
-      <p v-if="srcInvalid" class="p-error">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
+      <p v-if="srcInvalid" class="text-red-500" role="alert">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
     </div>
 
     <div class="flex flex-col gap-2 mt-6">

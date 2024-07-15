@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
     <div class="col-span-12 flex flex-col gap-2">
-      <div class="flex gap-2 items-start">
+      <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
         <FileInput
           v-if="!fileDeleted && !readonly"
           :disabled="disabled"
@@ -48,10 +48,10 @@
         />
       </div>
       <div>
-        <p class="p-error" v-if="fileTooBig">
+        <p class="text-red-500" role="alert" v-if="fileTooBig">
           {{ $t('app.validation.too_large') }}
         </p>
-        <p class="p-error" v-if="fileInvalidExtension">
+        <p class="text-red-500" role="alert" v-if="fileInvalidExtension">
           {{ $t('app.validation.invalid_type') }}
         </p>
         <FormError :errors="fileError"/>

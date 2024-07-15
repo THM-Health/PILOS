@@ -21,10 +21,6 @@
     }
 }
 
-
-
-
-
 /* Basic editor styles */
 .ProseMirror {
 
@@ -35,18 +31,19 @@
         max-width: 100%;
         height: auto;
         &.ProseMirror-selectednode {
-            outline: 3px solid #68CEF8;
+            outline: 2px solid var(--p-primary-color);
         }
     }
     blockquote {
         padding-left: 1rem;
-        border-left: 3px solid rgba(#0D0D0D, 0.1);
+        border-left: 3px solid var(--p-surface-300);
     }
     ul,
     ol {
         padding: 0 1rem;
     }
 }
+
 
 .room-description {
 
@@ -56,7 +53,7 @@
     }
     blockquote {
         padding-left: 1rem;
-        border-left: 3px solid rgba(#0D0D0D, 0.1);
+        border-left: 3px solid var(--p-surface-300);
     }
     ul,
     ol {
@@ -64,11 +61,14 @@
     }
 }
 
-.color-picker-block {
-    width: 10px;
-    height: 10px;
-    display: inline-block;
-    margin-right: 5px;
+/* Dark mode */
+.dark {
+    .room-description,
+    .ProseMirror {
+        blockquote {
+            border-left: 3px solid var(--p-surface-700);
+        }
+    }
 }
 
 .room-bulk-import-preview {
@@ -97,7 +97,7 @@
         background-color: var(--p-amber-500);
     }
 
-    &.room-role-ro-role {
+    &.room-role-no-role {
         background-color: var(--p-slate-500);
     }
 }
@@ -107,18 +107,18 @@
     color: #FFF;
 
     &.room-access-everyone {
-        //background-color: $info;
+        background-color: var(--p-slate-500);
     }
 
     &.room-access-participant {
-        //background-color: $success;
+        background-color: var(--p-emerald-500);
     }
 
     &.room-access-moderator {
-        //background-color: $danger;
+        background-color: var(--p-sky-500);
     }
 
     &.room-access-owner {
-        //background-color: $secondary;
+        background-color: var(--p-amber-500);
     }
 }

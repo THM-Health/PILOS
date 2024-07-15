@@ -540,8 +540,8 @@
 
       </OverlayComponent>
       <Divider/>
-      <div class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 items-start ">
-        <div class="flex shrink-0 flex-col md:flex-row items-start gap-2">
+      <div class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start ">
+        <div class="flex shrink-0 flex-col md:flex-row md:items-start gap-2">
           <RoomDeleteButton
             :disabled="disabled"
             :room="room"
@@ -558,15 +558,13 @@
             @toggle-expert-mode="toggleExpertMode"
           />
         </div>
-        <div class="flex">
-          <Button
-            :disabled="disabled"
-            :label="$t('app.save')"
-            :loading="isBusy"
-            icon="fa-solid fa-save"
-            type="submit"
-          />
-        </div>
+        <Button
+          :disabled="disabled"
+          :label="$t('app.save')"
+          :loading="isBusy"
+          icon="fa-solid fa-save"
+          type="submit"
+        />
       </div>
     </form>
   </div>

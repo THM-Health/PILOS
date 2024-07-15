@@ -169,7 +169,7 @@
                   @click="testConnection()"
                 />
               </InputGroup>
-              <p v-if="offlineReason" class="p-error">
+              <p v-if="offlineReason" class="text-red-500" role="alert">
                 {{ $t('admin.servers.offline_reason.' + offlineReason) }}
               </p>
             </div>

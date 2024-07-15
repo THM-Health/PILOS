@@ -28,8 +28,6 @@ footer {
     flex-shrink: 0;
 }
 
-
-
 .container {
     padding-right: 15px;
     padding-left: 15px;
@@ -48,18 +46,8 @@ legend:not(.p-fieldset-legend) {
     padding: 0;
 }
 
-a {
-    text-decoration: none;
-}
-
-a.link {
-    text-decoration: none;
+a.p-button-link {
     &:hover {
         text-decoration: underline;
     }
-}
-
-a.link-color,
-.link-color a{
-    color: var(--p-primary-color);
 }

@@ -21,7 +21,7 @@
         v-model.trim="link"
         :invalid="urlInvalid"
       />
-      <p v-if="urlInvalid" class="p-error">{{ $t('rooms.description.modals.link.invalid_url') }}</p>
+      <p v-if="urlInvalid" class="text-red-500" role="alert">{{ $t('rooms.description.modals.link.invalid_url') }}</p>
     </div>
 
     <template #footer>

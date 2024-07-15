@@ -78,7 +78,7 @@
             @click="props.editor.chain().focus().unsetColor().run()"
           >
             <div
-              class="color-picker-block"
+              class="h-3 w-3 mr-2 border-surface"
               :style="{background: '#000'}"
             /> {{ $t('rooms.description.color.black') }}
           </TipTapMenuDropdownItem>
@@ -89,7 +89,7 @@
             @click="props.editor.chain().focus().setColor(color.color ).run()"
           >
             <div
-              class="color-picker-block"
+              class="h-3 w-3 mr-2 border-surface"
               :style="{background: color.color}"
             /> {{ color.name }}
           </TipTapMenuDropdownItem>
@@ -110,7 +110,7 @@
             @click="props.editor.chain().focus().toggleHighlight({ color: color.color }).run()"
           >
             <div
-              class="color-picker-block"
+              class="h-3 w-3 mr-2 border-surface"
               :style="{background: color.color}"
             /> {{ color.name }}
           </TipTapMenuDropdownItem>

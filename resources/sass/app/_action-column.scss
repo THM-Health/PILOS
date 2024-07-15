@@ -1,4 +1,5 @@
-$actionColumButtonGap: 0.5rem !default;
+$actionColumButtonGap: 0.5rem;
+$paddingActionColumn: 1rem;
 
 th.action-column {
     .p-column-header-content{
@@ -28,35 +29,22 @@ td.action-column > div {
     }
 }
 
-$breakpoints: 'sm', 'md', 'lg', 'xl';
+@media (screen(lg)) {
+     .table-fixed {
+        table{
+            @for $i from 2 through 6 {
+                th.action-column-1 {
+                    width: 5rem;
+                }
 
+                th.action-column-#{$i} {
+                    width: calc($i * var(--p-button-icon-only-width)  + (($i - 1) * $actionColumButtonGap) + 2 * #{$paddingActionColumn});
+                }
+            }
 
-//@each $breakpoint in $breakpoints {
-//    @media screen(#{$breakpoint}) {
-//        .#{$key + $separator} {
-//            &#{$prefix}table-fixed {
-//                table{
-//                    table-layout: fixed;
-//
-//                    .p-button{
-//                        flex-shrink: 0;
-//                    }
-//
-//                    @for $i from 2 through 6 {
-//                        th.action-column-1 {
-//                            width: 5rem;
-//                        }
-//
-//                        th.action-column-#{$i} {
-//                            width: calc($i * #{$buttonIconOnlyWidth} + (($i - 1) * $actionColumButtonGap)  + 2 * #{$tableCellPaddingX});
-//                        }
-//                    }
-//
-//                    th.id-column {
-//                        width: 5rem;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
+            th.id-column {
+                width: 5rem;
+            }
+        }
+    }
+}

@@ -36,7 +36,7 @@
           type="file"
           ref="fileInputRef"
           id="file"
-          class="p-sr-only"
+          class="sr-only"
           :disabled="disabled"
           @input="fileSelected"
           :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"

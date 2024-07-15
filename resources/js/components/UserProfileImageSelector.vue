@@ -1,16 +1,17 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
-    <div class="col-span-12 lg:col-span-9 flex gap-2 items-start" v-if="!viewOnly">
+    <div class="col-span-12 lg:col-span-9 flex md:flex-row flex-col gap-2 md:items-start" v-if="!viewOnly">
     <FileUpload
       v-if="!imageDeleted"
       mode="basic"
       accept="image/*"
       customUpload
       auto
+      class="w-full"
       @uploader="onFileSelect"
       :choose-label="$t('admin.users.image.upload')"
     >
-      <template #chooseicon>
+      <template #uploadicon>
         <i class="fa-solid fa-upload" />
       </template>
     </FileUpload>
@@ -44,6 +45,7 @@
       :image="croppedImage ? croppedImage : image"
       :alt="$t('admin.users.image.title')"
       size="xlarge"
+      class="rounded-border overflow-hidden"
       shape="square"
     />
     <UserAvatar

@@ -1,0 +1,21 @@
+.p-toast-message-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    .p-toast-detail {
+        margin: 0;
+    }
+}
+
+.p-toast-message-icon{
+    overflow: visible;
+    margin-top: 0.4rem;
+}
+
+@media (max-width: 639px) {
+    .p-toast {
+        width: 100%;
+        right: unset !important;
+        padding: 0 10px;
+    }
+}

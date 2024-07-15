@@ -8,6 +8,11 @@
         v-for="session in sessions"
         :key="session.id"
         class="mb-2"
+        :pt="{
+          header: {
+            class: 'sm:flex-row items-start flex-col gap-2'
+          }
+        }"
       >
         <template #header>
           <div class="flex items-center gap-2">

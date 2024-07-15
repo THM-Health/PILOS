@@ -3,7 +3,7 @@
 defineProps({
   severity: {
     type: String,
-    default: 'info'
+    default: 'secondary'
   }
 });
 </script>

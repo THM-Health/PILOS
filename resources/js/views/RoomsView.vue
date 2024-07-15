@@ -109,7 +109,7 @@
                 :label="$t('rooms.login')"
               />
               </InputGroup>
-              <p class="p-error mt-1" v-if="accessCodeInvalid">{{ $t('rooms.flash.access_code_invalid') }}</p>
+              <p class="text-red-500 mt-1" role="alert" v-if="accessCodeInvalid">{{ $t('rooms.flash.access_code_invalid') }}</p>
             </div>
             </template>
           </Card>
