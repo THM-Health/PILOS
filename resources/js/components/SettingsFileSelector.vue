@@ -1,7 +1,7 @@
 <template>
-  <div class="grid">
-    <div class="col-12 flex flex-column gap-2">
-      <div class="flex gap-2 align-items-start">
+  <div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12 flex flex-col gap-2">
+      <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
         <FileInput
           v-if="!fileDeleted && !readonly"
           :disabled="disabled"
@@ -37,19 +37,24 @@
           :label="$t('app.undo_delete')"
         />
 
-        <a v-if="fileUrl && !file && !fileDeleted" :href="fileUrl" target="_blank" class="p-button p-button-secondary">
-          <span class="p-button-icon p-button-icon-left fa-solid fa-eye" />
-          <span class="p-button-label">{{ $t('app.view') }}</span>
-        </a>
+        <Button
+          as="a"
+          severity="secondary"
+          v-if="fileUrl && !file && !fileDeleted"
+          :href="fileUrl"
+          target="_blank"
+          :label="$t('app.view')"
+          icon="fa-solid fa-eye"
+        />
       </div>
       <div>
-        <p class="p-error" v-if="fileTooBig">
+        <p class="text-red-500" role="alert" v-if="fileTooBig">
           {{ $t('app.validation.too_large') }}
         </p>
-        <p class="p-error" v-if="fileInvalidExtension">
+        <p class="text-red-500" role="alert" v-if="fileInvalidExtension">
           {{ $t('app.validation.invalid_type') }}
         </p>
-        <p class="p-error" v-html="fileError"/>
+        <FormError :errors="fileError"/>
       </div>
     </div>
   </div>

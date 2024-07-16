@@ -42,8 +42,6 @@ class SettingsTest extends TestCase
     {
 
         $this->generalSettings->name = 'PILOS';
-        $this->generalSettings->logo = 'logo.svg';
-        $this->generalSettings->favicon = 'favicon.ico';
         $this->generalSettings->pagination_page_size = 123;
         $this->generalSettings->toast_lifetime = 10;
         $this->generalSettings->default_timezone = 'Europe/Berlin';
@@ -51,6 +49,14 @@ class SettingsTest extends TestCase
         $this->generalSettings->legal_notice_url = 'http://localhost/legal';
         $this->generalSettings->privacy_policy_url = 'http://localhost/privacy';
         $this->generalSettings->save();
+
+        $this->themeSettings->logo = 'testlogo.svg';
+        $this->themeSettings->logo_dark = 'testlogo-dark.svg';
+        $this->themeSettings->favicon = 'testfavicon.ico';
+        $this->themeSettings->favicon_dark = 'testfavicon-dark.ico';
+        $this->themeSettings->primary_color = '#4a5c66';
+        $this->themeSettings->rounded = true;
+        $this->themeSettings->save();
 
         $this->bannerSettings->enabled = true;
         $this->bannerSettings->message = 'Welcome to Test!';
@@ -65,7 +71,6 @@ class SettingsTest extends TestCase
         $this->bannerSettings->save();
 
         $this->roomSettings->limit = -1;
-        $this->roomSettings->pagination_page_size = 123;
         $this->roomSettings->auto_delete_inactive_period = TimePeriod::ONE_WEEK;
         $this->roomSettings->auto_delete_never_used_period = TimePeriod::TWO_WEEKS;
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
@@ -105,14 +110,19 @@ class SettingsTest extends TestCase
             ->assertJson([
                 'data' => [
                     'general_name' => 'PILOS',
-                    'general_logo' => 'logo.svg',
-                    'general_favicon' => 'favicon.ico',
                     'general_pagination_page_size' => 123,
                     'general_toast_lifetime' => 10,
                     'general_default_timezone' => 'Europe/Berlin',
                     'general_help_url' => 'http://localhost/help',
                     'general_legal_notice_url' => 'http://localhost/legal',
                     'general_privacy_policy_url' => 'http://localhost/privacy',
+
+                    'theme_logo' => 'testlogo.svg',
+                    'theme_logo_dark' => 'testlogo-dark.svg',
+                    'theme_favicon' => 'testfavicon.ico',
+                    'theme_favicon_dark' => 'testfavicon-dark.ico',
+                    'theme_primary_color' => '#4a5c66',
+                    'theme_rounded' => true,
 
                     'banner_enabled' => true,
                     'banner_message' => 'Welcome to Test!',
@@ -126,7 +136,6 @@ class SettingsTest extends TestCase
                     'banner_icon' => 'fas fa-door-open',
 
                     'room_limit' => -1,
-                    'room_pagination_page_size' => 123,
                     'room_auto_delete_inactive_period' => 7,
                     'room_auto_delete_never_used_period' => 14,
                     'room_auto_delete_deadline_period' => 30,
@@ -160,14 +169,19 @@ class SettingsTest extends TestCase
 
         $payload = [
             'general_name' => 'test',
-            'general_logo' => 'testlogo.svg',
-            'general_favicon' => 'favicon.ico',
             'general_pagination_page_size' => 10,
             'general_toast_lifetime' => 10,
             'general_default_timezone' => 'Europe/Berlin',
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+
+            'theme_logo' => 'testlogo.svg',
+            'theme_logo_dark' => 'testlogo-dark.svg',
+            'theme_favicon' => 'testfavicon.ico',
+            'theme_favicon_dark' => 'testfavicon-dark.ico',
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -180,7 +194,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -216,14 +229,19 @@ class SettingsTest extends TestCase
             ->assertJson([
                 'data' => [
                     'general_name' => 'test',
-                    'general_logo' => 'testlogo.svg',
-                    'general_favicon' => 'favicon.ico',
                     'general_pagination_page_size' => 10,
                     'general_toast_lifetime' => 10,
                     'general_default_timezone' => 'Europe/Berlin',
                     'general_help_url' => 'http://localhost',
                     'general_legal_notice_url' => 'http://localhost',
                     'general_privacy_policy_url' => 'http://localhost',
+
+                    'theme_logo' => 'testlogo.svg',
+                    'theme_logo_dark' => 'testlogo-dark.svg',
+                    'theme_favicon' => 'testfavicon.ico',
+                    'theme_favicon_dark' => 'testfavicon-dark.ico',
+                    'theme_primary_color' => '#4a5c66',
+                    'theme_rounded' => true,
 
                     'banner_enabled' => 0,
                     'banner_message' => 'Welcome to Test!',
@@ -234,7 +252,6 @@ class SettingsTest extends TestCase
                     'banner_icon' => 'fas fa-door-open',
 
                     'room_limit' => -1,
-                    'room_pagination_page_size' => 15,
                     'room_token_expiration' => -1,
                     'room_auto_delete_inactive_period' => 14,
                     'room_auto_delete_never_used_period' => 30,
@@ -279,14 +296,19 @@ class SettingsTest extends TestCase
 
         $payload = [
             'general_name' => 'test',
-            'general_logo_file' => UploadedFile::fake()->image('logo.svg'),
-            'general_favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'general_pagination_page_size' => 10,
             'general_toast_lifetime' => 10,
             'general_default_timezone' => 'Europe/Berlin',
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+
+            'theme_logo_file' => UploadedFile::fake()->image('logo.svg'),
+            'theme_logo_dark_file' => UploadedFile::fake()->image('logo-dark.svg'),
+            'theme_favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'theme_favicon_dark_file' => UploadedFile::fake()->create('favicon-dark.ico', 100, 'image/x-icon'),
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -299,7 +321,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -326,8 +347,10 @@ class SettingsTest extends TestCase
         $response->assertSuccessful();
 
         // Check if the files are correctly stored
-        $this->assertStringStartsWith('/storage/images/', $response->json('data.general_logo'));
-        $this->assertStringStartsWith('/storage/images/', $response->json('data.general_favicon'));
+        $this->assertStringStartsWith('/storage/images/', $response->json('data.theme_logo'));
+        $this->assertStringStartsWith('/storage/images/', $response->json('data.theme_logo_dark'));
+        $this->assertStringStartsWith('/storage/images/', $response->json('data.theme_favicon'));
+        $this->assertStringStartsWith('/storage/images/', $response->json('data.theme_favicon_dark'));
         $this->assertStringStartsWith('http://localhost/storage/images/', $response->json('data.bbb_logo'));
     }
 
@@ -343,16 +366,23 @@ class SettingsTest extends TestCase
 
         $payload = [
             'general_name' => 'test',
-            'general_logo' => '/storage/image/testfile.svg',
-            'general_logo_file' => UploadedFile::fake()->image('logo.svg'),
-            'general_favicon' => '/storage/image/favicon.ico',
-            'general_favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'general_pagination_page_size' => 10,
             'general_toast_lifetime' => 10,
             'general_default_timezone' => 'Europe/Berlin',
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+
+            'theme_logo' => '/storage/image/logo.svg',
+            'theme_logo_file' => UploadedFile::fake()->image('logo.svg'),
+            'theme_logo_dark' => '/storage/image/logo_dark.svg',
+            'theme_logo_dark_file' => UploadedFile::fake()->image('logo_dark.svg'),
+            'theme_favicon' => '/storage/image/favicon.ico',
+            'theme_favicon_file' => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'theme_favicon_dark' => '/storage/image/favicon_dark.ico',
+            'theme_favicon_dark_file' => UploadedFile::fake()->create('favicon_dark.ico', 100, 'image/x-icon'),
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -365,7 +395,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -392,8 +421,10 @@ class SettingsTest extends TestCase
         $response = $this->actingAs($this->user)->putJson(route('api.v1.settings.update'), $payload);
         $response->assertSuccessful();
 
-        $this->assertNotEquals('/storage/image/testfile.svg', $response->json('data.logo'));
+        $this->assertNotEquals('/storage/image/logo.svg', $response->json('data.logo'));
         $this->assertNotEquals('/storage/image/favicon.ico', $response->json('data.favicon'));
+        $this->assertNotEquals('/storage/image/logo_dark.svg', $response->json('data.logo'));
+        $this->assertNotEquals('/storage/image/favicon_dark.ico', $response->json('data.favicon'));
         $this->assertNotEquals('/storage/image/bbbtestlogo.png', $response->json('data.bbb.logo'));
     }
 
@@ -413,16 +444,23 @@ class SettingsTest extends TestCase
 
         $payload = [
             'general_name' => '',
-            'general_logo' => '',
-            'general_logo_file' => 'notimagefile',
-            'general_favicon' => '',
-            'general_favicon_file' => 'notimagefile',
             'general_pagination_page_size' => 'notnumber',
             'general_toast_lifetime' => 'notnumber',
             'general_default_timezone' => 'timezone',
             'general_help_url' => 111,
             'general_legal_notice_url' => 222,
             'general_privacy_policy_url' => 333,
+
+            'theme_logo' => '',
+            'theme_logo_file' => 'notimagefile',
+            'theme_logo_dark' => '',
+            'theme_logo_dark_file' => 'notimagefile',
+            'theme_favicon' => '',
+            'theme_favicon_file' => 'notimagefile',
+            'theme_favicon_dark' => '',
+            'theme_favicon_dark_file' => 'notimagefile',
+            'theme_primary_color' => 'notcolor',
+            'theme_rounded' => 'notbool',
 
             'banner_enabled' => 'foo',
             'banner_title' => str_repeat('a', 256),
@@ -434,7 +472,6 @@ class SettingsTest extends TestCase
             'banner_background' => 'test',
 
             'room_limit' => 'notnumber',
-            'room_pagination_page_size' => 'notnumber',
             'room_token_expiration' => 'notnumber',
             'room_auto_delete_inactive_period' => 'notnumber',
             'room_auto_delete_never_used_period' => 'notnumber',
@@ -457,16 +494,23 @@ class SettingsTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'general_name',
-                'general_logo',
-                'general_logo_file',
-                'general_favicon',
-                'general_favicon_file',
                 'general_pagination_page_size',
                 'general_toast_lifetime',
                 'general_default_timezone',
                 'general_help_url',
                 'general_legal_notice_url',
                 'general_privacy_policy_url',
+
+                'theme_logo',
+                'theme_logo_file',
+                'theme_logo_dark',
+                'theme_logo_dark_file',
+                'theme_favicon',
+                'theme_favicon_file',
+                'theme_favicon_dark',
+                'theme_favicon_dark_file',
+                'theme_primary_color',
+                'theme_rounded',
 
                 'banner_enabled',
                 'banner_title',
@@ -479,7 +523,6 @@ class SettingsTest extends TestCase
                 'banner_background',
 
                 'room_limit',
-                'room_pagination_page_size',
                 'room_token_expiration',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
@@ -554,7 +597,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -2,
-            'room_pagination_page_size' => 0,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 1,
             'room_auto_delete_never_used_period' => 1,
@@ -575,7 +617,6 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'general_pagination_page_size',
                 'general_toast_lifetime',
-                'room_pagination_page_size',
                 'room_limit',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
@@ -609,7 +650,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => 101,
-            'room_pagination_page_size' => 101,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 1000,
             'room_auto_delete_never_used_period' => 1000,
@@ -630,7 +670,6 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'general_pagination_page_size',
                 'general_toast_lifetime',
-                'room_pagination_page_size',
                 'room_limit',
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
@@ -663,14 +702,19 @@ class SettingsTest extends TestCase
 
         $payload = [
             'general_name' => 'test',
-            'general_logo' => 'testlogo.svg',
-            'general_favicon' => 'favicon.ico',
             'general_pagination_page_size' => 10,
             'general_toast_lifetime' => 10,
             'general_default_timezone' => 'Europe/Berlin',
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+
+            'theme_logo' => 'testlogo.svg',
+            'theme_logo_dark' => 'testlogo-dark.svg',
+            'theme_favicon' => 'favicon.ico',
+            'theme_favicon_dark' => 'favicon_dark.ico',
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -683,7 +727,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -768,14 +811,19 @@ class SettingsTest extends TestCase
 
         $payload = [
             'general_name' => 'test',
-            'general_logo' => 'testlogo.svg',
-            'general_favicon' => 'favicon.ico',
             'general_pagination_page_size' => 10,
             'general_toast_lifetime' => 10,
             'general_default_timezone' => 'Europe/Berlin',
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+
+            'theme_logo' => 'testlogo.svg',
+            'theme_logo_dark' => 'testlogo-dark.svg',
+            'theme_favicon' => 'favicon.ico',
+            'theme_favicon_dark' => 'favicon_dark.ico',
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -788,7 +836,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
@@ -858,14 +905,19 @@ class SettingsTest extends TestCase
 
         $payload = [
             'general_name' => 'test',
-            'general_logo' => 'testlogo.svg',
-            'general_favicon' => 'favicon.ico',
             'general_pagination_page_size' => 10,
             'general_toast_lifetime' => 10,
             'general_default_timezone' => 'Europe/Berlin',
             'general_help_url' => 'http://localhost',
             'general_legal_notice_url' => 'http://localhost',
             'general_privacy_policy_url' => 'http://localhost',
+
+            'theme_logo' => 'testlogo.svg',
+            'theme_logo_dark' => 'testlogo-dark.svg',
+            'theme_favicon' => 'favicon.ico',
+            'theme_favicon_dark' => 'favicon_dark.ico',
+            'theme_primary_color' => '#4a5c66',
+            'theme_rounded' => true,
 
             'banner_enabled' => 0,
             'banner_message' => 'Welcome to Test!',
@@ -878,7 +930,6 @@ class SettingsTest extends TestCase
             'banner_icon' => 'fas fa-door-open',
 
             'room_limit' => -1,
-            'room_pagination_page_size' => 15,
             'room_token_expiration' => -1,
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,

@@ -2,7 +2,7 @@
   <div
     ref="overflow"
     v-tooltip="{ value: slotText, autoHide: false }"
-    class="text-overflow-ellipsis overflow-hidden"
+    class="text-ellipsis overflow-hidden"
   >
     <slot />
   </div>

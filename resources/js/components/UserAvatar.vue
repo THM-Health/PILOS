@@ -1,6 +1,6 @@
 <template>
   <Avatar v-if="props.image" :image="props.image" :size="size" :shape="shape" />
-  <Avatar v-else :label="avatarLabel" :size="size" :shape="shape" />
+  <Avatar v-else :label="avatarLabel" class="select-none" :size="size" :shape="shape" />
 </template>
 
 <script setup>

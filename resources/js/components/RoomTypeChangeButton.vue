@@ -19,7 +19,7 @@
     />
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" severity="secondary" @click="modalVisible = false" />
         <Button :label="$t('app.save')" :disabled="!newRoomType" @click="handleOk" />
       </div>

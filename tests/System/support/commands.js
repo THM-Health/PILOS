@@ -47,7 +47,7 @@ Cypress.Commands.add('loginAs', (name) => {
     cy.get('#local-email').type(user.email);
     cy.get('#local-password').type(user.password);
 
-    cy.get('.p-button').should('have.text', 'Login').click();
+    cy.get('[data-test="login-button"]').should('have.text', 'Login').click();
   });
 
   // Check toast message

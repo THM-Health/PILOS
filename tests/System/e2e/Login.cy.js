@@ -11,7 +11,7 @@ describe('Login', function () {
       cy.get('#local-email').type('john.doe@example.org');
       cy.get('#local-password').type('johndoe');
 
-      cy.get('.p-button').should('have.text', 'Login').click();
+      cy.get('[data-test="login-button"]').should('have.text', 'Login').click();
     });
 
     // Check toast message
@@ -28,7 +28,7 @@ describe('Login', function () {
       cy.get('#local-email').type('john.doe@example.org');
       cy.get('#local-password').type('johndoe2');
 
-      cy.get('.p-button').should('have.text', 'Login').click();
+      cy.get('[data-test="login-button"]').should('have.text', 'Login').click();
     });
 
     // Check error message

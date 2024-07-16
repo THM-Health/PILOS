@@ -110,24 +110,3 @@ The following steps are executed during the initialization:
 ### Database migration
 After the initialization the database migration is executed.
 To disable the automatic database migration set the environment variable `RUN_MIGRATIONS=false`.
-
-### Reduce downtime / container startup time
-
-The most time-consuming part of the initialization is the frontend build.
-You can spin up a container of the new image and pre-build the frontend.
-
-**Example:**
-```bash
-# Set image to be used
-IMAGE=pilos/pilos:local-dev
-# Pull latest version of the image
-docker pull $IMAGE
-# Pre-build frontend for this image
-docker run -it --rm \
--v "$PWD/resources/custom:/var/www/html/resources/custom" \
--v "$PWD/resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom" \
--v "$PWD/public/build:/var/www/html/public/build" \
---entrypoint=pilos-cli \
-$IMAGE \
-frontend:pre-build
-```

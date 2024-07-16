@@ -24,7 +24,7 @@
     </span>
 
     <div v-if="deleteFailedRoomTypes" class="mt-2">
-      <InlineMessage
+      <Message
         severity="error"
         :pt="{
           icon:{class:'hidden'}
@@ -39,7 +39,7 @@
             {{ roomType.name }}
           </li>
         </ul>
-      </InlineMessage>
+      </Message>
     </div>
 
     <template v-if="deleteFailedRoomTypes==null" #footer>

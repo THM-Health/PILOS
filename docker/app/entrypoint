@@ -55,6 +55,12 @@ if [ "$RUN_INIT" != "false" ]; then
     pilos-cli init
 fi
 
+# Build frontend if environment variable BUILD_FRONTEND is set to 'true'
+if [ "$BUILD_FRONTEND" == "true" ]; then
+    echo "Building frontend"
+    pilos-cli frontend:build
+fi
+
 # Link storage
 pilos-cli storage:link
 

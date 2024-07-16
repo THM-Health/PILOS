@@ -1,9 +1,9 @@
 <template>
   <div class="px-2">
-    <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-content-end mb-3">
+    <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-end mb-4">
       <Button
         v-if="!editorOpen"
-        severity="secondary"
+        severity="info"
         :disabled="isBusy"
         @click="edit"
         icon="fa-solid fa-edit"
@@ -39,15 +39,12 @@
           :class="{'is-invalid': formErrors.fieldInvalid('description') === false}"
           :disabled="isBusy"
         />
-        <p class="p-error" v-if="formErrors.fieldInvalid('description')"
-          v-html="formErrors.fieldError('description')"
-        />
+        <FormError :errors="formErrors.fieldError('description')" />
       </div>
     </OverlayComponent>
-    <div class="flex justify-content-end mt-2">
+    <div class="flex justify-end mt-2">
       <Button
         v-if="editorOpen"
-        severity="success"
         :disabled="isBusy"
         @click="save"
         icon="fa-solid fa-save"

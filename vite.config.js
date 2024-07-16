@@ -3,9 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import * as fs from 'fs';
 import Components from 'unplugin-vue-components/vite';
-import {
-  PrimeVueResolver
-} from 'unplugin-vue-components/resolvers';
+import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
 export default ({ mode }) => {
   const ENV_PREFIX = ['VITE_'];
@@ -14,8 +12,6 @@ export default ({ mode }) => {
 
   const VITE_HMR_HOST = process.env.VITE_HOST || 'localhost';
   const VITE_PORT = parseInt(process.env.VITE_PORT || 1073);
-  const THEME = process.env.VITE_THEME || 'default';
-  const BUILD_DIR = process.env.VITE_BUILD_DIR || 'build';
 
   function getSslConfig () {
     if (process.env.VITE_SSL !== 'true') {
@@ -32,9 +28,8 @@ export default ({ mode }) => {
       laravel({
         input: [
           'resources/js/app.js',
-          'resources/sass/theme/' + THEME + '/app.scss'
-        ],
-        buildDirectory: BUILD_DIR
+          'resources/sass/app.scss'
+        ]
       }),
       vue(),
       Components({

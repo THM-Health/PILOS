@@ -143,7 +143,7 @@ class RoomController extends Controller
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 
-        $collection = $collection->paginate(app(\App\Settings\RoomSettings::class)->pagination_page_size);
+        $collection = $collection->paginate($request->per_page);
 
         return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
     }

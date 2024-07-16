@@ -31,16 +31,23 @@ class UpdateSettings extends FormRequest
 
         return [
             'general_name' => ['required', 'string', 'max:255'],
-            'general_logo' => ['required_without:general_logo_file', 'string', 'max:255'],
-            'general_logo_file' => ['required_without:general_logo', 'image', 'max:500'], // 500 KB, larger files are bad for loading times
-            'general_favicon' => ['required_without:general_favicon_file', 'string', 'max:255'],
-            'general_favicon_file' => ['required_without:general_favicon', 'mimes:ico', 'max:500'], // 500 KB, larger files are bad for loading times
             'general_pagination_page_size' => ['required', 'numeric', 'min:1', 'max:100'],
             'general_default_timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'general_toast_lifetime' => ['required', 'numeric', 'min:0', 'max:30'],
             'general_help_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_legal_notice_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_privacy_policy_url' => ['nullable', 'string', 'url', 'max:255'],
+
+            'theme_logo' => ['required_without:theme_logo_file', 'string', 'max:255'],
+            'theme_logo_file' => ['required_without:theme_logo', 'image', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_logo_dark' => ['required_without:theme_logo_dark_file', 'string', 'max:255'],
+            'theme_logo_dark_file' => ['required_without:theme_logo_dark', 'image', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_favicon' => ['required_without:theme_favicon_file', 'string', 'max:255'],
+            'theme_favicon_file' => ['required_without:theme_favicon', 'mimes:ico', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_favicon_dark' => ['required_without:theme_favicon_dark_file', 'string', 'max:255'],
+            'theme_favicon_dark_file' => ['required_without:theme_favicon_dark', 'mimes:ico', 'max:500'], // 500 KB, larger files are bad for loading times
+            'theme_primary_color' => ['required', 'string', 'hex_color'],
+            'theme_rounded' => ['required', 'boolean'],
 
             'banner_enabled' => ['required', 'boolean'],
             'banner_title' => ['nullable', 'string', 'max:255'],
@@ -54,7 +61,6 @@ class UpdateSettings extends FormRequest
             'banner_background' => ['nullable', Rule::requiredIf($this->boolean('banner_enabled')), 'string', 'hex_color'],
 
             'room_limit' => ['required', 'numeric', 'min:-1', 'max:100'],
-            'room_pagination_page_size' => ['required', 'numeric', 'min:1', 'max:25'],
             'room_token_expiration' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],

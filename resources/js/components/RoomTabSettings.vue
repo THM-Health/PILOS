@@ -9,15 +9,15 @@
           <LoadingRetryButton :error="loadingError" @reload="load"/>
         </template>
 
-        <div class="grid">
+        <div class="grid grid-cols-12 gap-4">
 
           <!-- General settings (always shown) -->
-          <div class="col-12">
+          <div class="col-span-12">
             <h4 class="text-lg font-semibold m-0">{{ $t('rooms.settings.general.title') }}</h4>
           </div>
 
           <!-- Room type setting -->
-          <div class="col-12 md:col-3 flex flex-column">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
             <label for="room-type" class="mb-2">{{ $t('rooms.settings.general.type') }}</label>
 
             <RoomTypeChangeButton
@@ -29,11 +29,11 @@
               :current-settings="settings"
               @room-type-changed="(resetToDefaults) => resetToRoomTypeSettings(resetToDefaults)"
             />
-            <p class="p-error" v-html="formErrors.fieldError('room_type')"/>
+            <FormError :errors="formErrors.fieldError('room_type')"/>
           </div>
 
           <!-- Room name -->
-          <div class="col-12 md:col-3 flex flex-column">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
             <label for="room-name" class="mb-2">{{ $t('rooms.name') }}</label>
             <InputText
               class="w-full"
@@ -42,12 +42,12 @@
               :disabled="disabled"
               :invalid="formErrors.fieldInvalid('name')"
             />
-            <p class="p-error" v-html="formErrors.fieldError('name')"/>
+            <FormError :errors="formErrors.fieldError('name')"/>
           </div>
 
           <!-- Access code -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label for="access-code" class="flex align-items-center gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <label for="access-code" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.has_access_code_enforced"/>
               {{ $t('rooms.access_code') }}
             </label>
@@ -84,31 +84,31 @@
             <small v-if="settings.room_type.has_access_code_enforced">
               {{settings.room_type.has_access_code_default?  $t('rooms.settings.general.access_code_enforced'): $t('rooms.settings.general.access_code_prohibited') }}
             </small>
-            <p class="p-error" v-html="formErrors.fieldError('access_code')"/>
+            <FormError :errors="formErrors.fieldError('access_code')"/>
           </div>
 
           <!-- Checkbox allow guests to access the room -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label for="allow-guests" class="flex align-items-center gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <label for="allow-guests" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.allow_guests_enforced"/>
               {{$t('rooms.settings.general.access_by_guests')}}
             </label>
 
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
                 v-model="settings.allow_guests"
                 :disabled="disabled || settings.room_type.allow_guests_enforced"
                 :invalid="formErrors.fieldInvalid('allow_guests')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="allow-guests"
               />
               <label for="allow-guests">{{ $t('rooms.settings.general.allow') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('allow_guests')"/>
+            <FormError :errors="formErrors.fieldError('allow_guests')"/>
           </div>
 
           <!-- Short description-->
-          <div class="col-12 flex flex-column gap-2">
+          <div class="col-span-12 flex flex-col gap-2">
             <label for="short-description">{{ $t('rooms.settings.general.short_description') }}</label>
 
             <Textarea
@@ -123,7 +123,7 @@
             <small>
               {{ $t('rooms.settings.general.chars', {chars: charactersLeftShortDescription}) }}
             </small>
-            <p class="p-error" v-html="formErrors.fieldError('short_description')"/>
+            <FormError :errors="formErrors.fieldError('short_description')"/>
           </div>
         </div>
 
@@ -131,63 +131,63 @@
         Expert settings (only shown when expert mode is activated)
         When the expert mode is deactivated the default values from the room type will be used
         -->
-        <div class="grid" v-if="settings.expert_mode">
-          <Divider />
+        <div class="grid grid-cols-12 gap-4" v-if="settings.expert_mode">
+          <Divider class="col-span-12" />
 
           <!-- Video conference settings -->
-          <div class="col-12">
+          <div class="col-span-12">
             <h4 class="text-lg font-semibold m-0">{{ $t('rooms.settings.video_conference.title') }}</h4>
           </div>
 
           <!-- Everyone can start a new meeting, not only the moderator -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label for="everyone-can-start" class="align-items-center gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <label for="everyone-can-start" class="items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.everyone_can_start_enforced"/>
               {{$t('rooms.settings.video_conference.allow_starting')}}
             </label>
 
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
                 v-model="settings.everyone_can_start"
                 :disabled="disabled || settings.room_type.everyone_can_start_enforced"
                 :invalid="formErrors.fieldInvalid('everyone_can_start')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="everyone-can-start"
               />
               <label for="everyone-can-start">{{ $t('rooms.settings.general.allow_everyone') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('everyone_can_start')"/>
+            <FormError :errors="formErrors.fieldError('everyone_can_start')"/>
           </div>
 
           <!-- Mute everyone's microphone on meeting join -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label for="mute-on-start" class="flex align-items-center gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <label for="mute-on-start" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.mute_on_start_enforced"/>
               {{$t('rooms.settings.video_conference.microphone')}}
             </label>
 
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
                 v-model="settings.mute_on_start"
                 :disabled="disabled || settings.room_type.mute_on_start_enforced"
                 :invalid="formErrors.fieldInvalid('mute_on_start')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="mute-on-start"
               />
               <label for="mute-on-start">{{ $t('rooms.settings.video_conference.mute_on_start') }}</label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('mute_on_start')"/>
+            <FormError :errors="formErrors.fieldError('mute_on_start')"/>
           </div>
 
           <!-- Radio usage of the waiting room/guest lobby -->
-          <div class="col-12 md:col-3">
-            <fieldset class="flex flex-column gap-2">
-              <legend class="flex align-items-center gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <fieldset class="flex flex-col gap-2">
+              <legend class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lobby_enforced"/>
                 {{ $t('rooms.settings.video_conference.lobby.title') }}
               </legend>
 
-              <div class="flex align-items-center gap-2">
+              <div class="flex items-center gap-2">
                 <RadioButton
                   v-model.number="settings.lobby"
                   :disabled="disabled || settings.room_type.lobby_enforced"
@@ -197,7 +197,7 @@
                 />
                 <label for="lobby-disabled">{{ $t('app.disabled') }}</label>
               </div>
-              <div class="flex align-items-center gap-2">
+              <div class="flex items-center gap-2">
                 <RadioButton
                   v-model.number="settings.lobby"
                   :disabled="disabled || settings.room_type.lobby_enforced"
@@ -207,7 +207,7 @@
                 />
                 <label for="lobby-enabled">{{ $t('app.enabled') }}</label>
               </div>
-              <div class="flex align-items-center gap-2">
+              <div class="flex items-center gap-2">
                 <RadioButton
                   v-model.number="settings.lobby"
                   :disabled="disabled || settings.room_type.lobby_enforced"
@@ -217,7 +217,7 @@
                 />
                 <label for="lobby-only-for-guests">{{ $t('rooms.settings.video_conference.lobby.only_for_guests_enabled') }}</label>
               </div>
-              <p class="p-error" v-html="formErrors.fieldError('lobby')"/>
+              <FormError :errors="formErrors.fieldError('lobby')"/>
             </fieldset>
 
             <!-- Alert shown when default role is moderator and waiting room is active -->
@@ -230,7 +230,7 @@
           </div>
 
           <!-- Welcome message -->
-          <div class="col-12 flex flex-column">
+          <div class="col-span-12 flex flex-col">
             <label for="welcome-message" class="mb-2">{{ $t('rooms.settings.video_conference.welcome_message') }}</label>
             <Textarea
               class="w-full"
@@ -244,150 +244,150 @@
             <small>
               {{ $t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage}) }}
             </small>
-            <p class="p-error" v-html="formErrors.fieldError('welcome')"/>
+            <FormError :errors="formErrors.fieldError('welcome')"/>
           </div>
 
-          <Divider/>
+          <Divider class="col-span-12" />
 
           <!-- Recording settings -->
-          <div class="col-12">
+          <div class="col-span-12">
             <h4 class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.recordings.title') }}</h4>
           </div>
 
           <!-- Checkbox record attendance of users and guests -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
                 v-model="settings.record_attendance"
                 :disabled="disabled || settings.room_type.record_attendance_enforced"
                 :invalid="formErrors.fieldInvalid('record_attendance')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="record-attendance"
               />
-              <label for="record-attendance" class="flex align-items-center gap-2">
+              <label for="record-attendance" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.record_attendance_enforced"/>
                 {{ $t('rooms.settings.recordings.record_attendance') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('record_attendance')"/>
+            <FormError :errors="formErrors.fieldError('record_attendance')"/>
           </div>
 
           <!-- Checkbox record video conference -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
                 v-model="settings.record"
                 :disabled="disabled || settings.room_type.record_enforced"
                 :invalid="formErrors.fieldInvalid('record')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="record"
               />
-              <label for="record" class="flex align-items-center gap-2">
+              <label for="record" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.record_enforced"/>
                 {{ $t('rooms.settings.recordings.record_video_conference') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('record')"/>
+            <FormError :errors="formErrors.fieldError('record')"/>
           </div>
 
           <!-- Checkbox auto start recording of video conference -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
                 v-model="settings.auto_start_recording"
                 :disabled="disabled || settings.room_type.auto_start_recording_enforced"
                 :invalid="formErrors.fieldInvalid('auto_start_recording')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="auto-start-recording"
               />
-              <label for="auto-start-recording" class="flex align-items-center gap-2">
+              <label for="auto-start-recording" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.auto_start_recording_enforced"/>
                 {{ $t('rooms.settings.recordings.auto_start_recording') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('auto_start_recording')"/>
+            <FormError :errors="formErrors.fieldError('auto_start_recording')"/>
           </div>
 
-          <Divider/>
+          <Divider class="col-span-12" />
 
           <!-- Restriction settings -->
-          <div class="col-12">
+          <div class="col-span-12">
             <h4 class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.restrictions.title') }}</h4>
           </div>
 
           <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2 h-full">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2 h-full">
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_cam"
                 :disabled="disabled ||settings.room_type.lock_settings_disable_cam_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_cam')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="disable-cam"
               />
-              <label for="disable-cam" class="flex align-items-center gap-2">
+              <label for="disable-cam" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_cam_enforced"/>
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_cam') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_cam')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_cam')"/>
           </div>
 
           <!--
           Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
           can be changed during the meeting
           -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2 h-full">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2 h-full">
+              <ToggleSwitch
                 v-model="settings.webcams_only_for_moderator"
                 :disabled="disabled || settings.room_type.webcams_only_for_moderator_enforced"
                 :invalid="formErrors.fieldInvalid('webcams_only_for_moderator')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="webcams-only-for-moderator"
               />
-              <label for="webcams-only-for-moderator" class="flex align-items-center gap-2">
+              <label for="webcams-only-for-moderator" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.webcams_only_for_moderator_enforced"/>
                 {{ $t('rooms.settings.restrictions.webcams_only_for_moderator') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('webcams_only_for_moderator')"/>
+            <FormError :errors="formErrors.fieldError('webcams_only_for_moderator')"/>
           </div>
 
           <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2 h-full">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2 h-full">
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_mic"
                 :disabled="disabled || settings.room_type.lock_settings_disable_mic_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_mic')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="disable-mic"
               />
-              <label for="disable-mic" class="flex align-items-center gap-2">
+              <label for="disable-mic" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_mic_enforced"/>
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_mic') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_mic')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_mic')"/>
           </div>
 
           <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2 h-full">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2 h-full">
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_public_chat"
                 :disabled="disabled || settings.room_type.lock_settings_disable_public_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_public_chat')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="disable-public-chat"
               />
-              <label for="disable-public-chat" class="flex align-items-center gap-2">
+              <label for="disable-public-chat" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_public_chat_enforced"/>
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_public_chat') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_public_chat')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_public_chat')"/>
           </div>
 
           <!--
@@ -395,87 +395,87 @@
           private chats with the moderators is still possible
           can be changed during the meeting
           -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2 h-full">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2 h-full">
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_private_chat"
                 :disabled="disabled || settings.room_type.lock_settings_disable_private_chat_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_private_chat')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="disable-private-chat"
               />
-              <label for="disable-private-chat" class="flex align-items-center gap-2">
+              <label for="disable-private-chat" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_private_chat_enforced"/>
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_private_chat') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_private_chat')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_private_chat')"/>
           </div>
 
           <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2 h-full">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2 h-full">
+              <ToggleSwitch
                 v-model="settings.lock_settings_disable_note"
                 :disabled="disabled || settings.room_type.lock_settings_disable_note_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_disable_note')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="disable-note"
               />
-              <label for="disable-note" class="flex align-items-center gap-2">
+              <label for="disable-note" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_disable_note_enforced"/>
                 {{ $t('rooms.settings.restrictions.lock_settings_disable_note') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_disable_note')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_disable_note')"/>
           </div>
 
           <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2 h-full">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2 h-full">
+              <ToggleSwitch
                 v-model="settings.lock_settings_hide_user_list"
                 :disabled="disabled || settings.room_type.lock_settings_hide_user_list_enforced"
                 :invalid="formErrors.fieldInvalid('lock_settings_hide_user_list')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="hide-user-list"
               />
-              <label for="hide-user-list" class="flex align-items-center gap-2">
+              <label for="hide-user-list" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lock_settings_hide_user_list_enforced"/>
                 {{ $t('rooms.settings.restrictions.lock_settings_hide_user_list') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('lock_settings_hide_user_list')"/>
+            <FormError :errors="formErrors.fieldError('lock_settings_hide_user_list')"/>
           </div>
 
-          <Divider/>
+          <Divider class="col-span-12" />
 
           <!-- Participants settings -->
-          <div class="col-12">
+          <div class="col-span-12">
             <h4 class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.participants.title') }}</h4>
           </div>
 
           <!-- Checkbox allow users to become room members -->
-          <div class="col-12 md:col-3">
-            <div class="flex align-items-center gap-2">
-              <InputSwitch
+          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+            <div class="flex items-center gap-2">
+              <ToggleSwitch
                 v-model="settings.allow_membership"
                 :disabled="disabled ||settings.room_type.allow_membership_enforced"
                 :invalid="formErrors.fieldInvalid('allow_membership')"
-                class="flex-shrink-0"
+                class="shrink-0"
                 input-id="allow-membership"
               />
-              <label for="allow-membership" class="flex align-items-center gap-2">
+              <label for="allow-membership" class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.allow_membership_enforced"/>
                 {{ $t('rooms.settings.participants.allow_membership') }}
               </label>
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('allow_membership')"/>
+            <FormError :errors="formErrors.fieldError('allow_membership')"/>
           </div>
 
           <!-- Default user role for logged in users only -->
-          <div class="col-12 md:col-3 flex flex-column">
-            <label id="default-role-label" class="flex align-items-center gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
+            <label id="default-role-label" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.default_role_enforced"/>
               {{ $t('rooms.settings.participants.default_role.title') }}
             </label>
@@ -493,25 +493,26 @@
                   { role: 1, label: $t('rooms.roles.participant')},
                   { role: 2, label: $t('rooms.roles.moderator')}
                 ]"
-                class="flex-shrink-0"
+                class="shrink-0"
                 dataKey="role"
                 aria-labelledby="default-role-label"
                 optionLabel="label"
                 optionValue="role"
               />
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('default_role')"/>
+            <FormError :errors="formErrors.fieldError('default_role')"/>
           </div>
-          <Divider/>
+
+          <Divider class="col-span-12" />
 
           <!-- Advanced settings -->
-          <div class="col-12">
+          <div class="col-span-12">
             <h4 class="text-lg font-semibold text-color m-0">{{ $t('rooms.settings.advanced.title')}}</h4>
           </div>
 
           <!-- Room visibility setting -->
-          <div class="col-12 md:col-3 flex flex-column gap-2">
-            <label id="visibility-label" class="flex align-items-center gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+            <label id="visibility-label" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.visibility_enforced"/>
               {{ $t('rooms.settings.advanced.visibility.title') }}
             </label>
@@ -526,21 +527,21 @@
                   { visibility: 0, label: $t('rooms.settings.advanced.visibility.private') },
                   { visibility: 1, label: $t('rooms.settings.advanced.visibility.public')}
                 ]"
-                class="flex-shrink-0"
+                class="shrink-0"
                 dataKey="visibility"
                 aria-labelledby="visibility-label"
                 optionLabel="label"
                 optionValue="visibility"
               />
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('visibility')"/>
+            <FormError :errors="formErrors.fieldError('visibility')"/>
           </div>
         </div>
 
       </OverlayComponent>
       <Divider/>
-      <div class="flex flex-wrap flex-column-reverse md:flex-row md:justify-content-between gap-2 align-items-start ">
-        <div class="flex flex-shrink-0 flex-column md:flex-row align-items-start gap-2">
+      <div class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start ">
+        <div class="flex shrink-0 flex-col md:flex-row md:items-start gap-2">
           <RoomDeleteButton
             :disabled="disabled"
             :room="room"
@@ -557,16 +558,13 @@
             @toggle-expert-mode="toggleExpertMode"
           />
         </div>
-        <div class="flex">
-          <Button
-            :disabled="disabled"
-            :label="$t('app.save')"
-            :loading="isBusy"
-            icon="fa-solid fa-save"
-            severity="success"
-            type="submit"
-          />
-        </div>
+        <Button
+          :disabled="disabled"
+          :label="$t('app.save')"
+          :loading="isBusy"
+          icon="fa-solid fa-save"
+          type="submit"
+        />
       </div>
     </form>
   </div>

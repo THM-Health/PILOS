@@ -1,113 +1,103 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
-      <h2>
-        {{ $t('app.users') }}
-      </h2>
-      <router-link
-        v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
-        v-tooltip="$t('admin.users.new')"
-        :aria-label="$t('admin.users.new')"
-        class="p-button p-button-success p-button-icon-only"
-        :to="{ name: 'admin.users.new' }"
-      >
-        <i class="fa-solid fa-plus" />
-      </router-link>
-    </div>
-
-    <div class="grid">
-      <div class="col flex flex-column md:flex-row">
-        <div>
-          <InputGroup>
-            <InputText
-              v-model="filter.name"
-              :disabled="isBusy"
-              :placeholder="$t('app.search')"
-              @keyup.enter="loadData(1)"
-            />
-            <Button
-              :disabled="isBusy"
-              @click="loadData(1)"
-              v-tooltip="$t('app.search')"
-              :aria-label="$t('app.search')"
-              icon="fa-solid fa-magnifying-glass"
-            />
-          </InputGroup>
-        </div>
-      </div>
-
-      <div class="col-12 sm:col-12 md:col-4 md:col-offset-4">
+    <div class="flex flex-col md:flex-row gap-4 mb-6 justify-between">
+      <div>
         <InputGroup>
-          <multiselect
-            id="roles"
-            ref="rolesMultiselectRef"
-            v-model="filter.role"
-            @update:modelValue="loadData(1)"
-            :placeholder="$t('admin.users.role_filter')"
-            track-by="id"
-            open-direction="bottom"
-            :multiple="false"
-            :searchable="false"
-            :internal-search="false"
-            :clear-on-select="false"
-            :close-on-select="false"
-            :show-no-results="false"
-            :show-labels="false"
-            :options="roles"
-            :disabled="rolesLoadingError"
-            :loading="rolesLoading"
-            :allow-empty="true"
-            class="multiselect-form-control"
-          >
-            <template #noOptions>
-              {{ $t('admin.roles.no_data') }}
-            </template>
-            <template v-slot:option="{ option }">
-              {{ option.name }}
-            </template>
-            <template v-slot:singleLabel="{ option }">
-              {{ option.name }}
-            </template>
-            <template #afterList>
-              <div class="flex p-2 gap-2">
-              <Button
-                :disabled="rolesLoading || rolesCurrentPage === 1"
-                outlined
-                severity="secondary"
-                @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
-                icon="fa-solid fa-arrow-left"
-                :label="$t('app.previous_page')"
-              />
-              <Button
-                :disabled="rolesLoading || !rolesHasNextPage"
-                outlined
-                severity="secondary"
-                @click="loadRoles(rolesCurrentPage + 1)"
-                icon="fa-solid fa-arrow-right"
-                :label=" $t('app.next_page') "
-              />
-              </div>
-            </template>
-          </multiselect>
-            <Button
-              v-if="!rolesLoadingError && filter.role"
-              outlined
-              severity="secondary"
-              @click="clearFilterRole"
-              icon="fa-solid fa-xmark"
-            />
-
-            <Button
-              v-if="rolesLoadingError"
-              outlined
-              severity="secondary"
-              @click="loadRoles(rolesCurrentPage)"
-              icon="fa-solid fa-sync"
-            />
+          <InputText
+            v-model="filter.name"
+            :disabled="isBusy"
+            :placeholder="$t('app.search')"
+            @keyup.enter="loadData(1)"
+          />
+          <Button
+            :disabled="isBusy"
+            @click="loadData(1)"
+            v-tooltip="$t('app.search')"
+            :aria-label="$t('app.search')"
+            icon="fa-solid fa-magnifying-glass"
+          />
         </InputGroup>
       </div>
+
+        <div class="flex flex-col md:flex-row gap-2 justify-end">
+          <InputGroup class="grow shrink-0 min-w-80">
+              <multiselect
+                id="roles"
+                ref="rolesMultiselectRef"
+                v-model="filter.role"
+                @update:modelValue="loadData(1)"
+                :placeholder="$t('admin.users.role_filter')"
+                track-by="id"
+                open-direction="bottom"
+                :multiple="false"
+                :searchable="false"
+                :internal-search="false"
+                :clear-on-select="false"
+                :close-on-select="false"
+                :show-no-results="false"
+                :show-labels="false"
+                :options="roles"
+                :disabled="rolesLoadingError"
+                :loading="rolesLoading"
+                :allow-empty="true"
+              >
+                <template #noOptions>
+                  {{ $t('admin.roles.no_data') }}
+                </template>
+                <template v-slot:option="{ option }">
+                  {{ option.name }}
+                </template>
+                <template v-slot:singleLabel="{ option }">
+                  {{ option.name }}
+                </template>
+                <template #afterList>
+                  <div class="flex p-2 gap-2">
+                    <Button
+                      :disabled="rolesLoading || rolesCurrentPage === 1"
+                      outlined
+                      severity="secondary"
+                      @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
+                      icon="fa-solid fa-arrow-left"
+                      :label="$t('app.previous_page')"
+                    />
+                    <Button
+                      :disabled="rolesLoading || !rolesHasNextPage"
+                      outlined
+                      severity="secondary"
+                      @click="loadRoles(rolesCurrentPage + 1)"
+                      icon="fa-solid fa-arrow-right"
+                      :label=" $t('app.next_page') "
+                    />
+                  </div>
+                </template>
+              </multiselect>
+              <Button
+                v-if="!rolesLoadingError && filter.role"
+                outlined
+                severity="secondary"
+                @click="clearFilterRole"
+                icon="fa-solid fa-xmark"
+              />
+
+              <Button
+                v-if="rolesLoadingError"
+                outlined
+                severity="secondary"
+                @click="loadRoles(rolesCurrentPage)"
+                icon="fa-solid fa-sync"
+              />
+          </InputGroup>
+          <Button
+            class="shrink-0"
+            as="router-link"
+            v-if="userPermissions.can('create', 'UserPolicy') && settingsStore.getSetting('auth.local')"
+            v-tooltip="$t('admin.users.new')"
+            :aria-label="$t('admin.users.new')"
+            icon="fa-solid fa-plus"
+            :to="{ name: 'admin.users.new' }"
+          />
+      </div>
     </div>
-    <Divider/>
 
     <DataTable
       :totalRecords="paginator.getTotalRecords()"
@@ -173,26 +163,25 @@
       <Column :header="$t('app.actions')" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div>
-            <router-link
+            <Button
+              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
-              class="p-button p-button-icon-only p-button-info"
               v-tooltip="$t('admin.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
               :aria-label="$t('admin.users.view', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
               :disabled="isBusy"
-              :to="{ name: 'admin.users.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-            >
-              <i class="fa-solid fa-eye" />
-            </router-link>
-            <router-link
+              :to="{ name: 'admin.users.view', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-eye"
+            />
+            <Button
+              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
-              class="p-button p-button-icon-only p-button-secondary"
+              severity="info"
               v-tooltip="$t('admin.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
               :aria-label="$t('admin.users.edit', { firstname: slotProps.data.firstname, lastname: slotProps.data.lastname })"
               :disabled="isBusy"
-              :to="{ name: 'admin.users.view', params: { id: slotProps.data.id } }"
-            >
-              <i class="fa-solid fa-edit" />
-            </router-link>
+              :to="{ name: 'admin.users.edit', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-edit"
+            />
             <SettingsUsersResetPasswordButton
               v-if="userPermissions.can('resetPassword', slotProps.data) && settingsStore.getSetting('auth.local')"
               :id="slotProps.data.id"

@@ -1,12 +1,13 @@
 <template>
   <div data-test="login-tab-external">
     <p class="p-card-title">{{ props.title }}</p>
-    <a
-      class="p-button"
+    <Button
+      data-test="login-button"
+      as="a"
       :href="redirectUrl"
-    >
-      <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> {{ redirectLabel }}
-    </a>
+      icon="fa-solid fa-arrow-up-right-from-square"
+      :label="redirectLabel"
+    />
   </div>
 </template>
 

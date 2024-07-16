@@ -2,7 +2,7 @@
   <Button
     v-tooltip="$t('rooms.recordings.edit_recording')"
     :disabled="disabled"
-    severity="secondary"
+    severity="info"
     @click="showEditModal"
     icon="fa-solid fa-edit"
   />
@@ -29,14 +29,14 @@
     </template>
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.save')" severity="success" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('app.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
         </div>
     </template>
 
     <!-- description -->
-    <div class="flex flex-column gap-2">
+    <div class="flex flex-col gap-2">
       <label for="description">{{ $t('rooms.recordings.description') }}</label>
       <Textarea
         id="description"
@@ -45,17 +45,17 @@
         :invalid="formErrors.fieldInvalid('description')"
         :maxlength="settingsStore.getSetting('recording.recording_description_limit')"
       />
-      <p class="p-error" v-html="formErrors.fieldError('description')" />
+      <FormError :errors="formErrors.fieldError('description')" />
       <small>
         {{ $t('app.char_counter', {chars: charactersLeftDescription}) }}
       </small>
     </div>
 
     <!-- available formats -->
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label>{{ $t('rooms.recordings.available_formats') }}</label>
-      <div class="flex align-items-center" v-for="format in newFormats" :key="format.id">
-        <InputSwitch
+      <div class="flex items-center" v-for="format in newFormats" :key="format.id">
+        <ToggleSwitch
           :inputId="format.id"
           v-model="format.disabled"
           :true-value="false"
@@ -63,17 +63,17 @@
         />
         <label :for="format.id" class="ml-2">{{ $t('rooms.recordings.format_types.'+format.format)}}</label>
       </div>
-      <p class="p-error" v-html="formErrors.fieldError('formats', true)" />
+      <FormError :errors="formErrors.fieldError('formats', true)" />
     </div>
 
     <!-- access -->
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label>{{ $t('rooms.recordings.access') }}</label>
-      <div v-for="accessType in accessTypes" :key="accessType" class="flex align-items-center">
+      <div v-for="accessType in accessTypes" :key="accessType" class="flex items-center">
         <RadioButton v-model="newAccess" :inputId="'access-'+accessType" name="access" :value="accessType" />
         <label :for="'access-'+accessType" class="ml-2"><RoomRecordingAccessBadge :access="accessType"/></label>
       </div>
-      <p class="p-error" v-html="formErrors.fieldError('access')" />
+      <FormError :errors="formErrors.fieldError('access')" />
     </div>
 
   </Dialog>

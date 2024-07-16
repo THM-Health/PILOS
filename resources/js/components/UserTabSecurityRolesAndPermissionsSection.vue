@@ -1,10 +1,10 @@
 <template>
   <div>
-    <form @submit="save" v-if="model">
+    <form @submit="save" v-if="model" class="flex flex-col gap-4">
 
-      <div class="field grid">
-        <label for="roles" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.roles') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="roles" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.roles') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <RoleSelect
             id="roles"
             v-model="model.roles"
@@ -14,14 +14,13 @@
             @loading-error="(value) => rolesLoadingError = value"
             @busy="(value) => rolesLoading = value"
           />
-          <p class="p-error" v-html="formErrors.fieldError('roles')" />
+          <FormError :errors="formErrors.fieldError('roles')" />
         </div>
       </div>
-      <div class="flex justify-content-end">
+      <div class="flex justify-end">
         <Button
           v-if="!viewOnly && userPermissions.can('editUserRole', model)"
           :disabled="isBusy || rolesLoadingError || rolesLoading"
-          severity="success"
           type="submit"
           :loading="isBusy"
           :label="$t('app.save')"

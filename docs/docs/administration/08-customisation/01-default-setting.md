@@ -24,7 +24,11 @@ and do not read the settings from the database.
 
 ## Image paths
 In case you want to customize the images of the applications (logo and favicon) before the first start of the application, follow the steps below:
-1. Put the custom images under the path `public/images/custom`.
+1. Mount the `public/images/custom` folder into the container by adjusting the docker-compose file. 
+    ```yaml
+    - './public/images/custom:/var/www/html/public/images/custom'
+    ```
+2. Put the custom images under the path `public/images/custom`.
 2. Adjust the `.env` file with the relative path `/images/custom/` , e.g. `DEFAULT_LOGO=/images/custom/logo.svg`
 
 :::info

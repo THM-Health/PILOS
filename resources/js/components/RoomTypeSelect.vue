@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="modelLoadingError" class="flex flex-column gap-2 align-items-start">
+  <div v-if="modelLoadingError" class="flex flex-col gap-2 items-start">
     <Message
       severity="error"
       :closable="false"
@@ -20,9 +20,9 @@
     />
   </div>
   <OverlayComponent v-else :show="isLoadingAction">
-  <div class="grid">
-    <div :class="modelValue ? 'md:col-6' : 'md:col'" class="col-12">
-      <Dropdown
+  <div class="grid grid-cols-12 gap-4">
+    <div :class="modelValue ? 'md:col-span-6' : 'md:col-span-12'" class="col-span-12">
+      <Select
         v-model="roomTypeId"
         :disabled="disabled || isLoadingAction"
         @change="changeRoomType"
@@ -37,14 +37,14 @@
             class: 'max-w-full'
           },
           item: {
-            class: 'white-space-normal'
+            class: 'whitespace-normal'
           }
         }"
       >
         <template #option="slotProps">
           <span class="max-w-full" style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
         </template>
-      </Dropdown>
+      </Select>
 
       <Listbox
         v-model="roomTypeId"
@@ -58,7 +58,7 @@
         listStyle="max-height:250px"
         :aria-labelledby="ariaLabelledby"
         :pt="{
-          item: {
+          option: {
             'data-test': 'room-type-select-option'
           }
         }"
@@ -68,7 +68,7 @@
         </template>
       </Listbox>
     </div>
-    <div class="col-12 md:col-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
+    <div class="col-span-12 md:col-span-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
       <RoomTypeDetails :roomType="modelValue" />
     </div>
   </div>

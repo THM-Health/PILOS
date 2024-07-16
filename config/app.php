@@ -39,8 +39,6 @@ return [
 
     'name' => env('APP_NAME', 'PILOS'),
 
-    'theme' => env('VITE_THEME', 'default'),
-
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
     'version' => $appVersion,

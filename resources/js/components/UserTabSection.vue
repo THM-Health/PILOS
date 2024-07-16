@@ -4,62 +4,51 @@
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadUser" />
       </template>
-      <TabView
-        v-if="!isBusy && user"
-        lazy
-        :pt="{
-            root: { class: 'room-tabs' },
-            navContent: { class: 'border-round-top' }
-          }"
-      >
-        <TabPanel>
-          <template #header>
-            <i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}
-          </template>
-          <UserTabProfile
-            :user="user"
-            :view-only="viewOnly"
-            @update-user="updateUser"
-            @stale-error="handleStaleError"
-            @not-found-error="handleNotFoundError"
-          />
-        </TabPanel>
-        <TabPanel>
-          <template #header>
-            <i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}
-          </template>
-          <UserTabEmail
-            :user="user"
-            :view-only="viewOnly"
-            @update-user="updateUser"
-            @not-found-error="handleNotFoundError"
-          />
-        </TabPanel>
-        <TabPanel>
-          <template #header>
-            <i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}
-          </template>
-          <UserTabSecurity
-            :user="user"
-            :view-only="viewOnly"
-            @update-user="updateUser"
-            @stale-error="handleStaleError"
-            @not-found-error="handleNotFoundError"
-          />
-        </TabPanel>
-        <TabPanel>
-          <template #header>
-            <i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}
-          </template>
-          <UserTabOtherSettings
-            :user="user"
-            :view-only="viewOnly"
-            @update-user="updateUser"
-            @stale-error="handleStaleError"
-            @not-found-error="handleNotFoundError"
-          />
-        </TabPanel>
-      </TabView>
+      <Tabs v-if="!isBusy && user" value="base" scrollable>
+        <TabList>
+          <Tab value="base"><i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}</Tab>
+          <Tab value="email"><i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}</Tab>
+          <Tab value="security"><i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}</Tab>
+          <Tab value="others"><i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}</Tab>
+        </TabList>
+        <TabPanels class="px-0">
+          <TabPanel value="base">
+            <UserTabProfile
+              :user="user"
+              :view-only="viewOnly"
+              @update-user="updateUser"
+              @stale-error="handleStaleError"
+              @not-found-error="handleNotFoundError"
+            />
+          </TabPanel>
+          <TabPanel value="email">
+            <UserTabEmail
+              :user="user"
+              :view-only="viewOnly"
+              @update-user="updateUser"
+              @not-found-error="handleNotFoundError"
+            />
+          </TabPanel>
+          <TabPanel value="security">
+            <UserTabSecurity
+              :user="user"
+              :view-only="viewOnly"
+              @update-user="updateUser"
+              @stale-error="handleStaleError"
+              @not-found-error="handleNotFoundError"
+            />
+          </TabPanel>
+          <TabPanel value="others">
+            <UserTabOtherSettings
+              :user="user"
+              :view-only="viewOnly"
+              @update-user="updateUser"
+              @stale-error="handleStaleError"
+              @not-found-error="handleNotFoundError"
+            />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </OverlayComponent>
 
     <!-- Stale user modal -->
@@ -74,7 +63,7 @@
       :closable="false"
     >
       <template #footer>
-        <div class="flex justify-content-end gap-2">
+        <div class="flex justify-end gap-2">
           <Button :label="$t('app.reload')" :loading="isBusy" :disabled="isBusy" @click="refreshUser" />
         </div>
       </template>

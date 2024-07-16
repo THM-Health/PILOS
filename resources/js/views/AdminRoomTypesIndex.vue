@@ -1,18 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
-      <h2>{{ $t('app.room_types') }}</h2>
-      <router-link
-        v-if="userPermissions.can('create', 'RoomTypePolicy')"
-        v-tooltip="$t('admin.room_types.new')"
-        class="p-button p-button-success p-button-icon-only"
-        :to="{ name: 'admin.room_types.view', params: { id: 'new' } }"
-      >
-        <i class="fa-solid fa-plus" />
-      </router-link>
-    </div>
-
-    <div class="flex flex-column md:flex-row">
+    <div class="flex flex-col md:flex-row justify-between mb-6">
       <div>
         <InputGroup>
           <InputText
@@ -29,9 +17,14 @@
           />
         </InputGroup>
       </div>
+      <Button
+        as="router-link"
+        v-if="userPermissions.can('create', 'RoomTypePolicy')"
+        v-tooltip="$t('admin.room_types.new')"
+        icon="fa-solid fa-plus"
+        :to="{ name: 'admin.room_types.new' }"
+      />
     </div>
-
-    <Divider/>
 
     <DataTable
       :value="roomTypes"
@@ -59,26 +52,25 @@
       <Column field="actions" :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
-            <router-link
+            <Button
+              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
-              class="p-button p-button-icon-only p-button-info"
               v-tooltip="$t('admin.room_types.view', { name: slotProps.data.name })"
               :aria-label="$t('admin.room_types.view', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'admin.room_types.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-            >
-              <i class="fa-solid fa-eye" />
-            </router-link>
-            <router-link
+              :to="{ name: 'admin.room_types.view', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-eye"
+            />
+            <Button
+              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
-              class="p-button p-button-icon-only p-button-secondary"
+              severity="info"
               v-tooltip="$t('admin.room_types.edit', { name: slotProps.data.name })"
               :aria-label="$t('admin.room_types.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'admin.room_types.view', params: { id: slotProps.data.id } }"
-            >
-              <i class="fa-solid fa-edit" />
-            </router-link>
+              :to="{ name: 'admin.room_types.edit', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-edit"
+            />
             <SettingsRoomTypesDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"
@@ -97,7 +89,6 @@ import { onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useSettingsStore } from '../stores/settings';
-import { FilterMatchMode } from 'primevue/api';
 import { useActionColumn } from '../composables/useActionColumn.js';
 import { usePaginator } from '../composables/usePaginator.js';
 
@@ -111,7 +102,7 @@ const isBusy = ref(false);
 const roomTypes = ref([]);
 const nameSearch = ref('');
 const filters = ref({
-  name: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  name: { value: null, matchMode: 'contains' }
 });
 
 onMounted(() => {

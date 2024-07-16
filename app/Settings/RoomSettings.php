@@ -9,8 +9,6 @@ class RoomSettings extends Settings
 {
     public int $limit;
 
-    public int $pagination_page_size;
-
     public TimePeriod $token_expiration;
 
     public TimePeriod $auto_delete_inactive_period;
