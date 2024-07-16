@@ -2,6 +2,13 @@ name: Pull locales from POEditor
 
 on:
   workflow_dispatch:
+    inputs:
+      poeditor_project_id:
+        required: true
+        description: 'POEditor Project ID'
+        type: number
+  schedule:
+    - cron: "0 * * * *"
 jobs:
   pull-locales:
     name: Pull locales from POEditor
@@ -73,7 +80,7 @@ jobs:
         DB_USERNAME: root
         DB_PASSWORD: password
         POEDITOR_TOKEN: ${{ secrets.POEDITOR_TOKEN }}
-        POEDITOR_PROJECT: ${{ secrets.POEDITOR_PROJECT }}
+        POEDITOR_PROJECT: ${{ github.event.inputs.poeditor_project_id || secrets.POEDITOR_PROJECT}}
       run: php artisan locales:import
 
     - name: Create Pull Request

@@ -4,7 +4,7 @@ description: Contribute to the translation of PILOS and add custom locales
 ---
 
 PILOS is available in multiple languages. By default, PILOS comes with English and German translations.
-Other locales are maintained by the community using [PoEditor](https://poeditor.com/join/project/UGpZY4JAnz).
+Other locales are maintained by the community using [PoEditor](https://poeditor.com/join/project/gWkaFBI8OH).
 
 ## Locale structure
 Locales are stored as php arrays in the `lang` folder.
