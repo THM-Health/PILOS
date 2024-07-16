@@ -17,11 +17,11 @@ defineProps({
     <span class="col-span-12">{{ label }}</span>
 
     <div class="col-span-3 flex justify-center items-center" :aria-label="currentEnforced? $t('rooms.change_type.current_setting_enforced'): $t('rooms.change_type.current_setting')">
-      <Tag v-if="type === 'switch' && currentValue" class="p-tag-circle" rounded severity="primary">
+      <Tag v-if="type === 'switch' && currentValue" class="h-6 w-6" rounded severity="primary">
         <span class="fas fa-check" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.enabled') }}</span>
       </Tag>
-      <Tag v-if="type === 'switch' && !currentValue" class="p-tag-circle" rounded severity="secondary">
+      <Tag v-if="type === 'switch' && !currentValue" class="h-6 w-6" rounded severity="secondary">
         <span class="fa-solid fa-xmark" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.disabled') }}</span>
       </Tag>
@@ -38,11 +38,11 @@ defineProps({
     <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
 
     <div class="col-span-3 flex justify-center items-center" :aria-label="newEnforced? $t('rooms.change_type.resulting_setting_enforced'): $t('rooms.change_type.resulting_setting')">
-      <Tag v-if="type === 'switch' && newValue" class="p-tag-circle" rounded severity="primary">
+      <Tag v-if="type === 'switch' && newValue" class="h-6 w-6" rounded severity="primary">
         <span class="fas fa-check" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.enabled') }}</span>
       </Tag>
-      <Tag v-if="type === 'switch' && !newValue" class="p-tag-circle" rounded severity="secondary">
+      <Tag v-if="type === 'switch' && !newValue" class="h-6 w-6" rounded severity="secondary">
         <span class="fa-solid fa-xmark" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.disabled') }}</span>
       </Tag>

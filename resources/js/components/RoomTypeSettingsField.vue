@@ -18,11 +18,11 @@ defineProps({
     </span>
 
     <div class="col-span-4 justify-center flex items-center">
-      <Tag v-if="type === 'switch' && value" class="p-tag-circle" rounded severity="primary">
+      <Tag v-if="type === 'switch' && value" class="h-6 w-6" rounded severity="primary">
         <span class="fas fa-check"  aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.enabled') }}</span>
       </Tag>
-      <Tag v-if="type === 'switch' && !value" class="p-tag-circle" rounded severity="secondary">
+      <Tag v-if="type === 'switch' && !value" class="h-6 w-6" rounded severity="secondary">
         <span class="fa-solid fa-xmark" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.disabled') }}</span>
       </Tag>
