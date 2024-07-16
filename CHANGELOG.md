@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Setting to change the lifetime of toast messages ([#1102])
 - User search can find user by email ([#1120])
 - Cypress system tests ([#1166])
+- Dark mode ([#1204])
+- Theming options in the UI ([#1204])
 
 ### Changed
 - Refactor user interface for room search and home page ([#372], [#373])
@@ -48,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Split container into separate containers for the application, cronjobs and queue workers ([#617])
 - PHP 8.3 docker base image using alpine ([#704], [#735], [#792])
 - Renamed artisan command `users:create:admin` to `users:create:superuser` ([#883])
-- Refactored frontend from Vue2 to Vue3, replacing BootstrapVue with PrimeVue ([#883])
+- Refactored frontend from Vue2 to Vue3, replacing BootstrapVue with PrimeVue v4 ([#883], [#1204])
 - Upgrade to Laravel 11 ([#927])
 - Refactor server health, making it more robust against temporary connection issues ([#911])
 - Calculation of server load uses the participants amount, during starting phase using a configurable min. amount ([#956])
@@ -63,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** The learning dashboard is no longer disabled and the meeting layout is no longer always "custom". These settings can be set with create-api-parameters in the room type settings. ([#574])
 - Cypress tests for basic frontend features ([#760], [#1126])
 - Environment variable for BigBlueButton Test-Server in integration tests ([#1159])
+- Pagination size for rooms ([#1204])
 
 ### Fixed
 - Various postgres incompatibility issues ([#1078], [#1079])
@@ -71,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation for running PILOS without docker ([#617])
 - Max. participants and max. duration from room settings ([#883])
 - Global attendance logging setting ([#905])
-- Environment variables for room history chart colors, room type colors and banner colors; replaced by using the theme colors ([#1071])
+- Theming options in .env and sass files ([#1204])
 
 ## [v3.0.3] - 2024-05-02
 ### Fixed
@@ -143,6 +146,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1126]: https://github.com/THM-Health/PILOS/pull/1126
 [#1159]: https://github.com/THM-Health/PILOS/pull/1159
 [#1166]: https://github.com/THM-Health/PILOS/pull/1166
+[#1204]: https://github.com/THM-Health/PILOS/pull/1204
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
