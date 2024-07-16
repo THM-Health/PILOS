@@ -149,7 +149,8 @@ return [
                 'imported_users' => 'Utilisateurs ajoutés avec succès',
                 'label' => 'Liste d\'adresses e-mail',
                 'list_description' => 'Chaque ligne représente une adresse e-mail distincte (maximum 1000)',
-                'list_placeholder' => 'john.doe@domaine.fr\\njane.doe@domaine.fr',
+                'list_placeholder' => 'john.doe@domaine.fr'."\n"
+                    .'jane.doe@domaine.fr',
             ],
             'edit' => [
                 'title' => 'Modifier :firstname :lastname',

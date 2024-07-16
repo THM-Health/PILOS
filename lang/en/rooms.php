@@ -216,7 +216,8 @@ return [
                 'imported_users' => 'Users that were successfully added',
                 'label' => 'Email list',
                 'list_description' => 'Every line represents a separate email address (maximum 1000)',
-                'list_placeholder' => 'john.doe@domain.com\\njane.doe@domain.com',
+                'list_placeholder' => 'john.doe@domain.com'."\n"
+                    .'jane.doe@domain.com',
             ],
             'edit' => [
                 'title' => 'Edit :firstname :lastname',
@@ -367,7 +368,7 @@ return [
             'delete_access_code' => 'Remove access code',
             'enforced_setting' => 'Enforced setting',
             'generate_access_code' => 'Create new access code',
-            'has_access_code' => 'Has access code',
+            'has_access_code' => 'Access code',
             'short_description' => 'Public short description',
             'title' => 'General',
             'type' => 'Type',
