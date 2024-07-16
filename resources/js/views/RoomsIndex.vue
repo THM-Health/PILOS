@@ -1,27 +1,31 @@
 <template>
-  <div class="container mt-3 mb-5">
-    <!--  heading and option to add new rooms-->
-    <div class="flex justify-content-between">
-      <div>
-        <h1 class="m-0 text-color text-3xl">
-          {{ $t('app.rooms') }}
-        </h1>
-      </div>
-      <div v-if="userPermissions.can('create', 'RoomPolicy')" class="flex align-items-end gap-2 flex-column">
-        <RoomCreateComponent
-          :disabled="limitReached"
-          @limit-reached="onReachLimit"
-        />
-        <Tag v-if="showLimit" severity="info" class="w-full" >
-          {{ $t('rooms.room_limit',{has: paginator.getMetaProperty('total_own'),max: authStore.currentUser.room_limit}) }}
-        </Tag>
-      </div>
-    </div>
-    <Divider />
+  <div class="container mt-8 mb-8">
+    <Card>
+      <!--  heading and option to add new rooms-->
+      <template #title>
+        <div class="flex justify-between">
+          <div>
+            <h1 class="text-3xl">
+              {{ $t('app.rooms') }}
+            </h1>
+          </div>
+          <div v-if="userPermissions.can('create', 'RoomPolicy')" class="flex items-end gap-2 flex-col">
+            <RoomCreateComponent
+              :disabled="limitReached"
+              @limit-reached="onReachLimit"
+            />
+            <Tag v-if="showLimit" severity="info" class="w-full" >
+              {{ $t('rooms.room_limit',{has: paginator.getMetaProperty('total_own'),max: authStore.currentUser.room_limit}) }}
+            </Tag>
+          </div>
+        </div>
+
+      </template>
+      <template #content>
 
     <!--  search, sorting, favorite-->
-    <div class="grid">
-      <div class="col-12 md:col-4">
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3">
         <!--search-->
         <InputGroup class="mb-2" data-test="room-search">
           <InputText
@@ -40,9 +44,9 @@
         </InputGroup>
       </div>
       <div
-        class="col-12 md:col-8 flex justify-content-end flex-column-reverse md:flex-row align-items-start gap-2"
+        class="col-span-12 md:col-span-6 lg:col-span-8 2xl:col-span-9 flex justify-end flex-col-reverse md:flex-row items-start gap-2"
       >
-        <div class="flex justify-content-start gap-2">
+        <div class="flex justify-start gap-2">
           <!--button to open filter menu on small devices-->
           <Button
             data-test="filter-button"
@@ -56,7 +60,7 @@
           <!--only favorites button-->
           <Button
             data-test="only-favorites-button"
-            :severity="onlyShowFavorites?'primary':'secondary'"
+            :severity="onlyShowFavorites?'contrast':'secondary'"
             :disabled="loadingRooms"
             @click="onlyShowFavorites=!onlyShowFavorites; loadRooms(1);"
             icon="fa-solid fa-star"
@@ -67,22 +71,16 @@
     </div>
 
     <!--filter checkboxes (on small devices only shown, when filter menu is open)-->
-    <div class="flex-column xl:flex-row gap-2 justify-content-between"
+    <div class="flex-col xl:flex-row gap-2 justify-between"
       :class="toggleMobileMenu?'flex':'hidden md:flex'"
     >
-      <div class="flex flex-wrap flex-shrink-0 gap-1">
+      <div class="flex flex-wrap shrink-0 gap-1">
         <ToggleButton
           v-model="roomFilterAll"
           @change="loadRooms(1)"
           v-if="!onlyShowFavorites && userPermissions.can('viewAll', 'RoomPolicy')"
           :on-label="$t('rooms.index.show_all')"
           :off-label="$t('rooms.index.show_all')"
-          class="border-1 border-300 border-round"
-          :pt="{
-            box: {
-              class: 'bg-white'
-            }
-          }"
         >
         </ToggleButton>
         <SelectButton
@@ -93,17 +91,12 @@
           optionLabel="name"
           optionValue="value"
           multiple
+          :allowEmpty="roomFilter.length > 1"
           @change="loadRooms(1)"
-          class="border-1 border-300 border-round"
-          :pt="{
-            button: {
-              class: 'bg-white'
-            }
-          }"
         />
 
       </div>
-      <div class="flex flex-column md:flex-row align-items-start gap-2">
+      <div class="flex flex-col md:flex-row items-start gap-2">
         <!-- room type select (on small devices only shown, when filter menu is open)-->
         <InputGroup v-if="!onlyShowFavorites" data-test="room-type-inputgroup">
           <InputGroupAddon>
@@ -111,17 +104,17 @@
           </InputGroupAddon>
           <InputGroupAddon
             v-if="roomTypesLoadingError"
-            class="flex-grow-1 p-0"
+            class="grow p-0"
             style="width: 1%"
           >
-            <InlineMessage
+            <Message
               severity="error"
               class="w-full"
             >
               {{ $t('rooms.room_types.loading_error') }}
-            </InlineMessage>
+            </Message>
           </InputGroupAddon>
-          <Dropdown
+          <Select
             data-test="room-type-dropdown"
             v-else
             v-model="selectedRoomType"
@@ -132,13 +125,12 @@
             showClear
             optionLabel="name"
             optionValue="id"
-          >
-            <template #clearicon="{ clearCallback }">
-              <span class="p-dropdown-clear" role="button" @click.stop="clearCallback">
-                <i class="fa-solid fa-times"/>
-              </span>
-            </template>
-          </Dropdown>
+            :pt="{
+              listContainer: {
+                'data-test': 'room-type-dropdown-items'
+              }
+            }"
+          />
           <!-- reload the room types -->
           <Button
               v-if="roomTypesLoadingError"
@@ -157,7 +149,7 @@
           <InputGroupAddon>
             <i class="fa-solid fa-sort"></i>
           </InputGroupAddon>
-          <Dropdown
+          <Select
             data-test="sorting-type-dropdown"
             v-model="selectedSortingType"
             @change="loadRooms(1)"
@@ -165,6 +157,11 @@
             :options="sortingTypes"
             optionLabel="label"
             optionValue="type"
+            :pt="{
+              listContainer: {
+                'data-test': 'sorting-type-dropdown-items'
+              }
+            }"
           />
         </InputGroup>
       </div>
@@ -172,15 +169,14 @@
 
     <!--rooms overlay-->
     <OverlayComponent
-      class="mt-3"
-      v-if="!showNoFilterMessage"
+      class="mt-4"
       :show="loadingRoomsError && !loadingRooms"
       :noCenter="true"
       :opacity="0"
       :z-index="3"
     >
       <template #overlay>
-        <div class="text-center py-8">
+        <div class="text-center py-20">
           <i class="fa-solid fa-circle-notch fa-spin text-3xl" v-if="loadingRooms"  />
           <Button
             data-test="reload-button"
@@ -193,9 +189,9 @@
       </template>
 
       <!--show room skeleton during loading or error-->
-      <div class="grid p-1" v-if="loadingRooms || loadingRoomsError">
+      <div class="grid grid-cols-12 gap-4 p-1" v-if="loadingRooms || loadingRoomsError">
         <div
-          class="col-12 md:col-6 lg:col-4 p-2"
+          class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3 p-2"
           v-for="i in rooms?.length || 3"
           :key="i"
         >
@@ -214,37 +210,24 @@
           :paginator-template="paginator.getTemplate()"
           :current-page-report-template="paginator.getCurrentPageReportTemplate()"
           rowHover
-          class="mt-4"
+          class="mt-6"
           @page="onPage"
-          :pt="{
-            content: {
-              class: 'bg-transparent'
-            },
-            paginator: {
-              root: {
-                class: 'bg-transparent'
-              },
-              pageButton: ({ props, state, context }) => ({
-                class: context.active ? 'bg-primary' : undefined
-              })
-            }
-          }"
         >
           <!-- Show message on empty room list -->
           <template #empty>
             <div>
-              <div class="text-center" v-if="rooms && !loadingRooms && !loadingRoomsError">
-                <InlineMessage severity="info" v-if="onlyShowFavorites && paginator.isEmptyUnfiltered()"> {{ $t('rooms.index.no_favorites') }} </InlineMessage>
-                <InlineMessage severity="info" v-else-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.no_rooms_available') }}</InlineMessage>
-                <InlineMessage severity="info" v-else-if="!rooms.length">{{ $t('rooms.no_rooms_found') }}</InlineMessage>
+              <div class="text-center mb-2" v-if="rooms && !loadingRooms && !loadingRoomsError">
+                <Message severity="info" v-if="onlyShowFavorites && paginator.isEmptyUnfiltered()"> {{ $t('rooms.index.no_favorites') }} </Message>
+                <Message severity="info" v-else-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.no_rooms_available') }}</Message>
+                <Message severity="info" v-else-if="!rooms.length">{{ $t('rooms.no_rooms_found') }}</Message>
               </div>
             </div>
           </template>
 
           <template #list="slotProps">
-            <div v-if="!loadingRooms && !loadingRoomsError" class="grid p-1">
+            <div v-if="!loadingRooms && !loadingRoomsError" class="grid grid-cols-12 gap-4 py-1">
               <div
-                class="col-12 md:col-6 lg:col-4 p-2"
+                class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
                 v-for="(room, index) in slotProps.items"
                 :key="index"
               >
@@ -257,20 +240,9 @@
           </template>
         </DataView>
     </OverlayComponent>
-    <div
-      v-else
-      class="text-center mt-3"
-    >
-      <InlineMessage severity="error">{{ $t('rooms.index.no_rooms_selected') }}</InlineMessage>
-      <br>
-      <Button
-        class="mt-2"
-        ref="reset"
-        @click="resetRoomFilter"
-        :label="$t('rooms.index.reset_filter')"
-        icon="fa-solid fa-rotate-left"
-      />
-    </div>
+
+      </template>
+    </Card>
   </div>
 </template>
 
@@ -282,6 +254,7 @@ import { useApi } from '../composables/useApi.js';
 import { useI18n } from 'vue-i18n';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { usePaginator } from '../composables/usePaginator.js';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 
 const authStore = useAuthStore();
 const api = useApi();
@@ -298,13 +271,13 @@ const rawSearchQuery = ref('');
 const roomFilter = ref(['own', 'shared']);
 const roomFilterAll = ref(false);
 
-const showNoFilterMessage = ref(false);
 const onlyShowFavorites = ref(false);
 const selectedRoomType = ref(null);
 const selectedSortingType = ref('last_started');
 const roomTypes = ref([]);
 const roomTypesBusy = ref(false);
 const roomTypesLoadingError = ref(false);
+const perPage = ref(6);
 
 function onPage (event) {
   loadRooms(event.page + 1);
@@ -337,8 +310,25 @@ const sortingTypes = computed(() => {
   ];
 });
 
+const breakpoints = useBreakpoints(breakpointsTailwind);
+
 onMounted(() => {
   reload();
+
+  switch (breakpoints.active().value) {
+    case 'md':
+      perPage.value = 8;
+      break;
+    case 'lg':
+    case 'xl':
+      perPage.value = 9;
+      break;
+    case '2xl':
+      perPage.value = 12;
+      break;
+    default:
+      perPage.value = 6;
+  }
 });
 
 /**
@@ -365,15 +355,6 @@ const filterOptions = computed(() => {
     }
   ];
 });
-
-/**
- * Resets the room filters and reloads the rooms
- */
-function resetRoomFilter () {
-  roomFilter.value = ['own', 'shared'];
-  roomFilterAll.value = false;
-  loadRooms(1);
-}
 
 /**
  *  Reload rooms
@@ -404,11 +385,6 @@ function loadRoomTypes () {
  * Load the rooms of the current user based on the given inputs
  */
 function loadRooms (page = null) {
-  if (roomFilter.value.length === 0 && roomFilterAll.value === false) {
-    showNoFilterMessage.value = true;
-    return;
-  }
-  showNoFilterMessage.value = false;
   loadingRooms.value = true;
 
   api.call('rooms', {
@@ -422,7 +398,8 @@ function loadRooms (page = null) {
       room_type: selectedRoomType.value,
       sort_by: selectedSortingType.value,
       search: rawSearchQuery.value.trim() !== '' ? rawSearchQuery.value.trim() : null,
-      page: page || paginator.getCurrentPage()
+      page: page || paginator.getCurrentPage(),
+      per_page: perPage.value
     }
   }).then(response => {
     // operation successful, set rooms and reset loadingRoomsError

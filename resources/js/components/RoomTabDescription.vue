@@ -1,9 +1,9 @@
 <template>
   <div class="px-2">
-    <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-content-end mb-3">
+    <div v-if="userPermissions.can('manageSettings', room)" class="flex gap-2 justify-end mb-4">
       <Button
         v-if="!editorOpen"
-        severity="secondary"
+        severity="info"
         :disabled="isBusy"
         @click="edit"
         icon="fa-solid fa-edit"
@@ -39,15 +39,12 @@
           :class="{'is-invalid': formErrors.fieldInvalid('description') === false}"
           :disabled="isBusy"
         />
-        <p class="p-error" v-if="formErrors.fieldInvalid('description')"
-          v-html="formErrors.fieldError('description')"
-        />
+        <FormError :errors="formErrors.fieldError('description')" />
       </div>
     </OverlayComponent>
-    <div class="flex justify-content-end mt-2">
+    <div class="flex justify-end mt-2">
       <Button
         v-if="editorOpen"
-        severity="success"
         :disabled="isBusy"
         @click="save"
         icon="fa-solid fa-save"
@@ -88,6 +85,9 @@ domPurify.addHook(
   function (currentNode, hookEvent, config) {
     if (hookEvent.attrName === 'style') {
       hookEvent.attrValue = sanitizeCss(currentNode);
+    }
+    if (hookEvent.attrName === 'src') {
+      hookEvent.attrValue = sanitizeSrc(currentNode);
     }
   }
 );
@@ -130,6 +130,19 @@ function sanitizeCss (node) {
 }
 
 /**
+ * Sanitize the src attribute of a given node. It checks if the src attribute is a valid URL.
+ * @param {Object} node - The DOM node whose src attribute is to be sanitized.
+ * @returns {string} - The sanitized src attribute as a string.
+ */
+function sanitizeSrc (node) {
+  if (node.src.startsWith('https://')) {
+    return node.src;
+  }
+  node.remove();
+  return '';
+}
+
+/**
  * Get sanitized HTML of the room description.
  * It uses the DOMPurify library to sanitize the HTML, allowing only certain tags and attributes.
  * @returns {string} - The sanitized HTML as a string.
@@ -149,7 +162,7 @@ const sanitizedHtml = computed(() => {
  */
 function edit () {
   editorOpen.value = true;
-  newContent.value = props.room.description;
+  newContent.value = sanitizedHtml.value;
 }
 
 /**

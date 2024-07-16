@@ -4,7 +4,7 @@
       data-test="room-create-button"
       :disabled="props.disabled"
       @click="modalVisible = true"
-      severity="success"
+      severity="primary"
       icon="fa-solid fa-plus"
       :label="$t('rooms.create.title')"
     />
@@ -23,35 +23,36 @@
       :draggable="false"
       @hide="clearModal"
     >
-      <!-- Room name -->
-      <div class="flex flex-column gap-2 mt-4">
-        <label for="room-name">{{ $t('rooms.name') }}</label>
-        <InputText
-          id="room-name"
-          v-model="room.name"
-          :disabled="isLoadingAction"
-          :invalid="formErrors.fieldInvalid('name')"
-        />
-        <p class="p-error" v-html="formErrors.fieldError('name')" />
-      </div>
+      <div>
+        <!-- Room name -->
+        <div class="flex flex-col gap-2 mt-6">
+          <label for="room-name">{{ $t('rooms.name') }}</label>
+          <InputText
+            id="room-name"
+            v-model="room.name"
+            :disabled="isLoadingAction"
+            :invalid="formErrors.fieldInvalid('name')"
+          />
+          <FormError :errors="formErrors.fieldError('name')" />
+        </div>
 
-      <!-- Room type -->
-      <div class="flex flex-column gap-2">
-        <label id="room-type-label">{{ $t('rooms.settings.general.type') }}</label>
-        <RoomTypeSelect
-          aria-labelledby="room-type-label"
-          ref="roomTypeSelect"
-          v-model="room.room_type"
-          :disabled="isLoadingAction"
-          :invalid="formErrors.fieldInvalid('room_type')"
-          @loading-error="(value) => roomTypeSelectLoadingError = value"
-          @busy="(value) => roomTypeSelectBusy = value"
-        />
-        <p class="p-error" v-html="formErrors.fieldError('room_type')" />
+        <!-- Room type -->
+        <div class="flex flex-col gap-2">
+          <label id="room-type-label">{{ $t('rooms.settings.general.type') }}</label>
+          <RoomTypeSelect
+            aria-labelledby="room-type-label"
+            ref="roomTypeSelect"
+            v-model="room.room_type"
+            :disabled="isLoadingAction"
+            :invalid="formErrors.fieldInvalid('room_type')"
+            @loading-error="(value) => roomTypeSelectLoadingError = value"
+            @busy="(value) => roomTypeSelectBusy = value"
+          />
+          <FormError :errors="formErrors.fieldError('room_type')" />
+        </div>
       </div>
-
       <template #footer>
-        <div class="flex justify-content-end gap-2">
+        <div class="flex justify-end gap-2">
           <Button :label="$t('app.cancel')" severity="secondary" :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
           <Button :label="$t('rooms.create.ok')" severity="success" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
         </div>

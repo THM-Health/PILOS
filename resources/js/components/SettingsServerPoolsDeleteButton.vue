@@ -1,7 +1,7 @@
 <template>
   <Button
-    v-tooltip="$t('settings.server_pools.delete.item', { name: props.name })"
-    :aria-label="$t('settings.server_pools.delete.item', { name: props.name })"
+    v-tooltip="$t('admin.server_pools.delete.item', { name: props.name })"
+    :aria-label="$t('admin.server_pools.delete.item', { name: props.name })"
     :disabled="isBusy"
     icon="fa-solid fa-trash"
     severity="danger"
@@ -15,22 +15,22 @@
     :closeable="!isBusy"
     :dismissableMask="!isBusy"
     :draggable=false
-    :header="$t('settings.server_pools.delete.title')"
+    :header="$t('admin.server_pools.delete.title')"
     :style="{ width: '500px' }"
     modal
   >
     <span>
-      {{ $t('settings.server_pools.delete.confirm', {name: props.name}) }}
+      {{ $t('admin.server_pools.delete.confirm', {name: props.name}) }}
     </span>
 
     <div v-if="deleteFailedRoomTypes" class="mt-2">
-      <InlineMessage
+      <Message
         severity="error"
         :pt="{
           icon:{class:'hidden'}
         }"
       >
-        {{ $t('settings.server_pools.delete.failed') }}
+        {{ $t('admin.server_pools.delete.failed') }}
         <ul>
           <li
             v-for="roomType in deleteFailedRoomTypes"
@@ -39,7 +39,7 @@
             {{ roomType.name }}
           </li>
         </ul>
-      </InlineMessage>
+      </Message>
     </div>
 
     <template v-if="deleteFailedRoomTypes==null" #footer>

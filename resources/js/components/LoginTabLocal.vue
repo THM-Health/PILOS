@@ -2,7 +2,7 @@
   <div data-test="login-tab-local">
     <p class="p-card-title">{{ props.title }}</p>
     <form @submit.prevent="submit">
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-col gap-2">
         <label :for="`${props.id}-email`">{{ props.emailLabel }}</label>
         <InputText
           :id="`${props.id}-email`"
@@ -14,12 +14,10 @@
           :invalid="props.errors !== null && props.errors.email && props.errors.email.length > 0"
           required
         />
-        <InlineMessage v-for="(error, index) in props.errors?.email" :key="index">
-          {{ error }}
-        </InlineMessage>
+        <FormError :errors="props.errors?.email" />
       </div>
 
-      <div class="flex flex-column gap-2 mt-4">
+      <div class="flex flex-col gap-2 mt-6">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
           :id="`${props.id}-password`"
@@ -28,25 +26,27 @@
           :feedback="false"
           toggleMask
           required
+          fluid
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
           :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-        <router-link
+        <Button
+          as="router-link"
           id="password-help-block"
-          v-if="settingsStore.getSetting('password_change_allowed')"
-          class="link-color link"
+          v-if="settingsStore.getSetting('user.password_change_allowed')"
+          link
+          class="self-start p-0"
           to="/forgot_password"
         >
           {{ $t('auth.forgot_password') }}
-        </router-link>
-        <InlineMessage v-for="(error, index) in props.errors?.password" :key="index">
-          {{ error }}
-        </InlineMessage>
+        </Button>
+        <FormError :errors="props.errors?.password" />
       </div>
       <Button
         type="submit"
-        class="mt-4"
+        data-test="login-button"
+        class="mt-6"
         :disabled="props.loading"
         :loading="props.loading"
         :label="props.submitLabel"
@@ -59,6 +59,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useSettingsStore } from '../stores/settings';
+import FormError from './FormError.vue';
 
 const settingsStore = useSettingsStore();
 

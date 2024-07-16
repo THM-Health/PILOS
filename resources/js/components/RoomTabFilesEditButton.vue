@@ -3,7 +3,7 @@
   <Button
     v-tooltip="$t('rooms.files.edit')"
     :disabled="disabled"
-    severity="secondary"
+    severity="info"
     @click="showEditModal"
     icon="fa-solid fa-edit"
   />
@@ -22,51 +22,51 @@
   >
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
         <Button :label="$t('app.save')" severity="success" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
       </div>
     </template>
 
-    <div class="field grid">
-      <label for="download" class="col-12 mb-2 md:col-6 md:mb-0">{{ $t('rooms.files.downloadable') }}</label>
-      <div class="col-12 md:col-6">
-        <InputSwitch
+    <div class="field grid grid-cols-12 gap-4">
+      <label for="download" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.downloadable') }}</label>
+      <div class="col-span-12 md:col-span-6">
+        <ToggleSwitch
           id="download"
           v-model="newDownload"
           required
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('download')"
         />
-        <p class="p-error" v-html="formErrors.fieldError('download')" />
+        <FormError :errors="formErrors.fieldError('download')" />
       </div>
     </div>
 
-    <div class="field grid">
-      <label for="use_in_meeting" class="col-12 mb-2 md:col-6 md:mb-0">{{ $t('rooms.files.use_in_next_meeting') }}</label>
-      <div class="col-12 md:col-6">
-        <InputSwitch
+    <div class="field grid grid-cols-12 gap-4">
+      <label for="use_in_meeting" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.use_in_next_meeting') }}</label>
+      <div class="col-span-12 md:col-span-6">
+        <ToggleSwitch
           id="use_in_meeting"
           v-model="newUseInMeeting"
           required
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('use_in_meeting')"
         />
-        <p class="p-error" v-html="formErrors.fieldError('use_in_meeting')" />
+        <FormError :errors="formErrors.fieldError('use_in_meeting')" />
       </div>
     </div>
 
-    <div class="field grid">
-      <label for="default" class="col-12 mb-2 md:col-6 md:mb-0">{{ $t('rooms.files.default') }}</label>
-      <div class="col-12 md:col-6">
-        <InputSwitch
+    <div class="field grid grid-cols-12 gap-4">
+      <label for="default" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.default') }}</label>
+      <div class="col-span-12 md:col-span-6">
+        <ToggleSwitch
           id="default"
           v-model="newDefault"
           required
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('default')"
         />
-        <p class="p-error" v-html="formErrors.fieldError('default')" />
+        <FormError :errors="formErrors.fieldError('default')" />
       </div>
     </div>
 

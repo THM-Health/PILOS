@@ -13,6 +13,7 @@
 
   <!-- If room is not running -->
   <Button
+    data-test="room-start-button"
     v-else-if="canStart"
     class="p-button-block"
     :disabled="isLoadingAction || disabled"
@@ -23,7 +24,7 @@
   />
 
   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-  <InlineMessage v-else severity="info">{{ $t('rooms.not_running') }}</InlineMessage>
+  <Message v-else severity="info">{{ $t('rooms.not_running') }}</Message>
 
   <Dialog
     v-model:visible="showModal"
@@ -41,7 +42,7 @@
     <OverlayComponent :show="isLoadingAction" :opacity="0">
       <div v-if="!isLoadingAction">
         <!-- Ask guests for their first and lastname -->
-        <div v-if="!authStore.isAuthenticated && !token" class="flex flex-column gap-2 mb-3" >
+        <div v-if="!authStore.isAuthenticated && !token" class="flex flex-col gap-2 mb-4" >
           <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
           <InputText
             autofocus
@@ -49,51 +50,51 @@
             :placeholder="$t('rooms.placeholder_name')"
             :invalid="formErrors.fieldInvalid('name')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('name')" />
+          <FormError :errors="formErrors.fieldError('name')" />
         </div>
 
-        <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="recordAttendance">
+        <div class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col" v-if="recordAttendance">
           <span class="font-semibold">{{ $t('rooms.recording_attendance_info') }}</span>
-          <div class="flex align-items-center gap-2">
+          <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-attendance-agreement"
               v-model="recordAttendanceAgreement"
               binary
-              :invalid="formErrors.fieldInvalid('record_attendance')"
+              :invalid="formErrors.fieldInvalid('consent_record_attendance')"
             />
             <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('record_attendance')" />
+          <FormError :errors="formErrors.fieldError('consent_record_attendance')" />
         </div>
 
-        <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="record">
+        <div class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col" v-if="record">
           <span class="font-semibold">{{ $t('rooms.recording_info') }}</span>
           <i>{{ $t('rooms.recording_hint') }}</i>
-          <div class="flex align-items-center gap-2">
+          <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-agreement"
               v-model="recordAgreement"
               binary
-              :class="{'p-invalid': formErrors.fieldInvalid('record')}"
+              :class="{'p-invalid': formErrors.fieldInvalid('consent_record')}"
             />
             <label for="record-agreement" class="required">{{ $t('rooms.recording_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('record')" />
-          <div class="flex align-items-center gap-2">
+          <FormError :errors="formErrors.fieldError('consent_record')" />
+          <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-video-agreement"
               v-model="recordVideoAgreement"
               binary
-              :class="{'p-invalid': formErrors.fieldInvalid('record_video')}"
+              :class="{'p-invalid': formErrors.fieldInvalid('consent_record_video')}"
             />
             <label for="record-video-agreement">{{ $t('rooms.recording_video_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('record_video')" />
+          <FormError :errors="formErrors.fieldError('consent_record_video')" />
         </div>
       </div>
     </OverlayComponent>
 
-    <div class="flex align-items-center justify-content-end mt-4 gap-2">
+    <div class="flex items-center justify-end mt-6 gap-2">
       <Button :label="$t('app.cancel')" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"/>
       <Button :label="$t('app.continue')" :disabled="isLoadingAction" @click="getJoinUrl" size="small"/>
     </div>
@@ -200,11 +201,12 @@ function getJoinUrl () {
 
   // Build url, add accessCode and token if needed
   const config = {
-    params: {
+    method: 'post',
+    data: {
       name: props.token ? null : name.value,
-      record_attendance: recordAttendanceAgreement.value ? 1 : 0,
-      record: recordAgreement.value ? 1 : 0,
-      record_video: recordVideoAgreement.value ? 1 : 0
+      consent_record_attendance: recordAttendanceAgreement.value,
+      consent_record: recordAgreement.value,
+      consent_record_video: recordVideoAgreement.value
     }
   };
 
@@ -236,7 +238,7 @@ function getJoinUrl () {
           return;
         }
 
-        // Access code invalid
+        // Access code is required
         if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
           emit('invalidCode');
           showModal.value = false;
@@ -269,19 +271,6 @@ function getJoinUrl () {
         // Form validation error
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           formErrors.set(error.response.data.errors);
-          return;
-        }
-
-        // Attendance logging agreement required but not accepted
-        if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
-          formErrors.set({ record_attendance: [error.response.data.message] });
-          emit('changed');
-          return;
-        }
-
-        // Record agreement required but not accepted
-        if (error.response.status === env.HTTP_RECORD_AGREEMENT_MISSING) {
-          formErrors.set({ record: [error.response.data.message] });
           emit('changed');
           return;
         }

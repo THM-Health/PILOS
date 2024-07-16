@@ -1,14 +1,14 @@
 <template>
-  <div class="container pt-5 pb-5">
+  <div class="container pt-8 pb-8">
     <div class="row">
       <div class="col-md-12 col-sm-12 text-center">
         <img
-          v-if="settingsStore.getSetting('logo')"
-          class="logo"
+          v-if="settingsStore.getSetting('theme.logo')"
+          class="logo inline"
           alt="Logo"
-          :src="settingsStore.getSetting('logo')"
+          :src="settingsStore.getSetting('theme.logo')"
         >
-        <h1 class="mb-4 text-color">
+        <h1 class="mb-6 text-color text-3xl font-bold">
           {{ $t('home.title') }}
         </h1>
         <p class="text-color">

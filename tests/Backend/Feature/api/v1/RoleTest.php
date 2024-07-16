@@ -125,7 +125,7 @@ class RoleTest extends TestCase
         $new_permission = Permission::firstOrCreate(['name' => 'users.viewAny'])->id;
 
         $permission_ids = [
-            Permission::firstOrCreate(['name' => 'settings.manage'])->id,
+            Permission::firstOrCreate(['name' => 'admin.view'])->id,
             Permission::firstOrCreate(['name' => 'roles.viewAny'])->id,
             Permission::firstOrCreate(['name' => 'roles.view'])->id,
             Permission::firstOrCreate(['name' => 'roles.update'])->id,
@@ -213,7 +213,7 @@ class RoleTest extends TestCase
         $new_permission = Permission::firstOrCreate(['name' => 'users.viewAny'])->id;
 
         $permission_ids = [
-            Permission::firstOrCreate(['name' => 'settings.manage'])->id,
+            Permission::firstOrCreate(['name' => 'admin.view'])->id,
             Permission::firstOrCreate(['name' => 'roles.viewAny'])->id,
             Permission::firstOrCreate(['name' => 'roles.view'])->id,
             Permission::firstOrCreate(['name' => 'roles.update'])->id,

@@ -14,12 +14,67 @@ To start the upgrade process, stop your current PILOS installation by running:
 docker compose down
 ```
 
-Next replace the container used by docker compose in the `.env` file:
+
+## Replace the app service
+In v2/v3 only one service was used for the app. In v4 the app service was split into three services: `app`, `cron` and `horizon`.
+
+- **app**: Frontend and backend with nginx and php-fpm
+- **cron**: Cronjob runner
+- **horizon**: Laravel Horizon for queue jobs
+
+As all services use the same image, environment variables and volumes, these are defined in a common section in the `docker-compose.yml` file.
+Replace the app service in the `docker-compose.yml` file:
+
+```yaml
+x-docker-pilos-common: &pilos-common
+    env_file: .env
+    volumes:
+        - './storage/app:/var/www/html/storage/app'
+        - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
+        - './app/Auth/config:/var/www/html/app/Auth/config'
+services:
+    app:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        ports:
+            - '127.0.0.1:5000:80'
+            - '127.0.0.1:9000:81'
+        <<: *pilos-common
+        sysctls:
+            net.core.somaxconn: 65536
+            net.ipv4.ip_local_port_range: "2000 65535"
+            net.ipv4.tcp_tw_reuse: 1
+            net.ipv4.tcp_fin_timeout: 30
+        healthcheck:
+            test: curl --fail http://localhost/ping || exit 1
+            interval: 10s
+            retries: 6
+            timeout: 5s
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+    cron:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        <<: *pilos-common
+        entrypoint: [ 'pilos-cli', 'run:cron' ]
+        depends_on:
+            app:
+                condition: service_healthy
+    horizon:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        <<: *pilos-common
+        entrypoint: [ 'pilos-cli', 'run:horizon' ]
+        depends_on:
+            app:
+                condition: service_healthy
+```
+
+Next define the container used by docker compose in the `.env` file:
 
 ```bash
 CONTAINER_IMAGE=pilos/pilos:4.0.0-beta.1
 ```
-
 
 ## .env option changes
 
@@ -52,7 +107,7 @@ Existing installations will keep their current values as they are stored in the 
 
 | Option                                 | Old Default        | New Default      | Upgrade steps                                                                                                                                                           |
 |----------------------------------------|--------------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `OWN_ROOMS_PAGINATION_PAGE_SIZE`       | `5`                | `9`              |                                                                                                                                                                         |
+| `OWN_ROOMS_PAGINATION_PAGE_SIZE`       | `5`                | *REMOVED*        | Client selects the optimum value for the given device size                                                                                                              |
 | `DEFAULT_PAGINATION_PAGE_SIZE`         | `15`               | `20`             |                                                                                                                                                                         |
 | `STATISTICS_SERVERS_ENABLED`           | `false`            | *enabled*        |                                                                                                                                                                         |
 | `STATISTICS_SERVERS_RETENTION_PERIOD`  | `90` (*90 days*)   | *60 days*        |                                                                                                                                                                         |
@@ -84,45 +139,8 @@ The room type selection and the process for changing room types were redesigned 
 To facilitate users in selecting the appropriate room type, an option was added to set a description for each room type, allowing administrators to explain the differences in natural language.
 
 ### Theme
-The colors used for the room history chart, room type colors and banner colors are no longer set via environment variables.
-The color values are extracted from the css variables of the selected theme during runtime.
-
-You can therefore remove the following environment variables from your `.env` file:
-
-- `VITE_HISTORY_PARTICIPANT_COLOR`
-- `VITE_HISTORY_VOICES_COLOR`
-- `VITE_HISTORY_VIDEO_COLOR`
-- `VITE_ROOM_TYPE_COLORS`
-- `VITE_BANNER_BACKGROUND_COLORS`
-- `VITE_BANNER_TEXT_COLORS`
-
-As a result of the UI transition, the entire theme system was reworked. To ease the transition, we have tried to keep the default theme sass variables as close to the old theme colours as possible.
-However, you need to change the name of the following sass variables in your custom theme file:
-
-- `$body-bg` -> `$bodyBg`
-- `$link-color` -> `$linkColor`
-- `$enable-rounded` -> `$enableRounded`
-
-The option to change the default text color using `$body-color` has been removed.
-
-The following colors have been added to the default theme:
-
-```scss
-$purple: #8e44ad;
-$indigo: #6366F1;
-$cyan: #06B6D4;
-$yellow: #EAB308;
-$pink: #EC4899;
-$teal: #0b8e93;
-$bluegray: #3a4d5d;
-```
-
-Overwriting the text colors on buttons, badges, etc. was possible using the `$text-color` array.
-This has been replaced by dedicated variables for each color and element.
-Please have a look at the THM theme (`resources/sass/theme/thm/_variables.scss`) and the base.scss (`resources/sass/base.scss`) file to find out how to adjust your custom theme.
-
-Any additional customizations to the theme should be checked and adjusted accordingly.
-
+Custom theming via SASS files has been removed. Instead, you can dynamically change the base color and toggle the rounded corners in the admin interface.
+Users can also choose between light and dark mode, so a new option for a dark logo and a favicon version has been introduced.
 
 ### Locales
 Many translations have been added, moved and changed. Please check the `resources/lang` folder for new translations and adjust your custom translations accordingly.

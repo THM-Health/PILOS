@@ -2,6 +2,7 @@
   <Button
     v-tooltip="$t('rooms.description.tooltips.image')"
     :severity="props.editor.isActive('image') ? 'primary' : 'secondary'"
+    text
     @click="openModal"
     icon="fa-solid fa-image"
   />
@@ -13,17 +14,17 @@
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
   >
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label for="src">{{ $t('rooms.description.modals.image.src') }}</label>
       <InputText
         id="src"
         v-model.trim="src"
         :invalid="srcInvalid"
       />
-      <p v-if="srcInvalid" class="p-error">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
+      <p v-if="srcInvalid" class="text-red-500" role="alert">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
     </div>
 
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label for="width">{{ $t('rooms.description.modals.image.width') }}</label>
       <InputText
         id="width"
@@ -33,7 +34,7 @@
       <small id="width-help">{{ $t('rooms.description.modals.image.width_description') }}</small>
     </div>
 
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label for="alt">{{ $t('rooms.description.modals.image.alt') }}</label>
       <InputText
         id="alt"
@@ -42,7 +43,7 @@
     </div>
 
     <template #footer>
-      <div class="w-full flex justify-content-between gap-2">
+      <div class="w-full flex justify-between gap-2">
         <div>
           <Button
             v-if="!newImage"
@@ -58,7 +59,6 @@
             :label="$t('app.cancel')"
           />
           <Button
-            severity="success"
             :disabled="srcInvalid !== false"
             @click="save"
             :label="$t('app.save')"
@@ -87,7 +87,7 @@ const srcInvalid = computed(() => {
   if (src.value === null || src.value === '') {
     return null;
   }
-  const regex = /^(https|http):\/\//;
+  const regex = /^(https):\/\//;
   return regex.exec(src.value) == null;
 });
 

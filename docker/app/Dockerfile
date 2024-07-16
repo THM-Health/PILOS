@@ -55,11 +55,6 @@ COPY ./docker/app/cron/scheduler /etc/cron.d/scheduler
 RUN chmod 644 /etc/cron.d/scheduler
 RUN crontab /etc/cron.d/scheduler
 
-# Copy frontend wrapper script
-COPY ./docker/app/frontend /usr/local/etc/frontend
-RUN chmod +x /usr/local/etc/frontend/run.sh
-RUN chown www-data:www-data /usr/local/etc/frontend/
-
 # Copy bbb-player script
 COPY ./docker/app/playback-player /usr/local/etc/playback-player
 RUN chmod +x /usr/local/etc/playback-player/build.sh
@@ -90,6 +85,9 @@ COPY --chown=www-data:www-data ./ /var/www/html
 
 # Run npm install command
 RUN su-exec www-data npm install --omit=dev
+
+# Build frontend
+RUN su-exec www-data npm run build
 
 # Run and optimize composer for production
 RUN su-exec www-data composer install --no-dev

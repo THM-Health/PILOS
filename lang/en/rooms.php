@@ -44,7 +44,7 @@ return [
             'image' => [
                 'alt' => 'Alternative text',
                 'edit' => 'Edit image',
-                'invalid_src' => 'The URL must start with http:// or https://',
+                'invalid_src' => 'The URL must start with https://',
                 'new' => 'Add new image',
                 'src' => 'URL',
                 'width' => 'Width',
@@ -149,7 +149,7 @@ return [
         'reset_filter' => 'Reset filter',
         'room_component' => [
             'details' => 'Details',
-            'last_ran_till' => 'Last ran till :date',
+            'last_ran_till' => 'Last run until :date',
             'never_started' => 'Never started before',
             'open' => 'Open',
             'running_since' => 'Running since :date',

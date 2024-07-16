@@ -1,25 +1,25 @@
 <template>
   <div>
 
-    <div class="flex justify-content-between flex-column lg:flex-row align-items-start gap-2 px-2">
+    <div class="flex justify-between flex-col lg:flex-row items-start gap-2 px-2">
       <div>
         <!-- Search field, currently not implemented -->
       </div>
-      <div class="w-full lg:w-auto flex-grow-1 lg:flex-grow-0 flex justify-content-between flex-wrap align-items-start gap-2">
+      <div class="w-full lg:w-auto grow lg:grow-0 flex justify-between flex-wrap items-start gap-2">
         <div class="flex gap-2">
           <InputGroup class="w-auto">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Dropdown :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
             <InputGroupAddon class="p-0">
-              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="border-noround-left"  />
+              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="rounded-l-none"  />
             </InputGroupAddon>
           </InputGroup>
         </div>
         <!-- Reload -->
         <Button
-          class="flex-shrink-0"
+          class="shrink-0"
           v-tooltip="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
@@ -46,7 +46,7 @@
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         rowHover
         @page="onPage"
-        class="mt-4"
+        class="mt-6"
       >
         <!-- Show message on empty list -->
         <template #empty>
@@ -56,12 +56,12 @@
         </template>
 
         <template #list="slotProps">
-          <div class="px-2 border-top-1 border-bottom-1 surface-border">
+          <div class="px-2">
             <div v-for="(item, index) in slotProps.items" :key="index">
-              <div class="flex flex-column md:flex-row justify-content-between gap-3 py-3" :class="{ 'border-top-1 surface-border': index !== 0 }">
-                <div class="flex flex-column gap-2">
+              <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t border-surface">
+                <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0">{{ $d(new Date(item.start),'datetimeShort') }}</p>
-                  <div class="flex flex-column gap-2 align-items-start">
+                  <div class="flex flex-col gap-2 items-start">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p class="text-sm m-0" v-tooltip.bottom="$d(new Date(item.start),'datetimeShort')+' - '+(item.end == null ? $t('meetings.now') : $d(new Date(item.end),'datetimeShort'))">
@@ -70,7 +70,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="flex-shrink-0 flex flex-row gap-1 align-items-start justify-content-end" >
+                <div class="shrink-0 flex flex-row gap-1 items-start justify-end" >
                   <RoomTabHistoryStatisticButton
                     v-if="item.statistical"
                     :room-id="props.room.id"
@@ -95,15 +95,16 @@
       </DataView>
     </OverlayComponent>
 
-    <div id="retentionPeriodInfo">
-      <Divider/>
-      <b>{{ $t('meetings.retention_period') }}</b><br>
-      <span v-if="settingsStore.getSetting('statistics.meetings.enabled') && settingsStore.getSetting('statistics.meetings.retention_period') !== -1">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('statistics.meetings.retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('statistics.meetings.enabled') && settingsStore.getSetting('statistics.meetings.retention_period') === -1">{{ $t('meetings.stats.retention_period_unlimited') }}</span><br>
+    <Message class="mt-2" severity="secondary" id="retentionPeriodInfo" aria-live="off" role="presentation">
+      <div class="leading-3 font-normal">
+        <p class="text-xl font-semibold">{{ $t('meetings.retention_period') }}</p><br>
+        <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') !== -1">{{ $t('meetings.stats.retention_period', {'days': settingsStore.getSetting('recording.meeting_usage_retention_period')}) }}</span><br>
+        <span v-if="settingsStore.getSetting('recording.meeting_usage_enabled') && settingsStore.getSetting('recording.meeting_usage_retention_period') === -1">{{ $t('meetings.stats.retention_period_unlimited') }}</span><br>
 
-      <span v-if="settingsStore.getSetting('attendance.retention_period') !== -1">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('attendance.retention_period')}) }}</span><br>
-      <span v-if="settingsStore.getSetting('attendance.retention_period') === -1">{{ $t('meetings.attendance.retention_period_unlimited') }}</span><br>
-    </div>
+        <span v-if="settingsStore.getSetting('recording.attendance_retention_period') !== -1">{{ $t('meetings.attendance.retention_period', {'days': settingsStore.getSetting('recording.attendance_retention_period')}) }}</span><br>
+        <span v-if="settingsStore.getSetting('recording.attendance_retention_period') === -1">{{ $t('meetings.attendance.retention_period_unlimited') }}</span><br>
+      </div>
+    </Message>
   </div>
 </template>
 

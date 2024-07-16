@@ -1,13 +1,13 @@
 <template>
-  <div class="bg-white py-2 border-bottom-1 border-300">
-    <div class="container flex flex-row justify-content-between">
+  <div class="border-surface bg-white dark:bg-surface-900 py-2 border-b">
+    <div class="container flex flex-row justify-between">
       <Menubar
         :breakpoint="menuBreakpoint+'px'"
         :model="mainMenuItems"
         :pt="{
-          root: 'm-0 border-none',
+          root: 'm-0 border-0',
           menu: {
-            class: 'gap-1 px-2',
+            class: 'gap-1 px-2'
           },
           action: {
             class: 'p-2'
@@ -15,21 +15,21 @@
         }"
       >
         <template #start>
-          <RouterLink v-if="settingsStore.getSetting('logo')" :to="{ name: 'home' }" class="mr-6">
+          <RouterLink v-if="settingsStore.getSetting('theme.logo')" :to="{ name: 'home' }" class="mr-12">
             <img
               style="height: 2rem;"
-              :src="settingsStore.getSetting('logo')"
+              :src="isDark ? settingsStore.getSetting('theme.logo_dark') : settingsStore.getSetting('theme.logo')"
               alt="Logo"
             />
           </RouterLink>
         </template>
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-            <a :href="href" v-bind="props.action" @click="navigate" class="flex align-items-center">
+            <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center">
               <span>{{ item.label }}</span>
             </a>
           </router-link>
-          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex align-items-center">
+          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex items-center">
             <span>{{ item.label }}</span>
             <i v-if="hasSubmenu" :class="['fa-solid fa-chevron-down text-xs', { 'fa-chevron-down ml-2': root, 'fa-chevron-right ml-auto': !root }]"></i>
           </a>
@@ -39,28 +39,30 @@
         v-if="!isMobile"
         :model="userMenuItems"
         :pt="{
-              root: 'main-menu-right flex-shrink-0 m-0 border-none',
+              root: 'main-menu-right shrink-0 m-0 border-0',
               menu: {
                 class: 'gap-1 px-2',
+              },
+              item: {
+                class: 'relative',
               },
               submenu: {
                 class: 'right-0',
                 'data-test': 'submenu'
               },
-              action: {
-                class: 'p-2',
+              itemLink: {
                 'data-test': 'submenu-action'
               }
             }"
       >
         <template #item="{ item, props, hasSubmenu, root }">
           <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-            <a :href="href" v-bind="props.action" @click="navigate" class="flex align-items-center">
+            <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center">
               <span v-if="!item.icon">{{ item.label }}</span>
             </a>
           </router-link>
-          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex align-items-center">
-            <i :class="item.icon" />
+          <a v-else :href="item.url" :target="item.target" v-bind="props.action" class="flex items-center">
+            <i v-if="item.icon" :class="item.icon" />
             <UserAvatar data-test="user-avatar" v-if="item.userAvatar" :firstname="authStore.currentUser.firstname" :lastname="authStore.currentUser.lastname" :image="authStore.currentUser.image" class="bg-secondary" />
             <span v-if="!item.userAvatar && !item.icon">{{ item.label }}</span>
             <i v-if="hasSubmenu" :class="['fa-solid fa-chevron-down text-xs', { 'fa-chevron-down ml-2': root, 'fa-chevron-right ml-auto': !root }]"></i>
@@ -77,7 +79,7 @@ import { useSettingsStore } from '../stores/settings.js';
 import { useAuthStore } from '../stores/auth.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useI18n } from 'vue-i18n';
-import { useBreakpoints } from '@vueuse/core';
+import { useBreakpoints, useDark, useToggle } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import { useLoadingStore } from '../stores/loading.js';
 import UserAvatar from './UserAvatar.vue';
@@ -86,7 +88,7 @@ import { useLocaleStore } from '../stores/locale.js';
 import { useApi } from '../composables/useApi.js';
 import { useToast } from '../composables/useToast.js';
 
-const menuBreakpoint = 991;
+const menuBreakpoint = 1023;
 
 const breakpoints = useBreakpoints({
   desktop: menuBreakpoint
@@ -105,6 +107,9 @@ const route = useRoute();
 const { t } = useI18n();
 const toast = useToast();
 
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
+
 const mainMenuItems = computed(() => {
   const items = [];
 
@@ -121,10 +126,10 @@ const mainMenuItems = computed(() => {
       });
     }
 
-    if (userPermissions.can('manage', 'SettingPolicy')) {
+    if (userPermissions.can('view', 'AdminPolicy')) {
       items.push({
-        label: t('settings.title'),
-        route: { name: 'settings' }
+        label: t('admin.title'),
+        route: { name: 'admin' }
       });
     }
 
@@ -192,18 +197,24 @@ const userMenuItems = computed(() => {
     });
   }
 
-  if (settingsStore.getSetting('help_url')) {
+  if (settingsStore.getSetting('general.help_url')) {
     items.push({
       icon: 'fa-solid fa-circle-question text-xl',
       label: t('app.help'),
       target: '_blank',
-      url: settingsStore.getSetting('help_url')
+      url: settingsStore.getSetting('general.help_url')
     });
   }
 
+  items.push({
+    icon: 'fa-solid text-xl ' + (isDark.value ? ' fa-moon' : ' fa-sun'),
+    label: isDark.value ? t('app.dark_mode_disable') : t('app.dark_mode_enable'),
+    command: () => toggleDark()
+  });
+
   const localeItem = {
     icon: 'fa-solid fa-language text-xl',
-    label: t('app.select_locale'),
+    label: t('app.change_locale'),
     items: []
   };
 
@@ -250,7 +261,7 @@ async function logout () {
 }
 
 const locales = computed(() => {
-  const locales = settingsStore.getSetting('enabled_locales');
+  const locales = settingsStore.getSetting('general.enabled_locales');
   if (!locales) {
     return [];
   }

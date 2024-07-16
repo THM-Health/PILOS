@@ -5,11 +5,13 @@ namespace App\Console\Commands;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use App\Enums\TimePeriod;
+use App\Models\Permission;
 use App\Settings\BannerSettings;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Artisan;
 use DB;
@@ -103,12 +105,6 @@ class UpgradeDatabaseCommand extends Command
 
         // Apply old settings to new settings
         $generalSettings = app(GeneralSettings::class);
-        if (isset($oldSettings['logo'])) {
-            $generalSettings->logo = $oldSettings['logo'];
-        }
-        if (isset($oldSettings['favicon'])) {
-            $generalSettings->favicon = $oldSettings['favicon'];
-        }
         if (isset($oldSettings['name'])) {
             $generalSettings->name = $oldSettings['name'];
         }
@@ -129,6 +125,17 @@ class UpgradeDatabaseCommand extends Command
             $generalSettings->privacy_policy_url = $oldSettings['privacy_policy_url'];
         }
         $generalSettings->save();
+
+        $themeSettings = app(ThemeSettings::class);
+        if (isset($oldSettings['logo'])) {
+            $themeSettings->logo = $oldSettings['logo'];
+            $themeSettings->logo_dark = $oldSettings['logo'];
+        }
+        if (isset($oldSettings['favicon'])) {
+            $themeSettings->favicon = $oldSettings['favicon'];
+            $themeSettings->favicon_dark = $oldSettings['favicon'];
+        }
+        $themeSettings->save();
 
         $bannerSettings = app(BannerSettings::class);
         if (isset($oldSettings['banner.enabled'])) {
@@ -166,9 +173,6 @@ class UpgradeDatabaseCommand extends Command
         $roomSettings = app(RoomSettings::class);
         if (isset($oldSettings['room_limit'])) {
             $roomSettings->limit = (int) $oldSettings['room_limit'];
-        }
-        if (isset($oldSettings['room_pagination_page_size'])) {
-            $roomSettings->pagination_page_size = (int) $oldSettings['room_pagination_page_size'];
         }
         if (isset($oldSettings['room_token_expiration'])) {
             $roomSettings->token_expiration = TimePeriod::tryFrom($oldSettings['room_token_expiration']) ?: TimePeriod::THREE_MONTHS;
@@ -221,6 +225,12 @@ class UpgradeDatabaseCommand extends Command
         $bigBlueButtonSettings->save();
 
         $this->info('Migrated old application settings, please check everything is correct in the settings page and adjust if necessary');
+
+        // Apply changes to permissions and run seeder
+        Permission::where('name', 'settings.manage')->update(['name' => 'admin.view']);
+        Permission::where('name', 'applicationSettings.viewAny')->update(['name' => 'settings.viewAny']);
+        Permission::where('name', 'applicationSettings.update')->update(['name' => 'settings.update']);
+        Artisan::call('db:seed --force');
 
         $this->alert('Upgrade to v4 completed.');
     }

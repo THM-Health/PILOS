@@ -2,17 +2,3 @@
     justify-content: space-between;
     width: 100%;
 }
-
-.main-menu-right {
-    .user-avatar {
-        > .p-menuitem-content {
-            > .p-menuitem-link {
-                padding: 0.25rem 0.5rem !important;
-            }
-        }
-    }
-
-    .p-menuitem-content, .p-menuitem-link {
-        height: 100%;
-    }
-}

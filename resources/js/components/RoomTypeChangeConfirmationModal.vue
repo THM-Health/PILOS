@@ -14,7 +14,7 @@
 
       <!-- Show all room setting grouped by category -->
       <div v-for="settingGroup in roomTypeSettings" :key="settingGroup.title">
-        <h4 class="my-2">{{ settingGroup.title }}</h4>
+        <h4 class="my-2 font-bold">{{ settingGroup.title }}</h4>
 
         <RoomTypeCompareSettingsField
           v-for="setting in settingGroup.settings"
@@ -32,15 +32,15 @@
 
     <Divider class="mt-0"/>
 
-    <div class="flex align-items-center gap-2">
-      <InputSwitch
+    <div class="flex items-center gap-2">
+      <ToggleSwitch
         input-id="reset-to-defaults"
         v-model="resetToDefaults"
       />
       <label for="reset-to-defaults"> {{$t('rooms.change_type.reset_to_default')}}</label>
     </div>
     <template #footer>
-      <div class="flex  justify-content-end w-full gap-2">
+      <div class="flex  justify-end w-full gap-2">
         <Button :label="$t('app.cancel')" severity="secondary" @click="handleCancel" />
         <Button :label="$t('app.save')" @click="handleSave" />
       </div>

@@ -1,6 +1,7 @@
 <template>
   <Button
-    :severity="props.room.is_favorite ? 'primary' : 'secondary'"
+    data-test="room-favorites-button"
+    :severity="props.room.is_favorite ? 'contrast' : 'secondary'"
     v-tooltip="props.room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
     :aria-label="props.room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
     icon="fa-solid fa-star"

@@ -1,10 +1,9 @@
 <template>
   <!-- button -->
   <Button
-    class="flex-shrink-0"
+    class="shrink-0"
     v-tooltip="$t('rooms.files.upload')"
     :aria-label="$t('rooms.files.upload')"
-    severity="success"
     :disabled="disabled"
     @click="openModal"
     icon="fa-solid fa-upload"
@@ -22,10 +21,10 @@
     :dismissableMask="false"
     :closable="!isUploading"
   >
-    <div class="flex flex-column gap-2">
+    <div class="flex flex-col gap-2">
         <label
           for="file"
-          class="flex flex-row justify-content-center gap-2 p-button p-component border-round"
+          class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
           :class="{'p-disabled': disabled}"
           tabindex="0"
           @keyup.enter="fileInputRef.click()"
@@ -37,13 +36,13 @@
           type="file"
           ref="fileInputRef"
           id="file"
-          class="p-sr-only"
+          class="sr-only"
           :disabled="disabled"
           @input="fileSelected"
           :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
         />
         <div
-          class="border-1 border-round border-400 text-center cursor-pointer align-items-center p-2"
+          class="border rounded-border border-surface-400 dark:border-surface-400 text-center cursor-pointer items-center p-2"
           :class="dropZoneClasses"
           ref="dropZoneRef"
           @keyup.enter="fileInputRef.click()"
@@ -60,7 +59,7 @@
 
       <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
       <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
-      <p class="p-error" v-html="formErrors.fieldError('file')" />
+      <FormError :errors="formErrors.fieldError('file')" />
 
       <Message v-if="uploaded" severity="success" icon="fa-solid fa-check-circle">
         {{ $t('rooms.files.uploaded') }}
@@ -146,8 +145,8 @@ const dropZoneClasses = computed(() => {
     ];
   }
   return [
-    'surface-100',
-    'border-400'
+    'bg-surface-100 dark:bg-surface-700',
+    'border-surface-400 dark:border-surface-400'
   ];
 });
 

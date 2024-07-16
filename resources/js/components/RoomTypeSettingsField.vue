@@ -11,13 +11,13 @@ defineProps({
 </script>
 
 <template>
-  <div class="field grid">
-    <span class="col-8 flex align-items-center gap-2">
+  <div class="field grid grid-cols-12 gap-4 mb-4">
+    <span class="col-span-8 flex items-center gap-2">
       <RoomSettingEnforcedIcon v-if="enforced"/>
       {{ label }}
     </span>
 
-    <div class="col-4 justify-content-center flex align-items-center">
+    <div class="col-span-4 justify-center flex items-center">
       <Tag v-if="type === 'switch' && value" class="p-tag-circle" rounded severity="primary">
         <span class="fas fa-check"  aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.enabled') }}</span>

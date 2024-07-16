@@ -2,7 +2,6 @@
   <Button
     v-tooltip="$t('meetings.view_meeting_stats')"
     :disabled="disabled"
-    severity="secondary"
     @click="showStatisticModal"
     icon="fa-solid fa-chart-line"
   />
@@ -33,7 +32,7 @@
       {{ $t('meetings.stats.no_breakout_support') }}
     </InlineNote>
 
-    <OverlayComponent :show="isLoadingAction" style="min-height: 100px;" class="mt-4">
+    <OverlayComponent :show="isLoadingAction" style="min-height: 100px;" class="mt-6">
       <Chart v-if="!isLoadingAction" type="line" :data="chartData" :options="chartOptions" class="w-full"/>
     </OverlayComponent>
 
@@ -46,6 +45,7 @@ import { useApi } from '../composables/useApi.js';
 import { useI18n } from 'vue-i18n';
 import 'chartjs-adapter-date-fns';
 import { useColors } from '../composables/useColors.js';
+import { useCssVar } from '@vueuse/core';
 
 const props = defineProps({
   roomId: {
@@ -118,6 +118,13 @@ function loadData () {
     });
 }
 
+const textColor = computed(() => {
+  return useCssVar('--p-text-color').value;
+});
+const surfaceBorder = computed(() => {
+  return useCssVar('--p-content-border-color').value;
+});
+
 // chart options for chart.js display of meeting statistics
 const chartOptions = computed(() => {
   return {
@@ -138,11 +145,14 @@ const chartOptions = computed(() => {
           display: true,
           text: t('meetings.stats.time')
         },
+        grid: {
+          color: surfaceBorder.value
+        },
         ticks: {
           major: {
             enabled: true
           },
-          color: (context) => context.tick && context.tick.major && '#FF0000',
+          color: textColor.value,
           font: function (context) {
             if (context.tick && context.tick.major) {
               return {
@@ -167,6 +177,9 @@ const chartOptions = computed(() => {
         title: {
           display: true,
           text: t('meetings.stats.amount')
+        },
+        grid: {
+          color: surfaceBorder.value
         }
       }
     },

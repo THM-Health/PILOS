@@ -1,7 +1,6 @@
 <template>
-  <div>
-    <div>
-      <h4>{{ $t('settings.users.roles_and_permissions') }}</h4>
+  <div class="flex flex-col gap-4">
+    <AdminPanel :title="$t('admin.users.roles_and_permissions')">
       <UserTabSecurityRolesAndPermissionsSection
         :user="user"
         :view-only="viewOnly"
@@ -9,29 +8,19 @@
         @stale-error="handleStaleError"
         @not-found-error="handleNotFoundError"
       />
-    </div>
+    </AdminPanel>
 
-    <div
-      v-if="!viewOnly && user.authenticator === 'local' && canChangePassword"
-      class="mt-3"
-    >
-      <Divider/>
-      <h4>{{ $t('auth.change_password') }}</h4>
+    <AdminPanel :title="$t('auth.change_password')"  v-if="!viewOnly && user.authenticator === 'local' && canChangePassword">
       <UserTabSecurityPasswordSection
         :user="user"
         @update-user="updateUser"
         @not-found-error="handleNotFoundError"
       />
-    </div>
+    </AdminPanel>
 
-    <div
-      v-if="isOwnUser"
-      class="mt-3"
-    >
-      <Divider/>
-      <h4>{{ $t('auth.sessions.active') }}</h4>
+    <AdminPanel :title="$t('auth.sessions.active')" v-if="isOwnUser">
       <UserTabSecuritySessionsSection />
-    </div>
+    </AdminPanel>
   </div>
 </template>
 
@@ -61,7 +50,7 @@ const isOwnUser = computed(() => {
 });
 
 const canChangePassword = computed(() => {
-  return !isOwnUser.value || settingsStore.getSetting('password_change_allowed');
+  return !isOwnUser.value || settingsStore.getSetting('user.password_change_allowed');
 });
 
 function handleStaleError (error) {

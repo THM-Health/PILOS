@@ -1,6 +1,6 @@
 <template>
   <Tag
-    class="flex-shrink-1 text-break room-role-badge"
+    class="shrink text-break room-role-badge"
     :pt="{
         root: { class: role.class }
     }"
@@ -48,7 +48,7 @@ const role = computed(() => {
     default:
       return {
         description: t('rooms.roles.no_role'),
-        class: 'room-role-ro-role'
+        class: 'room-role-no-role'
       };
   }
 });

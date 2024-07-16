@@ -2,6 +2,7 @@
   <Button
     v-tooltip="$t('rooms.description.tooltips.link')"
     :severity="props.editor.isActive('link') ? 'primary' : 'secondary'"
+    text
     @click="openModal"
     icon="fa-solid fa-link"
   />
@@ -13,18 +14,18 @@
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
   >
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label for="url">{{ $t('rooms.description.modals.link.url') }}</label>
       <InputText
         id="url"
         v-model.trim="link"
         :invalid="urlInvalid"
       />
-      <p v-if="urlInvalid" class="p-error">{{ $t('rooms.description.modals.link.invalid_url') }}</p>
+      <p v-if="urlInvalid" class="text-red-500" role="alert">{{ $t('rooms.description.modals.link.invalid_url') }}</p>
     </div>
 
     <template #footer>
-      <div class="w-full flex justify-content-between gap-2">
+      <div class="w-full flex justify-between gap-2">
         <div>
           <Button
             v-if="!newLink"
@@ -40,7 +41,6 @@
             :label="$t('app.cancel')"
           />
           <Button
-            severity="success"
             :disabled="urlInvalid !== false"
             @click="save"
             :label="$t('app.save')"

@@ -1,6 +1,6 @@
 <template>
   <Button
-    v-tooltip="$t('settings.room_types.delete.item', { id: props.name })"
+    v-tooltip="$t('admin.room_types.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
     @click="showDeleteModal"
@@ -10,7 +10,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('settings.room_types.delete.title')"
+    :header="$t('admin.room_types.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :closeOnEscape="!isBusy"
@@ -19,19 +19,19 @@
     :draggable = false
   >
     <span>
-      {{ $t('settings.room_types.delete.confirm', { name: props.name }) }}
+      {{ $t('admin.room_types.delete.confirm', { name: props.name }) }}
     </span>
     <Divider/>
-    <div class="flex flex-column gap-2">
-      <label for="replacement-room-type">{{$t('settings.room_types.delete.replacement')}}</label>
-      <Dropdown
+    <div class="flex flex-col gap-2">
+      <label for="replacement-room-type">{{$t('admin.room_types.delete.replacement')}}</label>
+      <Select
         id="replacement-room-type"
         v-model.number="replacement"
         :disabled="isBusy"
         :loading="loadingRoomTypes"
         :class="{'p-invalid':formErrors.fieldInvalid('replacement_room_type')}"
         :options="replacementRoomTypes"
-        :placeholder="$t('settings.room_types.delete.no_replacement')"
+        :placeholder="$t('admin.room_types.delete.no_replacement')"
         option-value="value"
         option-label="text"
         aria-describedby="replacement-help"
@@ -42,9 +42,9 @@
             <i class="fa-solid fa-times"/>
           </span>
         </template>
-      </Dropdown>
-      <p class="p-error" v-html="formErrors.fieldError('replacement_room_type')" />
-      <small id="replacement-help">{{$t('settings.room_types.delete.replacement_info')}}</small>
+      </Select>
+      <FormError :errors="formErrors.fieldError('replacement_room_type')" />
+      <small id="replacement-help">{{$t('admin.room_types.delete.replacement_info')}}</small>
     </div>
     <template #footer>
       <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>

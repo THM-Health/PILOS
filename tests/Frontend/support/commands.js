@@ -27,9 +27,13 @@
 Cypress.Commands.add('init', () => {
   cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
   cy.intercept('GET', 'api/v1/locale/en', {});
-  cy.intercept('GET', 'api/v1/settings', {
+  cy.intercept('GET', 'api/v1/config', {
     data: {
-      toast_lifetime: 0
+      theme: {
+        primary_color: '#14b8a6',
+        rounded: true
+      },
+      general: { toast_lifetime: 0 }
     }
   });
 });
@@ -40,10 +44,11 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
 });
 
 Cypress.Commands.add('interceptRoomViewRequests', () => {
-  cy.intercept('GET', 'api/v1/settings', {
+  cy.intercept('GET', 'api/v1/config', {
     data: {
-      room_refresh_rate: Number.MAX_SAFE_INTEGER,
-      toast_lifetime: 0
+      general: { toast_lifetime: 0 },
+      theme: { primary_color: '#14b8a6', rounded: true },
+      room: { refresh_rate: Number.MAX_SAFE_INTEGER }
     }
   });
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' });

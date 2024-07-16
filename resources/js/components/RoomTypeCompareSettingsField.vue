@@ -13,10 +13,10 @@ defineProps({
 </script>
 
 <template>
-  <div class="field grid mx-0">
-    <span class="col-12 mb-2">{{ label }}</span>
+  <div class="field grid grid-cols-12 gap-4 mx-0 mb-6">
+    <span class="col-span-12">{{ label }}</span>
 
-    <div class="col-3 flex align-items-center justify-content-center" :aria-label="currentEnforced? $t('rooms.change_type.current_setting_enforced'): $t('rooms.change_type.current_setting')">
+    <div class="col-span-3 flex justify-center items-center" :aria-label="currentEnforced? $t('rooms.change_type.current_setting_enforced'): $t('rooms.change_type.current_setting')">
       <Tag v-if="type === 'switch' && currentValue" class="p-tag-circle" rounded severity="primary">
         <span class="fas fa-check" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.enabled') }}</span>
@@ -31,13 +31,13 @@ defineProps({
       </Tag>
     </div>
 
-    <div class="col-2 flex align-items-center justify-content-center">
+    <div class="col-span-2 flex justify-center items-center">
       <RoomSettingEnforcedIcon v-if="currentEnforced"/>
     </div>
 
-    <div class="col-2 fa-solid fa-arrow-right flex align-items-center justify-content-center"/>
+    <div class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"/>
 
-    <div class="col-3 flex align-items-center justify-content-center" :aria-label="newEnforced? $t('rooms.change_type.resulting_setting_enforced'): $t('rooms.change_type.resulting_setting')">
+    <div class="col-span-3 flex justify-center items-center" :aria-label="newEnforced? $t('rooms.change_type.resulting_setting_enforced'): $t('rooms.change_type.resulting_setting')">
       <Tag v-if="type === 'switch' && newValue" class="p-tag-circle" rounded severity="primary">
         <span class="fas fa-check" aria-hidden="true"></span>
         <span class="sr-only">{{ $t('app.enabled') }}</span>
@@ -52,7 +52,7 @@ defineProps({
       </Tag>
     </div>
 
-    <div class="col-2 flex align-items-center justify-content-center">
+    <div class="col-span-2 flex justify-center items-center">
       <RoomSettingEnforcedIcon v-if="newEnforced"/>
     </div>
 

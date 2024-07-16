@@ -8,8 +8,9 @@ use App\Enums\RoomUserRole;
 use App\Enums\RoomVisibility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
+use App\Http\Requests\JoinMeeting;
 use App\Http\Requests\ShowRoomsRequest;
-use App\Http\Requests\StartJoinMeeting;
+use App\Http\Requests\StartMeeting;
 use App\Http\Requests\TransferOwnershipRequest;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
@@ -142,7 +143,7 @@ class RoomController extends Controller
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 
-        $collection = $collection->paginate(app(\App\Settings\RoomSettings::class)->pagination_page_size);
+        $collection = $collection->paginate($request->per_page);
 
         return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
     }
@@ -170,6 +171,14 @@ class RoomController extends Controller
         if ($room->roomType->has_access_code_default) {
             $room->access_code = random_int(111111111, 999999999);
         }
+
+        // Apply non-expert settings of the room type
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            if (! $config['expert']) {
+                $room[$setting] = $room->roomType[$setting.'_default'];
+            }
+        }
+
         $room->save();
 
         Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
@@ -206,10 +215,10 @@ class RoomController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function start(Room $room, StartJoinMeeting $request)
+    public function start(Room $room, StartMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url = $roomService->start($request->record_attendance, $request->record)->getJoinUrl($request);
+        $url = $roomService->start($request->consent_record_attendance, $request->consent_record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
@@ -219,10 +228,10 @@ class RoomController extends Controller
      *
      * @return JsonResponse
      */
-    public function join(Room $room, StartJoinMeeting $request)
+    public function join(Room $room, JoinMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url = $roomService->join($request->record_attendance, $request->record)->getJoinUrl($request);
+        $url = $roomService->join($request->consent_record_attendance, $request->consent_record)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }

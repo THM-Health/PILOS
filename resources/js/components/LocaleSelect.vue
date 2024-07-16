@@ -1,6 +1,6 @@
 <template>
   <div>
-  <Dropdown
+  <Select
     :inputId="props.id"
     :options="locales"
     optionLabel="text"
@@ -47,7 +47,7 @@ const props = defineProps({
  */
 const locales = computed(() => {
   const availableLocales = [];
-  for (const [locale, label] of Object.entries(settingsStore.getSetting('enabled_locales'))) {
+  for (const [locale, label] of Object.entries(settingsStore.getSetting('general.enabled_locales'))) {
     availableLocales.push({
       value: locale,
       text: label

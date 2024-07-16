@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-column gap-2 text-color"
+    class="flex flex-col gap-2 text-color"
     :class="{ 'md:flex-row': props.inline }"
   >
     <!--owner name-->
@@ -39,7 +39,7 @@
     <!--participant count -->
     <div
       v-if="props.room.last_meeting && props.room.last_meeting.usage"
-      class="flex justify-content-start"
+      class="flex justify-start"
     >
       <div class="room-details__icon">
         <i class="fa-solid fa-users" />

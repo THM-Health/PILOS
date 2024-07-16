@@ -2,7 +2,6 @@
   <Button
     v-tooltip="$t('meetings.attendance.view')"
     :disabled="disabled"
-    severity="secondary"
     @click="showAttendanceModal"
     icon="fa-solid fa-user-clock"
   />
@@ -45,21 +44,21 @@
       :globalFilterFields="['name']"
     >
       <template #header>
-        <div class="flex justify-content-between gap-2">
+        <div class="flex justify-between gap-2">
           <IconField iconPosition="left">
             <InputIcon class="fa-solid fa-search"> </InputIcon>
               <InputText v-model="filters['global'].value" :placeholder="$t('app.search')" />
           </IconField>
 
-          <a
+          <Button
+            as="a"
             target="_blank"
             :href="downloadUrl"
-            class="p-button p-button-icon-only p-button-secondary"
+            icon="fa-solid fa-file-excel"
+            severity="secondary"
             :aria-label="$t('meetings.attendance.download')"
             v-tooltip:top="$t('meetings.attendance.download')"
-          >
-            <i class="fa-solid fa-file-excel" />
-          </a>
+          />
         </div>
       </template>
 
@@ -104,7 +103,6 @@
 import { computed, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import 'chartjs-adapter-date-fns';
-import { FilterMatchMode } from 'primevue/api';
 import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
@@ -138,7 +136,7 @@ const showModal = ref(false);
 const isLoadingAction = ref(false);
 const attendance = ref([]);
 const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  global: { value: null, matchMode: 'contains' }
 });
 
 const api = useApi();
@@ -165,6 +163,6 @@ function loadData () {
 }
 
 const downloadUrl = computed(() => {
-  return settingsStore.getSetting('base_url') + '/download/attendance/' + props.meetingId;
+  return settingsStore.getSetting('general.base_url') + '/download/attendance/' + props.meetingId;
 });
 </script>

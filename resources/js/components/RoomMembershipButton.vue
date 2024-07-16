@@ -12,9 +12,10 @@
   />
   <!-- If user is member, allow user to end the membership -->
   <Button
-    v-if="room.is_member && authStore.isAuthenticated"
+    v-if="room.is_member"
     :disabled="isLoadingAction || disabled"
     @click="showModal = true"
+    severity="contrast"
     icon="fa-solid fa-user"
     v-tooltip="$t('rooms.end_membership.button')"
     :aria-label="$t('rooms.end_membership.button')"
@@ -34,7 +35,7 @@
     {{ $t('rooms.end_membership.message') }}
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
         <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="leaveMembership" />
       </div>
@@ -46,7 +47,6 @@ import env from '../env';
 import { ref } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useApi } from '../composables/useApi.js';
-import { useAuthStore } from '../stores/auth.js';
 
 const props = defineProps({
   room: {
@@ -71,7 +71,6 @@ const showModal = ref(false);
 
 const userPermissions = useUserPermissions();
 const api = useApi();
-const authStore = useAuthStore();
 
 /**
  * Become a room member
@@ -122,6 +121,3 @@ function leaveMembership () {
 }
 
 </script>
-<style scoped>
-
-</style>

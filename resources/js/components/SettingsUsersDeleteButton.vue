@@ -1,7 +1,7 @@
 <template>
   <Button
-    v-tooltip="$t('settings.users.delete.item', { firstname: props.firstname, lastname: props.lastname })"
-    :aria-label="$t('settings.users.delete.item', { firstname: props.firstname, lastname: props.lastname })"
+    v-tooltip="$t('admin.users.delete.item', { firstname: props.firstname, lastname: props.lastname })"
+    :aria-label="$t('admin.users.delete.item', { firstname: props.firstname, lastname: props.lastname })"
     :disabled="isBusy"
     severity="danger"
     @click="showDeleteModal"
@@ -10,7 +10,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('settings.users.delete.title')"
+    :header="$t('admin.users.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :closeOnEscape="!isBusy"
@@ -19,7 +19,7 @@
     :draggable = false
   >
     <span>
-      {{ $t('settings.users.delete.confirm', { firstname: props.firstname, lastname: props.lastname }) }}
+      {{ $t('admin.users.delete.confirm', { firstname: props.firstname, lastname: props.lastname }) }}
     </span>
     <template #footer>
       <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>

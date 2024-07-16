@@ -1,26 +1,25 @@
 <template>
   <div>
-    <h4>{{ $t('settings.users.bbb') }}</h4>
-    <form @submit="save" v-if="model">
-      <div class="field grid">
-        <label for="bbb_skip_check_audio" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('settings.users.skip_check_audio') }}</label>
-        <div class="col-12 md:col-9">
-          <InputSwitch
+    <AdminPanel :title="$t('admin.users.bbb')" >
+      <form @submit="save" v-if="model" class="flex flex-col gap-4">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="bbb_skip_check_audio" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.skip_check_audio') }}</label>
+        <div class="col-span-12 md:col-span-9">
+          <ToggleSwitch
             id="bbb_skip_check_audio"
             v-model="model.bbb_skip_check_audio"
             required
             :disabled="isBusy || viewOnly"
             :invalid="formErrors.fieldInvalid('bbb_skip_check_audio')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('bbb_skip_check_audio')" />
+          <FormError :errors="formErrors.fieldError('bbb_skip_check_audio')" />
         </div>
       </div>
 
-      <div class="flex justify-content-end">
+      <div class="flex justify-end">
         <Button
           v-if="!viewOnly"
           :disabled="isBusy"
-          severity="success"
           type="submit"
           :loading="isBusy"
           icon="fa-solid fa-save"
@@ -28,6 +27,7 @@
         />
       </div>
     </form>
+    </AdminPanel>
   </div>
 </template>
 

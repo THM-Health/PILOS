@@ -2,7 +2,6 @@
   <!-- Add user / users -->
   <Button
     type="button"
-    severity="success"
     icon="fa-solid fa-user-plus"
     :aria-label="$t('rooms.members.add_user')"
     v-tooltip="$t('rooms.members.add_user')"

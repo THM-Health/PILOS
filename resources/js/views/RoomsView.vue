@@ -1,17 +1,17 @@
 <template>
   <div
     v-cloak
-    class="container mt-5 mb-5"
+    class="container mt-8 mb-8"
   >
     <!-- room token is invalid -->
     <div
       v-if="tokenInvalid"
-      class="flex justify-content-center mt-8"
+      class="flex justify-center mt-20"
     >
       <!-- Show message that room can only be used by logged in users -->
-      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-center'}}">
         <template #header>
-          <Badge severity="danger" class="border-circle flex justify-content-center align-items-center h-4rem w-4rem -mt-5">
+          <Badge severity="danger" class="rounded-full flex justify-center items-center h-16 w-16 -mt-8">
             <i class="fa-solid fa-unlink text-2xl text-white"></i>
           </Badge>
         </template>
@@ -26,11 +26,11 @@
     <!-- room is only for logged in users -->
     <div
       v-else-if="guestsNotAllowed"
-      class="flex justify-content-center mt-8"
+      class="flex justify-center mt-20"
     >
-      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+      <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-center'}}">
         <template #header>
-          <Badge severity="danger" class="border-circle flex justify-content-center align-items-center h-4rem w-4rem -mt-5">
+          <Badge severity="danger" class="rounded-full flex justify-center items-center h-16 w-16 -mt-8">
             <i class="fa-solid fa-lock text-2xl text-white"></i>
           </Badge>
         </template>
@@ -40,7 +40,7 @@
           </span>
         </template>
         <template #footer>
-          <div class="flex justify-content-start w-full">
+          <div class="flex justify-start w-full">
             <!-- Reload page, in case the room settings changed -->
             <Button
               :disabled="loading"
@@ -72,11 +72,11 @@
       </div>
       <div v-else>
         <div v-if="!room.authenticated"
-           class="flex justify-content-center mt-8"
+           class="flex justify-center mt-20"
         >
-          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-content-center'}}">
+          <Card style="width: 500px; max-width: 90vw;" :pt="{ header: { class: 'flex justify-center'}}" data-test="room-access-code-overlay">
             <template #header>
-              <Badge severity="danger" class="border-circle flex justify-content-center align-items-center h-4rem w-4rem -mt-5">
+              <Badge severity="danger" class="rounded-full flex justify-center items-center h-16 w-16 -mt-8">
                 <i class="fa-solid fa-lock text-2xl text-white"></i>
               </Badge>
             </template>
@@ -88,13 +88,12 @@
               {{ $t('rooms.require_access_code') }}
             </span>
 
-            <div class="flex flex-column w-full gap-2 mt-4">
+            <div class="flex flex-col w-full gap-2 mt-6" data-test="room-access-code">
               <label for="access-code">{{ $t('rooms.access_code') }}</label>
               <InputGroup>
                   <InputMask
                     autofocus
                     v-model="accessCodeInput"
-                    unmask
                     mask="999-999-999"
                     placeholder="123-456-789"
                     :invalid="accessCodeInvalid"
@@ -109,26 +108,28 @@
                 :label="$t('rooms.login')"
               />
               </InputGroup>
-              <p class="p-error mt-1" v-if="accessCodeInvalid">{{ $t('rooms.flash.access_code_invalid') }}</p>
+              <p class="text-red-500 mt-1" role="alert" v-if="accessCodeInvalid">{{ $t('rooms.flash.access_code_invalid') }}</p>
             </div>
             </template>
           </Card>
         </div>
         <div v-else>
-          <RoomHeader :room="room" :loading="loading" @reload="reload" :details-inline="true" />
-          <div
+          <Card>
+          <template #header>
+            <RoomHeader class="mx-6 mt-6" :room="room" :loading="loading" @reload="reload" :details-inline="true" />
+          </template>
+          <template #content>
+            <div
             v-if="room.can_start && room.room_type_invalid"
           >
             <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">
               {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
             </Message>
           </div>
-
-          <Divider />
           <!-- Room join/start -->
 
-          <div class="flex justify-content-between align-items-start gap-2 mb-3">
-            <div class="flex justify-content-start gap-2">
+          <div class="flex justify-between items-start gap-2">
+            <div class="flex justify-start gap-2">
               <RoomJoinButton
                 :roomId="room.id"
                 :running="running"
@@ -154,6 +155,8 @@
             <RoomShareButton v-if="viewInvitation" :room="room" />
           </div>
 
+          </template>
+          </Card>
           <!-- Show room tabs -->
           <RoomTabSection
             :access-code="accessCode"
@@ -243,7 +246,7 @@ function startAutoRefresh () {
  * @returns {number} random refresh internal in seconds
  */
 function getRandomRefreshInterval () {
-  const base = Math.abs(settingsStore.getSetting('room_refresh_rate'));
+  const base = Math.abs(settingsStore.getSetting('room.refresh_rate'));
   // 15% range to scatter the values around the base refresh rate
   const percentageRange = 0.15;
   const absoluteRange = base * percentageRange;
@@ -418,7 +421,7 @@ function reload () {
   * @param {string} roomName Name of the room
   */
 function setPageTitle (roomName) {
-  document.title = roomName + ' - ' + settingsStore.getSetting('name');
+  document.title = roomName + ' - ' + settingsStore.getSetting('general.name');
 }
 
 /**
@@ -426,7 +429,7 @@ function setPageTitle (roomName) {
  */
 function login () {
   // Parse to int
-  accessCode.value = parseInt(accessCodeInput.value);
+  accessCode.value = parseInt(accessCodeInput.value.replace(/[-]/g, ''));
   // Reload the room with an access code
   reload();
 }

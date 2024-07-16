@@ -13,9 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ShibbolethSessionMiddleware
 {
-    public function __construct(protected ShibbolethProvider $provider)
-    {
-    }
+    public function __construct(protected ShibbolethProvider $provider) {}
 
     /**
      * Handle an incoming request.
