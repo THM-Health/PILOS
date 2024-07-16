@@ -50,7 +50,7 @@ docker compose cp app:/var/www/html/resources/js/views/Home.vue ./resources/cust
 You can change anything you like in the file.
 
 In case you want to add a new translation key, you need to add it to the `resources/custom/lang` folder.
-For more information on how to customize the locales, see the [Locales](./03-locales.md) documentation.
+For more information on how to customize the locales, see the [Locales](./02-locales.md) documentation.
 
 **4. Rebuild the frontend**
 
