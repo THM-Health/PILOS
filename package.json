@@ -20,7 +20,7 @@
         "eslint-plugin-mocha": "^10.4.3",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^6.4.0",
-        "eslint-plugin-vue": "^9.26.0"
+        "eslint-plugin-vue": "^9.27.0"
     },
     "dependencies": {
         "@floating-ui/vue": "^1.1.1",
