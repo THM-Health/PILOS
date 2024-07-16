@@ -101,7 +101,7 @@ Please check our [development documentation](https://thm-health.github.io/PILOS/
 
 ## Localization
 
-The localization is managed in our [POEditor](https://poeditor.com/join/project/UGpZY4JAnz) project.
+The localization is managed in our [POEditor](https://poeditor.com/join/project/gWkaFBI8OH) project.
 Feel free to join and help us translate PILOS into your language or improve the existing translations.
 
 ## License
