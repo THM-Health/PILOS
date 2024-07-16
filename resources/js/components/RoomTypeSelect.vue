@@ -1,79 +1,79 @@
 <template>
-
-  <div v-if="modelLoadingError" class="flex flex-col gap-2 items-start">
-    <Message
-      severity="error"
-      :closable="false"
-      class="w-full"
-    >
-      {{ $t('rooms.room_types.loading_error') }}
-    </Message>
-
-    <Button
-      v-if="modelLoadingError"
-      v-tooltip="$t('rooms.room_types.reload')"
-      :disabled="disabled || isLoadingAction"
-      @click="reloadRoomTypes"
-      icon="fa-solid fa-sync"
-      :label="$t('app.reload')"
-      :loading="isLoadingAction"
-    />
-  </div>
-  <OverlayComponent v-else :show="isLoadingAction">
-  <div class="grid grid-cols-12 gap-4">
-    <div :class="modelValue ? 'md:col-span-6' : 'md:col-span-12'" class="col-span-12">
-      <Select
-        v-model="roomTypeId"
-        :disabled="disabled || isLoadingAction"
-        @change="changeRoomType"
-        :options="roomTypes"
-        optionLabel="name"
-        optionValue="id"
-        :invalid="props.invalid"
-        class="w-full md:hidden"
-        :aria-labelledby="ariaLabelledby"
-        :pt="{
-          panel: {
-            class: 'max-w-full'
-          },
-          item: {
-            class: 'whitespace-normal'
-          }
-        }"
+    <div v-if="modelLoadingError" class="flex flex-col gap-2 items-start">
+      <Message
+        severity="error"
+        :closable="false"
+        class="w-full"
       >
-        <template #option="slotProps">
-          <span class="max-w-full" style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
-        </template>
-      </Select>
+        {{ $t('rooms.room_types.loading_error') }}
+      </Message>
 
-      <Listbox
-        v-model="roomTypeId"
+      <Button
+        v-if="modelLoadingError"
+        v-tooltip="$t('rooms.room_types.reload')"
         :disabled="disabled || isLoadingAction"
-        @change="changeRoomType"
-        :options="roomTypes"
-        optionLabel="name"
-        optionValue="id"
-        :invalid="props.invalid"
-        class="w-full hidden md:block"
-        listStyle="max-height:250px"
-        :aria-labelledby="ariaLabelledby"
-        :pt="{
-          option: {
-            'data-test': 'room-type-select-option'
-          }
-        }"
-      >
-        <template #option="slotProps">
-          <span style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
-        </template>
-      </Listbox>
+        @click="reloadRoomTypes"
+        icon="fa-solid fa-sync"
+        :label="$t('app.reload')"
+        :loading="isLoadingAction"
+      />
     </div>
-    <div class="col-span-12 md:col-span-6" v-if="modelValue" aria-live="polite" aria-atomic="true">
-      <RoomTypeDetails :roomType="modelValue" />
-    </div>
-  </div>
-  </OverlayComponent>
+    <div class="overflow-hidden" v-else>
+      <OverlayComponent :show="isLoadingAction">
+        <div class="grid grid-cols-2 gap-4">
+          <div :class="modelValue ? 'md:col-span-1' : 'md:col-span-2'" class="col-span-2">
+            <Select
+              v-model="roomTypeId"
+              :disabled="disabled || isLoadingAction"
+              @change="changeRoomType"
+              :options="roomTypes"
+              optionLabel="name"
+              optionValue="id"
+              :invalid="props.invalid"
+              class="w-full md:hidden"
+              :aria-labelledby="ariaLabelledby"
+              :pt="{
+                panel: {
+                  class: 'max-w-full'
+                },
+                item: {
+                  class: 'whitespace-normal'
+                }
+              }"
+            >
+              <template #option="slotProps">
+                <span class="max-w-full" style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
+              </template>
+            </Select>
 
+            <Listbox
+              v-model="roomTypeId"
+              :disabled="disabled || isLoadingAction"
+              @change="changeRoomType"
+              :options="roomTypes"
+              optionLabel="name"
+              optionValue="id"
+              :invalid="props.invalid"
+              class="w-full hidden md:block "
+              scrollHeight="19rem"
+              :aria-labelledby="ariaLabelledby"
+              :pt="{
+                option: {
+                  'data-test': 'room-type-select-option'
+                }
+              }"
+            >
+              <template #option="slotProps">
+                <span style="word-break: normal; overflow-wrap: anywhere;">{{ slotProps.option.name }}</span>
+              </template>
+            </Listbox>
+          </div>
+          <div class="col-span-2 md:col-span-1" v-if="modelValue" aria-live="polite" aria-atomic="true">
+            <RoomTypeDetails :roomType="modelValue" />
+          </div>
+        </div>
+      </OverlayComponent>
+    </div>
 </template>
 
 <script setup>
