@@ -37,7 +37,7 @@
         :preserve-search="true"
         :close-on-select="true"
         :options-limit="300"
-        :max-height="600"
+        :max-height="150"
         :show-no-results="true"
         :show-labels="false"
         @search-change="asyncFind"

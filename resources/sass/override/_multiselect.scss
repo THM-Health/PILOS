@@ -52,7 +52,7 @@
     .multiselect__tags{
         background: none;
         border: 1px solid var(--p-inputtext-border-color);
-        border-radius: var(--p-form-field-border-radius);
+        border-radius: var(--p-form-field-border-radius) !important;
         padding: var(--p-inputtext-padding-y) var(--p-inputtext-padding-x);
 
         .p-chip {
@@ -76,6 +76,17 @@
         background: none;
         color: var(--p-form-field-color);
         font-size: 1rem;
+    }
+
+    .multiselect__input{
+        padding: 0;
+        margin: 0;
+        color: var(--p-form-field-color);
+        font-size: 1rem;
+    }
+
+    .multiselect__spinner {
+        border-radius: var(--p-select-overlay-border-radius);
     }
 
     .multiselect__placeholder{
