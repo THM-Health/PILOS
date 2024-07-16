@@ -1,9 +1,8 @@
 <template>
   <div>
       <OverlayComponent :show="isBusy">
-        <form @submit.prevent="save">
-          <div>
-            <h3>{{ $t('rooms.settings.general.title') }}</h3>
+        <form @submit.prevent="save" class="flex flex-col gap-4">
+          <AdminPanel :title="$t('rooms.settings.general.title')">
             <div class="field grid grid-cols-12 gap-4">
               <label for="firstname" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.firstname')}}</label>
               <div class="col-span-12 md:col-span-8">
@@ -64,7 +63,6 @@
                 <FormError :errors="formErrors.fieldError('user_locale')"/>
               </div>
             </div>
-
             <div class="field grid grid-cols-12 gap-4">
               <label for="timezone" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.users.timezone')}}</label>
               <div class="col-span-12 md:col-span-8">
@@ -95,10 +93,8 @@
                 <FormError :errors="formErrors.fieldError('roles', true)"/>
               </div>
             </div>
-            <Divider/>
-          </div>
-          <div>
-          <h3>{{$t('auth.password')}}</h3>
+          </AdminPanel>
+          <AdminPanel :title="$t('auth.password')">
             <div class="field grid grid-cols-12 gap-4">
               <label for="generate_password" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('admin.users.generate_password')}}</label>
               <div class="col-span-12 md:col-span-8">
@@ -119,7 +115,7 @@
               <label for="new_password" class="col-span-12 md:col-span-4 md:mb-0">{{$t('auth.new_password')}}</label>
               <div class="col-span-12 md:col-span-8">
                 <Password
-                  class="w-full"
+                  fluid
                   id="new_password"
                   :inputProps="{ autocomplete: 'off' }"
                   v-model="model.new_password"
@@ -138,7 +134,7 @@
               <div class="col-span-12 md:col-span-8">
                 <Password
                   id="new_password_confirmation"
-                  class="w-full"
+                  fluid
                   v-model="model.new_password_confirmation"
                   :type="showPassword ? 'text' : 'password'"
                   required
@@ -149,7 +145,7 @@
                 <FormError :errors="formErrors.fieldError('new_password_confirmation')"/>
               </div>
             </div>
-          </div>
+          </AdminPanel>
             <Divider/>
             <div class="flex justify-end">
               <Button
