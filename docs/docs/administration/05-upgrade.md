@@ -14,12 +14,67 @@ To start the upgrade process, stop your current PILOS installation by running:
 docker compose down
 ```
 
-Next replace the container used by docker compose in the `.env` file:
+
+## Replace the app service
+In v2/v3 only one service was used for the app. In v4 the app service was split into three services: `app`, `cron` and `horizon`.
+
+- **app**: Frontend and backend with nginx and php-fpm
+- **cron**: Cronjob runner
+- **horizon**: Laravel Horizon for queue jobs
+
+As all services use the same image, environment variables and volumes, these are defined in a common section in the `docker-compose.yml` file.
+Replace the app service in the `docker-compose.yml` file:
+
+```yaml
+x-docker-pilos-common: &pilos-common
+    env_file: .env
+    volumes:
+        - './storage/app:/var/www/html/storage/app'
+        - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
+        - './app/Auth/config:/var/www/html/app/Auth/config'
+services:
+    app:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        ports:
+            - '127.0.0.1:5000:80'
+            - '127.0.0.1:9000:81'
+        <<: *pilos-common
+        sysctls:
+            net.core.somaxconn: 65536
+            net.ipv4.ip_local_port_range: "2000 65535"
+            net.ipv4.tcp_tw_reuse: 1
+            net.ipv4.tcp_fin_timeout: 30
+        healthcheck:
+            test: curl --fail http://localhost/ping || exit 1
+            interval: 10s
+            retries: 6
+            timeout: 5s
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+    cron:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        <<: *pilos-common
+        entrypoint: [ 'pilos-cli', 'run:cron' ]
+        depends_on:
+            app:
+                condition: service_healthy
+    horizon:
+        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        <<: *pilos-common
+        entrypoint: [ 'pilos-cli', 'run:horizon' ]
+        depends_on:
+            app:
+                condition: service_healthy
+```
+
+Next define the container used by docker compose in the `.env` file:
 
 ```bash
 CONTAINER_IMAGE=pilos/pilos:4.0.0-beta.1
 ```
-
 
 ## .env option changes
 
