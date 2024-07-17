@@ -28,8 +28,13 @@ function confirmOpenLink (link) {
     message: t('rooms.description.external_link_warning.description', { link }),
     header: t('rooms.description.external_link_warning.title'),
     icon: 'fa-solid fa-triangle-exclamation',
-    rejectLabel: t('app.cancel'),
-    acceptLabel: t('app.continue'),
+    rejectProps: {
+      label: t('app.cancel'),
+      severity: 'secondary'
+    },
+    acceptProps: {
+      label: t('app.continue')
+    },
     accept: () => {
       window.open(link, '_blank');
     }

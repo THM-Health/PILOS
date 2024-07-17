@@ -71,6 +71,43 @@
     }
 }
 
+.room-description,
+.ProseMirror {
+    h1{
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 600;
+    }
+
+    h2{
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        font-weight: 600;
+    }
+
+    h3{
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        font-weight: 600;
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    a {
+        color: var(--p-primary-color);
+        &:hover {
+            text-decoration: underline;
+        }
+
+    }
+}
+
 .room-bulk-import-preview {
     overflow-y: auto;
     max-height: 200px;
