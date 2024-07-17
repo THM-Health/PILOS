@@ -27,14 +27,14 @@ describe('Room Index', function () {
 
     // Room type dropdown
     cy.get('[data-test=room-type-dropdown]').within(() => {
-      cy.get('.p-dropdown-label').should('have.attr', 'aria-disabled', 'true');
+      cy.get('.p-select-label').should('have.attr', 'aria-disabled', 'true');
     });
 
     cy.get('[data-test=filter-button]').should('not.be.visible');
 
     // Sorting dropdown
     cy.get('[data-test=sorting-type-dropdown]').within(() => {
-      cy.get('.p-dropdown-label')
+      cy.get('.p-select-label')
         .should('have.attr', 'aria-disabled', 'true')
         .then(() => {
           roomRequestInterception.sendResponse();
@@ -53,30 +53,30 @@ describe('Room Index', function () {
 
     // Room type dropdown
     cy.get('[data-test=room-type-dropdown]').within(() => {
-      cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
+      cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
     cy.get('[data-test=filter-button]').should('not.be.visible');
 
     // Check if rooms are shown and contain the correct data
-    cy.get('.room-card').should('have.length', 3);
+    cy.get('[data-test="room-card"]').should('have.length', 3);
 
-    cy.get('.room-card').eq(0).should('include.text', 'Meeting One');
-    cy.get('.room-card').eq(0).should('include.text', 'John Doe');
-    cy.get('.room-card').eq(0).should('include.text', 'rooms.index.room_component.never_started');
-    cy.get('.room-card').eq(0).within(() => {
+    cy.get('[data-test="room-card"]').eq(0).should('contain', 'Meeting One');
+    cy.get('[data-test="room-card"]').eq(0).should('contain', 'John Doe');
+    cy.get('[data-test="room-card"]').eq(0).should('contain', 'rooms.index.room_component.never_started');
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/abc-def-123');
     });
-    cy.get('.room-card').eq(1).should('include.text', 'Meeting Two');
-    cy.get('.room-card').eq(1).should('include.text', 'John Doe');
-    cy.get('.room-card').eq(1).should('include.text', 'rooms.index.room_component.running_since');
-    cy.get('.room-card').eq(1).within(() => {
+    cy.get('[data-test="room-card"]').eq(1).should('contain', 'Meeting Two');
+    cy.get('[data-test="room-card"]').eq(1).should('contain', 'John Doe');
+    cy.get('[data-test="room-card"]').eq(1).should('contain', 'rooms.index.room_component.running_since');
+    cy.get('[data-test="room-card"]').eq(1).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/def-abc-123');
     });
-    cy.get('.room-card').eq(2).should('include.text', 'Meeting Three');
-    cy.get('.room-card').eq(2).should('include.text', 'John Doe');
-    cy.get('.room-card').eq(2).should('include.text', 'rooms.index.room_component.last_ran_till');
-    cy.get('.room-card').eq(2).within(() => {
+    cy.get('[data-test="room-card"]').eq(2).should('contain', 'Meeting Three');
+    cy.get('[data-test="room-card"]').eq(2).should('contain', 'John Doe');
+    cy.get('[data-test="room-card"]').eq(2).should('contain', 'rooms.index.room_component.last_ran_till');
+    cy.get('[data-test="room-card"]').eq(2).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/def-abc-456');
     });
   });
@@ -86,7 +86,7 @@ describe('Room Index', function () {
     cy.visit('/rooms');
     cy.wait('@roomRequest');
 
-    cy.get('.room-card').eq(0).click();
+    cy.get('[data-test="room-card"]').eq(0).click();
 
     cy.url().should('include', '/rooms/abc-def-123');
   });
@@ -129,12 +129,12 @@ describe('Room Index', function () {
 
     // Room type dropdown
     cy.get('[data-test=room-type-dropdown]').within(() => {
-      cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
+      cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
     // Sorting dropdown
     cy.get('[data-test=sorting-type-dropdown]').within(() => {
-      cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
+      cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
     cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' });
@@ -142,11 +142,11 @@ describe('Room Index', function () {
     cy.get('[data-test=reload-button]').should('include.text', 'app.reload').click();
 
     // Check if rooms are shown and contain the correct data
-    cy.get('.room-card').as('rooms').should('have.length', 3);
+    cy.get('[data-test="room-card"]').as('rooms').should('have.length', 3);
 
-    cy.get('.room-card').eq(0).should('include.text', 'Meeting One');
-    cy.get('.room-card').eq(1).should('include.text', 'Meeting Two');
-    cy.get('.room-card').eq(2).should('include.text', 'Meeting Three');
+    cy.get('[data-test="room-card"]').eq(0).should('include.text', 'Meeting One');
+    cy.get('[data-test="room-card"]').eq(1).should('include.text', 'Meeting Two');
+    cy.get('[data-test="room-card"]').eq(2).should('include.text', 'Meeting Three');
 
     // Check that reload button does not exist
     cy.get('[data-test=reload-button]').should('not.exist');
@@ -163,12 +163,12 @@ describe('Room Index', function () {
 
     // Room type dropdown
     cy.get('[data-test=room-type-dropdown]').within(() => {
-      cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
+      cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
     // Sorting dropdown
     cy.get('[data-test=sorting-type-dropdown]').within(() => {
-      cy.get('.p-dropdown-label').should('not.have.attr', 'aria-disabled', 'true');
+      cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
   });
 

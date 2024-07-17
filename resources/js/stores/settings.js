@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import _ from 'lodash';
 import { useApi } from '../composables/useApi.js';
 import { setToastLifetime } from '../composables/useToast';
+import { updateTheme } from '../composables/useTheme';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => {
@@ -21,7 +22,9 @@ export const useSettingsStore = defineStore('settings', {
       const response = await api.call('config');
       this.settings = response.data.data;
 
-      setToastLifetime(this.settings.toast_lifetime);
+      setToastLifetime(this.settings.general.toast_lifetime);
+
+      updateTheme(this.settings.theme.primary_color, this.settings.theme.rounded);
     }
   }
 });

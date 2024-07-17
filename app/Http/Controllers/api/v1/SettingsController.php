@@ -14,6 +14,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Storage;
 
@@ -41,6 +42,7 @@ class SettingsController extends Controller
     public function update(UpdateSettings $request)
     {
         $generalSettings = app(GeneralSettings::class);
+        $themeSettings = app(ThemeSettings::class);
         $bannerSettings = app(BannerSettings::class);
         $roomSettings = app(RoomSettings::class);
         $userSettings = app(UserSettings::class);
@@ -48,21 +50,39 @@ class SettingsController extends Controller
         $bigBlueButtonSettings = app(BigBlueButtonSettings::class);
 
         // Logo for frontend
-        if ($request->has('general_logo_file')) {
-            $path = $request->file('general_logo_file')->store('images', 'public');
+        if ($request->has('theme_logo_file')) {
+            $path = $request->file('theme_logo_file')->store('images', 'public');
             $url = Storage::url($path);
             $logo = $url;
         } else {
-            $logo = $request->input('general_logo');
+            $logo = $request->input('theme_logo');
+        }
+
+        // Dark version Logo for frontend
+        if ($request->has('theme_logo_dark_file')) {
+            $path = $request->file('theme_logo_dark_file')->store('images', 'public');
+            $url = Storage::url($path);
+            $logoDark = $url;
+        } else {
+            $logoDark = $request->input('theme_logo_dark');
         }
 
         // Favicon for frontend
-        if ($request->has('general_favicon_file')) {
-            $path = $request->file('general_favicon_file')->store('images', 'public');
+        if ($request->has('theme_favicon_file')) {
+            $path = $request->file('theme_favicon_file')->store('images', 'public');
             $url = Storage::url($path);
             $favicon = $url;
         } else {
-            $favicon = $request->input('general_favicon');
+            $favicon = $request->input('theme_favicon');
+        }
+
+        // Dark version Favicon for frontend
+        if ($request->has('theme_favicon_dark_file')) {
+            $path = $request->file('theme_favicon_dark_file')->store('images', 'public');
+            $url = Storage::url($path);
+            $faviconDark = $url;
+        } else {
+            $faviconDark = $request->input('theme_favicon_dark');
         }
 
         // Default presentation for BBB
@@ -102,8 +122,6 @@ class SettingsController extends Controller
             }
         }
 
-        $generalSettings->logo = $logo;
-        $generalSettings->favicon = $favicon;
         $generalSettings->name = $request->input('general_name');
         $generalSettings->pagination_page_size = $request->integer('general_pagination_page_size');
         $generalSettings->default_timezone = $request->input('general_default_timezone');
@@ -112,8 +130,14 @@ class SettingsController extends Controller
         $generalSettings->privacy_policy_url = $request->input('general_privacy_policy_url');
         $generalSettings->toast_lifetime = $request->integer('general_toast_lifetime');
 
+        $themeSettings->logo = $logo;
+        $themeSettings->favicon = $favicon;
+        $themeSettings->logo_dark = $logoDark;
+        $themeSettings->favicon_dark = $faviconDark;
+        $themeSettings->primary_color = $request->input('theme_primary_color');
+        $themeSettings->rounded = $request->boolean('theme_rounded');
+
         $roomSettings->limit = $request->integer('room_limit');
-        $roomSettings->pagination_page_size = $request->integer('room_pagination_page_size');
         $roomSettings->token_expiration = $request->enum('room_token_expiration', TimePeriod::class);
         $roomSettings->auto_delete_inactive_period = $request->enum('room_auto_delete_inactive_period', TimePeriod::class);
         $roomSettings->auto_delete_never_used_period = $request->enum('room_auto_delete_never_used_period', TimePeriod::class);
@@ -140,6 +164,7 @@ class SettingsController extends Controller
         $recordingSettings->recording_retention_period = $request->enum('recording_recording_retention_period', TimePeriod::class);
 
         $generalSettings->save();
+        $themeSettings->save();
         $roomSettings->save();
         $userSettings->save();
         $bannerSettings->save();

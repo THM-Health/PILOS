@@ -19,7 +19,7 @@
     />
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" severity="secondary" @click="modalVisible = false" />
         <Button :label="$t('app.save')" :disabled="!newRoomType" @click="handleOk" />
       </div>
@@ -97,9 +97,6 @@ function roomSettingChanged (settingName) {
  */
 function roomSettingsChanged () {
   // Check access code setting for changes
-  if ((props.currentSettings.access_code !== null) !== newRoomType.value.has_access_code_default) {
-    return true;
-  }
   if (props.currentSettings.room_type.has_access_code_enforced !== newRoomType.value.has_access_code_enforced) {
     return true;
   }

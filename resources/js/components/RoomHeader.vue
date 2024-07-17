@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-column gap-4">
+  <div class="flex flex-col gap-6">
     <div class="flex flex-row gap-2">
-      <div class="flex-grow-1">
+      <div class="grow">
         <!-- Display room type, name and owner  -->
         <RoomTypeBadge :room-type="props.room.type" />
         <h1 class="text-3xl mt-2 roomname text-color">
@@ -14,7 +14,7 @@
           :inline="detailsInline"
         />
       </div>
-      <div class="flex-shrink-0 flex justify-content-end align-items-start">
+      <div class="shrink-0 flex justify-end items-start">
         <div class="flex gap-2">
           <!-- Reload general room settings/details -->
           <Button

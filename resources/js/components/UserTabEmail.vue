@@ -1,61 +1,61 @@
 <template>
   <div>
-    <h4>{{ $t('app.email') }}</h4>
-    <form @submit="save">
-      <div class="field grid" v-if="!viewOnly && isOwnUser && userPermissions.can('updateAttributes', user)">
-        <label for="current_password" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.current_password') }}</label>
-        <div class="col-12 md:col-9">
-          <InputText
-            id="current_password"
-            v-model="currentPassword"
-            type="password"
-            required
+    <AdminPanel :title="$t('admin.users.email')">
+      <form @submit.prevent="save" class="flex flex-col gap-4">
+        <div class="field grid grid-cols-12 gap-4" v-if="!viewOnly && isOwnUser && userPermissions.can('updateAttributes', user)">
+          <label for="current_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.current_password') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <InputText
+              id="current_password"
+              v-model="currentPassword"
+              type="password"
+              required
+              :disabled="isBusy"
+              class="w-full"
+              :invalid="formErrors.fieldInvalid('current_password')"
+            />
+            <FormError :errors="formErrors.fieldError('current_password')" />
+          </div>
+        </div>
+
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="email" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.email') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <InputText
+              id="email"
+              v-model="email"
+              type="email"
+              required
+              :disabled="isBusy || viewOnly || !userPermissions.can('updateAttributes', user)"
+              class="w-full"
+              :invalid="formErrors.fieldInvalid('email')"
+            />
+            <FormError :errors="formErrors.fieldError('email')" />
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <Button
+            v-if="!viewOnly && userPermissions.can('updateAttributes', user)"
             :disabled="isBusy"
-            class="w-full"
-            :invalid="formErrors.fieldInvalid('current_password')"
+            type="submit"
+            :loading="isBusy"
+            :label="$t('auth.change_email')"
+            icon="fa-solid fa-save"
           />
-          <p class="p-error" v-html="formErrors.fieldError('current_password')" />
         </div>
-      </div>
 
-      <div class="field grid">
-        <label for="email" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.email') }}</label>
-        <div class="col-12 md:col-9">
-          <InputText
-            id="email"
-            v-model="email"
-            type="email"
-            required
-            :disabled="isBusy || viewOnly || !userPermissions.can('updateAttributes', user)"
-            class="w-full"
-            :invalid="formErrors.fieldInvalid('email')"
-          />
-          <p class="p-error" v-html="formErrors.fieldError('email')" />
+        <div v-if="validationRequiredEmail">
+          <Message
+            severity="success"
+            class="mt-4"
+          >
+            {{ $t('auth.send_email_confirm_mail', {email: validationRequiredEmail}) }}
+          </Message>
         </div>
-      </div>
 
-      <div class="flex justify-content-end">
-        <Button
-          v-if="!viewOnly && userPermissions.can('updateAttributes', user)"
-          :disabled="isBusy"
-          severity="success"
-          type="submit"
-          :loading="isBusy"
-          :label="$t('auth.change_email')"
-          icon="fa-solid fa-save"
-        />
-      </div>
-
-      <div v-if="validationRequiredEmail">
-        <Message
-          severity="success"
-          class="mt-3"
-        >
-          {{ $t('auth.send_email_confirm_mail', {email: validationRequiredEmail}) }}
-        </Message>
-      </div>
-
-    </form>
+      </form>
+    </AdminPanel>
   </div>
 </template>
 
@@ -68,6 +68,7 @@ import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
+import AdminPanel from './AdminPanel.vue';
 
 const props = defineProps({
   user: {

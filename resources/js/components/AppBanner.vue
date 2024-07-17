@@ -1,14 +1,14 @@
 <template>
   <Message
     :style="{ 'border-color': background, 'background-color': background, 'color': color }"
-    class="m-0 border-noround"
+    class="m-0 rounded-none"
     :closable="false"
     :pt="{
       icon: {
         class: 'hidden'
       },
       wrapper: {
-        class: 'p-3 container'
+        class: 'p-4 container'
       }
     }"
     :unstyled="true"
@@ -16,7 +16,7 @@
     <template #messageicon>
     </template>
 
-    <div class="container flex flex-column gap-2">
+    <div class="container flex flex-col gap-2">
       <p
         v-if="title"
         class="text-lg font-bold m-0"

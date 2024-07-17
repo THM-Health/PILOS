@@ -10,6 +10,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use DB;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -128,7 +129,6 @@ class UpgradeDatabaseTest extends TestCase
             ['key' => 'banner.link_target', 'value' => 'self'],
 
             ['key' => 'room_limit', 'value' => '5'],
-            ['key' => 'room_pagination_page_size', 'value' => '6'],
             ['key' => 'room_token_expiration', 'value' => '-1'],
             ['key' => 'room_auto_delete.inactive_period', 'value' => '365'],
             ['key' => 'room_auto_delete.never_used_period', 'value' => '90'],
@@ -153,13 +153,18 @@ class UpgradeDatabaseTest extends TestCase
         // Check settings
         $generalSettings = app(GeneralSettings::class);
         $this->assertEquals('Old App Name', $generalSettings->name);
-        $this->assertEquals('/images/old-logo.svg', $generalSettings->logo);
-        $this->assertEquals('/images/old-favicon.ico', $generalSettings->favicon);
         $this->assertEquals(10, $generalSettings->pagination_page_size);
         $this->assertEquals('Europe/Berlin', $generalSettings->default_timezone);
         $this->assertEquals('https://help.example.com', $generalSettings->help_url);
         $this->assertEquals('https://legal.example.com', $generalSettings->legal_notice_url);
         $this->assertEquals('https://privacy.example.com', $generalSettings->privacy_policy_url);
+
+        // Check theme settings
+        $themeSettings = app(ThemeSettings::class);
+        $this->assertEquals('/images/old-logo.svg', $themeSettings->logo);
+        $this->assertEquals('/images/old-logo.svg', $themeSettings->logo_dark);
+        $this->assertEquals('/images/old-favicon.ico', $themeSettings->favicon);
+        $this->assertEquals('/images/old-favicon.ico', $themeSettings->favicon_dark);
 
         // Check banner settings
         $bannerSettings = app(BannerSettings::class);
@@ -177,7 +182,6 @@ class UpgradeDatabaseTest extends TestCase
         // Check room settings
         $roomSettings = app(RoomSettings::class);
         $this->assertEquals(5, $roomSettings->limit);
-        $this->assertEquals(6, $roomSettings->pagination_page_size);
         $this->assertEquals(TimePeriod::UNLIMITED, $roomSettings->token_expiration);
         $this->assertEquals(TimePeriod::ONE_YEAR, $roomSettings->auto_delete_inactive_period);
         $this->assertEquals(TimePeriod::THREE_MONTHS, $roomSettings->auto_delete_never_used_period);

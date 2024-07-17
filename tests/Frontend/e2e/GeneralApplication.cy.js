@@ -13,7 +13,8 @@ describe('General', function () {
             en: 'English',
             fr: 'Français'
           }
-        }
+        },
+        theme: { primary_color: '#14b8a6', rounded: true }
       }
     });
   });
@@ -65,7 +66,8 @@ describe('General', function () {
               message: ':message'
             }
           }
-        }
+        },
+        theme: { primary_color: '#14b8a6', rounded: true }
       }
     });
 

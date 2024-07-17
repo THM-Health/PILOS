@@ -6,6 +6,7 @@ use App\Settings\BannerSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,12 +28,11 @@ class Config extends JsonResource
         $roomSettings = app(RoomSettings::class);
         $userSettings = app(UserSettings::class);
         $recordingSettings = app(RecordingSettings::class);
+        $theme = app(ThemeSettings::class);
 
         return [
             'general' => [
                 'name' => $generalSettings->name,
-                'logo' => $generalSettings->logo,
-                'favicon' => $generalSettings->favicon,
                 'pagination_page_size' => $generalSettings->pagination_page_size,
                 'toast_lifetime' => $generalSettings->toast_lifetime,
                 'default_timezone' => $generalSettings->default_timezone,
@@ -47,9 +47,16 @@ class Config extends JsonResource
                 'whitelabel' => config('app.whitelabel'),
                 'base_url' => config('app.url'),
             ],
+            'theme' => [
+                'logo' => $theme->logo,
+                'logo_dark' => $theme->logo_dark,
+                'favicon' => $theme->favicon,
+                'favicon_dark' => $theme->favicon_dark,
+                'primary_color' => $theme->primary_color,
+                'rounded' => $theme->rounded,
+            ],
             'room' => [
                 'limit' => $roomSettings->limit,
-                'pagination_page_size' => $roomSettings->pagination_page_size,
                 'token_expiration' => $roomSettings->token_expiration,
                 'refresh_rate' => config('bigbluebutton.room_refresh_rate'),
             ],

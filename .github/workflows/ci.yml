@@ -103,7 +103,7 @@ jobs:
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
-      run: php artisan migrate --no-interaction -vvv
+      run: php artisan migrate --no-interaction -vvv --force
     - name: Execute code style check via Laravel Pint
       run: vendor/bin/pint --test
     - name: Execute tests (Unit and Feature tests) via PHPUnit
@@ -174,8 +174,8 @@ jobs:
         run: npm ci
       - name: Execute frontend code style check via eslint
         run: npm run lint
-  frontend-tests:
-    name: Frontend Tests
+  frontend-and-system-tests:
+    name: Frontend and System Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -211,17 +211,18 @@ jobs:
       - name: Adjust .env
         run: |
           sed -i 's/CONTAINER_IMAGE=.*/CONTAINER_IMAGE=pilos:latest/g' .env
-          sed -i 's/APP_ENV=.*/APP_ENV=production/g' .env
-          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/g' .env
-          cat .env
+          sed -i 's|APP_URL=.*|APP_URL=http://localhost:9080|g' .env
+          sed -i 's|BBB_TEST_SERVER_HOST=.*|BBB_TEST_SERVER_HOST=${{ secrets.BBB_TEST_SERVER_HOST }}|g' .env
+          sed -i 's|BBB_TEST_SERVER_SECRET=.*|BBB_TEST_SERVER_SECRET=${{ secrets.BBB_TEST_SERVER_SECRET }}|g' .env
 
       - name: Start app
-        run: docker compose -f docker-compose.yml -f docker-compose-ci.yml up -d
+        run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
-      - name: Cypress run
+      - name: Cypress run frontend tests
         uses: cypress-io/github-action@v6
         with:
-          wait-on: 'http://localhost' # Waits for above
+          wait-on: 'http://localhost:9080' # Waits for above
+          group: 'Frontend tests'
           record: true
           tag: ${{ github.event_name }}
         env:
@@ -230,4 +231,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          APP_URL: 'http://localhost:9080'
+      - name: Cypress run system tests
+        uses: cypress-io/github-action@v6
+        with:
+          wait-on: 'http://localhost:9080' # Waits for above
+          group: 'System tests'
+          record: true
+          tag: ${{ github.event_name }}
+          project: ./tests/System
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          APP_URL: 'http://localhost:9080'
 

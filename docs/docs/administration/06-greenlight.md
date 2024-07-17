@@ -48,7 +48,7 @@ Favicon | ❌ | ✅ URL or file upload
 Maintenance banner | ✅ Simple text message | ✅ UI for design incl. colors, icons and links
 Imprint | ✅ URL | ✅ URL
 Privacy Policy | ✅ URL | ✅ URL
-Color matching | ✅ Limited | ✅ Default and custom sass themes (https://github.com/THM-Health/PILOS/wiki/Customization#custom-theme)
+Theme settings | ✅ Limited | ✅ Limited
 Server-wide limitation of rooms | ✅ | ✅ Overridable by roles
 Automatic deletion of inactive rooms | ❌ | ✅ Customizable
 Logo in BBB room | ❌ | ✅ URL or file upload

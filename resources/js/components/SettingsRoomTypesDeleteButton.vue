@@ -22,9 +22,9 @@
       {{ $t('admin.room_types.delete.confirm', { name: props.name }) }}
     </span>
     <Divider/>
-    <div class="flex flex-column gap-2">
+    <div class="flex flex-col gap-2">
       <label for="replacement-room-type">{{$t('admin.room_types.delete.replacement')}}</label>
-      <Dropdown
+      <Select
         id="replacement-room-type"
         v-model.number="replacement"
         :disabled="isBusy"
@@ -42,8 +42,8 @@
             <i class="fa-solid fa-times"/>
           </span>
         </template>
-      </Dropdown>
-      <p class="p-error" v-html="formErrors.fieldError('replacement_room_type')" />
+      </Select>
+      <FormError :errors="formErrors.fieldError('replacement_room_type')" />
       <small id="replacement-help">{{$t('admin.room_types.delete.replacement_info')}}</small>
     </div>
     <template #footer>

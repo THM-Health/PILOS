@@ -12,17 +12,16 @@
     :closable="!isLoadingAction"
   >
     <template #footer>
-      <div class="flex justify-content-end gap-2" v-if="step === 0">
+      <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 0">
         <Button
           :disabled="rawList.length === 0 || isLoadingAction"
-          severity="success"
           @click="importUsers(true)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
         />
       </div>
 
-      <div class="flex justify-content-end gap-2" v-if="step === 1">
+      <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 1">
         <Button
           :disabled="isLoadingAction"
           severity="secondary"
@@ -32,16 +31,14 @@
         <Button
           v-if="validUsers.length > 0"
           :disabled="isLoadingAction"
-          severity="success"
           @click="importUsers(false)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.bulk_import.import_importable_button')"
         />
       </div>
 
-      <div class="flex justify-content-end gap-2" v-if="step === 2">
+      <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 2">
         <Button
-          severity="success"
           @click="finish"
           :label="$t('app.close')"
         />
@@ -55,7 +52,7 @@
     </template>
 
     <div v-if="step === 0">
-      <div class="flex flex-column gap-2 mt-4">
+      <div class="flex flex-col gap-2 mt-6">
         <label for="user-emails">{{ $t('rooms.members.modals.bulk_import.label') }}</label>
         <Textarea
           v-model="rawList"
@@ -65,28 +62,28 @@
           rows="8"
         />
         <small id="user-emails-help">{{ $t('rooms.members.modals.bulk_import.list_description') }}</small>
-        <p class="p-error" v-html="formErrors.fieldError('user_emails')" />
+        <FormError :errors="formErrors.fieldError('user_emails')" />
       </div>
       <!-- select role -->
-      <div class="flex flex-column gap-2 mt-4">
+      <div class="flex flex-col gap-2 mt-6">
         <label for="role">{{ $t('rooms.role') }}</label>
 
-        <div class="flex align-items-center">
+        <div class="flex items-center">
           <RadioButton v-model="newUsersRole" inputId="participant-role" name="role" :value="1" />
           <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
         </div>
 
-        <div class="flex align-items-center">
+        <div class="flex items-center">
           <RadioButton v-model="newUsersRole" inputId="participant-moderator" name="role" :value="2" />
           <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
         </div>
 
-        <div class="flex align-items-center">
+        <div class="flex items-center">
           <RadioButton v-model="newUsersRole" inputId="participant-co_owner" name="role" :value="3" />
           <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
         </div>
 
-        <p class="p-error" v-html="formErrors.fieldError('role')" />
+        <FormError :errors="formErrors.fieldError('role')" />
       </div>
     </div>
 

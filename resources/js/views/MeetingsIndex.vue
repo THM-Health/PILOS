@@ -1,11 +1,11 @@
 <template>
-  <div class="container mt-5 mb-5">
+  <div class="container mt-8 mb-8">
     <Card>
       <template #title><h1 class="m-0 text-3xl">{{ $t('meetings.currently_running') }}</h1></template>
 
       <template #content>
 
-        <div class="flex justify-content-between">
+        <div class="flex justify-between">
           <div>
             <InputGroup>
               <InputText
@@ -36,7 +36,7 @@
 
         <!-- table with room members -->
         <DataTable
-          class="mt-4"
+          class="mt-6"
           :totalRecords="paginator.getTotalRecords()"
           :rows="paginator.getRows()"
           :first="paginator.getFirst()"
@@ -177,7 +177,7 @@
             :header="$t('app.actions')"
           >
             <template #body="slotProps">
-              <div class="flex justify-content-between">
+              <div class="flex justify-between">
                 <router-link
                   :to="{ name: 'rooms.view', params: { id: slotProps.data.room.id } }"
                   :disabled="true"

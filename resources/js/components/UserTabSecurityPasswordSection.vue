@@ -1,10 +1,10 @@
 <template>
   <div>
-    <form @submit="changePassword">
+    <form @submit="changePassword" class="flex flex-col gap-4">
 
-      <div class="field grid" v-if="isOwnUser">
-        <label for="current_password" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.current_password') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4" v-if="isOwnUser">
+        <label for="current_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.current_password') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="current_password"
             v-model="currentPassword"
@@ -14,13 +14,13 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('current_password')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('current_password')" />
+          <FormError :errors="formErrors.fieldError('current_password')" />
         </div>
       </div>
 
-      <div class="field grid">
-        <label for="new_password" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.new_password') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="new_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.new_password') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="new_password"
             v-model="newPassword"
@@ -30,13 +30,13 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('new_password')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('new_password')" />
+          <FormError :errors="formErrors.fieldError('new_password')" />
         </div>
       </div>
 
-      <div class="field grid">
-        <label for="new_password_confirmation" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.new_password_confirmation') }}</label>
-        <div class="col-12 md:col-9">
+      <div class="field grid grid-cols-12 gap-4">
+        <label for="new_password_confirmation" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.new_password_confirmation') }}</label>
+        <div class="col-span-12 md:col-span-9">
           <InputText
             id="new_password_confirmation"
             v-model="newPasswordConfirmation"
@@ -46,13 +46,12 @@
             class="w-full"
             :invalid="formErrors.fieldInvalid('new_password_confirmation')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('new_password_confirmation')" />
+          <FormError :errors="formErrors.fieldError('new_password_confirmation')" />
         </div>
       </div>
-      <div class="flex justify-content-end">
+      <div class="flex justify-end">
         <Button
           :disabled="isBusy"
-          severity="success"
           type="submit"
           :loading="isBusy"
           :label="$t('auth.change_password')"

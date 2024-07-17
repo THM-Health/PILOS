@@ -4,7 +4,7 @@
     v-tooltip="$t('admin.users.reset_password.item', { firstname: props.firstname, lastname: props.lastname })"
     :aria-label="$t('admin.users.reset_password.item', { firstname: props.firstname, lastname: props.lastname })"
     :disabled="isBusy"
-    severity="warning"
+    severity="warn"
     @click="showResetPasswordModal"
     icon="fa-solid fa-key"
   />

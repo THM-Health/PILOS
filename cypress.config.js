@@ -20,13 +20,6 @@ export default defineConfig({
     specPattern: 'tests/Frontend/e2e/**/*.cy.{js,jsx,ts,tsx}',
   },
 
-  component: {
-    indexHtmlFile: 'tests/Frontend/support/component-index.html',
-    supportFile: 'tests/Frontend/support/component.js',
-    specPattern: 'tests/Frontend/component/**/*.cy.{js,jsx,ts,tsx}',
-    devServer: {
-      framework: 'vue',
-      bundler: 'vite',
-    },
-  },
+  viewportWidth: 1280,
+  viewportHeight: 800
 });

@@ -89,7 +89,7 @@ We first have to create a new user on the PILOS server that should be used to tr
 adduser --disabled-password --ingroup pilos-spool --gecos "" pilos-spool
 ```
 
-This user has no password, therefor it can only be used via ssh with key authentication.
+This user has no password, therefore it can only be used via ssh with key authentication.
 To further secure the transfer, you can later restrict the user to only run the rsync command.
 
 

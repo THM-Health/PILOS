@@ -20,6 +20,7 @@ class ShowRoomsRequest extends FormRequest
             'sort_by' => ['required', Rule::enum(RoomSortingType::class)],
             'search' => ['string'],
             'page' => ['required', 'integer'],
+            'per_page' => ['required', 'integer', 'max:20'],
         ];
     }
 }

@@ -286,10 +286,6 @@ return [
         'room_limit' => [
             'title' => 'Nombre de salles par utilisateur',
         ],
-        'room_pagination_page_size' => [
-            'description' => 'Limites de pagination pour les salles personnelles',
-            'title' => 'Taille de la pagination pour les salles personnelles',
-        ],
         'room_token_expiration' => [
             'description' => 'Période depuis la dernière utilisation, après laquelle les liens de salle personnalisés sont automatiquement supprimés.',
             'title' => 'Délai d\'expiration des liens de salle personnalisés',

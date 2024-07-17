@@ -7,6 +7,7 @@ use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use App\Settings\RoomSettings;
+use App\Settings\ThemeSettings;
 use App\Settings\UserSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +25,7 @@ class Settings extends JsonResource
     public function toArray($request)
     {
         $generalSettings = app(GeneralSettings::class);
+        $themeSettings = app(ThemeSettings::class);
         $bannerSettings = app(BannerSettings::class);
         $roomSettings = app(RoomSettings::class);
         $userSettings = app(UserSettings::class);
@@ -32,14 +34,18 @@ class Settings extends JsonResource
 
         return [
             'general_name' => $generalSettings->name,
-            'general_logo' => $generalSettings->logo,
-            'general_favicon' => $generalSettings->favicon,
             'general_pagination_page_size' => $generalSettings->pagination_page_size,
             'general_toast_lifetime' => $generalSettings->toast_lifetime,
             'general_default_timezone' => $generalSettings->default_timezone,
             'general_help_url' => $generalSettings->help_url,
             'general_legal_notice_url' => $generalSettings->legal_notice_url,
             'general_privacy_policy_url' => $generalSettings->privacy_policy_url,
+            'theme_logo' => $themeSettings->logo,
+            'theme_favicon' => $themeSettings->favicon,
+            'theme_logo_dark' => $themeSettings->logo_dark,
+            'theme_favicon_dark' => $themeSettings->favicon_dark,
+            'theme_primary_color' => $themeSettings->primary_color,
+            'theme_rounded' => $themeSettings->rounded,
             'banner_enabled' => $bannerSettings->enabled,
             'banner_message' => $bannerSettings->message,
             'banner_link' => $bannerSettings->link,
@@ -51,7 +57,6 @@ class Settings extends JsonResource
             'banner_link_text' => $bannerSettings->link_text,
             'banner_link_target' => $bannerSettings->link_target,
             'room_limit' => $roomSettings->limit,
-            'room_pagination_page_size' => $roomSettings->pagination_page_size,
             'room_auto_delete_inactive_period' => $roomSettings->auto_delete_inactive_period,
             'room_auto_delete_never_used_period' => $roomSettings->auto_delete_never_used_period,
             'room_auto_delete_deadline_period' => $roomSettings->auto_delete_deadline_period,

@@ -1,17 +1,17 @@
 <template>
-  <div class="bg-white pt-5 mt-2 mb-5">
-    <div class="surface-section container text-center">
-        <div class="mb-3 font-bold text-color text-3xl">
+  <div class="bg-white dark:bg-surface-900 pt-8 mt-2 mb-8">
+    <div class="container text-center">
+        <div class="mb-4 font-bold text-color text-2xl">
             <span>{{ $t('home.possibilities.title') }}</span>
         </div>
-        <div class="grid">
+        <div class="grid grid-cols-12 gap-4">
 
-            <div class="col-12 md:col-4 mb-4 px-5" v-for="(item, index) in items" :key="index">
-                <span class="p-3 shadow-2 mb-3 inline-block bg-primary border-round">
+            <div class="col-span-12 md:col-span-4 mb-6 px-8" v-for="(item, index) in items" :key="index">
+                <span class="p-4 shadow mb-4 inline-block bg-primary text-primary-contrast rounded-border">
                     <i class="fa-solid text-4xl" :class="'fa-'+item.icon"></i>
                 </span>
-                <div class="text-color text-xl mb-3 font-bold">{{ item.title }}</div>
-                <span class="text-color line-height-3">{{ item.description }}</span>
+                <div class="text-color text-xl mb-4 font-bold">{{ item.title }}</div>
+                <span class="text-color leading-normal">{{ item.description }}</span>
             </div>
         </div>
     </div>

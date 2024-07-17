@@ -1,21 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-content-between align-items-center">
-      <h2>
-        {{ $t('app.server_pools') }}
-      </h2>
-      <router-link
-        v-if="userPermissions.can('create', 'ServerPolicy')"
-        v-tooltip="$t('admin.server_pools.new')"
-        :aria-label="$t('admin.server_pools.new')"
-        :to="{ name: 'admin.server_pools.view', params: { id: 'new' } }"
-        class="p-button p-button-success p-button-icon-only"
-      >
-        <i class="fa-solid fa-plus"/>
-      </router-link>
-    </div>
-
-    <div class="flex flex-column md:flex-row">
+    <div class="flex flex-col md:flex-row justify-between mb-6">
       <div>
         <InputGroup>
           <InputText
@@ -32,8 +17,15 @@
           />
         </InputGroup>
       </div>
+      <Button
+        as="router-link"
+        icon="fa-solid fa-plus"
+        v-if="userPermissions.can('create', 'ServerPolicy')"
+        v-tooltip="$t('admin.server_pools.new')"
+        :aria-label="$t('admin.server_pools.new')"
+        :to="{ name: 'admin.server_pools.view', params: { id: 'new' } }"
+      />
     </div>
-    <Divider/>
 
     <DataTable
       v-model:sortField="sortField"
@@ -73,26 +65,25 @@
       <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
           <div class="flex flex-row gap-2">
-            <router-link
+            <Button
+              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="$t('admin.server_pools.view', { name: slotProps.data.name })"
               :aria-label="$t('admin.server_pools.view', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'admin.server_pools.view', params: { id: slotProps.data.id }, query: { view: '1' } }"
-              class="p-button p-button-info p-button-icon-only"
-            >
-              <i class="fa-solid fa-eye"/>
-            </router-link>
-            <router-link
+              :to="{ name: 'admin.server_pools.view', params: { id: slotProps.data.id } }"
+              icon="fa-solid fa-eye"
+            />
+            <Button
+              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
               v-tooltip="$t('admin.server_pools.edit', { name: slotProps.data.name })"
               :aria-label="$t('admin.server_pools.edit', { name: slotProps.data.name })"
               :disabled="isBusy"
-              :to="{ name: 'admin.server_pools.view', params: { id: slotProps.data.id } }"
-              class="p-button p-button-secondary p-button-icon-only"
-            >
-              <i class="fa-solid fa-edit"/>
-            </router-link>
+              :to="{ name: 'admin.server_pools.edit', params: { id: slotProps.data.id } }"
+              severity="info"
+              icon="fa-solid fa-edit"
+            />
             <SettingsServerPoolsDeleteButton
               v-if="userPermissions.can('delete', slotProps.data)"
               :id="slotProps.data.id"

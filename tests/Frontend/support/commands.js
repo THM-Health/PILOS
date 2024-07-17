@@ -29,6 +29,10 @@ Cypress.Commands.add('init', () => {
   cy.intercept('GET', 'api/v1/locale/en', {});
   cy.intercept('GET', 'api/v1/config', {
     data: {
+      theme: {
+        primary_color: '#14b8a6',
+        rounded: true
+      },
       general: { toast_lifetime: 0 }
     }
   });
@@ -43,6 +47,7 @@ Cypress.Commands.add('interceptRoomViewRequests', () => {
   cy.intercept('GET', 'api/v1/config', {
     data: {
       general: { toast_lifetime: 0 },
+      theme: { primary_color: '#14b8a6', rounded: true },
       room: { refresh_rate: 5000 }
     }
   });

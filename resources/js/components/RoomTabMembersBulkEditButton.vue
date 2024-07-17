@@ -2,7 +2,7 @@
   <Button
     v-tooltip="$t('rooms.members.bulk_edit_user',{numberOfSelectedUsers: props.userIds.length})"
     :disabled="disabled"
-    severity="secondary"
+    severity="info"
     @click="showBulkEditMembersModal"
     icon="fa-solid fa-users-cog"
   />
@@ -21,32 +21,32 @@
   >
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.save')" severity="success" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('app.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
         </div>
     </template>
 
     <!-- select role -->
-    <div class="flex flex-column gap-2 mt-4">
+    <div class="flex flex-col gap-2 mt-6">
       <label for="role">{{ $t('rooms.role') }}</label>
 
-      <div class="flex align-items-center">
+      <div class="flex items-center">
         <RadioButton v-model="newRole" inputId="participant-role" name="role" :value="1" />
         <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
       </div>
 
-      <div class="flex align-items-center">
+      <div class="flex items-center">
         <RadioButton v-model="newRole" inputId="participant-moderator" name="role" :value="2" />
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
-      <div class="flex align-items-center">
+      <div class="flex items-center">
         <RadioButton v-model="newRole" inputId="participant-co_owner" name="role" :value="3" />
         <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
 
-      <p class="p-error" v-html="formErrors.fieldError('role')" />
+      <FormError :errors="formErrors.fieldError('role')" />
     </div>
   </Dialog>
 </template>

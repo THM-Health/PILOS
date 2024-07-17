@@ -24,7 +24,7 @@
   />
 
   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-  <InlineMessage v-else severity="info">{{ $t('rooms.not_running') }}</InlineMessage>
+  <Message v-else severity="info">{{ $t('rooms.not_running') }}</Message>
 
   <Dialog
     data-test="room-join-dialog"
@@ -43,7 +43,7 @@
     <OverlayComponent :show="isLoadingAction" :opacity="0">
       <div v-if="!isLoadingAction">
         <!-- Ask guests for their first and lastname -->
-        <div v-if="!authStore.isAuthenticated && !token" class="flex flex-column gap-2 mb-3" >
+        <div v-if="!authStore.isAuthenticated && !token" class="flex flex-col gap-2 mb-4" >
           <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
           <InputText
             id="guest-name"
@@ -52,12 +52,12 @@
             :placeholder="$t('rooms.placeholder_name')"
             :invalid="formErrors.fieldInvalid('name')"
           />
-          <p class="p-error" v-html="formErrors.fieldError('name')" />
+          <FormError :errors="formErrors.fieldError('name')" />
         </div>
 
-        <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="recordAttendance">
+        <div class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col" v-if="recordAttendance">
           <span class="font-semibold">{{ $t('rooms.recording_attendance_info') }}</span>
-          <div class="flex align-items-center gap-2">
+          <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-attendance-agreement"
               v-model="recordAttendanceAgreement"
@@ -66,13 +66,13 @@
             />
             <label for="record-attendance-agreement">{{ $t('rooms.recording_attendance_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('consent_record_attendance')" />
+          <FormError :errors="formErrors.fieldError('consent_record_attendance')" />
         </div>
 
-        <div class="mb-3 surface-200 p-3 border-round flex gap-2 flex-column" v-if="record">
+        <div class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col" v-if="record">
           <span class="font-semibold">{{ $t('rooms.recording_info') }}</span>
           <i>{{ $t('rooms.recording_hint') }}</i>
-          <div class="flex align-items-center gap-2">
+          <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-agreement"
               v-model="recordAgreement"
@@ -81,8 +81,8 @@
             />
             <label for="record-agreement" class="required">{{ $t('rooms.recording_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('consent_record')" />
-          <div class="flex align-items-center gap-2">
+          <FormError :errors="formErrors.fieldError('consent_record')" />
+          <div class="flex items-center gap-2">
             <Checkbox
               inputId="record-video-agreement"
               v-model="recordVideoAgreement"
@@ -91,14 +91,14 @@
             />
             <label for="record-video-agreement">{{ $t('rooms.recording_video_accept') }}</label>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('consent_record_video')" />
+          <FormError :errors="formErrors.fieldError('consent_record_video')" />
         </div>
       </div>
     </OverlayComponent>
 
-    <div class="flex align-items-center justify-content-end mt-4 gap-2">
-      <Button :label="$t('app.cancel')" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"/>
-      <Button :label="$t('app.continue')" :disabled="isLoadingAction" @click="getJoinUrl" size="small"/>
+    <div class="flex items-center justify-end mt-6 gap-2">
+      <Button :label="$t('app.cancel')" data-test="dialog-cancel-button" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"/>
+      <Button :label="$t('app.continue')" data-test="dialog-continue-button" :disabled="isLoadingAction" @click="getJoinUrl" size="small"/>
     </div>
   </Dialog>
 

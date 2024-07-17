@@ -1,4 +1,4 @@
-import { useCssVar } from '@vueuse/core';
+import { $dt } from '@primevue/themes';
 
 /**
  * Get the color values from the current theme
@@ -6,19 +6,7 @@ import { useCssVar } from '@vueuse/core';
  */
 export function useColors () {
   // List of all colors provided by the theme as a css variable
-  const cssVars = {
-    indigo: '--pc-indigo',
-    blue: '--pc-blue',
-    cyan: '--pc-cyan',
-    teal: '--pc-teal',
-    green: '--pc-green',
-    orange: '--pc-orange',
-    yellow: '--pc-yellow',
-    red: '--pc-red',
-    pink: '--pc-pink',
-    purple: '--pc-purple',
-    bluegray: '--pc-bluegray'
-  };
+  const cssVars = ['indigo', 'blue', 'cyan', 'teal', 'green', 'orange', 'yellow', 'red', 'pink', 'purple'];
 
   /**
    * Get the value of a specify color
@@ -26,7 +14,7 @@ export function useColors () {
    * @return {string}
    */
   function getColor (color) {
-    return useCssVar(cssVars[color]).value.toUpperCase();
+    return $dt(color + '.500').value;
   }
 
   /**
@@ -34,7 +22,7 @@ export function useColors () {
    * @return {string[]}
    */
   function getAllColors () {
-    return Object.keys(cssVars).map(color => getColor(color));
+    return Object.values(cssVars).map(color => getColor(color));
   }
 
   return {

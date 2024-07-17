@@ -1,70 +1,69 @@
 <template>
-      <Card
-        :pt="{
-          body: { class: 'p-4' }
-        }"
-      >
-        <template #content>
-          <!-- Tab header -->
-          <div role="tablist" class="flex flex-row justify-content-between m-0 px-2 border-0">
-            <!-- Current tab -->
-            <div class="flex flex-row gap-2 align-items-center">
-              <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>
-            </div>
-            <!-- Tab navigation -->
-            <div v-if="availableTabs.length > 1">
-              <!-- Desktop layout, icons only-->
-              <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
-                <Button
-                  v-for="tab in availableTabs"
-                  :key="tab.key"
-                  :severity="tab.active ? 'primary' : 'secondary'"
-                  @click="tab.command"
-                  :icon="tab.icon"
-                  v-tooltip.bottom="tab.label"
-                  :aria-label="tab.label"
-                  role="tab"
-                  :id="'tab-'+tab.key"
-                  :aria-selected="tab.active"
-                  :aria-controls="'panel-'+tab.key"
-                  :tabindex="tab.active ? 0 : -1"
-                />
-              </div>
-              <!-- Mobile layout, dropdown menu -->
-              <div class="block md:hidden">
-                <Button type="button" severity="secondary" text icon="fa-solid fa-ellipsis-vertical" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" />
-                <Menu ref="menu" id="overlay_menu" :model="availableTabs" :popup="true" role="tablist" />
-              </div>
-            </div>
-          </div>
-          <Divider />
-          <!-- Tab content -->
-          <div
+  <Card class="mt-6">
+    <template #header>
+
+  <!-- Tab header -->
+    <div role="tablist" class="flex flex-row justify-between mb-5 border-surface border-b px-6 py-4">
+      <!-- Current tab -->
+      <div class="flex flex-row gap-2 px-2 items-center text-xl">
+        <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>
+      </div>
+      <!-- Tab navigation -->
+      <div v-if="availableTabs.length > 1">
+        <!-- Desktop layout, icons only-->
+        <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
+          <Button
             v-for="tab in availableTabs"
             :key="tab.key"
-            :id="'panel-'+tab.key"
-            role="tabpanel"
-            :aria-labelledby="'tab-'+tab.key"
-            :hidden="!tab.active"
-            tabindex="0"
-          >
-            <!-- Dynamic component, mounting only when tab is active -->
-            <!-- Each tab can use this kind of api, with are the props and events defined here -->
-            <component
-              :is="tab.component"
-              v-if="tab.active"
-              :room="props.room"
-              :access-code="props.accessCode"
-              :token="props.token"
+            :severity="tab.active ? 'contrast' : 'secondary'"
+            @click="tab.command"
+            :icon="tab.icon"
+            v-tooltip.bottom="tab.label"
+            :aria-label="tab.label"
+            role="tab"
+            :id="'tab-'+tab.key"
+            :aria-selected="tab.active"
+            :aria-controls="'panel-'+tab.key"
+            :tabindex="tab.active ? 0 : -1"
+          />
+        </div>
+        <!-- Mobile layout, dropdown menu -->
+        <div class="block md:hidden">
+          <Button type="button" severity="secondary" text icon="fa-solid fa-ellipsis-vertical" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" />
+          <Menu ref="menu" id="overlay_menu" :model="availableTabs" :popup="true" role="tablist" />
+        </div>
+      </div>
+    </div>
+    </template>
 
-              @invalid-code="$emit('invalidCode')"
-              @invalid-token="$emit('invalidToken')"
-              @guests-not-allowed="$emit('guestsNotAllowed')"
-              @settings-changed="$emit('settingsChanged')"
-            />
-          </div>
-        </template>
-      </Card>
+    <template #content>
+    <!-- Tab content -->
+    <div
+      v-for="tab in availableTabs"
+      :key="tab.key"
+      :id="'panel-'+tab.key"
+      role="tabpanel"
+      :aria-labelledby="'tab-'+tab.key"
+      :hidden="!tab.active"
+      tabindex="0"
+    >
+      <!-- Dynamic component, mounting only when tab is active -->
+      <!-- Each tab can use this kind of api, with are the props and events defined here -->
+      <component
+        :is="tab.component"
+        v-if="tab.active"
+        :room="props.room"
+        :access-code="props.accessCode"
+        :token="props.token"
+
+        @invalid-code="$emit('invalidCode')"
+        @invalid-token="$emit('invalidToken')"
+        @guests-not-allowed="$emit('guestsNotAllowed')"
+        @settings-changed="$emit('settingsChanged')"
+      />
+    </div>
+    </template>
+  </Card>
 </template>
 <script setup>
 import { useUserPermissions } from '../composables/useUserPermission.js';

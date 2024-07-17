@@ -62,8 +62,8 @@ describe('Rooms view meetings', function () {
 
     // Test loading
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').and('be.disabled');
-      cy.get('.p-button').eq(1).should('have.text', 'app.continue').and('be.disabled');
+      cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled');
     });
     cy.get('[data-test=room-join-button]').should('be.disabled').then(() => {
       joinRequest.sendResponse();
@@ -143,11 +143,11 @@ describe('Rooms view meetings', function () {
       cy.contains('rooms.recording_attendance_info').should('be.visible');
       cy.contains('rooms.recording_attendance_accept').should('be.visible');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
 
       // Check loading
-      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
-      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+      cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
         joinRequest.sendResponse();
       });
     });
@@ -229,11 +229,11 @@ describe('Rooms view meetings', function () {
 
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
 
       // Check loading
-      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
-      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+      cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
         joinRequest.sendResponse();
       });
     });
@@ -307,7 +307,7 @@ describe('Rooms view meetings', function () {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@joinRequest').then((interception) => {
@@ -331,7 +331,7 @@ describe('Rooms view meetings', function () {
         }
       }).as('joinRequest');
 
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@joinRequest').then((interception) => {
@@ -419,7 +419,7 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.get('.p-button').eq(1).should('have.text', 'rooms.login').click();
+    cy.get('[data-test="room-login-button"]').click();
 
     cy.wait('@roomRequest').then((interception) => {
       expect(interception.request.headers['access-code']).to.eq('123456789');
@@ -442,7 +442,7 @@ describe('Rooms view meetings', function () {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@joinRequest').then((interception) => {
@@ -467,7 +467,7 @@ describe('Rooms view meetings', function () {
         }
       }).as('joinRequest');
 
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@joinRequest').then((interception) => {
@@ -538,7 +538,7 @@ describe('Rooms view meetings', function () {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@joinRequest').then((interception) => {
@@ -616,7 +616,7 @@ describe('Rooms view meetings', function () {
     cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
     // Reload room
-    cy.get('.p-button').should('have.text', 'rooms.try_again').click();
+    cy.get('[data-test="try-again-button"]').click();
 
     cy.wait('@roomRequest');
     // test invalid access token (invalid_code)
@@ -737,14 +737,14 @@ describe('Rooms view meetings', function () {
 
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
       // Test join with missing agreements
-      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
 
       cy.wait('@joinRequest');
 
       cy.contains('The consent record attendance must be accepted.').should('be.visible');
       cy.contains('The consent record must be accepted.').should('be.visible');
 
-      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').click();
+      cy.get('[data-test="dialog-cancel-button"]').click();
     });
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');
@@ -906,11 +906,11 @@ describe('Rooms view meetings', function () {
       cy.contains('rooms.recording_attendance_info').should('be.visible');
       cy.contains('rooms.recording_attendance_accept').should('be.visible');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
 
       // Check loading
-      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
-      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+      cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
         joinRequest.sendResponse();
       });
     });
@@ -992,11 +992,11 @@ describe('Rooms view meetings', function () {
 
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
 
       // Check loading
-      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').should('be.disabled');
-      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+      cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
         joinRequest.sendResponse();
       });
     });
@@ -1070,7 +1070,7 @@ describe('Rooms view meetings', function () {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@startRequest').then((interception) => {
@@ -1094,7 +1094,7 @@ describe('Rooms view meetings', function () {
         }
       }).as('startRequest');
 
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@startRequest').then((interception) => {
@@ -1182,7 +1182,7 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.get('.p-button').eq(1).should('have.text', 'rooms.login').click();
+    cy.get('[data-test="room-login-button"]').click();
 
     cy.wait('@roomRequest').then((interception) => {
       expect(interception.request.headers['access-code']).to.eq('123456789');
@@ -1205,7 +1205,7 @@ describe('Rooms view meetings', function () {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@startRequest').then((interception) => {
@@ -1230,7 +1230,7 @@ describe('Rooms view meetings', function () {
         }
       }).as('startRequest');
 
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@startRequest').then((interception) => {
@@ -1301,7 +1301,7 @@ describe('Rooms view meetings', function () {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('.p-button').eq(1).click();
+      cy.get('[data-test="dialog-continue-button"]').click();
     });
 
     cy.wait('@startRequest').then((interception) => {
@@ -1339,7 +1339,7 @@ describe('Rooms view meetings', function () {
     cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
     // Reload room
-    cy.get('.p-button').should('have.text', 'rooms.try_again').click();
+    cy.get('[data-test="try-again-button"]').click();
 
     cy.wait('@roomRequest');
     // test invalid access token (invalid_code)
@@ -1460,14 +1460,14 @@ describe('Rooms view meetings', function () {
 
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
       // Test start with missing agreements
-      cy.get('.p-button').eq(1).should('have.text', 'app.continue').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
 
       cy.wait('@startRequest');
 
       cy.contains('The consent record attendance must be accepted.').should('be.visible');
       cy.contains('The consent record must be accepted.').should('be.visible');
 
-      cy.get('.p-button').eq(0).should('have.text', 'app.cancel').click();
+      cy.get('[data-test="dialog-cancel-button"]').click();
     });
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');

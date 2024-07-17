@@ -1,36 +1,25 @@
 <template>
   <div>
-    <h2>
-      {{ id === 'new' ? $t('admin.roles.new') : (
-        viewOnly ? $t('admin.roles.view', { name })
-        : $t('admin.roles.edit', { name })
-      ) }}
-    </h2>
-    <div class="flex justify-content-between">
-      <router-link
-        class="p-button p-button-secondary"
-        :disabled="isBusy"
-        :to="{ name: 'admin.roles' }"
-      >
-        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
-      </router-link>
+    <div class="flex justify-end mb-6">
       <div v-if="model.id && id !=='new'" class="flex gap-2">
-        <router-link
+        <Button
+          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
-          class="p-button p-button-secondary"
-          :disabled="isBusy"
-          :to="{ name: 'admin.roles.view', params: { id: model.id }, query: { view: '1' } }"
-        >
-          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
-        </router-link>
-        <router-link
-          v-if="viewOnly && userPermissions.can('update', model)"
-          class="p-button p-button-secondary"
+          severity="secondary"
           :disabled="isBusy"
           :to="{ name: 'admin.roles.view', params: { id: model.id } }"
-        >
-          <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
-        </router-link>
+          :label="$t('app.cancel_editing')"
+          icon="fa-solid fa-times"
+        />
+        <Button
+          as="router-link"
+          v-if="viewOnly && userPermissions.can('update', model)"
+          severity="info"
+          :disabled="isBusy"
+          :to="{ name: 'admin.roles.edit', params: { id: model.id } }"
+          :label="$t('app.edit')"
+          icon="fa-solid fa-edit"
+        />
         <SettingsRolesDeleteButton
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
@@ -40,8 +29,6 @@
       </div>
     </div>
 
-    <Divider/>
-
     <OverlayComponent :show="isBusy || modelLoadingError">
       <template #loading>
         <LoadingRetryButton :error="modelLoadingError" @reload="load()"></LoadingRetryButton>
@@ -50,10 +37,11 @@
       <form
         :aria-hidden="modelLoadingError"
         @submit.prevent="saveRole"
+        class="flex flex-col gap-4"
       >
-          <div class="field grid">
-            <label for="name" class="col-12 md:col-4">{{$t('app.model_name')}}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label for="name" class="col-span-12 md:col-span-4">{{$t('app.model_name')}}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 class="w-full"
                 id="name"
@@ -62,13 +50,13 @@
                 :invalid="formErrors.fieldInvalid('name')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
-              <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+              <FormError :errors="formErrors.fieldError('name')"/>
             </div>
           </div>
 
-          <div class="field grid">
-            <label for="room-limit" class="col-12 md:col-4 align-items-start">
-              <span class="flex align-items-center">
+          <div class="field grid grid-cols-12 gap-4">
+            <label for="room-limit" class="col-span-12 md:col-span-4 items-start">
+              <span class="flex items-center">
                 {{ $t('app.room_limit') }}
                 <Button
                 @click="helpRoomLimitModalVisible=true"
@@ -79,7 +67,7 @@
                 />
               </span>
             </label>
-            <div class="col-12 md:col-8">
+            <div class="col-span-12 md:col-span-8">
               <div v-for="option in roomLimitModeOptions" :key="option.value" class="mb-2">
                 <RadioButton
                   v-model="roomLimitMode"
@@ -101,43 +89,43 @@
                 :invalid="formErrors.fieldInvalid('room_limit')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
-              <p class="p-error" v-html="formErrors.fieldError('room_limit')"></p>
+              <FormError :errors="formErrors.fieldError('room_limit')"/>
             </div>
 
           </div>
             <h3>{{ $t('admin.roles.permissions_title') }}</h3>
-            <div class="grid" v-if="!isBusy && Object.keys(permissions).length > 0">
-              <div class="col-8">
+            <div class="grid grid-cols-12 gap-4" v-if="!isBusy && Object.keys(permissions).length > 0">
+              <div class="col-span-8">
                 <b>{{ $t('admin.roles.permission_name') }}</b>
               </div>
-              <div class="col-2" style="word-wrap: break-word">
+              <div class="col-span-2" style="word-wrap: break-word">
                 <b>{{ $t('admin.roles.permission_explicit') }}</b>
               </div>
-              <div class="col-2" style="word-wrap: break-word">
+              <div class="col-span-2" style="word-wrap: break-word">
                 <b>{{ $t('admin.roles.permission_included') }}
                   <i
                     class="fa-solid fa-circle-info"
                     v-tooltip="$t('admin.roles.permission_included_help')"
                   /></b>
               </div>
-              <div class="col-12">
-                <Divider/>
-                <div class="grid"
+              <div class="col-span-12 flex flex-col gap-4">
+                <Divider class="m-0"/>
+                <div class="grid grid-cols-12"
                   v-for="key in Object.keys(permissions)"
                   :key="key"
                 >
-                  <div class="col-12">
+                  <div class="col-span-12">
                     <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
                   </div>
-                  <div class="col-12">
-                    <div class="grid"
+                  <div class="col-span-12">
+                    <div class="grid grid-cols-12 gap-4"
                       v-for="permission in permissions[key]"
                       :key="permission.id"
                     >
-                      <div class="col-8">
+                      <div class="col-span-8">
                         <label :for="permission.name">{{ $t(`admin.roles.permissions.${permission.name}`) }}</label>
                       </div>
-                      <div class="col-2 flex">
+                      <div class="col-span-2 flex">
                         <Checkbox
                           :input-id="permission.name"
                           v-model="model.permissions"
@@ -146,7 +134,7 @@
                           :invalid="formErrors.fieldInvalid('permissions', true)"
                         />
                       </div>
-                      <div class="col-2">
+                      <div class="col-span-2">
                         <i
                           v-if="includedPermissions.includes(permission.id)"
                           class="fa-solid fa-check-circle text-green-500"
@@ -166,17 +154,15 @@
 
             <div
               v-if="!isBusy && Object.keys(permissions).length === 0"
-              class="ml-3"
+              class="ml-4"
             >
               {{ $t('admin.roles.no_options') }}
             </div>
-            <p class="p-error" v-html="formErrors.fieldError('permissions', true)"></p>
+            <FormError :errors="formErrors.fieldError('permissions', true)"/>
         <div v-if="!viewOnly">
-          <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError"
-              severity="success"
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
@@ -276,7 +262,7 @@ import env from '../env.js';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useRouter } from 'vue-router';
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, inject, watch } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useSettingsStore } from '../stores/settings';
 import { useI18n } from 'vue-i18n';
@@ -291,6 +277,7 @@ const confirm = useConfirm();
 const { t } = useI18n();
 const api = useApi();
 const router = useRouter();
+const breakcrumbLabelData = inject('breakcrumbLabelData');
 
 const props = defineProps({
   id: {
@@ -311,6 +298,12 @@ const model = ref({
 });
 
 const name = ref('');
+watch(() => name.value, (value) => {
+  breakcrumbLabelData.value = {
+    name: name.value
+  };
+});
+
 const includedPermissionMap = ref({});
 const permissions = ref({});
 const roomLimitMode = ref('default');
@@ -446,7 +439,7 @@ function saveRole () {
 
   api.call(props.id === 'new' ? 'roles' : `roles/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'admin.roles.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.roles.view', params: { id: response.data.data.id } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

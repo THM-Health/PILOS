@@ -1,6 +1,39 @@
 <?php
 
 return [
+    'breakcrumbs' => [
+        'roles' => [
+            'edit' => 'Edit :name',
+            'index' => 'Roles',
+            'new' => 'New',
+            'view' => ':name',
+        ],
+        'room_types' => [
+            'edit' => 'Edit :name',
+            'index' => 'Room types',
+            'new' => 'New',
+            'view' => ':name',
+        ],
+        'server_pools' => [
+            'edit' => 'Edit :name',
+            'index' => 'Server pools',
+            'new' => 'New',
+            'view' => ':name',
+        ],
+        'servers' => [
+            'edit' => 'Edit :name',
+            'index' => 'Server',
+            'new' => 'New',
+            'view' => ':name',
+        ],
+        'settings' => 'Settings',
+        'users' => [
+            'edit' => 'Edit :firstname :lastname',
+            'index' => 'Users',
+            'new' => 'New',
+            'view' => ':firstname :lastname',
+        ],
+    ],
     'home_button' => 'Back to the overview',
     'overview' => 'Overview',
     'overview_description' => 'Here you can manage the settings of the application. Please select one of the menu items on the left to adjust the settings.',
@@ -258,6 +291,14 @@ return [
             'upload_title' => 'Upload a favicon (max. 500 KB, Format: .ico)',
             'url_title' => 'URL to favicon file',
         ],
+        'favicon_dark' => [
+            'alt' => 'Dark version favicon preview',
+            'hint' => 'https://domain.tld/path/favicon.ico',
+            'select_file' => 'Select dark version favicon file',
+            'title' => 'Dark version favicon',
+            'upload_title' => 'Upload a favicon (max. 500 KB, Format: .ico)',
+            'url_title' => 'URL to the dark version favicon file',
+        ],
         'help_url' => [
             'description' => 'If not set, no help button will be displayed.',
             'title' => 'URL to the help page',
@@ -273,6 +314,14 @@ return [
             'title' => 'Logo',
             'upload_title' => 'Upload a logo (max. 500 KB)',
             'url_title' => 'URL to logo file',
+        ],
+        'logo_dark' => [
+            'alt' => 'Dark version logo preview',
+            'hint' => 'https://domain.tld/path/logo.svg',
+            'select_file' => 'Select dark version logo file',
+            'title' => 'Dark version logo',
+            'upload_title' => 'Upload a dark version logo (max. 500 KB)',
+            'url_title' => 'URL to dark version logo file',
         ],
         'name' => [
             'description' => 'Changes the site title',
@@ -316,10 +365,6 @@ return [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
         ],
-        'room_pagination_page_size' => [
-            'description' => 'Number of rooms displayed simultaneously on the home page',
-            'title' => 'Room pagination page size',
-        ],
         'room_token_expiration' => [
             'description' => 'Time period since last usage, after which personalized room links gets automatically removed.',
             'title' => 'Expiration time for personalized room links',
@@ -334,6 +379,12 @@ return [
                 'enabled_title' => 'Record server utilisation',
                 'retention_period_title' => 'Retention period of the server utilisation in days',
             ],
+        ],
+        'theme' => [
+            'custom_color' => 'Custom color',
+            'primary_color' => 'Primary color',
+            'rounded' => 'Rounded corners',
+            'title' => 'Theme',
         ],
         'three_month' => '3 Months (90 Days)',
         'tile_description' => 'Controls system-wide settings such as logo, maintenance banner and page sizes.',

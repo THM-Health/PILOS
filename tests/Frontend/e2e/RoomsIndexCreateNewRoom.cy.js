@@ -93,18 +93,18 @@ describe('Rooms index create new room', function () {
         cy.contains('rooms.settings.general.title').should('not.be.visible');
 
         // Open default settings
-        cy.get('a').should('have.text', 'admin.room_types.default_room_settings.title').click();
+        cy.get('button').should('have.text', 'admin.room_types.default_room_settings.title').click();
         // Check that default room settings are shown
         cy.contains('rooms.settings.general.title').should('be.visible');
       });
 
       // Create new room
-      cy.get('.p-button').eq(1).should('have.text', 'rooms.create.ok').click();
+      cy.get('[data-test="dialog-save-button"]').click();
 
       // Check loading
       cy.get('#room-name').should('be.disabled');
       cy.get('.p-listbox-list').should('have.attr', 'aria-disabled', 'true');
-      cy.get('.p-button').eq(1).should('be.disabled').then(() => {
+      cy.get('[data-test="dialog-save-button"]').should('be.disabled').then(() => {
         createRoomRequest.sendResponse();
       });
     });
@@ -145,7 +145,7 @@ describe('Rooms index create new room', function () {
       cy.get('#room-name').should('have.value', '').type('New Room');
 
       // Create new room
-      cy.get('.p-button').eq(1).should('have.text', 'rooms.create.ok').click();
+      cy.get('[data-test="dialog-save-button"]').click();
     });
 
     cy.wait('@createRoomRequest');
@@ -173,7 +173,7 @@ describe('Rooms index create new room', function () {
       cy.get('[data-test=room-type-select-option]').eq(0).click();
 
       // Create new room
-      cy.get('.p-button').eq(1).should('have.text', 'rooms.create.ok').click();
+      cy.get('[data-test="dialog-save-button"]').click();
     });
 
     cy.wait('@createRoomRequest');
@@ -190,7 +190,7 @@ describe('Rooms index create new room', function () {
 
     cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
       // Create new room
-      cy.get('.p-button').eq(1).should('have.text', 'rooms.create.ok').click();
+      cy.get('[data-test="dialog-save-button"]').click();
     });
 
     cy.wait('@createRoomRequest');
@@ -270,7 +270,7 @@ describe('Rooms index create new room', function () {
       cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' });
 
       // Create new room
-      cy.get('.p-button').eq(1).should('have.text', 'rooms.create.ok').click();
+      cy.get('[data-test="dialog-save-button"]').click();
     });
 
     cy.wait('@createRoomRequest');

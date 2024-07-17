@@ -22,8 +22,8 @@ describe('Room View general', function () {
 
     // Get reload button and reload without error
     const reloadRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }, 'roomRequest');
-    cy.get('.p-button').should('have.text', 'rooms.try_again').click();
-    cy.get('.p-button').should('be.disabled').then(() => {
+    cy.get('[data-test="try-again-button"]').click();
+    cy.get('[data-test="try-again-button"]').should('be.disabled').then(() => {
       reloadRequest.sendResponse();
     });
 
@@ -56,7 +56,7 @@ describe('Room View general', function () {
 
     // Get reload button and reload without error
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
-    cy.get('.p-button').should('have.text', 'app.reload').click();
+    cy.get('[data-test="reload-button"]').eq(0).should('have.text', 'app.reload').click();
 
     cy.wait('@roomRequest');
     cy.contains('Meeting One').should('be.visible');

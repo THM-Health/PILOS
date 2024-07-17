@@ -29,13 +29,13 @@
     </template>
 
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.close')" severity="secondary" icon="fa-solid fa-times" @click="showModal = false" :disabled="isLoadingAction" />
       </div>
     </template>
 
     <OverlayComponent :show="isLoadingAction">
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-col gap-2">
 
           <!-- Hide disabled formats if disabled formats should be hidden -->
           <Button

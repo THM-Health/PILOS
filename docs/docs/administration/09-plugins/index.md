@@ -15,12 +15,17 @@ To override the default implementation of a plugin, you have to create a new cla
 
 ## Installation
 
-Add your plugin file the custom plugin directory `app/Plugins/Custom`.
+1. Adjust the docker-compose file to mount the custom plugin directory into the container.
+    ```yaml
+    - './app/Plugins/Custom:/var/www/html/app/Plugins/Custom'
+    ```
 
-Next you have to register the class name of the plugin in the `.env` file. Multiple plugins can be registered by separating them with a comma.
-```env
-PLUGINS=ServerLoadCalculationPlugin
-```
+2. Add your plugin file the custom plugin directory `app/Plugins/Custom`.
+
+3. Next you have to register the class name of the plugin in the `.env` file. Multiple plugins can be registered by separating them with a comma.
+    ```env
+    PLUGINS=ServerLoadCalculationPlugin
+    ```
 
 ## Supported Plugins
 <DocCardList />

@@ -2,7 +2,7 @@
   <div data-test="login-tab-ldap">
     <p class="p-card-title">{{ props.title }}</p>
     <form @submit.prevent="submit">
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-col gap-2">
         <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>
         <InputText
           :id="`${props.id}-username`"
@@ -15,12 +15,10 @@
           required
         />
         <small id="username-help-block">{{ $t('auth.ldap.username_help') }}</small>
-        <InlineMessage v-for="(error, index) in props.errors?.username" :key="index">
-          {{ error }}
-        </InlineMessage>
+        <FormError :errors="props.errors?.username" />
       </div>
 
-      <div class="flex flex-column gap-2 mt-4">
+      <div class="flex flex-col gap-2 mt-6">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
           :id="`${props.id}-password`"
@@ -29,16 +27,16 @@
           :feedback="false"
           toggleMask
           required
+          fluid
           :placeholder="props.passwordLabel"
           :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
         />
-        <InlineMessage v-for="(error, index) in props.errors?.password" :key="index">
-          {{ error }}
-        </InlineMessage>
+        <FormError :errors="props.errors?.password" />
       </div>
       <Button
         type="submit"
-        class="mt-4"
+        data-test="login-button"
+        class="mt-6"
         :disabled="props.loading"
         :loading="props.loading"
         icon="fa-solid fa-right-to-bracket"
@@ -50,6 +48,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import FormError from './FormError.vue';
 
 const emit = defineEmits(['submit']);
 const props = defineProps({

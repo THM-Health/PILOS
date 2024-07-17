@@ -1,38 +1,25 @@
 <template>
   <div>
-    <h2>
-      {{
-        id === 'new' ? $t('admin.servers.new') : (
-          viewOnly ? $t('admin.servers.view', { name })
-            : $t('admin.servers.edit', { name })
-        )
-      }}
-    </h2>
-    <div class="flex justify-content-between">
-      <router-link
-        class="p-button p-button-secondary"
-        :disabled="isBusy"
-        :to="{ name: 'admin.servers' }"
-      >
-        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
-      </router-link>
+    <div class="flex justify-end mb-6">
       <div v-if="model.id!== null && id!=='new'" class="flex gap-2">
-        <router-link
+        <Button
+          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
           :disabled="isBusy"
-          :to="{ name: 'admin.servers.view', params: { id: model.id }, query: { view: '1' } }"
-          class="p-button p-button-secondary"
-        >
-          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
-        </router-link>
-        <router-link
+          :to="{ name: 'admin.servers.view', params: { id: model.id } }"
+          severity="secondary"
+          :label="$t('app.cancel_editing')"
+          icon="fa-solid fa-times"
+        />
+        <Button
+          as="router-link"
           v-if="viewOnly && userPermissions.can('update', model)"
           :disabled="isBusy"
-          :to="{ name: 'admin.servers.view', params: { id: model.id } }"
-          class="p-button p-button-secondary"
-        >
-          <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
-        </router-link>
+          :to="{ name: 'admin.servers.edit', params: { id: model.id } }"
+          severity="info"
+          :label="$t('app.edit')"
+          icon="fa-solid fa-edit"
+        />
         <SettingsServersDeleteButton
           v-if="userPermissions.can('delete', model) && isDisabled"
           :id="model.id"
@@ -42,8 +29,6 @@
       </div>
     </div>
 
-    <Divider/>
-
     <OverlayComponent :show="isBusy">
       <template #loading>
         <LoadingRetryButton :error="modelLoadingError" @reload="load"></LoadingRetryButton>
@@ -52,10 +37,11 @@
       <form
         :aria-hidden="modelLoadingError"
         @submit.prevent="saveServer"
+        class="flex flex-col gap-4"
       >
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="name">{{ $t('app.model_name') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="name">{{ $t('app.model_name') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="name"
               v-model="model.name"
@@ -64,12 +50,12 @@
               class="w-full"
               type="text"
             />
-            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+            <FormError :errors="formErrors.fieldError('name')"/>
           </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="description">{{ $t('app.description') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="description">{{ $t('app.description') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 id="description"
                 v-model="model.description"
@@ -78,12 +64,12 @@
                 class="w-full"
                 type="text"
               />
-              <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+              <FormError :errors="formErrors.fieldError('description')"/>
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="version">{{ $t('admin.servers.version') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="version">{{ $t('admin.servers.version') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 id="version"
                 :disabled="true"
@@ -93,9 +79,9 @@
               />
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="base_url">{{ $t('admin.servers.base_url') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="base_url">{{ $t('admin.servers.base_url') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputText
                 id="base_url"
                 autocomplete="off"
@@ -106,14 +92,14 @@
                 class="w-full"
                 type="text"
               />
-              <p class="p-error" v-html="formErrors.fieldError('base_url')"></p>
+              <FormError :errors="formErrors.fieldError('base_url')"/>
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="secret">{{ $t('admin.servers.secret') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="secret">{{ $t('admin.servers.secret') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <Password
-                class="w-full"
+                fluid
                 id="secret"
                 :inputProps="{ autocomplete: 'off' }"
                 v-model="model.secret"
@@ -122,14 +108,14 @@
                 :feedback="false"
                 :toggleMask="true"
               />
-              <p class="p-error" v-html="formErrors.fieldError('secret')"></p>
+              <FormError :errors="formErrors.fieldError('secret')"/>
             </div>
           </div>
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="strength">{{
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="strength">{{
                 $t('admin.servers.strength')
               }}</label>
-            <div class="col-12 md:col-8">
+            <div class="col-span-12 md:col-span-8">
               <Rating
                 id="strength"
                 v-model="model.strength"
@@ -138,18 +124,18 @@
                 :invalid="formErrors.fieldInvalid('strength')"
                 :stars="10"
                 aria-describedby="strength-help"
-                class="border-1 border-300 border-round px-4 py-3 flex justify-content-between"
+                class="border border-surface-300 dark:border-surface-700 rounded-border px-6 py-3 flex justify-between"
               />
               <small id="strength-help">{{ $t('admin.servers.strength_description') }}</small>
-              <p class="p-error" v-html="formErrors.fieldError('strength')"></p>
+              <FormError :errors="formErrors.fieldError('strength')"/>
             </div>
           </div>
 
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="status">{{ $t('admin.servers.status') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="status">{{ $t('admin.servers.status') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <div>
-                <Dropdown
+                <Select
                   id="status"
                   v-model="model.status"
                   :options="serverStatusOptions"
@@ -161,13 +147,13 @@
                   name="status"
                 />
               </div>
-              <p class="p-error" v-html="formErrors.fieldError('status')"></p>
+              <FormError :errors="formErrors.fieldError('status')"/>
             </div>
           </div>
 
-          <div class="field grid">
-            <label class="col-12 md:col-4 md:mb-0" for="healthStatus">{{ $t('admin.servers.connection') }}</label>
-            <div class="col-12 md:col-8">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 md:col-span-4 md:mb-0" for="healthStatus">{{ $t('admin.servers.connection') }}</label>
+            <div class="col-span-12 md:col-span-8">
               <InputGroup>
                 <InputText
                   id="healthStatus"
@@ -183,19 +169,17 @@
                   @click="testConnection()"
                 />
               </InputGroup>
-              <p v-if="offlineReason" class="p-error">
+              <p v-if="offlineReason" class="text-red-500" role="alert">
                 {{ $t('admin.servers.offline_reason.' + offlineReason) }}
               </p>
             </div>
           </div>
         <div v-if="!viewOnly">
-          <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError"
               :label="$t('app.save')"
               icon="fa-solid fa-save"
-              severity="success"
               type="submit"
             />
           </div>
@@ -203,10 +187,10 @@
       </form>
       <div
         v-if="!modelLoadingError && viewOnly && !isDisabled && model.id!==null"
-        class="mt-3"
+        class="flex flex-col gap-4 mt-4"
       >
-        <div class="grid">
-          <div class="col-12 md:col">
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-12 md:col">
             <h3 class="mt-0">
               {{ $t('admin.servers.current_usage') }}
             </h3>
@@ -214,9 +198,9 @@
           </div>
         </div>
 
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="meetingCount">{{ $t('admin.servers.meeting_count') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="meetingCount">{{ $t('admin.servers.meeting_count') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="meetingCount"
               v-model="model.meeting_count"
@@ -228,10 +212,10 @@
             <small id="meetingCount-help">{{ $t('admin.servers.meeting_description') }}</small>
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0"
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0"
                  for="ownMeetingCount">{{ $t('admin.servers.own_meeting_count') }}</label>
-          <div class="col-12 md:col-8">
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="ownMeetingCount"
               v-model="model.own_meeting_count"
@@ -243,11 +227,11 @@
             <small id="ownMeetingCount-help">{{ $t('admin.servers.own_meeting_description') }}</small>
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="participantCount">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="participantCount">
             {{$t('admin.servers.participant_count') }}
           </label>
-          <div class="col-12 md:col-8">
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="participantCount"
               v-model="model.participant_count"
@@ -257,9 +241,9 @@
             />
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 md:col-4 md:mb-0" for="videoCount">{{ $t('admin.servers.video_count') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="videoCount">{{ $t('admin.servers.video_count') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               id="videoCount"
               v-model="model.video_count"
@@ -272,10 +256,10 @@
 
         <div
           v-if="userPermissions.can('update', model)"
-          class="field grid"
+          class="field grid grid-cols-12 gap-4"
         >
-          <label class="col-12 md:col-4 md:mb-0" for="panic">{{ $t('admin.servers.panic') }}</label>
-          <div class="col-12 md:col-8">
+          <label class="col-span-12 md:col-span-4 md:mb-0" for="panic">{{ $t('admin.servers.panic') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <div>
               <Button
                 id="panic"
@@ -304,7 +288,7 @@ import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useI18n } from 'vue-i18n';
-import { computed, onMounted, ref } from 'vue';
+import { computed, inject, onMounted, ref, watch } from 'vue';
 import { useToast } from '../composables/useToast.js';
 
 const toast = useToast();
@@ -314,6 +298,7 @@ const api = useApi();
 const router = useRouter();
 const confirm = useConfirm();
 const { t } = useI18n();
+const breakcrumbLabelData = inject('breakcrumbLabelData');
 
 const props = defineProps({
   id: {
@@ -331,6 +316,13 @@ const model = ref({
   id: null
 });
 const name = ref('');
+
+watch(() => name.value, (value) => {
+  breakcrumbLabelData.value = {
+    name: name.value
+  };
+});
+
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);
@@ -464,7 +456,7 @@ function saveServer () {
 
   api.call(props.id === 'new' ? 'servers' : `servers/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'admin.servers.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.servers.view', params: { id: response.data.data.id } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

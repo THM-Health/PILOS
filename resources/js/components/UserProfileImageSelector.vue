@@ -1,16 +1,17 @@
 <template>
-  <div class="grid">
-    <div class="col-12 lg:col-9 flex gap-2 align-items-start" v-if="!viewOnly">
+  <div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12 lg:col-span-9 flex md:flex-row flex-col gap-2 md:items-start" v-if="!viewOnly">
     <FileUpload
       v-if="!imageDeleted"
       mode="basic"
       accept="image/*"
       customUpload
       auto
+      class="w-full"
       @uploader="onFileSelect"
       :choose-label="$t('admin.users.image.upload')"
     >
-      <template #chooseicon>
+      <template #uploadicon>
         <i class="fa-solid fa-upload" />
       </template>
     </FileUpload>
@@ -38,12 +39,13 @@
       icon="fa-solid fa-undo"
     />
     </div>
-    <div class="col-12 lg:col-3 text-left"  :class="{'lg:text-right': !viewOnly}">
+    <div class="col-span-12 lg:col-span-3 text-left"  :class="{'lg:text-right': !viewOnly}">
     <UserAvatar
       v-if="(croppedImage!==null || image!==null) && !imageDeleted"
       :image="croppedImage ? croppedImage : image"
       :alt="$t('admin.users.image.title')"
       size="xlarge"
+      class="rounded-border overflow-hidden"
       shape="square"
     />
     <UserAvatar
@@ -68,13 +70,14 @@
     :closable="false"
   >
     <template #footer>
-      <div class="flex justify-content-end gap-2">
+      <div class="flex justify-end gap-2">
         <Button :label="$t('app.cancel')" outlined @click="showModal = false" :disabled="isLoadingAction" />
         <Button :label="$t('admin.users.image.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
       </div>
     </template>
 
     <VueCropper
+      class="my-2"
       v-show="selectedFile"
       ref="cropperRef"
       :auto-crop-area="1"

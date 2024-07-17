@@ -1,127 +1,128 @@
 <template>
   <div>
-    <h4>{{ $t('admin.users.base_data') }}</h4>
-    <form @submit.prevent="save">
 
-      <div class="field grid">
-        <label for="firstname" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.firstname') }}</label>
-        <div class="col-12 md:col-9">
-          <InputText
-            id="firstname"
-            v-model="model.firstname"
-            type="text"
-            required
-            :disabled="isBusy || viewOnly || !canUpdateAttributes"
-            class="w-full"
-            :invalid="formErrors.fieldInvalid('firstname')"
-          />
-          <p class="p-error" v-html="formErrors.fieldError('firstname')" />
+    <AdminPanel :title="$t('admin.users.base_data')">
+      <form @submit.prevent="save" class="flex flex-col gap-4">
+
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="firstname" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.firstname') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <InputText
+              id="firstname"
+              v-model="model.firstname"
+              type="text"
+              required
+              :disabled="isBusy || viewOnly || !canUpdateAttributes"
+              class="w-full"
+              :invalid="formErrors.fieldInvalid('firstname')"
+            />
+            <FormError :errors="formErrors.fieldError('firstname')" />
+          </div>
         </div>
-      </div>
 
-      <div class="field grid">
-        <label for="lastname" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('app.lastname') }}</label>
-        <div class="col-12 md:col-9">
-          <InputText
-            id="lastname"
-            v-model="model.lastname"
-            type="text"
-            required
-            :disabled="isBusy || viewOnly || !canUpdateAttributes"
-            class="w-full"
-            :invalid="formErrors.fieldInvalid('lastname')"
-          />
-          <p class="p-error" v-html="formErrors.fieldError('lastname')" />
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="lastname" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.lastname') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <InputText
+              id="lastname"
+              v-model="model.lastname"
+              type="text"
+              required
+              :disabled="isBusy || viewOnly || !canUpdateAttributes"
+              class="w-full"
+              :invalid="formErrors.fieldInvalid('lastname')"
+            />
+            <FormError :errors="formErrors.fieldError('lastname')" />
+          </div>
         </div>
-      </div>
 
-      <div class="field grid">
-        <label for="authenticator" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.authenticator') }}</label>
-        <div class="col-12 md:col-9">
-          <InputText
-            id="authenticator"
-            :value="$t(`admin.users.authenticator.${model.authenticator}`)"
-            type="text"
-            disabled
-            class="w-full"
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="authenticator" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.authenticator') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <InputText
+              id="authenticator"
+              :value="$t(`admin.users.authenticator.${model.authenticator}`)"
+              type="text"
+              disabled
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="field grid grid-cols-12 gap-4" v-if="model.authenticator !== 'local'">
+          <label for="authenticator_id" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.authenticator_id') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <InputText
+              id="authenticator_id"
+              v-model="model.external_id"
+              type="text"
+              disabled
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Profile image-->
+        <div class="grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.image.title') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <UserProfileImageSelector
+              :image="model.image"
+              :busy="isBusy"
+              :view-only="viewOnly"
+              :firstname="model.firstname"
+              :lastname="model.lastname"
+              :image-deleted="imageDeleted"
+              @newImage="onNewImage"
+              @deleteImage="onDeleteImage"
+            />
+            <FormError :errors="formErrors.fieldError('image')" />
+          </div>
+        </div>
+
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="user_locale" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.user_locale') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <LocaleSelect
+              id="user_locale"
+              v-model="model.user_locale"
+              required
+              :invalid="formErrors.fieldInvalid('user_locale')"
+              :disabled="isBusy || viewOnly"
+            />
+            <FormError :errors="formErrors.fieldError('user_locale')" />
+          </div>
+        </div>
+
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="timezone" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.timezone') }}</label>
+          <div class="col-span-12 md:col-span-9">
+            <timezone-select
+              id="timezone"
+              v-model="model.timezone"
+              required
+              :invalid="formErrors.fieldInvalid('timezone')"
+              :disabled="isBusy || viewOnly"
+              :placeholder="$t('admin.users.timezone')"
+              @loading-error="(value) => timezonesLoadingError = value"
+              @busy="(value) => timezonesLoading = value"
+            />
+            <FormError :errors="formErrors.fieldError('timezone')" />
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <Button
+            v-if="!viewOnly"
+            :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
+            type="submit"
+            :loading="isBusy"
+            icon="fa-solid fa-save"
+            :label="$t('app.save')"
           />
         </div>
-      </div>
-
-      <div class="field grid" v-if="model.authenticator !== 'local'">
-        <label for="authenticator_id" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('auth.authenticator_id') }}</label>
-        <div class="col-12 md:col-9">
-          <InputText
-            id="authenticator_id"
-            v-model="model.external_id"
-            type="text"
-            disabled
-            class="w-full"
-          />
-        </div>
-      </div>
-
-      <!-- Profile image-->
-      <div class="grid">
-        <label class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('admin.users.image.title') }}</label>
-        <div class="col-12 md:col-9">
-          <UserProfileImageSelector
-            :image="model.image"
-            :busy="isBusy"
-            :view-only="viewOnly"
-            :firstname="model.firstname"
-            :lastname="model.lastname"
-            :image-deleted="imageDeleted"
-            @newImage="onNewImage"
-            @deleteImage="onDeleteImage"
-          />
-          <p class="p-error" v-html="formErrors.fieldError('image')" />
-        </div>
-      </div>
-
-      <div class="field grid">
-        <label for="user_locale" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('admin.users.user_locale') }}</label>
-        <div class="col-12 md:col-9">
-          <LocaleSelect
-            id="user_locale"
-            v-model="model.user_locale"
-            required
-            :invalid="formErrors.fieldInvalid('user_locale')"
-            :disabled="isBusy || viewOnly"
-          />
-          <p class="p-error" v-html="formErrors.fieldError('user_locale')" />
-        </div>
-      </div>
-
-      <div class="field grid">
-        <label for="timezone" class="col-12 mb-2 md:col-3 md:mb-0">{{ $t('admin.users.timezone') }}</label>
-        <div class="col-12 md:col-9">
-          <timezone-select
-            id="timezone"
-            v-model="model.timezone"
-            required
-            :invalid="formErrors.fieldInvalid('timezone')"
-            :disabled="isBusy || viewOnly"
-            :placeholder="$t('admin.users.timezone')"
-            @loading-error="(value) => timezonesLoadingError = value"
-            @busy="(value) => timezonesLoading = value"
-          />
-          <p class="p-error" v-html="formErrors.fieldError('timezone')" />
-        </div>
-      </div>
-
-      <div class="flex justify-content-end">
-        <Button
-          v-if="!viewOnly"
-          :disabled="isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading"
-          type="submit"
-          severity="success"
-          :loading="isBusy"
-          icon="fa-solid fa-save"
-          :label="$t('app.save')"
-        />
-      </div>
-    </form>
+      </form>
+    </AdminPanel>
   </div>
 </template>
 
@@ -133,6 +134,7 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
+import AdminPanel from './AdminPanel.vue';
 
 const props = defineProps({
   viewOnly: {

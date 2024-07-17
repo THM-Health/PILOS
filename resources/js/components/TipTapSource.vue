@@ -2,6 +2,7 @@
   <Button
     v-tooltip="$t('rooms.description.tooltips.source_code')"
     severity="secondary"
+    text
     @click="openModal"
     icon="fa-solid fa-code"
   />
@@ -21,14 +22,13 @@
     />
 
     <template #footer>
-      <div class="w-full flex justify-content-end gap-2">
+      <div class="w-full flex justify-end gap-2">
           <Button
             severity="secondary"
             @click="modalVisible = false"
             :label="$t('app.cancel')"
           />
           <Button
-            severity="success"
             @click="save"
             :label="$t('app.save')"
           />

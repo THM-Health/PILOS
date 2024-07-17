@@ -2,6 +2,13 @@ name: Pull locales from POEditor
 
 on:
   workflow_dispatch:
+    inputs:
+      poeditor_project_id:
+        required: true
+        description: 'POEditor Project ID'
+        type: number
+  schedule:
+    - cron: "0 * * * *"
 jobs:
   pull-locales:
     name: Pull locales from POEditor
@@ -34,7 +41,7 @@ jobs:
     - name: Setup PHP, with composer and extensions
       uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
       with:
-        php-version: '8.1'
+        php-version: '8.3'
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
         coverage: pcov
     - name: Copy .env
@@ -60,20 +67,22 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: Migrate Database
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
-      run: php artisan migrate --no-interaction -vvv
-    
+      run: php artisan migrate --no-interaction -vvv --force
+
     - name: Execute command to pull locales from POEditor
       env:
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
         POEDITOR_TOKEN: ${{ secrets.POEDITOR_TOKEN }}
-        POEDITOR_PROJECT: ${{ secrets.POEDITOR_PROJECT }}
+        POEDITOR_PROJECT: ${{ github.event.inputs.poeditor_project_id || secrets.POEDITOR_PROJECT}}
       run: php artisan locales:import
 
     - name: Create Pull Request

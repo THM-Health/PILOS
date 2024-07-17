@@ -1,7 +1,6 @@
-body {
-    background-color: var(--surface-ground);
+html {
+    font-size: 14px;
 }
-
 
 html, body, #app, #app > .overlay-wrap {
     height: 100%;
@@ -29,38 +28,11 @@ footer {
     flex-shrink: 0;
 }
 
-
-
 .container {
-    width: 100%;
     padding-right: 15px;
     padding-left: 15px;
     margin-right: auto;
     margin-left: auto
-}
-
-@media (min-width: 576px) {
-    .container {
-        max-width:540px
-    }
-}
-
-@media (min-width: 768px) {
-    .container {
-        max-width:720px
-    }
-}
-
-@media (min-width: 992px) {
-    .container {
-        max-width:960px
-    }
-}
-
-@media (min-width: 1200px) {
-    .container {
-        max-width:1140px
-    }
 }
 
 fieldset:not(.p-fieldset) {
@@ -74,18 +46,8 @@ legend:not(.p-fieldset-legend) {
     padding: 0;
 }
 
-a {
-    text-decoration: none;
-}
-
-a.link {
-    text-decoration: none;
+a.p-button-link {
     &:hover {
         text-decoration: underline;
     }
-}
-
-a.link-color,
-.link-color a{
-    color: $linkColor;
 }

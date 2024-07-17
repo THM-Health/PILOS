@@ -1,38 +1,25 @@
 <template>
   <div>
-    <h2>
-      {{
-        id === 'new' ? $t('admin.server_pools.new') : (
-          viewOnly ? $t('admin.server_pools.view', { name })
-            : $t('admin.server_pools.edit', { name })
-        )
-      }}
-    </h2>
-    <div class="flex justify-content-between">
-      <router-link
-        class="p-button p-button-secondary"
-        :disabled="isBusy"
-        :to="{ name: 'admin.server_pools' }"
-      >
-        <i class="fa-solid fa-arrow-left mr-2"/> {{$t('app.back')}}
-      </router-link>
+    <div class="flex justify-end mb-6">
       <div v-if="model.id && id !=='new'" class="flex gap-2">
-        <router-link
+        <Button
+          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
           :disabled="isBusy"
-          :to="{ name: 'admin.server_pools.view', params: { id: model.id }, query: { view: '1' } }"
-          class="p-button p-button-secondary"
-        >
-          <i class="fa-solid fa-times mr-2" /> {{$t('app.cancel_editing')}}
-        </router-link>
-        <router-link
+          :to="{ name: 'admin.server_pools.view', params: { id: model.id }}"
+          severity="secondary"
+          :label="$t('app.cancel_editing')"
+          icon="fa-solid fa-times"
+        />
+        <Button
+          as="router-link"
           v-if="viewOnly && userPermissions.can('update', model)"
           :disabled="isBusy"
-          :to="{ name: 'admin.server_pools.view', params: { id: model.id } }"
-          class="p-button p-button-secondary"
-        >
-          <i class="fa-solid fa-edit mr-2"/> {{$t('app.edit')}}
-        </router-link>
+          :to="{ name: 'admin.server_pools.edit', params: { id: model.id } }"
+          severity="info"
+          icon="fa-solid fa-edit"
+          :label="$t('app.edit')"
+        />
         <SettingsServerPoolsDeleteButton
           v-if="userPermissions.can('delete', model)"
           :id="model.id"
@@ -42,7 +29,6 @@
         </SettingsServerPoolsDeleteButton>
       </div>
     </div>
-    <Divider/>
 
     <OverlayComponent :show="isBusy">
       <template #loading>
@@ -52,10 +38,11 @@
       <form
         @submit.prevent="saveServerPool"
         :aria-hidden="modelLoadingError"
+        class="flex flex-col gap-4"
       >
-        <div class="field grid">
-          <label for="name" class="col-12 md:col-4 md:mb-0">{{ $t('app.model_name') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.model_name') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               class="w-full"
               id="name"
@@ -64,12 +51,12 @@
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('name')"></p>
+            <FormError :errors="formErrors.fieldError('name')"/>
           </div>
         </div>
-        <div class="field grid">
-          <label for="description" class="col-12 md:col-4 md:mb-0">{{ $t('app.description') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="description" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.description') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputText
               class="w-full"
               id="description"
@@ -78,12 +65,12 @@
               :invalid="formErrors.fieldInvalid('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <p class="p-error" v-html="formErrors.fieldError('description')"></p>
+            <FormError :errors="formErrors.fieldError('description')"/>
           </div>
         </div>
-        <div class="field grid">
-          <label for="servers" class="col-12 md:col-4 md:mb-0">{{ $t('app.servers') }}</label>
-          <div class="col-12 md:col-8">
+        <div class="field grid grid-cols-12 gap-4">
+          <label for="servers" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.servers') }}</label>
+          <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <multiselect
                 id="servers"
@@ -103,7 +90,7 @@
                 :disabled="isBusy || modelLoadingError || serversLoadingError || viewOnly"
                 :loading="serversLoading"
                 :allow-empty="true"
-                :class="{ 'is-invalid': formErrors.fieldInvalid('servers', true), 'multiselect-form-control': true }"
+                :class="{ 'is-invalid': formErrors.fieldInvalid('servers', true) }"
               >
                 <template #noOptions>
                   {{ $t('admin.servers.no_data') }}
@@ -142,14 +129,12 @@
               />
             </InputGroup>
           </div>
-          <p class="p-error" v-html="formErrors.fieldError('servers', true)"></p>
+          <FormError :errors="formErrors.fieldError('servers', true)"/>
         </div>
         <div v-if="!viewOnly">
-          <Divider/>
-          <div class="flex justify-content-end">
+          <div class="flex justify-end">
             <Button
               :disabled="isBusy || modelLoadingError || serversLoadingError || serversLoading"
-              severity="success"
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
@@ -170,7 +155,7 @@ import { useFormErrors } from '../composables/useFormErrors.js';
 import { useConfirm } from 'primevue/useconfirm';
 import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
-import { onMounted, ref } from 'vue';
+import { inject, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useI18n } from 'vue-i18n';
@@ -182,6 +167,7 @@ const formErrors = useFormErrors();
 const api = useApi();
 const confirm = useConfirm();
 const router = useRouter();
+const breakcrumbLabelData = inject('breakcrumbLabelData');
 
 const props = defineProps({
   id: {
@@ -199,6 +185,13 @@ const model = ref({
   servers: []
 });
 const name = ref('');
+
+watch(() => name.value, (value) => {
+  breakcrumbLabelData.value = {
+    name: name.value
+  };
+});
+
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
 
@@ -286,7 +279,7 @@ function saveServerPool () {
 
   api.call(props.id === 'new' ? 'serverPools' : `serverPools/${props.id}`, config).then(response => {
     formErrors.clear();
-    router.push({ name: 'admin.server_pools.view', params: { id: response.data.data.id }, query: { view: '1' } });
+    router.push({ name: 'admin.server_pools.view', params: { id: response.data.data.id } });
   }).catch(error => {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);

@@ -11,6 +11,7 @@ describe('Login', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
         general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           ldap: true
         }
@@ -69,6 +70,8 @@ describe('Login', function () {
     // Intercept config request to only show ldap login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           ldap: false
         }
@@ -84,6 +87,7 @@ describe('Login', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
         general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           ldap: true
         }
@@ -135,6 +139,7 @@ describe('Login', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
         general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           local: true
         }
@@ -192,6 +197,8 @@ describe('Login', function () {
   it('hide local login if disabled', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           local: false
         }
@@ -207,6 +214,7 @@ describe('Login', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
         general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           local: true
         }
@@ -255,6 +263,8 @@ describe('Login', function () {
     // Intercept config request to only show local login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           local: true
         }
@@ -355,6 +365,8 @@ describe('Login', function () {
     // Intercept config request to only show local login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           shibboleth: true
         }
@@ -381,6 +393,8 @@ describe('Login', function () {
     // Intercept config request to only show local login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           shibboleth: false
         }
@@ -395,6 +409,8 @@ describe('Login', function () {
     // Intercept config request to only show ldap login tab
     cy.intercept('GET', 'api/v1/config', {
       data: {
+        general: { toast_lifetime: 0 },
+        theme: { primary_color: '#14b8a6', rounded: true },
         auth: {
           shibboleth: true
         }

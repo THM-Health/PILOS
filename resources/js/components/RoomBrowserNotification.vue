@@ -1,7 +1,7 @@
 <template>
   <Button
     v-if="notificationSupport && !running"
-    :severity="notificationEnabled ? 'primary' : 'secondary'"
+    :severity="notificationEnabled ? 'contrast' : 'secondary'"
     @click="notificationEnabled ? disableNotification() : enableNotification()"
     icon="fa-solid fa-bell"
     :aria-label="notificationEnabled ? $t('rooms.notification.disable') : $t('rooms.notification.enable')"
@@ -84,7 +84,7 @@ const noSupportHandler = (showToast = false) => {
 const sendNotification = () => {
   const options = {
     body: t('rooms.notification.body', { time: d(new Date(), 'time') }),
-    icon: settingsStore.getSetting('general.favicon')
+    icon: settingsStore.getSetting('theme.favicon')
   };
   try {
     notification.value = new Notification(props.roomName, options);

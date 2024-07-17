@@ -106,7 +106,6 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 |-----------------------|---------------------------------------|--------------------------------------------------------------------------------------------------------------|
 | `ENABLED_LOCALES`     |  | Comma-separated list of enabled locales.<br/>By default all all locales in the `lang` directory are enabled  |
 | `DEFAULT_LOCALE`      | `en`                                  | Default locale for the application.                                                                          |
-| `VITE_THEME`          | `default`                             | Theme used for styling (`default`, `thm`, `custom`).                                                         |
 | `WHITELABEL`          | `false`                               | Do not show link to PILOS Github Project in the footer.<br/>Please keep it disabled to support this project. |
 
 
