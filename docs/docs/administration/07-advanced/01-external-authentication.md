@@ -49,6 +49,12 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 
 # Attribute by which the user should be found in the LDAP
 LDAP_LOGIN_ATTRIBUTE=uid
+
+# Optional comma separated list of additional options for LDAP authentication
+# See: https://ldaprecord.com/docs/core/v3/configuration and http://php.net/ldap_set_option
+# Note: ldap_set_option constants must be resolved to their integer values.
+# This example sets LDAP_OPT_X_TLS_REQUIRE_CERT to LDAP_OPT_X_TLS_NEVER to ignore missing and self-signed TLS certificates.
+#LDAP_OPTIONS="24582=0" 
 ```
 
 ### Shibboleth

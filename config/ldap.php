@@ -1,9 +1,13 @@
 <?php
 
 $ldapEnabled = env('LDAP_ENABLED', false);
+$options = [];
+if ($ldapEnabled) {
+    $option_list = env('LDAP_OPTIONS', '');
+    parse_str(str_replace(',', '&', $option_list), $options);
+}
 
 return [
-
     'enabled' => $ldapEnabled,
 
     'connection' => [
@@ -15,6 +19,7 @@ return [
         'timeout' => env('LDAP_TIMEOUT', 5),
         'use_ssl' => env('LDAP_SSL', false),
         'use_tls' => env('LDAP_TLS', false),
+        'options' => $options,
     ],
 
     /*
