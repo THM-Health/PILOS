@@ -3,6 +3,9 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Foundation\ViteManifestNotFoundException;
+use Illuminate\Http\Request;
+use Spatie\LaravelIgnition\Exceptions\ViewException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -57,6 +60,14 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (ViewException $e, Request $request) {
+            if ($e->getPrevious() instanceof ViteManifestNotFoundException) {
+                return response()->view('frontend-missing', [], 560);
+            }
+
+            return null;
         });
     }
 }
