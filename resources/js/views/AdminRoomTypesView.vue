@@ -1118,9 +1118,13 @@ function handleStaleError (staleError) {
     message: staleError.message,
     header: t('app.errors.stale_error'),
     icon: 'pi pi-exclamation-triangle',
-    rejectClass: 'p-button-secondary',
-    rejectLabel: t('app.reload'),
-    acceptLabel: t('app.overwrite'),
+    rejectProps: {
+      label: t('app.reload'),
+      severity: 'secondary'
+    },
+    acceptProps: {
+      label: t('app.overwrite')
+    },
     accept: () => {
       model.value.updated_at = staleError.new_model.updated_at;
       saveRoomType();
