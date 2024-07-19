@@ -856,7 +856,7 @@ function getSettings () {
     .then(response => {
       settings.value = response.data.data;
       meta.value = response.data.meta;
-      roomLimitMode.value = (settings.value.general_room_limit === -1 ? 'unlimited' : 'custom');
+      roomLimitMode.value = (settings.value.room_limit === -1 ? 'unlimited' : 'custom');
       toastLifetimeMode.value = (settings.value.general_toast_lifetime === 0 ? 'unlimited' : 'custom');
     })
     .catch((error) => {
@@ -963,7 +963,7 @@ function updateSettings () {
 
       // update form input
       settings.value = response.data.data;
-      roomLimitMode.value = (settings.value.general_room_limit === -1 ? 'unlimited' : 'custom');
+      roomLimitMode.value = (settings.value.room_limit === -1 ? 'unlimited' : 'custom');
       toastLifetimeMode.value = (settings.value.general_toast_lifetime === 0 ? 'unlimited' : 'custom');
     })
     .catch((error) => {
@@ -998,10 +998,10 @@ const linkTargets = computed(() => {
 function roomLimitModeChanged (value) {
   switch (value) {
     case 'unlimited':
-      settings.value.general_room_limit = -1;
+      settings.value.room_limit = -1;
       break;
     case 'custom':
-      settings.value.general_room_limit = 0;
+      settings.value.room_limit = 0;
       break;
   }
 }
