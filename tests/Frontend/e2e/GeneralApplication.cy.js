@@ -58,19 +58,6 @@ describe('General', function () {
   });
 
   it('changing selected locale error', function () {
-    cy.intercept('GET', 'api/v1/locale/en', {
-      data: {
-        app: {
-          flash: {
-            server_error: {
-              message: ':message'
-            }
-          }
-        },
-        theme: { primary_color: '#14b8a6', rounded: true }
-      }
-    });
-
     // Shows a corresponding error message and does not change the language on 422
     cy.intercept('POST', '/api/v1/locale', {
       statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
@@ -122,6 +109,9 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('include.text', 'Test');
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('include.text', 'app.flash.server_error.message_{"message":["Test"]}')
+      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
   });
 });

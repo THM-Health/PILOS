@@ -92,18 +92,6 @@ describe('Room Index', function () {
   });
 
   it('error loading rooms', function () {
-    cy.intercept('GET', 'api/v1/locale/en', {
-      data: {
-        app: {
-          flash: {
-            server_error: {
-              message: ':message'
-            }
-          }
-        }
-      }
-    });
-
     cy.intercept('GET', 'api/v1/rooms*', {
       statusCode: 500,
       body: {
@@ -115,7 +103,10 @@ describe('Room Index', function () {
     cy.wait('@roomRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast').should('be.visible').and('include.text', 'Test');
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
 
     // Check that components are not disabled
     // Room search field
@@ -173,18 +164,6 @@ describe('Room Index', function () {
   });
 
   it('error loading room types', function () {
-    cy.intercept('GET', 'api/v1/locale/en', {
-      data: {
-        app: {
-          flash: {
-            server_error: {
-              message: ':message'
-            }
-          }
-        }
-      }
-    });
-
     cy.intercept('GET', 'api/v1/roomTypes', {
       statusCode: 500,
       body: {
@@ -195,7 +174,10 @@ describe('Room Index', function () {
     cy.visit('/rooms');
 
     // Check that error message gets shown
-    cy.get('.p-toast').should('be.visible').and('include.text', 'Test');
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
 
     const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
 

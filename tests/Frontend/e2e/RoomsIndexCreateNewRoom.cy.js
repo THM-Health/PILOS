@@ -202,21 +202,6 @@ describe('Rooms index create new room', function () {
   });
 
   it('create new room limit reached', function () {
-    cy.intercept('GET', 'api/v1/locale/en', {
-      data: {
-        app: {
-          flash: {
-            server_error: {
-              message: ':message'
-            }
-          }
-        },
-        rooms: {
-          room_limit: 'rooms.room_limit: :has/:max'
-        }
-      }
-    });
-
     cy.intercept('GET', 'api/v1/rooms*', {
       statusCode: 200,
       body: {
@@ -255,7 +240,7 @@ describe('Rooms index create new room', function () {
     cy.visit('/rooms');
 
     // Check if room limit is shown
-    cy.contains('rooms.room_limit: 0/1').should('be.visible');
+    cy.contains('rooms.room_limit_{"has":0,"max":1}').should('be.visible');
 
     // Open room create modal
     cy.get('[data-test=room-create-button]').should('have.text', 'rooms.create.title').click();
@@ -282,6 +267,6 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test=room-create-button]').should('be.disabled');
 
     // Check if room limit is updated
-    cy.contains('rooms.room_limit: 1/1').should('be.visible');
+    cy.contains('rooms.room_limit_{"has":1,"max":1}').should('be.visible');
   });
 });

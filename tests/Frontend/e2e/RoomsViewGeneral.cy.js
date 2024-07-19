@@ -32,18 +32,6 @@ describe('Room View general', function () {
   });
 
   it('test error', function () {
-    cy.intercept('GET', 'api/v1/locale/en', {
-      data: {
-        app: {
-          flash: {
-            server_error: {
-              message: ':message'
-            }
-          }
-        }
-      }
-    });
-
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 500,
       body: {
@@ -52,7 +40,10 @@ describe('Room View general', function () {
     });
 
     cy.visit('/rooms/abc-def-123');
-    cy.get('.p-toast').should('be.visible').and('include.text', 'Test');
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
 
     // Get reload button and reload without error
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
@@ -74,4 +65,8 @@ describe('Room View general', function () {
 
     cy.url().should('include', '/404').should('not.include', '/rooms/abc-def-123');
   });
+
+  // ToDo     cy.wait('@roomRequest').then((interception) => {
+  //       expect(interception.request.headers['access-code']).to.eq('123456789');
+  //     }); (check if access code is send in request header)
 });
