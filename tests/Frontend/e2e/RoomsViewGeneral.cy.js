@@ -42,8 +42,8 @@ describe('Room View general', function () {
     cy.visit('/rooms/abc-def-123');
     cy.get('.p-toast')
       .should('be.visible')
-      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
 
     // Get reload button and reload without error
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');

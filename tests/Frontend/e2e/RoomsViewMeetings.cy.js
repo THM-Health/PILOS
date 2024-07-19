@@ -1087,8 +1087,8 @@ describe('Rooms view meetings', function () {
     // Check if error message is shown and close it
     cy.get('.p-toast')
       .should('be.visible')
-      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
       .find('button').click();
 
     // Test meeting error room closed
@@ -2158,8 +2158,8 @@ describe('Rooms view meetings', function () {
     // Check if error message is shown and close it
     cy.get('.p-toast')
       .should('be.visible')
-      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
       .find('button').click();
   });
 

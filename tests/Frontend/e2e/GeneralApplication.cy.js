@@ -111,7 +111,7 @@ describe('General', function () {
     // Check if error message is shown
     cy.get('.p-toast')
       .should('be.visible')
-      .and('include.text', 'app.flash.server_error.message_{"message":["Test"]}')
-      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+      .should('include.text', 'app.flash.server_error.message_{"message":["Test"]}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
   });
 });

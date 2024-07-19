@@ -105,8 +105,8 @@ describe('Room Index', function () {
     // Check that error message gets shown
     cy.get('.p-toast')
       .should('be.visible')
-      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
 
     // Check that components are not disabled
     // Room search field
@@ -176,8 +176,8 @@ describe('Room Index', function () {
     // Check that error message gets shown
     cy.get('.p-toast')
       .should('be.visible')
-      .and('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .and('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
 
     const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
 
