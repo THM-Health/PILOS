@@ -44,6 +44,7 @@ return [
         'mapping' => $shibbolethEnabled ? json_decode(file_get_contents(app_path('Auth/config/shibboleth_mapping.json'))) : null,
         'session_id_header' => env('SHIBBOLETH_SESSION_ID_HEADER', 'shib-session-id'),
         'session_expires_header' => env('SHIBBOLETH_SESSION_EXPIRES_HEADER', 'shib-session-expires'),
+        'session_check_middleware_enabled' => (bool) env('SHIBBOLETH_SESSION_CHECK_ENABLED', true),
         'logout' => env('SHIBBOLETH_LOGOUT_URL', '/Shibboleth.sso/Logout'),
     ],
 ];

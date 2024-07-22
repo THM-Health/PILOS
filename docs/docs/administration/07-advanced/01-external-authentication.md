@@ -97,6 +97,15 @@ To enable Shibboleth, you need to enable it in the  `.env` file.
 SHIBBOLETH_ENABLED=true
 ```
 
+When Shibboleth authentication is enabled and a user is logged in via Shibboleth, the session validity is checked in every request. If the check fails the user is automatically logged out.
+To disable this behavior you can set the following `.env` variable:
+
+```bash
+# Disable checking Shibboleth session in every request
+SHIBBOLETH_SESSION_CHECK_ENABLED=false
+```
+
+
 ## Configure mapping
 
 For each external authenticator the attribute and role mapping needs to be configured.
