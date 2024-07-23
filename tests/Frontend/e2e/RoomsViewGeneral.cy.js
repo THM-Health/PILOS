@@ -22,8 +22,8 @@ describe('Room View general', function () {
 
     // Get reload button and reload without error
     const reloadRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }, 'roomRequest');
-    cy.get('[data-test="try-again-button"]').click();
-    cy.get('[data-test="try-again-button"]').should('be.disabled').then(() => {
+    cy.get('[data-test="reload-room-button"]').click();
+    cy.get('[data-test="reload-room-button"]').should('be.disabled').then(() => {
       reloadRequest.sendResponse();
     });
 

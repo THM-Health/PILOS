@@ -25,6 +25,7 @@
             @click="emit('reload')"
             icon="fa-solid fa-sync"
             :loading="props.loading"
+            data-test="reload-room-button"
           />
           <RoomFavoriteButton v-if="!hideFavorites && authStore.isAuthenticated" :room="props.room" @favorites-changed="emit('reload')" />
           <RoomMembershipButton v-if="!hideMembership && authStore.isAuthenticated" :room="props.room" @added="emit('reload')" @removed="emit('reload')" />

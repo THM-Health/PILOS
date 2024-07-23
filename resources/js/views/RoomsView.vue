@@ -43,7 +43,7 @@
           <div class="flex justify-start w-full">
             <!-- Reload page, in case the room settings changed -->
             <Button
-              data-test="try-again-button"
+              data-test="reload-room-button"
               :disabled="loading"
               @click="reload"
               :loading="loading"

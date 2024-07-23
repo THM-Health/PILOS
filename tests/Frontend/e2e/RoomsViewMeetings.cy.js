@@ -572,15 +572,9 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting access code errors', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { // ToDo improve (Maybe move outside)
-      statusCode: 200,
-      body: {
-        data: [],
-        meta: {
-          from: null
-        }
-      }
-    });
+
+    cy.interceptRoomFilesRequest();
+
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
@@ -707,8 +701,9 @@ describe('Rooms view meetings', function () {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
-    // Check if error message is shown and close it ToDo error message under access code
+    // Check if error message is shown and close it
     cy.get('.p-toast').should('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
 
     // Intercept room request for reload (after entering access code)
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -799,8 +794,9 @@ describe('Rooms view meetings', function () {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
-    // Check if error message is shown ToDo error message under access code
-    cy.get('.p-toast').should('have.text', 'rooms.flash.access_code_invalid');
+    // Check if error message is shown
+    cy.get('.p-toast').should('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
   });
 
   it('join running meeting token', function () {
@@ -1029,7 +1025,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     // Reload room
-    cy.get('[data-test="try-again-button"]').click();
+    cy.get('[data-test="reload-room-button"]').click();
 
     cy.wait('@roomRequest');
 
@@ -1102,14 +1098,14 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Intercept reload request
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('reloadRequest');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {fixture: 'exampleRoom.json'}).as('roomRequest');
 
     // Try to join meeting
     cy.get('[data-test=room-join-button]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@joinRequest');
-    cy.wait('@reloadRequest');
+    cy.wait('@roomRequest');
 
     // Check if error message is shown and button has switched to start room
     cy.get('.p-toast').should('be.visible').and('have.text', 'app.errors.not_running');
@@ -1643,15 +1639,7 @@ describe('Rooms view meetings', function () {
 
   it('start meeting access code errors', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { // ToDo improve (Maybe move outside)
-      statusCode: 200,
-      body: {
-        data: [],
-        meta: {
-          from: null
-        }
-      }
-    });
+    cy.interceptRoomFilesRequest();
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
@@ -1778,8 +1766,9 @@ describe('Rooms view meetings', function () {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
-    // Check if error message is shown and close it ToDo error message under access code
+    // Check if error message is shown and close it
     cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
 
     // Intercept room request for reload (after entering access code)
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -1870,8 +1859,9 @@ describe('Rooms view meetings', function () {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
-    // Check if error message is shown ToDo error message under access code
-    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid');
+    // Check if error message is shown
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
   });
 
   it('start meeting token', function () {
@@ -2100,7 +2090,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     // Reload room
-    cy.get('[data-test="try-again-button"]').click();
+    cy.get('[data-test="reload-room-button"]').click();
 
     cy.wait('@roomRequest');
 
@@ -2155,13 +2145,204 @@ describe('Rooms view meetings', function () {
 
     cy.wait('@startRequest');
 
+    // Check that room join dialog is closed
+    cy.get('[data-test=room-join-dialog]').should('not.exist');
     // Check if error message is shown and close it
     cy.get('.p-toast')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
       .find('button').click();
-  });
 
-  // ToDo already running, start forbidden
+    // Test start forbidden
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 403,
+      body: {
+        message: 'This action is unauthorized.'
+      }
+    }).as('startRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: false,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    // Try to start meeting
+    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@startRequest');
+    cy.wait('@roomRequest');
+
+    // Check that room join dialog is closed
+    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    // Check if error message is shown and close it
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('include.text', 'rooms.flash.start_forbidden')
+      .find('button').eq(0).click();
+
+    // Check that start room button does not exist anymore
+    cy.get('[data-test=room-start-button]').should('not.exist');
+    cy.contains('rooms.not_running').should('be.visible');
+
+    // Reload room with permission to start room
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test=reload-room-button]').click();
+
+    cy.wait('@roomRequest');
+
+    // Test room already running
+    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
+      statusCode: 474,
+      body: {
+        message: 'The room could not be started because it is already running.'
+      }
+    }).as('startRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: {start: '2023-08-21 08:18:28:00', end: null},
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test=room-start-button]').click();
+    cy.contains('rooms.not_running').should('not.exist');
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@startRequest');
+    cy.wait('@roomRequest');
+
+    cy.get('[data-test=room-join-button]').should('have.text', 'rooms.join');
+    cy.get('[data-test=room-start-button]').should('not.exist');
+
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      cy.contains('app.errors.room_already_running');
+
+      // Check if join request gets send when clicking on continue button
+      cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
+        statusCode: 200,
+        body: {
+          url: 'https://example.org/?foo=a&bar=b'
+        }
+      }).as('joinRequest');
+
+      cy.get('[data-test="dialog-continue-button"]').click();
+    });
+    cy.wait('@joinRequest');
+
+    // Check if redirect worked
+    cy.origin('https://example.org', () => {
+      cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
+    });
+
+  });
 });

@@ -60,3 +60,15 @@ Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
   cy.visit(path);
   cy.url().should('contain', '/login?redirect=' + path);
 });
+
+Cypress.Commands.add('interceptRoomFilesRequest', () => {
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { // ToDo add fixture
+    statusCode: 200,
+    body: {
+      data: [],
+      meta: {
+        from: null
+      }
+    }
+  });
+});
