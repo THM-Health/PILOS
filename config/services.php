@@ -54,9 +54,7 @@ return [
         'issuer' => env('OIDC_ISSUER'),
         'client_id' => env('OIDC_CLIENT_ID'),
         'client_secret' => env('OIDC_CLIENT_SECRET'),
-        'redirect' => 'auth/oidc/callback',
-        'ttl' => env('OIDC_TTL', 3600),
-        'scopes' => explode(',', env('OIDC_SCOPES', 'email,profile')),
+        'scopes' => explode(',', env('OIDC_SCOPES', 'profile,email')),
         'mapping' => $oidcEnabled ? json_decode(file_get_contents(app_path('Auth/config/oidc_mapping.json'))) : null,
     ],
 ];

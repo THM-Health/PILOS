@@ -11,8 +11,8 @@
         "ext-simplexml": "*",
         "ext-zip": "*",
         "directorytree/ldaprecord-laravel": "^3.0",
-        "firebase/php-jwt": "^6.4",
         "guzzlehttp/guzzle": "^7.0.1",
+        "jumbojett/openid-connect-php": "^1.0",
         "laravel/framework": "^11.0",
         "laravel/horizon": "^5.21",
         "laravel/prompts": "^0.1.13",
@@ -28,7 +28,6 @@
         "spatie/laravel-csp": "^2.9",
         "spatie/laravel-ignition": "^2.0",
         "spatie/laravel-settings": "^3.3",
-        "socialiteproviders/keycloak": "^5.2",
         "symfony/var-exporter": "^7.0"
     },
     "require-dev": {

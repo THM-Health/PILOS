@@ -2,13 +2,11 @@
 
 namespace App\Providers;
 
-use App\Auth\OIDC\OIDCExtendSocialite;
 use App\Listeners\FailedLoginAttempt;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -23,9 +21,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         Failed::class => [
             FailedLoginAttempt::class,
-        ],
-        SocialiteWasCalled::class => [
-            OIDCExtendSocialite::class.'@handle',
         ],
     ];
 

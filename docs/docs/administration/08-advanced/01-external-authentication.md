@@ -126,28 +126,25 @@ To disable the shibboleth session check you can set the following `.env` variabl
 SHIBBOLETH_SESSION_CHECK_ENABLED=false
 ```
 
-### Open-ID Connect
+### OpenID Connect
 
-To enable Open-ID Connect, you need to add/set the following options in the  `.env` file and adjust to your needs.
+To enable OpenID Connect, you need to add/set the following options in the  `.env` file and adjust to your needs.
 
-The required `openid` scope is always present, even if not explicitly set. If you need more scopes to get all required attributes, add them with a comma.
-
-The `OIDC_TTL` option defines the time in seconds how long the metadata is cached for, so that the metadata does not have to be reloaded with every request.
+The required `openid` scope is always present, even if not explicitly set. If you need more scopes to get all required attributes, add them as a comma separated list. The default value for `OIDC_SCOPES` is `profile,email`.
 
 ```
-# Open-ID Connect config
+# OpenID Connect config
 OIDC_ENABLED=true
+OIDC_ISSUER=http://idp.university.org
 OIDC_CLIENT_ID=my_client_id
 OIDC_CLIENT_SECRET=my_client_secret
-OIDC_ISSUER=http://idp.university.org
 OIDC_SCOPES="profile,email"
-OIDC_TTL=3600
 ```
 
 In your IDP you should configure the following:
 
 - Redirect URI: https://your-domain.com/auth/oidc/callback
-- Post Logout URI: https://your-domain.com/logout
+- Post Logout Redirect URI: https://your-domain.com/logout
 - Backchannel Logout URI: https://your-domain.com/auth/oidc/logout
 
 
@@ -160,7 +157,7 @@ The mapping is defined in a JSON file, which is stored in the directory `app/Aut
 |-----------------|-------------------------|
 | LDAP            | ldap_mapping.json       |
 | Shibboleth      | shibboleth_mapping.json |
-| Open-ID Connect | oidc_mapping.json       |
+| OpenID Connect | oidc_mapping.json       |
 
 ### Attribute mapping
 
@@ -321,13 +318,13 @@ The attribute names are the header names in which the attribute values are send 
 }
 ```
 
-####  Open-ID Connect
+####  OpenID Connect
 
 ##### Attributes
-In this example the Open-ID Connect provider returns the claim `preferred_username` which contains the username and an additional claim `roles` with an array of roles.
+In this example the OpenID Connect provider returns the claim `preferred_username` which contains the username and an additional claim `roles` with an array of roles.
 
 ##### Roles
-- The "student" role is assigned to any user who has the "student" role.
+- The "superuser" role is assigned to any user who has the "pilos-superuser" role.
 
 ```json
 {
@@ -340,13 +337,12 @@ In this example the Open-ID Connect provider returns the claim `preferred_userna
     },
     "roles":[
         {
-            "name":"student",
-            "disabled":false,
-            "all":true,
-            "rules":[
+            "name": "superuser",
+            "disabled": false,
+            "rules": [
                 {
-                    "attribute":"roles",
-                    "regex":"/^(student)$/im"
+                    "attribute": "roles",
+                    "regex": "/^pilos-superuser$/im"
                 }
             ]
         }

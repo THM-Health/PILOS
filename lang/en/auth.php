@@ -11,11 +11,8 @@ return [
         'title' => 'Login with Email',
     ],
     'error' => [
-        'invalid_configuration' => 'The configuration of authentication service is incorrect.',
-        'invalid_state' => 'Invalid state.',
         'login_failed' => 'Login failed',
         'missing_attributes' => 'Attributes for authentication are missing.',
-        'network_issue' => 'Unable to connect to the authentication service. Try again later.',
         'reason' => 'Error reason',
         'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
     ],
@@ -41,7 +38,6 @@ return [
     'new_password' => 'New password',
     'new_password_confirmation' => 'New password confirmation',
     'oidc' => [
-        'logout_incomplete' => 'Attention: You are still logged in to OpenID Connect.',
         'redirect' => 'Log in',
         'tab_title' => 'OpenID Connect',
         'title' => 'Log in with OpenID Connect',
