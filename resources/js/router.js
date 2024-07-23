@@ -74,8 +74,7 @@ export const routes = [
     meta: { guestsOnly: true },
     props: route => {
       return {
-        message: route.query.message,
-        incompleteWarning: route.params.incompleteWarning
+        message: route.query.message
       };
     }
   },

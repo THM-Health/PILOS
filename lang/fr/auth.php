@@ -11,11 +11,8 @@ return [
         'title' => 'S\'identifier via son e-mail',
     ],
     'error' => [
-        'invalid_configuration' => 'La configuration du service d\'authentification est incorrecte.',
-        'invalid_state' => 'État non valide',
         'login_failed' => 'Connexion refusée',
         'missing_attributes' => 'Informations d\'identification manquantes.',
-        'network_issue' => 'Impossible de se connecter au service d\'authentification. Réessayez plus tard.',
         'reason' => 'Cause de l\'erreur',
         'shibboleth_session_duplicate_exception' => 'Ces données de session sont en cours d\'utilisation. Veuillez vous connecter à nouveau.',
     ],
@@ -41,7 +38,6 @@ return [
     'new_password' => 'Nouveau mot de passe',
     'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
     'oidc' => [
-        'logout_incomplete' => 'Attention: Vous êtes toujours connecté à OpenID Connect.',
         'redirect' => 'Connexion',
         'tab_title' => 'OpenID Connect',
         'title' => 'Connexion avec OpenID Connect',

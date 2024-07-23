@@ -6,76 +6,46 @@ use App\Auth\MissingAttributeException;
 use App\Http\Controllers\Controller;
 use App\Models\SessionData;
 use Auth;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\InvalidStateException;
+use Illuminate\Support\Facades\Log;
+use Jumbojett\OpenIDConnectClient;
 
 class OIDCController extends Controller
 {
     public function __construct()
     {
         $this->middleware('guest');
+        $this->oidc = new OpenIDConnectClient(
+            config('services.oidc.issuer'),
+            config('services.oidc.client_id'),
+            config('services.oidc.client_secret')
+        );
+        $this->oidc->setRedirectURL(url('/auth/oidc/callback'));
+        $this->oidc->addScope(config('services.oidc.scopes'));
+
+        if (config('app.env') == 'local') {
+            $this->oidc->setHttpUpgradeInsecureRequests(false);
+        }
     }
 
     public function redirect(Request $request)
     {
-        if ($request->get('redirect')) {
-            $request->session()->put('redirect_url', $request->input('redirect'));
-        }
-
-        try {
-            return Socialite::driver('oidc')->redirect();
-        } catch (NetworkIssue $e) {
-            report($e);
-
-            return redirect('/external_login?error=network_issue');
-        } catch (InvalidConfiguration $e) {
-            report($e);
-
-            return redirect('/external_login?error=invalid_configuration');
-        }
-    }
-
-    public function logout(Request $request)
-    {
-        if (isset($_REQUEST['logout_token'])) {
-            $logout_token = $_REQUEST['logout_token'];
-
-            $claims = Socialite::driver('oidc')->getLogoutTokenClaims($logout_token);
-
-            $lookupSessions = SessionData::where('key', 'oidc_sub')->where('value', $claims->sub)->get();
-            foreach ($lookupSessions as $lookupSession) {
-                $lookupSession->session()->delete();
-            }
-        }
+        $this->oidc->authenticate();
     }
 
     public function callback(Request $request)
     {
         try {
-            $oidc_raw_user = Socialite::driver('oidc')->user();
-        } catch (NetworkIssue $e) {
-            report($e);
-
-            return redirect('/external_login?error=network_issue');
-        } catch (InvalidConfiguration $e) {
-            report($e);
-
-            return redirect('/external_login?error=invalid_configuration');
-        } catch (ClientException $e) {
-            report($e);
-
-            return redirect('/external_login?error=invalid_configuration');
-        } catch (InvalidStateException $e) {
-            report($e);
-
-            return redirect('/external_login?error=invalid_state');
+            $this->oidc->authenticate();
+        } catch (OpenIDConnectClientException $e) {
+            Log::error($e);
+            return redirect('/external_login');
         }
 
         // Create new open-id connect user
         try {
-            $oidc_user = new OIDCUser($oidc_raw_user);
+            $user_info = get_object_vars($this->oidc->requestUserInfo());
+            $oidc_user = new OIDCUser($user_info);
         } catch (MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
         }
@@ -93,15 +63,55 @@ class OIDCController extends Controller
         Auth::login($user);
 
         session(['session_data' => [
-            ['key' => 'oidc_sub', 'value' => $oidc_user->getRawAttributes()['sub']],
+            ['key' => 'oidc_sub', 'value' => $user_info['sub']],
         ]]);
 
-        session()->put('oidc_id_token', $oidc_raw_user->accessTokenResponseBody['id_token']);
+        session()->put('oidc_id_token', $this->oidc->getIdToken());
 
         \Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
 
         $url = '/external_login';
 
         return redirect($request->session()->has('redirect_url') ? ($url.'?redirect='.urlencode($request->session()->get('redirect_url'))) : $url);
+    }
+
+    /**
+     * Backchannel logout
+     */
+    public function logout(Request $request)
+    {
+        Log::debug('OIDC backchannel logout handler called');
+
+        if (!$this->oidc->verifyLogoutToken()) {
+            Log::warning('Logout token verification failed');
+            return;
+        }
+
+        $sub = $this->oidc->getSubjectFromBackChannel();
+        if (!isset($sub)) {
+            Log::warning('Getting subject from backchannel failed');
+            return;
+        }
+
+        $lookupSessions = SessionData::where('key', 'oidc_sub')->where('value', $sub)->get();
+        foreach ($lookupSessions as $lookupSession) {
+            $user = $lookupSession->session->user->getLogLabel();
+            Log::info('Deleting session of user {user}', ['user' => $user, 'type' => 'oidc']);
+            $lookupSession->session()->delete();
+        }
+    }
+
+    // FIXME: This is more or less a very ugly reimplementation of
+    //        https://github.com/jumbojett/OpenID-Connect-PHP/blob/master/src/OpenIDConnectClient.php#L436
+    //        without the redirect at the end and with a hard-coded end_session_endpoint.
+    public function logoutRedirectURL()
+    {
+        $issuer = config('services.oidc.issuer');
+        $params = array(
+            'client_id' => config('services.oidc.client_id'),
+            'id_token_hint' => session('oidc_id_token'),
+            'post_logout_redirect_uri' => url('/logout'),
+        );
+        return "$issuer/protocol/openid-connect/logout?".http_build_query($params);
     }
 }

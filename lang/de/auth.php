@@ -12,10 +12,7 @@ return [
     ],
     'error' => [
         'login_failed' => 'Anmeldung fehlgeschlagen',
-        'invalid_configuration' => 'Die Konfiguration des Anmeldedienstes ist fehlerhaft.',
-        'invalid_state' => 'Fehlerhafter Zustand.',
         'missing_attributes' => 'Es fehlen Attribute für die Authentifizierung.',
-        'network_issue' => 'Es konnte keine Verbindung zum Anmeldedienst aufgebaut werden. Versuchen Sie es später erneut.',
         'reason' => 'Fehlergrund',
         'shibboleth_session_duplicate_exception' => 'Die Shibboleth-Session ist bereits in Verwendung. Bitte melden Sie sich erneut an.',
     ],
@@ -41,7 +38,6 @@ return [
     'new_password' => 'Neues Passwort',
     'new_password_confirmation' => 'Neues Passwort bestätigen',
     'oidc' => [
-        'logout_incomplete' => 'Achtung: Sie sind weiterhin bei OpenID Connect angemeldet.',
         'redirect' => 'Anmelden',
         'tab_title' => 'OpenID Connect',
         'title' => 'Mit OpenID Connect anmelden',
