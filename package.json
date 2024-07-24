@@ -52,7 +52,7 @@
         "mitt": "^3.0.1",
         "pinia": "^2.1.7",
         "postcss": "^8.4.38",
-        "primevue": "^4.0.0",
+        "primevue": "^4.0.1",
         "sass": "^1.77.6",
         "tailwindcss": "^3.4.6",
         "tailwindcss-primeui": "^0.3.3",
