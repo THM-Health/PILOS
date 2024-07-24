@@ -871,7 +871,7 @@ class UserTest extends TestCase
         $changes['new_password_confirmation'] = $newPassword;
 
         // Create new sessions in database
-        $currentSession = new Session();
+        $currentSession = new Session;
         $currentSession->id = $this->app['session']->getId();
         $currentSession->user_agent = $this->faker->userAgent;
         $currentSession->ip_address = $this->faker->ipv4;
@@ -880,7 +880,7 @@ class UserTest extends TestCase
         $currentSession->user()->associate($user);
         $currentSession->save();
 
-        $otherSession = new Session();
+        $otherSession = new Session;
         $otherSession->id = \Str::random(40);
         $otherSession->user_agent = $this->faker->userAgent;
         $otherSession->ip_address = $this->faker->ipv4;
@@ -889,7 +889,7 @@ class UserTest extends TestCase
         $otherSession->user()->associate($user);
         $otherSession->save();
 
-        $otherUserSession = new Session();
+        $otherUserSession = new Session;
         $otherUserSession->id = \Str::random(40);
         $otherUserSession->user_agent = $this->faker->userAgent;
         $otherUserSession->ip_address = $this->faker->ipv4;
@@ -975,7 +975,7 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors('new_password');
 
         // Create new sessions in database
-        $adminSession = new Session();
+        $adminSession = new Session;
         $adminSession->id = $this->app['session']->getId();
         $adminSession->user_agent = $this->faker->userAgent;
         $adminSession->ip_address = $this->faker->ipv4;
@@ -984,7 +984,7 @@ class UserTest extends TestCase
         $adminSession->user()->associate($admin);
         $adminSession->save();
 
-        $otherAdminSession = new Session();
+        $otherAdminSession = new Session;
         $otherAdminSession->id = \Str::random(40);
         $otherAdminSession->user_agent = $this->faker->userAgent;
         $otherAdminSession->ip_address = $this->faker->ipv4;
@@ -993,7 +993,7 @@ class UserTest extends TestCase
         $otherAdminSession->user()->associate($admin);
         $otherAdminSession->save();
 
-        $userSession = new Session();
+        $userSession = new Session;
         $userSession->id = \Str::random(40);
         $userSession->user_agent = $this->faker->userAgent;
         $userSession->ip_address = $this->faker->ipv4;
@@ -1002,7 +1002,7 @@ class UserTest extends TestCase
         $userSession->user()->associate($user);
         $userSession->save();
 
-        $otherUserSession = new Session();
+        $otherUserSession = new Session;
         $otherUserSession->id = \Str::random(40);
         $otherUserSession->user_agent = $this->faker->userAgent;
         $otherUserSession->ip_address = $this->faker->ipv4;

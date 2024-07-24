@@ -28,7 +28,7 @@ class PluginServiceProvider extends ServiceProvider
 
                 $pluginClass = "{$namespace}\\{$pluginName}";
 
-                return new $pluginClass();
+                return new $pluginClass;
             });
         }
     }

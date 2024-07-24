@@ -24,7 +24,7 @@ class NewUserRequest extends FormRequest
             'roles' => ['required', 'array'],
             'roles.*' => ['distinct', 'integer', 'exists:App\Models\Role,id'],
             'generate_password' => ['required', 'boolean'],
-            'new_password' => ['required_if:generate_password,false', 'string', 'min:8', 'confirmed', new Password()],
+            'new_password' => ['required_if:generate_password,false', 'string', 'min:8', 'confirmed', new Password],
         ];
     }
 }

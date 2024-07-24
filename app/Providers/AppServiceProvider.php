@@ -25,13 +25,13 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LocaleService::class, function () {
-            return new LocaleService(new Filesystem());
+            return new LocaleService(new Filesystem);
         });
 
         $this->app->singleton(ResolvesUsers::class, Users::class);
 
         $this->app->singleton(RoomAuthService::class, function () {
-            return new RoomAuthService();
+            return new RoomAuthService;
         });
 
         $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);

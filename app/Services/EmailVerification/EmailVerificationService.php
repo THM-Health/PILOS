@@ -95,7 +95,7 @@ class EmailVerificationService
 
         $clearTextToken = Str::random(40);
         $token = Hash::make($clearTextToken);
-        $verifyEmail = new VerifyEmail();
+        $verifyEmail = new VerifyEmail;
         $verifyEmail->user()->associate($this->user);
         $verifyEmail->email = $newEmail;
         $verifyEmail->token = $token;

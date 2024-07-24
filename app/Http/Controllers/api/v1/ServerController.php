@@ -117,7 +117,7 @@ class ServerController extends Controller
      */
     public function store(ServerRequest $request)
     {
-        $server = new Server();
+        $server = new Server;
         $server->name = $request->name;
         $server->description = $request->description;
         $server->base_url = $request->base_url;
@@ -182,7 +182,7 @@ class ServerController extends Controller
         $secretOk = false;
 
         try {
-            $bbb = new BigBlueButton($request->base_url, $request->secret, new LaravelHTTPClient());
+            $bbb = new BigBlueButton($request->base_url, $request->secret, new LaravelHTTPClient);
             $response = $bbb->getMeetings();
 
             if ($response->success()) {

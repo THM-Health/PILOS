@@ -101,7 +101,7 @@ class CreateDemoSystem extends Command
         $seminar = RoomType::where('name', 'Seminar')->first();
 
         // Create rooms
-        $anatomyRoom = new Room();
+        $anatomyRoom = new Room;
         $anatomyRoom->id = 'abc-def-123';
         $anatomyRoom->name = 'Anatomy';
         $anatomyRoom->description = 'Anatomy class';
@@ -110,7 +110,7 @@ class CreateDemoSystem extends Command
         $anatomyRoom->roomType()->associate($lecture);
         $anatomyRoom->save();
 
-        $mathRoom = new Room();
+        $mathRoom = new Room;
         $mathRoom->id = 'abc-def-234';
         $mathRoom->name = 'Math';
         $mathRoom->description = 'Math class';
@@ -120,7 +120,7 @@ class CreateDemoSystem extends Command
         $mathRoom->roomType()->associate($lecture);
         $mathRoom->save();
 
-        $meetingRoom = new Room();
+        $meetingRoom = new Room;
         $meetingRoom->id = 'abc-def-345';
         $meetingRoom->name = 'Meeting Room';
         $meetingRoom->description = 'Meeting room';
@@ -129,7 +129,7 @@ class CreateDemoSystem extends Command
         $meetingRoom->roomType()->associate($meeting);
         $meetingRoom->save();
 
-        $examRoom = new Room();
+        $examRoom = new Room;
         $examRoom->id = 'abc-def-456';
         $examRoom->name = 'Exam Room';
         $examRoom->description = 'Exam room';
@@ -138,7 +138,7 @@ class CreateDemoSystem extends Command
         $examRoom->roomType()->associate($exam);
         $examRoom->save();
 
-        $seminarRoom = new Room();
+        $seminarRoom = new Room;
         $seminarRoom->id = 'abc-def-567';
         $seminarRoom->name = 'Seminar Room';
         $seminarRoom->description = 'Seminar room';
@@ -159,7 +159,7 @@ class CreateDemoSystem extends Command
         $seminarRoom->members()->attach($thomas, ['role' => RoomUserRole::MODERATOR]);
 
         // Add files to room
-        $introduction = new RoomFile();
+        $introduction = new RoomFile;
         $introduction->path = 'abc-def-123/anatomy-introduction.pdf';
         $introduction->filename = 'anatomy-introduction.pdf';
         $introduction->download = true;
@@ -168,7 +168,7 @@ class CreateDemoSystem extends Command
         $introduction->room()->associate($anatomyRoom);
         $introduction->save();
 
-        $foot = new RoomFile();
+        $foot = new RoomFile;
         $foot->path = 'abc-def-123/anatomy-foot.pdf';
         $foot->filename = 'anatomy-foot.pdf';
         $foot->download = false;
@@ -178,7 +178,7 @@ class CreateDemoSystem extends Command
         $foot->save();
 
         // Add meetings to rooms
-        $meeting = new Meeting();
+        $meeting = new Meeting;
         $meeting->start = '2021-01-01 10:00:00';
         $meeting->end = '2021-01-01 11:00:00';
         $meeting->room()->associate($meetingRoom);
@@ -188,7 +188,7 @@ class CreateDemoSystem extends Command
         $meetingRoom->save();
 
         // Add meetings to rooms
-        $meeting = new Meeting();
+        $meeting = new Meeting;
         $meeting->start = '2024-01-01 10:00:00';
         $meeting->end = '2024-01-01 11:00:00';
         $meeting->room()->associate($anatomyRoom);
@@ -201,7 +201,7 @@ class CreateDemoSystem extends Command
         $anatomyRoom->video_count = 1;
         $anatomyRoom->save();
 
-        $meeting = new Meeting();
+        $meeting = new Meeting;
         $meeting->start = '2024-01-01 10:00:00';
         $meeting->end = '2024-01-01 12:00:00';
         $meeting->room()->associate($mathRoom);
@@ -214,7 +214,7 @@ class CreateDemoSystem extends Command
         $mathRoom->video_count = 1;
         $mathRoom->save();
 
-        $meeting = new Meeting();
+        $meeting = new Meeting;
         $meeting->start = '2024-01-01 08:00:00';
         $meeting->end = null;
         $meeting->room()->associate($meetingRoom);

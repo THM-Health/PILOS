@@ -65,7 +65,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $seeder = new RoomTypeSeeder();
+        $seeder = new RoomTypeSeeder;
         $seeder->run();
     }
 

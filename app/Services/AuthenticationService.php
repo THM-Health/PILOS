@@ -38,7 +38,7 @@ class AuthenticationService
 
         event(new PasswordReset($this->user));
 
-        $this->user->notify(new PasswordChanged());
+        $this->user->notify(new PasswordChanged);
 
         // If session id provided, keep session alive, otherwise logout all sessions of the user
         if ($session) {

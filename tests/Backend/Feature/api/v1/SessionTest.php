@@ -29,7 +29,7 @@ class SessionTest extends TestCase
         $this->otherUser = User::factory()->create();
 
         // Create sessions in database
-        $this->currentSession = new Session();
+        $this->currentSession = new Session;
         $this->currentSession->id = $this->app['session']->getId();
         $this->currentSession->user_agent = 'Agent 1';
         $this->currentSession->ip_address = $this->faker->ipv4;
@@ -38,7 +38,7 @@ class SessionTest extends TestCase
         $this->currentSession->user()->associate($this->user);
         $this->currentSession->save();
 
-        $this->otherSession = new Session();
+        $this->otherSession = new Session;
         $this->otherSession->id = \Str::random(40);
         $this->otherSession->user_agent = 'Agent 2';
         $this->otherSession->ip_address = $this->faker->ipv4;
@@ -47,7 +47,7 @@ class SessionTest extends TestCase
         $this->otherSession->user()->associate($this->user);
         $this->otherSession->save();
 
-        $this->otherUserSession = new Session();
+        $this->otherUserSession = new Session;
         $this->otherUserSession->id = \Str::random(40);
         $this->otherUserSession->user_agent = 'Agent 3';
         $this->otherUserSession->ip_address = $this->faker->ipv4;
