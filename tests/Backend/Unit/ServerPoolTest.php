@@ -36,7 +36,7 @@ class ServerPoolTest extends TestCase
 
         $serverPool = ServerPool::factory()->create();
         $serverPool->servers()->sync([$unhealthy->id, $offline->id, $draining->id, $disabled->id, $offline->id, $lightUsage->id, $heavyUsage->id]);
-        $loadBalancingService = new LoadBalancingService();
+        $loadBalancingService = new LoadBalancingService;
         $loadBalancingService->setServerPool($serverPool);
 
         // Check basic load balancing

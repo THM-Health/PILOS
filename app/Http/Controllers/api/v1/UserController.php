@@ -109,7 +109,7 @@ class UserController extends Controller
      */
     public function store(NewUserRequest $request)
     {
-        $user = new User();
+        $user = new User;
 
         $user->firstname = $request->firstname;
         $user->lastname = $request->lastname;

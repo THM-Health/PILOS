@@ -29,7 +29,7 @@ class ServerService
     public function __construct(Server $server)
     {
         $this->server = $server;
-        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient());
+        $this->bbb = new BigBlueButton($server->base_url, $server->secret, new LaravelHTTPClient);
         $this->loadCalculationPlugin = app(ServerLoadCalculationPluginContract::class);
     }
 
@@ -187,7 +187,7 @@ class ServerService
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
         $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start');
-        $allRunningMeetingsOnServers = new Collection();
+        $allRunningMeetingsOnServers = new Collection;
 
         $bbbMeetings = $this->getMeetings();
 
@@ -196,7 +196,7 @@ class ServerService
             $this->handleApiCallFailed();
             // Add server statistics if enabled
             if ($updateServerStatistics) {
-                $serverStat = new ServerStat();
+                $serverStat = new ServerStat;
                 $this->server->stats()->save($serverStat);
             }
 
@@ -230,7 +230,7 @@ class ServerService
         }
 
         // Server is online
-        $serverStat = new ServerStat();
+        $serverStat = new ServerStat;
         $serverStat->participant_count = 0;
         $serverStat->listener_count = 0;
         $serverStat->voice_participant_count = 0;
@@ -261,7 +261,7 @@ class ServerService
             }
 
             // Save current live room status and build archival data
-            $meetingStat = new MeetingStat();
+            $meetingStat = new MeetingStat;
             $meeting->room->participant_count = $meetingStat->participant_count = $bbbMeeting->getParticipantCount();
             $meeting->room->listener_count = $meetingStat->listener_count = $bbbMeeting->getListenerCount();
             $meeting->room->voice_participant_count = $meetingStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();

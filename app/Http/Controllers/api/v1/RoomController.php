@@ -160,7 +160,7 @@ class RoomController extends Controller
             abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED->value, __('app.errors.room_limit_exceeded'));
         }
 
-        $room = new Room();
+        $room = new Room;
         $room->name = $request->name;
         $room->roomType()->associate($request->room_type);
         $room->owner()->associate(Auth::user());

@@ -13,7 +13,7 @@ class ShibbolethServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ShibbolethProvider::class, function (Application $app) {
-            return new ShibbolethProvider();
+            return new ShibbolethProvider;
         });
     }
 }

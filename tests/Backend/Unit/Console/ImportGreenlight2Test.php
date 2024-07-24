@@ -142,7 +142,7 @@ class ImportGreenlight2Test extends TestCase
         $password = Hash::make('secret');
 
         // create user that exists before import
-        $existingUser = new User();
+        $existingUser = new User;
         $existingUser->firstname = 'John';
         $existingUser->lastname = 'Doe';
         $existingUser->email = 'john.doe@domain.tld';
@@ -150,7 +150,7 @@ class ImportGreenlight2Test extends TestCase
         $existingUser->save();
 
         // create ldap user that exists before import
-        $existingLdapUser = new User();
+        $existingLdapUser = new User;
         $existingLdapUser->authenticator = 'ldap';
         $existingLdapUser->external_id = 'djohn';
         $existingLdapUser->firstname = 'John';
@@ -160,7 +160,7 @@ class ImportGreenlight2Test extends TestCase
         $existingLdapUser->save();
 
         // create shibboleth user that exists before import
-        $existingLdapUser = new User();
+        $existingLdapUser = new User;
         $existingLdapUser->authenticator = 'shibboleth';
         $existingLdapUser->external_id = 'djohn';
         $existingLdapUser->firstname = 'John';
@@ -170,7 +170,7 @@ class ImportGreenlight2Test extends TestCase
         $existingLdapUser->save();
 
         // create room that exists before import
-        $existingRoom = new Room();
+        $existingRoom = new Room;
         $existingRoom->name = 'Existing room 1';
         $existingRoom->roomType()->associate(RoomType::all()->first());
         $existingRoom->owner()->associate($existingUser);

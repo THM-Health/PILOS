@@ -16,7 +16,7 @@ return new class extends Migration
             $table->renameColumn('description', 'name');
         });
 
-        $seeder = new RoomTypeSeeder();
+        $seeder = new RoomTypeSeeder;
         $seeder->run();
     }
 

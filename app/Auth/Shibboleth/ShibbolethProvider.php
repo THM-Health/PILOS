@@ -109,7 +109,7 @@ class ShibbolethProvider
         if ($lookupSessions->isNotEmpty() || Cache::has($cacheKey)) {
             Log::notice('Prevented login attempt with duplicate shibboleth session');
 
-            throw new ShibbolethSessionDuplicateException();
+            throw new ShibbolethSessionDuplicateException;
         }
 
         // Login the user / start application session

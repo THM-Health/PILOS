@@ -84,7 +84,7 @@ class RoomFileController extends Controller
         $name = $request->file('file')->getClientOriginalName();
         $path = $request->file('file')->store($room->id);
 
-        $file = new RoomFile();
+        $file = new RoomFile;
         $file->path = $path;
         $file->filename = $name;
         $room->files()->save($file);

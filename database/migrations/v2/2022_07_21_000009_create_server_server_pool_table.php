@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('server_id')->constrained()->onDelete('cascade');
             $table->foreignId('server_pool_id')->constrained()->onDelete('cascade');
         });
-        $seeder = new ServerPoolSeeder();
+        $seeder = new ServerPoolSeeder;
         $seeder->run();
     }
 

@@ -17,7 +17,7 @@ class ApplicationController extends Controller
      */
     public function config()
     {
-        return new Config();
+        return new Config;
     }
 
     /**

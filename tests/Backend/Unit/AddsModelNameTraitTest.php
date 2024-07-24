@@ -20,7 +20,7 @@ class AddsModelNameTraitTest extends TestCase
      */
     public function testGetModelNameAttribute()
     {
-        $object = new FooBarQux();
+        $object = new FooBarQux;
         $this->assertEquals('FooBarQux', $object->getModelNameAttribute());
     }
 }

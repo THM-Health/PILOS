@@ -20,14 +20,14 @@ class CleanupAttendanceTest extends TestCase
         // Create fake data
         $meeting = Meeting::factory()->create();
 
-        $meetingAttendee1 = new MeetingAttendee();
+        $meetingAttendee1 = new MeetingAttendee;
         $meetingAttendee1->meeting()->associate($meeting);
         $meetingAttendee1->name = 'John Doe';
         $meetingAttendee1->session_id = 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb';
         $meetingAttendee1->join = now();
         $meetingAttendee1->save();
 
-        $meetingAttendee2 = new MeetingAttendee();
+        $meetingAttendee2 = new MeetingAttendee;
         $meetingAttendee2->meeting()->associate($meeting);
         $meetingAttendee2->name = 'John Doe';
         $meetingAttendee2->session_id = 'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb';

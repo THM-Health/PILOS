@@ -76,7 +76,7 @@ class CreateSuperuserCommand extends Command
         $data['roles'] = [$superuserRole->id];
         $data['timezone'] = 'UTC';
 
-        $validator = Validator::make($data, (new UserRequest())->rules());
+        $validator = Validator::make($data, (new UserRequest)->rules());
 
         if ($validator->fails()) {
             $this->info('Something went wrong, please see the error messages below for more information.');
@@ -88,7 +88,7 @@ class CreateSuperuserCommand extends Command
             return 1;
         }
 
-        $user = new User();
+        $user = new User;
 
         $user->firstname = $data['firstname'];
         $user->lastname = $data['lastname'];

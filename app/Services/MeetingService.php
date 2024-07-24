@@ -291,7 +291,7 @@ class MeetingService
                         $meetingAttendee = MeetingAttendee::where('meeting_id', $this->meeting->id)->where('user_id', $id)->whereNull('leave')->orderBy('join')->first();
                         // if no previous currently active attendance found in database, create new attendance
                         if ($meetingAttendee == null) {
-                            $meetingAttendee = new MeetingAttendee();
+                            $meetingAttendee = new MeetingAttendee;
                             $meetingAttendee->meeting()->associate($this->meeting);
                             $meetingAttendee->user()->associate($user);
                             $meetingAttendee->join = now();
@@ -310,7 +310,7 @@ class MeetingService
                     $meetingAttendee = MeetingAttendee::where('meeting_id', $this->meeting->id)->where('session_id', $id)->whereNull('leave')->orderBy('join')->first();
                     // if no previous currently active attendance found in database, create new attendance
                     if ($meetingAttendee == null) {
-                        $meetingAttendee = new MeetingAttendee();
+                        $meetingAttendee = new MeetingAttendee;
                         $meetingAttendee->meeting()->associate($this->meeting);
                         $meetingAttendee->name = $attendee->getFullName();
                         $meetingAttendee->session_id = $id;

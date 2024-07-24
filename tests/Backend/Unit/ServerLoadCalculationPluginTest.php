@@ -30,7 +30,7 @@ class ServerLoadCalculationPluginTest extends TestCase
 
         $this->travelTo(Carbon::createFromTimestampMsUTC($getMeetingsResponse->getMeetings()[1]->getCreationTime())->addMinute());
 
-        $load = (new ServerLoadCalculationPlugin())->getLoad($getMeetingsResponse->getMeetings());
+        $load = (new ServerLoadCalculationPlugin)->getLoad($getMeetingsResponse->getMeetings());
         $this->assertEquals(14, $load);
     }
 
@@ -51,7 +51,7 @@ class ServerLoadCalculationPluginTest extends TestCase
 
         $this->travelTo(Carbon::createFromTimestampMsUTC($getMeetingsResponse->getMeetings()[0]->getCreationTime())->addMinute());
 
-        $load = (new ServerLoadCalculationPlugin())->getLoad($getMeetingsResponse->getMeetings());
+        $load = (new ServerLoadCalculationPlugin)->getLoad($getMeetingsResponse->getMeetings());
         $this->assertEquals(6, $load);
     }
 
@@ -72,7 +72,7 @@ class ServerLoadCalculationPluginTest extends TestCase
 
         $this->travelTo(Carbon::createFromTimestampMsUTC($getMeetingsResponse->getMeetings()[0]->getCreationTime())->addMinute());
 
-        $load = (new ServerLoadCalculationPlugin())->getLoad($getMeetingsResponse->getMeetings());
+        $load = (new ServerLoadCalculationPlugin)->getLoad($getMeetingsResponse->getMeetings());
         $this->assertEquals(20, $load);
 
     }
@@ -93,7 +93,7 @@ class ServerLoadCalculationPluginTest extends TestCase
 
         $this->travelTo(Carbon::createFromTimestampMsUTC($getMeetingsResponse->getMeetings()[0]->getCreationTime())->addMinute());
 
-        $load = (new ServerLoadCalculationPlugin())->getLoad($getMeetingsResponse->getMeetings());
+        $load = (new ServerLoadCalculationPlugin)->getLoad($getMeetingsResponse->getMeetings());
         $this->assertEquals(10, $load);
 
     }

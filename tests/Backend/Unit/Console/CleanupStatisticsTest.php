@@ -25,7 +25,7 @@ class CleanupStatisticsTest extends TestCase
         $server = Server::factory()->create();
         $meeting = Meeting::factory()->create();
 
-        $serverStat1 = new ServerStat();
+        $serverStat1 = new ServerStat;
         $serverStat1->created_at = now()->subDays(8)->toDateString();
         $serverStat1->participant_count = 5;
         $serverStat1->listener_count = 5;
@@ -34,7 +34,7 @@ class CleanupStatisticsTest extends TestCase
         $serverStat1->meeting_count = 5;
         $server->stats()->save($serverStat1);
 
-        $serverStat2 = new ServerStat();
+        $serverStat2 = new ServerStat;
         $serverStat2->participant_count = 1;
         $serverStat2->listener_count = 1;
         $serverStat2->voice_participant_count = 1;
@@ -42,7 +42,7 @@ class CleanupStatisticsTest extends TestCase
         $serverStat2->meeting_count = 1;
         $server->stats()->save($serverStat2);
 
-        $meetingStat1 = new MeetingStat();
+        $meetingStat1 = new MeetingStat;
         $meetingStat1->created_at = now()->subDays(15)->toDateString();
         $meetingStat1->participant_count = 5;
         $meetingStat1->listener_count = 5;
@@ -50,7 +50,7 @@ class CleanupStatisticsTest extends TestCase
         $meetingStat1->video_count = 5;
         $meeting->stats()->save($meetingStat1);
 
-        $meetingStat2 = new MeetingStat();
+        $meetingStat2 = new MeetingStat;
         $meetingStat2->participant_count = 1;
         $meetingStat2->listener_count = 1;
         $meetingStat2->voice_participant_count = 1;

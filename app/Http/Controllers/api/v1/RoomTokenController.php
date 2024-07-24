@@ -87,7 +87,7 @@ class RoomTokenController extends Controller
      */
     public function store(Room $room, RoomTokenRequest $request)
     {
-        $token = new RoomToken();
+        $token = new RoomToken;
         $token->firstname = $request->firstname;
         $token->lastname = $request->lastname;
         $token->role = $request->role;
