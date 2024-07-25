@@ -1,6 +1,39 @@
 <?php
 
 return [
+    'breakcrumbs' => [
+        'roles' => [
+            'edit' => 'Modifier :name',
+            'index' => 'Rôles',
+            'new' => 'Nouveau',
+            'view' => ':name',
+        ],
+        'room_types' => [
+            'edit' => 'Modifier :name',
+            'index' => 'Types de salle',
+            'new' => 'Nouveau',
+            'view' => ':name',
+        ],
+        'server_pools' => [
+            'edit' => 'Modifier :name',
+            'index' => 'Groupes de serveurs',
+            'new' => 'Nouveau',
+            'view' => ':name',
+        ],
+        'servers' => [
+            'edit' => 'Modifier :name',
+            'index' => 'Serveur',
+            'new' => 'Nouveau',
+            'view' => ':name',
+        ],
+        'settings' => 'Paramètres',
+        'users' => [
+            'edit' => 'Modifier :firstname :lastname',
+            'index' => 'Utilisateurs',
+            'new' => 'Nouveau',
+            'view' => ':firstname :lastname',
+        ],
+    ],
     'home_button' => 'Retour à l\'aperçu',
     'overview' => 'Aperçu',
     'overview_description' => 'Ici, vous pouvez gérer les paramètres de l\'application. Veuillez sélectionner l\'un des éléments de menu à gauche pour ajuster les paramètres.',
@@ -15,6 +48,8 @@ return [
         'has_included_permission' => 'La permission ":name" a été explicitement sélectionnée ou est incluse dans une autre permission sélectionnée.',
         'has_not_included_permission' => 'La permission ":name" n\'a pas été explicitement sélectionnée et n\'est pas incluse dans une autre permission sélectionnée.',
         'new' => 'Créer un nouveau rôle',
+        'no_data' => 'Aucun rôle existant !',
+        'no_data_filtered' => 'Aucun rôle existant avec ces filtres de recherche !',
         'no_options' => 'Aucune permission trouvée !',
         'permission_explicit' => 'Explicite',
         'permission_included' => 'Inclus',
@@ -71,6 +106,10 @@ return [
                 'update' => 'Modifier les paramètres',
                 'view_any' => 'Voir tous les paramètres',
             ],
+            'system' => [
+                'monitor' => 'Surveillance',
+                'title' => 'Système',
+            ],
             'users' => [
                 'create' => 'Créer des utilisateurs',
                 'delete' => 'Supprimer des utilisateurs',
@@ -99,8 +138,18 @@ return [
         'view' => 'Informations détaillées pour le rôle :name',
     ],
     'room_types' => [
+        'bbb_api' => [
+            'create_parameters' => 'Paramètres supplémentaires pour l\'API de création',
+            'create_parameters_description' => 'Saisir des paires de clefs-valeurs (une par line, sans espace), ex: webcamsOnlyForModerator=true',
+            'title' => 'API BigBlueButton',
+        ],
         'color' => 'Couleur',
         'custom_color' => 'Couleur personnalisée',
+        'default_room_settings' => [
+            'default' => 'Défaut',
+            'enforced' => 'Vérouiller',
+            'title' => 'Paramètres par défaut de la salle',
+        ],
         'delete' => [
             'confirm' => 'Voulez-vous vraiment supprimer le type de salle :name?',
             'item' => 'Supprimer le type de salle :id',
@@ -110,8 +159,12 @@ return [
             'title' => 'Supprimer ce type de salle ?',
         ],
         'edit' => 'Modifier le type de salle :name',
+        'max_duration' => 'Durée maximum',
+        'max_participants' => 'Nombre maximum de participants',
+        'missing_description' => 'Aucune description disponible !',
         'new' => 'Créer un nouveau type de salle',
         'no_data' => 'Aucun type de salle trouvé!',
+        'no_data_filtered' => 'Aucune salle existante avec ces filtres de recherche !',
         'preview' => 'Aperçu',
         'restrict' => 'Restreindre l\'utilisation',
         'restrict_description' => 'L\'utilisation de ce type de salle et des serveurs correspondants sera limitée aux rôles sélectionnés.',
@@ -140,6 +193,7 @@ return [
     ],
     'servers' => [
         'base_url' => 'URL de l\'API',
+        'connection' => 'Connexion',
         'current_usage' => 'Utilisation actuelle',
         'delete' => [
             'confirm' => 'Voulez-vous vraiment supprimer le serveur :name?',
@@ -148,7 +202,9 @@ return [
         ],
         'disabled' => 'Désactivé',
         'disabled_description' => 'Les réunions en cours ne seront pas arrêtées si le serveur est désactivé, mais aucune nouvelle réunion n\'utilisera ce serveur',
+        'draining' => 'Évacuation',
         'edit' => 'Modifier le serveur :name',
+        'enabled' => 'Activé',
         'flash' => [
             'panic' => [
                 'description' => ':total réunions trouvées et :success ont été correctement arrêtées.',
@@ -181,6 +237,7 @@ return [
         'strength_description' => 'Facteur d\'équilibrage de charge, plus le facteur est élevé, plus le serveur peut gérer de participants et de réunions',
         'test_connection' => 'Test de connexion',
         'tile_description' => 'Les serveurs fournissent l\'infrastructure BBB pour les réunions.',
+        'unhealthy' => 'Défectueux',
         'unknown' => 'Inconnu',
         'usage_info' => 'L\'utilisation (réunions, participants, vidéos) contient également des réunions qui sont gérées par d\'autres systèmes.',
         'version' => 'Version',
@@ -188,6 +245,7 @@ return [
         'view' => 'Informations détaillées du serveur :name',
     ],
     'settings' => [
+        'application' => 'Application',
         'attendance' => [
             'retention_period_title' => 'Nombre de jours de conservation de la journalisation des présences',
         ],
@@ -204,6 +262,7 @@ return [
             'link_target' => 'Cible du lien',
             'link_text' => 'Texte du lien',
             'message' => 'Message',
+            'preview' => 'Prévisualiser',
             'select_link_style' => 'Choisir le style du lien',
             'select_link_target' => 'Choisir la cible du lien',
             'title' => 'Bannière pour les messages',
@@ -232,6 +291,14 @@ return [
             'upload_title' => 'Télécharger le favicon (max. 500 Ko, Format: .ico)',
             'url_title' => 'URL du fichier favicon',
         ],
+        'favicon_dark' => [
+            'alt' => 'Prévisualiser le favicon du mode sombre',
+            'hint' => 'https://domaine.tld/chemin/favicon.ico',
+            'select_file' => 'Sélectionner le fichier favicon du mode sombre',
+            'title' => 'Favicon en mode sombre',
+            'upload_title' => 'Envoyer un favicon (max. 500 Ko, Format: .ico)',
+            'url_title' => 'URL vers le fichier favicon du mode sombre',
+        ],
         'help_url' => [
             'description' => 'Le bouton d\'aide s\'affichera que si une page d\'aide y est associée.',
             'title' => 'URL de la page d\'aide',
@@ -247,6 +314,14 @@ return [
             'title' => 'Logo',
             'upload_title' => 'Télécharger le logo (max. 500 Ko)',
             'url_title' => 'URL du logo',
+        ],
+        'logo_dark' => [
+            'alt' => 'Prévisualiser le logo du mode sombre',
+            'hint' => 'https://domaine.tld/chemin/logo.svg',
+            'select_file' => 'Sélectionner le fichier logo du mode sombre',
+            'title' => 'Logo du mode sombre',
+            'upload_title' => 'Envoyer le logo du mode sombre (max. 500 Ko)',
+            'url_title' => 'URL vers le logo du mode sombre',
         ],
         'name' => [
             'description' => 'Changer le titre du site',
@@ -266,6 +341,9 @@ return [
             'description' => 'Le lien vers la page de la politique de confidentialité ne sera affiché que si une URL lui est assignée.',
             'title' => 'URL vers la politique de confidentialité',
         ],
+        'recording' => [
+            'retention_period_title' => 'Nombre de jours de conservation des enregistrements',
+        ],
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Délai entre l\'envoi de l\'email d\'information et la suppression',
@@ -284,6 +362,7 @@ return [
             ],
         ],
         'room_limit' => [
+            'description' => 'Limiter le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre est écraser par les limites spécifiques d\'un groupe.',
             'title' => 'Nombre de salles par utilisateur',
         ],
         'room_token_expiration' => [
@@ -301,9 +380,20 @@ return [
                 'retention_period_title' => 'Durée de conservation de la journalisation d\'usage du serveur',
             ],
         ],
+        'theme' => [
+            'custom_color' => 'Couleur personnalisée',
+            'primary_color' => 'Couleur principale',
+            'rounded' => 'Coins arrondis',
+            'title' => 'Thème',
+        ],
         'three_month' => '3 mois (90 jours)',
         'tile_description' => 'Paramètres systèmes tels que le logo, la bannière de maintenance et la pagination des pages.',
         'title' => 'Paramètres',
+        'toast_lifetime' => [
+            'custom' => 'Personnalisé',
+            'description' => 'Nombre de secondes d\'affichage d\'une notification',
+            'title' => 'Durée d\'affichage des messages pop-up',
+        ],
         'two_weeks' => '2 semaines (14 jours)',
         'two_years' => '2 ans (730 jours)',
         'user_settings' => 'Paramètres utilisateur',
