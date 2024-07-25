@@ -101,17 +101,20 @@ class OIDCController extends Controller
         }
     }
 
-    // FIXME: This is more or less a very ugly reimplementation of
-    //        https://github.com/jumbojett/OpenID-Connect-PHP/blob/master/src/OpenIDConnectClient.php#L436
-    //        without the redirect at the end and with a hard-coded end_session_endpoint.
-    public function logoutRedirectURL()
+    /**
+     * Frontchannel logout
+     */
+    public function signout(Request $request)
     {
-        $issuer = config('services.oidc.issuer');
-        $params = array(
-            'client_id' => config('services.oidc.client_id'),
-            'id_token_hint' => session('oidc_id_token'),
-            'post_logout_redirect_uri' => url('/logout'),
-        );
-        return "$issuer/protocol/openid-connect/logout?".http_build_query($params);
+        $this->oidc->signOut($request['id_token'], $request['logout_url']);
+    }
+
+    public function signoutRedirectURL(string $logout_url)
+    {
+        $params = [
+            'id_token' => session('oidc_id_token'),
+            'logout_url' => $logout_url,
+        ];
+        return route('auth.oidc.signout', $params);
     }
 }

@@ -72,7 +72,7 @@ class LoginController extends Controller
                 $redirect = app(ShibbolethProvider::class)->logout(url('/logout'));
                 break;
             case 'oidc':
-                $redirect = app(OIDCController::class)->logoutRedirectURL();
+                $redirect = app(OIDCController::class)->signoutRedirectURL(url('/logout'));
                 break;
         }
 

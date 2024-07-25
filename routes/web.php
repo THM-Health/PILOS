@@ -35,6 +35,7 @@ Route::middleware('enable_if_config:services.oidc.enabled')->group(function () {
     Route::get('auth/oidc/redirect', [OIDCController::class, 'redirect'])->name('auth.oidc.redirect');
     Route::get('auth/oidc/callback', [OIDCController::class, 'callback'])->name('auth.oidc.callback');
     Route::match(['get', 'post'], 'auth/oidc/logout', [OIDCController::class, 'logout'])->name('auth.oidc.logout');
+    Route::get('auth/oidc/signout', [OIDCController::class, 'signout'])->name('auth.oidc.signout');
 });
 
 if (config('greenlight.compatibility')) {
