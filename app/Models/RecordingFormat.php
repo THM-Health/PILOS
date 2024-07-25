@@ -60,7 +60,7 @@ class RecordingFormat extends Model
         // Check if the recording already exists, if not create recording
         $recording = Recording::where('id', $recordingId)->first();
         if ($recording == null) {
-            $recording = new Recording();
+            $recording = new Recording;
             $recording->id = $recordingId;
             $recording->description = $meetingName;
             $recording->start = $start;

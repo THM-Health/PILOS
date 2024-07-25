@@ -19,7 +19,7 @@ class ExternalUserTest extends TestCase
     {
         parent::setUp();
 
-        Log::swap(new LogFake());
+        Log::swap(new LogFake);
     }
 
     public function testMissingExternalIdAttributes()

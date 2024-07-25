@@ -112,7 +112,7 @@ class ResetPasswordTest extends TestCase
         Auth::logout();
 
         // Create sessions in database
-        $this->session = new Session();
+        $this->session = new Session;
         $this->session->id = \Str::random(40);
         $this->session->user_agent = 'Agent 1';
         $this->session->ip_address = $this->faker->ipv4;
@@ -121,7 +121,7 @@ class ResetPasswordTest extends TestCase
         $this->session->user()->associate($newUser);
         $this->session->save();
 
-        $this->otherSession = new Session();
+        $this->otherSession = new Session;
         $this->otherSession->id = \Str::random(40);
         $this->otherSession->user_agent = 'Agent 2';
         $this->otherSession->ip_address = $this->faker->ipv4;
@@ -130,7 +130,7 @@ class ResetPasswordTest extends TestCase
         $this->otherSession->user()->associate($newUser);
         $this->otherSession->save();
 
-        $this->otherUserSession = new Session();
+        $this->otherUserSession = new Session;
         $this->otherUserSession->id = \Str::random(40);
         $this->otherUserSession->user_agent = 'Agent 3';
         $this->otherUserSession->ip_address = $this->faker->ipv4;

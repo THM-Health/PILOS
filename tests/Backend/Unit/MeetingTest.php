@@ -30,7 +30,7 @@ class MeetingTest extends TestCase
 
         // Create room and meeting
         $room = Room::factory()->create(['access_code' => 123456789]);
-        $this->meeting = new Meeting();
+        $this->meeting = new Meeting;
         $this->meeting->room()->associate($room);
         $this->meeting->save();
     }
@@ -194,26 +194,26 @@ class MeetingTest extends TestCase
 
         Storage::fake('local');
 
-        $file1 = new RoomFile();
+        $file1 = new RoomFile;
         $file1->path = UploadedFile::fake()->image('file1.pdf')->store($meeting->room->id);
         $file1->filename = 'file1';
         $file1->use_in_meeting = true;
         $meeting->room->files()->save($file1);
 
-        $file2 = new RoomFile();
+        $file2 = new RoomFile;
         $file2->path = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
         $file2->filename = 'file2';
         $file2->use_in_meeting = true;
         $file2->default = true;
         $meeting->room->files()->save($file2);
 
-        $file3 = new RoomFile();
+        $file3 = new RoomFile;
         $file3->path = UploadedFile::fake()->image('file3.pdf')->store($meeting->room->id);
         $file3->filename = 'file3';
         $file3->use_in_meeting = true;
         $meeting->room->files()->save($file3);
 
-        $file4 = new RoomFile();
+        $file4 = new RoomFile;
         $file4->path = UploadedFile::fake()->image('file4.pdf')->store($meeting->room->id);
         $file4->filename = 'file4';
         $file4->use_in_meeting = false;

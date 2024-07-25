@@ -61,7 +61,7 @@ class RoomService
             Log::info('Finding server with lowest usage for room {room}', ['room' => $this->room->getLogLabel()]);
 
             // Basic load balancing: get server with the lowest usage
-            $loadBalancingService = new LoadBalancingService();
+            $loadBalancingService = new LoadBalancingService;
             $server = $loadBalancingService
                 ->setServerPool($this->room->roomType->serverPool)
                 ->getLowestUsageServer();
@@ -74,7 +74,7 @@ class RoomService
             }
 
             // Create new meeting
-            $meeting = new Meeting();
+            $meeting = new Meeting;
             $meeting->start = date('Y-m-d H:i:s');
             $meeting->record_attendance = $this->room->getRoomSetting('record_attendance');
             $meeting->record = $this->room->getRoomSetting('record');

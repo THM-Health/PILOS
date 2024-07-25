@@ -118,7 +118,7 @@ class RoomTypeController extends Controller
      */
     public function store(RoomTypeRequest $request)
     {
-        $roomType = new RoomType();
+        $roomType = new RoomType;
         $roomType->name = $request->name;
         $roomType->description = $request->description;
         $roomType->color = $request->color;

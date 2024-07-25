@@ -16,7 +16,7 @@ class RoomTest extends TestCase
     public function testCreateRoomWithoutName()
     {
         $this->expectException(QueryException::class);
-        $newRoom = new Room();
+        $newRoom = new Room;
         $newRoom->save();
     }
 

@@ -14,7 +14,7 @@ class PasswordTest extends TestCase
      */
     public function testPasses()
     {
-        $pw = new Password();
+        $pw = new Password;
 
         $this->assertTrue($pw->passes('', '1_aA'));
         $this->assertTrue($pw->passes('', 'A_a1'));
@@ -26,6 +26,6 @@ class PasswordTest extends TestCase
 
     public function testMessage()
     {
-        $this->assertEquals(__('validation.custom.password'), (new Password())->message());
+        $this->assertEquals(__('validation.custom.password'), (new Password)->message());
     }
 }

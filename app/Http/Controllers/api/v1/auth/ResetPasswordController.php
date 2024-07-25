@@ -33,7 +33,7 @@ class ResetPasswordController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => ['required', 'string', 'min:8', 'confirmed', new Password()],
+            'password' => ['required', 'string', 'min:8', 'confirmed', new Password],
         ]);
 
         $user = User::where('authenticator', '=', 'local')

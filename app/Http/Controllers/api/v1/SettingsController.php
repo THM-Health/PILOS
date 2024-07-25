@@ -25,7 +25,7 @@ class SettingsController extends Controller
      */
     public function view()
     {
-        return (new Settings())->additional([
+        return (new Settings)->additional([
             'meta' => [
                 'link_btn_styles' => LinkButtonStyle::cases(),
                 'link_targets' => LinkTarget::cases(),

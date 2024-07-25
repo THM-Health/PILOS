@@ -40,7 +40,7 @@ class Room extends Model
                 while (true) {
                     $count_tries++;
                     if ($count_tries >= config('bigbluebutton.room_id_max_tries')) {
-                        throw new RoomIdGenerationFailed();
+                        throw new RoomIdGenerationFailed;
                     }
 
                     $newId = implode('-', str_split(Str::lower(Str::random(9)), 3));

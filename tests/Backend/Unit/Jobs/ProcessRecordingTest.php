@@ -79,7 +79,7 @@ class ProcessRecordingTest extends TestCase
         $job->assertFailed();
 
         // Call failed method to simulate the job failed
-        $job->failed(new RecordingExtractionFailed());
+        $job->failed(new RecordingExtractionFailed);
 
         $this->assertCount(0, Storage::disk('recordings-spool')->files(''));
         $this->assertCount(1, Storage::disk('recordings-spool')->files('failed'));

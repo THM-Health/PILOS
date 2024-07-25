@@ -89,7 +89,7 @@ class ServerPoolController extends Controller
      */
     public function store(ServerPoolRequest $request)
     {
-        $serverPool = new ServerPool();
+        $serverPool = new ServerPool;
         $serverPool->description = $request->description;
         $serverPool->name = $request->name;
         $serverPool->save();

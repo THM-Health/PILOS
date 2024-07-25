@@ -140,7 +140,7 @@ class ImportGreenlight2Command extends Command
                     $bar->advance();
                 } else {
                     // create new user
-                    $dbUser = new User();
+                    $dbUser = new User;
                     $dbUser->authenticator = 'local';
                     $dbUser->email = $user->email;
                     // as greenlight doesn't split the name in first and lastname,
@@ -171,7 +171,7 @@ class ImportGreenlight2Command extends Command
                     $bar->advance();
                 } else {
                     // create new user
-                    $dbUser = new User();
+                    $dbUser = new User;
                     $dbUser->authenticator = 'ldap';
                     $dbUser->email = $user->email;
                     $dbUser->external_id = $user->username;
@@ -199,7 +199,7 @@ class ImportGreenlight2Command extends Command
                     $bar->advance();
                 } else {
                     // create new user
-                    $dbUser = new User();
+                    $dbUser = new User;
                     $dbUser->authenticator = $providerAuthenticatorMap[$user->provider];
                     $dbUser->email = $user->email;
                     $dbUser->external_id = $user->social_uid;
@@ -284,7 +284,7 @@ class ImportGreenlight2Command extends Command
             }
 
             // create room with same id, same name, access code
-            $dbRoom = new Room();
+            $dbRoom = new Room;
             $dbRoom->id = $room->uid;
             $dbRoom->name = Str::limit(($prefix != null ? ($prefix.' ') : '').$room->name, 253); // if prefix given, add prefix separated by a space from the title; truncate after 253 chars to prevent too long room names
             $dbRoom->access_code = $room->access_code == '' ? null : $room->access_code;
