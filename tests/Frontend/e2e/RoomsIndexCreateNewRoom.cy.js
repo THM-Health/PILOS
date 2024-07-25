@@ -123,7 +123,6 @@ describe('Rooms index create new room', function () {
 
   it('create new room errors', function () {
     // Create new room without room type
-
     cy.intercept('POST', 'api/v1/rooms', {
       statusCode: 422,
       body: {
@@ -154,7 +153,6 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test=room-create-dialog]').contains('The Room type field is required.').should('be.visible');
 
     // Create new room without name
-
     cy.intercept('POST', 'api/v1/rooms', {
       statusCode: 422,
       body: {
@@ -165,7 +163,6 @@ describe('Rooms index create new room', function () {
       }
     }).as('createRoomRequest');
 
-    //
     cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
       // Remove text from name input
       cy.get('#room-name').should('have.value', 'New Room').clear();
@@ -183,7 +180,6 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test=room-create-dialog]').contains('The Room type field is required.').should('not.exist');
 
     // Create new room forbidden
-
     cy.intercept('POST', 'api/v1/rooms', {
       statusCode: 403
     }).as('createRoomRequest');
@@ -195,10 +191,49 @@ describe('Rooms index create new room', function () {
 
     cy.wait('@createRoomRequest');
 
+    // Check that create room dialog is closed
     cy.get('[data-test=room-create-dialog]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.no_new_room');
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.no_new_room')
+      .find('button')
+      .click();
+
+    // Other errors
+    cy.intercept('POST', 'api/v1/rooms', {
+      statusCode: 500,
+      body: {
+        message: 'Test'
+      }
+    }).as('createRoomRequest');
+
+    cy.get('[data-test=room-create-button]').click();
+
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
+      // Enter room name
+      cy.get('#room-name').should('have.value', '').type('New Room');
+
+      // Select a room type
+      cy.get('[data-test=room-type-select-option]').eq(0).click();
+
+      // Create new room
+      cy.get('[data-test="dialog-save-button"]').click();
+    });
+
+    cy.wait('@createRoomRequest');
+
+    // Check that create room dialog is closed
+    cy.get('[data-test=room-create-dialog]').should('not.exist');
+
+    // Check if error message is visible
+    cy.get('.p-toast')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+
   });
 
   it('create new room limit reached', function () {
@@ -264,9 +299,47 @@ describe('Rooms index create new room', function () {
 
     // Check if error message is visible
     cy.get('.p-toast').should('be.visible').and('include.text', 'Test');
-    cy.get('[data-test=room-create-button]').should('be.disabled');
 
-    // Check if room limit is updated
+    // Check if room limit is updated and create button is disabled
+    cy.get('[data-test=room-create-button]').should('be.disabled');
     cy.contains('rooms.room_limit_{"has":1,"max":1}').should('be.visible');
+  });
+
+  it('cancel create new room', function () {
+
+    cy.visit('/rooms');
+
+    // Check that room create modal is hidden
+    cy.get('[data-test=room-create-dialog]').should('not.exist');
+    // Check that room limit tag does not exist
+    cy.contains('rooms.room_limit').should('not.exist');
+    // Open room create modal
+    cy.get('[data-test=room-create-button]').should('have.text', 'rooms.create.title').click();
+
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
+      // Check that room type details does not exist (no room type selected)
+      cy.get('[data-test=room-type-details]').should('not.exist');
+
+      cy.get('#room-name').should('have.value', '').type('New Room');
+      // Select a room type
+      cy.get('[data-test=room-type-select-option]').eq(0).click();
+
+      cy.get('[data-test=room-type-details]').should('be.visible');
+    });
+
+    // Cancel room creation
+    cy.get('[data-test=dialog-cancel-button]').click();
+
+    // Check that room create modal is hidden
+    cy.get('[data-test=room-create-dialog]').should('not.exist');
+
+    // Reopen room create modal
+    cy.get('[data-test=room-create-button]').should('have.text', 'rooms.create.title').click();
+
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
+      // Check that selected values were reset
+      cy.get('#room-name').should('have.value', '');
+      cy.get('[data-test=room-type-details]').should('not.exist');
+    });
   });
 });
