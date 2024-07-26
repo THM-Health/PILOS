@@ -123,7 +123,7 @@ describe('Room View general', function () {
       cy.contains('rooms.index.room_component.never_started').should('be.visible');
       cy.contains('rooms.require_access_code').should('be.visible');
 
-      cy.get('#access-code').type('123456789');
+      cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
     });
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
