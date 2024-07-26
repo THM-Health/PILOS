@@ -1098,7 +1098,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Intercept reload request
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {fixture: 'exampleRoom.json'}).as('roomRequest');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
 
     // Try to join meeting
     cy.get('[data-test=room-join-button]').click();
@@ -1886,7 +1886,7 @@ describe('Rooms view meetings', function () {
         authenticated: true,
         description: null,
         allow_membership: false,
-        is_member: false,
+        is_member: true,
         is_moderator: false,
         is_co_owner: false,
         can_start: true,
@@ -2282,7 +2282,7 @@ describe('Rooms view meetings', function () {
           id: 1,
           name: 'John Doe'
         },
-        last_meeting: {start: '2023-08-21 08:18:28:00', end: null},
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
           id: 2,
           name: 'Meeting',
@@ -2343,6 +2343,5 @@ describe('Rooms view meetings', function () {
     cy.origin('https://example.org', () => {
       cy.url().should('eq', 'https://example.org/?foo=a&bar=b');
     });
-
   });
 });

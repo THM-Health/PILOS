@@ -233,7 +233,6 @@ describe('Rooms index create new room', function () {
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
       .find('button').click();
-
   });
 
   it('create new room limit reached', function () {
@@ -303,10 +302,34 @@ describe('Rooms index create new room', function () {
     // Check if room limit is updated and create button is disabled
     cy.get('[data-test=room-create-button]').should('be.disabled');
     cy.contains('rooms.room_limit_{"has":1,"max":1}').should('be.visible');
+
+    // Check if room count is not based on items on the current page or the total results,
+    // but all rooms of the user, independent of the search query
+    cy.intercept('GET', 'api/v1/rooms*', {
+      statusCode: 200,
+      body: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          to: 5,
+          total: 0,
+          total_no_filter: 0,
+          total_own: 1
+        }
+      }
+    });
+
+    cy.get('[data-test=room-search] > input').type('Test');
+    cy.get('[data-test="room-search"] > input').type('{enter}');
+
+    // Check if room limit is updated and create button is disabled
+    cy.get('[data-test=room-create-button]').should('be.disabled');
+    cy.contains('rooms.room_limit_{"has":1,"max":1}').should('be.visible');
   });
 
   it('cancel create new room', function () {
-
     cy.visit('/rooms');
 
     // Check that room create modal is hidden
