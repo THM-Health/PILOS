@@ -26,7 +26,44 @@
 
 Cypress.Commands.add('init', () => {
   cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
-  cy.intercept('GET', 'api/v1/locale/en', {});
+  cy.intercept('GET', 'api/v1/locale/en', {
+    data: {},
+    meta: {
+      dateTimeFormat: {
+        dateShort: {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        },
+        dateLong: {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit'
+        },
+        time: {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        },
+        datetimeShort: {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        },
+        datetimeLong: {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }
+      }
+    }
+  });
   cy.intercept('GET', 'api/v1/config', {
     data: {
       theme: {
