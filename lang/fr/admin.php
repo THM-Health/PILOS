@@ -434,7 +434,7 @@ return [
         'remove_role' => 'Supprimer le rôle',
         'reset_password' => [
             'confirm' => 'Voulez-vous vraiment réinitialiser le mot de passe de :firstname :lastname?',
-            'item' => 'Réinitialiser le mot de passe pour l\'utilisateur:firstname :lastname',
+            'item' => 'Réinitialiser le mot de passe pour l\'utilisateur :firstname :lastname',
             'title' => 'Réinitialiser le mot de passe pour l\'utilisateur ?',
         ],
         'role_filter' => 'Sélectionnez le rôle pour le filtrage',
