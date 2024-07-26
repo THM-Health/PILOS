@@ -9,6 +9,7 @@
     icon="fa-solid fa-user"
     v-tooltip="$t('rooms.become_member')"
     :aria-label="$t('rooms.become_member')"
+    data-test="room-join-membership-button"
   />
   <!-- If user is member, allow user to end the membership -->
   <Button
@@ -19,6 +20,7 @@
     icon="fa-solid fa-user"
     v-tooltip="$t('rooms.end_membership.button')"
     :aria-label="$t('rooms.end_membership.button')"
+    data-test="room-end-membership-button"
   />
 
   <Dialog
