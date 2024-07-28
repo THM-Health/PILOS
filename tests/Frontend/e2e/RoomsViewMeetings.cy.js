@@ -428,15 +428,14 @@ describe('Rooms view meetings', function () {
     });
   });
 
-  it('join running meeting guests with access code', function () {
-    cy.intercept('GET', 'api/v1/currentUser', {});
+  it('join running meeting with access code', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
@@ -457,7 +456,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -472,8 +479,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
@@ -494,7 +501,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -502,45 +517,13 @@ describe('Rooms view meetings', function () {
 
     cy.wait('@roomRequest');
 
-    // Test with invalid name
-    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 422,
-      body: {
-        message: 'The given data was invalid',
-        errors: {
-          name: ['The name contains the following non-permitted characters: 123!']
-        }
-      }
-    }).as('joinRequest');
-
     cy.get('[data-test=room-join-button').click();
+
+    // Try to join the meeting
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      cy.contains('rooms.first_and_lastname');
-      cy.get('#guest-name').type('John Doe 123!');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('[data-test="dialog-continue-button"]').click();
-    });
-
-    // Check that correct query is sent
-    cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
-        name: 'John Doe 123!',
-        consent_record_attendance: true,
-        consent_record: true,
-        consent_record_video: true
-      });
-      // Check that header for access code is set
-      expect(interception.request.headers['access-code']).to.eq('123456789');
-    });
-
-    // Test with valid name
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      // Check that error message for invalid name is shown and set valid name
-      cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
-      cy.get('#guest-name').clear();
-      cy.get('#guest-name').type('John Doe');
 
       cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
         statusCode: 200,
@@ -555,7 +538,6 @@ describe('Rooms view meetings', function () {
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
       expect(interception.request.body).to.contain({
-        name: 'John Doe',
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true
@@ -571,8 +553,6 @@ describe('Rooms view meetings', function () {
   });
 
   it('join running meeting access code errors', function () {
-    cy.intercept('GET', 'api/v1/currentUser', {});
-
     cy.interceptRoomFilesRequest();
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -580,8 +560,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
@@ -602,7 +582,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -617,8 +605,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
@@ -639,7 +627,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -661,8 +657,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
@@ -683,7 +679,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -711,8 +715,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
@@ -733,7 +737,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: false,
         record: false,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -747,8 +759,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
         type: {
@@ -767,9 +779,17 @@ describe('Rooms view meetings', function () {
         is_co_owner: false,
         can_start: true,
         room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: null
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -782,7 +802,6 @@ describe('Rooms view meetings', function () {
 
     // Try to join meeting
     cy.get('[data-test=room-join-button').click();
-    cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
     cy.wait('@joinRequest').then(interception => {
@@ -1010,8 +1029,8 @@ describe('Rooms view meetings', function () {
         can_start: true,
         access_code: 508307005,
         room_type_invalid: false,
-        record_attendance: true,
-        record: true,
+        record_attendance: false,
+        record: false,
         current_user: {
           id: 1,
           firstname: 'John',
@@ -1029,8 +1048,8 @@ describe('Rooms view meetings', function () {
 
     cy.wait('@roomRequest');
 
-    // Join meeting errors missing agreements
-    cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
+    // Join meeting errors room settings changed and because of that the agreements are missing
+    const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 422,
       body: {
         message: 'The consent record attendance must be accepted. (and 1 more error)',
@@ -1043,15 +1062,69 @@ describe('Rooms view meetings', function () {
           ]
         }
       }
-    }).as('joinRequest');
+    }, 'joinRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');
     cy.get('[data-test=room-join-button]').click();
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      // Try to join meeting
-      cy.get('[data-test="dialog-continue-button"]').click();
+      // Make sure that checkboxes for agreements are not shown
+      cy.contains('rooms.recording_info').should('not.exist');
+      cy.contains('rooms.recording_accept').should('not.exist');
+      cy.contains('rooms.recording_video_accept').should('not.exist');
+
+      cy.get('#record-agreement').should('not.exist');
+      cy.get('#record-video-agreement').should('not.exist');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
+        joinRequest.sendResponse();
+      });
 
       cy.wait('@joinRequest');
+      cy.wait('@roomRequest');
+
+      // Check that checkboxes for agreements are shown
+      cy.contains('rooms.recording_info').should('be.visible');
+      cy.contains('rooms.recording_accept').should('be.visible');
+      cy.contains('rooms.recording_video_accept').should('be.visible');
 
       // Check if error messages are shown
       cy.contains('The consent record attendance must be accepted.').should('be.visible');
@@ -1061,10 +1134,27 @@ describe('Rooms view meetings', function () {
       cy.get('[data-test="dialog-cancel-button"]').click();
     });
 
+    // Join meeting errors missing agreements
     cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test=room-join-button]').click();
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      // Check if error messages are reset
+      cy.contains('The consent record attendance must be accepted.').should('not.exist');
+      cy.contains('The consent record must be accepted.').should('not.exist');
 
-    // ToDo add test if one agreement is not shown before clicking on join
-    // Form field and error message should be shown
+      // Try to join meeting
+      cy.get('[data-test="dialog-continue-button"]').click();
+
+      cy.wait('@joinRequest');
+      cy.wait('@roomRequest');
+
+      // Check if error messages are shown
+      cy.contains('The consent record attendance must be accepted.').should('be.visible');
+      cy.contains('The consent record must be accepted.').should('be.visible');
+
+      // Close dialog
+      cy.get('[data-test="dialog-cancel-button"]').click();
+    });
 
     // Test general errors
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
@@ -1094,8 +1184,6 @@ describe('Rooms view meetings', function () {
         message: 'Joining failed! The room is currently closed.'
       }
     }).as('joinRequest');
-
-    cy.wait('@roomRequest');
 
     // Intercept reload request
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
@@ -1495,15 +1583,14 @@ describe('Rooms view meetings', function () {
     });
   });
 
-  it('start meeting guests with access code', function () {
-    cy.intercept('GET', 'api/v1/currentUser', {});
+  it('start meeting with access code', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: null,
         type: {
@@ -1524,7 +1611,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -1539,8 +1634,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: null,
         type: {
@@ -1561,7 +1656,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -1581,33 +1684,12 @@ describe('Rooms view meetings', function () {
     }).as('startRequest');
 
     cy.get('[data-test=room-start-button').click();
+
+    // Try to start the meeting
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      cy.contains('rooms.first_and_lastname');
-      cy.get('#guest-name').type('John Doe 123!');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
-      cy.get('[data-test="dialog-continue-button"]').click();
-    });
-
-    // Check that correct query is sent
-    cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
-        name: 'John Doe 123!',
-        consent_record_attendance: true,
-        consent_record: true,
-        consent_record_video: true
-      });
-      // Check that header for access code is set
-      expect(interception.request.headers['access-code']).to.eq('123456789');
-    });
-
-    // Test with valid name
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      // Check that error message for invalid name is shown and set valid name
-      cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
-      cy.get('#guest-name').clear();
-      cy.get('#guest-name').type('John Doe');
 
       cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
         statusCode: 200,
@@ -1622,7 +1704,6 @@ describe('Rooms view meetings', function () {
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
       expect(interception.request.body).to.contain({
-        name: 'John Doe',
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true
@@ -1638,15 +1719,14 @@ describe('Rooms view meetings', function () {
   });
 
   it('start meeting access code errors', function () {
-    cy.intercept('GET', 'api/v1/currentUser', {});
     cy.interceptRoomFilesRequest();
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: null,
         type: {
@@ -1667,7 +1747,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -1682,8 +1770,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: null,
         type: {
@@ -1704,7 +1792,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: true,
         record: true,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -1726,8 +1822,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: null,
         type: {
@@ -1748,7 +1844,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: false,
         record: false,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -1776,8 +1880,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: null,
         type: {
@@ -1798,7 +1902,15 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: false,
         record: false,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
@@ -1819,8 +1931,8 @@ describe('Rooms view meetings', function () {
         id: 'abc-def-123',
         name: 'Meeting One',
         owner: {
-          id: 1,
-          name: 'John Doe'
+          id: 2,
+          name: 'Max Doe'
         },
         last_meeting: null,
         type: {
@@ -1841,13 +1953,20 @@ describe('Rooms view meetings', function () {
         room_type_invalid: false,
         record_attendance: false,
         record: false,
-        current_user: null
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
       }
     }).as('roomRequest');
 
     // Try to start meeting
     cy.get('[data-test=room-start-button]').click();
-    cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
     cy.wait('@startRequest').then(interception => {
@@ -2075,8 +2194,8 @@ describe('Rooms view meetings', function () {
         can_start: true,
         access_code: 508307005,
         room_type_invalid: false,
-        record_attendance: true,
-        record: true,
+        record_attendance: false,
+        record: false,
         current_user: {
           id: 1,
           firstname: 'John',
@@ -2094,8 +2213,8 @@ describe('Rooms view meetings', function () {
 
     cy.wait('@roomRequest');
 
-    // start meeting errors missing agreements
-    cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
+    // Start meeting errors room settings changed and because of that the agreements are missing
+    const startRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 422,
       body: {
         message: 'The consent record attendance must be accepted. (and 1 more error)',
@@ -2108,16 +2227,74 @@ describe('Rooms view meetings', function () {
           ]
         }
       }
-    }).as('startRequest');
+    }, 'startRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 508307005,
+        room_type_invalid: false,
+        record_attendance: true,
+        record: true,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');
     cy.get('[data-test=room-start-button]').click();
 
     cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
-      // Try to start meeting
-      cy.get('[data-test="dialog-continue-button"]').click();
+      // Make sure that checkboxes for agreements are not shown
+      cy.contains('rooms.recording_info').should('not.exist');
+      cy.contains('rooms.recording_accept').should('not.exist');
+      cy.contains('rooms.recording_video_accept').should('not.exist');
+
+      cy.get('#record-agreement').should('not.exist');
+      cy.get('#record-video-agreement').should('not.exist');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
+        startRequest.sendResponse();
+      });
 
       cy.wait('@startRequest');
+      cy.wait('@roomRequest');
+
+      // Check that checkboxes for agreements are shown
+      cy.contains('rooms.recording_info').should('be.visible');
+      cy.contains('rooms.recording_accept').should('be.visible');
+      cy.contains('rooms.recording_video_accept').should('be.visible');
+
+      cy.get('#record-agreement').should('not.be.checked');
+      cy.get('#record-video-agreement').should('not.be.checked');
+      cy.get('[data-test="dialog-continue-button"]').should('not.be.disabled');
 
       // Check if error messages are shown
       cy.contains('The consent record attendance must be accepted.').should('be.visible');
@@ -2128,8 +2305,30 @@ describe('Rooms view meetings', function () {
     });
 
     cy.get('[data-test=room-join-dialog]').should('not.exist');
-    // ToDo add test if one agreement is not shown before clicking on start
-    // Form field and error message should be shown
+
+    // Start meeting errors missing agreements
+
+    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test=room-start-button]').click();
+
+    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+      // Check if error messages are reset
+      cy.contains('The consent record attendance must be accepted.').should('not.exist');
+      cy.contains('The consent record must be accepted.').should('not.exist');
+
+      // Try to start meeting
+      cy.get('[data-test="dialog-continue-button"]').click();
+
+      cy.wait('@startRequest');
+      cy.wait('@roomRequest');
+
+      // Check if error messages are shown
+      cy.contains('The consent record attendance must be accepted.').should('be.visible');
+      cy.contains('The consent record must be accepted.').should('be.visible');
+
+      // Close dialog
+      cy.get('[data-test="dialog-cancel-button"]').click();
+    });
 
     // Test general errors
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {

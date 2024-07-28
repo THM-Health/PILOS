@@ -70,7 +70,7 @@ describe('Room View general', function () {
     cy.get('[data-test="room-share-button"]').should('not.exist');
   });
 
-  it('room view as guest with access code', function () {
+  it('room view with access code', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
@@ -104,7 +104,7 @@ describe('Room View general', function () {
           firstname: 'John',
           lastname: 'Doe',
           locale: 'en',
-          permissions: ['rooms.create'],
+          permissions: [],
           model_name: 'User',
           room_limit: -1
         }
@@ -158,7 +158,7 @@ describe('Room View general', function () {
           firstname: 'John',
           lastname: 'Doe',
           locale: 'en',
-          permissions: ['rooms.create'],
+          permissions: [],
           model_name: 'User',
           room_limit: -1
         }
@@ -235,7 +235,7 @@ describe('Room View general', function () {
           firstname: 'John',
           lastname: 'Doe',
           locale: 'en',
-          permissions: ['rooms.create'],
+          permissions: [],
           model_name: 'User',
           room_limit: -1
         }
@@ -306,7 +306,7 @@ describe('Room View general', function () {
           firstname: 'John',
           lastname: 'Doe',
           locale: 'en',
-          permissions: ['rooms.create'],
+          permissions: [],
           model_name: 'User',
           room_limit: -1
         }
@@ -389,7 +389,7 @@ describe('Room View general', function () {
           firstname: 'John',
           lastname: 'Doe',
           locale: 'en',
-          permissions: ['rooms.create'],
+          permissions: [],
           model_name: 'User',
           room_limit: -1
         }
