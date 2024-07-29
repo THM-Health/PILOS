@@ -84,7 +84,7 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('have.text', 'Test').find('button').click();
+    cy.get('.p-toast-message').should('be.visible').and('have.text', 'Test').find('button').click();
 
     // Test other errors
 
@@ -109,7 +109,7 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":["Test"]}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');

@@ -103,7 +103,7 @@ describe('Room Index', function () {
     cy.wait('@roomRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
@@ -174,7 +174,7 @@ describe('Room Index', function () {
     cy.visit('/rooms');
 
     // Check that error message gets shown
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');

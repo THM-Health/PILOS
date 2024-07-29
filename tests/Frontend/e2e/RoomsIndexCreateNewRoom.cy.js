@@ -195,11 +195,12 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test=room-create-dialog]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .and('have.text', 'rooms.flash.no_new_room')
       .find('button')
       .click();
+    cy.get('.p-toast-message').should('not.exist');
 
     // Other errors
     cy.intercept('POST', 'api/v1/rooms', {
@@ -228,11 +229,10 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test=room-create-dialog]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
   });
 
   it('create new room limit reached', function () {
@@ -297,7 +297,7 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test=room-create-dialog]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast').should('be.visible').and('include.text', 'Test');
+    cy.get('.p-toast-message').should('be.visible').and('include.text', 'Test');
 
     // Check if room limit is updated and create button is disabled
     cy.get('[data-test=room-create-button]').should('be.disabled');

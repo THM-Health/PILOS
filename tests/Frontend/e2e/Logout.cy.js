@@ -49,7 +49,7 @@ describe('Logout', function () {
     cy.wait('@logoutRequest');
 
     // Check if error gets shown and user stays logged in
-    cy.get('.p-toast').should('be.visible').and('have.text', 'auth.flash.logout_error');
+    cy.get('.p-toast-message').should('be.visible').and('have.text', 'auth.flash.logout_error');
     cy.url().should('include', '/rooms').and('not.include', '/logout').and('not.include', '/login');
   });
 });

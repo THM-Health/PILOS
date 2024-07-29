@@ -104,7 +104,7 @@ describe('Room View general', function () {
         short_description: null,
         is_favorite: false,
         authenticated: true,
-        description: 'Test',
+        description: '<p>Test</p>',
         allow_membership: true,
         is_member: false,
         is_moderator: false,
@@ -258,10 +258,12 @@ describe('Room View general', function () {
     cy.wait('@roomRequest');
 
     // Check if error message is shown
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .and('have.text', 'rooms.flash.access_code_invalid')
       .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
 
     // Submit correct access code
@@ -396,9 +398,10 @@ describe('Room View general', function () {
     });
 
     // Check if error message is shown
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .and('have.text', 'rooms.flash.access_code_invalid');
+
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
 
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
@@ -567,7 +570,7 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-copy-invitation-button"]').click();
 
-    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.invitation.copied');
+    cy.get('.p-toast-message').should('be.visible').and('have.text', 'rooms.invitation.copied');
 
     // ToDo check if this always works
     cy.window().then(win => {
@@ -811,7 +814,7 @@ describe('Room View general', function () {
     cy.get('[data-test="reload-room-button"]').click();
 
     // Check that error message is shown
-    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.token_invalid');
+    cy.get('.p-toast-message').should('be.visible').and('have.text', 'rooms.flash.token_invalid');
     cy.contains('rooms.invalid_personal_link').should('be.visible');
   });
 
@@ -1047,7 +1050,7 @@ describe('Room View general', function () {
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
 
     // Check that error message is shown and user is redirected to the home page
-    cy.get('.p-toast').should('be.visible').and('have.text', 'app.flash.guests_only');
+    cy.get('.p-toast-message').should('be.visible').and('have.text', 'app.flash.guests_only');
     cy.url().should('not.include', '/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
   });
 
@@ -1076,7 +1079,7 @@ describe('Room View general', function () {
     });
 
     cy.visit('/rooms/abc-def-123');
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
@@ -1166,7 +1169,7 @@ describe('Room View general', function () {
     cy.get('[data-test="reload-room-button"]').click();
     cy.wait('@roomRequest');
 
-    cy.get('.p-toast')
+    cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
