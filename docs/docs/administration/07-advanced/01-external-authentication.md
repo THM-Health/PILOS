@@ -30,7 +30,7 @@ LDAP_PORT=389
 LDAP_BASE_DN="ou=users,dc=university,dc=org"
 LDAP_TIMEOUT=5
 LDAP_SSL=false
-LDAP_TLS=false
+LDAP_TLS=true
 
 # LDAP logging debugging only
 LDAP_LOGGING=false
