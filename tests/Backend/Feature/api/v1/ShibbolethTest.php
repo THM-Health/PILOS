@@ -343,7 +343,7 @@ class ShibbolethTest extends TestCase
         ];
 
         $response = $this->get(route('auth.shibboleth.callback'), $header);
-        $response = $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
         $this->assertAuthenticated();
 
         // Check with same session id
@@ -355,6 +355,41 @@ class ShibbolethTest extends TestCase
         $response = $this->getJson(route('api.v1.currentUser'), $header);
         $response->assertRedirect('/Shibboleth.sso/Logout?return=http://localhost/logout?message=session_expired');
         $this->assertGuest();
+    }
+
+    /**
+     * Test if shib. session is not validated on subsequent requests if middleware is disabled
+     *
+     * @return void
+     */
+    public function testChangingShibbSessionWithMiddlewareDisabled()
+    {
+        config(['services.shibboleth.session_check_middleware_enabled' => false]);
+
+        $header = [
+            'Accept-Language' => 'fr',
+            'shib-session-id' => '_855fe7fbe56c664a6fad794c65243ec6',
+            'shib-session-expires' => Carbon::now()->addHours(12)->timestamp,
+            'principalname' => 'johnd@university.org',
+            'givenname' => 'John',
+            'surname' => 'Doe',
+            'mail' => 'john.doe@domain.tld',
+            'scoped-affiliation' => 'student@university.org;staff@university.org',
+        ];
+
+        $response = $this->get(route('auth.shibboleth.callback'), $header);
+        $this->withCookies([session()->getName() => Session::first()->id])->get($response->getTargetUrl(), $header);
+        $this->assertAuthenticated();
+
+        // Check with same session id
+        $response = $this->getJson(route('api.v1.currentUser'), $header);
+        $response->assertSuccessful();
+
+        // Check without shib. session id, user should still be authenticated
+        unset($header['shib-session-id']);
+        $response = $this->getJson(route('api.v1.currentUser'), $header);
+        $response->assertSuccessful();
+        $this->assertAuthenticated();
     }
 
     /**
