@@ -327,7 +327,7 @@ const isBusy = ref(false);
 const modelLoadingError = ref(false);
 const checking = ref(false);
 const panicking = ref(false);
-const health = ref(0);
+const health = ref(null);
 const isDisabled = ref(false);
 const offlineReason = ref(null);
 

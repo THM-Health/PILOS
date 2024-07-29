@@ -23,7 +23,7 @@
         v-if="userPermissions.can('create', 'ServerPolicy')"
         v-tooltip="$t('admin.server_pools.new')"
         :aria-label="$t('admin.server_pools.new')"
-        :to="{ name: 'admin.server_pools.view', params: { id: 'new' } }"
+        :to="{ name: 'admin.server_pools.new' }"
       />
     </div>
 

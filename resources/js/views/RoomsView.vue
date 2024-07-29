@@ -394,6 +394,7 @@ function reload () {
       if (error.response) {
         // Room not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
+          router.push({ name: '404' });
           return;
         }
 

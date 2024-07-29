@@ -35,7 +35,7 @@ return [
         'title' => 'Fonctionnalités de PILOS',
         'webcams' => [
             'description' => 'Autorisez les conversations vidéos personnelles',
-            'title' => 'Webcams',
+            'title' => 'Caméras',
         ],
         'whiteboard' => [
             'description' => 'Utilisez le tableau blanc intéractif multi-utilisateurs',

@@ -78,7 +78,7 @@ COPY ./docker/app/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 RUN mkdir -p /var/log/php
 
 # Copy ldap config files
-COPY ./docker/app/ldap/ /etc/ldap
+COPY ./docker/app/ldap/ /etc/openldap
 
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
