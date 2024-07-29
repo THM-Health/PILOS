@@ -980,6 +980,198 @@ describe('Room View general', function () {
     cy.get('#invitationCode').should('have.value', '123-456-789');
   });
 
+  it('favorites button', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
+
+    // Test add room to favorites with general error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode:500,
+      body: {
+        message: 'Test add favorite error'
+      }
+    }).as('addFavoritesRequest');
+
+    cy.get('[data-test="room-favorites-button"]').click();
+
+    cy.wait('@addFavoritesRequest');
+    cy.wait('@roomRequest');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Test add room to favorites
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 204
+    }).as('addFavoritesRequest');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: true,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-favorites-button"]').click();
+
+    cy.wait('@addFavoritesRequest');
+    cy.wait('@roomRequest');
+
+    //ToDo ??
+
+    // Test remove room from favorites with general error
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode:500,
+      body: {
+        message: 'Test remove favorite error'
+      }
+    }).as('deleteFavoritesRequest');
+
+    cy.get('[data-test="room-favorites-button"]').click();
+
+    cy.wait('@deleteFavoritesRequest');
+    cy.wait('@roomRequest');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test remove favorite error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Test remove room from favorites
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 204
+    }).as('deleteFavoritesRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: true,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-favorites-button"]').click();
+
+    cy.wait('@deleteFavoritesRequest');
+    cy.wait('@roomRequest');
+
+    // ToDo ??
+
+  });
+
   it('visit with guest forbidden', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 403,
