@@ -51,6 +51,17 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 LDAP_LOGIN_ATTRIBUTE=uid
 ```
 
+#### SSL / TLS
+
+You can either use SSL or TLS to secure the connection to the LDAP server.
+SSL has been deprecated and is typically a separate port (636).
+TLS is using the same port as the unsecured connection (389) and doing an upgrade to TLS after the connection has been established.
+[Read more](https://ldaprecord.com/docs/core/v3/configuration/#ssl--tls).
+
+By default PILOS **doesn't verify** the TLS certificate of the LDAP server.
+However you can customize this by overwriting the ldap.conf ([Read more](http://www.openldap.org/software/man.cgi?query=ldap.conf&manpath=OpenLDAP+2.6-Release)
+) config file in `/etc/ldap/ldap.conf` using docker volumes.
+
 ### Shibboleth
 
 The shibboleth authentication is available if the reverse proxy is apache with mod_shib.
