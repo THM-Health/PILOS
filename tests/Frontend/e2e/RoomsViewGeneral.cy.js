@@ -4,6 +4,17 @@ describe('Room View general', function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
+
+    cy.intercept('GET', 'api/v1/config', {
+      data: {
+        general: {
+          name: 'PILOS Test',
+          toast_lifetime: 0
+        },
+        theme: { primary_color: '#14b8a6', rounded: true },
+        room: { refresh_rate: 5000 }
+      }
+    });
   });
 
   it('room view as guest', function () {
@@ -43,6 +54,8 @@ describe('Room View general', function () {
 
     cy.visit('/rooms/abc-def-123');
 
+    cy.title().should('eq', 'Meeting One - PILOS Test');
+
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('John Doe').should('be.visible');
@@ -68,6 +81,61 @@ describe('Room View general', function () {
 
     // Check if share button is hidden
     cy.get('[data-test="room-share-button"]').should('not.exist');
+
+    // Test reloading the room
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting Two',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: 'Test',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    // Trigger reload
+    cy.get('[data-test="reload-room-button"]').click();
+
+    cy.title().should('eq', 'Meeting Two - PILOS Test');
+
+    // Check that room Header is shown correctly
+    cy.contains('Meeting Two').should('be.visible');
+    cy.contains('Max Doe').should('be.visible');
+    cy.contains('rooms.index.room_component.running_since_{"date":"08/21/2023, 08:18"}').should('be.visible');
+
+    // Check that tabs are shown correctly
+    cy.get('#tab-description').should('be.visible');
+    cy.get('#tab-members').should('not.exist');
+    cy.get('#tab-tokens').should('not.exist');
+    cy.get('#tab-files').should('be.visible');
+    cy.get('#tab-recordings').should('be.visible');
+    cy.get('#tab-history').should('not.exist');
+    cy.get('#tab-settings').should('not.exist');
   });
 
   it('room view with access code', function () {
@@ -115,14 +183,89 @@ describe('Room View general', function () {
 
     cy.wait('@roomRequest');
 
-    // Check that access code input is shown correctly
+    cy.title().should('eq', 'Meeting One - PILOS Test');
 
+    // Check that access code input is shown correctly
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible').within(() => {
       cy.contains('Meeting One').should('be.visible');
       cy.contains('Max Doe').should('be.visible');
       cy.contains('rooms.index.room_component.never_started').should('be.visible');
       cy.contains('rooms.require_access_code').should('be.visible');
 
+      // Try to submit invalid access code
+      cy.get('[data-test="room-access-code"] input').type('987654321'); // ToDo change back to #access-code
+    });
+
+    // Intercept first request to respond with error
+    const errorRoomRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 401,
+      body: {
+        message: 'invalid_code'
+      }
+    }, 'roomRequest');
+
+    cy.get('[data-test="room-login-button"]').click();
+
+    // Intercept second request (reload room) and send response of the first request
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest').then(() => {
+      errorRoomRequest.sendResponse();
+    });
+
+    // Wait for first request and check if access code gets set
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('987654321');
+    });
+
+    // Wait for second request
+    cy.wait('@roomRequest');
+
+    // Check if error message is shown
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.access_code_invalid')
+      .find('button').click();
+    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
+
+    // Submit correct access code
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible').within(() => {
       cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
     });
 
@@ -198,6 +341,67 @@ describe('Room View general', function () {
 
     // Check if share button is hidden
     cy.get('[data-test="room-share-button"]').should('not.exist');
+
+    // Reload with invalid access code
+    const errorReloadRoomRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 401,
+      body: {
+        message: 'invalid_code'
+      }
+    }, 'roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+
+    // Intercept second request (reload room) and send response of the first request
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest').then(() => {
+      errorReloadRoomRequest.sendResponse();
+    });
+
+    // Check if error message is shown
+    cy.get('.p-toast')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.access_code_invalid');
+    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
+
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
   });
 
   it('room view as member', function () {
@@ -210,7 +414,10 @@ describe('Room View general', function () {
           id: 2,
           name: 'Max Doe'
         },
-        last_meeting: null,
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: '2023-08-21 08:20:28:00'
+        },
         type: {
           id: 2,
           name: 'Meeting',
@@ -244,10 +451,12 @@ describe('Room View general', function () {
 
     cy.visit('/rooms/abc-def-123');
 
+    cy.title().should('eq', 'Meeting One - PILOS Test');
+
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('Max Doe').should('be.visible');
-    cy.contains('rooms.index.room_component.never_started').should('be.visible');
+    cy.contains('rooms.index.room_component.last_ran_till_{"date":"08/21/2023, 08:20"}').should('be.visible');
 
     // Check that buttons are shown correctly
     cy.get('[data-test="reload-room-button"]').should('be.visible');
@@ -272,6 +481,17 @@ describe('Room View general', function () {
   });
 
   it('room view as moderator', function () {
+    cy.intercept('GET', 'api/v1/config', {
+      data: {
+        general: {
+          name: 'PILOS Test',
+          toast_lifetime: 0,
+          base_url: 'testUrl'
+        },
+        theme: { primary_color: '#14b8a6', rounded: true },
+        room: { refresh_rate: 5000 }
+      }
+    });
     cy.interceptRoomFilesRequest();
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -315,6 +535,8 @@ describe('Room View general', function () {
 
     cy.visit('/rooms/abc-def-123');
 
+    cy.title().should('eq', 'Meeting One - PILOS Test');
+
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('Max Doe').should('be.visible');
@@ -340,17 +562,17 @@ describe('Room View general', function () {
 
     // Check if share button is shown correctly
     cy.get('[data-test="room-share-button"]').click();
-    cy.get('#invitationLink').should('include.value', '/rooms/abc-def-123'); // ToDo think about adding baseUrl
+    cy.get('#invitationLink').should('have.value', 'testUrl/rooms/abc-def-123');
     cy.get('#invitationCode').should('have.value', '123-456-789');
 
     cy.get('[data-test="room-copy-invitation-button"]').click();
 
     cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.invitation.copied');
 
-    // ToDo check if works always
+    // ToDo check if this always works
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
-        expect(text).to.eq('rooms.invitation.room_{"roomname":"Meeting One"}\nrooms.invitation.link: undefined/rooms/abc-def-123\nrooms.invitation.code: 123-456-789');
+        expect(text).to.eq('rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: testUrl/rooms/abc-def-123\nrooms.invitation.code: 123-456-789');
       });
     });
   });
@@ -364,7 +586,10 @@ describe('Room View general', function () {
           id: 2,
           name: 'Max Doe'
         },
-        last_meeting: null,
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
         type: {
           id: 2,
           name: 'Meeting',
@@ -398,10 +623,12 @@ describe('Room View general', function () {
 
     cy.visit('/rooms/abc-def-123');
 
+    cy.title().should('eq', 'Meeting One - PILOS Test');
+
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('Max Doe').should('be.visible');
-    cy.contains('rooms.index.room_component.never_started').should('be.visible');
+    cy.contains('rooms.index.room_component.running_since_{"date":"08/21/2023, 08:18"}').should('be.visible');
 
     // Check that buttons are shown correctly
     cy.get('[data-test="reload-room-button"]').should('be.visible');
@@ -470,6 +697,8 @@ describe('Room View general', function () {
 
     cy.visit('/rooms/abc-def-123');
 
+    cy.title().should('eq', 'Meeting One - PILOS Test');
+
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('John Doe').should('be.visible');
@@ -517,6 +746,7 @@ describe('Room View general', function () {
           color: '#4a5c66'
         },
         model_name: 'Room',
+        username: 'Max Doe',
         short_description: null,
         is_favorite: false,
         authenticated: true,
@@ -536,6 +766,8 @@ describe('Room View general', function () {
 
     // Visit room with token
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+    cy.title().should('eq', 'Meeting One - PILOS Test');
 
     // Check that header for token is set
     cy.wait('@roomRequest').then((interception) => {
@@ -567,6 +799,20 @@ describe('Room View general', function () {
 
     // Check if share button is hidden
     cy.get('[data-test="room-share-button"]').should('not.exist');
+
+    // Reload with invalid token
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 401,
+      body: {
+        message: 'invalid_token'
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+
+    // Check that error message is shown
+    cy.get('.p-toast').should('be.visible').and('have.text', 'rooms.flash.token_invalid');
+    cy.contains('rooms.invalid_personal_link').should('be.visible');
   });
 
   it('room view with token (moderator)', function () {
@@ -587,6 +833,7 @@ describe('Room View general', function () {
           color: '#4a5c66'
         },
         model_name: 'Room',
+        username: 'Max Doe',
         short_description: null,
         is_favorite: false,
         authenticated: true,
@@ -606,6 +853,8 @@ describe('Room View general', function () {
 
     // Visit room with token
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+    cy.title().should('eq', 'Meeting One - PILOS Test');
 
     // Check that header for token is set
     cy.wait('@roomRequest').then((interception) => {
@@ -697,6 +946,8 @@ describe('Room View general', function () {
 
     cy.visit('/rooms/abc-def-123');
 
+    cy.title().should('eq', 'Meeting One - PILOS Test');
+
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('Max Doe').should('be.visible');
@@ -726,7 +977,7 @@ describe('Room View general', function () {
     cy.get('#invitationCode').should('have.value', '123-456-789');
   });
 
-  it('guest forbidden', function () {
+  it('visit with guest forbidden', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 403,
       body: {
@@ -751,7 +1002,72 @@ describe('Room View general', function () {
     cy.contains('Meeting One').should('be.visible');
   });
 
-  it('test error', function () {
+  it('visit with token as authenticated user', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: true,
+        is_moderator: true,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 123456789,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    // Visit room with token
+    cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+    // Check that error message is shown and user is redirected to the home page
+    cy.get('.p-toast').should('be.visible').and('have.text', 'app.flash.guests_only');
+    cy.url().should('not.include', '/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+  });
+
+  it('visit with invalid token', function () {
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 401,
+      body: {
+        message: 'invalid_token'
+      }
+    }).as('roomRequest');
+
+    // Visit room with token
+    cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+    // Check that error message is shown
+    cy.contains('rooms.invalid_personal_link').should('be.visible');
+  });
+
+  it('visit with general error', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 500,
       body: {
@@ -773,7 +1089,7 @@ describe('Room View general', function () {
     cy.contains('Meeting One').should('be.visible');
   });
 
-  it('room not found', function () {
+  it('visit with room not found', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 404,
       body: {
@@ -784,5 +1100,187 @@ describe('Room View general', function () {
     cy.visit('/rooms/abc-def-123');
 
     cy.url().should('include', '/404').should('not.include', '/rooms/abc-def-123');
+  });
+
+  it('reload with errors', function () {
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.interceptRoomFilesRequest();
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+    cy.wait('@roomRequest');
+    cy.contains('Meeting One').should('be.visible');
+
+    // Test reload with guests forbidden
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 403,
+      body: {
+        message: 'guests_not_allowed'
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+
+    cy.wait('@roomRequest');
+    // Check that the error message is shown
+    cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
+
+    // Test reload with general error
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 500,
+      body: {
+        message: 'Test'
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+    cy.wait('@roomRequest');
+
+    cy.get('.p-toast')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+
+    // Test reload with room not found
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 404,
+      body: {
+        message: 'No query results for model [App\\Room] abc-def-123'
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+    cy.wait('@roomRequest');
+
+    cy.url().should('include', '/404').should('not.include', '/rooms/abc-def-123');
+  });
+
+  it('logged in status change', function () {
+    cy.interceptRoomFilesRequest();
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    // Check that tabs are shown correctly
+    cy.get('#tab-description').should('be.visible');
+    cy.get('#tab-members').should('be.visible');
+    cy.get('#tab-tokens').should('be.visible');
+    cy.get('#tab-files').should('be.visible');
+    cy.get('#tab-recordings').should('be.visible');
+    cy.get('#tab-history').should('be.visible');
+    cy.get('#tab-settings').should('be.visible');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: null
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+
+    // Check that tabs are shown correctly
+    cy.get('#tab-description').should('not.exist');
+    cy.get('#tab-members').should('not.exist');
+    cy.get('#tab-tokens').should('not.exist');
+    cy.get('#tab-files').should('be.visible');
+    cy.get('#tab-recordings').should('be.visible');
+    cy.get('#tab-history').should('not.exist');
+    cy.get('#tab-settings').should('not.exist');
+
+    // ToDo co-owner and moderator also needed??
   });
 });

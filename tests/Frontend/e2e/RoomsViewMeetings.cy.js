@@ -835,6 +835,7 @@ describe('Rooms view meetings', function () {
           color: '#4a5c66'
         },
         model_name: 'Room',
+        username: 'Max Doe',
         short_description: null,
         is_favorite: false,
         authenticated: true,
@@ -874,6 +875,7 @@ describe('Rooms view meetings', function () {
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
       expect(interception.request.body).to.contain({
+        name: null,
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true
@@ -914,6 +916,7 @@ describe('Rooms view meetings', function () {
           color: '#4a5c66'
         },
         model_name: 'Room',
+        username: 'Max Doe',
         short_description: null,
         is_favorite: false,
         authenticated: true,
@@ -2000,6 +2003,7 @@ describe('Rooms view meetings', function () {
           color: '#4a5c66'
         },
         model_name: 'Room',
+        username: 'Max Doe',
         short_description: null,
         is_favorite: false,
         authenticated: true,
@@ -2039,6 +2043,7 @@ describe('Rooms view meetings', function () {
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
       expect(interception.request.body).to.contain({
+        name: null,
         consent_record_attendance: true,
         consent_record: true,
         consent_record_video: true
@@ -2079,6 +2084,7 @@ describe('Rooms view meetings', function () {
           color: '#4a5c66'
         },
         model_name: 'Room',
+        username: 'Max Doe',
         short_description: null,
         is_favorite: false,
         authenticated: true,
