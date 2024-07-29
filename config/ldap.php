@@ -30,7 +30,6 @@ return [
 
     'logging' => [
         'enabled' => env('LDAP_LOGGING', false),
-        'channel' => env('LOG_CHANNEL', 'stack'),
     ],
 
     'load_attributes_as_user' => env('LDAP_LOAD_ATTRIBUTES_AS_USER', false),
