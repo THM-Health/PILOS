@@ -13,6 +13,7 @@ return [
         'port' => env('LDAP_PORT', 389),
         'base_dn' => env('LDAP_BASE_DN', 'dc=local,dc=com'),
         'timeout' => env('LDAP_TIMEOUT', 5),
+        'version' => env('LDAP_VERSION', 3),
         'use_ssl' => env('LDAP_SSL', false),
         'use_tls' => env('LDAP_TLS', false),
     ],
@@ -30,7 +31,6 @@ return [
 
     'logging' => [
         'enabled' => env('LDAP_LOGGING', false),
-        'channel' => env('LOG_CHANNEL', 'stack'),
     ],
 
     'load_attributes_as_user' => env('LDAP_LOAD_ATTRIBUTES_AS_USER', false),

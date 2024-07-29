@@ -69,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Various postgres incompatibility issues ([#1078], [#1079])
+- Ldap debug logging ([#1252])
 
 ### Removed
 - Documentation for running PILOS without docker ([#617])

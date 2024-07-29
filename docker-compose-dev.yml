@@ -104,6 +104,7 @@ services:
         LDAP_ORGANISATION: "Demo University"
         LDAP_DOMAIN: "university.org"
         LDAP_READONLY_USER: 'true'
+        LDAP_TLS_VERIFY_CLIENT: 'never'
       volumes:
         - './docker/openldap:/container/service/slapd/assets/config/bootstrap/ldif/custom'
       command: --copy-service

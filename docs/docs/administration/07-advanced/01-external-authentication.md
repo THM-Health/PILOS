@@ -30,7 +30,7 @@ LDAP_PORT=389
 LDAP_BASE_DN="ou=users,dc=university,dc=org"
 LDAP_TIMEOUT=5
 LDAP_SSL=false
-LDAP_TLS=false
+LDAP_TLS=true
 
 # LDAP logging debugging only
 LDAP_LOGGING=false
@@ -50,6 +50,17 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 # Attribute by which the user should be found in the LDAP
 LDAP_LOGIN_ATTRIBUTE=uid
 ```
+
+#### SSL / TLS
+
+You can either use SSL or TLS to secure the connection to the LDAP server.
+SSL has been deprecated and is typically a separate port (636).
+TLS is using the same port as the unsecured connection (389) and doing an upgrade to TLS after the connection has been established.
+[Read more](https://ldaprecord.com/docs/core/v3/configuration/#ssl--tls).
+
+By default, PILOS **doesn't verify** the TLS certificate of the LDAP server.
+However, you can customize this by overwriting the ldap.conf ([Read more](http://www.openldap.org/software/man.cgi?query=ldap.conf&manpath=OpenLDAP+2.6-Release)
+) config file in `/etc/openldap/ldap.conf` using docker volumes.
 
 ### Shibboleth
 
