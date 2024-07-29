@@ -464,6 +464,26 @@ export const routes = [
         }
       },
       {
+        path: 'server_pools/new',
+        name: 'admin.server_pools.new',
+        component: ServerPoolsView,
+        props: route => {
+          return {
+            id: 'new',
+            viewOnly: false
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (userPermissions, params, query) => {
+            return Promise.resolve(
+              userPermissions.can('view', 'AdminPolicy') &&
+              userPermissions.can('create', 'ServerPoolPolicy')
+            );
+          }
+        }
+      },
+      {
         path: 'server_pools/:id',
         name: 'admin.server_pools.view',
         component: ServerPoolsView,
