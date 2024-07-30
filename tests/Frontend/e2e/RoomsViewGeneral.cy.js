@@ -83,7 +83,7 @@ describe('Room View general', function () {
     cy.get('[data-test="room-share-button"]').should('not.exist');
 
     // Test reloading the room
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+    const reloadRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
         name: 'Meeting Two',
@@ -116,10 +116,13 @@ describe('Room View general', function () {
         record: false,
         current_user: null
       }
-    }).as('roomRequest');
+    }, 'roomRequest');
 
     // Trigger reload
     cy.get('[data-test="reload-room-button"]').click();
+    cy.get('[data-test="reload-room-button"]').should('be.disabled').then(() => {
+      reloadRequest.sendResponse();
+    });
 
     cy.title().should('eq', 'Meeting Two - PILOS Test');
 
@@ -1081,11 +1084,11 @@ describe('Room View general', function () {
       body: {
         message: 'Test join membership error'
       }
-    }).as('membershipRequest');
+    }).as('joinMembershipRequest');
 
     cy.get('[data-test="room-join-membership-button"]').click();
 
-    cy.wait('@membershipRequest').then((interception) => {
+    cy.wait('@joinMembershipRequest').then((interception) => {
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
 
@@ -1098,9 +1101,9 @@ describe('Room View general', function () {
     cy.get('.p-toast-message').should('not.exist');
 
     // Test join membership
-    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
+    const joinMembershipRequest = interceptIndefinitely('POST', 'api/v1/rooms/abc-def-123/membership', {
       statusCode: 204
-    }).as('membershipRequest');
+    }, 'joinMembershipRequest');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1143,8 +1146,11 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-end-membership-button"]').should('not.exist');
     cy.get('[data-test="room-join-membership-button"]').click();
+    cy.get('[data-test="room-join-membership-button"]').should('be.disabled').then(() => {
+      joinMembershipRequest.sendResponse();
+    });
 
-    cy.wait('@membershipRequest').then((interception) => {
+    cy.wait('@joinMembershipRequest').then((interception) => {
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
 
@@ -1161,14 +1167,14 @@ describe('Room View general', function () {
       body: {
         message: 'Test end membership error'
       }
-    }).as('membershipRequest');
+    }).as('endMembershipRequest');
 
     cy.get('[data-test="room-end-membership-button"]').click();
 
     cy.get('[data-test="end-membership-dialog"]').should('be.visible');
     cy.get('[data-test="dialog-continue-button"]').click();
 
-    cy.wait('@membershipRequest').then((interception) => {
+    cy.wait('@endMembershipRequest').then((interception) => {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
@@ -1181,13 +1187,14 @@ describe('Room View general', function () {
     cy.get('.p-toast-message').should('not.exist');
 
     // Close end membership dialog
+    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="end-membership-dialog"]').should('not.exist');
 
     // Test end membership
-    const deleteMembershipRequest = interceptIndefinitely('DELETE', 'api/v1/rooms/abc-def-123/membership', {
+    const endMembershipRequest = interceptIndefinitely('DELETE', 'api/v1/rooms/abc-def-123/membership', {
       statusCode: 204
-    }, 'membershipRequest');
+    }, 'endMembershipRequest');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1233,10 +1240,10 @@ describe('Room View general', function () {
     cy.get('[data-test="end-membership-dialog"]').should('be.visible');
     cy.get('[data-test="dialog-continue-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
-      deleteMembershipRequest.sendResponse();
+      endMembershipRequest.sendResponse();
     });
 
-    cy.wait('@membershipRequest').then((interception) => {
+    cy.wait('@endMembershipRequest').then((interception) => {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
@@ -1620,18 +1627,20 @@ describe('Room View general', function () {
     cy.wait('@addFavoritesRequest');
     cy.wait('@roomRequest');
 
+    // Check that error message is shown and button stayed the same
     cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
       .find('button').click();
-
     cy.get('.p-toast-message').should('not.exist');
 
+    cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add');
+
     // Test add room to favorites
-    cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
+    const addToFavoritesRequest = interceptIndefinitely('POST', 'api/v1/rooms/abc-def-123/favorites', {
       statusCode: 204
-    }).as('addFavoritesRequest');
+    }, 'addFavoritesRequest');
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
@@ -1672,12 +1681,17 @@ describe('Room View general', function () {
       }
     }).as('roomRequest');
 
+    cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add');
     cy.get('[data-test="room-favorites-button"]').click();
+    cy.get('[data-test="room-favorites-button"]').should('be.disabled').then(() => {
+      addToFavoritesRequest.sendResponse();
+    });
 
     cy.wait('@addFavoritesRequest');
     cy.wait('@roomRequest');
 
-    // ToDo ??
+    // Check that button is changed to remove from favorites
+    cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove');
 
     // Test remove room from favorites with general error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
@@ -1692,18 +1706,20 @@ describe('Room View general', function () {
     cy.wait('@deleteFavoritesRequest');
     cy.wait('@roomRequest');
 
+    // Check that error message is shown and button stayed the same
     cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test remove favorite error"}')
       .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
       .find('button').click();
-
     cy.get('.p-toast-message').should('not.exist');
 
+    cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove');
+
     // Test remove room from favorites
-    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
+    const deleteFromFavorites = interceptIndefinitely('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
       statusCode: 204
-    }).as('deleteFavoritesRequest');
+    }, 'deleteFavoritesRequest');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1721,7 +1737,7 @@ describe('Room View general', function () {
         },
         model_name: 'Room',
         short_description: null,
-        is_favorite: true,
+        is_favorite: false,
         authenticated: true,
         description: '<p>Test</p>',
         allow_membership: true,
@@ -1746,11 +1762,15 @@ describe('Room View general', function () {
     }).as('roomRequest');
 
     cy.get('[data-test="room-favorites-button"]').click();
+    cy.get('[data-test="room-favorites-button"]').should('be.disabled').then(() => {
+      deleteFromFavorites.sendResponse();
+    });
 
     cy.wait('@deleteFavoritesRequest');
     cy.wait('@roomRequest');
 
-    // ToDo ??
+    // Check that button is changed to add to favorites
+    cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add');
   });
 
   it('visit with guest forbidden', function () {
