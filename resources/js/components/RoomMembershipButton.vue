@@ -66,7 +66,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['added', 'removed', 'invalidCode', 'membershipDisabled']);
+const emit = defineEmits(['joinedMembership', 'leftMembership', 'invalidCode', 'membershipDisabled']);
 
 const isLoadingAction = ref(false);
 const showModal = ref(false);
@@ -85,7 +85,7 @@ function joinMembership () {
   const config = props.accessCode == null ? { method: 'post' } : { method: 'post', headers: { 'Access-Code': props.accessCode } };
   api.call('rooms/' + props.room.id + '/membership', config)
     .then(() => {
-      emit('added');
+      emit('joinedMembership');
     })
     .catch((error) => {
       // Access code invalid
@@ -113,7 +113,7 @@ function leaveMembership () {
   api.call('rooms/' + props.room.id + '/membership', {
     method: 'delete'
   }).then(() => {
-    emit('removed');
+    emit('leftMembership');
     showModal.value = false;
   }).catch((error) => {
     api.error(error);
