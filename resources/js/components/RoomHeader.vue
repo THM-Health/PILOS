@@ -27,7 +27,15 @@
             :loading="props.loading"
           />
           <RoomFavoriteButton v-if="!hideFavorites && authStore.isAuthenticated" :room="props.room" @favorites-changed="emit('reload')" />
-          <RoomMembershipButton v-if="!hideMembership && authStore.isAuthenticated" :room="props.room" @added="emit('reload')" @removed="emit('reload')" />
+          <RoomMembershipButton
+            v-if="!hideMembership && authStore.isAuthenticated"
+            :room="props.room"
+            :access-code="props.accessCode"
+            @joinedMembership="emit('joinedMembership')"
+            @leftMembership="emit('reload')"
+            @invalidCode="emit('invalidCode')"
+            @membershipDisabled="emit('reload')"
+          />
         </div>
       </div>
     </div>
@@ -67,9 +75,13 @@ const props = defineProps({
   hideMembership: {
     type: Boolean,
     default: false
+  },
+  accessCode: {
+    type: Number,
+    required: false
   }
 });
 
-const emit = defineEmits(['reload']);
+const emit = defineEmits(['joinedMembership', 'reload', 'invalidCode']);
 
 </script>

@@ -116,7 +116,16 @@
         <div v-else>
           <Card>
           <template #header>
-            <RoomHeader class="mx-6 mt-6" :room="room" :loading="loading" @reload="reload" :details-inline="true" />
+            <RoomHeader
+              class="mx-6 mt-6"
+              :room="room"
+              :loading="loading"
+              :access-code="accessCode"
+              @reload="reload"
+              @invalidCode="handleInvalidCode"
+              @joinedMembership="accessCode = null; reload()"
+              :details-inline="true"
+            />
           </template>
           <template #content>
             <div
