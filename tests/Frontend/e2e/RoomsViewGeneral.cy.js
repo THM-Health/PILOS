@@ -980,6 +980,588 @@ describe('Room View general', function () {
     cy.get('#invitationCode').should('have.value', '123-456-789');
   });
 
+  it('membership button', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
+
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
+
+    // Test join membership with general error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 500,
+      body: {
+        message: 'Test join membership error'
+      }
+    }).as('membershipRequest');
+
+    cy.get('[data-test="room-join-membership-button"]').click();
+
+    cy.wait('@membershipRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    // Check if error message is shown and close it
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test join membership error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Test join membership
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 204
+    }).as('membershipRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: true,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-end-membership-button"]').should('not.exist');
+    cy.get('[data-test="room-join-membership-button"]').click();
+
+    cy.wait('@membershipRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
+
+    cy.get('[data-test="room-join-membership-button"]').should('not.exist');
+    cy.get('[data-test="room-end-membership-button"]').should('be.visible');
+
+    // Test end membership with general error
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 500,
+      body: {
+        message: 'Test end membership error'
+      }
+    }).as('membershipRequest');
+
+    cy.get('[data-test="room-end-membership-button"]').click();
+
+    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@membershipRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
+
+    // Check if error message is shown and close it
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test end membership error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Close end membership dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
+    cy.get('[data-test="end-membership-dialog"]').should('not.exist');
+
+    // Test end membership
+    const deleteMembershipRequest = interceptIndefinitely('DELETE', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 204
+    }, 'membershipRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-end-membership-button"]').click();
+
+    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
+    cy.get('[data-test="dialog-continue-button"]').click();
+    cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
+      deleteMembershipRequest.sendResponse();
+    });
+
+    cy.wait('@membershipRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
+
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+    cy.get('[data-test="room-access-code"] input').should('have.value', '123-456-789'); // ToDo change back to #access-code
+  });
+
+  it('join membership invalid code', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
+
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
+
+    // Test join membership with invalid code error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 401,
+      body: {
+        message: 'invalid_code'
+      }
+    }).as('membershipRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-join-membership-button"]').click();
+
+    cy.wait('@membershipRequest');
+    cy.wait('@roomRequest');
+
+    // Check if error message is shown
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.access_code_invalid')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
+  });
+
+  it('join membership but membership not available', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: false,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
+
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-login-button"]').click();
+
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+
+    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
+
+    // Test join membership with membership not available
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 403,
+      body: {
+        message: 'Membership failed! Membership for this room is currently not available.'
+      }
+    }).as('membershipRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: false,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-join-membership-button"]').click();
+
+    cy.wait('@membershipRequest');
+    cy.wait('@roomRequest');
+
+    // Check if error message is shown and close ii
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Membership failed! Membership for this room is currently not available."}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":403}');
+
+    cy.get('[data-test="room-login-button"]').should('not.exist');
+  });
+
   it('favorites button', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1027,7 +1609,7 @@ describe('Room View general', function () {
 
     // Test add room to favorites with general error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode:500,
+      statusCode: 500,
       body: {
         message: 'Test add favorite error'
       }
@@ -1095,11 +1677,11 @@ describe('Room View general', function () {
     cy.wait('@addFavoritesRequest');
     cy.wait('@roomRequest');
 
-    //ToDo ??
+    // ToDo ??
 
     // Test remove room from favorites with general error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode:500,
+      statusCode: 500,
       body: {
         message: 'Test remove favorite error'
       }
@@ -1169,7 +1751,6 @@ describe('Room View general', function () {
     cy.wait('@roomRequest');
 
     // ToDo ??
-
   });
 
   it('visit with guest forbidden', function () {
