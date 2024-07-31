@@ -257,8 +257,10 @@ describe('Room View general', function () {
       expect(interception.request.headers['access-code']).to.eq('987654321');
     });
 
-    // Wait for second request
-    cy.wait('@roomRequest');
+    // Wait for second request and check if access code gets reset
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
 
     // Check if error message is shown
     cy.get('.p-toast-message')
@@ -398,6 +400,15 @@ describe('Room View general', function () {
       }
     }).as('roomRequest').then(() => {
       errorReloadRoomRequest.sendResponse();
+    });
+
+    // Check that access code header is set for the first request
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+    // Check that access code header is reset for the second request (reload room)
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
     // Check if error message is shown
@@ -1399,8 +1410,14 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-join-membership-button"]').click();
 
-    cy.wait('@membershipRequest');
-    cy.wait('@roomRequest');
+    // Wait for membership request and check that access code is still set
+    cy.wait('@membershipRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.eq('123456789');
+    });
+    // Wait for room request and check that access code is reset
+    cy.wait('@roomRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
 
     // Check if error message is shown
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
@@ -2034,6 +2051,7 @@ describe('Room View general', function () {
     cy.get('#tab-history').should('be.visible');
     cy.get('#tab-settings').should('be.visible');
 
+    // Change current user to guest
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
