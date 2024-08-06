@@ -196,7 +196,7 @@ describe('Room View general', function () {
       cy.contains('rooms.require_access_code').should('be.visible');
 
       // Try to submit invalid access code
-      cy.get('[data-test="room-access-code"] input').type('987654321'); // ToDo change back to #access-code
+      cy.get('#access-code').type('987654321');
     });
 
     // Intercept first request to respond with error
@@ -273,7 +273,7 @@ describe('Room View general', function () {
 
     // Submit correct access code
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible').within(() => {
-      cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+      cy.get('#access-code').type('123456789');
     });
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -1041,7 +1041,7 @@ describe('Room View general', function () {
     cy.wait('@roomRequest');
 
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
-    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+    cy.get('#access-code').type('123456789');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1264,7 +1264,7 @@ describe('Room View general', function () {
     });
 
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
-    cy.get('[data-test="room-access-code"] input').should('have.value', '123-456-789'); // ToDo change back to #access-code
+    cy.get('#access-code').should('have.value', '123-456-789');
   });
 
   it('join membership invalid code', function () {
@@ -1313,7 +1313,7 @@ describe('Room View general', function () {
     cy.wait('@roomRequest');
 
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
-    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+    cy.get('#access-code').type('123456789');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1477,7 +1477,7 @@ describe('Room View general', function () {
     cy.wait('@roomRequest');
 
     cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
-    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+    cy.get('#access-code').type('123456789');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {

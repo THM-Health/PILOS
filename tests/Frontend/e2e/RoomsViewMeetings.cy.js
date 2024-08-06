@@ -472,7 +472,7 @@ describe('Rooms view meetings', function () {
 
     // Type in access code to get access to the room
     cy.wait('@roomRequest');
-    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+    cy.get('#access-code').type('123456789');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -598,7 +598,7 @@ describe('Rooms view meetings', function () {
 
     // Type in access code to get access to the room
     cy.wait('@roomRequest');
-    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+    cy.get('#access-code').type('123456789');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1637,7 +1637,7 @@ describe('Rooms view meetings', function () {
 
     // Type in access code to get access to the room
     cy.wait('@roomRequest');
-    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+    cy.get('#access-code').type('123456789');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
@@ -1773,7 +1773,7 @@ describe('Rooms view meetings', function () {
 
     // Type in access code to get access to the room
     cy.wait('@roomRequest');
-    cy.get('[data-test="room-access-code"] input').type('123456789'); // ToDo change back to #access-code
+    cy.get('#access-code').type('123456789');
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
