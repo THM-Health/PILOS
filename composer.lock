@@ -1510,16 +1510,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v11.18.1",
+            "version": "v11.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "b19ba518c56852567e99fbae9321bc436c2cc5a8"
+                "reference": "5e103d499e9ee5bcfc184412d034c4e516b87085"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/b19ba518c56852567e99fbae9321bc436c2cc5a8",
-                "reference": "b19ba518c56852567e99fbae9321bc436c2cc5a8",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/5e103d499e9ee5bcfc184412d034c4e516b87085",
+                "reference": "5e103d499e9ee5bcfc184412d034c4e516b87085",
                 "shasum": ""
             },
             "require": {
@@ -1712,20 +1712,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-07-26T10:39:29+00:00"
+            "time": "2024-07-30T15:22:41+00:00"
         },
         {
             "name": "laravel/horizon",
-            "version": "v5.26.0",
+            "version": "v5.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/horizon.git",
-                "reference": "ee804ece8e0376e8ddf44348de947945751c06f2"
+                "reference": "8830039251591d1af353f571b40fe0c774dfda20"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/horizon/zipball/ee804ece8e0376e8ddf44348de947945751c06f2",
-                "reference": "ee804ece8e0376e8ddf44348de947945751c06f2",
+                "url": "https://api.github.com/repos/laravel/horizon/zipball/8830039251591d1af353f571b40fe0c774dfda20",
+                "reference": "8830039251591d1af353f571b40fe0c774dfda20",
                 "shasum": ""
             },
             "require": {
@@ -1789,9 +1789,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/horizon/issues",
-                "source": "https://github.com/laravel/horizon/tree/v5.26.0"
+                "source": "https://github.com/laravel/horizon/tree/v5.27.0"
             },
-            "time": "2024-07-22T14:37:58+00:00"
+            "time": "2024-07-26T05:41:51+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -8695,16 +8695,16 @@
         },
         {
             "name": "laravel/pint",
-            "version": "v1.17.0",
+            "version": "v1.17.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/pint.git",
-                "reference": "4dba80c1de4b81dc4c4fb10ea6f4781495eb29f5"
+                "reference": "b5b6f716db298671c1dfea5b1082ec2c0ae7064f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/pint/zipball/4dba80c1de4b81dc4c4fb10ea6f4781495eb29f5",
-                "reference": "4dba80c1de4b81dc4c4fb10ea6f4781495eb29f5",
+                "url": "https://api.github.com/repos/laravel/pint/zipball/b5b6f716db298671c1dfea5b1082ec2c0ae7064f",
+                "reference": "b5b6f716db298671c1dfea5b1082ec2c0ae7064f",
                 "shasum": ""
             },
             "require": {
@@ -8757,7 +8757,7 @@
                 "issues": "https://github.com/laravel/pint/issues",
                 "source": "https://github.com/laravel/pint"
             },
-            "time": "2024-07-23T16:40:20+00:00"
+            "time": "2024-08-01T09:06:33+00:00"
         },
         {
             "name": "mockery/mockery",
@@ -9428,16 +9428,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.2.8",
+            "version": "11.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "a7a29e8d3113806f18f99d670f580a30e8ffff39"
+                "reference": "a8dce73a8938dfec7ac0daa91bdbcaae7d7188a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a7a29e8d3113806f18f99d670f580a30e8ffff39",
-                "reference": "a7a29e8d3113806f18f99d670f580a30e8ffff39",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a8dce73a8938dfec7ac0daa91bdbcaae7d7188a3",
+                "reference": "a8dce73a8938dfec7ac0daa91bdbcaae7d7188a3",
                 "shasum": ""
             },
             "require": {
@@ -9476,7 +9476,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "11.2-dev"
+                    "dev-main": "11.3-dev"
                 }
             },
             "autoload": {
@@ -9508,7 +9508,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.2.8"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.3.0"
             },
             "funding": [
                 {
@@ -9524,7 +9524,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-18T14:56:37+00:00"
+            "time": "2024-08-02T03:56:43+00:00"
         },
         {
             "name": "sebastian/cli-parser",
