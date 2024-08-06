@@ -687,7 +687,7 @@ describe('Room View general', function () {
           color: '#4a5c66'
         },
         model_name: 'Room',
-        short_description: null,
+        short_description: 'Room short description',
         is_favorite: false,
         authenticated: true,
         description: null,
@@ -719,6 +719,7 @@ describe('Room View general', function () {
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('John Doe').should('be.visible');
+    cy.contains('Room short description').should('be.visible');
     cy.contains('rooms.index.room_component.never_started').should('be.visible');
 
     // Check that buttons are shown correctly

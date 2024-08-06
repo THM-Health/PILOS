@@ -78,10 +78,10 @@ describe('Rooms index create new room', function () {
       // Check that the room types are shown correctly
       cy.get('[data-test=room-type-select-option]').should('have.length', 4);
 
-      cy.get('[data-test=room-type-select-option]').eq(0).should('have.text', 'Vorlesung');
+      cy.get('[data-test=room-type-select-option]').eq(0).should('have.text', 'Lecture');
       cy.get('[data-test=room-type-select-option]').eq(1).should('have.text', 'Meeting');
-      cy.get('[data-test=room-type-select-option]').eq(2).should('have.text', 'Prüfung');
-      cy.get('[data-test=room-type-select-option]').eq(3).should('have.text', 'Übung');
+      cy.get('[data-test=room-type-select-option]').eq(2).should('have.text', 'Exam');
+      cy.get('[data-test=room-type-select-option]').eq(3).should('have.text', 'Seminar');
 
       // Select a room type
       cy.get('[data-test=room-type-select-option]').eq(0).click();

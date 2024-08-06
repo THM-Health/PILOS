@@ -76,6 +76,7 @@
     >
       <div class="flex flex-wrap shrink-0 gap-1">
         <ToggleButton
+          data-test="rooms-filter-all-button"
           v-model="roomFilterAll"
           @change="loadRooms(1)"
           v-if="!onlyShowFavorites && userPermissions.can('viewAll', 'RoomPolicy')"
@@ -93,6 +94,13 @@
           multiple
           :allowEmpty="roomFilter.length > 1"
           @change="loadRooms(1)"
+          :pt="{
+            pcButton: {
+              root:{
+                'data-test': 'rooms-filter-button'
+              }
+            }
+          }"
         />
 
       </div>
@@ -128,6 +136,9 @@
             :pt="{
               listContainer: {
                 'data-test': 'room-type-dropdown-items'
+              },
+              option:{
+                'data-test': 'room-type-dropdown-option'
               }
             }"
           />
@@ -160,6 +171,9 @@
             :pt="{
               listContainer: {
                 'data-test': 'sorting-type-dropdown-items'
+              },
+              option:{
+                'data-test': 'sorting-type-dropdown-option'
               }
             }"
           />
@@ -212,6 +226,16 @@
           rowHover
           class="mt-6"
           @page="onPage"
+          :pt="{
+            pcPaginator: {
+              page: {
+                'data-test': 'paginator-page'
+              },
+              next: {
+                'data-test': 'paginator-next-button'
+              }
+            }
+          }"
         >
           <!-- Show message on empty room list -->
           <template #empty>
