@@ -155,7 +155,7 @@ describe('Room Index', function () {
               },
               last_meeting: null,
               type: {
-                id: 1,
+                id: 2,
                 name: 'Meeting',
                 color: '#4a5c66'
               },
@@ -212,7 +212,7 @@ describe('Room Index', function () {
               end: null
             },
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -264,7 +264,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -384,7 +384,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -438,7 +438,7 @@ describe('Room Index', function () {
               end: null
             },
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -490,7 +490,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -629,7 +629,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -685,7 +685,7 @@ describe('Room Index', function () {
               end: null
             },
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -738,7 +738,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -841,7 +841,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -899,7 +899,7 @@ describe('Room Index', function () {
               end: null
             },
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -954,7 +954,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -1110,7 +1110,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -1169,7 +1169,7 @@ describe('Room Index', function () {
               end: null
             },
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -1225,7 +1225,7 @@ describe('Room Index', function () {
             },
             last_meeting: null,
             type: {
-              id: 1,
+              id: 2,
               name: 'Meeting',
               color: '#4a5c66'
             },
@@ -1269,6 +1269,900 @@ describe('Room Index', function () {
     cy.get('[data-test="rooms-filter-button"]').eq(0).should('include.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
     cy.get('[data-test="rooms-filter-button"]').eq(1).should('include.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
     cy.get('[data-test="rooms-filter-button"]').eq(2).should('include.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'true');
+  });
+
+  it('show favorites', function () {
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.viewAll'],
+        model_name: 'User',
+        room_limit: -1
+      }
+    });
+
+    cy.visit('/rooms');
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '0',
+        page: '1'
+      });
+    });
+
+    // Check that filter options are shown
+    cy.get('[data-test="rooms-filter-all-button"]').should('be.visible');
+    cy.get('[data-test="rooms-filter-button"]').should('have.length', 3);
+    cy.get('[data-test="room-type-dropdown"]').should('be.visible');
+
+    // Click on only favorites button and reload with no favorites
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 1,
+          to: null,
+          total: 0,
+          total_no_filter: 0,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="only-favorites-button"]').should('have.text', 'rooms.index.only_favorites').click();
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '1',
+        page: '1'
+      });
+    });
+
+    // Check that correct message is shown and no rooms are shown
+    cy.contains('rooms.index.no_favorites').should('be.visible');
+    cy.get('[data-test="room-card"]').should('have.length', 0);
+
+    // Check that filter options are hidden
+    cy.get('[data-test="rooms-filter-all-button"]').should('not.exist');
+    cy.get('[data-test="rooms-filter-button"]').should('have.length', 0);
+    cy.get('[data-test="room-type-dropdown"]').should('not.exist');
+
+    // Click on only favorites button again
+    cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' }).as('roomRequest');
+    cy.get('[data-test="only-favorites-button"]').click();
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '0',
+        page: '1'
+      });
+    });
+
+    // Check that filter options are shown again
+    cy.get('[data-test="rooms-filter-all-button"]').should('be.visible');
+    cy.get('[data-test="rooms-filter-button"]').should('have.length', 3);
+    cy.get('[data-test="room-type-dropdown"]').should('be.visible');
+
+    // Trigger only favorites button again and respond with 3 rooms on 3 different pages
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: 'Room short description'
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="only-favorites-button"]').click();
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '1',
+        page: '1'
+      });
+    });
+
+    // Check that filter options are hidden
+    cy.get('[data-test="rooms-filter-all-button"]').should('not.exist');
+    cy.get('[data-test="rooms-filter-button"]').should('have.length', 0);
+    cy.get('[data-test="room-type-dropdown"]').should('not.exist');
+
+    // Check that room is shown correctly
+    cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting One');
+
+    // Check that pagination shows the correct number of pages and switch to next page
+    cy.get('[data-test="paginator-page"]').should('have.length', 3);
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    // Click on button for next page (eq(1) needed because there are two paginator components
+    // (first one for small devices second one for larger devices))
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '1',
+        page: '2'
+      });
+    });
+
+    // Check that filter options are still hidden
+    cy.get('[data-test="rooms-filter-all-button"]').should('not.exist');
+    cy.get('[data-test="rooms-filter-button"]').should('have.length', 0);
+    cy.get('[data-test="room-type-dropdown"]').should('not.exist');
+
+    // Check that room is shown correctly
+    cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting Two');
+
+    // Trigger only favorites button again and make sure that the page is reset
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: 'Room short description'
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="only-favorites-button"]').click();
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '0',
+        page: '1'
+      });
+    });
+
+    // Check that filter options are shown again
+    cy.get('[data-test="rooms-filter-all-button"]').should('be.visible');
+    cy.get('[data-test="rooms-filter-button"]').should('have.length', 3);
+    cy.get('[data-test="room-type-dropdown"]').should('be.visible');
+
+    // Check that room is shown correctly
+    cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting One');
+  });
+
+  it('trigger favorites', function () { // ToDo think about splitting into several tests
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: false,
+            short_description: 'Room short description'
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms');
+
+    cy.wait('@roomRequest');
+
+    // Test trigger favorites from room card
+
+    // Test add to favorites with general error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 500,
+      body: {
+        message: 'Test add favorite error'
+      }
+    }).as('addFavoritesRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add').click();
+
+      cy.wait('@addFavoritesRequest');
+      cy.wait('@roomRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          page: '1'
+        });
+      });
+
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add');
+    });
+
+    // Check that error message is shown and button stayed the same
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Test add room to favorites
+    const addToFavoritesRequest = interceptIndefinitely('POST', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 204
+    }, 'addFavoritesRequest');
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: 'Room short description'
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]').click();
+      cy.get('[data-test="room-favorites-button"]').should('be.disabled').then(() => {
+        addToFavoritesRequest.sendResponse();
+      });
+
+      cy.wait('@addFavoritesRequest');
+      cy.wait('@roomRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          page: '1'
+        });
+      });
+
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove');
+    });
+
+    // Change page to the next page
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+    cy.wait('@roomRequest');
+
+    // Test remove room from favorites with general error
+    cy.intercept('DELETE', 'api/v1/rooms/def-abc-123/favorites', {
+      statusCode: 500,
+      body: {
+        message: 'Test remove favorite error'
+      }
+    }).as('deleteFavoritesRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove').click();
+
+      cy.wait('@deleteFavoritesRequest');
+      cy.wait('@roomRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          // Check that page stayed the same
+          page: '2'
+        });
+      });
+
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove');
+    });
+
+    // Check that error message is shown and button stayed the same
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test remove favorite error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Test remove room from favorites
+    const deleteFromFavorites = interceptIndefinitely('DELETE', 'api/v1/rooms/def-abc-123/favorites', {
+      statusCode: 204
+    }, 'deleteFavoritesRequest');
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: false,
+            short_description: 'Room short descriptions'
+          }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]').click();
+      cy.get('[data-test="room-favorites-button"]').should('be.disabled').then(() => {
+        deleteFromFavorites.sendResponse();
+      });
+
+      cy.wait('@deleteFavoritesRequest');
+      cy.wait('@roomRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          // Check that page stayed the same
+          page: '2'
+        });
+      });
+
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add');
+    });
+
+    // Test trigger favorites from room info dialog
+
+    // Test add room to favorites
+    cy.intercept('POST', 'api/v1/rooms/def-abc-123/favorites', {
+      statusCode: 204
+    }).as('addFavoritesRequest');
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: 'Room short descriptions'
+          }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-info-dialog"]').should('not.exist');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-info-button"]').click();
+    });
+
+    cy.get('[data-test="room-info-dialog"]').should('be.visible').within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add').click();
+    });
+
+    cy.wait('@addFavoritesRequest');
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test="room-info-dialog"]').should('not.exist');
+
+    // Test remove room from favorites
+    cy.intercept('DELETE', 'api/v1/rooms/def-abc-123/favorites', {
+      statusCode: 204
+    }).as('deleteFavoritesRequest');
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: false,
+            short_description: 'Room short descriptions'
+          }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-info-dialog"]').should('not.exist');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-info-button"]').click();
+    });
+
+    cy.get('[data-test="room-info-dialog"]').should('be.visible').within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove').click();
+    });
+
+    cy.wait('@deleteFavoritesRequest');
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test="room-info-dialog"]').should('not.exist');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-info-button"]').click();
+    });
+
+    cy.get('[data-test="room-info-dialog"]').should('be.visible').within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add');
+      cy.get('[data-test="dialog-cancel-button"]').click();
+    });
+
+    // Test trigger favorites when only favorites are shown // ToDo change ids to be unique
+
+    // Trigger only favorites button and respond with 4 rooms on 2 different pages
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: 'Room short description'
+          },
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 2,
+          to: 2,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="only-favorites-button"]').click();
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '1',
+        page: '1'
+      });
+    });
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Three',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: '2023-08-21 08:20:28:00'
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          },
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Four',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          }
+
+        ],
+        meta: {
+          current_page: 2,
+          from: 3,
+          last_page: 2,
+          per_page: 2,
+          to: 4,
+          total: 4,
+          total_no_filter: 4,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        only_favorites: '1',
+        page: '2'
+      });
+    });
+
+    // Remove first room from favorites
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Four',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          }
+
+        ],
+        meta: {
+          current_page: 2,
+          from: 3,
+          last_page: 2,
+          per_page: 2,
+          to: 3,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).find('[data-test="room-favorites-button"]').click();
+
+    cy.wait('@deleteFavoritesRequest');
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '2'
+      });
+    });
+
+    // Delete second room from favorites and respond with no rooms on the second page
+    const emptyRoomRequest = interceptIndefinitely('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [],
+        meta: {
+          current_page: 2,
+          from: null,
+          last_page: 1,
+          per_page: 2,
+          to: null,
+          total: 2,
+          total_no_filter: 2,
+          total_own: 1
+        }
+      }
+    }, 'roomRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).find('[data-test="room-favorites-button"]').click();
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: 'Room short description'
+          },
+          {
+            id: 'def-abc-123',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          per_page: 2,
+          to: 2,
+          total: 2,
+          total_no_filter: 2,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest').then(() => {
+      emptyRoomRequest.sendResponse();
+    });
+
+    cy.wait('@deleteFavoritesRequest');
+    // Wait for first room request and check that page is still the same
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '2'
+      });
+    });
+
+    // Wait for second room request and check that page is reset
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
   });
 
   it('error loading rooms', function () {
