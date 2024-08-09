@@ -1513,7 +1513,7 @@ describe('Room Index', function () {
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting One');
   });
 
-  it('trigger favorites', function () { // ToDo think about splitting into several tests
+  it('trigger favorites button', function () {
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -1553,35 +1553,6 @@ describe('Room Index', function () {
     cy.wait('@roomRequest');
 
     // Test trigger favorites from room card
-
-    // Test add to favorites with general error
-    cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: 500,
-      body: {
-        message: 'Test add favorite error'
-      }
-    }).as('addFavoritesRequest');
-
-    cy.get('[data-test="room-card"]').eq(0).within(() => {
-      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add').click();
-
-      cy.wait('@addFavoritesRequest');
-      cy.wait('@roomRequest').then(interception => {
-        expect(interception.request.query).to.contain({
-          page: '1'
-        });
-      });
-
-      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add');
-    });
-
-    // Check that error message is shown and button stayed the same
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
 
     // Test add room to favorites
     const addToFavoritesRequest = interceptIndefinitely('POST', 'api/v1/rooms/abc-def-123/favorites', {
@@ -1678,36 +1649,6 @@ describe('Room Index', function () {
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
     cy.wait('@roomRequest');
-
-    // Test remove room from favorites with general error
-    cy.intercept('DELETE', 'api/v1/rooms/def-abc-123/favorites', {
-      statusCode: 500,
-      body: {
-        message: 'Test remove favorite error'
-      }
-    }).as('deleteFavoritesRequest');
-
-    cy.get('[data-test="room-card"]').eq(0).within(() => {
-      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove').click();
-
-      cy.wait('@deleteFavoritesRequest');
-      cy.wait('@roomRequest').then(interception => {
-        expect(interception.request.query).to.contain({
-          // Check that page stayed the same
-          page: '2'
-        });
-      });
-
-      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove');
-    });
-
-    // Check that error message is shown and button stayed the same
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test remove favorite error"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
 
     // Test remove room from favorites
     const deleteFromFavorites = interceptIndefinitely('DELETE', 'api/v1/rooms/def-abc-123/favorites', {
@@ -1901,7 +1842,7 @@ describe('Room Index', function () {
       cy.get('[data-test="dialog-cancel-button"]').click();
     });
 
-    // Test trigger favorites when only favorites are shown // ToDo change ids to be unique
+    // Test trigger favorites when only favorites are shown
 
     // Trigger only favorites button and respond with 4 rooms on 2 different pages
     cy.intercept('GET', 'api/v1/rooms?*', {
@@ -1971,7 +1912,7 @@ describe('Room Index', function () {
       body: {
         data: [
           {
-            id: 'def-abc-123',
+            id: 'def-abc-456',
             name: 'Meeting Three',
             owner: {
               id: 1,
@@ -1990,7 +1931,7 @@ describe('Room Index', function () {
             short_description: null
           },
           {
-            id: 'def-abc-123',
+            id: 'abc-def-456',
             name: 'Meeting Four',
             owner: {
               id: 1,
@@ -2035,7 +1976,7 @@ describe('Room Index', function () {
       body: {
         data: [
           {
-            id: 'def-abc-123',
+            id: 'abc-def-456',
             name: 'Meeting Four',
             owner: {
               id: 1,
@@ -2065,6 +2006,10 @@ describe('Room Index', function () {
       }
     }).as('roomRequest');
 
+    cy.intercept('DELETE', 'api/v1/rooms/def-abc-456/favorites', {
+      statusCode: 204
+    }).as('deleteFavoritesRequest');
+
     cy.get('[data-test="room-card"]').eq(0).find('[data-test="room-favorites-button"]').click();
 
     cy.wait('@deleteFavoritesRequest');
@@ -2091,6 +2036,10 @@ describe('Room Index', function () {
         }
       }
     }, 'roomRequest');
+
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-456/favorites', {
+      statusCode: 204
+    }).as('deleteFavoritesRequest');
 
     cy.get('[data-test="room-card"]').eq(0).find('[data-test="room-favorites-button"]').click();
 
@@ -2165,6 +2114,171 @@ describe('Room Index', function () {
     });
   });
 
+  it('trigger favorites button errors', function () {
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: false,
+            short_description: 'Room short description'
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms');
+
+    cy.wait('@roomRequest');
+
+    // Test add to favorites with general error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 500,
+      body: {
+        message: 'Test add favorite error'
+      }
+    }).as('addFavoritesRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.add').click();
+
+      cy.wait('@addFavoritesRequest');
+      cy.wait('@roomRequest');
+    });
+
+    // Check that error message is shown and button stayed the same
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Test add to favorites with unauthenticated error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 401
+    }).as('addFavoritesRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]')
+        .should('have.attr', 'aria-label', 'rooms.favorites.add')
+        .click();
+
+      cy.wait('@addFavoritesRequest');
+      cy.wait('@roomRequest');
+    });
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
+
+    // Visit rooms again with a room that is already a favorite
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: 'Room short description'
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms'); // ToDo find other way?? or create a new test for part after this ???
+
+    cy.wait('@roomRequest');
+
+    // Test remove from favorites with general error
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 500,
+      body: {
+        message: 'Test add favorite error'
+      }
+    }).as('deleteFavoritesRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove').click();
+
+      cy.wait('@deleteFavoritesRequest');
+      cy.wait('@roomRequest');
+    });
+
+    // Check that error message is shown and button stayed the same
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Test remove from favorites with unauthenticated error
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
+      statusCode: 401
+    }).as('addFavoritesRequest');
+
+    cy.get('[data-test="room-card"]').eq(0).within(() => {
+      cy.get('[data-test="room-favorites-button"]').should('have.attr', 'aria-label', 'rooms.favorites.remove').click();
+
+      cy.wait('@addFavoritesRequest');
+      cy.wait('@roomRequest');
+    });
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
+  });
+
   it('error loading rooms', function () {
     cy.intercept('GET', 'api/v1/rooms*', {
       statusCode: 500,
@@ -2235,6 +2349,22 @@ describe('Room Index', function () {
     cy.get('[data-test=sorting-type-dropdown]').within(() => {
       cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
+
+    // Reload with unauthenticated error
+    cy.intercept('GET', 'api/v1/rooms*', {
+      statusCode: 401
+    }).as('roomRequest');
+
+    cy.reload(); // ToDo find other way?? or create a new test for part after this ???
+
+    cy.wait('@roomRequest');
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
   });
 
   it('error loading room types', function () {
@@ -2270,6 +2400,21 @@ describe('Room Index', function () {
     // Check that dropdown exists and error message is not shown after correct response
     cy.get('[data-test=room-type-dropdown');
     cy.get('[data-test=room-type-inputgroup]').should('not.include.text', 'rooms.room_types.loading_error');
+
+    // Reload with unauthenticated error
+    cy.intercept('GET', 'api/v1/roomTypes', {
+      statusCode: 401
+    }).as('roomTypeRequest');
+
+    cy.reload();
+
+    cy.wait('@roomTypeRequest');
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
   });
-})
-;
+});

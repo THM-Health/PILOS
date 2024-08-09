@@ -184,15 +184,21 @@ describe('Rooms index create new room', function () {
       statusCode: 403
     }).as('createRoomRequest');
 
+    cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' }).as('currentUserRequest');
+
     cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
       // Create new room
       cy.get('[data-test="dialog-save-button"]').click();
     });
 
     cy.wait('@createRoomRequest');
+    cy.wait('@currentUserRequest');
 
     // Check that create room dialog is closed
     cy.get('[data-test=room-create-dialog]').should('not.exist');
+
+    // Check that create room button is disabled
+    cy.get('[data-test=room-create-button]').should('not.exist');
 
     // Check if error message is visible
     cy.get('.p-toast-message')
@@ -201,6 +207,21 @@ describe('Rooms index create new room', function () {
       .find('button')
       .click();
     cy.get('.p-toast-message').should('not.exist');
+
+    // Reload page to check other errors
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.create'],
+        model_name: 'User',
+        room_limit: -1
+      }
+    });
+
+    cy.reload(); // ToDo find other way?? or create a new test for part after this ???
 
     // Other errors
     cy.intercept('POST', 'api/v1/rooms', {
@@ -232,7 +253,35 @@ describe('Rooms index create new room', function () {
     cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+
+    // Test unauthenticated
+    cy.intercept('POST', 'api/v1/rooms', {
+      statusCode: 401
+    }).as('createRoomRequest');
+
+    cy.get('[data-test=room-create-button]').click();
+
+    cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
+      // Enter room name
+      cy.get('#room-name').should('have.value', '').type('New Room');
+
+      // Select a room type
+      cy.get('[data-test=room-type-select-option]').eq(0).click();
+
+      // Create new room
+      cy.get('[data-test="dialog-save-button"]').click();
+    });
+
+    cy.wait('@createRoomRequest');
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
   });
 
   it('create new room limit reached', function () {
