@@ -24,11 +24,11 @@ describe('General', function () {
 
     // Open menu to check if the correct locales are shown
     cy.get('.fa-solid.fa-language').click();
-    cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').should('have.length', 3);
-      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch');
-      cy.get('[data-test=submenu-action]').eq(1).should('have.text', 'English');
-      cy.get('[data-test=submenu-action]').eq(2).should('have.text', 'Français');
+    cy.get('[data-test="submenu"]').eq(1).within(() => {
+      cy.get('[data-test="submenu-action"]').should('have.length', 3);
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch');
+      cy.get('[data-test="submenu-action"]').eq(1).should('have.text', 'English');
+      cy.get('[data-test="submenu-action"]').eq(2).should('have.text', 'Français');
     });
   });
 
@@ -45,8 +45,8 @@ describe('General', function () {
     cy.visit('/rooms');
     // Open menu and click on a different locale than the current one
     cy.get('.fa-solid.fa-language').click();
-    cy.get('[data-test=submenu]').eq(1).should('be.visible').within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
+    cy.get('[data-test="submenu"]').eq(1).should('be.visible').within(() => {
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the correct requests are made
@@ -54,7 +54,7 @@ describe('General', function () {
     cy.wait('@deRequest');
 
     // Check that the menu is closed
-    cy.get('[data-test=submenu]').should('not.be.visible');
+    cy.get('[data-test="submenu"]').should('not.be.visible');
   });
 
   it('changing selected locale error', function () {
@@ -74,8 +74,8 @@ describe('General', function () {
 
     // Open menu and click on a different locale than the current one
     cy.get('.fa-solid.fa-language').click();
-    cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
+    cy.get('[data-test="submenu"]').eq(1).within(() => {
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the locale request was made
@@ -99,8 +99,8 @@ describe('General', function () {
 
     // Open menu and click on a different locale than the current one
     cy.get('.fa-solid.fa-language').click();
-    cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('have.text', 'Deutsch').click();
+    cy.get('[data-test="submenu"]').eq(1).within(() => {
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the locale request was made

@@ -2292,7 +2292,9 @@ describe('Room Index', function () {
     cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
 
     // Check that components are not disabled
     // Room search field
@@ -2314,20 +2316,70 @@ describe('Room Index', function () {
       cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' });
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: null,
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: false,
+            short_description: 'Room short description'
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
     // Check if reload button exists and click it
     cy.get('[data-test=reload-button]').should('include.text', 'app.reload').click();
+    cy.wait('@roomRequest');
 
     // Check if rooms are shown and contain the correct data
-    cy.get('[data-test="room-card"]').as('rooms').should('have.length', 3);
+    cy.get('[data-test="room-card"]').as('rooms').should('have.length', 1);
 
     cy.get('[data-test="room-card"]').eq(0).should('include.text', 'Meeting One');
-    cy.get('[data-test="room-card"]').eq(1).should('include.text', 'Meeting Two');
-    cy.get('[data-test="room-card"]').eq(2).should('include.text', 'Meeting Three');
 
     // Check that reload button does not exist
     cy.get('[data-test=reload-button]').should('not.exist');
 
+    // Switch to next page with general error
+    cy.intercept('GET', 'api/v1/rooms*', {
+      statusCode: 500,
+      body: {
+        message: 'Test'
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+    cy.wait('@roomRequest');
+
+    // Check that error message gets shown
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+
     // Check that components are not disabled
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
@@ -2348,12 +2400,96 @@ describe('Room Index', function () {
       cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    // Reload with unauthenticated error
+    // Check that components are not disabled
+    // Room search field
+    cy.get('[data-test=room-search]').eq(0).within(() => {
+      cy.get('.p-inputtext').should('not.be.disabled');
+      cy.get('.p-button').should('not.be.disabled');
+    });
+
+    // Only favorites button
+    cy.get('[data-test=only-favorites-button]').should('not.be.disabled');
+
+    // Room type dropdown
+    cy.get('[data-test=room-type-dropdown]').within(() => {
+      cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
+    });
+
+    // Sorting dropdown
+    cy.get('[data-test=sorting-type-dropdown]').within(() => {
+      cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
+    });
+
+    cy.intercept('GET', 'api/v1/rooms?*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'def-abc-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            last_meeting: {
+              start: '2023-08-21 08:18:28:00',
+              end: null
+            },
+            type: {
+              id: 2,
+              name: 'Meeting',
+              color: '#4a5c66'
+            },
+            is_favorite: true,
+            short_description: null
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3,
+          total_own: 1
+        }
+      }
+    }).as('roomRequest');
+
+    // Check if reload button exists and click it
+    cy.get('[data-test=reload-button]').should('include.text', 'app.reload').click();
+    cy.wait('@roomRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+
+    // Check if rooms are shown and contain the correct data
+    cy.get('[data-test="room-card"]').as('rooms').should('have.length', 1);
+
+    cy.get('[data-test="room-card"]').eq(0).should('include.text', 'Meeting One');
+
+    // Check that reload button does not exist
+    cy.get('[data-test=reload-button]').should('not.exist');
+
+    // Switch to next page with 401 error
     cy.intercept('GET', 'api/v1/rooms*', {
       statusCode: env.HTTP_UNAUTHORIZED
     }).as('roomRequest');
 
-    cy.reload(); // ToDo find other way?? or create a new test for part after this ???
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+    cy.wait('@roomRequest');
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
+
+    // Reload page with 401 error
+    cy.visit('/rooms'); // ToDo find other way?? or create a new test for part after this ???
 
     cy.wait('@roomRequest');
 

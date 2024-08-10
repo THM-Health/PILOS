@@ -58,15 +58,15 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123');
 
     // Check that room join dialog is closed and click on join button
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-join-button]').should('not.be.disabled').and('have.text', 'rooms.join').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-join-button"]').should('not.be.disabled').and('have.text', 'rooms.join').click();
 
     // Test loading
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
       cy.get('[data-test="dialog-continue-button"]').should('be.disabled');
     });
-    cy.get('[data-test=room-join-button]').should('be.disabled').then(() => {
+    cy.get('[data-test="room-join-button"]').should('be.disabled').then(() => {
       joinRequest.sendResponse();
     });
 
@@ -136,11 +136,11 @@ describe('Rooms view meetings', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-join-button]').should('not.be.disabled').and('have.text', 'rooms.join').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-join-button"]').should('not.be.disabled').and('have.text', 'rooms.join').click();
 
     // Check if join dialog is shown correctly
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('rooms.recording_attendance_info').should('be.visible');
       cy.contains('rooms.recording_attendance_accept').should('be.visible');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
@@ -219,11 +219,11 @@ describe('Rooms view meetings', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-join-button]').should('not.be.disabled').and('have.text', 'rooms.join').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-join-button"]').should('not.be.disabled').and('have.text', 'rooms.join').click();
 
     // Check if join dialog is shown correctly
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('rooms.recording_info').should('be.visible');
       cy.contains('rooms.recording_accept').should('be.visible');
       cy.contains('rooms.recording_video_accept').should('be.visible');
@@ -305,10 +305,10 @@ describe('Rooms view meetings', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.get('[data-test=room-join-button]').click();
+    cy.get('[data-test="room-join-button"]').click();
 
     // Check if join dialog is shown correctly
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('[data-test="dialog-continue-button"]').click();
     });
@@ -376,8 +376,8 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123');
 
     // Test with invalid name
-    cy.get('[data-test=room-join-button').click();
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('rooms.first_and_lastname');
       cy.get('#guest-name').type('John Doe 123!');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
@@ -397,7 +397,7 @@ describe('Rooms view meetings', function () {
     });
 
     // Test with valid name
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       // Check that error message for invalid name is shown and set valid name
       cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
       cy.get('#guest-name').clear();
@@ -518,10 +518,10 @@ describe('Rooms view meetings', function () {
 
     cy.wait('@roomRequest');
 
-    cy.get('[data-test=room-join-button').click();
+    cy.get('[data-test="room-join-button"]').click();
 
     // Try to join the meeting
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
@@ -693,7 +693,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     // Try to join meeting
-    cy.get('[data-test=room-join-button').click();
+    cy.get('[data-test="room-join-button"').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
@@ -707,7 +707,10 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown and close it
-    cy.get('.p-toast-message').should('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'rooms.flash.access_code_invalid')
+      .find('button').click();
     cy.get('.p-toast-message').should('not.exist');
 
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
@@ -804,7 +807,7 @@ describe('Rooms view meetings', function () {
     }).as('joinRequest');
 
     // Try to join meeting
-    cy.get('[data-test=room-join-button').click();
+    cy.get('[data-test="room-join-button"').click();
 
     // Check that header is set correctly
     cy.wait('@joinRequest').then(interception => {
@@ -817,7 +820,10 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown
-    cy.get('.p-toast-message').should('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'rooms.flash.access_code_invalid')
+      .find('button').click();
     cy.get('.p-toast-message').should('not.exist');
 
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
@@ -869,8 +875,8 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
 
     // Try to join meeting
-    cy.get('[data-test=room-join-button').click();
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
@@ -950,12 +956,15 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
 
     // Try to join meeting
-    cy.get('[data-test=room-join-button]').click();
+    cy.get('[data-test="room-join-button"]').click();
 
     cy.wait('@joinRequest');
 
     // Check if error message is shown
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'rooms.flash.token_invalid').find('button').click();
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.token_invalid')
+      .find('button').click();
     cy.get('p-toast-message').should('not.exist');
 
     cy.contains('rooms.invalid_personal_link').should('be.visible');
@@ -1006,7 +1015,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Try to join meeting
-    cy.get('[data-test=room-join-button]').should('have.text', 'rooms.join').click();
+    cy.get('[data-test="room-join-button"]').should('have.text', 'rooms.join').click();
 
     cy.wait('@joinRequest');
 
@@ -1114,9 +1123,9 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-join-button]').click();
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-join-button"]').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       // Make sure that checkboxes for agreements are not shown
       cy.contains('rooms.recording_info').should('not.exist');
       cy.contains('rooms.recording_accept').should('not.exist');
@@ -1145,9 +1154,9 @@ describe('Rooms view meetings', function () {
     });
 
     // Join meeting errors missing agreements
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-join-button]').click();
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-join-button"]').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       // Check if error messages are reset
       cy.contains('The consent record attendance must be accepted.').should('not.exist');
       cy.contains('The consent record must be accepted.').should('not.exist');
@@ -1175,7 +1184,7 @@ describe('Rooms view meetings', function () {
     }).as('joinRequest');
 
     // Try to join meeting
-    cy.get('[data-test=room-join-button]').should('have.text', 'rooms.join').click();
+    cy.get('[data-test="room-join-button"]').should('have.text', 'rooms.join').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@joinRequest');
@@ -1200,7 +1209,7 @@ describe('Rooms view meetings', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
 
     // Try to join meeting
-    cy.get('[data-test=room-join-button]').click();
+    cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@joinRequest');
@@ -1209,8 +1218,8 @@ describe('Rooms view meetings', function () {
     // Check if error message is shown and button has switched to start room
     cy.get('.p-toast-message').should('be.visible').and('have.text', 'app.errors.not_running');
 
-    cy.get('[data-test=room-join-button]').should('not.exist');
-    cy.get('[data-test=room-start-button]').should('have.text', 'rooms.start');
+    cy.get('[data-test="room-join-button"]').should('not.exist');
+    cy.get('[data-test="room-start-button"]').should('have.text', 'rooms.start');
   });
 
   it('start meeting', function () {
@@ -1224,15 +1233,15 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123');
 
     // Check that room join dialog is closed and click on start button
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-start-button]').should('not.be.disabled').and('have.text', 'rooms.start').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-start-button"]').should('not.be.disabled').and('have.text', 'rooms.start').click();
 
     // Test loading
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
       cy.get('[data-test="dialog-continue-button"]').should('be.disabled');
     });
-    cy.get('[data-test=room-start-button]').should('be.disabled').then(() => {
+    cy.get('[data-test="room-start-button"]').should('be.disabled').then(() => {
       startRequest.sendResponse();
     });
 
@@ -1302,11 +1311,11 @@ describe('Rooms view meetings', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-start-button]').should('not.be.disabled').and('have.text', 'rooms.start').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-start-button"]').should('not.be.disabled').and('have.text', 'rooms.start').click();
 
     // Check if join dialog is shown correctly
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('rooms.recording_attendance_info').should('be.visible');
       cy.contains('rooms.recording_attendance_accept').should('be.visible');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
@@ -1385,11 +1394,11 @@ describe('Rooms view meetings', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-start-button]').should('not.be.disabled').and('have.text', 'rooms.start').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-start-button"]').should('not.be.disabled').and('have.text', 'rooms.start').click();
 
     // Check if join dialog is shown correctly
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('rooms.recording_info').should('be.visible');
       cy.contains('rooms.recording_accept').should('be.visible');
       cy.contains('rooms.recording_video_accept').should('be.visible');
@@ -1471,10 +1480,10 @@ describe('Rooms view meetings', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-start-button"]').click();
 
     // Check if join dialog is shown correctly
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('[data-test="dialog-continue-button"]').click();
     });
@@ -1542,8 +1551,8 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123');
 
     // Test with invalid name
-    cy.get('[data-test=room-start-button').click();
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('rooms.first_and_lastname');
       cy.get('#guest-name').type('John Doe 123!');
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
@@ -1563,7 +1572,7 @@ describe('Rooms view meetings', function () {
     });
 
     // Test with valid name
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('The name contains the following non-permitted characters: 123!').should('be.visible');
       cy.get('#guest-name').clear();
       cy.get('#guest-name').type('John Doe');
@@ -1694,10 +1703,10 @@ describe('Rooms view meetings', function () {
       }
     }).as('startRequest');
 
-    cy.get('[data-test=room-start-button').click();
+    cy.get('[data-test="room-start-button"').click();
 
     // Try to start the meeting
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
@@ -1868,7 +1877,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     // Try to start meeting
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
@@ -1882,7 +1891,10 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown and close it
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.access_code_invalid')
+      .find('button').click();
     cy.get('.p-toast-message').should('not.exist');
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
 
@@ -1978,7 +1990,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     // Try to start meeting
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-start-button"]').click();
 
     // Check that header is set correctly
     cy.wait('@startRequest').then(interception => {
@@ -1991,7 +2003,10 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'rooms.flash.access_code_invalid').find('button').click();
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.access_code_invalid')
+      .find('button').click();
     cy.get('.p-toast-message').should('not.exist');
 
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
@@ -2043,8 +2058,8 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
 
     // Try to start meeting
-    cy.get('[data-test=room-start-button').click();
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.get('#record-attendance-agreement').should('not.be.checked').click();
       cy.get('#record-agreement').should('not.be.checked').click();
       cy.get('#record-video-agreement').should('not.be.checked').click();
@@ -2124,12 +2139,15 @@ describe('Rooms view meetings', function () {
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
 
     // Try to start meeting
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-start-button"]').click();
 
     cy.wait('@startRequest');
 
     // Check if error message is shown
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'rooms.flash.token_invalid').find('button').click();
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .and('have.text', 'rooms.flash.token_invalid')
+      .find('button').click();
     cy.get('.p-toast-message').should('not.exist');
 
     cy.contains('rooms.invalid_personal_link').should('be.visible');
@@ -2180,7 +2198,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Try to start meeting
-    cy.get('[data-test=room-start-button]').should('have.text', 'rooms.start').click();
+    cy.get('[data-test="room-start-button"]').should('have.text', 'rooms.start').click();
 
     cy.wait('@startRequest');
 
@@ -2288,10 +2306,10 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-start-button"]').click();
 
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       // Make sure that checkboxes for agreements are not shown
       cy.contains('rooms.recording_info').should('not.exist');
       cy.contains('rooms.recording_accept').should('not.exist');
@@ -2323,14 +2341,14 @@ describe('Rooms view meetings', function () {
       cy.get('[data-test="dialog-cancel-button"]').click();
     });
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
 
     // Start meeting errors missing agreements
 
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-start-button"]').click();
 
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       // Check if error messages are reset
       cy.contains('The consent record attendance must be accepted.').should('not.exist');
       cy.contains('The consent record must be accepted.').should('not.exist');
@@ -2358,13 +2376,13 @@ describe('Rooms view meetings', function () {
     }).as('startRequest');
 
     // Try to start meeting
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@startRequest');
 
     // Check that room join dialog is closed
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
     // Check if error message is shown and close it
     cy.get('.p-toast-message')
       .should('be.visible')
@@ -2422,14 +2440,14 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     // Try to start meeting
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@startRequest');
     cy.wait('@roomRequest');
 
     // Check that room join dialog is closed
-    cy.get('[data-test=room-join-dialog]').should('not.exist');
+    cy.get('[data-test="room-join-dialog"]').should('not.exist');
     // Check if error message is shown and close it
     cy.get('.p-toast-message')
       .should('be.visible')
@@ -2438,7 +2456,7 @@ describe('Rooms view meetings', function () {
     cy.get('.p-toast-message').should('not.exist');
 
     // Check that start room button does not exist anymore
-    cy.get('[data-test=room-start-button]').should('not.exist');
+    cy.get('[data-test="room-start-button"]').should('not.exist');
     cy.contains('rooms.not_running').should('be.visible');
 
     // Reload room with permission to start room
@@ -2482,7 +2500,7 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.get('[data-test=reload-room-button]').click();
+    cy.get('[data-test="reload-room-button"]').click();
 
     cy.wait('@roomRequest');
 
@@ -2534,17 +2552,17 @@ describe('Rooms view meetings', function () {
       }
     }).as('roomRequest');
 
-    cy.get('[data-test=room-start-button]').click();
+    cy.get('[data-test="room-start-button"]').click();
     cy.contains('rooms.not_running').should('not.exist');
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@startRequest');
     cy.wait('@roomRequest');
 
-    cy.get('[data-test=room-join-button]').should('have.text', 'rooms.join');
-    cy.get('[data-test=room-start-button]').should('not.exist');
+    cy.get('[data-test="room-join-button"]').should('have.text', 'rooms.join');
+    cy.get('[data-test="room-start-button"]').should('not.exist');
 
-    cy.get('[data-test=room-join-dialog]').should('be.visible').within(() => {
+    cy.get('[data-test="room-join-dialog"]').should('be.visible').within(() => {
       cy.contains('app.errors.room_already_running');
 
       // Check if join request gets send when clicking on continue button

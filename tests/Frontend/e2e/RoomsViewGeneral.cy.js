@@ -1085,33 +1085,7 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
-    cy.wait('@roomRequest').then((interception) => {
-      expect(interception.request.headers['access-code']).to.eq('123456789');
-    });
-
-    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
-
-    // Test join membership with general error
-    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: 500,
-      body: {
-        message: 'Test join membership error'
-      }
-    }).as('joinMembershipRequest');
-
-    cy.get('[data-test="room-join-membership-button"]').click();
-
-    cy.wait('@joinMembershipRequest').then((interception) => {
-      expect(interception.request.headers['access-code']).to.eq('123456789');
-    });
-
-    // Check if error message is shown and close it
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test join membership error"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.wait('@roomRequest');
 
     // Test join membership
     const joinMembershipRequest = interceptIndefinitely('POST', 'api/v1/rooms/abc-def-123/membership', {
@@ -1173,36 +1147,6 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-join-membership-button"]').should('not.exist');
     cy.get('[data-test="room-end-membership-button"]').should('be.visible');
-
-    // Test end membership with general error
-    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: 500,
-      body: {
-        message: 'Test end membership error'
-      }
-    }).as('endMembershipRequest');
-
-    cy.get('[data-test="room-end-membership-button"]').click();
-
-    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
-    cy.get('[data-test="dialog-continue-button"]').click();
-
-    cy.wait('@endMembershipRequest').then((interception) => {
-      expect(interception.request.headers['access-code']).to.be.undefined;
-    });
-
-    // Check if error message is shown and close it
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test end membership error"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
-
-    // Close end membership dialog
-    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
-    cy.get('[data-test="dialog-cancel-button"]').click();
-    cy.get('[data-test="end-membership-dialog"]').should('not.exist');
 
     // Test end membership
     const endMembershipRequest = interceptIndefinitely('DELETE', 'api/v1/rooms/abc-def-123/membership', {
@@ -1268,7 +1212,8 @@ describe('Room View general', function () {
     cy.get('#access-code').should('have.value', '123-456-789');
   });
 
-  it('join membership invalid code', function () {
+  it('membership button errors', function () {
+    // Join membership errors
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
@@ -1357,13 +1302,31 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
-    cy.wait('@roomRequest').then((interception) => {
+    cy.wait('@roomRequest');
+
+    // Test join membership with general error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 500,
+      body: {
+        message: 'Test join membership error'
+      }
+    }).as('joinMembershipRequest');
+
+    cy.get('[data-test="room-join-membership-button"]').click();
+
+    cy.wait('@joinMembershipRequest').then((interception) => {
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
 
-    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
+    // Check if error message is shown and close it
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test join membership error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
 
-    // Test join membership with invalid code error
+    // Test join membership with invalid code
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
       statusCode: env.HTTP_UNAUTHORIZED,
       body: {
@@ -1430,56 +1393,8 @@ describe('Room View general', function () {
     cy.get('.p-toast-message').should('not.exist');
 
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
-  });
 
-  it('join membership but membership not available', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: '<p>Test</p>',
-        allow_membership: true,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
-
-    cy.visit('/rooms/abc-def-123');
-
-    cy.wait('@roomRequest');
-
-    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
-    cy.get('#access-code').type('123456789');
-
+    // Visit room page again
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
@@ -1521,11 +1436,7 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-login-button"]').click();
 
-    cy.wait('@roomRequest').then((interception) => {
-      expect(interception.request.headers['access-code']).to.eq('123456789');
-    });
-
-    cy.get('[data-test="room-access-code-overlay"]').should('not.exist');
+    cy.wait('@roomRequest');
 
     // Test join membership with membership not available
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
@@ -1579,13 +1490,169 @@ describe('Room View general', function () {
     cy.wait('@membershipRequest');
     cy.wait('@roomRequest');
 
-    // Check if error message is shown and close ii
+    // Check if error message is shown and close it
     cy.get('.p-toast-message')
       .should('be.visible')
       .should('include.text', 'app.flash.server_error.message_{"message":"Membership failed! Membership for this room is currently not available."}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":403}');
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":403}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
 
-    cy.get('[data-test="room-login-button"]').should('not.exist');
+    cy.get('[data-test="room-join-membership-button"]').should('not.exist');
+
+    // Reload room with allow membership enabled
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+    cy.wait('@roomRequest');
+
+    // Test join membership with 401 error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: env.HTTP_UNAUTHORIZED
+    }).as('joinMembershipRequest');
+
+    cy.get('[data-test="room-join-membership-button"]').click();
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
+
+    // Reload room with user being a member of the room
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: '<p>Test</p>',
+        allow_membership: true,
+        is_member: true,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest'); // ToDo find other way?? or create a new test for part after this ???
+
+    // End membership errors
+
+    // Test end membership with general error
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: 500,
+      body: {
+        message: 'Test end membership error'
+      }
+    }).as('endMembershipRequest');
+
+    cy.get('[data-test="room-end-membership-button"]').click();
+
+    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@endMembershipRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
+
+    // Check if error message is shown and close it
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('include.text', 'app.flash.server_error.message_{"message":"Test end membership error"}')
+      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
+      .find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+
+    // Close end membership dialog
+    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
+    cy.get('[data-test="dialog-cancel-button"]').click();
+    cy.get('[data-test="end-membership-dialog"]').should('not.exist');
+
+    // Test end membership with 401 error
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/membership', {
+      statusCode: env.HTTP_UNAUTHORIZED
+    }).as('endMembershipRequest');
+
+    cy.get('[data-test="room-end-membership-button"]').click();
+
+    cy.get('[data-test="end-membership-dialog"]').should('be.visible');
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@endMembershipRequest').then((interception) => {
+      expect(interception.request.headers['access-code']).to.be.undefined;
+    });
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login');
+
+    cy.get('.p-toast-message')
+      .should('be.visible')
+      .should('have.text', 'app.flash.unauthenticated');
   });
 
   it('trigger favorites button', function () {

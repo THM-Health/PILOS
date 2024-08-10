@@ -14,9 +14,9 @@ describe('Logout', function () {
     cy.visit('rooms');
 
     // Click on logout
-    cy.get('[data-test=user-avatar]').click();
-    cy.get('[data-test=submenu]').eq(0).within(() => {
-      cy.get('[data-test=submenu-action]').eq(1).should('have.text', 'auth.logout').click();
+    cy.get('[data-test="user-avatar"]').click();
+    cy.get('[data-test="submenu"]').eq(0).within(() => {
+      cy.get('[data-test="submenu-action"]').eq(1).should('have.text', 'auth.logout').click();
     });
 
     cy.wait('@logoutRequest');
@@ -41,9 +41,9 @@ describe('Logout', function () {
     cy.visit('/rooms');
 
     // Click on logout
-    cy.get('[data-test=user-avatar]').click();
-    cy.get('[data-test=submenu]').eq(0).within(() => {
-      cy.get('[data-test=submenu-action]').eq(1).should('have.text', 'auth.logout').click();
+    cy.get('[data-test="user-avatar"]').click();
+    cy.get('[data-test="submenu"]').eq(0).within(() => {
+      cy.get('[data-test="submenu-action"]').eq(1).should('have.text', 'auth.logout').click();
     });
 
     cy.wait('@logoutRequest');
