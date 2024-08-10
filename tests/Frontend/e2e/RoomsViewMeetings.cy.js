@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
+import env from '../../../resources/js/env.js';
 
 describe('Rooms view meetings', function () {
   beforeEach(function () {
@@ -363,7 +364,7 @@ describe('Rooms view meetings', function () {
     });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 422,
+      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
       body: {
         message: 'The given data was invalid',
         errors: {
@@ -646,7 +647,7 @@ describe('Rooms view meetings', function () {
     // Test invalid_code
     // Intercept join request with error response and room request for reload (not authenticated anymore)
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_code'
       }
@@ -796,7 +797,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'require_code'
       }
@@ -939,7 +940,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_token'
       }
@@ -995,7 +996,7 @@ describe('Rooms view meetings', function () {
 
     // Test guests not allowed
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'guests_not_allowed'
       }
@@ -1059,7 +1060,7 @@ describe('Rooms view meetings', function () {
 
     // Join meeting errors room settings changed and because of that the agreements are missing
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 422,
+      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
       body: {
         message: 'The consent record attendance must be accepted. (and 1 more error)',
         errors: {
@@ -1189,7 +1190,7 @@ describe('Rooms view meetings', function () {
 
     // Test meeting error room closed
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
-      statusCode: 460,
+      statusCode: env.HTTP_ROOM_NOT_RUNNING,
       body: {
         message: 'Joining failed! The room is currently closed.'
       }
@@ -1529,7 +1530,7 @@ describe('Rooms view meetings', function () {
     });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 422,
+      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
       body: {
         message: 'The given data was invalid',
         errors: {
@@ -1684,7 +1685,7 @@ describe('Rooms view meetings', function () {
 
     // Test with invalid name
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 422,
+      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
       body: {
         message: 'The given data was invalid',
         errors: {
@@ -1821,7 +1822,7 @@ describe('Rooms view meetings', function () {
     // Test invalid_code
     // Intercept start request with error response and room request for reload (not authenticated anymore)
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_code'
       }
@@ -1931,7 +1932,7 @@ describe('Rooms view meetings', function () {
     // Test require_code
     // Intercept start request with error response and room request for reload (not authenticated anymore)
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'require_code'
       }
@@ -2113,7 +2114,7 @@ describe('Rooms view meetings', function () {
     }).as('roomRequest');
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_token'
       }
@@ -2169,7 +2170,7 @@ describe('Rooms view meetings', function () {
 
     // Test guests not allowed
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'guests_not_allowed'
       }
@@ -2233,7 +2234,7 @@ describe('Rooms view meetings', function () {
 
     // Start meeting errors room settings changed and because of that the agreements are missing
     const startRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 422,
+      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
       body: {
         message: 'The consent record attendance must be accepted. (and 1 more error)',
         errors: {
@@ -2374,7 +2375,7 @@ describe('Rooms view meetings', function () {
 
     // Test start forbidden
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'This action is unauthorized.'
       }
@@ -2487,7 +2488,7 @@ describe('Rooms view meetings', function () {
 
     // Test room already running
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
-      statusCode: 474,
+      statusCode: env.HTTP_ROOM_ALREADY_RUNNING,
       body: {
         message: 'The room could not be started because it is already running.'
       }

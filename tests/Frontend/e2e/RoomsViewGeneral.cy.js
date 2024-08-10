@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
+import env from '../../../resources/js/env.js';
 
 describe('Room View general', function () {
   beforeEach(function () {
@@ -201,7 +202,7 @@ describe('Room View general', function () {
 
     // Intercept first request to respond with error
     const errorRoomRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_code'
       }
@@ -351,7 +352,7 @@ describe('Room View general', function () {
 
     // Reload with invalid access code
     const errorReloadRoomRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_code'
       }
@@ -820,7 +821,7 @@ describe('Room View general', function () {
 
     // Reload with invalid token
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_token'
       }
@@ -1364,7 +1365,7 @@ describe('Room View general', function () {
 
     // Test join membership with invalid code error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_code'
       }
@@ -1528,7 +1529,7 @@ describe('Room View general', function () {
 
     // Test join membership with membership not available
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'Membership failed! Membership for this room is currently not available.'
       }
@@ -1815,7 +1816,7 @@ describe('Room View general', function () {
 
     // Test add to favorites with unauthenticated error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: 401
+      statusCode: env.HTTP_UNAUTHORIZED
     }).as('addFavoritesRequest');
 
     cy.get('[data-test="room-favorites-button"]')
@@ -1901,7 +1902,7 @@ describe('Room View general', function () {
 
     // Test remove from favorites with unauthenticated error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: 401
+      statusCode: env.HTTP_UNAUTHORIZED
     }).as('deleteFavoritesRequest');
 
     cy.get('[data-test="room-favorites-button"]')
@@ -1920,7 +1921,7 @@ describe('Room View general', function () {
 
   it('visit with guest forbidden', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'guests_not_allowed'
       }
@@ -1995,7 +1996,7 @@ describe('Room View general', function () {
   it('visit with invalid token', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 401,
+      statusCode: env.HTTP_UNAUTHORIZED,
       body: {
         message: 'invalid_token'
       }
@@ -2032,7 +2033,7 @@ describe('Room View general', function () {
 
   it('visit with room not found', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 404,
+      statusCode: env.HTTP_NOT_FOUND,
       body: {
         message: 'No query results for model [App\\Room] abc-def-123'
       }
@@ -2084,7 +2085,7 @@ describe('Room View general', function () {
 
     // Test reload with guests forbidden
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 403,
+      statusCode: env.HTTP_FORBIDDEN,
       body: {
         message: 'guests_not_allowed'
       }
@@ -2114,7 +2115,7 @@ describe('Room View general', function () {
 
     // Test reload with room not found
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 404,
+      statusCode: env.HTTP_NOT_FOUND,
       body: {
         message: 'No query results for model [App\\Room] abc-def-123'
       }

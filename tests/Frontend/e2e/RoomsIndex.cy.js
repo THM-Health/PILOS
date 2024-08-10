@@ -1,4 +1,5 @@
 import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
+import env from '../../../resources/js/env.js';
 
 describe('Room Index', function () {
   beforeEach(function () {
@@ -550,7 +551,6 @@ describe('Room Index', function () {
     });
 
     // Change room type and respond with no rooms found for this room type
-
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -613,7 +613,6 @@ describe('Room Index', function () {
     cy.contains('rooms.no_rooms_available').should('be.visible');
 
     // Check that room type is shown correctly and change it again to check with 3 rooms on 3 pages
-
     cy.get('[data-test="room-type-dropdown"]').should('include.text', 'Exam').click();
 
     cy.intercept('GET', 'api/v1/rooms?*', {
@@ -724,7 +723,6 @@ describe('Room Index', function () {
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting Two');
 
     // Change room type again and make sure that page is reset
-
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -2178,7 +2176,7 @@ describe('Room Index', function () {
 
     // Test add to favorites with unauthenticated error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: 401
+      statusCode: env.HTTP_UNAUTHORIZED
     }).as('addFavoritesRequest');
 
     cy.get('[data-test="room-card"]').eq(0).within(() => {
@@ -2261,7 +2259,7 @@ describe('Room Index', function () {
 
     // Test remove from favorites with unauthenticated error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: 401
+      statusCode: env.HTTP_UNAUTHORIZED
     }).as('addFavoritesRequest');
 
     cy.get('[data-test="room-card"]').eq(0).within(() => {
@@ -2352,7 +2350,7 @@ describe('Room Index', function () {
 
     // Reload with unauthenticated error
     cy.intercept('GET', 'api/v1/rooms*', {
-      statusCode: 401
+      statusCode: env.HTTP_UNAUTHORIZED
     }).as('roomRequest');
 
     cy.reload(); // ToDo find other way?? or create a new test for part after this ???
@@ -2403,7 +2401,7 @@ describe('Room Index', function () {
 
     // Reload with unauthenticated error
     cy.intercept('GET', 'api/v1/roomTypes', {
-      statusCode: 401
+      statusCode: env.HTTP_UNAUTHORIZED
     }).as('roomTypeRequest');
 
     cy.reload();
