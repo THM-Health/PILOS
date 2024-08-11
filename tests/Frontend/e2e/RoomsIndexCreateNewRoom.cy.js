@@ -1,5 +1,4 @@
 import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
-import env from '../../../resources/js/env.js';
 
 describe('Rooms index create new room', function () {
   beforeEach(function () {
@@ -125,7 +124,7 @@ describe('Rooms index create new room', function () {
   it('create new room errors', function () {
     // Create new room without room type
     cy.intercept('POST', 'api/v1/rooms', {
-      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
+      statusCode: 422,
       body: {
         message: 'The given data was invalid',
         errors: {
@@ -155,7 +154,7 @@ describe('Rooms index create new room', function () {
 
     // Create new room without name
     cy.intercept('POST', 'api/v1/rooms', {
-      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
+      statusCode: 422,
       body: {
         message: 'The given data was invalid',
         errors: {
@@ -182,7 +181,7 @@ describe('Rooms index create new room', function () {
 
     // Create new room forbidden
     cy.intercept('POST', 'api/v1/rooms', {
-      statusCode: env.HTTP_FORBIDDEN
+      statusCode: 403
     }).as('createRoomRequest');
 
     cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' }).as('currentUserRequest');
@@ -260,7 +259,7 @@ describe('Rooms index create new room', function () {
 
     // Test with 401 error
     cy.intercept('POST', 'api/v1/rooms', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('createRoomRequest');
 
     cy.get('[data-test="room-create-button"]').click();
@@ -316,7 +315,7 @@ describe('Rooms index create new room', function () {
     }).as('currentUserRequest');
 
     cy.intercept('POST', 'api/v1/rooms', {
-      statusCode: env.HTTP_ROOM_LIMIT_EXCEEDED,
+      statusCode: 463,
       body: {
         message: 'Test'
       }

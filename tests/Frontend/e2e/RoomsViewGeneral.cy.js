@@ -1,5 +1,4 @@
 import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
-import env from '../../../resources/js/env.js';
 
 describe('Room View general', function () {
   beforeEach(function () {
@@ -202,7 +201,7 @@ describe('Room View general', function () {
 
     // Intercept first request to respond with error
     const errorRoomRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_UNAUTHORIZED,
+      statusCode: 401,
       body: {
         message: 'invalid_code'
       }
@@ -352,7 +351,7 @@ describe('Room View general', function () {
 
     // Reload with invalid access code
     const errorReloadRoomRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_UNAUTHORIZED,
+      statusCode: 401,
       body: {
         message: 'invalid_code'
       }
@@ -821,7 +820,7 @@ describe('Room View general', function () {
 
     // Reload with invalid token
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_UNAUTHORIZED,
+      statusCode: 401,
       body: {
         message: 'invalid_token'
       }
@@ -1328,7 +1327,7 @@ describe('Room View general', function () {
 
     // Test join membership with invalid code
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: env.HTTP_UNAUTHORIZED,
+      statusCode: 401,
       body: {
         message: 'invalid_code'
       }
@@ -1440,7 +1439,7 @@ describe('Room View general', function () {
 
     // Test join membership with membership not available
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: env.HTTP_FORBIDDEN,
+      statusCode: 403,
       body: {
         message: 'Membership failed! Membership for this room is currently not available.'
       }
@@ -1545,7 +1544,7 @@ describe('Room View general', function () {
 
     // Test join membership with 401 error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('joinMembershipRequest');
 
     cy.get('[data-test="room-join-membership-button"]').click();
@@ -1635,7 +1634,7 @@ describe('Room View general', function () {
 
     // Test end membership with 401 error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/membership', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('endMembershipRequest');
 
     cy.get('[data-test="room-end-membership-button"]').click();
@@ -1883,7 +1882,7 @@ describe('Room View general', function () {
 
     // Test add to favorites with unauthenticated error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('addFavoritesRequest');
 
     cy.get('[data-test="room-favorites-button"]')
@@ -1969,7 +1968,7 @@ describe('Room View general', function () {
 
     // Test remove from favorites with unauthenticated error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('deleteFavoritesRequest');
 
     cy.get('[data-test="room-favorites-button"]')
@@ -1988,7 +1987,7 @@ describe('Room View general', function () {
 
   it('visit with guest forbidden', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_FORBIDDEN,
+      statusCode: 403,
       body: {
         message: 'guests_not_allowed'
       }
@@ -2063,7 +2062,7 @@ describe('Room View general', function () {
   it('visit with invalid token', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_UNAUTHORIZED,
+      statusCode: 401,
       body: {
         message: 'invalid_token'
       }
@@ -2100,7 +2099,7 @@ describe('Room View general', function () {
 
   it('visit with room not found', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_NOT_FOUND,
+      statusCode: 404,
       body: {
         message: 'No query results for model [App\\Room] abc-def-123'
       }
@@ -2152,7 +2151,7 @@ describe('Room View general', function () {
 
     // Test reload with guests forbidden
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_FORBIDDEN,
+      statusCode: 403,
       body: {
         message: 'guests_not_allowed'
       }
@@ -2182,7 +2181,7 @@ describe('Room View general', function () {
 
     // Test reload with room not found
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: env.HTTP_NOT_FOUND,
+      statusCode: 404,
       body: {
         message: 'No query results for model [App\\Room] abc-def-123'
       }

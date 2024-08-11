@@ -1,5 +1,3 @@
-import env from '../../../resources/js/env.js';
-
 describe('General', function () {
   beforeEach(function () {
     cy.init();
@@ -60,7 +58,7 @@ describe('General', function () {
   it('changing selected locale error', function () {
     // Shows a corresponding error message and does not change the language on 422 error
     cy.intercept('POST', '/api/v1/locale', {
-      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
+      statusCode: 422,
       body: {
         errors: {
           locale: ['Test']

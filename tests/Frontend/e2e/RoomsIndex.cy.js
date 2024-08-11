@@ -1,5 +1,4 @@
 import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
-import env from '../../../resources/js/env.js';
 
 describe('Room Index', function () {
   beforeEach(function () {
@@ -2176,7 +2175,7 @@ describe('Room Index', function () {
 
     // Test add to favorites with unauthenticated error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('addFavoritesRequest');
 
     cy.get('[data-test="room-card"]').eq(0).within(() => {
@@ -2259,7 +2258,7 @@ describe('Room Index', function () {
 
     // Test remove from favorites with unauthenticated error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('addFavoritesRequest');
 
     cy.get('[data-test="room-card"]').eq(0).within(() => {
@@ -2475,7 +2474,7 @@ describe('Room Index', function () {
 
     // Switch to next page with 401 error
     cy.intercept('GET', 'api/v1/rooms*', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('roomRequest');
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
@@ -2537,7 +2536,7 @@ describe('Room Index', function () {
 
     // Reload with unauthenticated error
     cy.intercept('GET', 'api/v1/roomTypes', {
-      statusCode: env.HTTP_UNAUTHORIZED
+      statusCode: 401
     }).as('roomTypeRequest');
 
     cy.reload();

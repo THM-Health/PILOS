@@ -1,5 +1,4 @@
 import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
-import env from '../../../resources/js/env.js';
 
 describe('Login', function () {
   beforeEach(function () {
@@ -275,7 +274,7 @@ describe('Login', function () {
 
     // Intercept login request
     cy.intercept('POST', 'api/v1/login/local', {
-      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
+      statusCode: 422,
       body: {
         errors: {
           email: ['Password or Email wrong!']
@@ -301,7 +300,7 @@ describe('Login', function () {
 
     // Intercept login request
     cy.intercept('POST', 'api/v1/login/local', {
-      statusCode: env.HTTP_TOO_MANY_REQUESTS,
+      statusCode: 429,
       body: {
         errors: {
           email: ['Too many logins. Please try again later!']
@@ -342,7 +341,7 @@ describe('Login', function () {
 
     // Intercept login request with different error
     cy.intercept('POST', 'api/v1/login/local', {
-      statusCode: env.HTTP_GUESTS_ONLY
+      statusCode: 420
     }).as('loginRequest');
 
     cy.get('[data-test="login-tab-local"]').within(() => {
