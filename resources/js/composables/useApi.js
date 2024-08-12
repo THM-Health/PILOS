@@ -50,7 +50,7 @@ export function useApi () {
         if (auth.isAuthenticated) {
           toast.info(t('app.flash.unauthenticated'));
           auth.setCurrentUser(null, false);
-          router.replace({ name: 'login', query: { redirect: router.currentRoute.path } });
+          router.replace({ name: 'login', query: { redirect: router.currentRoute.value.path } });
         }
       } else if (responseStatus === env.HTTP_FORBIDDEN && errorMessage === 'This action is unauthorized.') { // 403 => unauthorized, show error messages as flash!
         toast.error(t('app.flash.unauthorized'));
