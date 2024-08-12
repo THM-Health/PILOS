@@ -196,6 +196,9 @@ describe('Room Index', function () {
     // Check that pagination shows the correct number of pages and switch to next page
     cy.get('[data-test="paginator-page"]').should('have.length', 3);
 
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -247,6 +250,9 @@ describe('Room Index', function () {
 
     cy.get('[data-test=sorting-type-dropdown]').should('include.text', 'rooms.index.sorting.alpha');
 
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
     // Check that room is shown correctly
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting Two');
 
@@ -295,6 +301,9 @@ describe('Room Index', function () {
         page: '1'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
   });
 
   it('search', function () {
@@ -422,6 +431,9 @@ describe('Room Index', function () {
     // Check that pagination shows the correct number of pages and switch to next page
     cy.get('[data-test="paginator-page"]').should('have.length', 2);
 
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -470,6 +482,9 @@ describe('Room Index', function () {
         page: '2'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
 
     cy.get('[data-test="room-search"] > input').should('have.value', 'Meeting');
 
@@ -522,6 +537,9 @@ describe('Room Index', function () {
         page: '1'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
   });
 
   it('filter room type', function () {
@@ -667,6 +685,9 @@ describe('Room Index', function () {
     // Check that pagination shows the correct number of pages and switch to next page
     cy.get('[data-test="paginator-page"]').should('have.length', 3);
 
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -715,6 +736,9 @@ describe('Room Index', function () {
         page: '2'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
 
     cy.get('[data-test="room-type-dropdown"]').should('include.text', 'Seminar');
 
@@ -766,6 +790,9 @@ describe('Room Index', function () {
         page: '1'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
   });
 
   it('filter without viewAll permission', function () {
@@ -880,6 +907,9 @@ describe('Room Index', function () {
     // Check that pagination shows the correct number of pages and switch to next page
     cy.get('[data-test="paginator-page"]').should('have.length', 3);
 
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -930,6 +960,9 @@ describe('Room Index', function () {
         page: '2'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
 
     // Check that room is shown correctly
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting Two');
@@ -1150,6 +1183,9 @@ describe('Room Index', function () {
     // Check that pagination shows the correct number of pages and switch to next page
     cy.get('[data-test="paginator-page"]').should('have.length', 3);
 
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -1200,6 +1236,9 @@ describe('Room Index', function () {
         page: '2'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
 
     // Check that room is shown correctly
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting Two');
@@ -1254,6 +1293,9 @@ describe('Room Index', function () {
         page: '1'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Check that room is shown correctly
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting One');
@@ -1401,6 +1443,9 @@ describe('Room Index', function () {
     // Check that pagination shows the correct number of pages and switch to next page
     cy.get('[data-test="paginator-page"]').should('have.length', 3);
 
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
       body: {
@@ -1448,6 +1493,9 @@ describe('Room Index', function () {
         page: '2'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
 
     // Check that filter options are still hidden
     cy.get('[data-test="rooms-filter-all-button"]').should('not.exist');
@@ -1500,6 +1548,9 @@ describe('Room Index', function () {
         page: '1'
       });
     });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Check that filter options are shown again
     cy.get('[data-test="rooms-filter-all-button"]').should('be.visible');
@@ -2471,6 +2522,9 @@ describe('Room Index', function () {
 
     // Check that reload button does not exist
     cy.get('[data-test=reload-button]').should('not.exist');
+
+    // Check that correct pagination is active // ToDo fix error in pagination
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Switch to next page with 401 error
     cy.intercept('GET', 'api/v1/rooms*', {
