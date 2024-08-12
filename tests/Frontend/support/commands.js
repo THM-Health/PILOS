@@ -109,3 +109,7 @@ Cypress.Commands.add('interceptRoomFilesRequest', () => {
     }
   });
 });
+
+Cypress.Commands.add('interceptRoomMembersRequest', () => {
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'exampleRoomMembers.json' }).as('roomMembersRequest');
+});
