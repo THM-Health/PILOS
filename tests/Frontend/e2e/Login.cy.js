@@ -60,7 +60,7 @@ describe('Login', function () {
     });
 
     // Check toast message
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'auth.flash.login');
+    cy.checkToastMessage('auth.flash.login', false);
     // Check if redirect works
     cy.url().should('include', '/rooms').and('not.include', '/login');
   });
@@ -127,7 +127,7 @@ describe('Login', function () {
     cy.wait('@loginRequest');
 
     // Check toast message
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'auth.flash.login');
+    cy.checkToastMessage('auth.flash.login', false);
 
     // Check if redirect works
     cy.url().should('include', '/admin').and('not.include', '/login');
@@ -188,7 +188,7 @@ describe('Login', function () {
     });
 
     // Check toast message
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'auth.flash.login');
+    cy.checkToastMessage('auth.flash.login', false);
     // Check if redirect works
     cy.url().should('include', '/rooms').and('not.include', '/login');
   });
@@ -252,7 +252,7 @@ describe('Login', function () {
     });
     cy.wait('@loginRequest');
     // Check toast message
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'auth.flash.login');
+    cy.checkToastMessage('auth.flash.login', false);
 
     // Check if redirect works
     cy.url().should('include', '/admin').and('not.include', '/login');
@@ -336,8 +336,10 @@ describe('Login', function () {
     cy.contains('Too many logins. Please try again later!').should('not.exist');
     cy.contains('Password or Email wrong!').should('not.exist');
 
-    cy.get('.p-toast-message').should('be.visible').and('include.text', 'app.flash.server_error.empty_message').find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.empty_message',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Intercept login request with different error
     cy.intercept('POST', 'api/v1/login/local', {
@@ -349,7 +351,7 @@ describe('Login', function () {
     });
     cy.wait('@loginRequest');
 
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'app.flash.guests_only');
+    cy.checkToastMessage('app.flash.guests_only', false);
     cy.url().should('not.include', '/login');
   });
 
@@ -357,7 +359,7 @@ describe('Login', function () {
     cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
 
     cy.visit('/login');
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'app.flash.guests_only');
+    cy.checkToastMessage('app.flash.guests_only', false);
     cy.url().should('not.include', '/login');
   });
 

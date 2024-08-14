@@ -201,12 +201,7 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test="room-create-button"]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .and('have.text', 'rooms.flash.no_new_room')
-      .find('button')
-      .click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage('rooms.flash.no_new_room');
 
     // Reload page to check other errors
     cy.intercept('GET', 'api/v1/currentUser', {
@@ -250,12 +245,10 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test="room-create-dialog"]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Test with 401 error
     cy.intercept('POST', 'api/v1/rooms', {
@@ -280,9 +273,7 @@ describe('Rooms index create new room', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 
   it('create new room limit reached', function () {
@@ -383,11 +374,9 @@ describe('Rooms index create new room', function () {
     cy.get('[data-test="room-create-dialog"]').should('not.exist');
 
     // Check if error message is visible
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .and('include.text', 'Test')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'Test'
+    ]);
 
     // Check if room limit is updated and create button is disabled
     cy.get('[data-test="room-create-button"]').should('be.disabled');

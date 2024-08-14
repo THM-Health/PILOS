@@ -706,11 +706,7 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown and close it
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'rooms.flash.access_code_invalid')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage('rooms.flash.access_code_invalid');
 
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
 
@@ -819,11 +815,7 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'rooms.flash.access_code_invalid')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage('rooms.flash.access_code_invalid');
 
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
   });
@@ -960,11 +952,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@joinRequest');
 
     // Check if error message is shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .and('have.text', 'rooms.flash.token_invalid')
-      .find('button').click();
-    cy.get('p-toast-message').should('not.exist');
+    cy.checkToastMessage('rooms.flash.token_invalid');
 
     cy.contains('rooms.invalid_personal_link').should('be.visible');
   });
@@ -1189,12 +1177,10 @@ describe('Rooms view meetings', function () {
     cy.wait('@joinRequest');
 
     // Check if error message is shown and close it
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Test meeting error room closed
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
@@ -1215,7 +1201,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
 
     // Check if error message is shown and button has switched to start room
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'app.errors.not_running');
+    cy.checkToastMessage('app.errors.not_running');
 
     cy.get('[data-test="room-join-button"]').should('not.exist');
     cy.get('[data-test="room-start-button"]').should('have.text', 'rooms.start');
@@ -1890,12 +1876,7 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown and close it
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .and('have.text', 'rooms.flash.access_code_invalid')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
-    cy.contains('rooms.flash.access_code_invalid').should('be.visible');
+    cy.checkToastMessage('rooms.flash.access_code_invalid');
 
     // Intercept room request for reload (after entering access code)
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -2002,11 +1983,7 @@ describe('Rooms view meetings', function () {
     });
 
     // Check if error message is shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .and('have.text', 'rooms.flash.access_code_invalid')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage('rooms.flash.access_code_invalid');
 
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
   });
@@ -2143,11 +2120,7 @@ describe('Rooms view meetings', function () {
     cy.wait('@startRequest');
 
     // Check if error message is shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .and('have.text', 'rooms.flash.token_invalid')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage('rooms.flash.token_invalid');
 
     cy.contains('rooms.invalid_personal_link').should('be.visible');
   });
@@ -2383,12 +2356,10 @@ describe('Rooms view meetings', function () {
     // Check that room join dialog is closed
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     // Check if error message is shown and close it
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Test start forbidden
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
@@ -2448,11 +2419,7 @@ describe('Rooms view meetings', function () {
     // Check that room join dialog is closed
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     // Check if error message is shown and close it
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .and('include.text', 'rooms.flash.start_forbidden')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage('rooms.flash.start_forbidden');
 
     // Check that start room button does not exist anymore
     cy.get('[data-test="room-start-button"]').should('not.exist');

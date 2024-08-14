@@ -82,10 +82,9 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast-message').should('be.visible').and('have.text', 'Test').find('button').click();
+    cy.checkToastMessage('Test');
 
     // Test other errors
-
     cy.intercept('POST', '/api/v1/locale', {
       statusCode: 500,
       body: {
@@ -107,9 +106,9 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":["Test"]}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":["Test"]}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ], false);
   });
 });

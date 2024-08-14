@@ -113,3 +113,18 @@ Cypress.Commands.add('interceptRoomFilesRequest', () => {
 Cypress.Commands.add('interceptRoomMembersRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'exampleRoomMembers.json' }).as('roomMembersRequest');
 });
+
+Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => {
+  cy.get('.p-toast-message').should('be.visible');
+  if (Array.isArray(messages)) {
+    for (const message of messages) {
+      cy.get('.p-toast-message').should('include.text', message);
+    }
+  } else {
+    cy.get('.p-toast-message').should('have.text', messages);
+  }
+  if (closeToastMessage) {
+    cy.get('.p-toast-message').find('button').click();
+    cy.get('.p-toast-message').should('not.exist');
+  }
+});

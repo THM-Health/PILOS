@@ -2220,12 +2220,10 @@ describe('Room Index', function () {
     });
 
     // Check that error message is shown and button stayed the same
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test add favorite error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Test add to favorites with unauthenticated error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
@@ -2244,9 +2242,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
 
     // Visit rooms again with a room that is already a favorite
     cy.intercept('GET', 'api/v1/rooms?*', {
@@ -2291,7 +2287,7 @@ describe('Room Index', function () {
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
       statusCode: 500,
       body: {
-        message: 'Test add favorite error'
+        message: 'Test remove favorite error'
       }
     }).as('deleteFavoritesRequest');
 
@@ -2303,12 +2299,10 @@ describe('Room Index', function () {
     });
 
     // Check that error message is shown and button stayed the same
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test add favorite error"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test remove favorite error"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Test remove from favorites with unauthenticated error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
@@ -2325,9 +2319,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 
   it('error loading rooms', function () {
@@ -2342,12 +2334,10 @@ describe('Room Index', function () {
     cy.wait('@roomRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Check that components are not disabled
     // Room search field
@@ -2427,11 +2417,10 @@ describe('Room Index', function () {
     cy.wait('@roomRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Check that components are not disabled
     // Room search field
@@ -2540,9 +2529,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
 
     // Reload page with 401 error
     cy.visit('/rooms'); // ToDo find other way?? or create a new test for part after this ???
@@ -2552,9 +2539,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 
   it('error loading room types', function () {
@@ -2568,10 +2553,10 @@ describe('Room Index', function () {
     cy.visit('/rooms');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
 
@@ -2603,8 +2588,6 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 });

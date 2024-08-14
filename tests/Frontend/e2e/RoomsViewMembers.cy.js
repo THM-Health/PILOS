@@ -94,12 +94,10 @@ describe('Rooms view members', function () {
     cy.wait('@roomMembersRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Check that components are not disabled
     cy.get('[data-test="room-members-search"]').within(() => {
@@ -171,12 +169,10 @@ describe('Rooms view members', function () {
     cy.wait('@roomMembersRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Check that components are not disabled
     cy.get('[data-test="room-members-search"]').within(() => {
@@ -254,9 +250,7 @@ describe('Rooms view members', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
 
     // Reload page with 401 error
     cy.visit('/rooms/abc-def-123#members');
@@ -266,9 +260,7 @@ describe('Rooms view members', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 
   it('add new member', function () {
@@ -457,12 +449,10 @@ describe('Rooms view members', function () {
     cy.wait('@userSearchRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Check that dialog is still open
     cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
@@ -480,12 +470,9 @@ describe('Rooms view members', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
 
     // Reload page to check other errors
-
     cy.visit('/rooms/abc-def-123#members');
 
     cy.wait('@roomMembersRequest');
@@ -562,12 +549,10 @@ describe('Rooms view members', function () {
     cy.wait('@addUserRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Make sure that dialog gets closed
     cy.get('[data-test="room-members-add-single-dialog"]').should('not.exist');
@@ -589,9 +574,7 @@ describe('Rooms view members', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 
   it('edit member', function () {
@@ -747,12 +730,10 @@ describe('Rooms view members', function () {
     cy.wait('@editUserRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     cy.get('[data-test="room-members-edit-dialog"]').should('not.exist');
 
@@ -771,9 +752,7 @@ describe('Rooms view members', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 
   it('delete member', function () {
@@ -902,12 +881,10 @@ describe('Rooms view members', function () {
     cy.wait('@deleteMemberRequest');
 
     // Check that error message gets shown
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('include.text', 'app.flash.server_error.message_{"message":"Test"}')
-      .should('include.text', 'app.flash.server_error.error_code_{"statusCode":500}')
-      .find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
 
     // Check that dialog is closed
     cy.get('[data-test="room-members-delete-dialog"]').should('not.exist');
@@ -927,9 +904,7 @@ describe('Rooms view members', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.get('.p-toast-message')
-      .should('be.visible')
-      .should('have.text', 'app.flash.unauthenticated');
+    cy.checkToastMessage('app.flash.unauthenticated', false);
   });
 
   it('search members', function () {
