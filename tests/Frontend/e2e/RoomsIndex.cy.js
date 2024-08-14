@@ -2563,12 +2563,12 @@ describe('Room Index', function () {
     // Check that room type select is shown correctly and click on reload button
     cy.get('[data-test=room-type-dropdown').should('not.exist');
     cy.get('[data-test=room-type-inputgroup]').should('include.text', 'rooms.room_types.loading_error').within(() => {
-      cy.get('.p-button').click();
+      cy.get('button').click();
       // Check that button is disabled after click
-      cy.get('.p-button').should('be.disabled').and('have.class', 'p-button-loading').then(() => {
+      cy.get('button').should('be.disabled').then(() => {
         // Send correct response and check that reload button does not exist after reload
         roomTypeInterception.sendResponse();
-        cy.get('.p-button').should('not.exist');
+        cy.get('button').should('not.exist');
       });
     });
 
