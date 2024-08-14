@@ -10,6 +10,7 @@
           </template>
           <template #footer>
             <Button
+              data-test="home-button"
               as="router-link"
               :to="{ name: 'home'}"
               :label="$t('app.home')"

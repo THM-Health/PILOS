@@ -19,8 +19,8 @@ describe('Room Index', function () {
     // Test loading
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
-      cy.get('.p-inputtext').should('be.disabled');
-      cy.get('.p-button').should('be.disabled');
+      cy.get('input').should('be.disabled');
+      cy.get('button').should('be.disabled');
     });
 
     // Only favorites button
@@ -45,8 +45,8 @@ describe('Room Index', function () {
     // Make sure that components are not disabled after response
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
-      cy.get('.p-inputtext').should('not.be.disabled');
-      cy.get('.p-button').should('not.be.disabled');
+      cy.get('input').should('not.be.disabled');
+      cy.get('button').should('not.be.disabled');
     });
 
     // Only favorites button
@@ -2352,8 +2352,8 @@ describe('Room Index', function () {
     // Check that components are not disabled
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
-      cy.get('.p-inputtext').should('not.be.disabled');
-      cy.get('.p-button').should('not.be.disabled');
+      cy.get('input').should('not.be.disabled');
+      cy.get('button').should('not.be.disabled');
     });
 
     // Only favorites button
@@ -2436,8 +2436,8 @@ describe('Room Index', function () {
     // Check that components are not disabled
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
-      cy.get('.p-inputtext').should('not.be.disabled');
-      cy.get('.p-button').should('not.be.disabled');
+      cy.get('input').should('not.be.disabled');
+      cy.get('button').should('not.be.disabled');
     });
 
     // Only favorites button
@@ -2456,8 +2456,8 @@ describe('Room Index', function () {
     // Check that components are not disabled
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
-      cy.get('.p-inputtext').should('not.be.disabled');
-      cy.get('.p-button').should('not.be.disabled');
+      cy.get('input').should('not.be.disabled');
+      cy.get('button').should('not.be.disabled');
     });
 
     // Only favorites button

@@ -168,9 +168,9 @@ describe('Login', function () {
       cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
       cy.interceptRoomIndexRequests();
 
-      cy.get('.p-button').should('have.text', 'auth.login').click();
+      cy.get('[data-test="login-button"]').should('have.text', 'auth.login').click();
       // Check if button is disabled after being clicked and loading and send response
-      cy.get('.p-button').should('be.disabled').and('have.class', 'p-button-loading').then(() => {
+      cy.get('[data-test="login-button"]').should('be.disabled').and('have.class', 'p-button-loading').then(() => {
         cy.wait('@cookieRequest');
         loginRequest.sendResponse();
       });
@@ -248,7 +248,7 @@ describe('Login', function () {
     cy.get('[data-test="login-tab-local"]').within(() => {
       cy.get('#local-email').type('john.doe@domain.tld');
       cy.get('#local-password').type('password');
-      cy.get('.p-button').click();
+      cy.get('[data-test="login-button"]').click();
     });
     cy.wait('@loginRequest');
     // Check toast message
@@ -288,7 +288,7 @@ describe('Login', function () {
     cy.get('[data-test="login-tab-local"]').within(() => {
       cy.get('#local-email').type('john.doe@domain.tld');
       cy.get('#local-password').type('password');
-      cy.get('.p-button').click();
+      cy.get('[data-test="login-button"]').click();
     });
 
     cy.wait('@loginRequest');
@@ -310,7 +310,7 @@ describe('Login', function () {
 
     // Try to log in the user
     cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get('.p-button').click();
+      cy.get('[data-test="login-button"]').click();
     });
 
     cy.wait('@loginRequest');
@@ -328,7 +328,7 @@ describe('Login', function () {
 
     // Try to log in the user
     cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get('.p-button').click();
+      cy.get('[data-test="login-button"]').click();
     });
 
     cy.wait('@loginRequest');
@@ -345,7 +345,7 @@ describe('Login', function () {
     }).as('loginRequest');
 
     cy.get('[data-test="login-tab-local"]').within(() => {
-      cy.get('.p-button').click();
+      cy.get('[data-test="login-button"]').click();
     });
     cy.wait('@loginRequest');
 
@@ -376,7 +376,7 @@ describe('Login', function () {
     cy.visit('/login');
 
     cy.get('[data-test="login-tab-external"]').within(() => {
-      cy.get('.p-button').should('include.text', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect');
+      cy.get('[data-test="login-button"]').should('include.text', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect');
     });
 
     // Intercept requests that will be needed to show the room index page (needed to check redirect)
@@ -424,7 +424,7 @@ describe('Login', function () {
     cy.url().should('include', '/login?redirect=/admin');
 
     cy.get('[data-test="login-tab-external"]').within(() => {
-      cy.get('.p-button').should('include.text', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect?redirect=%2Fadmin');
+      cy.get('[data-test="login-button"]').should('include.text', 'auth.shibboleth.redirect').and('have.attr', 'href', '/auth/shibboleth/redirect?redirect=%2Fadmin');
     });
 
     // Intercept user request (user that has the permission to show the config page)
