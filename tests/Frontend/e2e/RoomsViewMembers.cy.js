@@ -25,8 +25,8 @@ describe('Rooms view members', function () {
       cy.get('.p-select-label').should('have.attr', 'aria-disabled', 'true');
     });
 
-    cy.get('[data-test="sorting-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"').within(() => {
         cy.get('.p-select-label').should('have.attr', 'aria-disabled', 'true');
       });
 
@@ -51,8 +51,8 @@ describe('Rooms view members', function () {
       cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    cy.get('[data-test="sorting-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"').within(() => {
         cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
       });
 
@@ -111,8 +111,8 @@ describe('Rooms view members', function () {
       cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    cy.get('[data-test="sorting-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"').within(() => {
         cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
       });
 
@@ -188,8 +188,8 @@ describe('Rooms view members', function () {
       cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
     });
 
-    cy.get('[data-test="sorting-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"').within(() => {
         cy.get('.p-select-label').should('not.have.attr', 'aria-disabled', 'true');
       });
 
@@ -930,5 +930,608 @@ describe('Rooms view members', function () {
     cy.get('.p-toast-message')
       .should('be.visible')
       .should('have.text', 'app.flash.unauthenticated');
+  });
+
+  it('search members', function () {
+    cy.visit('/rooms/abc-def-123#members');
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query.search).to.be.undefined;
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+
+    // Check with no members found for this search query
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 1,
+          to: null,
+          total: 0,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test="room-members-search"] > input').type('Test');
+    cy.get('[data-test="room-members-search"] > button').click();
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Test',
+        page: '1'
+      });
+    });
+
+    // Check if correct message is shown and no members are displayed
+    cy.get('[data-test="room-member-item"]').should('have.length', 0);
+    cy.contains('app.filter_no_results').should('be.visible');
+
+    // Check with no members in room
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 1,
+          to: null,
+          total: 0,
+          total_no_filter: 0
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test="room-members-search"] > input').clear();
+    cy.get('[data-test="room-members-search"]').type('Test2');
+    cy.get('[data-test="room-members-search"] > input').type('{enter}');
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Test2',
+        page: '1'
+      });
+    });
+
+    // Check if correct message is shown and no members are displayed
+    cy.get('[data-test="room-member-item"]').should('have.length', 0);
+    cy.contains('rooms.members.nodata').should('be.visible');
+
+    // Check with 2 members on 2 pages
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 1,
+          to: 1,
+          total: 2,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test="room-members-search"] > input').clear();
+    cy.get('[data-test="room-members-search"]').type('Laura');
+    cy.get('[data-test="room-members-search"] > button').click();
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Laura',
+        page: '1'
+      });
+    });
+
+    // Check that correct member is shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 1);
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'Laura Rivera');
+
+    // Check that pagination shows the correct number of pages
+    cy.get('[data-test="paginator-page"]').should('have.length', 2);
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 1, image: null }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 2,
+          per_page: 1,
+          to: 2,
+          total: 2,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    // Click on button for next page (eq(1) needed because there are two paginator components
+    // (first one for small devices second one for larger devices))
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    // Check if the search query stays the same after changing the page
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Laura',
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test="room-members-search"] > input').should('have.value', 'Laura');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Check that correct member is shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 1);
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'Laura Walter');
+
+    // Change search query and make sure that the page is reset
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 1,
+          to: 1,
+          total: 2,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test="room-members-search"] > input').clear();
+    cy.get('[data-test="room-members-search"]').type('Laur');
+    cy.get('[data-test="room-members-search"] > button').click();
+
+    // Check that members are loaded with the page reset to the first page
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Laur',
+        page: '1'
+      });
+    });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+  });
+
+  it('filter members', function () {
+    cy.visit('/rooms/abc-def-123#members');
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query.filter).to.be.undefined;
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="filter-dropdown-items"]').should('not.exist');
+
+    // Check that correct filter is displayed
+    cy.get('[data-test="filter-dropdown"]').should('have.text', 'rooms.members.filter.all').click();
+
+    cy.get('[data-test="filter-dropdown-items"]').should('be.visible').within(() => {
+      // check that filter options are shown correctly
+
+      cy.get('[data-test=filter-dropdown-option]').should('have.length', 4);
+
+      cy.get('[data-test=filter-dropdown-option]').eq(0).should('have.text', 'rooms.members.filter.all');
+      cy.get('[data-test=filter-dropdown-option]').eq(0).should('have.attr', 'aria-selected', 'true');
+      cy.get('[data-test=filter-dropdown-option]').eq(1).should('have.text', 'rooms.members.filter.participant_role');
+      cy.get('[data-test=filter-dropdown-option]').eq(2).should('have.text', 'rooms.members.filter.moderator_role');
+      cy.get('[data-test=filter-dropdown-option]').eq(3).should('have.text', 'rooms.members.filter.co_owner_role');
+    });
+
+    // Change filter and respond with no members found for this filter
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 1,
+          to: null,
+          total: 0,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test=filter-dropdown-option]').eq(1).click();
+
+    // Check that correct filter is sent with request and check that correct filter is displayed
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'participant_role',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test=filter-dropdown]').should('have.text', 'rooms.members.filter.participant_role');
+
+    // Check if correct message is shown and no members are displayed
+    cy.contains('app.filter_no_results').should('be.visible');
+    cy.get('[data-test=filter-dropdown-items]').should('have.length', 0);
+
+    // Change filter again and respond with no members in room
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 1,
+          to: null,
+          total: 0,
+          total_no_filter: 0
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test=filter-dropdown]').click();
+    cy.get('[data-test=filter-dropdown-option]').eq(2).click();
+
+    // Check that correct filter is sent with request and check that correct filter is displayed
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'moderator_role',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test=filter-dropdown]').should('have.text', 'rooms.members.filter.moderator_role');
+
+    // Check if correct message is shown and no members are displayed
+    cy.contains('rooms.members.nodata').should('be.visible');
+    cy.get('[data-test=filter-dropdown-items]').should('have.length', 0);
+
+    // Change filter again and respond with 2 members on 2 pages
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 3, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 1,
+          to: 1,
+          total: 2,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test=filter-dropdown]').click();
+    cy.get('[data-test=filter-dropdown-option]').eq(3).click();
+
+    // Check that correct filter is sent with request and check that correct filter is displayed
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'co_owner_role',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test=filter-dropdown]').should('have.text', 'rooms.members.filter.co_owner_role');
+
+    // Check that correct member is shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 1);
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'Laura Rivera');
+
+    // Check that pagination shows the correct number of pages
+    cy.get('[data-test="paginator-page"]').should('have.length', 2);
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 3, image: null }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 2,
+          per_page: 1,
+          to: 2,
+          total: 2,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    // Click on button for next page (eq(1) needed because there are two paginator components
+    // (first one for small devices second one for larger devices))
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    // Check that the filter stayed the same after changing the page
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'co_owner_role',
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test=filter-dropdown]').should('have.text', 'rooms.members.filter.co_owner_role');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Check that correct member is shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 1);
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'Laura Walter');
+
+    // Change filter again (reset filter) and make sure that the page is reset
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 3, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 1,
+          to: 1,
+          total: 2,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test=filter-dropdown]').click();
+    cy.get('[data-test=filter-dropdown-option]').eq(0).click();
+
+    // Check that filter and page were reset
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.filter).to.be.undefined;
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+  });
+
+  it('sort members', function () {
+    cy.visit('/rooms/abc-def-123#members');
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'lastname',
+        sort_direction: 'asc',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="sorting-type-dropdown-items"]').should('not.exist');
+
+    // Check that correct sorting type is displayed
+    cy.get('[data-test="sorting-type-dropdown"]').should('have.text', 'app.lastname').click();
+
+    cy.get('[data-test="sorting-type-dropdown-items"]').should('be.visible').within(() => {
+      cy.get('[data-test=sorting-type-dropdown-option]').should('have.length', 2);
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(0).should('have.text', 'app.firstname');
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(1).should('have.text', 'app.lastname');
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(1).should('have.attr', 'aria-selected', 'true');
+
+      // Change sorting type and respond with 3 members on 3 different pages
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+        statusCode: 200,
+        body: {
+          data: [
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null }
+          ],
+          meta: {
+            current_page: 1,
+            from: 1,
+            last_page: 3,
+            per_page: 1,
+            to: 1,
+            total: 3,
+            total_no_filter: 3
+          }
+        }
+      }).as('roomMembersRequest');
+
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(0).click();
+    });
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'firstname',
+        sort_direction: 'asc',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test=sorting-type-dropdown-items]').should('not.exist');
+
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'app.firstname');
+
+    // Check that correct member is shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 1);
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'Laura Rivera');
+
+    // Check that pagination shows the correct number of pages
+    cy.get('[data-test="paginator-page"]').should('have.length', 3);
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    // Click on button for next page (eq(1) needed because there are two paginator components
+    // (first one for small devices second one for larger devices))
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'firstname',
+        sort_direction: 'asc',
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'app.firstname');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Check that correct member is shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 1);
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'Juan Walter');
+
+    // Change sorting direction and make sure that the page is reset
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test=sorting-type-inputgroup]').find('button').click();
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'firstname',
+        sort_direction: 'desc',
+        page: '1'
+      });
+    });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null }
+        ],
+        meta: {
+          current_page: 2,
+          from: 2,
+          last_page: 3,
+          per_page: 1,
+          to: 2,
+          total: 3,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    // Click on button for next page (eq(1) needed because there are two paginator components
+    // (first one for small devices second one for larger devices))
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'firstname',
+        sort_direction: 'desc',
+        page: '2'
+      });
+    });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Change sorting type and make sure that the page is reset
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 3,
+          per_page: 1,
+          to: 1,
+          total: 3,
+          total_no_filter: 3
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test=sorting-type-dropdown]').click();
+    cy.get('[data-test=sorting-type-dropdown-option]').eq(1).click();
+
+    // Check that members are loaded with the page reset to the first page
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'lastname',
+        sort_direction: 'desc',
+        page: '1'
+      });
+    });
   });
 });

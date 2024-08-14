@@ -132,12 +132,13 @@ describe('Room Index', function () {
     cy.get('[data-test=sorting-type-dropdown-items]').should('not.exist');
 
     // Check that correct sorting type is displayed
-    cy.get('[data-test=sorting-type-dropdown]').should('include.text', 'rooms.index.sorting.last_started').click();
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'rooms.index.sorting.last_started').click();
 
     cy.get('[data-test=sorting-type-dropdown-items]').should('be.visible').within(() => {
       // Check that sorting options are shown correctly
       cy.get('[data-test=sorting-type-dropdown-option]').should('have.length', 3);
       cy.get('[data-test=sorting-type-dropdown-option]').eq(0).should('include.text', 'rooms.index.sorting.last_started');
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(0).should('have.attr', 'aria-selected', 'true');
       cy.get('[data-test=sorting-type-dropdown-option]').eq(1).should('include.text', 'rooms.index.sorting.alpha');
       cy.get('[data-test=sorting-type-dropdown-option]').eq(2).should('include.text', 'rooms.index.sorting.room_type');
 
@@ -188,7 +189,7 @@ describe('Room Index', function () {
 
     cy.get('[data-test=sorting-type-dropdown-items]').should('not.exist');
 
-    cy.get('[data-test=sorting-type-dropdown]').should('include.text', 'rooms.index.sorting.alpha');
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'rooms.index.sorting.alpha');
 
     // Check that room is shown correctly
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting One');
@@ -248,7 +249,7 @@ describe('Room Index', function () {
       });
     });
 
-    cy.get('[data-test=sorting-type-dropdown]').should('include.text', 'rooms.index.sorting.alpha');
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'rooms.index.sorting.alpha');
 
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
@@ -344,8 +345,9 @@ describe('Room Index', function () {
       });
     });
 
-    // Check if correct message is shown
+    // Check if correct message is shown and no rooms are displayed
     cy.contains('rooms.no_rooms_found').should('be.visible');
+    cy.get('[data-test="room-card"]').should('have.length', 0);
 
     // Check with no rooms available
     cy.intercept('GET', 'api/v1/rooms?*', {
@@ -376,8 +378,9 @@ describe('Room Index', function () {
       });
     });
 
-    // Check if correct message is shown
+    // Check if correct message is shown and no rooms are displayed
     cy.contains('rooms.no_rooms_available').should('be.visible');
+    cy.get('[data-test="room-card"]').should('have.length', 0);
 
     // Check with 2 rooms on 2 pages
     cy.intercept('GET', 'api/v1/rooms?*', {
@@ -475,7 +478,7 @@ describe('Room Index', function () {
     // (first one for small devices second one for larger devices))
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
 
-    // Check if the search query stays the same after changing page
+    // Check if the search query stays the same after changing the page
     cy.wait('@roomRequest').then(interception => {
       expect(interception.request.query).to.contain({
         search: 'Meeting',
@@ -555,16 +558,16 @@ describe('Room Index', function () {
     cy.get('[data-test="room-type-dropdown-items"]').should('not.exist');
 
     // Check that correct room type is displayed
-    cy.get('[data-test="room-type-dropdown"]').should('include.text', 'rooms.room_types.all').click();
+    cy.get('[data-test="room-type-dropdown"]').should('have.text', 'rooms.room_types.all').click();
 
     cy.get('[data-test="room-type-dropdown-items"]').should('be.visible').within(() => {
       // Check that room types are shown correctly
       cy.get('[data-test="room-type-dropdown-option"]').should('have.length', 4);
 
-      cy.get('[data-test="room-type-dropdown-option"]').eq(0).should('include.text', 'Lecture');
-      cy.get('[data-test="room-type-dropdown-option"]').eq(1).should('include.text', 'Meeting');
-      cy.get('[data-test="room-type-dropdown-option"]').eq(2).should('include.text', 'Exam');
-      cy.get('[data-test="room-type-dropdown-option"]').eq(3).should('include.text', 'Seminar');
+      cy.get('[data-test="room-type-dropdown-option"]').eq(0).should('have.text', 'Lecture');
+      cy.get('[data-test="room-type-dropdown-option"]').eq(1).should('have.text', 'Meeting');
+      cy.get('[data-test="room-type-dropdown-option"]').eq(2).should('have.text', 'Exam');
+      cy.get('[data-test="room-type-dropdown-option"]').eq(3).should('have.text', 'Seminar');
     });
 
     // Change room type and respond with no rooms found for this room type
@@ -598,7 +601,7 @@ describe('Room Index', function () {
     cy.contains('rooms.no_rooms_found').should('be.visible');
 
     // Check that room type is shown correctly and change it again to check for no rooms available
-    cy.get('[data-test="room-type-dropdown"]').should('include.text', 'Meeting').click();
+    cy.get('[data-test="room-type-dropdown"]').should('have.text', 'Meeting').click();
 
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
@@ -630,7 +633,7 @@ describe('Room Index', function () {
     cy.contains('rooms.no_rooms_available').should('be.visible');
 
     // Check that room type is shown correctly and change it again to check with 3 rooms on 3 pages
-    cy.get('[data-test="room-type-dropdown"]').should('include.text', 'Exam').click();
+    cy.get('[data-test="room-type-dropdown"]').should('have.text', 'Exam').click();
 
     cy.intercept('GET', 'api/v1/rooms?*', {
       statusCode: 200,
@@ -677,7 +680,7 @@ describe('Room Index', function () {
 
     cy.get('[data-test="room-type-dropdown-items"]').should('not.exist');
 
-    cy.get('[data-test="room-type-dropdown"]').should('include.text', 'Seminar');
+    cy.get('[data-test="room-type-dropdown"]').should('have.text', 'Seminar');
 
     // Check that correct room is shown
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting One');
@@ -740,7 +743,7 @@ describe('Room Index', function () {
     // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
 
-    cy.get('[data-test="room-type-dropdown"]').should('include.text', 'Seminar');
+    cy.get('[data-test="room-type-dropdown"]').should('have.text', 'Seminar');
 
     // Check that room is shown correctly
     cy.get('[data-test="room-card"]').should('have.length', 1).and('include.text', 'Meeting Two');
@@ -811,9 +814,9 @@ describe('Room Index', function () {
     // Check that filter buttons are shown correctly
     cy.get('[data-test="rooms-filter-all-button"]').should('not.exist');
     cy.get('[data-test="rooms-filter-button"]').should('have.length', 3);
-    cy.get('[data-test="rooms-filter-button"]').eq(0).should('include.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(1).should('include.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(2).should('include.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'false');
+    cy.get('[data-test="rooms-filter-button"]').eq(0).should('have.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(1).should('have.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(2).should('have.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'false');
 
     // Trigger filter button and respond with no rooms available for this filter combination
     cy.intercept('GET', 'api/v1/rooms?*', {
@@ -1050,11 +1053,11 @@ describe('Room Index', function () {
     });
 
     // Check that filter buttons are shown correctly
-    cy.get('[data-test="rooms-filter-all-button"]').should('include.text', 'rooms.index.show_all').and('have.attr', 'aria-pressed', 'false');
+    cy.get('[data-test="rooms-filter-all-button"]').should('have.text', 'rooms.index.show_all').and('have.attr', 'aria-pressed', 'false');
     cy.get('[data-test="rooms-filter-button"]').should('have.length', 3);
-    cy.get('[data-test="rooms-filter-button"]').eq(0).should('include.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(1).should('include.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(2).should('include.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'false');
+    cy.get('[data-test="rooms-filter-button"]').eq(0).should('have.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(1).should('have.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(2).should('have.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'false');
 
     // Trigger filter all button and respond with no rooms available for this filter combination
     cy.intercept('GET', 'api/v1/rooms?*', {
@@ -1090,7 +1093,7 @@ describe('Room Index', function () {
     cy.contains('rooms.no_rooms_available').should('be.visible');
 
     // Check that other filter buttons are disabled and filter all button is updated
-    cy.get('[data-test="rooms-filter-all-button"]').should('include.text', 'rooms.index.show_all').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-all-button"]').should('have.text', 'rooms.index.show_all').and('have.attr', 'aria-pressed', 'true');
     cy.get('[data-test="rooms-filter-button"]').should('have.length', 0);
 
     // Trigger filter all button again and check that other filter buttons did not change
@@ -1108,11 +1111,11 @@ describe('Room Index', function () {
       });
     });
 
-    cy.get('[data-test="rooms-filter-all-button"]').should('include.text', 'rooms.index.show_all').and('have.attr', 'aria-pressed', 'false');
+    cy.get('[data-test="rooms-filter-all-button"]').should('have.text', 'rooms.index.show_all').and('have.attr', 'aria-pressed', 'false');
     cy.get('[data-test="rooms-filter-button"]').should('have.length', 3);
-    cy.get('[data-test="rooms-filter-button"]').eq(0).should('include.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(1).should('include.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(2).should('include.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'false');
+    cy.get('[data-test="rooms-filter-button"]').eq(0).should('have.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(1).should('have.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(2).should('have.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'false');
 
     // Trigger filter button (don't change response)
     cy.get('[data-test="rooms-filter-button"]').eq(2).click();
@@ -1305,9 +1308,9 @@ describe('Room Index', function () {
 
     // Check that the other filter buttons are shown again and still have the same state
     cy.get('[data-test="rooms-filter-button"]').should('have.length', 3);
-    cy.get('[data-test="rooms-filter-button"]').eq(0).should('include.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(1).should('include.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
-    cy.get('[data-test="rooms-filter-button"]').eq(2).should('include.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(0).should('have.text', 'rooms.index.show_own').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(1).should('have.text', 'rooms.index.show_shared').and('have.attr', 'aria-pressed', 'true');
+    cy.get('[data-test="rooms-filter-button"]').eq(2).should('have.text', 'rooms.index.show_public').and('have.attr', 'aria-pressed', 'true');
   });
 
   it('show favorites', function () {

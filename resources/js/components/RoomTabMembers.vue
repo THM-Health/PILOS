@@ -43,12 +43,12 @@
             />
           </InputGroup>
 
-          <InputGroup data-test="sorting-inputgroup">
+          <InputGroup data-test="sorting-type-inputgroup">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
-              data-test="sorting-dropdown"
+              data-test="sorting-type-dropdown"
               :disabled="isBusy"
               v-model="sortField"
               :options="sortFields"
@@ -57,10 +57,10 @@
               option-value="value"
               :pt="{
                 listContainer: {
-                'data-test': 'sorting-dropdown-items'
+                'data-test': 'sorting-type-dropdown-items'
                 },
                 option:{
-                'data-test': 'sorting-dropdown-option'
+                'data-test': 'sorting-type-dropdown-option'
                 }
               }"
             />
