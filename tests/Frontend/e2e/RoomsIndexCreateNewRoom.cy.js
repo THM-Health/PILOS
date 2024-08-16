@@ -150,7 +150,9 @@ describe('Rooms index create new room', function () {
     cy.wait('@createRoomRequest');
 
     // Check that error gets displayed
-    cy.get('[data-test="room-create-dialog"]').contains('The Room type field is required.').should('be.visible');
+    cy.get('[data-test="room-create-dialog"]')
+      .should('be.visible')
+      .and('include.text', 'The Room type field is required.');
 
     // Create new room without name
     cy.intercept('POST', 'api/v1/rooms', {
@@ -176,8 +178,11 @@ describe('Rooms index create new room', function () {
     cy.wait('@createRoomRequest');
 
     // Check that error gets displayed
-    cy.get('[data-test="room-create-dialog"]').contains('The Name field is required.').should('be.visible');
-    cy.get('[data-test="room-create-dialog"]').contains('The Room type field is required.').should('not.exist');
+    cy.get('[data-test="room-create-dialog"]')
+      .should('be.visible')
+      .and('include.text', 'The Name field is required.');
+    cy.get('[data-test="room-create-dialog"]')
+      .should('not.include.text', 'The Room type field is required.');
 
     // Create new room forbidden
     cy.intercept('POST', 'api/v1/rooms', {
