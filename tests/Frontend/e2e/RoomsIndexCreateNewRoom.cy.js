@@ -111,7 +111,7 @@ describe('Rooms index create new room', function () {
 
     // Check if correct request is send
     cy.wait('@createRoomRequest').then(interception => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: 'New Room',
         room_type: 1
       });
@@ -221,7 +221,7 @@ describe('Rooms index create new room', function () {
       }
     });
 
-    cy.reload(); // ToDo find other way?? or create a new test for part after this ???
+    cy.reload();
 
     // Other errors
     cy.intercept('POST', 'api/v1/rooms', {

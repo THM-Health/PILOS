@@ -50,7 +50,7 @@ describe('Login', function () {
 
     // Check if correct data gets sent
     cy.wait('@loginRequest').then(interception => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         username: 'user',
         password: 'password'
       });
@@ -178,7 +178,7 @@ describe('Login', function () {
 
     // Check if correct data gets sent
     cy.wait('@loginRequest').then(interception => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         email: 'john.doe@domain.tld',
         password: 'password'
       });

@@ -22,7 +22,7 @@
       "lastname": "Law",
       "email": "TammyGLaw@domain.tld",
       "role": 3,
-      "image": "http://domain.tld/storage/profile_images/1234abc.jpg"
+      "image": "test.jpg"
     }
   ],
   "meta": {

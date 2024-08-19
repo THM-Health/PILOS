@@ -2279,7 +2279,7 @@ describe('Room Index', function () {
       }
     }).as('roomRequest');
 
-    cy.visit('/rooms'); // ToDo find other way?? or create a new test for part after this ???
+    cy.visit('/rooms');
 
     cy.wait('@roomRequest');
 
@@ -2532,7 +2532,7 @@ describe('Room Index', function () {
     cy.checkToastMessage('app.flash.unauthenticated', false);
 
     // Reload page with 401 error
-    cy.visit('/rooms'); // ToDo find other way?? or create a new test for part after this ???
+    cy.visit('/rooms');
 
     cy.wait('@roomRequest');
 

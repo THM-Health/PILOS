@@ -71,7 +71,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: false,
         consent_record: false,
@@ -154,7 +154,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: true,
         consent_record: false,
@@ -240,7 +240,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: false,
         consent_record: true,
@@ -314,7 +314,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: false,
         consent_record: true,
@@ -387,7 +387,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: 'John Doe 123!',
         consent_record_attendance: true,
         consent_record: true,
@@ -414,7 +414,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: 'John Doe',
         consent_record_attendance: true,
         consent_record: true,
@@ -876,7 +876,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@joinRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: null,
         consent_record_attendance: true,
         consent_record: true,
@@ -1232,7 +1232,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: false,
         consent_record: false,
@@ -1315,7 +1315,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: true,
         consent_record: false,
@@ -1401,7 +1401,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: false,
         consent_record: true,
@@ -1475,7 +1475,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: '',
         consent_record_attendance: false,
         consent_record: true,
@@ -1548,7 +1548,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: 'John Doe 123!',
         consent_record_attendance: true,
         consent_record: true,
@@ -1574,7 +1574,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: 'John Doe',
         consent_record_attendance: true,
         consent_record: true,
@@ -2044,7 +2044,7 @@ describe('Rooms view meetings', function () {
 
     // Check that correct query is sent
     cy.wait('@startRequest').then((interception) => {
-      expect(interception.request.body).to.contain({
+      expect(interception.request.body).to.eql({
         name: null,
         consent_record_attendance: true,
         consent_record: true,

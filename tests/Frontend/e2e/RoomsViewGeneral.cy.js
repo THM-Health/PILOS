@@ -1582,7 +1582,7 @@ describe('Room View general', function () {
 
     cy.visit('/rooms/abc-def-123');
 
-    cy.wait('@roomRequest'); // ToDo find other way?? or create a new test for part after this ???
+    cy.wait('@roomRequest');
 
     // End membership errors
 
@@ -1915,7 +1915,7 @@ describe('Room View general', function () {
       }
     }).as('roomRequest');
 
-    cy.visit('/rooms/abc-def-123'); // ToDo find other way?? or create a new test for part after this ???
+    cy.visit('/rooms/abc-def-123');
 
     cy.wait('@roomRequest');
 

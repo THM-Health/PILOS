@@ -1,6 +1,7 @@
 <template>
   <!-- bulk add new user modal -->
   <Dialog
+    data-test="room-members-bulk-import-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.members.bulk_import_users')"
@@ -18,6 +19,7 @@
           @click="importUsers(true)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
+          data-test="dialog-continue-button"
         />
       </div>
 
@@ -27,6 +29,7 @@
           severity="secondary"
           @click="step = 0"
           :label="$t('app.back')"
+          data-test="dialog-back-button"
         />
         <Button
           v-if="validUsers.length > 0"
@@ -34,6 +37,7 @@
           @click="importUsers(false)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.bulk_import.import_importable_button')"
+          data-test="dialog-continue-button"
         />
       </div>
 
@@ -41,12 +45,14 @@
         <Button
           @click="finish"
           :label="$t('app.close')"
+          data-test="dialog-close-button"
         />
         <Button
           v-if="invalidUsers.length>0"
           severity="secondary"
           @click="copyInvalidUsers"
           :label="$t('rooms.members.modals.bulk_import.copy_and_close')"
+          data-test="room-members-copy-and-close-button"
         />
       </div>
     </template>
@@ -55,6 +61,7 @@
       <div class="flex flex-col gap-2 mt-6">
         <label for="user-emails">{{ $t('rooms.members.modals.bulk_import.label') }}</label>
         <Textarea
+          data-test="room-members-bulk-import-textarea"
           v-model="rawList"
           :disabled="isLoadingAction"
           :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
@@ -68,17 +75,17 @@
       <div class="flex flex-col gap-2 mt-6">
         <label for="role">{{ $t('rooms.role') }}</label>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="participant-role-group">
           <RadioButton v-model="newUsersRole" inputId="participant-role" name="role" :value="1" />
           <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
         </div>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="participant-moderator-group">
           <RadioButton v-model="newUsersRole" inputId="participant-moderator" name="role" :value="2" />
           <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
         </div>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="participant-co_owner-group">
           <RadioButton v-model="newUsersRole" inputId="participant-co_owner" name="role" :value="3" />
           <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
         </div>

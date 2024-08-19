@@ -79,7 +79,7 @@ describe('Rooms view members', function () {
     cy.get('[data-test="room-member-item"]').eq(2).should('include.text', 'Tammy Law');
     cy.get('[data-test="room-member-item"]').eq(2).should('include.text', 'TammyGLaw@domain.tld');
     cy.get('[data-test="room-member-item"]').eq(2).should('include.text', 'rooms.roles.co_owner');
-    cy.get('[data-test="room-member-item"]').eq(2).find('img').should('have.attr', 'src', 'http://domain.tld/storage/profile_images/1234abc.jpg');
+    cy.get('[data-test="room-member-item"]').eq(2).find('img').should('have.attr', 'src', 'test.jpg');
   });
 
   it('load members errors', function () {
@@ -287,7 +287,6 @@ describe('Rooms view members', function () {
     cy.get('[data-test="room-members-add-single-dialog"]').should('not.exist');
 
     // Open dialog again
-
     cy.get('[data-test="room-members-add-button"]').click();
 
     cy.get('#overlay_menu_0').click();
@@ -382,7 +381,7 @@ describe('Rooms view members', function () {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null },
           { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null }
         ],
         meta: {
@@ -407,7 +406,7 @@ describe('Rooms view members', function () {
 
     // Check that correct data was sent
     cy.wait('@addUserRequest').then(interception => {
-      expect(interception.request.body).to.deep.equal({
+      expect(interception.request.body).to.eql({
         user: 10,
         role: 2
       });
@@ -633,7 +632,7 @@ describe('Rooms view members', function () {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 2, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' }
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
         ],
         meta: {
           current_page: 1,
@@ -656,7 +655,7 @@ describe('Rooms view members', function () {
     });
 
     cy.wait('@editUserRequest').then(interception => {
-      expect(interception.request.body).to.deep.equal({
+      expect(interception.request.body).to.eql({
         role: 2
       });
     });
@@ -689,7 +688,7 @@ describe('Rooms view members', function () {
       body: {
         data: [
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' }
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
         ],
         meta: {
           current_page: 1,
@@ -790,7 +789,7 @@ describe('Rooms view members', function () {
       body: {
         data: [
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' }
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
         ],
         meta: {
           current_page: 1,
@@ -842,7 +841,7 @@ describe('Rooms view members', function () {
       body: {
         data: [
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' }
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
         ],
         meta: {
           current_page: 1,
@@ -1488,7 +1487,7 @@ describe('Rooms view members', function () {
         meta: {
           current_page: 1,
           from: 1,
-          last_page: 3,
+          last_page: 1,
           per_page: 1,
           to: 1,
           total: 3,
@@ -1508,5 +1507,134 @@ describe('Rooms view members', function () {
         page: '1'
       });
     });
+  });
+
+  it('check co_owner self edit', function () {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: true,
+        is_moderator: false,
+        is_co_owner: true,
+        can_start: true,
+        access_code: 123456789,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 1, firstname: 'John', lastname: 'Doe', email: 'JohnDoe@domain.tld', role: 3, image: null },
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          per_page: 4,
+          to: 4,
+          total: 4,
+          total_no_filter: 4
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.visit('/rooms/abc-def-123#members');
+
+    // Check that all users are shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 4);
+
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'JD');
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'John Doe');
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'JohnDoe@domain.tld');
+    cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'rooms.roles.co_owner');
+    cy.get('[data-test="room-member-item"]').eq(0).within(() => {
+      cy.get('[data-test="room-members-edit-button"]').should('not.exist');
+      cy.get('[data-test="room-members-delete-button"]').should('not.exist');
+    });
+
+    // Check that checkbox is disabled
+    cy.get('[data-test="room-member-item"]')
+      .eq(0)
+      .find('input')
+      .should('be.disabled')
+      .and('not.be.checked');
+
+    // Check that checkbox is not selected when selecting all members
+    cy.get('[data-test="room-members-select-all-checkbox"]').click();
+
+    cy.get('[data-test="room-member-item"]')
+      .eq(0)
+      .find('input')
+      .should('be.disabled')
+      .and('not.be.checked');
+
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('be.checked');
+    cy.get('[data-test="room-member-item"]').eq(2).find('input').should('be.checked');
+    cy.get('[data-test="room-member-item"]').eq(3).find('input').should('be.checked');
+
+    cy.get('[data-test="room-members-bulk-edit-button"]').click();
+
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').should('include.text', 'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":3}');
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').find('[data-test="dialog-cancel-button"]').click();
+
+    // Reload members with only self as member (role co_owner)
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 1, firstname: 'John', lastname: 'Doe', email: 'JohnDoe@domain.tld', role: 3, image: null }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          per_page: 4,
+          to: 4,
+          total: 4,
+          total_no_filter: 4
+        }
+      }
+    }).as('roomMembersRequest');
+
+    cy.get('[data-test="room-members-reload-button"]').click();
+
+    // Check that select all checkbox is hidden
+    cy.get('[data-test="room-members-select-all-checkbox"]').should('not.exist');
   });
 });
