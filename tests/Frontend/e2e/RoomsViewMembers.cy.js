@@ -1509,7 +1509,7 @@ describe('Rooms view members', function () {
     });
   });
 
-  it('check co_owner self edit', function () {
+  it('check button visibility co_owner', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       data: {
         id: 'abc-def-123',
@@ -1576,6 +1576,14 @@ describe('Rooms view members', function () {
 
     cy.visit('/rooms/abc-def-123#members');
 
+    // Check that add buttons are shown
+    cy.get('[data-test="room-members-add-button"]').should('be.visible').click();
+    cy.get('#overlay_menu_0').should('be.visible').and('have.text', 'rooms.members.add_single_user');
+    cy.get('#overlay_menu_1').should('be.visible').and('have.text', 'rooms.members.bulk_import_users');
+
+    // Check that checkbox to select all members is shown
+    cy.get('[data-test="room-members-select-all-checkbox"]').should('be.visible');
+
     // Check that all users are shown
     cy.get('[data-test="room-member-item"]').should('have.length', 4);
 
@@ -1588,14 +1596,33 @@ describe('Rooms view members', function () {
       cy.get('[data-test="room-members-delete-button"]').should('not.exist');
     });
 
-    // Check that checkbox is disabled
+    // Check that checkbox of current user (co_owner) is disabled
     cy.get('[data-test="room-member-item"]')
       .eq(0)
       .find('input')
       .should('be.disabled')
       .and('not.be.checked');
 
-    // Check that checkbox is not selected when selecting all members
+    // Check that checkbox to select other members is not disabled and edit and delete buttons are shown
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('not.be.disabled');
+    cy.get('[data-test="room-member-item"]').eq(1).within(() => {
+      cy.get('[data-test="room-members-edit-button"]');
+      cy.get('[data-test="room-members-delete-button"]');
+    });
+
+    cy.get('[data-test="room-member-item"]').eq(2).find('input').should('not.be.disabled');
+    cy.get('[data-test="room-member-item"]').eq(2).within(() => {
+      cy.get('[data-test="room-members-edit-button"]');
+      cy.get('[data-test="room-members-delete-button"]');
+    });
+
+    cy.get('[data-test="room-member-item"]').eq(3).find('input').should('not.be.disabled');
+    cy.get('[data-test="room-member-item"]').eq(3).within(() => {
+      cy.get('[data-test="room-members-edit-button"]');
+      cy.get('[data-test="room-members-delete-button"]');
+    });
+
+    // Check that checkbox of current user (co_owner) is not selected when selecting all members
     cy.get('[data-test="room-members-select-all-checkbox"]').click();
 
     cy.get('[data-test="room-member-item"]')
@@ -1604,9 +1631,14 @@ describe('Rooms view members', function () {
       .should('be.disabled')
       .and('not.be.checked');
 
+    // Check that other users are selected
     cy.get('[data-test="room-member-item"]').eq(1).find('input').should('be.checked');
     cy.get('[data-test="room-member-item"]').eq(2).find('input').should('be.checked');
     cy.get('[data-test="room-member-item"]').eq(3).find('input').should('be.checked');
+
+    // Check that bulk edit and bulk delete buttons are shown
+    cy.get('[data-test="room-members-bulk-edit-button"]').should('be.visible');
+    cy.get('[data-test="room-members-bulk-delete-button"]').should('be.visible');
 
     cy.get('[data-test="room-members-bulk-edit-button"]').click();
 
@@ -1636,5 +1668,197 @@ describe('Rooms view members', function () {
 
     // Check that select all checkbox is hidden
     cy.get('[data-test="room-members-select-all-checkbox"]').should('not.exist');
+  });
+
+  it('check button visibility with rooms.viewAll and rooms.manage permissions', function () {
+    // Check with rooms.viewAll permission
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.viewAll'],
+        model_name: 'User',
+        room_limit: -1
+      }
+    });
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 123456789,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.viewAll'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+    cy.visit('/rooms/abc-def-123#members');
+
+    cy.wait('@roomRequest');
+    cy.wait('@roomMembersRequest');
+
+    // Check that add buttons are hidden
+    cy.get('[data-test="room-members-add-button"]').should('not.exist');
+
+    // Check that checkbox to select all members is hidden
+    cy.get('[data-test="room-members-select-all-checkbox"]').should('not.exist'); // ToDo Fix
+
+    // Check that all users are shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 3);
+
+    // Check that checkboxes and edit and delete buttons are not shown //ToDo Fix
+    cy.get('[data-test="room-member-item"]').eq(0).find('input').should('not.exist');
+    cy.get('[data-test="room-member-item"]').eq(0).within(() => {
+      cy.get('[data-test="room-members-edit-button"]').should('not.exist');
+      cy.get('[data-test="room-members-delete-button"]').should('not.exist');
+    });
+
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('not.exist');
+    cy.get('[data-test="room-member-item"]').eq(1).within(() => {
+      cy.get('[data-test="room-members-edit-button"]').should('not.exist');
+      cy.get('[data-test="room-members-delete-button"]').should('not.exist');
+    });
+
+    cy.get('[data-test="room-member-item"]').eq(2).find('input').should('not.exist');
+    cy.get('[data-test="room-member-item"]').eq(2).within(() => {
+      cy.get('[data-test="room-members-edit-button"]').should('not.exist');
+      cy.get('[data-test="room-members-delete-button"]').should('not.exist');
+    });
+
+    // Reload with rooms.manage permission
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.create', 'rooms.viewAll', 'rooms.manage'],
+        model_name: 'User',
+        room_limit: -1
+      }
+    });
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 123456789,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create', 'rooms.viewAll', 'rooms.manage'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.reload();
+
+    cy.wait('@roomRequest');
+    cy.wait('@roomMembersRequest');
+
+    // Check that add buttons are shown
+    cy.get('[data-test="room-members-add-button"]').should('be.visible').click();
+    cy.get('#overlay_menu_0').should('be.visible').and('have.text', 'rooms.members.add_single_user');
+    cy.get('#overlay_menu_1').should('be.visible').and('have.text', 'rooms.members.bulk_import_users');
+
+    // Check that checkbox to select all members is shown
+    cy.get('[data-test="room-members-select-all-checkbox"]').should('be.visible');
+
+    // Check that all users are shown
+    cy.get('[data-test="room-member-item"]').should('have.length', 3);
+
+    // Check that checkboxes are not disabled and edit and delete buttons are shown
+    cy.get('[data-test="room-member-item"]').eq(0).find('input').should('not.be.disabled');
+    cy.get('[data-test="room-member-item"]').eq(0).within(() => {
+      cy.get('[data-test="room-members-edit-button"]');
+      cy.get('[data-test="room-members-delete-button"]');
+    });
+
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('not.be.disabled');
+    cy.get('[data-test="room-member-item"]').eq(1).within(() => {
+      cy.get('[data-test="room-members-edit-button"]');
+      cy.get('[data-test="room-members-delete-button"]');
+    });
+
+    cy.get('[data-test="room-member-item"]').eq(2).find('input').should('not.be.disabled');
+    cy.get('[data-test="room-member-item"]').eq(2).within(() => {
+      cy.get('[data-test="room-members-edit-button"]');
+      cy.get('[data-test="room-members-delete-button"]');
+    });
+
+    // Select all users
+    cy.get('[data-test="room-members-select-all-checkbox"]').click();
+
+    cy.get('[data-test="room-member-item"]').eq(0).find('input').should('be.checked');
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('be.checked');
+    cy.get('[data-test="room-member-item"]').eq(2).find('input').should('be.checked');
+
+    // Check that bulk edit and bulk delete buttons are shown
+    cy.get('[data-test="room-members-bulk-edit-button"]').should('be.visible');
+    cy.get('[data-test="room-members-bulk-delete-button"]').should('be.visible');
   });
 });
