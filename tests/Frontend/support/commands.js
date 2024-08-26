@@ -114,6 +114,22 @@ Cypress.Commands.add('interceptRoomMembersRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'exampleRoomMembers.json' }).as('roomMembersRequest');
 });
 
+Cypress.Commands.add('interceptRoomSettingsRequest', () => {
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettings.json' }).as('roomSettingsRequest');
+
+  cy.intercept('GET', 'api/v1/config', {
+    data: {
+      theme: {
+        primary_color: '#14b8a6',
+        rounded: true
+      },
+      general: { toast_lifetime: 0 },
+      room: { refresh_rate: 5000 },
+      bbb:{ welcome_message_limit: 500 }
+    }
+  });
+});
+
 Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => {
   cy.get('.p-toast-message').should('be.visible');
   if (Array.isArray(messages)) {

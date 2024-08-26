@@ -1,5 +1,6 @@
 <template>
   <Button
+    data-test="room-transfer-ownership-button"
     v-if="userPermissions.can('transfer', room)"
     @click="showTransferOwnershipModal"
     severity="secondary"
@@ -10,6 +11,7 @@
 
   <!--transfer ownership modal-->
   <Dialog
+    data-test="room-transfer-ownership-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.modals.transfer_ownership.title')"
