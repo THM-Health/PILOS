@@ -91,7 +91,6 @@ class RoomPolicy
     /**
      * Determine whether the user can start a new meeting in a room.
      *
-     * @param  ?User  $user
      * @return bool
      */
     public function start(?User $user, Room $room)
