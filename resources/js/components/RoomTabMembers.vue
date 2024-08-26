@@ -88,7 +88,7 @@
           </div>
         </template>
 
-        <template #header v-if="selectableMembers.length > 0">
+        <template #header v-if="selectableMembers.length > 0 && userPermissions.can('manageSettings', props.room)">
           <div class="flex justify-between mb-2">
              <Checkbox
                 :model-value="selectedMembers.length === selectableMembers.length"
@@ -120,7 +120,7 @@
             <div v-for="(item, index) in slotProps.items" :key="index">
               <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-t border-surface': index !== 0 }">
                 <div class="flex flex-row gap-6">
-                  <div class="flex items-center">
+                  <div class="flex items-center" v-if="userPermissions.can('manageSettings', props.room)">
                     <Checkbox
                       :disabled="authStore.currentUser && authStore.currentUser.id === item.id"
                       :model-value="isMemberSelected(item.id)"
