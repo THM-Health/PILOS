@@ -75,7 +75,7 @@ class MeetingTest extends TestCase
      */
     public function testStartWithCustomCreateParameters()
     {
-        Log::swap(new LogFake);
+        LogFake::bind();
 
         $meeting = $this->meeting;
 
@@ -90,6 +90,7 @@ class MeetingTest extends TestCase
 
         Http::fake([
             'test.notld/bigbluebutton/api/create*' => Http::sequence()
+                ->push(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
                 ->push(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
                 ->push(file_get_contents(__DIR__.'/../Fixtures/Success.xml')),
         ]);
@@ -144,6 +145,51 @@ class MeetingTest extends TestCase
             fn (LogEntry $log) => $log->level == 'warning'
                 && $log->message == 'Custom create parameter for {parameter} can not be found'
                 && $log->context['parameter'] == 'invalidParameter'
+        );
+
+        LogFake::bind();
+
+        $roomType->create_parameters = "record=invalid\nmaxParticipants=10.5\nmeetingLayout=invalid\ndisabledFeatures=learningDashboard,invalid";
+        $roomType->save();
+
+        $meetingService->start();
+
+        $request = Http::recorded()[2][0];
+        $data = $request->data();
+
+        // Check if invalid parameters are not set
+        $this->assertArrayNotHasKey('maxParticipants', $data);
+        $this->assertArrayNotHasKey('meetingLayout', $data);
+        $this->assertArrayNotHasKey('record', $data);
+        $this->assertArrayNotHasKey('disabledFeatures', $data);
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Invalid boolean value {value} of create parameter for {parameter}'
+                && $log->context['parameter'] == 'record'
+                && $log->context['value'] == 'invalid'
+        );
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Invalid integer value {value} of create parameter for {parameter}'
+                && $log->context['parameter'] == 'maxParticipants'
+                && $log->context['value'] == '10.5'
+        );
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Invalid enum value {value} of create parameter for {parameter}'
+                && $log->context['parameter'] == 'meetingLayout'
+                && $log->context['value'] == 'invalid'
+        );
+
+        Log::assertLogged(
+            fn (LogEntry $log) => $log->level == 'warning'
+                && $log->message == 'Invalid feature value {value} of create parameter for {parameter}'
+                && $log->context['parameter'] == 'disabledFeatures'
+                && $log->context['value'][0] == 'learningDashboard'
+                && $log->context['value'][1] == 'invalid'
         );
     }
 

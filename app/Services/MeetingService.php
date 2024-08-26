@@ -12,6 +12,7 @@ use App\Models\Room;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
 use Auth;
+use BigBlueButton\Enum\Feature;
 use BigBlueButton\Enum\Role;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Log;
+use ReflectionProperty;
 
 class MeetingService
 {
@@ -196,21 +198,72 @@ class MeetingService
                 continue;
             }
 
-            $reflection = new \ReflectionClass(CreateMeetingParameters::class);
+            try {
+                $reflectionProperty = new ReflectionProperty(CreateMeetingParameters::class, $parameter);
 
-            // Check if the parameter corresponds to a property of the CreateMeetingParameters class
-            if ($reflection->hasProperty($parameter)) {
-                // Get the setter method for the parameter
-                $setParamMethod = 'set'.ucfirst($parameter);
+                $typeName = $reflectionProperty->getType()->getName();
 
-                // If the property of the CreateMeetingParameters class is an array, explode the value by comma
-                if (is_array($reflection->getProperty($parameter)->getDefaultValue())) {
+                // Handle integer
+                if ($typeName == 'int') {
+                    // check if string is an integer number using regex
+                    if (! preg_match('/^[0-9]+$/', $value)) {
+                        Log::warning('Invalid integer value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+
+                        continue;
+                    }
+                    $value = (int) $value;
+                }
+
+                // Handle boolean
+                if ($typeName == 'bool') {
+                    if ($value == 'true' || $value == 'false') {
+                        $value = $value == 'true';
+                    } else {
+                        Log::warning('Invalid boolean value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+
+                        continue;
+                    }
+                }
+
+                // Handle arrays
+                if ($typeName == 'array') {
                     $value = explode(',', $value);
                 }
 
+                // Special handling for disabledFeatures and disabledFeaturesExclude
+                try {
+                    if ($parameter == 'disabledFeatures' || $parameter == 'disabledFeaturesExclude') {
+                        $value = array_map(function ($value) {
+                            return Feature::from($value);
+                        }, $value);
+                    }
+                } catch (\ValueError $e) {
+                    Log::warning('Invalid feature value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+
+                    continue;
+                }
+
+                // Custom types
+                if (class_exists($typeName)) {
+                    $reflectionClass = new \ReflectionClass($typeName);
+                    // Enum type
+                    if ($reflectionClass->isEnum()) {
+                        try {
+                            $value = $typeName::from($value);
+                        } catch (\ValueError $e) {
+                            Log::warning('Invalid enum value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+
+                            continue;
+                        }
+                    }
+                }
+
+                // Get the setter method for the parameter
+                $setParamMethod = 'set'.ucfirst($parameter);
+
                 // Set the parameter
                 $meetingParams->$setParamMethod($value);
-            } else {
+            } catch (\ReflectionException $e) {
                 // Log a warning if a parameter cannot be found
                 Log::warning('Custom create parameter for {parameter} can not be found', ['parameter' => $parameter]);
             }
