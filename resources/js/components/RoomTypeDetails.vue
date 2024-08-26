@@ -19,6 +19,7 @@
               <div v-for="settingGroup in roomTypeSettings" :key="settingGroup.title" >
                 <h4 class="my-2 font-bold">{{ settingGroup.title }}</h4>
                 <RoomTypeSettingsField
+                  :data-test="setting.key+ '-setting'"
                   v-for="setting in settingGroup.settings"
                   :key="setting.key"
                   :value="roomType[setting.key+'_default']"

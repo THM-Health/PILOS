@@ -75,9 +75,11 @@ describe('Login', function () {
           ldap: false
         }
       }
-    });
+    }).as('configRequest');
 
     cy.visit('/login');
+
+    cy.wait('@configRequest');
     cy.get('[data-test="login-tab-ldap"]').should('not.exist');
   });
 
@@ -202,9 +204,11 @@ describe('Login', function () {
           local: false
         }
       }
-    });
+    }).as('configRequest');
 
     cy.visit('/login');
+
+    cy.wait('@configRequest');
     cy.get('[data-test="login-tab-local"]').should('not.exist');
   });
 
@@ -401,9 +405,11 @@ describe('Login', function () {
           shibboleth: false
         }
       }
-    });
+    }).as('configRequest');
 
     cy.visit('/login');
+
+    cy.wait('@configRequest');
     cy.get('[data-test="login-tab-external"]').should('not.exist');
   });
 

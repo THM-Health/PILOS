@@ -1,13 +1,13 @@
-import {interceptIndefinitely} from "../support/utils/interceptIndefinitely.js";
+import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
 
-describe('Rooms view settings', () => {
-  beforeEach(function() {
+describe('Rooms view settings', function () {
+  beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
     cy.interceptRoomSettingsRequest();
   });
 
-  it('load settings', function () {
+  it('load settings', function () { // ToDo improve (custom command or function possible?)
     const roomSettingsRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettings.json' }, 'roomSettingsRequest');
 
     cy.visit('/rooms/abc-def-123');
@@ -31,9 +31,9 @@ describe('Rooms view settings', () => {
 
     cy.get('[data-test="room-settings-save-button"]')
       .should('have.text', 'app.save')
-      .and('be.disabled').then(()=>{
+      .and('be.disabled').then(() => {
         roomSettingsRequest.sendResponse();
-    });
+      });
 
     cy.wait('@roomSettingsRequest');
 
@@ -52,7 +52,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="access-code-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.access_code')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#access-code').should('have.value', '123456789');
       });
@@ -60,7 +60,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="allow-guests-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.general.access_by_guests')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#allow-guests').should('not.be.disabled').and('be.checked');
       });
@@ -102,7 +102,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="everyone-can-start-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.video_conference.allow_starting')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#everyone-can-start').should('not.be.disabled').and('not.be.checked');
       });
@@ -110,7 +110,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="mute-on-start-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.video_conference.microphone')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('be.visible');
         cy.get('#mute-on-start').should('be.disabled').and('be.checked');
       });
@@ -118,12 +118,12 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="lobby-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.video_conference.lobby.title')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('be.visible');
         cy.get('#lobby-disabled').should('be.disabled').and('not.be.checked');
         cy.get('#lobby-enabled').should('be.disabled').and('be.checked');
         cy.get('#lobby-only-for-guests').should('be.disabled').and('not.be.checked');
-    });
+      });
 
     cy.get('[data-test="welcome-setting"]')
       .should('be.visible')
@@ -137,7 +137,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="record-attendance-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.recordings.record_attendance')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#record-attendance').should('not.be.disabled').and('be.checked');
       });
@@ -145,7 +145,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="record-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.recordings.record_video_conference')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#record').should('not.be.disabled').and('not.be.checked');
       });
@@ -153,7 +153,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="auto-start-recording-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.recordings.auto_start_recording')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#auto-start-recording').should('not.be.disabled').and('not.be.checked');
       });
@@ -164,7 +164,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="lock-settings-disable-cam-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.restrictions.lock_settings_disable_cam')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#disable-cam').should('not.be.disabled').and('not.be.checked');
       });
@@ -172,7 +172,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="webcams-only-for-moderator-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.restrictions.webcams_only_for_moderator')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#webcams-only-for-moderator').should('not.be.disabled').and('be.checked');
       });
@@ -180,7 +180,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="lock-settings-disable-mic-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.restrictions.lock_settings_disable_mic')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('be.visible');
         cy.get('#disable-mic').should('be.disabled').and('not.be.checked');
       });
@@ -188,7 +188,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="lock-settings-disable-public-chat-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.restrictions.lock_settings_disable_public_chat')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#disable-public-chat').should('not.be.disabled').and('be.checked');
       });
@@ -196,7 +196,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="lock-settings-disable-private-chat-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.restrictions.lock_settings_disable_private_chat')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#disable-private-chat').should('not.be.disabled').and('not.be.checked');
       });
@@ -204,7 +204,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="lock-settings-disable-note-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.restrictions.lock_settings_disable_note')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('be.visible');
         cy.get('#disable-note').should('be.disabled').and('be.checked');
       });
@@ -212,7 +212,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="lock-settings-hide-user-list-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.restrictions.lock_settings_hide_user_list')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('#hide-user-list').should('not.be.disabled').and('be.checked');
       });
@@ -223,7 +223,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="allow-membership-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.participants.allow_membership')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('be.visible');
         cy.get('#allow-membership').should('be.disabled').and('not.be.checked');
       });
@@ -232,7 +232,7 @@ describe('Rooms view settings', () => {
       .should('be.visible')
       .and('include.text', 'rooms.settings.participants.default_role.title')
       .and('include.text', 'rooms.settings.participants.default_role.only_logged_in')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('[data-test="room-settings-default-role-button"]').should('have.length', 2);
         cy.get('[data-test="room-settings-default-role-button"]')
@@ -251,7 +251,7 @@ describe('Rooms view settings', () => {
     cy.get('[data-test="visibility-setting"]')
       .should('be.visible')
       .and('include.text', 'rooms.settings.advanced.visibility.title')
-      .within(()=>{
+      .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
         cy.get('[data-test="room-settings-visibility-button"]').should('have.length', 2);
         cy.get('[data-test="room-settings-visibility-button"]')
@@ -262,14 +262,14 @@ describe('Rooms view settings', () => {
           .eq(1)
           .should('have.text', 'rooms.settings.advanced.visibility.public')
           .and('have.attr', 'aria-pressed', 'true');
-        });
+      });
   });
 
   it('load settings errors', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', {
       statusCode: 500,
       body: {
-      message: 'Test'
+        message: 'Test'
       }
     });
 
@@ -326,7 +326,7 @@ describe('Rooms view settings', () => {
     cy.interceptRoomIndexRequests();
 
     cy.get('[data-test=room-delete-dialog]').find('[data-test="dialog-continue-button"]').should('have.text', 'app.yes').click();
-    cy.get('[data-test=room-delete-dialog]').find('[data-test="dialog-continue-button"]').should('be.disabled').then(()=>{
+    cy.get('[data-test=room-delete-dialog]').find('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
       deleteRoomRequest.sendResponse();
     });
 

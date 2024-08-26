@@ -45,7 +45,7 @@ describe('Rooms view meetings', function () {
           room_limit: -1
         }
       }
-    });
+    }).as('roomRequest');
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
@@ -55,6 +55,8 @@ describe('Rooms view meetings', function () {
     }, 'joinRequest');
 
     cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
 
     // Check that room join dialog is closed and click on join button
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
@@ -124,7 +126,7 @@ describe('Rooms view meetings', function () {
           room_limit: -1
         }
       }
-    });
+    }).as('roomRequest');
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
@@ -134,6 +136,8 @@ describe('Rooms view meetings', function () {
     }, 'joinRequest');
 
     cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
 
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     cy.get('[data-test="room-join-button"]').should('not.be.disabled').and('have.text', 'rooms.join').click();
@@ -207,7 +211,7 @@ describe('Rooms view meetings', function () {
           room_limit: -1
         }
       }
-    });
+    }).as('roomRequest');
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
@@ -217,6 +221,8 @@ describe('Rooms view meetings', function () {
     }, 'joinRequest');
 
     cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
 
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     cy.get('[data-test="room-join-button"]').should('not.be.disabled').and('have.text', 'rooms.join').click();
@@ -1285,7 +1291,7 @@ describe('Rooms view meetings', function () {
           room_limit: -1
         }
       }
-    });
+    }).as('roomRequest');
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
@@ -1295,6 +1301,8 @@ describe('Rooms view meetings', function () {
     }, 'startRequest');
 
     cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
 
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     cy.get('[data-test="room-start-button"]').should('not.be.disabled').and('have.text', 'rooms.start').click();
@@ -1368,7 +1376,7 @@ describe('Rooms view meetings', function () {
           room_limit: -1
         }
       }
-    });
+    }).as('roomRequest');
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
@@ -1378,6 +1386,8 @@ describe('Rooms view meetings', function () {
     }, 'startRequest');
 
     cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
 
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     cy.get('[data-test="room-start-button"]').should('not.be.disabled').and('have.text', 'rooms.start').click();

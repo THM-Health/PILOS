@@ -125,7 +125,7 @@ Cypress.Commands.add('interceptRoomSettingsRequest', () => {
       },
       general: { toast_lifetime: 0 },
       room: { refresh_rate: 5000 },
-      bbb:{ welcome_message_limit: 500 }
+      bbb: { welcome_message_limit: 500 }
     }
   });
 });
