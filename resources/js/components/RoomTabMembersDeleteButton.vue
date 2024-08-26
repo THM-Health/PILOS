@@ -85,9 +85,7 @@ function deleteMember () {
     if (error.response) {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
-        showModal.value = false;
         emit('deleted');
-        return;
       }
     }
     showModal.value = false;
