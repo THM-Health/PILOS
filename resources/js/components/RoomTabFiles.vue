@@ -166,6 +166,7 @@
                     v-if="userPermissions.can('manageSettings', props.room)"
                     :disabled="isBusy"
                     @edited="loadData()"
+                    @deleted="loadData()"
                   />
                   <RoomTabFilesDeleteButton
                     :room-id="props.room.id"
