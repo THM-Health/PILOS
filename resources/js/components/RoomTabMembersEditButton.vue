@@ -122,9 +122,7 @@ function save () {
     if (error.response) {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
-        showModal.value = false;
         emit('edited');
-        return;
       }
       // failed due to form validation errors
       if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
