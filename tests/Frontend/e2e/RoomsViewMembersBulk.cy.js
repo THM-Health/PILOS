@@ -413,6 +413,26 @@ describe('Rooms view members bulk', function () {
     cy.get('[data-test="room-members-bulk-delete-button"]').should('be.visible').click();
     cy.get('[data-test="room-members-bulk-delete-dialog"]').should('be.visible');
 
+    // Check with 422 error (one of the users isn't a member)
+    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/member/bulk', {
+      statusCode: 422,
+      body: {
+        message: 'The user \'Laura Rivera\' isn\'t a member.',
+        errors: {
+          'users.0': ['The user \'Laura Rivera\' isn\'t a member.']
+        }
+      }
+    }).as('bulkDeleteRequest');
+
+    cy.get('[data-test="room-members-bulk-delete-dialog"]').find('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@bulkDeleteRequest');
+
+    // Check that dialog is still shown and error is displayed
+    cy.get('[data-test="room-members-bulk-delete-dialog"]')
+      .should('be.visible')
+      .and('include.text', 'The user \'Laura Rivera\' isn\'t a member.');
+
     // Check with 500 error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/member/bulk', {
       statusCode: 500,
