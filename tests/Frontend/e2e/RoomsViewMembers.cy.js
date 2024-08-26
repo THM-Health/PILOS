@@ -361,7 +361,7 @@ describe('Rooms view members', function () {
       cy.get('#participant-moderator').should('not.be.checked');
     });
 
-    cy.get('[data-test="participant-co_owner-group"]').within(() => {
+    cy.get('[data-test="participant-co-owner-group"]').within(() => {
       cy.contains('rooms.roles.co_owner');
       cy.get('#participant-co_owner').should('not.be.checked');
     });
@@ -611,7 +611,7 @@ describe('Rooms view members', function () {
       cy.get('#participant-moderator').should('not.be.checked');
     });
 
-    cy.get('[data-test="participant-co_owner-group"]').within(() => {
+    cy.get('[data-test="participant-co-owner-group"]').within(() => {
       cy.contains('rooms.roles.co_owner');
       cy.get('#participant-co_owner').should('not.be.checked');
     });

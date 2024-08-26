@@ -2262,6 +2262,56 @@ describe('Room View general', function () {
     cy.get('#tab-history').should('not.exist');
     cy.get('#tab-settings').should('not.exist');
 
-    // ToDo co-owner and moderator also needed??
+    // Change current user to co_owner
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
+        last_meeting: null,
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: true,
+        is_moderator: false,
+        is_co_owner: true,
+        can_start: true,
+        access_code: null,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 2,
+          firstname: 'Max',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="reload-room-button"]').click();
+
+    // Check that tabs are shown correctly
+    cy.get('#tab-description').should('be.visible');
+    cy.get('#tab-members').should('be.visible');
+    cy.get('#tab-tokens').should('be.visible');
+    cy.get('#tab-files').should('be.visible');
+    cy.get('#tab-recordings').should('be.visible');
+    cy.get('#tab-history').should('be.visible');
+    cy.get('#tab-settings').should('be.visible');
   });
 });

@@ -43,7 +43,7 @@
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
-      <div class="flex items-center" data-test="participant-co_owner-group">
+      <div class="flex items-center" data-test="participant-co-owner-group">
         <RadioButton v-model="newRole" inputId="participant-co_owner" name="role" :value="3" />
         <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
