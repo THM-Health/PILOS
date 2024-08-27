@@ -27,7 +27,12 @@
         </div>
     </template>
 
-    {{ $t('rooms.members.modals.remove.confirm_bulk', {numberOfSelectedUsers: props.userIds.length}) }}
+    <div class="flex flex-col gap-2">
+      <span>
+        {{ $t('rooms.members.modals.remove.confirm_bulk', {numberOfSelectedUsers: props.userIds.length}) }}
+      </span>
+      <FormError :errors="formErrors.fieldError('users', true)" />
+    </div>
   </Dialog>
 </template>
 <script setup>
