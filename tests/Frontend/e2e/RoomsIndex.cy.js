@@ -226,9 +226,6 @@ describe('Room Index', function () {
     cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
 
     cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
-      // Wait for the dialog transition to be finished
-      cy.wait(300);
-
       // Check that room type details does not exist (no room type selected)
       cy.get('[data-test=room-type-details]').should('not.exist');
 
@@ -301,9 +298,6 @@ describe('Room Index', function () {
     // Open room create modal
     cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
     cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
-      // Wait for the dialog transition to be finished
-      cy.wait(300);
-
       // Check that room name input is empty
       cy.get('#room-name').should('have.text', '');
       // Select a room type
@@ -347,9 +341,6 @@ describe('Room Index', function () {
     // Open room create modal
     cy.get('[data-test=room-create-button]').should('contain', 'rooms.create.title').click();
     cy.get('[data-test=room-create-dialog]').should('be.visible').within(() => {
-      // Wait for the dialog transition to be finished
-      cy.wait(300);
-
       // Enter room name
       cy.get('#room-name').should('have.text', '').type('New Room');
 

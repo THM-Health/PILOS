@@ -36,7 +36,6 @@
     "mocha"
   ],
   "rules":{
-    "cypress/no-unnecessary-waiting": "off",
      "jsonc/sort-keys":[
         "error",
         {
