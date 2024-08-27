@@ -61,6 +61,7 @@
         :totalRecords="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
+        @update:first="paginator.setFirst($event)"
         :value="recordings"
         lazy
         dataKey="id"

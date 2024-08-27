@@ -71,6 +71,10 @@ class Paginator {
     return Math.max(this.meta.value.from - 1, 0);
   }
 
+  setFirst (first) {
+    this.meta.value.from = first;
+  }
+
   /**
    * Get current page
    * @return {number}

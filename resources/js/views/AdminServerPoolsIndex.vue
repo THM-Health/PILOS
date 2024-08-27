@@ -34,6 +34,7 @@
       :rows="paginator.getRows()"
       :totalRecords="paginator.getTotalRecords()"
       :first="paginator.getFirst()"
+      @update:first="paginator.setFirst($event)"
       :value="serverPools"
       dataKey="id"
       lazy
