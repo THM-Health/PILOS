@@ -713,6 +713,12 @@ describe('Rooms view members', function () {
 
     cy.get('[data-test="room-member-item"]').should('have.length', 2);
 
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"The person is not a member of this room (anymore)."}',
+      'app.flash.server_error.error_code_{"statusCode":410}'
+    ]);
+
     // Check with 500 error
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
 
@@ -863,6 +869,12 @@ describe('Rooms view members', function () {
     // Check that user list was updated and dialog is closed
     cy.get('[data-test="room-member-item"]').should('have.length', 2);
     cy.get('[data-test="room-members-delete-dialog"]').should('not.exist');
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"The person is not a member of this room (anymore)."}',
+      'app.flash.server_error.error_code_{"statusCode":410}'
+    ]);
 
     // Check with 500 error
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
