@@ -23,6 +23,11 @@
 }
 
 
+.multiselect__option--disabled {
+    background: var(--p-form-field-disabled-background) !important;
+    color: var(--p-form-field-disabled-color) !important;
+}
+
 .multiselect{
     &.is-invalid .multiselect__tags {
         //border-color: $inputErrorBorderColor !important;
@@ -50,7 +55,7 @@
     }
 
     .multiselect__tags{
-        background: none;
+        background: var(--p-form-field-background);
         border: 1px solid var(--p-inputtext-border-color);
         border-radius: var(--p-form-field-border-radius) !important;
         padding: var(--p-inputtext-padding-y) var(--p-inputtext-padding-x);
@@ -81,12 +86,18 @@
     .multiselect__input{
         padding: 0;
         margin: 0;
+        background: none;
         color: var(--p-form-field-color);
         font-size: 1rem;
+        &::placeholder{
+            color: var(--p-form-field-placeholder-color);
+        }
     }
+
 
     .multiselect__spinner {
         border-radius: var(--p-select-overlay-border-radius);
+        background: var(--p-form-field-background);
     }
 
     .multiselect__placeholder{

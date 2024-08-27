@@ -81,12 +81,13 @@ function deleteFile () {
     showModal.value = false;
     emit('deleted');
   }).catch((error) => {
-    // editing failed
+    // deleting failed
     if (error.response) {
-      // user not found
-      if (error.response.status === env.HTTP_GONE) {
-        toast.errror(t('rooms.flash.file_gone'));
+      // file not found
+      if (error.response.status === env.HTTP_NOT_FOUND) {
+        toast.error(t('rooms.flash.file_gone'));
         emit('deleted');
+        showModal.value = false;
         return;
       }
     }

@@ -49,6 +49,7 @@
       </div>
 
       <FormError :errors="formErrors.fieldError('role')" />
+      <FormError :errors="formErrors.fieldError('users', true)" />
     </div>
   </Dialog>
 </template>

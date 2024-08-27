@@ -31,6 +31,7 @@
             id="room-name"
             v-model="room.name"
             :disabled="isLoadingAction"
+            autofocus
             :invalid="formErrors.fieldInvalid('name')"
           />
           <FormError :errors="formErrors.fieldError('name')" />

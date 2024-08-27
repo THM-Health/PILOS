@@ -337,8 +337,6 @@ const sortingTypes = computed(() => {
 const breakpoints = useBreakpoints(breakpointsTailwind);
 
 onMounted(() => {
-  reload();
-
   switch (breakpoints.active().value) {
     case 'md':
       perPage.value = 8;
@@ -353,6 +351,8 @@ onMounted(() => {
     default:
       perPage.value = 6;
   }
+
+  reload();
 });
 
 /**
