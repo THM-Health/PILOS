@@ -5,7 +5,7 @@ return [
     'title' => [
         'first_line' => [
             'before_flip_words' => 'Online ',
-            'flip_words' => 'Meetings;Lectures;Seminars;Exams',
+            'flip_words' => 'Meetings|Lectures|Seminars|Exams',
             'after_flip_words' => '',
         ],
         'second_line' => [

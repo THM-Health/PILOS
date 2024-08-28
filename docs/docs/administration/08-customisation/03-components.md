@@ -13,8 +13,15 @@ Therefore, we only support overwriting a few selected components that are mostly
 
 ## Welcome page
 The welcome page is stored in `resources/js/views/Home.vue` and consists of the two components:
-- LandingHeaderSection (`resources/js/components/LandingHeaderSection.vue`)
+- LandingHeroSection (`resources/js/components/LandingHeroSection.vue`)
 - LandingFeaturesSection (`resources/js/components/LandingFeaturesSection.vue`)
+
+The LandingHeroSection contains the animated hero section with the title (`resources/js/components/LandingHeroTitle.vue`), description, the call to action button (`resources/js/components/LandingHeroCTA.vue`) and the images of users.
+
+You can overwrite all or just some of these components to adjust the welcome page to your needs.
+
+If you only want to change the text, you can do this by overwriting the locales. All text used on the welcome page is part of the locale group `home`.
+See the [Locales](./02-locales.md#overriding-locales) documentation for more information on how to overwrite locales.
 
 ## Footer
 The footer component is stored in `resources/js/components/Footer.vue` and accesses global settings to get the links for the legal notice and privacy policy.
