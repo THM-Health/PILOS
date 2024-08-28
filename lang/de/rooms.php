@@ -313,7 +313,7 @@ return [
         'nodata' => 'Keine Aufzeichnungen vorhanden',
         'retention_period' => [
             'days' => 'Die Aufzeichnungen werden für :days Tage gespeichert.',
-            'title' => 'Aufbewahrungsfristen',
+            'title' => 'Aufbewahrungsfrist',
             'unlimited' => 'Die Aufzeichnungen werden zeitlich unbegrenzt gespeichert.',
         ],
         'sort' => [

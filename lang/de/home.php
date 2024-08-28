@@ -40,7 +40,7 @@ return [
         ],
         'get_started' => 'Jetzt beginnen',
         'second_line' => [
-            'after_underline' => '.',
+            'after_underline' => ' ',
             'before_underline' => 'einfach und ',
             'underline' => 'sicher',
         ],
