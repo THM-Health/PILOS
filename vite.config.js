@@ -43,6 +43,7 @@ export default ({ mode }) => {
         ]
       })
     ],
+    publicDir: 'public',
     server: {
       https: getSslConfig(),
       host: true,
