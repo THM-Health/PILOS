@@ -119,7 +119,7 @@ class MeetingTest extends TestCase
         Log::assertNothingLogged();
 
         // Check with invalid create parameters
-        $roomType->create_parameters = "autoStartRecording\ninvalidParameter=10\n";
+        $roomType->create_parameters = "meta_foo=baa\nrecord=invalid\nmaxParticipants=10.5\nmeetingLayout=invalid\ndisabledFeatures=learningDashboard,invalid";
         $roomType->save();
 
         $meetingService->start();
@@ -128,65 +128,38 @@ class MeetingTest extends TestCase
         $data = $request->data();
 
         // Check if invalid parameters are not set
-        $this->assertArrayNotHasKey('invalidParameter', $data);
-
-        // Check if parameters of the room and room type are not overwritten
-        $this->assertEquals('true', $data['autoStartRecording']);
-
-        // Check if parameter with no value is logged
-        Log::assertLogged(
-            fn (LogEntry $log) => $log->level == 'warning'
-                && $log->message == 'Custom create parameter for {parameter} has no value'
-                && $log->context['parameter'] == 'autoStartRecording'
-        );
-
-        // Check if invalid parameter is logged
-        Log::assertLogged(
-            fn (LogEntry $log) => $log->level == 'warning'
-                && $log->message == 'Custom create parameter for {parameter} can not be found'
-                && $log->context['parameter'] == 'invalidParameter'
-        );
-
-        LogFake::bind();
-
-        $roomType->create_parameters = "record=invalid\nmaxParticipants=10.5\nmeetingLayout=invalid\ndisabledFeatures=learningDashboard,invalid";
-        $roomType->save();
-
-        $meetingService->start();
-
-        $request = Http::recorded()[2][0];
-        $data = $request->data();
-
-        // Check if invalid parameters are not set
         $this->assertArrayNotHasKey('maxParticipants', $data);
         $this->assertArrayNotHasKey('meetingLayout', $data);
         $this->assertArrayNotHasKey('record', $data);
         $this->assertArrayNotHasKey('disabledFeatures', $data);
 
+        // Check if valid parameters are also not set, as all create parameters are discarded if one is invalid
+        $this->assertArrayNotHasKey('meta_foo', $data);
+
         Log::assertLogged(
             fn (LogEntry $log) => $log->level == 'warning'
-                && $log->message == 'Invalid boolean value {value} of create parameter for {parameter}'
+                && $log->message == 'Custom create parameter {parameter} value {value} is not a boolean'
                 && $log->context['parameter'] == 'record'
                 && $log->context['value'] == 'invalid'
         );
 
         Log::assertLogged(
             fn (LogEntry $log) => $log->level == 'warning'
-                && $log->message == 'Invalid integer value {value} of create parameter for {parameter}'
+                && $log->message == 'Custom create parameter {parameter} value {value} is not an integer'
                 && $log->context['parameter'] == 'maxParticipants'
                 && $log->context['value'] == '10.5'
         );
 
         Log::assertLogged(
             fn (LogEntry $log) => $log->level == 'warning'
-                && $log->message == 'Invalid enum value {value} of create parameter for {parameter}'
+                && $log->message == 'Custom create parameter {parameter} value {value} is not an enum value'
                 && $log->context['parameter'] == 'meetingLayout'
                 && $log->context['value'] == 'invalid'
         );
 
         Log::assertLogged(
             fn (LogEntry $log) => $log->level == 'warning'
-                && $log->message == 'Invalid feature value {value} of create parameter for {parameter}'
+                && $log->message == 'Custom create parameter {parameter} value {value} is not an enum value'
                 && $log->context['parameter'] == 'disabledFeatures'
                 && $log->context['value'][0] == 'learningDashboard'
                 && $log->context['value'][1] == 'invalid'

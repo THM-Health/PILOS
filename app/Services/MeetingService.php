@@ -71,7 +71,13 @@ class MeetingService
 
         // Apply custom create parameters of the room type
         if ($this->meeting->room->roomType->create_parameters != null) {
-            $this->setCustomCreateMeetingParameters($meetingParams, $this->meeting->room->roomType->create_parameters);
+
+            $result = self::setCustomCreateMeetingParameters($meetingParams, $this->meeting->room->roomType->create_parameters);
+
+            // If setting custom parameters failed, we have to recreate the parameter object to reset it
+            if (count($result) > 0) {
+                $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
+            }
         }
 
         // Room settings take precedence
@@ -157,7 +163,7 @@ class MeetingService
     }
 
     /**
-     * Set custom parameters for creating a meeting.
+     * Set and validate custom parameters for creating a meeting.
      *
      * It reads the custom parameters from the room type of the meeting room and applies them to the meeting parameters.
      * Custom parameters are defined in the format "key=value" and separated by newlines.
@@ -168,9 +174,12 @@ class MeetingService
      *
      * @param  CreateMeetingParameters  $meetingParams  The meeting parameters to which the custom parameters should be applied
      * @param  string  $createParameters  The custom parameters in the format "key=value" and separated by newlines
+     * @return array An array of error messages
      */
-    private function setCustomCreateMeetingParameters(CreateMeetingParameters $meetingParams, string $createParameters): void
+    public static function setCustomCreateMeetingParameters(CreateMeetingParameters $meetingParams, string $createParameters): array
     {
+        $errors = [];
+
         // Load custom create parameters of room type
         foreach (explode("\n", $createParameters) as $createParameter) {
             $parameterParts = explode('=', $createParameter, 2);
@@ -181,9 +190,11 @@ class MeetingService
                 continue;
             }
 
-            // Log a warning if a parameter has no value
+            // Check for parameters with no value
             if (count($parameterParts) !== 2) {
-                Log::warning('Custom create parameter for {parameter} has no value', ['parameter' => $parameter]);
+                Log::warning('Custom create parameter {parameter} has no value', ['parameter' => $parameter]);
+
+                $errors[] = __('validation.custom_create_parameter_missing', ['parameter' => $parameter]);
 
                 continue;
             }
@@ -201,31 +212,36 @@ class MeetingService
             try {
                 $reflectionProperty = new ReflectionProperty(CreateMeetingParameters::class, $parameter);
 
+                // Get the type of the parameter to auto cast the value
                 $typeName = $reflectionProperty->getType()->getName();
 
-                // Handle integer
+                // Integer
                 if ($typeName == 'int') {
                     // check if string is an integer number using regex
                     if (! preg_match('/^[0-9]+$/', $value)) {
-                        Log::warning('Invalid integer value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+                        Log::warning('Custom create parameter {parameter} value {value} is not an integer', ['value' => $value, 'parameter' => $parameter]);
+
+                        $errors[] = __('validation.custom_create_parameter_integer', ['parameter' => $parameter]);
 
                         continue;
                     }
                     $value = (int) $value;
                 }
 
-                // Handle boolean
+                // Boolean
                 if ($typeName == 'bool') {
                     if ($value == 'true' || $value == 'false') {
                         $value = $value == 'true';
                     } else {
-                        Log::warning('Invalid boolean value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+                        Log::warning('Custom create parameter {parameter} value {value} is not a boolean', ['value' => $value, 'parameter' => $parameter]);
+
+                        $errors[] = __('validation.custom_create_parameter_boolean', ['parameter' => $parameter]);
 
                         continue;
                     }
                 }
 
-                // Handle arrays
+                // Arrays
                 if ($typeName == 'array') {
                     $value = explode(',', $value);
                 }
@@ -238,20 +254,25 @@ class MeetingService
                         }, $value);
                     }
                 } catch (\ValueError $e) {
-                    Log::warning('Invalid feature value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+                    Log::warning('Custom create parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
+
+                    $errors[] = __('validation.custom_create_parameter_enum', ['parameter' => $parameter]);
 
                     continue;
                 }
 
-                // Custom types
+                // Custom types (e.g. enums)
                 if (class_exists($typeName)) {
                     $reflectionClass = new \ReflectionClass($typeName);
-                    // Enum type
+
+                    // Enum
                     if ($reflectionClass->isEnum()) {
                         try {
                             $value = $typeName::from($value);
                         } catch (\ValueError $e) {
-                            Log::warning('Invalid enum value {value} of create parameter for {parameter}', ['value' => $value, 'parameter' => $parameter]);
+                            Log::warning('Custom create parameter {parameter} value {value} is not an enum value', ['value' => $value, 'parameter' => $parameter]);
+
+                            $errors[] = __('validation.custom_create_parameter_enum', ['parameter' => $parameter]);
 
                             continue;
                         }
@@ -265,9 +286,27 @@ class MeetingService
                 $meetingParams->$setParamMethod($value);
             } catch (\ReflectionException $e) {
                 // Log a warning if a parameter cannot be found
-                Log::warning('Custom create parameter for {parameter} can not be found', ['parameter' => $parameter]);
+                Log::warning('Custom create parameter {parameter} can not be found', ['parameter' => $parameter]);
+
+                $errors[] = __('validation.custom_create_parameter_not_found', ['parameter' => $parameter]);
+            } catch (\Throwable $e) {
+                // Log a warning if a parameter cannot be set due to an error or exception
+                Log::warning('Custom create parameter {parameter} can not be set', ['parameter' => $parameter, 'exception' => $e]);
+
+                $errors[] = __('validation.custom_create_parameter_invalid', ['parameter' => $parameter]);
             }
         }
+
+        // Try to create the query string to check for error that are not caught in the previous steps
+        try {
+            $meetingParams->getHTTPQuery();
+        } catch (\Throwable $e) {
+            Log::warning('Invalid create parameters', ['exception' => $e]);
+
+            $errors[] = __('validation.custom_create_parameter_other_error');
+        }
+
+        return $errors;
     }
 
     /**
