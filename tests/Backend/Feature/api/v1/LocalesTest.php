@@ -8,6 +8,7 @@ use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use Tests\Backend\TestCase;
@@ -208,6 +209,8 @@ class LocalesTest extends TestCase
 
     public function testDefaultLocaleSetAutomaticallyForLdapUsersOnLogin()
     {
+        Container::getConnection('default')->getConfiguration()->set('use_tls', false);
+        Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
         $fake = DirectoryEmulator::setup('default');
 
         $externalUser = LdapUser::create([

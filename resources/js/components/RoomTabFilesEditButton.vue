@@ -77,6 +77,8 @@ import env from '../env';
 import { useApi } from '../composables/useApi.js';
 import { ref, watch } from 'vue';
 import { useFormErrors } from '../composables/useFormErrors.js';
+import { useToast } from '../composables/useToast.js';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   roomId: {
@@ -109,9 +111,11 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['edited']);
+const emit = defineEmits(['edited', 'deleted']);
 
 const api = useApi();
+const toast = useToast();
+const { t } = useI18n();
 const formErrors = useFormErrors();
 
 const showModal = ref(false);
@@ -160,11 +164,24 @@ function save () {
     showModal.value = false;
     emit('edited');
   }).catch(error => {
-    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-      formErrors.set(error.response.data.errors);
-    } else {
-      api.error(error);
+    // editing failed
+    if (error.response) {
+      // file not found
+      if (error.response.status === env.HTTP_NOT_FOUND) {
+        toast.error(t('rooms.flash.file_gone'));
+        emit('deleted');
+        showModal.value = false;
+        return;
+      }
+
+      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        formErrors.set(error.response.data.errors);
+        return;
+      }
     }
+
+    showModal.value = false;
+    api.error(error);
   }).finally(() => {
     isLoadingAction.value = false;
   });
