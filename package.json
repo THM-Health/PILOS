@@ -38,7 +38,7 @@
         "@tiptap/vue-3": "^2.6.6",
         "@vitejs/plugin-vue": "^5.1.2",
         "@vueuse/components": "^11.0.3",
-        "@vueuse/core": "^10.7.2",
+        "@vueuse/core": "^11.0.3",
         "autoprefixer": "^10.4.20",
         "axe-core": "^4.10.0",
         "axios": "^1.7.5",
