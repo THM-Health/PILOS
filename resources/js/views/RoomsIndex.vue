@@ -410,8 +410,6 @@ function loadRooms (page = null) {
       if (paginator.isOutOfRange()) {
         loadRooms(paginator.getLastPage());
       }
-
-      console.log(paginator.meta.value);
     });
 
     loadingRoomsError.value = false;
