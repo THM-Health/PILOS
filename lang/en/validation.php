@@ -235,7 +235,7 @@ return [
             ],
         ],
     ],
-    'custom_create_parameter_boolean' => 'The :parameter parameter must be a boolean.',
+    'custom_create_parameter_boolean' => 'The :parameter parameter must be true or false.',
     'custom_create_parameter_enum' => 'The :parameter parameter value is not in the list of allowed values.',
     'custom_create_parameter_integer' => 'The :parameter parameter must be an integer.',
     'custom_create_parameter_invalid' => 'The :parameter parameter value is invalid.',
