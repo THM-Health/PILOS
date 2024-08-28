@@ -41,8 +41,7 @@ return [
             'title' => 'Recording',
             'description' => 'Record your videoconferences and make them available using fine grained permission control.',
         ],
-        'statistics' =>
-        [
+        'statistics' => [
             'title' => 'Statistics',
             'description' => 'Get detailed reports on the attendance and usage of your videoconferences.',
         ],
