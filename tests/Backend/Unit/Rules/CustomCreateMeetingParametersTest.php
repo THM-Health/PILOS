@@ -33,7 +33,7 @@ class CustomCreateMeetingParametersTest extends TestCase
         $validator = Validator::make(['param' => 'record=foo'], ['param' => new CustomCreateMeetingParameters]);
         $this->assertFalse($validator->passes());
 
-        $this->assertEquals('The record parameter must be a boolean.', $validator->errors()->get('param')[0]);
+        $this->assertEquals('The record parameter must be true or false.', $validator->errors()->get('param')[0]);
     }
 
     public function testNotInteger()
