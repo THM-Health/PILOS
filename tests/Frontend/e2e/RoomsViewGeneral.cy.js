@@ -1536,7 +1536,7 @@ describe('Room View general', function () {
     cy.get('[data-test="room-join-membership-button"]').click();
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
 
@@ -1629,7 +1629,7 @@ describe('Room View general', function () {
     });
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -1870,7 +1870,7 @@ describe('Room View general', function () {
     cy.wait('@addFavoritesRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
 
@@ -1952,7 +1952,7 @@ describe('Room View general', function () {
     cy.wait('@deleteFavoritesRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });

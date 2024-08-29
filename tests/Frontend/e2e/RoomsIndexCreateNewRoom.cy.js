@@ -457,7 +457,7 @@ describe('Rooms index create new room', function () {
     cy.wait('@createRoomRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });

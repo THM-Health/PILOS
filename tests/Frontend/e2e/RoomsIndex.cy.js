@@ -2240,7 +2240,7 @@ describe('Room Index', function () {
     });
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
 
@@ -2317,7 +2317,7 @@ describe('Room Index', function () {
     });
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -2515,7 +2515,7 @@ describe('Room Index', function () {
     // Check that reload button does not exist
     cy.get('[data-test=reload-button]').should('not.exist');
 
-    // Check that correct pagination is active // ToDo fix error in pagination
+    // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Switch to next page with 401 error
@@ -2527,7 +2527,7 @@ describe('Room Index', function () {
     cy.wait('@roomRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
 
@@ -2586,7 +2586,7 @@ describe('Room Index', function () {
     cy.wait('@roomTypeRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });

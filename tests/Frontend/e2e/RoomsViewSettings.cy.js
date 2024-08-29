@@ -293,7 +293,7 @@ describe('Rooms view settings', function () {
     cy.get('[data-test="loading-retry-button"]').should('be.visible').and('have.text', 'app.reload').click();
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -391,7 +391,7 @@ describe('Rooms view settings', function () {
     cy.wait('@roomDeleteRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });

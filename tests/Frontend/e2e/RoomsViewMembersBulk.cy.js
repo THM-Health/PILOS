@@ -272,7 +272,7 @@ describe('Rooms view members bulk', function () {
     cy.wait('@bulkEditRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -471,7 +471,7 @@ describe('Rooms view members bulk', function () {
     cy.wait('@bulkDeleteRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -992,7 +992,7 @@ describe('Rooms view members bulk', function () {
     cy.wait('@bulkImportRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });

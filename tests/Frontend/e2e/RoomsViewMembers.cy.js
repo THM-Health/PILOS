@@ -236,7 +236,7 @@ describe('Rooms view members', function () {
     // Check that reload button does not exist
     cy.get('[data-test="loading-retry-button"]').should('not.exist');
 
-    // Check that correct pagination is active // ToDo fix error in pagination
+    // Check that correct pagination is active
     cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Switch to next page with 401 error
@@ -248,7 +248,7 @@ describe('Rooms view members', function () {
     cy.wait('@roomMembersRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
 
@@ -467,7 +467,7 @@ describe('Rooms view members', function () {
     cy.wait('@userSearchRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
 
@@ -571,7 +571,7 @@ describe('Rooms view members', function () {
     cy.wait('@addUserRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -755,7 +755,7 @@ describe('Rooms view members', function () {
     cy.wait('@editUserRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -913,7 +913,7 @@ describe('Rooms view members', function () {
     cy.wait('@deleteMemberRequest');
 
     // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
@@ -1747,12 +1747,12 @@ describe('Rooms view members', function () {
     cy.get('[data-test="room-members-add-button"]').should('not.exist');
 
     // Check that checkbox to select all members is hidden
-    cy.get('[data-test="room-members-select-all-checkbox"]').should('not.exist'); // ToDo Fix
+    cy.get('[data-test="room-members-select-all-checkbox"]').should('not.exist');
 
     // Check that all users are shown
     cy.get('[data-test="room-member-item"]').should('have.length', 3);
 
-    // Check that checkboxes and edit and delete buttons are not shown //ToDo Fix
+    // Check that checkboxes and edit and delete buttons are not shown
     cy.get('[data-test="room-member-item"]').eq(0).find('input').should('not.exist');
     cy.get('[data-test="room-member-item"]').eq(0).within(() => {
       cy.get('[data-test="room-members-edit-button"]').should('not.exist');
