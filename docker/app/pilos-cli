@@ -29,12 +29,6 @@ case $ACTION in
     change_permissions /var/www/html/public/build
     ;;
 
-  fix-permission)
-    local dir=$2
-    echo "Fix permission for $dir"
-    change_permissions $dir
-    ;;
-
   create-spool-group)
     # Create spool group and add www-data to it
     # PILOS_SPOOL_GID is 2000 by default
