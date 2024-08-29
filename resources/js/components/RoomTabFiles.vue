@@ -301,6 +301,7 @@ function loadData (page = null) {
         }
       }
       api.error(error);
+      paginator.revertFirst();
       loadingError.value = true;
     }).finally(() => {
       isBusy.value = false;

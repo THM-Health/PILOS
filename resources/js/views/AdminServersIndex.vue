@@ -265,6 +265,7 @@ function loadData (page = null, updateUsage = false) {
       }
     });
   }).catch(error => {
+    paginator.revertFirst();
     api.error(error);
     loadingError.value = true;
   }).finally(() => {

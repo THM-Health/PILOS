@@ -296,6 +296,7 @@ function loadData (page = null) {
         }
       }
       loadingError.value = true;
+      paginator.revertFirst();
       api.error(error);
     })
     .finally(() => {

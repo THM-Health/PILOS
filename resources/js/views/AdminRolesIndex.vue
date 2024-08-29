@@ -151,6 +151,7 @@ function loadData (page = null) {
       }
     });
   }).catch(error => {
+    paginator.revertFirst();
     api.error(error);
     loadingError.value = true;
   }).finally(() => {

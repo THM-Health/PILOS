@@ -415,6 +415,7 @@ function loadRooms (page = null) {
     loadingRoomsError.value = false;
   }).catch(error => {
     // failed
+    paginator.revertFirst();
     loadingRoomsError.value = true;
     api.error(error);
   }).finally(() => {
