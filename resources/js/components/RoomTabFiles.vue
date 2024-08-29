@@ -86,6 +86,7 @@
         :totalRecords="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
+        @update:first="paginator.setFirst($event)"
         :value="files"
         lazy
         dataKey="id"
@@ -300,6 +301,7 @@ function loadData (page = null) {
         }
       }
       api.error(error);
+      paginator.revertFirst();
       loadingError.value = true;
     }).finally(() => {
       isBusy.value = false;

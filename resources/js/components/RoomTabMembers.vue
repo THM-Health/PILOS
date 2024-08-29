@@ -67,6 +67,7 @@
         :totalRecords="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
+        @update:first="paginator.setFirst($event)"
         :value="members"
         lazy
         dataKey="id"
@@ -278,6 +279,7 @@ function loadData (page = null) {
       });
     })
     .catch((error) => {
+      paginator.revertFirst();
       api.error(error);
       loadingError.value = true;
     })

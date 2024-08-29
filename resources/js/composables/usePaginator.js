@@ -11,13 +11,17 @@ class Paginator {
     total_no_filter: 0
   });
 
+  lastSuccessfulFrom = ref(0);
+
   /**
    * Update the metadata based on the server response
    * @param meta server response pagination metadata
    * @return {Promise<void>}
    */
   async updateMeta (meta) {
+    meta.from = Math.max(meta.from - 1, 0);
     this.meta.value.from = meta.from;
+    this.lastSuccessfulFrom.value = meta.from;
     await nextTick();
     this.meta.value = meta;
   }
@@ -68,7 +72,15 @@ class Paginator {
    * @return {number}
    */
   getFirst () {
-    return Math.max(this.meta.value.from - 1, 0);
+    return this.meta.value.from;
+  }
+
+  setFirst (first) {
+    this.meta.value.from = first;
+  }
+
+  revertFirst () {
+    this.meta.value.from = this.lastSuccessfulFrom.value;
   }
 
   /**
