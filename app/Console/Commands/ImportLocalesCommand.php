@@ -58,6 +58,7 @@ class ImportLocalesCommand extends Command
                 'id' => config('services.poeditor.project'),
                 'language' => $lang['code'],
                 'type' => 'key_value_json',
+                'filters' => 'translated',
             ]);
 
             $apiResponse = $response->json('response');
@@ -81,6 +82,16 @@ class ImportLocalesCommand extends Command
                     $this->error('Error code: '.$response['response']['code'].', message: '.$response['response']['message']);
 
                     return;
+                }
+            }
+
+            // Delete all old php locales files
+            $localeFiles = $disk->files($lang['code']);
+            foreach ($localeFiles as $localeFile) {
+                $path_parts = pathinfo($localeFile);
+
+                if ($path_parts['extension'] == 'php') {
+                    $disk->delete($localeFile);
                 }
             }
 

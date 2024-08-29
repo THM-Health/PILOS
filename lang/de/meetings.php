@@ -24,7 +24,7 @@ return [
     'now' => 'Jetzt',
     'owner' => 'Eigentümer',
     'participant_count' => 'Teilnehmer',
-    'retention_period' => 'Aufbewahrungsfristen',
+    'retention_period' => 'Aufbewahrungsfrist',
     'start' => 'Beginn',
     'stats' => [
         'amount' => 'Anzahl',

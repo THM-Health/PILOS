@@ -62,7 +62,7 @@ Display of server utilization | ❌ | ✅ Live (every minute) Historical view in
 Display of meeting load | ➖ Live, but no filtering by ongoing meetings Display: room name, owner and number of participants | ✅ Live (every minute) Display: start, room name, owner, server, number of participants, number of listeners, number of microphones, number of webcams ✅ Historically viewable for room owners as a graph (until expiry of retention period)
 View attendance | ❌ | ✅ History for room owners as a table and as an Excel file for download (until expiration of retention period)
 **Recording**
-Recording possible | ✅ | ✅ Not implemented yet for data protection reasons
+Recording possible | ✅ | ✅
 Disable recording for rooms of users with specific roles | ✅ | ✅
 Visibility of recording | ✅ Public or non-listed :warning: No restriction to participants of the room or obligation to authenticate; anyone with the link can access the recording | ✅ Can be restricted to different levels of access to the room and also toggle the visibility of each recording format
 Download recording | ❌ | ✅ Room owners can download raw recording files (zip) content can be filtered globally using a regex allowlist

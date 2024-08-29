@@ -217,6 +217,7 @@
           :totalRecords="paginator.getTotalRecords()"
           :rows="paginator.getRows()"
           :first="paginator.getFirst()"
+          @update:first="paginator.setFirst($event)"
           :value="rooms"
           lazy
           dataKey="id"
@@ -438,6 +439,7 @@ function loadRooms (page = null) {
     loadingRoomsError.value = false;
   }).catch(error => {
     // failed
+    paginator.revertFirst();
     loadingRoomsError.value = true;
     api.error(error);
   }).finally(() => {

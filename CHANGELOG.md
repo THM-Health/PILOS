@@ -66,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cypress tests for basic frontend features ([#760], [#1126])
 - Environment variable for BigBlueButton Test-Server in integration tests ([#1159])
 - Pagination size for rooms ([#1204])
+- Landing page layout ([#1216], [#1332])
 
 ### Fixed
 - Various postgres incompatibility issues ([#1078], [#1079])
@@ -148,6 +149,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1159]: https://github.com/THM-Health/PILOS/pull/1159
 [#1166]: https://github.com/THM-Health/PILOS/pull/1166
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
+[#1216]: https://github.com/THM-Health/PILOS/issues/1216
+[#1332]: https://github.com/THM-Health/PILOS/pull/1332
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

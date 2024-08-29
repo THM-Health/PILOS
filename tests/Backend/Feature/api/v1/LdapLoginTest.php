@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use Tests\Backend\TestCase;
@@ -93,6 +94,8 @@ class LdapLoginTest extends TestCase
         Config::set('ldap.enabled', true);
         Config::set('ldap.mapping', json_decode($this->ldapMapping));
 
+        Container::getConnection('default')->getConfiguration()->set('use_tls', false);
+        Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
         $fake = DirectoryEmulator::setup('default');
 
         $this->ldapUser = LdapUser::create([

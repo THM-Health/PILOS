@@ -51,6 +51,7 @@
       :totalRecords="paginator.getTotalRecords()"
       :rows="paginator.getRows()"
       :first="paginator.getFirst()"
+      @update:first="paginator.setFirst($event)"
       :value="servers"
       dataKey="id"
       lazy
@@ -264,6 +265,7 @@ function loadData (page = null, updateUsage = false) {
       }
     });
   }).catch(error => {
+    paginator.revertFirst();
     api.error(error);
     loadingError.value = true;
   }).finally(() => {

@@ -1,47 +1,48 @@
 <?php
 
 return [
-    'description' => 'Die Grundlage dafür ist das Open Source Projekt BigBlueButton.',
-    'description_extended' => 'Sie können für Ihre Veranstaltungen, Seminare und Übungen Räume erstellen und über einen praktischen Kurzlink Studenten, Mitarbeiter und Gäste einladen. Zusätzlich können Sie die Plattform auch für Prüfungen und Besprechnungen nutzen.',
-    'possibilities' => [
-        'audio' => [
-            'description' => 'Kommuniziere über eine qualitativ hochwertige Audioverbindung',
-            'title' => 'Audio',
+    'description_details' => 'PILOS wurde speziell für den Bildungsbereich entwickelt und bietet eine unkomplizierte, interaktive und sichere Lösung für das Online-Lernen, den Unterricht und alle Arten von virtuellen Meetings. PILOS lässt sich an die jeweiligen Bedürfnisse anpassen und bietet hochwertige Videoübertragung, robuste Tools für die Zusammenarbeit und eine intuitive Benutzeroberfläche.',
+    'description_intro' => 'Die universelle Plattform für Videokonferenzen, basierend auf BigBlueButton™.',
+    'features' => [
+        'collaboration' => [
+            'description' => 'Nutzen Sie Ihren Bildschirm gemeinsam, verwenden Sie das interaktive Multi-User-Whiteboard, und arbeiten Sie gemeinsam in den Nebenräumen.',
+            'title' => 'Zusammenarbeit',
         ],
-        'chat' => [
-            'description' => 'Direktes Zuschauerfeedback',
-            'title' => 'Emojis',
+        'communication' => [
+            'description' => 'Hochwertige Video- und Audioqualität, um ein persönliches und ansprechendes Erlebnis zu schaffen.',
+            'title' => 'Video und Audio',
         ],
-        'emojis' => [
-            'description' => 'Versende öffentliche und private Nachrichten',
-            'title' => 'Chat',
+        'description' => 'Erfahren Sie, warum PILOS die perfekte Lösung für Ihre nächste Videokonferenz ist und wie Sie Ihr Publikum auf ansprechende und interaktive Weise erreichen können.',
+        'engagement' => [
+            'description' => 'Binden Sie Ihr Publikum mit interaktiven Tools wie Chat, Emojis, Umfragen und vielem mehr ein.',
+            'title' => 'Interaktion',
         ],
-        'groups' => [
-            'description' => 'Teile Nutzer für Gruppenarbeiten in Kleingruppen auf',
-            'title' => 'Kleingruppen',
+        'recording' => [
+            'description' => 'Zeichnen Sie Ihre Videokonferenzen auf und stellen Sie Aufzeichnugen mit einer fein abgestuften Berechtigungen zur Verfügung.',
+            'title' => 'Aufnahme',
         ],
-        'screen_sharing' => [
-            'description' => 'Teile den Inhalt deines Bildschirms oder Anwendung',
-            'title' => 'Bildschirmfreigabe',
+        'security' => [
+            'description' => 'Alle Kommunikationsdaten werden während der Übertragung mit dem WebRTC-Protokoll sicher verschlüsselt.',
+            'title' => 'Sicherheit',
         ],
         'statistics' => [
-            'description' => 'Werte die Anwesenheit und Mediennutzung aus',
-            'title' => 'Auswertungen',
+            'description' => 'Erhalten Sie detaillierte Berichte über die Anwesenheit und Nutzung Ihrer Videokonferenzen.',
+            'title' => 'Statistik',
         ],
-        'surveys' => [
-            'description' => 'Interagiere zu jeder Zeit mit den Zuschauern',
-            'title' => 'Umfragen',
+        'title' => 'Alles, was Sie für eine großartige Videokonferenz benötigen',
+        'vision' => 'Menschen miteinander verbinden',
+    ],
+    'title' => [
+        'first_line' => [
+            'after_flip_words' => ' ',
+            'before_flip_words' => 'Online ',
+            'flip_words' => 'Meetings|Vorlesungen|Seminare|Prüfungen',
         ],
-        'title' => 'Was PILOS alles kann',
-        'webcams' => [
-            'description' => 'Ermögliche persönliche visuelle Unterhaltungen',
-            'title' => 'Webcams',
-        ],
-        'whiteboard' => [
-            'description' => 'Nutze eine gemeinsame interaktive virtuelle Tafel',
-            'title' => 'Mehrnutzer Whiteboard',
+        'get_started' => 'Jetzt beginnen',
+        'second_line' => [
+            'after_underline' => ' ',
+            'before_underline' => 'einfach und ',
+            'underline' => 'sicher',
         ],
     ],
-    'subtitle' => 'PILOS ist die Plattform für interaktive Live-Online-Seminare.',
-    'title' => 'Willkommen zu PILOS.',
 ];
