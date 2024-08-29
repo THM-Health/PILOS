@@ -38,7 +38,7 @@ return [
 
         'recordings' => [
             'driver' => 'local',
-            'root' => storage_path('app/recordings'),
+            'root' => storage_path('recordings'),
             'throw' => false,
         ],
 

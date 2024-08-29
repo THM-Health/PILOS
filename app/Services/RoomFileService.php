@@ -54,7 +54,7 @@ class RoomFileService
             abort(404);
         }
 
-        $fileAlias = config('filesystems.x-accel.url_prefix').'/'.$this->file->path;
+        $fileAlias = config('filesystems.x-accel.url_prefix').'/app/'.$this->file->path;
         $fileName = $this->file->filename;
         $fileSize = Storage::size($this->file->path);
         $fileMime = Storage::mimeType($this->file->path);
