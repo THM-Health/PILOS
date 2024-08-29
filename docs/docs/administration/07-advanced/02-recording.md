@@ -208,6 +208,19 @@ You can check the log files and Horizon for more information. You can also retry
 
 ## Config options
 
+### Storage path
+By default, the recordings are stored in the `storage/recordings` directory.
+However, the storage path relative to `storage` can be customised in the `.env` file.
+
+If you like to store the recordings together with all other files in the `storage/app` directory, you can set the path to `app/recordings`.
+```shell
+RECORDING_STORAGE_PATH=app/recordings
+```
+
+:::warning
+Make sure to stop all services before changing the path and move the files to the new location to prevent data loss due to missing files.
+:::
+
 ### Customize recording download
 Room owners can download the raw recording files for archiving, uploading to other video platforms, etc. The BigBlueButton recording raw files include many files that typical users don't need. Therefore, you can customise which files are included in the download. You can filter the files using a regular expression in the .env file.
 

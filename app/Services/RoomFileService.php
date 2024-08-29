@@ -6,6 +6,7 @@ use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Log;
+use Str;
 
 class RoomFileService
 {
@@ -54,7 +55,8 @@ class RoomFileService
             abort(404);
         }
 
-        $fileAlias = config('filesystems.x-accel.url_prefix').'/'.$this->file->path;
+        $diskDir = Str::replaceStart(storage_path(''), '', Storage::disk('local')->path(''));
+        $fileAlias = config('filesystems.x-accel.url_prefix').$diskDir.$this->file->path;
         $fileName = $this->file->filename;
         $fileSize = Storage::size($this->file->path);
         $fileMime = Storage::mimeType($this->file->path);

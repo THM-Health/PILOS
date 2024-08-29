@@ -6,6 +6,7 @@ x-docker-pilos-common: &pilos-common
   env_file: .env
   volumes:
     - './storage/app:/var/www/html/storage/app'
+    - './storage/recordings:/var/www/html/storage/recordings'
     - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
     - './app/Auth/config:/var/www/html/app/Auth/config'
 services:

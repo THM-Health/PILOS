@@ -49,6 +49,12 @@ export NGINX_WORKER_CONNECTIONS=$NGINX_WORKER_CONNECTIONS
 # Set environment variables in nginx config
 envsubst '${NGINX_WORKER_RLIMIT_NOFILE} ${NGINX_WORKER_CONNECTIONS} ${NGINX_WORKER_PROCESSES}' < /etc/nginx/templates/nginx.template > /etc/nginx/nginx.conf
 
+# Run fix permissions script if environment variable RUN_FIX_PERMISSIONS is not set to 'false'
+if [ "$RUN_FIX_PERMISSIONS" != "false" ]; then
+    echo "Running fix permissions script"
+    pilos-cli fix-permissions
+fi
+
 # Run init script if environment variable RUN_INIT is not set to 'false'
 if [ "$RUN_INIT" != "false" ]; then
     echo "Running init script"

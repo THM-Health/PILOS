@@ -812,6 +812,6 @@ class FileTest extends TestCase
         $fileResponse->assertSuccessful();
 
         // Check if file headers for reverse proxy are correctly set
-        $this->assertEquals('/private-storage/'.$room->id.'/'.$this->file_valid->hashName(), $fileResponse->headers->get('x-accel-redirect'));
+        $this->assertEquals('/private-storage/app/'.$room->id.'/'.$this->file_valid->hashName(), $fileResponse->headers->get('x-accel-redirect'));
     }
 }

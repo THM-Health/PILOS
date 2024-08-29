@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Recording;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipStream\ZipStream;
 
@@ -38,7 +39,8 @@ class RecordingController extends Controller
             abort(404);
         }
 
-        $fileAlias = config('filesystems.x-accel.url_prefix').'/recordings/'.$requestedFile;
+        $diskDir = Str::replaceStart(storage_path(''), '', Storage::disk('recordings')->path(''));
+        $fileAlias = config('filesystems.x-accel.url_prefix').$diskDir.$requestedFile;
 
         return response(null, 200)
             ->header('Content-Type', null)

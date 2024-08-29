@@ -6,8 +6,8 @@ ACTION=$1
 change_permissions() {
     local dir=$1
     chown -R :www-data $dir
-    find $dir -type f -exec chmod 664 {} \;
-    find $dir -type d -exec chmod 775 {} \;
+    find $dir -type f -print0 | xargs -0 chmod 664;
+    find $dir -type d -print0 | xargs -0 chmod 775;
 }
 
 case $ACTION in
@@ -20,12 +20,19 @@ case $ACTION in
     su-exec www-data /usr/local/etc/playback-player/build.sh $2
     ;;
 
-  change-permissions)
-    echo "Change permissions"
+  fix-permissions)
+    echo "Fix permissions"
     change_permissions /var/www/html/resources/custom
     change_permissions /var/www/html/storage/app
+    change_permissions /var/www/html/storage/recordings
     change_permissions /var/www/html/storage/logs
     change_permissions /var/www/html/public/build
+    ;;
+
+  fix-permission)
+    local dir=$2
+    echo "Fix permission for $dir"
+    change_permissions $dir
     ;;
 
   create-spool-group)
@@ -54,7 +61,6 @@ case $ACTION in
     ;;
 
   init)
-    pilos-cli change-permissions
     pilos-cli create-spool-group
     pilos-cli optimize
     ;;

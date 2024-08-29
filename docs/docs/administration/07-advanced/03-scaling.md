@@ -97,13 +97,28 @@ REDIS_HOST=redis
 
 ## Container initialization
 
+# Fix permissions
+During startup of the container permissions of the following folders are automatically fixed:
+
+- /var/www/html/resources/custom
+- /var/www/html/storage/app
+- /var/www/html/storage/logs
+- /var/www/html/public/build
+
+For convenience reasons this is enabled by default, however with a large number of files this can slow down the container startup.
+
+This script can also be executed manually by running `pilos-cli fix-permissions`.
+
+You can disable this script by setting the environment variable `RUN_FIX_PERMISSIONS=false`.
+
+To only fix a single directory you can also run the `fix-permission` script (notice the missing `s` at the end) with the path to a directory within the container, eg. `pilos-cli fix-permission /var/www/html/storage/app`.
+
 ### Initialization script
 During startup of the container an initialization script is executed.
 This script can also be executed manually by running `pilos-cli init`.
 You can also disable the initialization by setting the environment variable `RUN_INIT=false`.
 
 The following steps are executed during the initialization:
-- Fixing file and folder permissions
 - Build frontend
 - Optimize application by caching config, routes, views, locales, etc.
 
