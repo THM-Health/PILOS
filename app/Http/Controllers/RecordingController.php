@@ -39,8 +39,7 @@ class RecordingController extends Controller
             abort(404);
         }
 
-        $diskDir = Str::replaceStart(storage_path(''), '', Storage::disk('recordings')->path(''));
-        $fileAlias = config('filesystems.x-accel.url_prefix').$diskDir.$requestedFile;
+        $fileAlias = config('filesystems.x-accel.url_prefix').'/recordings/'.$requestedFile;
 
         return response(null, 200)
             ->header('Content-Type', null)

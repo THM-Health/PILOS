@@ -55,8 +55,7 @@ class RoomFileService
             abort(404);
         }
 
-        $diskDir = Str::replaceStart(storage_path(''), '', Storage::disk('local')->path(''));
-        $fileAlias = config('filesystems.x-accel.url_prefix').$diskDir.$this->file->path;
+        $fileAlias = config('filesystems.x-accel.url_prefix').'/app/'.$this->file->path;
         $fileName = $this->file->filename;
         $fileSize = Storage::size($this->file->path);
         $fileMime = Storage::mimeType($this->file->path);
