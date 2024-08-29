@@ -6,7 +6,6 @@ use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Log;
-use Str;
 
 class RoomFileService
 {
