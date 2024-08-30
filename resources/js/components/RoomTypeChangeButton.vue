@@ -1,7 +1,7 @@
 <template>
   <InputGroup v-if="model">
-    <InputText :value="model.name" readonly :id="inputId" />
-    <Button icon="fa-solid fa-edit" @click="editRoomType" :aria-label="$t('rooms.change_type.title')" />
+    <InputText :value="model.name" readonly :disabled="disabled" :invalid="invalid" :id="inputId" />
+    <Button icon="fa-solid fa-edit" @click="editRoomType" :disabled="disabled" :aria-label="$t('rooms.change_type.title')" />
   </InputGroup>
 
   <Dialog
@@ -50,6 +50,14 @@ const props = defineProps({
   inputId: {
     type: String,
     default: 'room-type'
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  invalid: {
+    type: Boolean,
+    default: false
   }
 });
 
