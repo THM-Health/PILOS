@@ -24,6 +24,7 @@
     <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
       <label for="user">{{ $t('app.user') }}</label>
       <multiselect
+        autofocus
         data-test="select-user-dropdown"
         v-model="user"
         label="lastname"

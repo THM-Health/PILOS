@@ -16,6 +16,7 @@
   >
 
     <Textarea
+      autofocus
       v-model="source"
       class="w-full mt-2"
       rows="5"

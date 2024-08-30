@@ -7,7 +7,7 @@ server {
 
     location /private-storage/ {
         internal;
-        alias /var/www/html/storage/app/;
+        alias /var/www/html/storage/;
     }
 
     add_header X-Frame-Options "SAMEORIGIN";

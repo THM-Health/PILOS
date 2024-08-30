@@ -198,7 +198,7 @@ return [
         'modals' => [
             'add' => [
                 'add' => 'Add',
-                'no_options' => 'No entries, please search for a user.',
+                'no_options' => 'Enter the name or email address of a user.',
                 'no_result' => 'Oops! No user was found for this query.',
                 'placeholder' => 'Name or email',
                 'select_role' => 'Please select a role',

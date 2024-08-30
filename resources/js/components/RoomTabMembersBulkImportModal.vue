@@ -61,6 +61,7 @@
       <div class="flex flex-col gap-2 mt-6">
         <label for="user-emails">{{ $t('rooms.members.modals.bulk_import.label') }}</label>
         <Textarea
+          autofocus
           data-test="room-members-bulk-import-textarea"
           v-model="rawList"
           :disabled="isLoadingAction"
