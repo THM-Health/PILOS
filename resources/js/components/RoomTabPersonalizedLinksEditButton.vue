@@ -32,6 +32,7 @@
     <div class="flex flex-col gap-2 mt-6">
       <label for="firstname">{{ $t('app.firstname') }}</label>
       <InputText
+        autofocus
         id="firstname"
         v-model.trim="newFirstname"
         :invalid="formErrors.fieldInvalid('firstname')"

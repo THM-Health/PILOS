@@ -39,6 +39,7 @@
     <div class="flex flex-col gap-2">
       <label for="description">{{ $t('rooms.recordings.description') }}</label>
       <Textarea
+        autofocus
         id="description"
         v-model="newDescription"
         :disabled="isLoadingAction"

@@ -25,6 +25,7 @@
     <div class="flex flex-col gap-2">
       <label for="replacement-room-type">{{$t('admin.room_types.delete.replacement')}}</label>
       <Select
+        autofocus
         id="replacement-room-type"
         v-model.number="replacement"
         :disabled="isBusy"

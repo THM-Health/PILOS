@@ -17,6 +17,7 @@
     <div class="flex flex-col gap-2 mt-6">
       <label for="src">{{ $t('rooms.description.modals.image.src') }}</label>
       <InputText
+        autofocus
         id="src"
         v-model.trim="src"
         :invalid="srcInvalid"

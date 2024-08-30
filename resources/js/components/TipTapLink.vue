@@ -17,6 +17,7 @@
     <div class="flex flex-col gap-2 mt-6">
       <label for="url">{{ $t('rooms.description.modals.link.url') }}</label>
       <InputText
+        autofocus
         id="url"
         v-model.trim="link"
         :invalid="urlInvalid"

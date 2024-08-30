@@ -25,6 +25,7 @@
     <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
       <label for="user">{{ $t('app.user') }}</label>
       <multiselect
+        autofocus
         v-model="newOwner"
         label="lastname"
         track-by="id"
