@@ -2,6 +2,7 @@
   <div data-test="login-tab-external">
     <p class="p-card-title">{{ props.title }}</p>
     <Button
+      class="mt-4"
       data-test="login-button"
       as="a"
       :href="redirectUrl"
