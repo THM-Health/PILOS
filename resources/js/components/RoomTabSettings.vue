@@ -57,9 +57,9 @@
               <Button
                 v-tooltip="$t('rooms.settings.general.generate_access_code')"
                 :aria-label="$t('rooms.settings.general.generate_access_code')"
-                :disabled="disabled"
                 icon="fa-solid fa-dice"
                 @click="createAccessCode"
+                v-if="!disabled"
               />
               <!-- Access code -->
               <InputText
@@ -73,10 +73,9 @@
               />
               <!-- Clear access code -->
               <Button
-                v-if="settings.access_code"
+                v-if="settings.access_code && !disabled"
                 v-tooltip="$t('rooms.settings.general.delete_access_code')"
                 :aria-label="$t('rooms.settings.general.delete_access_code')"
-                :disabled="disabled"
                 icon="fa-solid fa-trash"
                 @click="settings.access_code = null"
               />

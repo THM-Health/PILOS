@@ -1,7 +1,7 @@
 <template>
   <InputGroup v-if="model">
     <InputText :value="model.name" readonly :disabled="disabled" :invalid="invalid" :id="inputId" />
-    <Button icon="fa-solid fa-edit" @click="editRoomType" :disabled="disabled" :aria-label="$t('rooms.change_type.title')" />
+    <Button icon="fa-solid fa-edit" @click="editRoomType" v-if="!disabled" :aria-label="$t('rooms.change_type.title')" />
   </InputGroup>
 
   <Dialog
