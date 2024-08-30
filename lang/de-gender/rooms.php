@@ -198,7 +198,7 @@ return [
         'modals' => [
             'add' => [
                 'add' => 'Hinzufügen',
-                'no_options' => 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
+                'no_options' => 'Geben Sie den Namen oder die E-Mail-Adresse eines Benutzers ein.',
                 'no_result' => 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
                 'placeholder' => 'Name oder Email',
                 'select_role' => 'Bitte wählen Sie eine Rolle aus',
