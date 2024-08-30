@@ -1,7 +1,7 @@
 <template>
   <Message
     :style="{ 'border-color': background, 'background-color': background, 'color': color }"
-    class="m-0 rounded-none"
+    class="m-0 py-4 rounded-none"
     :closable="false"
     :pt="{
       icon: {

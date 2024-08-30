@@ -58,9 +58,9 @@
                 data-test="generate-access-code-button"
                 v-tooltip="$t('rooms.settings.general.generate_access_code')"
                 :aria-label="$t('rooms.settings.general.generate_access_code')"
-                :disabled="disabled"
                 icon="fa-solid fa-dice"
                 @click="createAccessCode"
+                v-if="!disabled"
               />
               <!-- Access code -->
               <InputText
@@ -74,10 +74,9 @@
               />
               <!-- Clear access code -->
               <Button
-                v-if="settings.access_code"
+                v-if="settings.access_code && !disabled"
                 v-tooltip="$t('rooms.settings.general.delete_access_code')"
                 :aria-label="$t('rooms.settings.general.delete_access_code')"
-                :disabled="disabled"
                 icon="fa-solid fa-trash"
                 @click="settings.access_code = null"
                 data-test="clear-access-code-button"
@@ -555,8 +554,8 @@
         </div>
 
       </OverlayComponent>
-      <Divider/>
-      <div class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start ">
+      <Divider v-if="userPermissions.can('manageSettings', props.room)" />
+      <div class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start" v-if="userPermissions.can('manageSettings', props.room)">
         <div class="flex shrink-0 flex-col md:flex-row md:items-start gap-2">
           <RoomDeleteButton
             :disabled="disabled"
