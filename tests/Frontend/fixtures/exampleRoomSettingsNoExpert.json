@@ -39,7 +39,7 @@
       "lobby_enforced": true,
       "visibility_default": 1,
       "visibility_enforced": false,
-      "record_attendance_default": true,
+      "record_attendance_default": false,
       "record_attendance_enforced": false,
       "record_default": false,
       "record_enforced": false,
@@ -62,7 +62,7 @@
     "default_role": 1,
     "lobby": 1,
     "visibility": 1,
-    "record_attendance": true,
+    "record_attendance": false,
     "record": false,
     "auto_start_recording": false
   }

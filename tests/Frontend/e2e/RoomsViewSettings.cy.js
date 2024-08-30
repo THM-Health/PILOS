@@ -8,7 +8,7 @@ describe('Rooms view settings', function () {
   });
 
   it('load settings', function () { // ToDo improve (custom command or function possible?)
-    const roomSettingsRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettings.json' }, 'roomSettingsRequest');
+    const roomSettingsRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettingsNoExpert.json' }, 'roomSettingsRequest');
 
     cy.visit('/rooms/abc-def-123');
 
@@ -95,6 +95,9 @@ describe('Rooms view settings', function () {
       .and('include.text', 'rooms.settings.expert_mode.warning.activate')
       .find('[data-test="dialog-continue-button"]').click();
 
+    // Check that expert mode is activated
+    cy.get('[data-test="room-settings-expert-mode-button"]').should('have.text', 'rooms.settings.expert_mode.deactivate');
+
     // Check other settings visible
     // Video conference settings
     cy.contains('rooms.settings.video_conference.title').should('be.visible');
@@ -139,7 +142,7 @@ describe('Rooms view settings', function () {
       .and('include.text', 'rooms.settings.recordings.record_attendance')
       .within(() => {
         cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-        cy.get('#record-attendance').should('not.be.disabled').and('be.checked');
+        cy.get('#record-attendance').should('not.be.disabled').and('not.be.checked');
       });
 
     cy.get('[data-test="record-setting"]')
@@ -296,6 +299,389 @@ describe('Rooms view settings', function () {
     cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
+  });
+
+  it('load settings with different permissions', function () { // ToDo improve (custom command or function possible?)
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettingsExpert.json' }).as('roomSettingsRequest');
+
+    // Check with co_owner
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: false,
+        is_member: true,
+        is_moderator: false,
+        is_co_owner: true,
+        can_start: true,
+        access_code: 123456789,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.visit('/rooms/abc-def-123#settings');
+
+    cy.wait('@roomRequest');
+    cy.wait('@roomSettingsRequest');
+
+    // Check that delete and transfer ownership buttons are hidden but other buttons are shown
+    cy.get('[data-test="room-settings-expert-mode-button"]')
+      .should('have.text', 'rooms.settings.expert_mode.deactivate')
+      .and('not.be.disabled');
+
+    cy.get('[data-test="room-delete-button"]').should('not.exist');
+
+    cy.get('[data-test="room-transfer-ownership-button"]').should('not.exist');
+
+    cy.get('[data-test="room-settings-save-button"]')
+      .should('have.text', 'app.save')
+      .and('not.be.disabled');
+
+    // General settings
+    cy.get('#room-type').should('have.value', 'Meeting').and('not.be.disabled');
+    cy.get('[data-test="room-type-change-button"]').should('not.be.disabled');
+    cy.get('#room-name').should('have.value', 'Meeting One').and('not.be.disabled');
+    cy.get('#access-code').should('have.value', '123456789').and('not.be.disabled');
+    cy.get('[data-test="generate-access-code-button"]').should('not.be.disabled');
+    cy.get('[data-test="clear-access-code-button"]').should('not.be.disabled');
+    cy.get('#allow-guests').should('be.checked').and('not.be.disabled');
+
+    // Video conference settings
+    cy.get('#everyone-can-start').should('not.be.checked').and('not.be.disabled');
+    cy.get('#mute-on-start').should('be.checked').and('be.disabled');
+    cy.get('#lobby-disabled').should('not.be.checked').and('be.disabled');
+    cy.get('#lobby-enabled').should('be.checked').and('be.disabled');
+    cy.get('#lobby-only-for-guests').should('not.be.checked').and('be.disabled');
+    cy.get('#welcome-message').should('have.value', 'Welcome message').and('not.be.disabled');
+
+    // Recording settings
+    cy.get('#record-attendance').should('not.be.checked').and('not.be.disabled');
+    cy.get('#record').should('not.be.checked').and('not.be.disabled');
+    cy.get('#auto-start-recording').should('not.be.checked').and('not.be.disabled');
+
+    // Restriction settings
+    cy.get('#disable-cam').should('not.be.checked').and('not.be.disabled');
+    cy.get('#webcams-only-for-moderator').should('be.checked').and('not.be.disabled');
+    cy.get('#disable-mic').should('not.be.checked').and('be.disabled');
+    cy.get('#disable-public-chat').should('be.checked').and('not.be.disabled');
+    cy.get('#disable-private-chat').should('not.be.checked').and('not.be.disabled');
+    cy.get('#disable-note').should('be.checked').and('be.disabled');
+    cy.get('#hide-user-list').should('be.checked').and('not.be.disabled');
+
+    // Participant settings
+    cy.get('#allow-membership').should('not.be.checked').and('be.disabled');
+    cy.get('[data-test="room-settings-default-role-button"]').should('have.length', 2);
+    cy.get('[data-test="room-settings-default-role-button"]')
+      .eq(0)
+      .should('have.text', 'rooms.roles.participant')
+      .and('have.attr', 'aria-pressed', 'true')
+      .and('not.be.disabled');
+    cy.get('[data-test="room-settings-default-role-button"]')
+      .eq(1)
+      .should('have.text', 'rooms.roles.moderator')
+      .and('have.attr', 'aria-pressed', 'false')
+      .and('not.be.disabled');
+
+    // Advanced settings
+    cy.get('[data-test="room-settings-visibility-button"]').should('have.length', 2);
+    cy.get('[data-test="room-settings-visibility-button"]')
+      .eq(0)
+      .should('have.text', 'rooms.settings.advanced.visibility.private')
+      .and('have.attr', 'aria-pressed', 'false')
+      .and('not.be.disabled');
+
+    cy.get('[data-test="room-settings-visibility-button"]')
+      .eq(1)
+      .should('have.text', 'rooms.settings.advanced.visibility.public')
+      .and('have.attr', 'aria-pressed', 'true')
+      .and('not.be.disabled');
+
+    // Check with rooms.viewAll permission
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.viewAll'],
+        model_name: 'User',
+        room_limit: -1
+      }
+    });
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 123456789,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.viewAll'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+    cy.reload();
+
+    cy.wait('@roomRequest');
+    cy.wait('@roomSettingsRequest');
+
+    // Check that buttons are hidden
+    cy.get('[data-test="room-settings-expert-mode-button"]').should('not.exist');
+    cy.get('[data-test="room-delete-button"]').should('not.exist');
+    cy.get('[data-test="room-transfer-ownership-button"]').should('not.exist');
+    cy.get('[data-test="room-settings-save-button"]').should('not.exist');
+
+    // General settings
+    cy.get('#room-type').should('have.value', 'Meeting').and('be.disabled');
+    cy.get('[data-test="room-type-change-button"]').should('not.exist');
+    cy.get('#room-name').should('have.value', 'Meeting One').and('be.disabled');
+    cy.get('#access-code').should('have.value', '123456789').and('be.disabled');
+    cy.get('[data-test="generate-access-code-button"]').should('not.exist');
+    cy.get('[data-test="clear-access-code-button"]').should('not.exist');
+    cy.get('#allow-guests').should('be.checked').and('be.disabled');
+
+    // Video conference settings
+    cy.get('#everyone-can-start').should('not.be.checked').and('be.disabled');
+    cy.get('#mute-on-start').should('be.checked').and('be.disabled');
+    cy.get('#lobby-disabled').should('not.be.checked').and('be.disabled');
+    cy.get('#lobby-enabled').should('be.checked').and('be.disabled');
+    cy.get('#lobby-only-for-guests').should('not.be.checked').and('be.disabled');
+    cy.get('#welcome-message').should('have.value', 'Welcome message').and('be.disabled');
+
+    // Recording settings
+    cy.get('#record-attendance').should('not.be.checked').and('be.disabled');
+    cy.get('#record').should('not.be.checked').and('be.disabled');
+    cy.get('#auto-start-recording').should('not.be.checked').and('be.disabled');
+
+    // Restriction settings#
+    cy.get('#disable-cam').should('not.be.checked').and('be.disabled');
+    cy.get('#webcams-only-for-moderator').should('be.checked').and('be.disabled');
+    cy.get('#disable-mic').should('not.be.checked').and('be.disabled');
+    cy.get('#disable-public-chat').should('be.checked').and('be.disabled');
+    cy.get('#disable-private-chat').should('not.be.checked').and('be.disabled');
+    cy.get('#disable-note').should('be.checked').and('be.disabled');
+    cy.get('#hide-user-list').should('be.checked').and('be.disabled');
+
+    // Participant settings
+    cy.get('#allow-membership').should('not.be.checked').and('be.disabled');
+    cy.get('[data-test="room-settings-default-role-button"]').should('have.length', 2);
+    cy.get('[data-test="room-settings-default-role-button"]')
+      .eq(0)
+      .should('have.text', 'rooms.roles.participant')
+      .and('have.attr', 'aria-pressed', 'true')
+      .and('be.disabled');
+    cy.get('[data-test="room-settings-default-role-button"]')
+      .eq(1)
+      .should('have.text', 'rooms.roles.moderator')
+      .and('have.attr', 'aria-pressed', 'false')
+      .and('be.disabled');
+
+    // Advanced settings
+    cy.get('[data-test="room-settings-visibility-button"]').should('have.length', 2);
+    cy.get('[data-test="room-settings-visibility-button"]')
+      .eq(0)
+      .should('have.text', 'rooms.settings.advanced.visibility.private')
+      .and('have.attr', 'aria-pressed', 'false')
+      .and('be.disabled');
+
+    cy.get('[data-test="room-settings-visibility-button"]')
+      .eq(1)
+      .should('have.text', 'rooms.settings.advanced.visibility.public')
+      .and('have.attr', 'aria-pressed', 'true')
+      .and('be.disabled');
+
+    // Check with rooms.manage permission
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {
+        id: 1,
+        firstname: 'John',
+        lastname: 'Doe',
+        locale: 'en',
+        permissions: ['rooms.create', 'rooms.viewAll', 'rooms.manage'],
+        model_name: 'User',
+        room_limit: -1
+      }
+    });
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      data: {
+        id: 'abc-def-123',
+        name: 'Meeting One',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
+        last_meeting: {
+          start: '2023-08-21 08:18:28:00',
+          end: null
+        },
+        type: {
+          id: 2,
+          name: 'Meeting',
+          color: '#4a5c66'
+        },
+        model_name: 'Room',
+        short_description: null,
+        is_favorite: false,
+        authenticated: true,
+        description: null,
+        allow_membership: true,
+        is_member: false,
+        is_moderator: false,
+        is_co_owner: false,
+        can_start: true,
+        access_code: 123456789,
+        room_type_invalid: false,
+        record_attendance: false,
+        record: false,
+        current_user: {
+          id: 1,
+          firstname: 'John',
+          lastname: 'Doe',
+          locale: 'en',
+          permissions: ['rooms.create', 'rooms.viewAll', 'rooms.manage'],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    }).as('roomRequest');
+
+    cy.reload();
+
+    cy.wait('@roomRequest');
+    cy.wait('@roomSettingsRequest');
+
+    // Check that delete and transfer ownership buttons are hidden but other buttons are shown
+    cy.get('[data-test="room-settings-expert-mode-button"]')
+      .should('have.text', 'rooms.settings.expert_mode.deactivate')
+      .and('not.be.disabled');
+
+    cy.get('[data-test="room-delete-button"]').should('not.be.disabled');
+
+    cy.get('[data-test="room-transfer-ownership-button"]').should('not.be.disabled');
+
+    cy.get('[data-test="room-settings-save-button"]')
+      .should('have.text', 'app.save')
+      .and('not.be.disabled');
+
+    // General settings
+    cy.get('#room-type').should('have.value', 'Meeting').and('not.be.disabled');
+    cy.get('[data-test="room-type-change-button"]').should('not.be.disabled');
+    cy.get('#room-name').should('have.value', 'Meeting One').and('not.be.disabled');
+    cy.get('#access-code').should('have.value', '123456789').and('not.be.disabled');
+    cy.get('[data-test="generate-access-code-button"]').should('not.be.disabled');
+    cy.get('[data-test="clear-access-code-button"]').should('not.be.disabled');
+    cy.get('#allow-guests').should('be.checked').and('not.be.disabled');
+
+    // Video conference settings
+    cy.get('#everyone-can-start').should('not.be.checked').and('not.be.disabled');
+    cy.get('#mute-on-start').should('be.checked').and('be.disabled');
+    cy.get('#lobby-disabled').should('not.be.checked').and('be.disabled');
+    cy.get('#lobby-enabled').should('be.checked').and('be.disabled');
+    cy.get('#lobby-only-for-guests').should('not.be.checked').and('be.disabled');
+    cy.get('#welcome-message').should('have.value', 'Welcome message').and('not.be.disabled');
+
+    // Recording settings
+    cy.get('#record-attendance').should('not.be.checked').and('not.be.disabled');
+    cy.get('#record').should('not.be.checked').and('not.be.disabled');
+    cy.get('#auto-start-recording').should('not.be.checked').and('not.be.disabled');
+
+    // Restriction settings
+    cy.get('#disable-cam').should('not.be.checked').and('not.be.disabled');
+    cy.get('#webcams-only-for-moderator').should('be.checked').and('not.be.disabled');
+    cy.get('#disable-mic').should('not.be.checked').and('be.disabled');
+    cy.get('#disable-public-chat').should('be.checked').and('not.be.disabled');
+    cy.get('#disable-private-chat').should('not.be.checked').and('not.be.disabled');
+    cy.get('#disable-note').should('be.checked').and('be.disabled');
+    cy.get('#hide-user-list').should('be.checked').and('not.be.disabled');
+
+    // Participant settings
+    cy.get('#allow-membership').should('not.be.checked').and('be.disabled');
+    cy.get('[data-test="room-settings-default-role-button"]').should('have.length', 2);
+    cy.get('[data-test="room-settings-default-role-button"]')
+      .eq(0)
+      .should('have.text', 'rooms.roles.participant')
+      .and('have.attr', 'aria-pressed', 'true')
+      .and('not.be.disabled');
+    cy.get('[data-test="room-settings-default-role-button"]')
+      .eq(1)
+      .should('have.text', 'rooms.roles.moderator')
+      .and('have.attr', 'aria-pressed', 'false')
+      .and('not.be.disabled');
+
+    // Advanced settings
+    cy.get('[data-test="room-settings-visibility-button"]').should('have.length', 2);
+    cy.get('[data-test="room-settings-visibility-button"]')
+      .eq(0)
+      .should('have.text', 'rooms.settings.advanced.visibility.private')
+      .and('have.attr', 'aria-pressed', 'false')
+      .and('not.be.disabled');
+
+    cy.get('[data-test="room-settings-visibility-button"]')
+      .eq(1)
+      .should('have.text', 'rooms.settings.advanced.visibility.public')
+      .and('have.attr', 'aria-pressed', 'true')
+      .and('not.be.disabled');
   });
 
   it('delete room', function () {
