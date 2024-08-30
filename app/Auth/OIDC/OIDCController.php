@@ -8,7 +8,7 @@ use App\Models\SessionData;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Jumbojett\OpenIDConnectClient;
+use Jumbojett\OpenIDConnectClientException;
 
 class OIDCController extends Controller
 {
@@ -111,6 +111,10 @@ class OIDCController extends Controller
 
     public function signoutRedirectURL(string $logout_url)
     {
+        if(!$this->oidc->hasEndSessionEndpoint()) {
+            return false;
+        }
+
         $params = [
             'id_token' => session('oidc_id_token'),
             'logout_url' => $logout_url,

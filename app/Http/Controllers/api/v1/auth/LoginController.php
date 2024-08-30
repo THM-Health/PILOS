@@ -65,6 +65,8 @@ class LoginController extends Controller
     {
         // Redirect url after logout
         $redirect = false;
+        // Message to display on logout, e.g. incomplete logout
+        $message = null;
 
         // Logout from external authentication provider
         switch (\Auth::user()->authenticator) {
@@ -73,6 +75,9 @@ class LoginController extends Controller
                 break;
             case 'oidc':
                 $redirect = app(OIDCController::class)->signoutRedirectURL(url('/logout'));
+                if (!$redirect) {
+                    $message = 'oidc_incomplete';
+                }
                 break;
         }
 
@@ -81,6 +86,7 @@ class LoginController extends Controller
 
         return response()->json([
             'redirect' => $redirect,
+            'message' => $message
         ]);
     }
 }
