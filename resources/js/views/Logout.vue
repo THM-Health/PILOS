@@ -6,7 +6,8 @@
           <template #title> {{ $t('auth.logout') }} </template>
           <template #content>
             <Message v-if="props.message==null" severity="success" :closable="false" >{{ $t('auth.logout_success') }}</Message>
-            <Message v-if="props.message === 'session_expired'" severity="warning" :closable="false">{{ $t('auth.session_expired') }}</Message>
+            <Message v-if="props.message === 'session_expired'" severity="warn" :closable="false">{{ $t('auth.session_expired') }}</Message>
+            <Message v-if="props.message === 'oidc_incomplete'" severity="warn" :closable="false">{{ $t('auth.oidc.logout_incomplete') }}</Message>
           </template>
           <template #footer>
             <Button
