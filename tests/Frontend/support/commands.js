@@ -144,3 +144,36 @@ Cypress.Commands.add('interceptRoomSettingsRequest', () => { // ToDo improve fix
     }
   });
 });
+
+Cypress.Commands.add('interceptUserProfileRequests', () => {
+  cy.intercept('GET', 'api/v1/currentUser', {
+    data: {
+      id: 1,
+      firstname: 'John',
+      lastname: 'Doe',
+      locale: 'en',
+      permissions: ['users.updateOwnAttributes'],
+      model_name: 'User',
+      room_limit: -1
+    }
+  });
+  cy.intercept('GET', 'api/v1/config', {
+    data: {
+      theme: {
+        primary_color: '#14b8a6',
+        rounded: true
+      },
+      general: {
+        toast_lifetime: 0,
+        enabled_locales: {
+          de: 'Deutsch',
+          en: 'English',
+          fr: 'Français'
+        }
+      }
+    }
+  });
+  cy.intercept('GET', 'api/v1/users/1', { fixture: 'user.json' }).as('userRequest');
+  cy.intercept('GET', 'api/v1/getTimezones', { fixture: 'timezones.json' });
+  cy.intercept('GET', 'api/v1/sessions', { fixture: 'sessions.json' });
+});

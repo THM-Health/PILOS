@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "last_activity": "2022-01-24T10:15:00.000000Z",
+      "ip_address": "10.9.1.2",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
+      "current": true
+    },
+    {
+      "last_activity": "2022-01-23T15:55:00.000000Z",
+      "ip_address": "10.9.1.5",
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+      "current": false
+    }
+  ]
+}

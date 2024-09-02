@@ -6,10 +6,10 @@
       </template>
       <Tabs v-if="!isBusy && user" value="base" scrollable>
         <TabList>
-          <Tab value="base"><i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}</Tab>
-          <Tab value="email"><i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}</Tab>
-          <Tab value="security"><i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}</Tab>
-          <Tab value="others"><i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}</Tab>
+          <Tab value="base" data-test="base-tab-button"><i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}</Tab>
+          <Tab value="email" data-test="email-tab-button"><i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}</Tab>
+          <Tab value="security" data-test="security-tab-button"><i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}</Tab>
+          <Tab value="others" data-test="others-tab-button"><i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}</Tab>
         </TabList>
         <TabPanels class="px-0">
           <TabPanel value="base">
