@@ -11,7 +11,7 @@ describe('Room Index', function () {
   });
 
   it('check list of rooms and opening room view', function () {
-    const roomRequestInterception = interceptIndefinitely('GET', 'api/v1/rooms?*', { fixture: 'exampleRooms.json' }, 'roomRequest');
+    const roomRequestInterception = interceptIndefinitely('GET', 'api/v1/rooms?*', { fixture: 'rooms.json' }, 'roomRequest');
     cy.interceptRoomViewRequests();
 
     cy.visit('/rooms');
@@ -1097,7 +1097,7 @@ describe('Room Index', function () {
     cy.get('[data-test="rooms-filter-button"]').should('have.length', 0);
 
     // Trigger filter all button again and check that other filter buttons did not change
-    cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' }).as('roomRequest');
+    cy.intercept('GET', 'api/v1/rooms*', { fixture: 'rooms.json' }).as('roomRequest');
 
     cy.get('[data-test="rooms-filter-all-button"]').click();
 
@@ -1377,7 +1377,7 @@ describe('Room Index', function () {
     cy.get('[data-test="room-type-dropdown"]').should('not.exist');
 
     // Click on only favorites button again
-    cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' }).as('roomRequest');
+    cy.intercept('GET', 'api/v1/rooms*', { fixture: 'rooms.json' }).as('roomRequest');
     cy.get('[data-test="only-favorites-button"]').click();
     cy.wait('@roomRequest').then(interception => {
       expect(interception.request.query).to.contain({
@@ -2558,7 +2558,7 @@ describe('Room Index', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
+    const roomTypeInterception = interceptIndefinitely('GET', 'api/v1/roomTypes*', { fixture: 'roomTypes.json' });
 
     // Check that room type select is shown correctly and click on reload button
     cy.get('[data-test=room-type-dropdown').should('not.exist');

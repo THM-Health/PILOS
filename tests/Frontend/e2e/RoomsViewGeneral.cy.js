@@ -1972,7 +1972,7 @@ describe('Room View general', function () {
     cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
     // Get reload button and reload without error
-    const reloadRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }, 'roomRequest');
+    const reloadRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }, 'roomRequest');
     cy.get('[data-test="reload-room-button"]').click();
     cy.get('[data-test="reload-room-button"]').should('be.disabled').then(() => {
       reloadRequest.sendResponse();
@@ -2062,7 +2062,7 @@ describe('Room View general', function () {
     ]);
 
     // Get reload button and reload without error
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
     cy.get('[data-test="reload-button"]').eq(0).should('have.text', 'app.reload').click();
 
     cy.wait('@roomRequest');

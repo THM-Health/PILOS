@@ -8,7 +8,7 @@ describe('Rooms view members', function () {
   });
 
   it('load members', function () {
-    const roomMembersRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'exampleRoomMembers.json' }, 'roomMembersRequest');
+    const roomMembersRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'roomMembers.json' }, 'roomMembersRequest');
     cy.visit('/rooms/abc-def-123');
 
     cy.get('#tab-members').click();

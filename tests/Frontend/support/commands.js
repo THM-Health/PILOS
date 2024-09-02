@@ -25,7 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('init', () => {
-  cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
+  cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
   cy.intercept('GET', 'api/v1/locale/en', {
     data: {},
     meta: {
@@ -75,59 +75,11 @@ Cypress.Commands.add('init', () => {
   });
 });
 
-Cypress.Commands.add('interceptRoomIndexRequests', () => {
-  cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypes.json' });
-  cy.intercept('GET', 'api/v1/rooms*', { fixture: 'exampleRooms.json' }).as('roomRequest');
-});
-
-Cypress.Commands.add('interceptRoomViewRequests', () => {
-  cy.intercept('GET', 'api/v1/config', {
-    data: {
-      general: { toast_lifetime: 0 },
-      theme: { primary_color: '#14b8a6', rounded: true },
-      room: { refresh_rate: 5000 }
-    }
-  });
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
-});
-
 Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
   cy.intercept('GET', 'api/v1/currentUser', {});
 
   cy.visit(path);
   cy.url().should('contain', '/login?redirect=' + path);
-});
-
-Cypress.Commands.add('interceptRoomFilesRequest', () => {
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { // ToDo add fixture
-    statusCode: 200,
-    body: {
-      data: [],
-      meta: {
-        from: null
-      }
-    }
-  });
-});
-
-Cypress.Commands.add('interceptRoomMembersRequest', () => {
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'exampleRoomMembers.json' }).as('roomMembersRequest');
-});
-
-Cypress.Commands.add('interceptRoomSettingsRequest', () => { // ToDo improve fixtures
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettingsNoExpert.json' }).as('roomSettingsRequest');
-
-  cy.intercept('GET', 'api/v1/config', {
-    data: {
-      theme: {
-        primary_color: '#14b8a6',
-        rounded: true
-      },
-      general: { toast_lifetime: 0 },
-      room: { refresh_rate: 5000 },
-      bbb: { welcome_message_limit: 500 }
-    }
-  });
 });
 
 Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => {
@@ -143,4 +95,52 @@ Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) =
     cy.get('.p-toast-message').find('button').click();
     cy.get('.p-toast-message').should('not.exist');
   }
+});
+
+Cypress.Commands.add('interceptRoomIndexRequests', () => {
+  cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypes.json' });
+  cy.intercept('GET', 'api/v1/rooms*', { fixture: 'rooms.json' }).as('roomRequest');
+});
+
+Cypress.Commands.add('interceptRoomViewRequests', () => {
+  cy.intercept('GET', 'api/v1/config', {
+    data: {
+      general: { toast_lifetime: 0 },
+      theme: { primary_color: '#14b8a6', rounded: true },
+      room: { refresh_rate: 5000 }
+    }
+  });
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+});
+
+Cypress.Commands.add('interceptRoomFilesRequest', () => {
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { // ToDo add fixture
+    statusCode: 200,
+    body: {
+      data: [],
+      meta: {
+        from: null
+      }
+    }
+  });
+});
+
+Cypress.Commands.add('interceptRoomMembersRequest', () => {
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'roomMembers.json' }).as('roomMembersRequest');
+});
+
+Cypress.Commands.add('interceptRoomSettingsRequest', () => { // ToDo improve fixtures
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettingsNoExpert.json' }).as('roomSettingsRequest');
+
+  cy.intercept('GET', 'api/v1/config', {
+    data: {
+      theme: {
+        primary_color: '#14b8a6',
+        rounded: true
+      },
+      general: { toast_lifetime: 0 },
+      room: { refresh_rate: 5000 },
+      bbb: { welcome_message_limit: 500 }
+    }
+  });
 });

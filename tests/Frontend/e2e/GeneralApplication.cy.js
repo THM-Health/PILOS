@@ -6,6 +6,7 @@ describe('General', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
         general: {
+          toast_lifetime: 0,
           enabled_locales: {
             de: 'Deutsch',
             en: 'English',

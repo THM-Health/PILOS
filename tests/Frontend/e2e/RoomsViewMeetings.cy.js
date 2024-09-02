@@ -1197,7 +1197,7 @@ describe('Rooms view meetings', function () {
     }).as('joinRequest');
 
     // Intercept reload request
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'exampleRoom.json' }).as('roomRequest');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
 
     // Try to join meeting
     cy.get('[data-test="room-join-button"]').click();

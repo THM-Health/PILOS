@@ -8,7 +8,7 @@ describe('Rooms view settings', function () {
   });
 
   it('load settings', function () { // ToDo improve (custom command or function possible?)
-    const roomSettingsRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettingsNoExpert.json' }, 'roomSettingsRequest');
+    const roomSettingsRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettingsNoExpert.json' }, 'roomSettingsRequest');
 
     cy.visit('/rooms/abc-def-123');
 
@@ -302,7 +302,7 @@ describe('Rooms view settings', function () {
   });
 
   it('load settings with different permissions', function () { // ToDo improve (custom command or function possible?)
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'exampleRoomSettingsExpert.json' }).as('roomSettingsRequest');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettingsExpert.json' }).as('roomSettingsRequest');
 
     // Check with co_owner
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {

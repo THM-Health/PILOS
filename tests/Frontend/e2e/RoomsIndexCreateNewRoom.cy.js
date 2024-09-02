@@ -71,7 +71,7 @@ describe('Rooms index create new room', function () {
     cy.contains('rooms.room_limit').should('not.exist');
 
     // ToDo improve fixture (different settings for different room types)
-    cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'exampleRoomTypesWithSettings.json' });
+    cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypesWithSettings.json' });
 
     // Open room create modal
     cy.get('[data-test="room-create-button"]').should('have.text', 'rooms.create.title').click();
@@ -370,7 +370,7 @@ describe('Rooms index create new room', function () {
       statusCode: 403
     }).as('createRoomRequest');
 
-    cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' }).as('currentUserRequest');
+    cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' }).as('currentUserRequest');
 
     cy.get('[data-test="room-create-dialog"]').should('be.visible').within(() => {
       // Create new room

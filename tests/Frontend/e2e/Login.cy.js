@@ -37,7 +37,7 @@ describe('Login', function () {
       cy.get('#ldap-password').type('password');
 
       // Intercept requests that will be needed to show the room index page (needed to check redirect)
-      cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
+      cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
       cy.interceptRoomIndexRequests();
 
       cy.get('button').should('have.text', 'auth.login').click();
@@ -167,7 +167,7 @@ describe('Login', function () {
       cy.get('#local-password').type('password');
 
       // Intercept requests that will be needed to show the room index page (needed to check redirect)
-      cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
+      cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
       cy.interceptRoomIndexRequests();
 
       cy.get('[data-test="login-button"]').should('have.text', 'auth.login').click();
@@ -360,7 +360,7 @@ describe('Login', function () {
   });
 
   it('visit login page with already logged in user', function () {
-    cy.intercept('GET', 'api/v1/currentUser', { fixture: 'exampleUser.json' });
+    cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
 
     cy.visit('/login');
     cy.checkToastMessage('app.flash.guests_only', false);
@@ -386,7 +386,7 @@ describe('Login', function () {
     });
 
     // Intercept requests that will be needed to show the room index page (needed to check redirect)
-    cy.intercept('/api/v1/currentUser', { fixture: 'exampleUser.json' });
+    cy.intercept('/api/v1/currentUser', { fixture: 'currentUser.json' });
     cy.interceptRoomIndexRequests();
 
     // Visit redirect page after external login
