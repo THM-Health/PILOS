@@ -57,7 +57,7 @@
 
     <div v-else>
       <div v-if="!room">
-        <div class="text-center my-2">
+        <div class="text-center my-2" data-test="no-room-overlay">
           <i
             v-if="roomLoading"
             class="fa-solid fa-circle-notch fa-spin text-3xl"

@@ -2061,12 +2061,18 @@ describe('Room View general', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
+    // Check that overlay is shown
+    cy.get('[data-test="no-room-overlay"]').should('be.visible');
+
     // Get reload button and reload without error
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
     cy.get('[data-test="reload-button"]').eq(0).should('have.text', 'app.reload').click();
 
     cy.wait('@roomRequest');
     cy.contains('Meeting One').should('be.visible');
+
+    // Check that overlay is hidden
+    cy.get('[data-test="no-room-overlay"]').should('not.exist');
   });
 
   it('visit with room not found', function () {

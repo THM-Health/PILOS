@@ -3,6 +3,7 @@
       <slot />
       <div
         v-if="props.show"
+        data-test="overlay"
         class="absolute" style="inset: 0; backdrop-filter: blur(2px);" :style="{'z-index': props.zIndex}"
       >
         <div class="absolute bg-surface-100 dark:bg-surface-900" style="inset: 0;" :style="{opacity: props.opacity}" />

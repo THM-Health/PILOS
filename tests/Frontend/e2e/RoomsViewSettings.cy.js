@@ -17,6 +17,11 @@ describe('Rooms view settings', function () {
     cy.url().should('include', '/rooms/abc-def-123#settings');
 
     // Check loading
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should('be.visible');
+
+    // Check that buttons are disabled
     cy.get('[data-test="room-delete-button"]')
       .should('have.text', 'rooms.modals.delete.title')
       .and('be.disabled');
@@ -36,6 +41,9 @@ describe('Rooms view settings', function () {
       });
 
     cy.wait('@roomSettingsRequest');
+
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should('not.exist');
 
     // General settings
     cy.contains('rooms.settings.general.title').should('be.visible');
@@ -277,6 +285,8 @@ describe('Rooms view settings', function () {
     });
 
     cy.visit('/rooms/abc-def-123#settings');
+
+    cy.get('[data-test="overlay"]').should('be.visible');
 
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',

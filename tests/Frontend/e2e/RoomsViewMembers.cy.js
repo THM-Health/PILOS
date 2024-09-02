@@ -16,6 +16,10 @@ describe('Rooms view members', function () {
     cy.url().should('include', '/rooms/abc-def-123#members');
 
     // Check loading
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should('be.visible');
+
     cy.get('[data-test="room-members-search"]').within(() => {
       cy.get('input').should('be.disabled');
       cy.get('button').should('be.disabled');
@@ -40,6 +44,9 @@ describe('Rooms view members', function () {
     });
 
     cy.wait('@roomMembersRequest');
+
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should('not.exist');
 
     // Check that loading is done
     cy.get('[data-test="room-members-search"]').within(() => {
@@ -92,6 +99,9 @@ describe('Rooms view members', function () {
 
     cy.visit('/rooms/abc-def-123#members');
     cy.wait('@roomMembersRequest');
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should('be.visible');
 
     // Check that error message gets shown
     cy.checkToastMessage([
@@ -149,6 +159,9 @@ describe('Rooms view members', function () {
     // Check if reload button exists and click it
     cy.get('[data-test="loading-retry-button"]').should('include.text', 'app.reload').click();
     cy.wait('@roomMembersRequest');
+
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should('not.exist');
 
     // Check if member is shown and contains the correct data
     cy.get('[data-test="room-member-item"]').should('have.length', 1);

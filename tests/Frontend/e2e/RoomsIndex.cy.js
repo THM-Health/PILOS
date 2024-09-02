@@ -17,6 +17,10 @@ describe('Room Index', function () {
     cy.visit('/rooms');
 
     // Test loading
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should('be.visible');
+
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
       cy.get('input').should('be.disabled');
@@ -41,6 +45,11 @@ describe('Room Index', function () {
           roomRequestInterception.sendResponse();
         });
     });
+
+    cy.wait('@roomRequest');
+
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should('not.exist');
 
     // Make sure that components are not disabled after response
     // Room search field
@@ -111,12 +120,22 @@ describe('Room Index', function () {
   it('click on room card to open room view', function () {
     cy.interceptRoomViewRequests();
 
+    const roomRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }, 'roomRequest');
+
     cy.visit('/rooms');
 
     // Click on room card to open room view
     cy.get('[data-test="room-card"]').eq(0).click();
 
     cy.url().should('include', '/rooms/abc-def-123');
+
+    cy.get('[data-test="no-room-overlay"]').should('be.visible').then(() => {
+      roomRequest.sendResponse();
+    });
+
+    cy.wait('@roomRequest');
+
+    cy.get('[data-test="no-room-overlay"]').should('not.exist');
   });
 
   it('sorting', function () {
@@ -2339,6 +2358,9 @@ describe('Room Index', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should('be.visible');
+
     // Check that components are not disabled
     // Room search field
     cy.get('[data-test=room-search]').eq(0).within(() => {
@@ -2397,13 +2419,16 @@ describe('Room Index', function () {
     cy.get('[data-test=reload-button]').should('include.text', 'app.reload').click();
     cy.wait('@roomRequest');
 
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should('not.exist');
+
     // Check if rooms are shown and contain the correct data
     cy.get('[data-test="room-card"]').as('rooms').should('have.length', 1);
 
     cy.get('[data-test="room-card"]').eq(0).should('include.text', 'Meeting One');
 
     // Check that reload button does not exist
-    cy.get('[data-test=reload-button]').should('not.exist');
+    cy.get('[data-test="reload-button"]').should('not.exist');
 
     // Switch to next page with general error
     cy.intercept('GET', 'api/v1/rooms*', {
@@ -2421,6 +2446,9 @@ describe('Room Index', function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
+
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should('be.visible');
 
     // Check that components are not disabled
     // Room search field
@@ -2506,6 +2534,9 @@ describe('Room Index', function () {
         page: '1'
       });
     });
+
+    // Check that overlay is hidden
+    cy.get('[data-test="overlay"]').should('not.exist');
 
     // Check if rooms are shown and contain the correct data
     cy.get('[data-test="room-card"]').as('rooms').should('have.length', 1);
