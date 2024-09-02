@@ -41,7 +41,7 @@
         "@vueuse/core": "^11.0.3",
         "autoprefixer": "^10.4.20",
         "axe-core": "^4.10.0",
-        "axios": "^1.7.5",
+        "axios": "^1.7.7",
         "chart.js": "^4.4.4",
         "chartjs-adapter-date-fns": "^3.0.0",
         "date-fns": "^3.6.0",
