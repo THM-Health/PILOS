@@ -4,31 +4,17 @@ describe('Rooms index create new room', function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomIndexRequests();
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: ['rooms.create'],
-        model_name: 'User',
-        room_limit: -1
-      }
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['rooms.create'];
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      });
     });
   });
 
   it('button to create new room hidden', function () {
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: [],
-        model_name: 'User',
-        room_limit: -1
-      }
-    });
+    cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
 
     cy.visit('/rooms');
 
@@ -390,16 +376,12 @@ describe('Rooms index create new room', function () {
     cy.checkToastMessage('rooms.flash.no_new_room');
 
     // Reload page to check other errors
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: ['rooms.create'],
-        model_name: 'User',
-        room_limit: -1
-      }
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['rooms.create'];
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      });
     });
 
     cy.reload();
@@ -463,33 +445,26 @@ describe('Rooms index create new room', function () {
   });
 
   it('create new room limit reached', function () {
-    cy.intercept('GET', 'api/v1/rooms*', {
-      statusCode: 200,
-      body: {
-        data: [],
-        meta: {
-          current_page: 1,
-          from: 1,
-          last_page: 1,
-          to: 5,
-          total: 0,
-          total_no_filter: 0,
-          total_own: 0
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('rooms.json').then(rooms => {
+      rooms.data = [];
+      rooms.meta.total = 0;
+      rooms.meta.total_no_filter = 0;
+      rooms.meta.total_own = 0;
 
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: ['rooms.create'],
-        model_name: 'User',
-        room_limit: 1
-      }
-    }).as('currentUserRequest');
+      cy.intercept('GET', 'api/v1/rooms?*', {
+        statusCode: 200,
+        body: rooms
+      }).as('roomRequest');
+    });
+
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['rooms.create'];
+      currentUser.data.room_limit = 1;
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      }).as('currentUserRequest');
+    });
 
     cy.intercept('POST', 'api/v1/rooms', {
       statusCode: 463,
@@ -515,39 +490,17 @@ describe('Rooms index create new room', function () {
       cy.get('[data-test="room-type-select-option"]').eq(0).click();
 
       // Change response so that the room limit gets reached
-      cy.intercept('GET', 'api/v1/rooms?*', {
-        statusCode: 200,
-        body: {
-          data: [
-            {
-              id: 'abc-def-123',
-              name: 'Meeting One',
-              owner: {
-                id: 1,
-                name: 'John Doe'
-              },
-              last_meeting: null,
-              type: {
-                id: 2,
-                name: 'Meeting',
-                color: '#4a5c66'
-              },
-              is_favorite: false,
-              short_description: 'Room short description'
-            }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 3,
-            per_page: 1,
-            to: 1,
-            total: 3,
-            total_no_filter: 3,
-            total_own: 1
-          }
-        }
-      }).as('roomRequest');
+      cy.fixture('rooms.json').then(rooms => {
+        rooms.data = rooms.data.slice(0, 1);
+        rooms.meta.last_page = 3;
+        rooms.meta.per_page = 1;
+        rooms.meta.to = 1;
+
+        cy.intercept('GET', 'api/v1/rooms?*', {
+          statusCode: 200,
+          body: rooms
+        }).as('roomRequest');
+      });
 
       // Create new room
       cy.get('[data-test="dialog-save-button"]').click();
@@ -569,42 +522,19 @@ describe('Rooms index create new room', function () {
     cy.contains('rooms.room_limit_{"has":1,"max":1}').should('be.visible');
 
     // Switch to next page
-    cy.intercept('GET', 'api/v1/rooms?*', {
-      statusCode: 200,
-      body: {
-        data: [
-          {
-            id: 'def-abc-123',
-            name: 'Meeting Two',
-            owner: {
-              id: 1,
-              name: 'John Doe'
-            },
-            last_meeting: {
-              start: '2023-08-21 08:18:28:00',
-              end: null
-            },
-            type: {
-              id: 2,
-              name: 'Meeting',
-              color: '#4a5c66'
-            },
-            is_favorite: true,
-            short_description: null
-          }
-        ],
-        meta: {
-          current_page: 2,
-          from: 2,
-          last_page: 3,
-          per_page: 1,
-          to: 2,
-          total: 3,
-          total_no_filter: 3,
-          total_own: 1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('rooms.json').then(rooms => {
+      rooms.data = rooms.data.slice(1, 2);
+      rooms.meta.current_page = 2;
+      rooms.meta.from = 2;
+      rooms.meta.last_page = 3;
+      rooms.meta.per_page = 1;
+      rooms.meta.to = 2;
+
+      cy.intercept('GET', 'api/v1/rooms?*', {
+        statusCode: 200,
+        body: rooms
+      }).as('roomRequest');
+    });
 
     // Click on button for next page (eq(1) needed because there are two paginator components
     // (first one for small devices second one for larger devices))
@@ -618,20 +548,15 @@ describe('Rooms index create new room', function () {
 
     // Check if room count is not based on items on the current page or the total results,
     // but all rooms of the user, independent of the search query
-    cy.intercept('GET', 'api/v1/rooms*', {
-      statusCode: 200,
-      body: {
-        data: [],
-        meta: {
-          current_page: 1,
-          from: 1,
-          last_page: 1,
-          to: 5,
-          total: 0,
-          total_no_filter: 0,
-          total_own: 1
-        }
-      }
+    cy.fixture('rooms.json').then(rooms => {
+      rooms.data = [];
+      rooms.meta.total = 0;
+      rooms.meta.total_no_filter = 0;
+
+      cy.intercept('GET', 'api/v1/rooms?*', {
+        statusCode: 200,
+        body: rooms
+      }).as('roomRequest');
     });
 
     cy.get('[data-test="room-search"] > input').type('Test');
@@ -643,32 +568,24 @@ describe('Rooms index create new room', function () {
   });
 
   it('create new room limit reached when visiting', function () {
-    cy.intercept('GET', 'api/v1/rooms*', {
-      statusCode: 200,
-      body: {
-        data: [],
-        meta: {
-          current_page: 1,
-          from: 1,
-          last_page: 1,
-          to: 5,
-          total: 0,
-          total_no_filter: 0,
-          total_own: 1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('rooms.json').then(rooms => {
+      rooms.data = [];
+      rooms.meta.total = 0;
+      rooms.meta.total_no_filter = 0;
 
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: ['rooms.create'],
-        model_name: 'User',
-        room_limit: 1
-      }
+      cy.intercept('GET', 'api/v1/rooms?*', {
+        statusCode: 200,
+        body: rooms
+      }).as('roomRequest');
+    });
+
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['rooms.create'];
+      currentUser.data.room_limit = 1;
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      });
     });
 
     cy.visit('/rooms');

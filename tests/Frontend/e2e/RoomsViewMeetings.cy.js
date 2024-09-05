@@ -7,45 +7,14 @@ describe('Rooms view meetings', function () {
   });
 
   it('join running meeting', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
@@ -88,45 +57,15 @@ describe('Rooms view meetings', function () {
   });
 
   it('join running meeting attendance logging', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.record_attendance = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
@@ -173,45 +112,15 @@ describe('Rooms view meetings', function () {
   });
 
   it('join running meeting with recording', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
@@ -261,44 +170,14 @@ describe('Rooms view meetings', function () {
   });
 
   it('join running meeting with recording without video', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
     });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
@@ -309,6 +188,8 @@ describe('Rooms view meetings', function () {
     }).as('joinRequest');
 
     cy.visit('/rooms/abc-def-123');
+
+    cy.wait('@roomRequest');
 
     cy.get('[data-test="room-join-button"]').click();
 
@@ -336,36 +217,17 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting guests', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: null
-      }
+
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.current_user = null;
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
     });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
@@ -435,44 +297,18 @@ describe('Rooms view meetings', function () {
   });
 
   it('join running meeting with access code', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.authenticated = false;
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.visit('/rooms/abc-def-123');
 
@@ -480,44 +316,17 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
     cy.get('#access-code').type('123456789');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: false,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-login-button"]').click();
 
@@ -560,45 +369,18 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting access code errors', function () {
     cy.interceptRoomFilesRequest();
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.authenticated = false;
+      room.data.record_attendance = true;
+      room.data.record = true;
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.visit('/rooms/abc-def-123');
 
@@ -606,44 +388,17 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
     cy.get('#access-code').type('123456789');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: false,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-login-button"]').click();
 
@@ -658,44 +413,18 @@ describe('Rooms view meetings', function () {
       }
     }).as('joinRequest');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.authenticated = false;
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     // Try to join meeting
     cy.get('[data-test="room-join-button"').click();
@@ -717,88 +446,31 @@ describe('Rooms view meetings', function () {
     cy.contains('rooms.flash.access_code_invalid').should('be.visible');
 
     // Intercept room request for reload (after entering access code)
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: false,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-login-button"]').click();
     cy.wait('@roomRequest');
 
     // Test require_code
     // Intercept join request with error response and room request for reload (not authenticated anymore)
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.authenticated = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 403,
@@ -828,38 +500,17 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting token', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        username: 'Max Doe',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: null
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.record_attendance = true;
+      room.data.record = true;
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 200,
@@ -909,38 +560,14 @@ describe('Rooms view meetings', function () {
         }
       }
     });
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        username: 'Max Doe',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: null
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 401,
@@ -964,37 +591,15 @@ describe('Rooms view meetings', function () {
   });
 
   it('join meeting errors', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: null
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     // Test guests not allowed
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
@@ -1015,45 +620,14 @@ describe('Rooms view meetings', function () {
     // Check if error message is shown
     cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     // Reload room
     cy.get('[data-test="reload-room-button"]').click();
@@ -1076,45 +650,16 @@ describe('Rooms view meetings', function () {
       }
     }, 'joinRequest');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     cy.get('[data-test="room-join-button"]').click();
@@ -1253,45 +798,14 @@ describe('Rooms view meetings', function () {
   });
 
   it('start meeting attendance logging', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.record_attendance = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
@@ -1338,45 +852,14 @@ describe('Rooms view meetings', function () {
   });
 
   it('start meeting with recording', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     const joinRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
@@ -1426,44 +909,13 @@ describe('Rooms view meetings', function () {
   });
 
   it('start meeting with recording without video', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
+    cy.fixture('room.json').then((room) => {
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
     });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
@@ -1501,36 +953,15 @@ describe('Rooms view meetings', function () {
 
   it('start meeting guests', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: null
-      }
+    cy.fixture('room.json').then((room) => {
+      room.data.record_attendance = true;
+      room.data.record = true;
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
     });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
@@ -1599,44 +1030,17 @@ describe('Rooms view meetings', function () {
   });
 
   it('start meeting with access code', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.authenticated = false;
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.visit('/rooms/abc-def-123');
 
@@ -1644,44 +1048,16 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
     cy.get('#access-code').type('123456789');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-login-button"]').click();
 
@@ -1735,44 +1111,17 @@ describe('Rooms view meetings', function () {
 
   it('start meeting access code errors', function () {
     cy.interceptRoomFilesRequest();
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.authenticated = false;
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.visit('/rooms/abc-def-123');
 
@@ -1780,44 +1129,16 @@ describe('Rooms view meetings', function () {
     cy.wait('@roomRequest');
     cy.get('#access-code').type('123456789');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-login-button"]').click();
 
@@ -1832,44 +1153,15 @@ describe('Rooms view meetings', function () {
       }
     }).as('startRequest');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.authenticated = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     // Try to start meeting
     cy.get('[data-test="room-start-button"]').click();
@@ -1889,44 +1181,14 @@ describe('Rooms view meetings', function () {
     cy.checkToastMessage('rooms.flash.access_code_invalid');
 
     // Intercept room request for reload (after entering access code)
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-login-button"]').click();
     cy.wait('@roomRequest');
@@ -1940,44 +1202,15 @@ describe('Rooms view meetings', function () {
       }
     }).as('startRequest');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 2,
-          name: 'Max Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: false,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: [],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.authenticated = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     // Try to start meeting
     cy.get('[data-test="room-start-button"]').click();
@@ -2000,38 +1233,17 @@ describe('Rooms view meetings', function () {
 
   it('start meeting token', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        username: 'Max Doe',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: true,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: null
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.record_attendance = true;
+      room.data.record = true;
+      room.data.username = 'Max Doe';
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 200,
@@ -2081,38 +1293,15 @@ describe('Rooms view meetings', function () {
         }
       }
     });
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        username: 'Max Doe',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: null
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.username = 'Max Doe';
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
       statusCode: 401,
@@ -2136,37 +1325,14 @@ describe('Rooms view meetings', function () {
   });
 
   it('start meeting errors', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: null,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: null
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     // Test guests not allowed
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/start*', {
@@ -2187,45 +1353,7 @@ describe('Rooms view meetings', function () {
     // Check if error message is shown
     cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
 
     // Reload room
     cy.get('[data-test="reload-room-button"]').click();
@@ -2248,45 +1376,15 @@ describe('Rooms view meetings', function () {
       }
     }, 'startRequest');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-join-dialog"]').should('not.exist');
     cy.get('[data-test="room-start-button"]').click();
@@ -2379,45 +1477,16 @@ describe('Rooms view meetings', function () {
       }
     }).as('startRequest');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: false,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.record_attendance = true;
+      room.data.record = true;
+      room.data.can_start = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     // Try to start meeting
     cy.get('[data-test="room-start-button"]').click();
@@ -2436,45 +1505,15 @@ describe('Rooms view meetings', function () {
     cy.contains('rooms.not_running').should('be.visible');
 
     // Reload room with permission to start room
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: null,
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: true,
-        record: true,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.record_attendance = true;
+      room.data.record = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="reload-room-button"]').click();
 
@@ -2488,45 +1527,14 @@ describe('Rooms view meetings', function () {
       }
     }).as('startRequest');
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      data: {
-        id: 'abc-def-123',
-        name: 'Meeting One',
-        owner: {
-          id: 1,
-          name: 'John Doe'
-        },
-        last_meeting: { start: '2023-08-21 08:18:28:00', end: null },
-        type: {
-          id: 2,
-          name: 'Meeting',
-          color: '#4a5c66'
-        },
-        model_name: 'Room',
-        short_description: null,
-        is_favorite: false,
-        authenticated: true,
-        description: null,
-        allow_membership: false,
-        is_member: false,
-        is_moderator: false,
-        is_co_owner: false,
-        can_start: true,
-        access_code: 508307005,
-        room_type_invalid: false,
-        record_attendance: false,
-        record: false,
-        current_user: {
-          id: 1,
-          firstname: 'John',
-          lastname: 'Doe',
-          locale: 'en',
-          permissions: ['rooms.create'],
-          model_name: 'User',
-          room_limit: -1
-        }
-      }
-    }).as('roomRequest');
+    cy.fixture('room.json').then((room) => {
+      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-start-button"]').click();
     cy.contains('rooms.not_running').should('not.exist');

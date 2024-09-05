@@ -61,25 +61,14 @@ describe('Rooms view members bulk', function () {
         statusCode: 204
       }).as('bulkEditRequest');
 
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-        statusCode: 200,
-        body: {
-          data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 2, image: null },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 3,
-            to: 3,
-            total: 3,
-            total_no_filter: 3
-          }
-        }
-      }).as('roomMembersRequest');
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data[0].role = 2;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest');
+      });
 
       cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel');
       cy.get('[data-test="dialog-save-button"]').should('have.text', 'app.save').click();
@@ -124,25 +113,16 @@ describe('Rooms view members bulk', function () {
         statusCode: 204
       }).as('bulkEditRequest');
 
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-        statusCode: 200,
-        body: {
-          data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 3,
-            to: 3,
-            total: 3,
-            total_no_filter: 3
-          }
-        }
-      }).as('roomMembersRequest');
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data[0].role = 1;
+        roomMembers.data[1].role = 1;
+        roomMembers.data[2].role = 1;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest');
+      });
 
       cy.get('[data-test="dialog-save-button"]').click();
     });
@@ -309,24 +289,17 @@ describe('Rooms view members bulk', function () {
         statusCode: 204
       }).as('bulkDeleteRequest');
 
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-        statusCode: 200,
-        body: {
-          data: [
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 3,
-            to: 2,
-            total: 2,
-            total_no_filter: 2
-          }
-        }
-      }).as('roomMembersRequest');
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data = roomMembers.data.slice(1, 3);
+        roomMembers.meta.to = 2;
+        roomMembers.meta.total = 2;
+        roomMembers.meta.total_no_filter = 2;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest');
+      });
 
       cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.no');
       cy.get('[data-test="dialog-continue-button"]').should('have.text', 'app.yes').click();
@@ -365,21 +338,18 @@ describe('Rooms view members bulk', function () {
         statusCode: 204
       }).as('bulkDeleteRequest');
 
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-        statusCode: 200,
-        body: {
-          data: [],
-          meta: {
-            current_page: 1,
-            from: null,
-            last_page: 1,
-            per_page: 3,
-            to: null,
-            total: 0,
-            total_no_filter: 0
-          }
-        }
-      }).as('roomMembersRequest');
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data = [];
+        roomMembers.meta.from = null;
+        roomMembers.meta.to = null;
+        roomMembers.meta.total = 0;
+        roomMembers.meta.total_no_filter = 0;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest');
+      });
 
       cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.no');
       cy.get('[data-test="dialog-continue-button"]').should('have.text', 'app.yes').click();
@@ -477,21 +447,18 @@ describe('Rooms view members bulk', function () {
   });
 
   it('bulk import members', function () {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-      statusCode: 200,
-      body: {
-        data: [],
-        meta: {
-          current_page: 1,
-          from: null,
-          last_page: 1,
-          per_page: 1,
-          to: null,
-          total: 0,
-          total_no_filter: 0
-        }
-      }
-    }).as('roomMembersRequest');
+    cy.fixture('roomMembers.json').then(roomMembers => {
+      roomMembers.data = [];
+      roomMembers.meta.from = null;
+      roomMembers.meta.to = null;
+      roomMembers.meta.total = 0;
+      roomMembers.meta.total_no_filter = 0;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+        statusCode: 200,
+        body: roomMembers
+      }).as('roomMembersRequest');
+    });
 
     cy.visit('/rooms/abc-def-123#members');
     cy.wait('@roomMembersRequest');
@@ -543,24 +510,19 @@ describe('Rooms view members bulk', function () {
         statusCode: 204
       }, 'bulkImportRequest');
 
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-        statusCode: 200,
-        body: {
-          data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 2, image: null },
-            { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 4,
-            to: 2,
-            total: 2,
-            total_no_filter: 2
-          }
-        }
-      }).as('roomMembersRequest');
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data = roomMembers.data.slice(0, 1);
+        roomMembers.data[0].role = 2;
+        roomMembers.data.push({ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraMWalter@domain.tld', role: 2, image: null });
+        roomMembers.meta.to = 2;
+        roomMembers.meta.total = 2;
+        roomMembers.meta.total_no_filter = 2;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest');
+      });
 
       // Save
       cy.get('[data-test="dialog-continue-button"]').click();
@@ -689,26 +651,21 @@ describe('Rooms view members bulk', function () {
         statusCode: 204
       }).as('bulkImportRequest');
 
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-        statusCode: 200,
-        body: {
-          data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 2, image: null },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 3, image: null },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null },
-            { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 4,
-            to: 4,
-            total: 4,
-            total_no_filter: 4
-          }
-        }
-      }).as('roomMembersRequest');
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data[0].role = 2;
+        roomMembers.data[1].role = 3;
+        roomMembers.data.push({ id: 6, firstname: 'Juan', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null });
+
+        roomMembers.meta.per_page = 4;
+        roomMembers.meta.to = 4;
+        roomMembers.meta.total = 4;
+        roomMembers.meta.total_no_filter = 4;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest');
+      });
 
       cy.get('[data-test="dialog-continue-button"]').should('have.text', 'rooms.members.modals.bulk_import.import_importable_button').click();
 
@@ -857,27 +814,22 @@ describe('Rooms view members bulk', function () {
         statusCode: 204
       }).as('bulkImportRequest');
 
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-        statusCode: 200,
-        body: {
-          data: [
-            { id: 2, firstname: 'Max', lastname: 'Doe', email: 'maxdoe@domain.tld', role: 1, image: null },
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 2, image: null },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 3, image: null },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null },
-            { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 5,
-            to: 5,
-            total: 5,
-            total_no_filter: 5
-          }
-        }
-      }).as('roomMembersRequest');
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data[0].role = 2;
+        roomMembers.data[1].role = 3;
+        roomMembers.data.unshift({ id: 2, firstname: 'Max', lastname: 'Doe', email: 'maxdoe@domain.tld', role: 1, image: null });
+        roomMembers.data.push({ id: 6, firstname: 'Juan', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null });
+
+        roomMembers.meta.per_page = 5;
+        roomMembers.meta.to = 5;
+        roomMembers.meta.total = 5;
+        roomMembers.meta.total_no_filter = 5;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest');
+      });
 
       cy.get('[data-test="dialog-continue-button"]').click();
 

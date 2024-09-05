@@ -107,16 +107,12 @@ describe('Login', function () {
     cy.url().should('include', '/login?redirect=/admin');
 
     // Intercept user request (user that has the permission to show the config page)
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: ['admin.view'],
-        model_name: 'User',
-        room_limit: -1
-      }
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['admin.view'];
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      });
     });
 
     // Log in the user
@@ -236,16 +232,12 @@ describe('Login', function () {
     cy.url().should('include', '/login?redirect=/admin');
 
     // Intercept user request (user that has the permission to show the config page)
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: ['admin.view'],
-        model_name: 'User',
-        room_limit: -1
-      }
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['admin.view'];
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      });
     });
 
     // Log in the user
@@ -436,16 +428,12 @@ describe('Login', function () {
     });
 
     // Intercept user request (user that has the permission to show the config page)
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {
-        id: 1,
-        firstname: 'John',
-        lastname: 'Doe',
-        locale: 'en',
-        permissions: ['admin.view'],
-        model_name: 'User',
-        room_limit: -1
-      }
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['admin.view'];
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      });
     });
 
     // Visit redirect page after external login (redirect query is set)

@@ -130,7 +130,7 @@ Cypress.Commands.add('interceptRoomMembersRequest', () => {
 });
 
 Cypress.Commands.add('interceptRoomSettingsRequest', () => { // ToDo improve fixtures
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettingsNoExpert.json' }).as('roomSettingsRequest');
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettings.json' }).as('roomSettingsRequest');
 
   cy.intercept('GET', 'api/v1/config', {
     data: {
@@ -146,17 +146,12 @@ Cypress.Commands.add('interceptRoomSettingsRequest', () => { // ToDo improve fix
 });
 
 Cypress.Commands.add('interceptUserProfileRequests', () => {
-  cy.intercept('GET', 'api/v1/currentUser', {
-    data: {
-      id: 1,
-      firstname: 'John',
-      lastname: 'Doe',
-      locale: 'en',
-      permissions: ['users.updateOwnAttributes'],
-      model_name: 'User',
-      room_limit: -1
-    }
+  cy.fixture('currentUser.json').then((currentUser) => {
+    currentUser.data.permissions = ['users.updateOwnAttributes'];
+
+    cy.intercept('GET', 'api/v1/currentUser', currentUser);
   });
+
   cy.intercept('GET', 'api/v1/config', {
     data: {
       theme: {
@@ -169,6 +164,44 @@ Cypress.Commands.add('interceptUserProfileRequests', () => {
           de: 'Deutsch',
           en: 'English',
           fr: 'Français'
+        }
+      }
+    }
+  });
+  cy.intercept('GET', 'api/v1/locale/de', {
+    data: {},
+    meta: {
+      dateTimeFormat: {
+        dateShort: {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        },
+        dateLong: {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit'
+        },
+        time: {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        },
+        datetimeShort: {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        },
+        datetimeLong: {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
         }
       }
     }
