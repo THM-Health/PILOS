@@ -34,6 +34,29 @@ export function updateTheme (color, rounded) {
       }
     },
     components: {
+      toast: {
+        colorScheme: {
+          dark: {
+            blur: '1.5px',
+            info: {
+              background: 'color-mix(in srgb, {blue.900}, transparent 10%)',
+              color: '{blue.100}'
+            },
+            success: {
+              background: 'color-mix(in srgb, {green.900}, transparent 10%)',
+              color: '{green.100}'
+            },
+            warn: {
+              background: 'color-mix(in srgb, {yellow.900}, transparent 10%)',
+              color: '{yellow.100}'
+            },
+            error: {
+              background: 'color-mix(in srgb, {red.900}, transparent 10%)',
+              color: '{red.100}'
+            }
+          }
+        }
+      },
       dataview: {
         header: {
           padding: '0.75rem 0.5rem'
