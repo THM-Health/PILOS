@@ -53,6 +53,7 @@
 
     <!-- Stale user modal -->
     <Dialog
+      data-test="stale-user-dialog"
       v-model:visible="showModal"
       modal
       :style="{ width: '500px' }"
@@ -64,7 +65,7 @@
     >
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="$t('app.reload')" :loading="isBusy" :disabled="isBusy" @click="refreshUser" />
+          <Button :label="$t('app.reload')" :loading="isBusy" :disabled="isBusy" @click="refreshUser" data-test="stale-dialog-reload-button"/>
         </div>
       </template>
 
