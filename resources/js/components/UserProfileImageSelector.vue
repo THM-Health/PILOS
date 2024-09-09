@@ -7,6 +7,7 @@
       accept="image/*"
       customUpload
       auto
+      :disabled="disabled"
       class="w-full"
       @uploader="onFileSelect"
       :choose-label="$t('admin.users.image.upload')"
@@ -20,12 +21,13 @@
       v-if="croppedImage"
       severity="danger"
       @click="resetFileUpload"
+      :disabled="disabled"
       :label="$t('app.cancel')"
       icon="fa-solid fa-times"
     />
     <Button
       v-if="!imageDeleted && !croppedImage && props.image"
-      :disabled="isBusy"
+      :disabled="disabled"
       severity="danger"
       @click="emit('deleteImage', true)"
       :label="$t('admin.users.image.delete')"
@@ -33,6 +35,7 @@
     />
     <Button
       v-if="imageDeleted"
+      :disabled="disabled"
       severity="secondary"
       @click="emit('deleteImage', false)"
       :label="$t('app.undo_delete')"
@@ -99,7 +102,7 @@ const props = defineProps({
   image: {
     type: String
   },
-  isBusy: {
+  disabled: {
     type: Boolean
   },
   viewOnly: {

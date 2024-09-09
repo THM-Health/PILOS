@@ -68,7 +68,7 @@
           <div class="col-span-12 md:col-span-9">
             <UserProfileImageSelector
               :image="model.image"
-              :busy="isBusy"
+              :disabled="isBusy"
               :view-only="viewOnly"
               :firstname="model.firstname"
               :lastname="model.lastname"
