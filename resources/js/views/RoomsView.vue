@@ -129,6 +129,7 @@
           </template>
           <template #content>
             <div
+              class="mb-4"
             v-if="room.can_start && room.room_type_invalid"
           >
             <Message severity="warn" icon="fa-solid fa-unlink" :closable="false">

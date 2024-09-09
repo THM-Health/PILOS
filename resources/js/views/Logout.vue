@@ -10,6 +10,7 @@
           </template>
           <template #footer>
             <Button
+              class="mt-4"
               as="router-link"
               :to="{ name: 'home'}"
               :label="$t('app.home')"

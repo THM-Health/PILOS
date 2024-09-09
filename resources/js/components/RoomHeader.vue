@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-row gap-2">
+    <div class="flex flex-col-reverse md:flex-row gap-2">
       <div class="grow">
         <!-- Display room type, name and owner  -->
         <RoomTypeBadge :room-type="props.room.type" />
-        <h1 class="text-3xl mt-2 roomname text-color">
+        <h1 class="text-3xl my-2 text-color">
           {{ props.room.name }}
         </h1>
 
