@@ -92,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import VueCropper from 'vue-cropperjs';
 
 const props = defineProps({
@@ -123,6 +123,11 @@ const isLoadingAction = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
 const cropperRef = ref();
+
+watch(() => props.image, (value) => {
+  croppedImage.value = null;
+  selectedFile.value = null;
+});
 
 /**
  * User cropped image and confirmed to continue

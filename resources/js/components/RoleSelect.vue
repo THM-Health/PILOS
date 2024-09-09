@@ -32,7 +32,7 @@
           <Chip
             :key="option.name"
             :label="option.name"
-            :removable="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty)"
+            :removable="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty) && !props.disabled"
             @remove="remove(option)"
           />
       </template>

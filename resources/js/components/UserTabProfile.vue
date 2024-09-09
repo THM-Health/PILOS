@@ -202,11 +202,12 @@ function save () {
 
   formData.append('_method', 'PUT');
 
-  // croppedImage
-  if (croppedImageBlob.value != null) {
-    formData.append('image', croppedImageBlob.value, 'image.png');
-  } else if (imageDeleted.value) {
+  // image should be deleted
+  if (imageDeleted.value) {
     formData.append('image', '');
+  } else if (croppedImageBlob.value != null) {
+    // cropped image
+    formData.append('image', croppedImageBlob.value, 'image.png');
   }
 
   formErrors.clear();
