@@ -8,9 +8,13 @@ return [
             'help_url' => env('DEFAULT_HELP_URL'),
             'legal_notice_url' => env('DEFAULT_LEGAL_NOTICE_URL'),
             'privacy_policy_url' => env('DEFAULT_PRIVACY_POLICY_URL'),
-            'favicon' => env('DEFAULT_FAVICON', '/images/favicon.ico'),
-            'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
             'default_timezone' => env('DEFAULT_TIMEZONE', 'UTC'),
+        ],
+        'theme' => [
+            'favicon' => env('DEFAULT_FAVICON', '/images/favicon.ico'),
+            'favicon_dark' => env('DEFAULT_FAVICON_DARK', '/images/favicon-dark.ico'),
+            'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
+            'logo_dark' => env('DEFAULT_LOGO_DARK', '/images/logo-dark.svg'),
         ],
     ],
 
