@@ -33,7 +33,7 @@
               </div>
             </div>
             <p
-              class="mt-2 text-break font-bold text-color"
+              class="mt-2 mb-4 text-break font-bold text-color"
               style="width: 100% "
             >
               {{ props.room.name }}
@@ -72,19 +72,19 @@
           />
         </div>
       </div>
-      <h5
-        class="mt-2 text-break "
+      <h1
+        class="text-2xl font-semibold mb-4 text-break"
         style="width: 100% "
       >
         {{ props.room.name }}
-      </h5>
+      </h1>
       <RoomDetailsList
         :room="props.room"
         :show-description="true"
       />
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="$t('app.close')" outlined @click="handleCancel" data-test="dialog-cancel-button"/>
+          <Button :label="$t('app.close')" severity="secondary" @click="handleCancel" data-test="dialog-cancel-button"/>
           <Button as="router-link" :to="link" :label="$t('rooms.index.room_component.open')" data-test="dialog-continue-button"/>
         </div>
       </template>
