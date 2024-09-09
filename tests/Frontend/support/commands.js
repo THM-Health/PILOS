@@ -165,6 +165,9 @@ Cypress.Commands.add('interceptUserProfileRequests', () => {
           en: 'English',
           fr: 'Français'
         }
+      },
+      user: {
+        password_change_allowed: true
       }
     }
   });

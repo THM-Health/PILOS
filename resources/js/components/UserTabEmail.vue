@@ -2,7 +2,7 @@
   <div>
     <AdminPanel :title="$t('admin.users.email')">
       <form @submit.prevent="save" class="flex flex-col gap-4">
-        <div class="field grid grid-cols-12 gap-4" v-if="!viewOnly && isOwnUser && userPermissions.can('updateAttributes', user)" data-test="current-password-field">
+        <div class="field grid grid-cols-12 gap-4" v-if="!viewOnly && isOwnUser && userPermissions.can('updateAttributes', user)" data-test="email-tab-current-password-field">
           <label for="current_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.current_password') }}</label>
           <div class="col-span-12 md:col-span-9">
             <InputText
