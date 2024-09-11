@@ -233,3 +233,30 @@ x-docker-pilos-common: &pilos-common
     volumes:
         - './storage/logs:/var/www/html/storage/logs'
 ```
+
+## Monitoring
+
+PILOS comes with a user interface for monitoring the application, server and queue workers. Administrators can access the monitoring UI via the 'System Monitoring' menu item.
+The php-fpm status page is available from container port 81 and the url `/status`.
+
+You can forward the port to the host by adding the following line to the `docker-compose.yml` file for the app service:
+
+```yml
+ports:
+    - '127.0.0.1:9000:81'
+```
+
+### Prometheus + Grafana
+
+If you like to monitor php-fpm using prometheus and grafana, you can use the [hipages/php-fpm_exporter:latest](https://github.com/hipages/php-fpm_exporter) container.
+Add the following service to the `docker-compose.yml` file:
+```yml
+monitor:
+    image: hipages/php-fpm_exporter:latest
+    restart: always
+    ports:
+      - '127.0.0.1:9253:9253'
+    command:  "--phpfpm.scrape-uri=tcp://app:81/status"
+```
+
+You can configure a reverse proxy to expose the container to the public, add password protection, configure prometheus and grafana to scrape the metrics and create dashboards.
