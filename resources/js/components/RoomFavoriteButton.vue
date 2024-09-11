@@ -4,10 +4,9 @@
     :severity="props.room.is_favorite ? 'contrast' : 'secondary'"
     v-tooltip="props.room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
     :aria-label="props.room.is_favorite ? $t('rooms.favorites.remove') : $t('rooms.favorites.add')"
-    icon="fa-solid fa-star"
+    :icon="isLoading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-star'"
     @click.stop="toggleFavorite"
     :disabled="isLoading"
-    :loading="isLoading"
   />
 </template>
 

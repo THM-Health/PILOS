@@ -23,8 +23,7 @@
             severity="secondary"
             :disabled="props.loading"
             @click="emit('reload')"
-            icon="fa-solid fa-sync"
-            :loading="props.loading"
+            :icon="props.loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
           />
           <RoomFavoriteButton v-if="!hideFavorites && authStore.isAuthenticated" :room="props.room" @favorites-changed="emit('reload')" />
           <RoomMembershipButton

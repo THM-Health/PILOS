@@ -5,8 +5,7 @@
     :disabled="disabled"
     target="_blank"
     @click="downloadFile"
-    :loading="loading"
-    icon="fa-solid fa-eye"
+    :icon="loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-eye'"
   />
 </template>
 <script setup>
