@@ -241,7 +241,7 @@ return [
     'custom_create_parameter_invalid' => 'Der Wert des Parameters :parameter ist ungültig.',
     'custom_create_parameter_missing' => 'Für den Parameter :parameter fehlt ein Wert.',
     'custom_create_parameter_not_found' => 'Der Parameter :parameter ist nicht vorhanden.',
-    'custom_create_parameter_other_error' => 'Die benutzerdefinierten Erstellungsparameter sind ungültig.',
+    'custom_create_parameter_other_error' => 'Die benutzerdefinierten Create-API-Parameter sind ungültig.',
     'date' => ':attribute muss ein gültiges Datum sein.',
     'date_equals' => ':attribute muss ein Datum gleich :date sein.',
     'date_format' => ':attribute entspricht nicht dem gültigen Format für :format.',
