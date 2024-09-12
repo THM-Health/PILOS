@@ -13,9 +13,8 @@
         v-tooltip="$t('rooms.room_types.reload')"
         :disabled="disabled || isLoadingAction"
         @click="reloadRoomTypes"
-        icon="fa-solid fa-sync"
         :label="$t('app.reload')"
-        :loading="isLoadingAction"
+        :icon="isLoadingAction ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
       />
     </div>
     <div class="overflow-hidden" v-else>

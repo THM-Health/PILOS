@@ -97,7 +97,7 @@ You need to configure a real mail server for production use.
 |----------------------|---------------|-----------------------------------------------|
 | `LOCAL_AUTH_ENABLED` | `true`        | Enable local authentication.                   |
 
-To enable external authentication methods like LDAP, please refer to the [External Authentication](./07-advanced/01-external-authentication.md) guide.
+To enable external authentication methods like LDAP, please refer to the [External Authentication](./08-advanced/01-external-authentication.md) guide.
 
 
 ## User Interface and Localization Configuration
@@ -130,8 +130,8 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 | `BBB_LOAD_MIN_USER_COUNT`      | `15`          | Min. amount of users of a meeting in the starting phase used in the LoadBalancing calculation                        |
 
 ## More config options
-- [External Authentication](./07-advanced/01-external-authentication.md)
-- [Recording](./07-advanced/02-recording.md)
-- [Scaling](./07-advanced/03-scaling.md)
-- [Greenlight Configuration](./07-advanced/04-migrate-greenlight.md)
+- [External Authentication](./08-advanced/01-external-authentication.md)
+- [Recording](./08-advanced/02-recording.md)
+- [Scaling](./08-advanced/03-scaling.md)
+- [Greenlight Configuration](./08-advanced/04-migrate-greenlight.md)
 - [Development](../development/03-configuration.md)

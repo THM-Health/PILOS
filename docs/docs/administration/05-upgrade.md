@@ -30,6 +30,7 @@ x-docker-pilos-common: &pilos-common
     env_file: .env
     volumes:
         - './storage/app:/var/www/html/storage/app'
+        - './storage/recordings:/var/www/html/storage/recordings'
         - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
         - './app/Auth/config:/var/www/html/app/Auth/config'
 services:
@@ -37,7 +38,6 @@ services:
         image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
         ports:
             - '127.0.0.1:5000:80'
-            - '127.0.0.1:9000:81'
         <<: *pilos-common
         sysctls:
             net.core.somaxconn: 65536
@@ -147,7 +147,7 @@ Many translations have been added, moved and changed. Please check the `resource
 
 ## Redis
 In v4, Redis is used as the default caching and queuing driver to allow multi-node setups.
-You need to update your docker compose setup to include the Redis service or use an external Redis server.
+You need to update your docker compose setup to include the Redis service or use an [external Redis server](https://thm-health.github.io/PILOS/docs/administration/configuration#redis-configuration).
 
 ### Adding Redis service to docker compose
 Add the following service to your `docker-compose.yml` file:
@@ -164,6 +164,14 @@ Add the following service to your `docker-compose.yml` file:
           retries: 12
           timeout: 5s
 ```
+
+Next you need to set the hostname of the Redis server in the `.env` file:
+
+```bash
+# Redis config (see config/database.php for more options)
+REDIS_HOST=redis
+```
+
 ### Remove .env option
 The default values for `CACHE_DRIVER` and `QUEUE_CONNECTION` are set to `redis`.
 Remove the options from your `.env` file to use Redis as the cache and queue driver.
