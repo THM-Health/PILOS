@@ -28,12 +28,17 @@
         {{ option.name }}
       </template>
       <template v-slot:tag="{ option, remove }" >
-          <Chip
-            :key="option.name"
-            :label="option.name"
-            :removable="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty) && !props.disabled"
-            @remove="remove(option)"
+        <Chip :label="option.name"  >
+          <span>{{ option.name }}</span>
+          <Button
+            severity="contrast"
+            class="w-5 h-5 text-sm rounded-full"
+            v-if="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty) && !props.disabled"
+            @click="remove(option)"
+            icon="fas fa-xmark"
+            :aria-label="$t('admin.users.remove_role', { name: option.name })"
           />
+        </Chip>
       </template>
       <template #afterList>
         <div class="flex p-2 gap-2">

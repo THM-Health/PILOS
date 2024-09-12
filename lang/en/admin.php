@@ -185,7 +185,7 @@ return [
         'new' => 'Create new server pool',
         'no_data' => 'No server pools found!',
         'no_data_filtered' => 'For the filter query no server pools were found!',
-        'remove_server' => 'Remove server',
+        'remove_server' => 'Remove server :name',
         'select_servers' => 'Select server',
         'server_count' => 'Number of servers',
         'tile_description' => 'For load balancing several servers are bundled and assigned to each room via the room type.',
@@ -431,7 +431,7 @@ return [
         'no_data_filtered' => 'For the filter query no users were found!',
         'other_settings' => 'Other settings',
         'password_reset_success' => 'Password reset mail was successfully send to :mail!',
-        'remove_role' => 'Remove role',
+        'remove_role' => 'Remove role :name',
         'reset_password' => [
             'confirm' => 'Are you really want to reset the password for :firstname :lastname?',
             'item' => 'Reset password for the user :firstname :lastname',
