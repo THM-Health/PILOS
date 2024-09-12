@@ -9,6 +9,14 @@
           <LoadingRetryButton :error="loadingError" @reload="load"/>
         </template>
 
+        <Message
+          severity="warn"
+          class="mb-4"
+          v-if="settingsDirty"
+        >
+            <span>{{ $t('rooms.settings.unsaved_changes')}}</span>
+        </Message>
+
         <div class="grid grid-cols-12 gap-4">
 
           <!-- General settings (always shown) -->
@@ -579,6 +587,7 @@ import { onMounted, ref, computed } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
 import RoomSettingEnforcedIcon from './RoomSettingEnforcedIcon.vue';
+import { sha256 } from '@noble/hashes/sha2';
 
 const props = defineProps({
   room: {
@@ -593,6 +602,10 @@ const settings = ref({
   expert_mode: false,
   room_type: {}
 });
+
+const loaded = ref(false);
+const settingsHash = ref(null);
+
 const isBusy = ref(false);
 const loadingError = ref(false);
 
@@ -628,6 +641,7 @@ function save (event) {
     settings.value = response.data.data;
     // inform parent component about changed settings
     emit('settingsChanged');
+    settingsHash.value = getSettingsHash(settings.value);
   }).catch((error) => {
     // Settings couldn't be saved
     if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -640,6 +654,17 @@ function save (event) {
     isBusy.value = false;
   });
 }
+
+function getSettingsHash (settingsData) {
+  const data = _.clone(settingsData);
+  data.room_type = data.room_type?.id;
+
+  return btoa(sha256(JSON.stringify(data)));
+}
+
+const settingsDirty = computed(() => {
+  return loaded.value && getSettingsHash(settings.value) !== settingsHash.value;
+});
 
 /**
  * Load the room settings
@@ -654,6 +679,8 @@ function load () {
     .then(response => {
       // fetch successful
       settings.value = response.data.data;
+      settingsHash.value = getSettingsHash(settings.value);
+      loaded.value = true;
     }).catch((error) => {
       api.error(error, { noRedirectOnUnauthenticated: true });
       loadingError.value = true;

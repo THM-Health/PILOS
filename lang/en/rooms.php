@@ -400,6 +400,7 @@ return [
             'webcams_only_for_moderator' => 'Only moderators can see the webcam',
         ],
         'title' => 'Settings',
+        'unsaved_changes' => 'Caution: Room settings have been changed but not yet saved.',
         'video_conference' => [
             'allow_starting' => 'Start meeting',
             'attendance' => 'Attendance',
