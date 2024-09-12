@@ -24,7 +24,7 @@
             :disabled="props.loading"
             @click="emit('reload')"
             :icon="props.loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
-			data-test="reload-room-button"
+            data-test="reload-room-button"
           />
           <RoomFavoriteButton v-if="!hideFavorites && authStore.isAuthenticated" :room="props.room" @favorites-changed="emit('reload')" />
           <RoomMembershipButton

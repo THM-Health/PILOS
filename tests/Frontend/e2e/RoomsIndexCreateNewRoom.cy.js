@@ -56,7 +56,6 @@ describe('Rooms index create new room', function () {
     // Check that room limit tag does not exist
     cy.contains('rooms.room_limit').should('not.exist');
 
-    // ToDo improve fixture (different settings for different room types)
     cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypesWithSettings.json' });
 
     // Open room create modal
@@ -77,7 +76,7 @@ describe('Rooms index create new room', function () {
       cy.get('[data-test="room-type-select-option"]').eq(3).should('have.text', 'Seminar');
 
       // Select a room type
-      cy.get('[data-test="room-type-select-option"]').eq(0).click();
+      cy.get('[data-test="room-type-select-option"]').eq(1).click();
 
       // Check that room type details are shown correctly
       cy.get('[data-test="room-type-details"]').should('be.visible').within(() => {
@@ -88,8 +87,6 @@ describe('Rooms index create new room', function () {
         // Open default settings
         cy.get('button').should('have.text', 'admin.room_types.default_room_settings.title').click();
         // Check that default room settings are shown correctly
-        // ToDo improve (custom command or function possible?) or delete again
-
         cy.contains('rooms.settings.general.title').should('be.visible');
 
         cy.get('[data-test="has_access_code-setting"]')
@@ -146,8 +143,8 @@ describe('Rooms index create new room', function () {
           .should('include.text', 'rooms.settings.recordings.record_attendance')
           .within(() => {
             cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
+            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
+            cy.get('[data-test="room-type-setting-disabled-icon"]');
             cy.get('[data-test="room-type-setting-info"]').should('not.exist');
           });
 
@@ -280,7 +277,7 @@ describe('Rooms index create new room', function () {
     cy.wait('@createRoomRequest').then(interception => {
       expect(interception.request.body).to.eql({
         name: 'New Room',
-        room_type: 1
+        room_type: 2
       });
     });
 
