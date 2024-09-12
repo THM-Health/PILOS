@@ -144,7 +144,7 @@ describe('User Profile Security', function () {
       .should('include.text', 'auth.sessions.ip 10.9.1.2');
   });
 
-  it('check view without password change allowed', function () {
+  it('view without password change allowed', function () {
     cy.intercept('GET', 'api/v1/config', {
       data: {
         theme: {
@@ -160,6 +160,66 @@ describe('User Profile Security', function () {
           }
         }
       }
+    });
+
+    cy.visit('/profile');
+
+    cy.wait('@userRequest');
+
+    cy.get('[data-test="security-tab-button"]').click();
+
+    cy.contains('admin.users.roles_and_permissions').should('be.visible');
+
+    // Check that role-select is disabled and shows the correct roles
+    cy.get('[data-test="roles-field"]')
+      .should('be.visible')
+      .and('include.text', 'app.roles')
+      .within(() => {
+        cy.get('[data-test="role-dropdown"]')
+          .should('include.text', 'Admin')
+          .should('include.text', 'User')
+          .should('have.class', 'multiselect--disabled');
+      });
+
+    // Check that password fields are not shown
+    cy.get('[data-test="security-tab-current-password-field"]').should('not.exist');
+    cy.get('[data-test="new-password-field"]').should('not.exist');
+    cy.get('[data-test="new-password-confirmation-field"]').should('not.exist');
+
+    // Check that all sessions are shown
+    cy.get('[data-test="session-panel"]').should('have.length', 2);
+
+    cy.get('[data-test="session-panel"]')
+      .eq(0)
+      .should('be.visible')
+      .should('include.text', 'Windows')
+      .should('include.text', 'auth.sessions.current')
+      .should('include.text', 'auth.sessions.browser Chrome')
+      .should('include.text', 'auth.sessions.ip 10.9.1.2');
+
+    cy.get('[data-test="session-panel"]')
+      .eq(1)
+      .should('be.visible')
+      .should('include.text', 'iOS')
+      .should('include.text', '01/23/2022, 16:55')
+      .should('include.text', 'auth.sessions.browser Mobile Safari')
+      .should('include.text', 'auth.sessions.ip 10.9.1.5');
+
+    // Check that button to logout all other sessions is shown
+    cy.get('[data-test="logout-all-sessions-button"]')
+      .should('have.text', 'auth.sessions.logout_all')
+      .should('not.be.disabled');
+  });
+
+  it('view as external user', function () {
+    cy.fixture('user.json').then((user) => {
+      user.data.authenticator = 'ldap';
+      user.data.external_id = 'jdo';
+
+      cy.intercept('GET', 'api/v1/users/1', {
+        statusCode: 200,
+        body: user
+      }).as('userRequest');
     });
 
     cy.visit('/profile');

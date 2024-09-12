@@ -6,6 +6,10 @@ describe('User Profile', function () {
     cy.interceptUserProfileRequests();
   });
 
+  it('visit with user that is not logged in', function () {
+    cy.testVisitWithoutCurrentUser('/profile');
+  });
+
   it('open user profile', function () {
     cy.interceptRoomIndexRequests();
 

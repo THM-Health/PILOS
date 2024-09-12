@@ -173,4 +173,28 @@ describe('User Profile Email', function () {
 
     cy.get('[data-test="user-tab-email-save-button"]').should('not.exist');
   });
+
+  it('view as external user', function () {
+    cy.fixture('user.json').then((user) => {
+      user.data.authenticator = 'ldap';
+      user.data.external_id = 'jdo';
+
+      cy.intercept('GET', 'api/v1/users/1', {
+        statusCode: 200,
+        body: user
+      }).as('userRequest');
+    });
+
+    cy.visit('/profile');
+
+    cy.wait('@userRequest');
+
+    cy.get('[data-test="email-tab-button"]').click();
+
+    // Check that email setting is disabled and save button is hidden
+    cy.get('[data-test="email-tab-current-password-field').should('not.exist');
+    cy.get('#email').should('be.disabled').and('have.value', 'JohnDoe@domain.tld');
+
+    cy.get('[data-test="user-tab-email-save-button"]').should('not.exist');
+  });
 });
