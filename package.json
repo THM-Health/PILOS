@@ -66,7 +66,7 @@
         "vue-cropperjs": "^5.0.0",
         "vue-i18n": "^9.14",
         "vue-multiselect": "^3.0.0",
-        "vue-router": "^4.4.3"
+        "vue-router": "^4.4.4"
     },
     "engines": {
         "node": "^10.12.0 || >=12.0.0"
