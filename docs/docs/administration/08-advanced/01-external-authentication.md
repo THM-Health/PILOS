@@ -108,8 +108,17 @@ To enable Shibboleth, you need to enable it in the  `.env` file.
 SHIBBOLETH_ENABLED=true
 ```
 
-When Shibboleth authentication is enabled and a user is logged in via Shibboleth, the session validity is checked in every request. If the check fails the user is automatically logged out.
-To disable this behavior you can set the following `.env` variable:
+If Shibboleth authentication is enabled and a user is logged in via Shibboleth, session validity is checked on every request.
+If the check fails, the user is automatically logged out.
+
+This is a common problem when running multiple SPs behind a load balancer, as by default they don't share session information and therefore other SPs cannot validate the session.
+As running a shared session between multiple SPs is a complex task, the recommended approach is not to require a valid Shibboleth session for every request ([Learn more](https://shibboleth.atlassian.net/wiki/spaces/SP3/pages/2065334324/Clustering)).
+
+It is also the default behaviour of SPs to drop a session when the user's IP changes.
+This can happen if the user changes networks (mobile -> wifi) or uses a VPN (e.g. iCloud Private Relay).
+This can be mitigated either by disabling the IP check in the Shibboleth configuration ([Learn mode](https://shibboleth.atlassian.net/wiki/spaces/SP3/pages/2110390365/AddressChecking)) or by disabling the Shibboleth session check in PILOS.
+
+To disable the shibboleth session check you can set the following `.env` variable:
 
 ```bash
 # Disable checking Shibboleth session in every request

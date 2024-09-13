@@ -1,14 +1,14 @@
 #!/bin/bash
 set -eu -o pipefail
 
-ACTION=$1
+ACTION=${1:-''}
 
 # Helper function to adjust permissions
 change_permissions() {
     local dir=$1
     chown -R :www-data "$dir"
-    find "$dir" -type f -print0 | xargs -0 chmod 664;
-    find "$dir" -type d -print0 | xargs -0 chmod 775;
+    find "$dir" -type f -print0 | xargs -0 -r chmod 664;
+    find "$dir" -type d -print0 | xargs -0 -r chmod 775;
 }
 
 case $ACTION in
