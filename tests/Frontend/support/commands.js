@@ -129,7 +129,7 @@ Cypress.Commands.add('interceptRoomMembersRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'roomMembers.json' }).as('roomMembersRequest');
 });
 
-Cypress.Commands.add('interceptRoomSettingsRequest', () => { // ToDo improve fixtures
+Cypress.Commands.add('interceptRoomSettingsRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettings.json' }).as('roomSettingsRequest');
 
   cy.intercept('GET', 'api/v1/config', {

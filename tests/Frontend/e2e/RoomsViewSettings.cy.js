@@ -1135,4 +1135,323 @@ describe('Rooms view settings', function () {
 
     cy.checkToastMessage('app.flash.unauthenticated', false);
   });
+
+  it('transfer ownership', function () {
+    cy.visit('/rooms/abc-def-123#settings');
+
+    cy.wait('@roomSettingsRequest');
+
+    cy.get('[data-test=room-transfer-ownership-dialog]').should('not.exist');
+    cy.get('[data-test="room-transfer-ownership-button"]')
+      .should('have.text', 'rooms.modals.transfer_ownership.title').click();
+
+    // Check that dialog is shown correctly and cancel transfer
+    cy.get('[data-test=room-transfer-ownership-dialog]')
+      .should('be.visible')
+      .and('include.text', 'rooms.modals.transfer_ownership.title')
+      .find('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel').click();
+
+    cy.get('[data-test=room-transfer-ownership-dialog]').should('not.exist');
+    cy.get('[data-test="room-transfer-ownership-button"]').click();
+
+    cy.get('[data-test=room-transfer-ownership-dialog]').within(() => {
+      cy.intercept('GET', '/api/v1/users/search?query=*', {
+        statusCode: 200,
+        body: {
+          data: [
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', image: null },
+            { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', image: null }
+          ]
+        }
+      }).as('userSearchRequest');
+      // Check that dialog is shown correctly
+      cy.get('[data-test="new-owner-dropdown"]').should('include.text', 'app.user_name').click();
+      cy.get('[data-test="new-owner-dropdown"]').find('input').type('Laura');
+
+      cy.wait('@userSearchRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          query: 'L'
+        });
+      });
+      cy.wait('@userSearchRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          query: 'La'
+        });
+      });
+      cy.wait('@userSearchRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          query: 'Lau'
+        });
+      });
+      cy.wait('@userSearchRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          query: 'Laur'
+        });
+      });
+
+      cy.wait('@userSearchRequest').then(interception => {
+        expect(interception.request.query).to.contain({
+          query: 'Laura'
+        });
+      });
+
+      // Check if correct options are shown
+      cy.get('.multiselect__content').should('be.visible');
+      cy.get('.multiselect__option').should('have.length', 4);
+      cy.get('.multiselect__option').eq(0).should('include.text', 'Laura Rivera');
+      cy.get('.multiselect__option').eq(0).should('include.text', 'LauraWRivera@domain.tld');
+      cy.get('.multiselect__option').eq(1).should('include.text', 'Laura Walter');
+      cy.get('.multiselect__option').eq(1).should('include.text', 'LauraMWalter@domain.tld');
+      cy.get('.multiselect__option').eq(2).should('include.text', 'rooms.members.modals.add.no_result').and('not.be.visible');
+      cy.get('.multiselect__option').eq(3).should('include.text', 'rooms.members.modals.add.no_options').and('not.be.visible');
+
+      // Select new owner
+      cy.get('.multiselect__option').eq(1).click();
+      cy.get('.multiselect__content').should('not.be.visible');
+
+      // Check that role checkboxes and labels are shown correctly
+      cy.get('[data-test="participant-role-group"]').within(() => {
+        cy.contains('rooms.roles.participant');
+        cy.get('#participant-role').should('not.be.checked');
+      });
+
+      cy.get('[data-test="participant-moderator-group"]').within(() => {
+        cy.contains('rooms.roles.moderator');
+        cy.get('#participant-moderator').should('not.be.checked');
+      });
+
+      cy.get('[data-test="participant-co-owner-group"]').within(() => {
+        cy.contains('rooms.roles.co_owner');
+        cy.get('#participant-co-owner').should('be.checked');
+      });
+
+      cy.get('[data-test="participant-no-role-group"]').within(() => {
+        cy.contains('rooms.roles.no_role');
+        cy.get('#participant-no-role').should('not.be.checked');
+      });
+
+      // Select new role
+      cy.get('#participant-role').click();
+
+      cy.contains('rooms.modals.transfer_ownership.warning');
+
+      // Transfer ownership with role selected
+      const transferOwnershipRequest = interceptIndefinitely('POST', 'api/v1/rooms/abc-def-123/transfer', {
+        statusCode: 204
+      }, 'transferOwnershipRequest');
+
+      cy.fixture('room.json').then((room) => {
+        room.data.owner = { id: 10, name: 'Laura Walter' };
+        room.data.is_member = true;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+          statusCode: 200,
+          body: room
+        }).as('roomRequest');
+      });
+
+      cy.get('[data-test="dialog-continue-button"]').click();
+      cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
+        transferOwnershipRequest.sendResponse();
+      });
+    });
+
+    cy.wait('@transferOwnershipRequest').then(intercepetion => {
+      expect(intercepetion.request.body).to.eql({
+        user: 10,
+        role: 1
+      });
+    });
+
+    cy.wait('@roomRequest'); // ToDo check that page was switched????
+
+    cy.contains('Laura Walter').should('be.visible');
+
+    // Reload page with user as owner
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    cy.reload();
+
+    cy.wait('@roomRequest');
+
+    // Transfer ownership with no role selected
+    cy.get('[data-test="room-transfer-ownership-button"]').click();
+
+    cy.get('[data-test="new-owner-dropdown"]').click();
+    cy.get('[data-test="new-owner-dropdown"]').find('input').type('Laura');
+
+    // Select new owner
+    cy.get('.multiselect__option').eq(1).click();
+    cy.get('.multiselect__content').should('not.be.visible');
+
+    cy.get('#participant-no-role').click();
+
+    // Transfer ownership with no role selected
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 10, name: 'Laura Walter' };
+      room.data.authenticated = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@transferOwnershipRequest').then(interception => {
+      expect(interception.request.body).to.eql({
+        user: 10
+      });
+    });
+
+    cy.wait('@roomRequest');
+
+    cy.contains('Laura Walter').should('be.visible');
+
+    // Check that access code overlay is shown
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+  });
+
+  it('transfer ownership errors', function () {
+    cy.visit('/rooms/abc-def-123#settings');
+
+    cy.wait('@roomSettingsRequest');
+
+    cy.get('[data-test="room-transfer-ownership-button"]').click();
+
+    // Test 500 error on user search
+    cy.intercept('GET', '/api/v1/users/search?query=*', {
+      statusCode: 500,
+      body: {
+        message: 'Test'
+      }
+    }).as('userSearchRequest');
+
+    cy.get('[data-test="new-owner-dropdown"]').click();
+    cy.get('[data-test="new-owner-dropdown"]').find('input').type('L');
+
+    cy.wait('@userSearchRequest');
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
+
+    // Check that dialog is still open
+    cy.get('[data-test=room-transfer-ownership-dialog]').should('be.visible');
+
+    // Test 401 error on user search
+    cy.intercept('GET', '/api/v1/users/search?query=*', {
+      statusCode: 401
+    }).as('userSearchRequest');
+
+    cy.get('[data-test="new-owner-dropdown"]').click();
+    cy.get('[data-test="new-owner-dropdown"]').find('input').type('L');
+
+    cy.wait('@userSearchRequest');
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+
+    cy.checkToastMessage('app.flash.unauthenticated', false);
+
+    // Reload page to check other errors
+    cy.visit('/rooms/abc-def-123#settings');
+
+    cy.get('[data-test="room-transfer-ownership-button"]').click();
+
+    cy.intercept('GET', '/api/v1/users/search?query=*', {
+      statusCode: 200,
+      body: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', image: null },
+          { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', image: null }
+        ]
+      }
+    }).as('userSearchRequest');
+
+    cy.get('[data-test="new-owner-dropdown"]').click();
+    cy.get('[data-test="new-owner-dropdown"]').find('input').type('L');
+
+    cy.wait('@userSearchRequest');
+
+    // Select new owner
+    cy.get('.multiselect__option').eq(1).click();
+
+    // Transfer ownership with 422 error (role missing)
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/transfer', {
+      statusCode: 422,
+      body: {
+        errors: {
+          role: ['The selected role is invalid.']
+        }
+      }
+    }).as('transferOwnershipRequest');
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@transferOwnershipRequest');
+
+    // Check that error message is shown
+    cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible').and('include.text', 'The selected role is invalid.');
+
+    // Select other role
+    cy.get('#participant-moderator').click();
+
+    // Transfer ownership with 422 error (user can not own rooms)
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/transfer', {
+      statusCode: 422,
+      body: {
+        errors: {
+          user: ['The selected user can not own rooms.']
+        }
+      }
+    }).as('transferOwnershipRequest');
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@transferOwnershipRequest');
+
+    // Check that error message is shown
+
+    cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible').and('include.text', 'The selected user can not own rooms.');
+
+    // Transfer ownership with 500 error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/transfer', {
+      statusCode: 500,
+      body: {
+        message: 'Test'
+      }
+    }).as('transferOwnershipRequest');
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@transferOwnershipRequest');
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
+
+    // Check that dialog stays open
+    cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible');
+
+    // Transfer ownership with 401 error
+    cy.intercept('POST', 'api/v1/rooms/abc-def-123/transfer', {
+      statusCode: 401
+    }).as('transferOwnershipRequest');
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait('@transferOwnershipRequest');
+
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+
+    cy.checkToastMessage('app.flash.unauthenticated', false);
+  });
 });

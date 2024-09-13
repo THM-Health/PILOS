@@ -28,6 +28,7 @@
       <label for="user">{{ $t('app.user') }}</label>
       <multiselect
         autofocus
+        data-test="new-owner-dropdown"
         v-model="newOwner"
         label="lastname"
         track-by="id"
@@ -74,17 +75,17 @@
     <div class="flex flex-col gap-2 mt-6">
       <label for="role">{{ $t('rooms.modals.transfer_ownership.new_role') }}</label>
 
-      <div class="flex items-center">
+      <div class="flex items-center" data-test="participant-role-group">
         <RadioButton v-model="newRoleInRoom" inputId="participant-role" name="role" :value="1" />
         <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
       </div>
 
-      <div class="flex items-center">
+      <div class="flex items-center" data-test="participant-moderator-group">
         <RadioButton v-model="newRoleInRoom" inputId="participant-moderator" name="role" :value="2" />
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
-      <div class="flex items-center">
+      <div class="flex items-center" data-test="participant-co-owner-group">
         <RadioButton v-model="newRoleInRoom" inputId="participant-co-owner" name="role" :value="3" />
         <label for="participant-co-owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
@@ -92,7 +93,7 @@
       <Divider />
       <!--option to not add the current user as a member of the room-->
       <div>
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="participant-no-role-group">
           <RadioButton v-model="newRoleInRoom" inputId="participant-no-role" name="role" :value="-1" />
           <label for="participant-no-role" class="ml-2"><RoomRoleBadge /></label>
         </div>
@@ -104,8 +105,8 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('rooms.modals.transfer_ownership.transfer')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="transferOwnership" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('rooms.modals.transfer_ownership.transfer')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="transferOwnership" data-test="dialog-continue-button"/>
       </div>
     </template>
 
