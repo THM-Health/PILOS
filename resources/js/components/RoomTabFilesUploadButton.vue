@@ -22,49 +22,50 @@
     :closable="!isUploading"
   >
     <div class="flex flex-col gap-2">
-        <label
-          for="file"
-          class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
-          :class="{'p-disabled': disabled}"
-          tabindex="0"
-          @keyup.enter="fileInputRef.click()"
-          @keyup.space="fileInputRef.click()"
-        >
-          <i class="fa-solid fa-upload"></i> {{ $t('app.browse') }}
-        </label>
-        <input
-          type="file"
-          ref="fileInputRef"
-          id="file"
-          class="sr-only"
-          :disabled="disabled"
-          @input="fileSelected"
-          :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
-        />
-        <div
-          class="border rounded-border border-surface-400 dark:border-surface-400 text-center cursor-pointer items-center p-2"
-          :class="dropZoneClasses"
-          ref="dropZoneRef"
-          @keyup.enter="fileInputRef.click()"
-          @keyup.space="fileInputRef.click()"
-          @click="fileInputRef.click()"
-        >
-          <span v-if="!isUploading" class="text-center">
-            {{ $t('rooms.files.select_or_drag') }}
-          </span>
-          <span v-else>
-            {{ uploadingFile }}
-          </span>
-        </div>
+      <label
+        for="file"
+        class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
+        :class="{'p-disabled': disabled}"
+        tabindex="0"
+        @keyup.enter="fileInputRef.click()"
+        @keyup.space="fileInputRef.click()"
+      >
+        <i class="fa-solid fa-upload"></i> {{ $t('app.browse') }}
+      </label>
+      <input
+        type="file"
+        ref="fileInputRef"
+        id="file"
+        class="sr-only"
+        :disabled="disabled"
+        @input="fileSelected"
+        :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
+      />
+      <div
+        class="border rounded-border border-surface-400 dark:border-surface-400 text-center cursor-pointer items-center p-2"
+        :class="dropZoneClasses"
+        ref="dropZoneRef"
+        @keyup.enter="fileInputRef.click()"
+        @keyup.space="fileInputRef.click()"
+        @click="fileInputRef.click()"
+      >
+        <span v-if="!isUploading" class="text-center">
+          {{ $t('rooms.files.select_or_drag') }}
+        </span>
+        <span v-else>
+          {{ uploadingFile }}
+        </span>
+      </div>
 
       <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
       <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
 
-       <div v-if="uploadedFiles.length" class="mt-2 flex flex-col gap-2">
-          <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle">
-            {{ $t('rooms.files.uploaded', { name: file.name }) }}
-          </Message>
-        </div>
+      <div v-if="uploadedFiles.length" class="mt-2 flex flex-col gap-2">
+        <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle">
+          {{ $t('rooms.files.uploaded', { name: file.name }) }}
+        </Message>
+      </div>
+
       <FormError :errors="formErrors.fieldError('file')" />
   </div>
 
