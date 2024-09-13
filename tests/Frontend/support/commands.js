@@ -24,6 +24,12 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+/**
+ * Intercept requests that are needed when visiting pages that require a logged in user
+ * @memberof cy
+ * @method init
+ * @returns void
+ */
 Cypress.Commands.add('init', () => {
   cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
   cy.intercept('GET', 'api/v1/locale/en', {
@@ -75,6 +81,13 @@ Cypress.Commands.add('init', () => {
   });
 });
 
+/**
+ * Check that a user who visits this page without being logged in is redirected to the login page
+ * @memberof cy
+ * @method testVisitWithoutCurrentUser
+ * @param  {string} path
+ * @returns void
+ */
 Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
   cy.intercept('GET', 'api/v1/currentUser', {});
 
@@ -82,6 +95,15 @@ Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
   cy.url().should('contain', '/login?redirect=' + path);
 });
 
+/**
+ * Check a toast message is displayed and has the given text or contains the given texts.
+ * Toast message is closed afterwards (default behaviour can be changed).
+ * @memberof cy
+ * @method checkToastMessage
+ * @param  {(string|string[])} messages The text of the toast message or an array of texts that should be contained in the toast message
+ * @param  {boolean} [closeToastMessage=true]
+ * @returns void
+ */
 Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => {
   cy.get('.p-toast-message').should('be.visible');
   if (Array.isArray(messages)) {
@@ -97,6 +119,16 @@ Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) =
   }
 });
 
+/**
+ * Check if a room setting field inside the room type details view is displayed correctly
+ * @memberof cy
+ * @method checkDefaultRoomSettingField
+ * @param  {string} field
+ * @param  {(boolean|string)} value
+ * @param  {boolean} enforced
+ * @param  {boolean} isInfo
+ * @returns void
+ */
 Cypress.Commands.add('checkDefaultRoomSettingField', (field, value, enforced, isInfo) => {
   cy.get('[data-test="room-type-' + field + '-setting"]').within(() => {
     if (enforced) {
@@ -121,6 +153,19 @@ Cypress.Commands.add('checkDefaultRoomSettingField', (field, value, enforced, is
   });
 });
 
+/**
+ * Check if the comparison between the current and new value for a room setting field is displayed correctly
+ * inside the confirmation dialog
+ * @memberof cy
+ * @method checkCompareRoomSettingField
+ * @param  {string} field
+ * @param  {(boolean|string)} currentValue
+ * @param  {boolean} currentEnforced
+ * @param  {(boolean|string)} newValue
+ * @param  {boolean} newEnforced
+ * @param  {boolean} isInfo
+ * @returns void
+ */
 Cypress.Commands.add('checkCompareRoomSettingField', (field, currentValue, currentEnforced, newValue, newEnforced, isInfo) => {
   cy.get('[data-test="room-type-' + field + '-comparison"]').within(() => {
     if (currentEnforced) {
@@ -161,11 +206,23 @@ Cypress.Commands.add('checkCompareRoomSettingField', (field, currentValue, curre
   });
 });
 
+/**
+ * Intercept all requests that are needed when visiting the room index page
+ * @memberof cy
+ * @method interceptRoomIndexRequests
+ * @returns void
+ */
 Cypress.Commands.add('interceptRoomIndexRequests', () => {
   cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypes.json' });
   cy.intercept('GET', 'api/v1/rooms*', { fixture: 'rooms.json' }).as('roomRequest');
 });
 
+/**
+ * Intercept all requests that are needed when visiting the room view page (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomIndexRequests
+ * @returns void
+ */
 Cypress.Commands.add('interceptRoomViewRequests', () => {
   cy.intercept('GET', 'api/v1/config', {
     data: {
@@ -177,6 +234,12 @@ Cypress.Commands.add('interceptRoomViewRequests', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
 });
 
+/**
+ * Intercept all requests that are needed when visiting the files tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomFilesRequest
+ * @returns void
+ */
 Cypress.Commands.add('interceptRoomFilesRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { // ToDo add fixture
     statusCode: 200,
@@ -189,10 +252,22 @@ Cypress.Commands.add('interceptRoomFilesRequest', () => {
   });
 });
 
+/**
+ * Intercept all requests that are needed when visiting the members tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomMembersRequest
+ * @returns void
+ */
 Cypress.Commands.add('interceptRoomMembersRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'roomMembers.json' }).as('roomMembersRequest');
 });
 
+/**
+ * Intercept all requests that are needed when visiting the settings tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomSettingsRequest
+ * @returns void
+ */
 Cypress.Commands.add('interceptRoomSettingsRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettings.json' }).as('roomSettingsRequest');
 
@@ -209,6 +284,12 @@ Cypress.Commands.add('interceptRoomSettingsRequest', () => {
   });
 });
 
+/**
+ * Intercept all requests that are needed when visiting the user profile page
+ * @memberof cy
+ * @method interceptUserProfileRequests
+ * @returns void
+ */
 Cypress.Commands.add('interceptUserProfileRequests', () => {
   cy.fixture('currentUser.json').then((currentUser) => {
     currentUser.data.permissions = ['users.updateOwnAttributes'];
