@@ -500,7 +500,7 @@
                 optionLabel="label"
                 optionValue="role"
                 :pt="{
-                  pcButton: {
+                  pcToggleButton: {
                     root:{
                       'data-test': 'room-settings-default-role-button'
                     }
@@ -541,7 +541,7 @@
                 optionLabel="label"
                 optionValue="visibility"
                 :pt="{
-                  pcButton: {
+                  pcToggleButton: {
                     root:{
                       'data-test': 'room-settings-visibility-button'
                     }

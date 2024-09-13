@@ -95,7 +95,7 @@
           :allowEmpty="roomFilter.length > 1"
           @change="loadRooms(1)"
           :pt="{
-            pcButton: {
+            pcToggleButton: {
               root:{
                 'data-test': 'rooms-filter-button'
               }
