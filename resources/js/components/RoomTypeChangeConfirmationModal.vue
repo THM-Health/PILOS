@@ -8,6 +8,7 @@
     :draggable="false"
     :dismissableMask="false"
     modal
+    data-test="room-type-change-confirmation-dialog"
   >
     <div class="overflow-y-auto" style="max-height:300px">
       {{ $t('rooms.change_type.changing_settings') }}
@@ -17,6 +18,7 @@
         <h4 class="my-2 font-bold">{{ settingGroup.title }}</h4>
 
         <RoomTypeCompareSettingsField
+          :data-test="'room-type-' + setting.key + '-comparison'"
           v-for="setting in settingGroup.settings"
           :key="setting.key"
           :current-value="currentSettings[(setting.current_value_key ? setting.current_value_key : setting.key)]"
@@ -41,8 +43,8 @@
     </div>
     <template #footer>
       <div class="flex  justify-end w-full gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="handleCancel" />
-        <Button :label="$t('app.save')" @click="handleSave" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="handleCancel" data-test="confirmation-dialog-cancel-button"/>
+        <Button :label="$t('app.save')" @click="handleSave" data-test="confirmation-dialog-save-button"/>
       </div>
     </template>
   </Dialog>

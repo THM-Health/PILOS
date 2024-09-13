@@ -85,181 +85,90 @@ describe('Rooms index create new room', function () {
         cy.contains('rooms.settings.general.title').should('not.be.visible');
 
         // Open default settings
-        cy.get('button').should('have.text', 'admin.room_types.default_room_settings.title').click();
+        cy.get('[data-test="show-default-settings-button"]').should('have.text', 'admin.room_types.default_room_settings.title').click();
         // Check that default room settings are shown correctly
         cy.contains('rooms.settings.general.title').should('be.visible');
 
-        cy.get('[data-test="has_access_code-setting"]')
-          .should('include.text', 'rooms.settings.general.has_access_code')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-has_access_code-setting"]')
+          .should('include.text', 'rooms.settings.general.has_access_code');
+        cy.checkDefaultRoomSettingField('has_access_code', true, false, false);
 
-        cy.get('[data-test="allow_guests-setting"]')
-          .should('include.text', 'rooms.settings.general.allow_guests')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-allow_guests-setting"]')
+          .should('include.text', 'rooms.settings.general.allow_guests');
+        cy.checkDefaultRoomSettingField('allow_guests', true, false, false);
 
         // Check that other settings exist and are shown correctly
         cy.contains('rooms.settings.video_conference.title');
 
-        cy.get('[data-test="everyone_can_start-setting"]')
-          .should('include.text', 'rooms.settings.video_conference.everyone_can_start')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-everyone_can_start-setting"]')
+          .should('include.text', 'rooms.settings.video_conference.everyone_can_start');
+        cy.checkDefaultRoomSettingField('everyone_can_start', false, false, false);
 
-        cy.get('[data-test="mute_on_start-setting"]')
-          .should('include.text', 'rooms.settings.video_conference.mute_on_start')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-mute_on_start-setting"]')
+          .should('include.text', 'rooms.settings.video_conference.mute_on_start');
+        cy.checkDefaultRoomSettingField('mute_on_start', true, true, false);
 
-        cy.get('[data-test="lobby-setting"]')
-          .should('include.text', 'rooms.settings.video_conference.lobby.title')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('have.text', 'app.enabled');
-          });
+        cy.get('[data-test="room-type-lobby-setting"]')
+          .should('include.text', 'rooms.settings.video_conference.lobby.title');
+        cy.checkDefaultRoomSettingField('lobby', 'rooms.settings.video_conference.lobby.only_for_guests_enabled', true, true);
 
         cy.contains('rooms.settings.recordings.title');
 
-        cy.get('[data-test="record_attendance-setting"]')
-          .should('include.text', 'rooms.settings.recordings.record_attendance')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-record_attendance-setting"]')
+          .should('include.text', 'rooms.settings.recordings.record_attendance');
+        cy.checkDefaultRoomSettingField('record_attendance', false, false, false);
 
-        cy.get('[data-test="record-setting"]')
-          .should('include.text', 'rooms.settings.recordings.record_video_conference')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-record-setting"]')
+          .should('include.text', 'rooms.settings.recordings.record_video_conference');
+        cy.checkDefaultRoomSettingField('record', false, false, false);
 
-        cy.get('[data-test="auto_start_recording-setting"]')
-          .should('include.text', 'rooms.settings.recordings.auto_start_recording')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
-        cy.contains('rooms.settings.restrictions.title');
+        cy.get('[data-test="room-type-auto_start_recording-setting"]')
+          .should('include.text', 'rooms.settings.recordings.auto_start_recording');
+        cy.checkDefaultRoomSettingField('auto_start_recording', false, false, false);
 
-        cy.get('[data-test="lock_settings_disable_cam-setting"]')
-          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_cam')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-lock_settings_disable_cam-setting"]')
+          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_cam');
+        cy.checkDefaultRoomSettingField('lock_settings_disable_cam', false, false, false);
 
-        cy.get('[data-test="webcams_only_for_moderator-setting"]')
-          .should('include.text', 'rooms.settings.restrictions.webcams_only_for_moderator')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-webcams_only_for_moderator-setting"]')
+          .should('include.text', 'rooms.settings.restrictions.webcams_only_for_moderator');
+        cy.checkDefaultRoomSettingField('webcams_only_for_moderator', true, false, false);
 
-        cy.get('[data-test="lock_settings_disable_mic-setting"]')
-          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_mic')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-lock_settings_disable_mic-setting"]')
+          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_mic');
+        cy.checkDefaultRoomSettingField('lock_settings_disable_mic', false, true, false);
 
-        cy.get('[data-test="lock_settings_disable_public_chat-setting"]')
-          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_public_chat')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-lock_settings_disable_public_chat-setting"]')
+          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_public_chat');
+        cy.checkDefaultRoomSettingField('lock_settings_disable_public_chat', true, false, false);
 
-        cy.get('[data-test="lock_settings_disable_private_chat-setting"]')
-          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_private_chat')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-lock_settings_disable_private_chat-setting"]')
+          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_private_chat');
+        cy.checkDefaultRoomSettingField('lock_settings_disable_private_chat', false, false, false);
 
-        cy.get('[data-test="lock_settings_disable_note-setting"]')
-          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_note')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-lock_settings_disable_note-setting"]')
+          .should('include.text', 'rooms.settings.restrictions.lock_settings_disable_note');
+        cy.checkDefaultRoomSettingField('lock_settings_disable_note', true, true, false);
 
-        cy.get('[data-test="lock_settings_hide_user_list-setting"]')
-          .should('include.text', 'rooms.settings.restrictions.lock_settings_hide_user_list')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-lock_settings_hide_user_list-setting"]')
+          .should('include.text', 'rooms.settings.restrictions.lock_settings_hide_user_list');
+        cy.checkDefaultRoomSettingField('lock_settings_hide_user_list', true, false, false);
 
         cy.contains('rooms.settings.participants.title');
 
-        cy.get('[data-test="allow_membership-setting"]')
-          .should('include.text', 'rooms.settings.participants.allow_membership')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]');
-            cy.get('[data-test="room-type-setting-info"]').should('not.exist');
-          });
+        cy.get('[data-test="room-type-allow_membership-setting"]')
+          .should('include.text', 'rooms.settings.participants.allow_membership');
+        cy.checkDefaultRoomSettingField('allow_membership', false, true, false);
 
-        cy.get('[data-test="default_role-setting"]')
-          .should('include.text', 'rooms.settings.participants.default_role.title')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('have.text', 'rooms.roles.participant');
-          });
+        cy.get('[data-test="room-type-default_role-setting"]')
+          .should('include.text', 'rooms.settings.participants.default_role.title');
+        cy.checkDefaultRoomSettingField('default_role', 'rooms.roles.participant', false, true);
 
         cy.contains('rooms.settings.advanced.title');
 
-        cy.get('[data-test="visibility-setting"]')
-          .should('include.text', 'rooms.settings.advanced.visibility.title')
-          .within(() => {
-            cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
-            cy.get('[data-test="room-type-setting-info"]').should('have.text', 'rooms.settings.advanced.visibility.public');
-          });
+        cy.get('[data-test="room-type-visibility-setting"]')
+          .should('include.text', 'rooms.settings.advanced.visibility.title');
+        cy.checkDefaultRoomSettingField('visibility', 'rooms.settings.advanced.visibility.public', false, true);
       });
 
       // Create new room

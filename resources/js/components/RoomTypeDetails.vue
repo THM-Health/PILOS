@@ -12,14 +12,14 @@
         <!-- Information about the default and enforced room settings for the room type -->
         <Accordion>
           <AccordionPanel value="0" class="border-0">
-            <AccordionHeader class="px-0">{{ $t('admin.room_types.default_room_settings.title') }}</AccordionHeader>
+            <AccordionHeader class="px-0" data-test="show-default-settings-button">{{ $t('admin.room_types.default_room_settings.title') }}</AccordionHeader>
             <AccordionContent class="border-surface border rounded-border">
 
               <!-- Show all room setting grouped by category -->
               <div v-for="settingGroup in roomTypeSettings" :key="settingGroup.title" >
                 <h4 class="my-2 font-bold">{{ settingGroup.title }}</h4>
                 <RoomTypeSettingsField
-                  :data-test="setting.key+ '-setting'"
+                  :data-test="'room-type-' + setting.key + '-setting'"
                   v-for="setting in settingGroup.settings"
                   :key="setting.key"
                   :value="roomType[setting.key+'_default']"

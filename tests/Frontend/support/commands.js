@@ -97,6 +97,70 @@ Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) =
   }
 });
 
+Cypress.Commands.add('checkDefaultRoomSettingField', (field, value, enforced, isInfo) => {
+  cy.get('[data-test="room-type-' + field + '-setting"]').within(() => {
+    if (enforced) {
+      cy.get('[data-test="room-setting-enforced-icon"]');
+    } else {
+      cy.get('[data-test="room-setting-enforced-icon"]').should('not.exist');
+    }
+    if (isInfo) {
+      cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
+      cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
+      cy.get('[data-test="room-type-setting-info"]').should('have.text', value);
+    } else {
+      if (value) {
+        cy.get('[data-test="room-type-setting-enabled-icon"]');
+        cy.get('[data-test="room-type-setting-disabled-icon"]').should('not.exist');
+      } else {
+        cy.get('[data-test="room-type-setting-enabled-icon"]').should('not.exist');
+        cy.get('[data-test="room-type-setting-disabled-icon"]');
+      }
+      cy.get('[data-test="room-setting-info-icon"]').should('not.exist');
+    }
+  });
+});
+
+Cypress.Commands.add('checkCompareRoomSettingField', (field, currentValue, currentEnforced, newValue, newEnforced, isInfo) => {
+  cy.get('[data-test="room-type-' + field + '-comparison"]').within(() => {
+    if (currentEnforced) {
+      cy.get('[data-test="current-enforced"] > [data-test="room-setting-enforced-icon"]');
+    } else {
+      cy.get('[data-test="current-enforced"] > [data-test="room-setting-enforced-icon"]').should('not.exist');
+    }
+    if (newEnforced) {
+      cy.get('[data-test="new-enforced"] > [data-test="room-setting-enforced-icon"]');
+    } else {
+      cy.get('[data-test="new-enforced"] > [data-test="room-setting-enforced-icon"]').should('not.exist');
+    }
+    if (isInfo) {
+      cy.get('[data-test="current-enabled"]').should('not.exist');
+      cy.get('[data-test="current-disabled"]').should('not.exist');
+      cy.get('[data-test="current-info"]').should('have.text', currentValue);
+      cy.get('[data-test="new-enabled"]').should('not.exist');
+      cy.get('[data-test="new-disabled"]').should('not.exist');
+      cy.get('[data-test="new-info"]').should('have.text', newValue);
+    } else {
+      if (currentValue) {
+        cy.get('[data-test="current-enabled"]');
+        cy.get('[data-test="current-disabled"]').should('not.exist');
+      } else {
+        cy.get('[data-test="current-enabled"]').should('not.exist');
+        cy.get('[data-test="current-disabled"]');
+      }
+      if (newValue) {
+        cy.get('[data-test="new-enabled"]');
+        cy.get('[data-test="new-disabled"]').should('not.exist');
+      } else {
+        cy.get('[data-test="new-enabled"]').should('not.exist');
+        cy.get('[data-test="new-disabled"]');
+      }
+      cy.get('[data-test="current-info"]').should('not.exist');
+      cy.get('[data-test="new-info"]').should('not.exist');
+    }
+  });
+});
+
 Cypress.Commands.add('interceptRoomIndexRequests', () => {
   cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypes.json' });
   cy.intercept('GET', 'api/v1/rooms*', { fixture: 'rooms.json' }).as('roomRequest');
