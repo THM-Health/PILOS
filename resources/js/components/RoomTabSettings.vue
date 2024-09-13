@@ -9,14 +9,6 @@
           <LoadingRetryButton :error="loadingError" @reload="load"/>
         </template>
 
-        <Message
-          severity="warn"
-          class="mb-4"
-          v-if="settingsDirty"
-        >
-            <span>{{ $t('rooms.settings.unsaved_changes')}}</span>
-        </Message>
-
         <div class="grid grid-cols-12 gap-4">
 
           <!-- General settings (always shown) -->
@@ -572,6 +564,12 @@
           icon="fa-solid fa-save"
           type="submit"
         />
+      </div>
+
+      <div class="py-4 sticky bottom-0" v-if="settingsDirty">
+        <Message severity="warn">
+          <span>{{ $t('rooms.settings.unsaved_changes')}}</span>
+        </Message>
       </div>
     </form>
   </div>
