@@ -10,10 +10,14 @@
         <div style="word-break: normal; overflow-wrap: anywhere;">{{roomType.description? roomType.description: $t('admin.room_types.missing_description')}}</div>
 
         <!-- Information about the default and enforced room settings for the room type -->
-        <Accordion>
+        <Accordion
+          class="mt-4"
+          expandIcon="fa-solid fa-plus"
+          collapseIcon="fa-solid fa-minus"
+        >
           <AccordionPanel value="0" class="border-0">
-            <AccordionHeader class="px-0">{{ $t('admin.room_types.default_room_settings.title') }}</AccordionHeader>
-            <AccordionContent class="border-surface border rounded-border">
+            <AccordionHeader class="bg-surface-100 hover:bg-surface-200 dark:bg-surface-800 dark:hover:bg-surface-700">{{ $t('admin.room_types.default_room_settings.title') }}</AccordionHeader>
+            <AccordionContent class="border-surface border-x border-b rounded-b ">
 
               <!-- Show all room setting grouped by category -->
               <div v-for="settingGroup in roomTypeSettings" :key="settingGroup.title" >
