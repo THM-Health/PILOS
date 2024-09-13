@@ -59,11 +59,13 @@
 
       <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
       <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
-      <FormError :errors="formErrors.fieldError('file')" />
 
-      <Message v-if="uploaded" severity="success" icon="fa-solid fa-check-circle">
-        {{ $t('rooms.files.uploaded') }}
-      </Message>
+       <div v-if="uploadedFiles.length" class="mt-2 flex flex-col gap-2">
+          <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle">
+            {{ $t('rooms.files.uploaded', { name: file.name }) }}
+          </Message>
+        </div>
+      <FormError :errors="formErrors.fieldError('file')" />
   </div>
 
   </Dialog>
@@ -98,8 +100,9 @@ const isUploading = ref(false);
 const uploadProgress = ref(0);
 const uploadingFile = ref(null);
 
+const uploadedFiles = ref([]);
+
 const showModal = ref(false);
-const uploaded = ref(false);
 
 const api = useApi();
 const settingsStore = useSettingsStore();
@@ -140,8 +143,9 @@ useEventListener(dropZoneRef, 'drop', (event) => {
 const dropZoneClasses = computed(() => {
   if (isOverDropZone.value) {
     return [
-      'bg-green-100',
-      'border-green-400'
+      'bg-green-100 dark:bg-surface-600',
+      'border-green-400 dark:border-surface-300'
+
     ];
   }
   return [
@@ -152,7 +156,7 @@ const dropZoneClasses = computed(() => {
 
 function openModal () {
   showModal.value = true;
-  uploaded.value = false;
+  uploadedFiles.value = [];
   formErrors.clear();
 }
 
@@ -161,8 +165,6 @@ function fileSelected (event) {
 }
 
 function uploadFile (file) {
-  uploaded.value = false;
-
   if (file == null) {
     return;
   }
@@ -190,8 +192,8 @@ function uploadFile (file) {
     }
   }).then(response => {
     // Fetch successful
+    uploadedFiles.value.push(file);
     emit('uploaded');
-    uploaded.value = true;
   }).catch((error) => {
     if (error.response) {
       if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
@@ -214,6 +216,3 @@ function uploadFile (file) {
 }
 
 </script>
-<style scoped>
-
-</style>

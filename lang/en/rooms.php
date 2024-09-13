@@ -125,7 +125,7 @@ return [
         ],
         'title' => 'Files',
         'upload' => 'Upload files',
-        'uploaded' => 'File uploaded',
+        'uploaded' => 'File \':name\' uploaded',
         'use_in_next_meeting' => 'Use in the next meeting',
         'use_in_next_meeting_disabled' => 'Not available in video conference',
         'view' => 'View file',
