@@ -67,7 +67,7 @@
 </template>
 <script setup>
 import { useUserPermissions } from '../composables/useUserPermission.js';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import RoomTabDescription from './RoomTabDescription.vue';
 import RoomTabMembers from './RoomTabMembers.vue';
@@ -112,11 +112,6 @@ onMounted(() => {
   activeTabKey.value = availableTabs.value[0].key;
 });
 
-// Array of all tabs available to the user
-const activeTab = computed(() => {
-  return availableTabs.value.find(tab => tab.key === activeTabKey.value);
-});
-
 const availableTabs = computed(() => {
   const tabs = [];
 
@@ -152,6 +147,19 @@ const availableTabs = computed(() => {
       }
     };
   });
+});
+
+// Array of all tabs available to the user
+const activeTab = computed(() => {
+  return availableTabs.value.find(tab => tab.key === activeTabKey.value);
+});
+
+watch(() => activeTab.value?.key, () => {
+  // If active tab has become undefined, fallback to first tab
+  if (activeTab.value === undefined) {
+    activeTabKey.value = availableTabs.value[0].key;
+    router.replace({ hash: '#' + activeTabKey.value });
+  }
 });
 
 // Keyboard navigation
