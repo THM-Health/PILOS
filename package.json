@@ -12,7 +12,7 @@
     "devDependencies": {
         "@intlify/eslint-plugin-vue-i18n": "^3.0.0",
         "cypress": "^13.14.2",
-        "eslint": "^8.56.0",
+        "eslint": "^8.57.1",
         "eslint-config-standard": "^17.0.0",
         "eslint-plugin-cypress": "^3.5.0",
         "eslint-plugin-import": "^2.30.0",
