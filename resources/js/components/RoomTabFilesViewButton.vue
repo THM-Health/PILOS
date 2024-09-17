@@ -6,6 +6,7 @@
     target="_blank"
     @click="downloadFile"
     :icon="loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-eye'"
+    data-test="room-files-view-button"
   />
 </template>
 <script setup>

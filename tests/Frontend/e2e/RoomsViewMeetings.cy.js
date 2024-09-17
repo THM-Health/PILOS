@@ -551,15 +551,7 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting token errors', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
-      statusCode: 200,
-      body: {
-        data: [],
-        meta: {
-          from: null
-        }
-      }
-    });
+    cy.interceptRoomFilesRequest();
     cy.fixture('room.json').then((room) => {
       room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
 

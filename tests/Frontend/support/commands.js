@@ -241,15 +241,7 @@ Cypress.Commands.add('interceptRoomViewRequests', () => {
  * @returns void
  */
 Cypress.Commands.add('interceptRoomFilesRequest', () => {
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { // ToDo add fixture
-    statusCode: 200,
-    body: {
-      data: [],
-      meta: {
-        from: null
-      }
-    }
-  });
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequest');
 });
 
 /**

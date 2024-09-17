@@ -7,6 +7,7 @@
     :disabled="disabled"
     @click="openModal"
     icon="fa-solid fa-upload"
+    data-test="room-files-upload-button"
   />
 
   <!-- modal -->
@@ -20,6 +21,7 @@
     :closeOnEscape="!isUploading"
     :dismissableMask="false"
     :closable="!isUploading"
+    data-test="room-files-upload-dialog"
   >
     <div class="flex flex-col gap-2">
       <label

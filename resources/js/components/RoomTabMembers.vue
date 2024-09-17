@@ -117,15 +117,15 @@
         @page="onPage"
         class="mt-6"
         :pt="{
-            pcPaginator: {
-              page: {
-                'data-test': 'paginator-page'
-              },
-              next: {
-                'data-test': 'paginator-next-button'
-              }
+          pcPaginator: {
+            page: {
+              'data-test': 'paginator-page'
+            },
+            next: {
+              'data-test': 'paginator-next-button'
             }
-          }"
+          }
+        }"
       >
 
         <!-- Show message on empty list -->
