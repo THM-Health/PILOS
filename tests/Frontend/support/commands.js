@@ -220,7 +220,7 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
 /**
  * Intercept all requests that are needed when visiting the room view page (rooms/abc-def-123)
  * @memberof cy
- * @method interceptRoomIndexRequests
+ * @method interceptRoomViewRequests
  * @returns void
  */
 Cypress.Commands.add('interceptRoomViewRequests', () => {
