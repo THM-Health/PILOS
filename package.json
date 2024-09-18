@@ -54,7 +54,7 @@
         "postcss": "^8.4.45",
         "primeicons": "^7.0.0",
         "primevue": "^4.0.7",
-        "sass": "^1.78.0",
+        "sass": "^1.79.1",
         "tailwindcss": "^3.4.12",
         "tailwindcss-primeui": "^0.3.3",
         "ua-parser-js": "^1.0.39",
