@@ -1,6 +1,7 @@
 <template>
   <div>
   <Select
+    data-test="locale-dropdown"
     :inputId="props.id"
     :options="locales"
     optionLabel="text"
@@ -11,6 +12,14 @@
     :disabled="props.disabled"
     :placeholder="$t('app.select_locale')"
     class="w-full"
+    :pt="{
+      listContainer: {
+        'data-test': 'locale-dropdown-items'
+      },
+        option:{
+      'data-test': 'locale-dropdown-option'
+        }
+      }"
   />
   </div>
 </template>

@@ -10,6 +10,7 @@
     "model_name": "User",
     "user_locale": "en",
     "room_limit": -1,
+    "updated_at": "2024-09-13T14:20:26.000000Z",
     "roles": [
       {
         "id": 1,
