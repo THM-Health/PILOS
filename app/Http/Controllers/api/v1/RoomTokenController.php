@@ -12,7 +12,6 @@ use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Log;
 
 class RoomTokenController extends Controller
@@ -65,9 +64,8 @@ class RoomTokenController extends Controller
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $resource = $resource->where(function ($query) use ($searchQuery) {
-                    $searchQuery = strtolower($searchQuery);
-                    $query->where(DB::raw('LOWER(firstname)'), 'like', '%'.$searchQuery.'%')
-                        ->orWhere(DB::raw('LOWER(lastname)'), 'like', '%'.$searchQuery.'%');
+                    $query->whereLike('firstname', '%'.$searchQuery.'%')
+                        ->orWhereLike('lastname', '%'.$searchQuery.'%');
                 });
             }
         }

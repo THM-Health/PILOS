@@ -13,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password as PasswordBrokerFacade;
 use Illuminate\Validation\ValidationException;
 
@@ -37,7 +36,7 @@ class ResetPasswordController extends Controller
         ]);
 
         $user = User::where('authenticator', '=', 'local')
-            ->where(DB::raw('LOWER(email)'), '=', strtolower($request->email))
+            ->whereLike('email', $request->email)
             ->first();
         $initial_password_set = $user ? $user->initial_password_set : false;
 
