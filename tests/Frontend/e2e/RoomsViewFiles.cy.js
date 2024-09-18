@@ -708,4 +708,540 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(2).find('[data-test="room-files-edit-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(2).find('[data-test="room-files-delete-button"]').should('not.be.disabled');
   });
+
+  it('search files', function () {
+    cy.visit('/rooms/abc-def-123#files');
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query.search).to.be.undefined;
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+
+    // Check with no files found for this search query
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = [];
+      roomFiles.meta.from = null;
+      roomFiles.meta.to = null;
+      roomFiles.meta.total = 0;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test="room-files-search"] > input').type('Test');
+    cy.get('[data-test="room-files-search"] > button').click();
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Test',
+        page: '1'
+      });
+    });
+
+    // Check if correct message is shown and no files are displayed
+    cy.get('[data-test="room-file-item"]').should('have.length', 0);
+    cy.contains('app.filter_no_result').should('be.visible');
+
+    // Check with no files in room
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = [];
+      roomFiles.meta.from = null;
+      roomFiles.meta.to = null;
+      roomFiles.meta.total = 0;
+      roomFiles.meta.total_no_filter = 0;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test="room-files-search"] > input').clear();
+    cy.get('[data-test="room-files-search"]').type('Test2');
+    cy.get('[data-test="room-files-search"] > input').type('{enter}');
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Test2',
+        page: '1'
+      });
+    });
+
+    // Check if correct message is shown and no files are displayed
+    cy.get('[data-test="room-file-item"]').should('have.length', 0);
+    cy.contains('rooms.files.nodata').should('be.visible');
+
+    // Check with 2 members on 2 pages
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(0, 1);
+      roomFiles.meta.last_page = 2;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.to = 1;
+      roomFiles.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test="room-files-search"] > input').clear();
+    cy.get('[data-test="room-files-search"]').type('File');
+    cy.get('[data-test="room-files-search"] > button').click();
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'File',
+        page: '1'
+      });
+    });
+
+    // Check if correct files are shown
+    cy.get('[data-test="room-file-item"]').should('have.length', 1);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
+
+    // Check that pagination shows the correct number of pages
+    cy.get('[data-test="paginator-page"]').should('have.length', 2);
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(1, 2);
+      roomFiles.meta.current_page = 2;
+      roomFiles.meta.last_page = 2;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.from = 2;
+      roomFiles.meta.to = 2;
+      roomFiles.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    // Click on button for next page (eq(1) needed because there are two paginator components
+    // (first one for small devices second one for larger devices))
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    // Check if search query stays the same after changing the page
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'File',
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test=room-files-search] > input').should('have.value', 'File');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Check if correct files are shown
+    cy.get('[data-test="room-file-item"]').should('have.length', 1);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File2.pdf');
+
+    // Change search query and make sure that the page is reset
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(0, 1);
+      roomFiles.meta.last_page = 2;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.to = 1;
+      roomFiles.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test="room-files-search"] > input').clear();
+    cy.get('[data-test="room-files-search"]').type('Fil');
+    cy.get('[data-test="room-files-search"] > button').click();
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        search: 'Fil',
+        page: '1'
+      });
+    });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+  });
+
+  it('filter files', function () {
+    cy.visit('/rooms/abc-def-123#files');
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query.filter).to.be.undefined;
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="filter-dropdown-items"]').should('not.exist');
+
+    // Check that correct filter is displayed
+    cy.get('[data-test="filter-dropdown"]').should('have.text', 'rooms.files.filter.all').click();
+
+    cy.get('[data-test="filter-dropdown-items"]').should('be.visible').within(() => {
+      // check that filter options are shown correctly
+
+      cy.get('[data-test=filter-dropdown-option]').should('have.length', 3);
+
+      cy.get('[data-test=filter-dropdown-option]').eq(0).should('have.text', 'rooms.files.filter.all');
+      cy.get('[data-test=filter-dropdown-option]').eq(0).should('have.attr', 'aria-selected', 'true');
+      cy.get('[data-test=filter-dropdown-option]').eq(1).should('have.text', 'rooms.files.filter.downloadable');
+      cy.get('[data-test=filter-dropdown-option]').eq(2).should('have.text', 'rooms.files.filter.use_in_meeting');
+    });
+
+    // Change filter and respond with no files found for this filter
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = [];
+      roomFiles.meta.from = null;
+      roomFiles.meta.to = null;
+      roomFiles.meta.total = 0;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test=filter-dropdown-option]').eq(1).click();
+
+    // Check that correct filter is sent with request and correct filter is displayed
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'downloadable',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="filter-dropdown"]').should('have.text', 'rooms.files.filter.downloadable');
+
+    // Check if correct message is shown and no files are displayed
+    cy.get('[data-test="room-file-item"]').should('have.length', 0);
+    cy.contains('app.filter_no_result').should('be.visible');
+
+    // Change filter again and respond with no members in room
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = [];
+      roomFiles.meta.from = null;
+      roomFiles.meta.to = null;
+      roomFiles.meta.total = 0;
+      roomFiles.meta.total_no_filter = 0;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test=filter-dropdown]').click();
+    cy.get('[data-test=filter-dropdown-option]').eq(2).click();
+
+    // Check that correct filter is sent with request and correct filter is displayed
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'use_in_meeting',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="filter-dropdown"]').should('have.text', 'rooms.files.filter.use_in_meeting');
+
+    // Check if correct message is shown and no files are displayed
+    cy.get('[data-test="room-file-item"]').should('have.length', 0);
+    cy.contains('rooms.files.nodata').should('be.visible');
+
+    // Change filter again and respond with 2 members on 2 pages
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(0, 1);
+      roomFiles.meta.last_page = 2;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.to = 1;
+      roomFiles.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test=filter-dropdown]').click();
+    cy.get('[data-test=filter-dropdown-option]').eq(1).click();
+
+    // Check that correct filter is sent with request and correct filter is displayed
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'downloadable',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="filter-dropdown"]').should('have.text', 'rooms.files.filter.downloadable');
+
+    // Check if correct files are shown
+    cy.get('[data-test="room-file-item"]').should('have.length', 1);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
+
+    // Check that pagination shows the correct number of pages
+    cy.get('[data-test="paginator-page"]').should('have.length', 2);
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(1, 2);
+      roomFiles.meta.current_page = 2;
+      roomFiles.meta.last_page = 2;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.from = 2;
+      roomFiles.meta.to = 2;
+      roomFiles.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    // Click on button for next page (eq(1) needed because there are two paginator components
+    // (first one for small devices second one for larger devices))
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    // Check if filter stays the same after changing the page
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        filter: 'downloadable',
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test=filter-dropdown]').should('have.text', 'rooms.files.filter.downloadable');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Check if correct files are shown
+    cy.get('[data-test="room-file-item"]').should('have.length', 1);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File2.pdf');
+
+    // Change filter again (reset filer) and make sure that the page is reset
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(0, 1);
+      roomFiles.meta.last_page = 2;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.to = 1;
+      roomFiles.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test=filter-dropdown]').click();
+    cy.get('[data-test=filter-dropdown-option]').eq(0).click();
+
+    // Check that filter and page were reset
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query.filter).to.be.undefined;
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="filter-dropdown"]').should('have.text', 'rooms.files.filter.all');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+  });
+
+  it('sort files', function () {
+    cy.visit('/rooms/abc-def-123#files');
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'uploaded',
+        sort_direction: 'desc',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test="sorting-type-dropdown-items"]').should('not.exist');
+
+    // Check that correct sorting type is displayed
+    cy.get('[data-test="sorting-type-dropdown"]').should('have.text', 'rooms.files.sort.uploaded_at').click();
+
+    cy.get('[data-test="sorting-type-dropdown-items"]').should('be.visible').within(() => {
+      cy.get('[data-test=sorting-type-dropdown-option]').should('have.length', 2);
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(0).should('have.text', 'rooms.files.sort.filename');
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(1).should('have.text', 'rooms.files.sort.uploaded_at');
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(1).should('have.attr', 'aria-selected', 'true');
+
+      // Change sorting type and respond with 3 members on 3 different pages
+      cy.fixture('roomFiles.json').then(roomFiles => {
+        roomFiles.data = roomFiles.data.slice(0, 1);
+        roomFiles.meta.last_page = 3;
+        roomFiles.meta.per_page = 1;
+        roomFiles.meta.to = 1;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+          statusCode: 200,
+          body: roomFiles
+        }).as('roomFilesRequest');
+      });
+
+      cy.get('[data-test=sorting-type-dropdown-option]').eq(0).click();
+    });
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'filename',
+        sort_direction: 'desc',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test=sorting-type-dropdown-items]').should('not.exist');
+
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'rooms.files.sort.filename');
+
+    // Check if correct files are shown
+    cy.get('[data-test="room-file-item"]').should('have.length', 1);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
+
+    // Check that pagination shows the correct number of pages
+    cy.get('[data-test="paginator-page"]').should('have.length', 3);
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(1, 2);
+      roomFiles.meta.current_page = 2;
+      roomFiles.meta.last_page = 3;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.from = 2;
+      roomFiles.meta.to = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'filename',
+        sort_direction: 'desc',
+        page: '2'
+      });
+    });
+
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'rooms.files.sort.filename');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Check if correct files are shown
+    cy.get('[data-test="room-file-item"]').should('have.length', 1);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File2.pdf');
+
+    // Change sorting direction and make sure that the page is reset
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(0, 1);
+      roomFiles.meta.last_page = 3;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.to = 1;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test="sorting-type-inputgroup"]').find('button').click();
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'filename',
+        sort_direction: 'asc',
+        page: '1'
+      });
+    });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+
+    // Switch to next page
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(1, 2);
+      roomFiles.meta.current_page = 2;
+      roomFiles.meta.last_page = 3;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.from = 2;
+      roomFiles.meta.to = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'filename',
+        sort_direction: 'asc',
+        page: '2'
+      });
+    });
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(1).should('have.attr', 'data-p-active', 'true');
+
+    // Change sorting type and make sure that the page is reset
+    cy.fixture('roomFiles.json').then((roomFiles) => {
+      roomFiles.data = roomFiles.data.slice(0, 1);
+      roomFiles.meta.last_page = 3;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.to = 1;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.get('[data-test=sorting-type-dropdown]').click();
+    cy.get('[data-test=sorting-type-dropdown-option]').eq(1).click();
+
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        sort_by: 'uploaded',
+        sort_direction: 'asc',
+        page: '1'
+      });
+    });
+
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'rooms.files.sort.uploaded_at');
+
+    // Check that correct pagination is active
+    cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
+  });
 });

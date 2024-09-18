@@ -1087,6 +1087,7 @@ describe('Rooms view members', function () {
 
     // Check if correct message is shown and no members are displayed
     cy.contains('app.filter_no_results').should('be.visible');
+    cy.get('[data-test="room-member-item"]').should('have.length', 0);
     cy.get('[data-test=filter-dropdown-items]').should('have.length', 0);
 
     // Change filter again and respond with no members in room
@@ -1118,6 +1119,7 @@ describe('Rooms view members', function () {
 
     // Check if correct message is shown and no members are displayed
     cy.contains('rooms.members.nodata').should('be.visible');
+    cy.get('[data-test="room-member-item"]').should('have.length', 0);
     cy.get('[data-test=filter-dropdown-items]').should('have.length', 0);
 
     // Change filter again and respond with 2 members on 2 pages
@@ -1214,7 +1216,7 @@ describe('Rooms view members', function () {
 
     // Check that filter and page were reset
     cy.wait('@roomMembersRequest').then(interception => {
-      expect(interception.request.filter).to.be.undefined;
+      expect(interception.request.query.filter).to.be.undefined;
       expect(interception.request.query).to.contain({
         page: '1'
       });
@@ -1333,7 +1335,7 @@ describe('Rooms view members', function () {
       }).as('roomMembersRequest');
     });
 
-    cy.get('[data-test=sorting-type-inputgroup]').find('button').click();
+    cy.get('[data-test="sorting-type-inputgroup"]').find('button').click();
 
     cy.wait('@roomMembersRequest').then(interception => {
       expect(interception.request.query).to.contain({
@@ -1400,6 +1402,10 @@ describe('Rooms view members', function () {
         page: '1'
       });
     });
+
+    cy.get('[data-test=sorting-type-dropdown]').should('have.text', 'app.lastname');
+
+    // Check that correct pagination is active
   });
 
   it('check button visibility co_owner', function () {
