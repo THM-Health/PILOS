@@ -5057,16 +5057,16 @@
         },
         {
             "name": "spatie/laravel-csp",
-            "version": "2.10.0",
+            "version": "2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-csp.git",
-                "reference": "116caa57ece29969aebb5fd64e6f5500169218c6"
+                "reference": "ea7d2859a2617954df869e816b0f740400184ae0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-csp/zipball/116caa57ece29969aebb5fd64e6f5500169218c6",
-                "reference": "116caa57ece29969aebb5fd64e6f5500169218c6",
+                "url": "https://api.github.com/repos/spatie/laravel-csp/zipball/ea7d2859a2617954df869e816b0f740400184ae0",
+                "reference": "ea7d2859a2617954df869e816b0f740400184ae0",
                 "shasum": ""
             },
             "require": {
@@ -5127,7 +5127,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/laravel-csp/tree/2.10.0"
+                "source": "https://github.com/spatie/laravel-csp/tree/2.10.1"
             },
             "funding": [
                 {
@@ -5135,7 +5135,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-06-04T11:27:13+00:00"
+            "time": "2024-09-20T13:39:37+00:00"
         },
         {
             "name": "spatie/laravel-ignition",
@@ -5230,16 +5230,16 @@
         },
         {
             "name": "spatie/laravel-package-tools",
-            "version": "1.16.4",
+            "version": "1.16.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-package-tools.git",
-                "reference": "ddf678e78d7f8b17e5cdd99c0c3413a4a6592e53"
+                "reference": "c7413972cf22ffdff97b68499c22baa04eddb6a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/ddf678e78d7f8b17e5cdd99c0c3413a4a6592e53",
-                "reference": "ddf678e78d7f8b17e5cdd99c0c3413a4a6592e53",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/c7413972cf22ffdff97b68499c22baa04eddb6a2",
+                "reference": "c7413972cf22ffdff97b68499c22baa04eddb6a2",
                 "shasum": ""
             },
             "require": {
@@ -5278,7 +5278,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-package-tools/issues",
-                "source": "https://github.com/spatie/laravel-package-tools/tree/1.16.4"
+                "source": "https://github.com/spatie/laravel-package-tools/tree/1.16.5"
             },
             "funding": [
                 {
@@ -5286,7 +5286,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-20T07:29:11+00:00"
+            "time": "2024-08-27T18:56:10+00:00"
         },
         {
             "name": "spatie/laravel-settings",
