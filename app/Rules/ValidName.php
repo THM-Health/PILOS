@@ -6,8 +6,6 @@ use Illuminate\Contracts\Validation\Rule;
 
 class ValidName implements Rule
 {
-    public const ALLOWED_CHARS = "A-Za-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆŠŽ∂ð ,.'\-+/&";
-
     private $failedChars;
 
     private $attribute;
@@ -26,11 +24,11 @@ class ValidName implements Rule
      */
     public function passes($attribute, $value)
     {
-        if (preg_match('#^['.self::ALLOWED_CHARS.']+$#u', $value)) {
+        if (preg_match('/^['.config('bigbluebutton.allowed_name_characters').']+$/u', $value)) {
             return true;
         }
         $this->attribute = $attribute;
-        $this->failedChars = array_unique(str_split(preg_replace('#['.self::ALLOWED_CHARS.']+#u', '', $value)));
+        $this->failedChars = array_unique(str_split(preg_replace('/['.config('bigbluebutton.allowed_name_characters').']+/u', '', $value)));
 
         return false;
     }
