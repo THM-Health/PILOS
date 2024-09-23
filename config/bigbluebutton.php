@@ -19,4 +19,6 @@ return [
 
     'load_new_meeting_min_user_count' => (int) env('BBB_LOAD_MIN_USER_COUNT', 15),
     'load_new_meeting_min_user_interval' => (int) env('BBB_LOAD_MIN_USER_INTERVAL', 15),
+
+    'allowed_name_characters' => env('BBB_ALLOWED_NAME_CHARACTERS', "\w ,.'\-+\/&()"),
 ];
