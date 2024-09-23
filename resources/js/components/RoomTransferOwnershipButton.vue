@@ -176,7 +176,7 @@ function transferOwnership () {
         return;
       }
     }
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
   });
@@ -219,7 +219,7 @@ function asyncFind (query) {
       return user;
     });
   }).catch((error) => {
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingSearch.value = false;
   });

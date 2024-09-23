@@ -36,7 +36,7 @@
 <script setup>
 import env from '../env';
 import { useApi } from '../composables/useApi.js';
-import { ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
 
@@ -92,9 +92,16 @@ function deleteFile () {
       }
     }
     showModal.value = false;
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
   });
 }
+
+onBeforeUnmount(() => {
+  if (showModal.value) {
+    toast.error(t('rooms.flash.file_gone'));
+  }
+});
+
 </script>

@@ -153,7 +153,7 @@ function asyncFind (query) {
     tooManyResults.value = false;
   }).catch((error) => {
     tooManyResults.value = false;
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingSearch.value = false;
   });
@@ -197,7 +197,7 @@ function save () {
       }
     }
     showModal.value = false;
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
   });

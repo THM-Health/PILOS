@@ -14,6 +14,8 @@ import { ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
+import EventBus from '../services/EventBus.js';
+import { EVENT_FORBIDDEN } from '../constants/events.js';
 
 const props = defineProps({
   accessCode: {
@@ -39,7 +41,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'fileNotFound', 'forbidden']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'fileNotFound']);
 
 const api = useApi();
 const toast = useToast();
@@ -95,7 +97,7 @@ function downloadFile () {
         if (error.response.status === env.HTTP_FORBIDDEN) {
           // Show error message
           toast.error(t('rooms.flash.file_forbidden'));
-          emit('forbidden');
+          EventBus.emit(EVENT_FORBIDDEN);
           return;
         }
 
@@ -108,7 +110,7 @@ function downloadFile () {
           return;
         }
       }
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }).finally(() => {
       loading.value = null;
     });

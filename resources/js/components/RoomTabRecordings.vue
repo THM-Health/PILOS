@@ -86,7 +86,7 @@
 
         <template #list="slotProps">
           <div class="px-2">
-            <div v-for="(item, index) in slotProps.items" :key="index">
+            <div v-for="(item) in slotProps.items" :key="item.id">
               <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t border-surface">
                 <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0">{{ item.description }}</p>
@@ -130,7 +130,6 @@
                     :disabled="isBusy"
                     @invalidCode="$emit('invalidCode')"
                     @invalidToken="$emit('invalidToken')"
-                    @forbidden="loadData"
                     @notFound="loadData"
                   />
 
@@ -190,6 +189,7 @@ import { usePaginator } from '../composables/usePaginator.js';
 import { useDateDiff } from '../composables/useDateDiff.js';
 import { useI18n } from 'vue-i18n';
 import env from '../env.js';
+import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
 
 const props = defineProps({
   room: {
@@ -297,7 +297,7 @@ function loadData (page = null) {
       }
       loadingError.value = true;
       paginator.revertFirst();
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     })
     .finally(() => {
       isBusy.value = false;
@@ -311,5 +311,7 @@ function onPage (event) {
 onMounted(() => {
   loadData();
 });
+
+onRoomHasChanged(() => props.room, () => loadData());
 
 </script>

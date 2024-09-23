@@ -96,7 +96,7 @@ function joinMembership () {
         emit('membershipDisabled');
       }
 
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }).finally(() => {
       isLoadingAction.value = false;
     });

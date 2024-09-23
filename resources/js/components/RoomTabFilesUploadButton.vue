@@ -206,7 +206,7 @@ function uploadFile (file) {
         return;
       }
     }
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     // Clear file field and busy status
     isUploading.value = false;

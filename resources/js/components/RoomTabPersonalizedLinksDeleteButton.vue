@@ -91,7 +91,7 @@ function deleteToken () {
     showModal.value = false;
     emit('deleted');
   }).catch(error => {
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
   });

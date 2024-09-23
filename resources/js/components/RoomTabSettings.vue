@@ -634,7 +634,7 @@ function save (event) {
       formErrors.set(error.response.data.errors);
       return;
     }
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     // Disable busy indicator
     isBusy.value = false;
@@ -655,7 +655,7 @@ function load () {
       // fetch successful
       settings.value = response.data.data;
     }).catch((error) => {
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
       loadingError.value = true;
     }).finally(() => {
       // Disable busy indicator
