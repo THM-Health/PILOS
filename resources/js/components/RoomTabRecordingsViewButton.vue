@@ -59,6 +59,8 @@ import { useApi } from '../composables/useApi.js';
 import env from '../env.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
+import EventBus from '../services/EventBus.js';
+import { EVENT_FORBIDDEN } from '../constants/events.js';
 
 const props = defineProps({
   accessCode: {
@@ -101,7 +103,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'forbidden', 'notFound']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'notFound']);
 
 const isLoadingAction = ref(false);
 const showModal = ref(false);
@@ -154,7 +156,8 @@ function downloadFormat (format) {
         if (error.response.status === env.HTTP_FORBIDDEN) {
         // Show error message
           toast.error(t('rooms.flash.recording_forbidden'));
-          return emit('forbidden');
+          EventBus.emit(EVENT_FORBIDDEN);
+          return;
         }
 
         // Recording gone
@@ -164,7 +167,7 @@ function downloadFormat (format) {
           return emit('notFound');
         }
       }
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }).finally(() => {
       isLoadingAction.value = false;
     });

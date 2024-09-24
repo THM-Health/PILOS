@@ -96,7 +96,7 @@ function joinMembership () {
         emit('membershipDisabled');
       }
 
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }).finally(() => {
       isLoadingAction.value = false;
     });
@@ -114,7 +114,7 @@ function leaveMembership () {
     emit('leftMembership');
     showModal.value = false;
   }).catch((error) => {
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
   });

@@ -17,7 +17,11 @@ import { ref } from 'vue';
 const api = useApi();
 
 const props = defineProps({
-  room: Object
+  room: Object,
+  noRedirectOnUnauthenticated: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const isLoading = ref(false);
@@ -39,7 +43,7 @@ function toggleFavorite () {
   // add or delete room
   api.call('rooms/' + props.room.id + '/favorites', config)
     .catch(error => {
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: props.noRedirectOnUnauthenticated });
     }).finally(() => {
       emit('favoritesChanged');
       isLoading.value = false;

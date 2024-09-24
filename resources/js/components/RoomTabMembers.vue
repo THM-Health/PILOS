@@ -118,7 +118,7 @@
 
         <template #list="slotProps">
           <div class="px-2">
-            <div v-for="(item, index) in slotProps.items" :key="index">
+            <div v-for="(item, index) in slotProps.items" :key="item.id">
               <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-t border-surface': index !== 0 }">
                 <div class="flex flex-row gap-6">
                   <div class="flex items-center" v-if="userPermissions.can('manageSettings', props.room)">
@@ -178,14 +178,13 @@
 </template>
 <script setup>
 import { useAuthStore } from '../stores/auth';
-import EventBus from '../services/EventBus';
-import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { usePaginator } from '../composables/usePaginator.js';
 import UserAvatar from './UserAvatar.vue';
 import { useI18n } from 'vue-i18n';
+import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
 
 const props = defineProps({
   room: {
@@ -280,7 +279,7 @@ function loadData (page = null) {
     })
     .catch((error) => {
       paginator.revertFirst();
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
       loadingError.value = true;
     })
     .finally(() => {
@@ -297,28 +296,9 @@ const selectableMembers = computed(() => {
   return members.value.map(member => member.id).filter(id => id !== authStore.currentUser?.id);
 });
 
-/**
- * Sets the event listener for current room change to reload the member list.
- *
- * @method mounted
- * @return undefined
- */
 onMounted(() => {
-  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
   loadData();
 });
 
-function onRoomChanged () {
-  loadData();
-}
-
-/**
- * Removes the listener for current room change
- *
- * @method beforeDestroy
- * @return undefined
- */
-onBeforeUnmount(() => {
-  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
-});
+onRoomHasChanged(() => props.room, () => loadData());
 </script>

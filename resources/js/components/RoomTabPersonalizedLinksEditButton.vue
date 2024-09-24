@@ -150,7 +150,7 @@ function save () {
     if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
       formErrors.set(error.response.data.errors);
     } else {
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }
   }).finally(() => {
     isLoadingAction.value = false;
