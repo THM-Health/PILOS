@@ -29,7 +29,7 @@
             v-if="!hideFavorites && authStore.isAuthenticated"
             :room="props.room"
             @favorites-changed="emit('reload')"
-            no-redirect-on-unauthenticated="true"
+            :no-redirect-on-unauthenticated="true"
           />
           <RoomMembershipButton
             v-if="!hideMembership && authStore.isAuthenticated"
