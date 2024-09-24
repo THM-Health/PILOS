@@ -14,7 +14,7 @@ describe('Rooms View Files', function () {
 
     cy.get('#tab-files').click();
 
-    cy.url().should('include', '/rooms/abc-def-123#files');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
 
     // Check loading
     cy.get('[data-test="overlay"]').should('be.visible');
@@ -215,11 +215,6 @@ describe('Rooms View Files', function () {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
-    cy.wait('@roomFilesRequest').then((interception) => {
-      // Check that header for access code is set
-      expect(interception.request.headers['access-code']).to.be.undefined;
-    });
-
     // Check if error message is shown and close it
     cy.checkToastMessage('rooms.flash.access_code_invalid');
 
@@ -265,11 +260,6 @@ describe('Rooms View Files', function () {
 
     // Check that access code header is reset
     cy.wait('@roomRequest').then(interception => {
-      expect(interception.request.headers['access-code']).to.be.undefined;
-    });
-
-    cy.wait('@roomFilesRequest').then((interception) => {
-      // Check that header for access code is set
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
@@ -377,7 +367,7 @@ describe('Rooms View Files', function () {
       }
     }).as('roomFilesRequest');
 
-    cy.visit('/rooms/abc-def-123/#files');
+    cy.visit('/rooms/abc-def-123#tab=files');
     cy.wait('@roomFilesRequest');
 
     // Check that overlay is shown
@@ -710,7 +700,7 @@ describe('Rooms View Files', function () {
   });
 
   it('search files', function () {
-    cy.visit('/rooms/abc-def-123#files');
+    cy.visit('/rooms/abc-def-123#tab=files');
 
     cy.wait('@roomFilesRequest').then(interception => {
       expect(interception.request.query.search).to.be.undefined;
@@ -877,7 +867,7 @@ describe('Rooms View Files', function () {
   });
 
   it('filter files', function () {
-    cy.visit('/rooms/abc-def-123#files');
+    cy.visit('/rooms/abc-def-123#tab=files');
 
     cy.wait('@roomFilesRequest').then(interception => {
       expect(interception.request.query.filter).to.be.undefined;
@@ -1068,7 +1058,7 @@ describe('Rooms View Files', function () {
   });
 
   it('sort files', function () {
-    cy.visit('/rooms/abc-def-123#files');
+    cy.visit('/rooms/abc-def-123#tab=files');
 
     cy.wait('@roomFilesRequest').then(interception => {
       expect(interception.request.query).to.contain({

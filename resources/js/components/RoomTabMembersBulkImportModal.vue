@@ -11,6 +11,13 @@
     :closeOnEscape="!isLoadingAction"
     :dismissableMask="false"
     :closable="!isLoadingAction"
+    :pt="{
+      pcCloseButton: {
+        root:{
+          'data-test': 'dialog-header-close-button'
+        }
+      }
+    }"
   >
     <template #footer>
       <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 0">

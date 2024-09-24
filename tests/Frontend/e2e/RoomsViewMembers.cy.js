@@ -13,7 +13,7 @@ describe('Rooms view members', function () {
 
     cy.get('#tab-members').click();
 
-    cy.url().should('include', '/rooms/abc-def-123#members');
+    cy.url().should('include', '/rooms/abc-def-123#tab=members');
 
     // Check loading
 
@@ -97,7 +97,8 @@ describe('Rooms view members', function () {
       }
     }).as('roomMembersRequest');
 
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
+    cy.wait('@roomRequest');
     cy.wait('@roomMembersRequest');
 
     // Check that overlay is shown
@@ -227,31 +228,320 @@ describe('Rooms view members', function () {
     cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Switch to next page with 401 error
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    // 401 error room that has no access code
     cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
       statusCode: 401
+    }).as('roomMembersRequest');
+
+    cy.interceptRoomFilesRequest();
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomMembersRequest');
+
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
+
+    // Check that file tab is shown
+    cy.wait('@roomFilesRequest');
+    cy.url().should('not.include', '#tab=members');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // Reload with logged in user and members
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    cy.fixture('roomMembers.json').then(roomMembers => {
+      roomMembers.data = roomMembers.data.slice(0, 1);
+      roomMembers.meta.last_page = 3;
+      roomMembers.meta.per_page = 1;
+      roomMembers.meta.to = 1;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+        statusCode: 200,
+        body: roomMembers
+      }).as('roomMembersRequest');
+    });
+
+    cy.reload();
+    cy.wait('@roomRequest');
+    cy.get('#tab-members').click();
+
+    // 401 error but room has an access code
+    // Switch to next page with 401 error
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 401
+    }).as('roomMembersRequest');
+
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomMembersRequest');
+
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
+
+    // Check that access code overlay is shown
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // 401 error but guests are forbidden
+    // Reload with logged in user and members
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+    cy.fixture('roomMembers.json').then(roomMembers => {
+      roomMembers.data = roomMembers.data.slice(0, 1);
+      roomMembers.meta.last_page = 3;
+      roomMembers.meta.per_page = 1;
+      roomMembers.meta.to = 1;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+        statusCode: 200,
+        body: roomMembers
+      }).as('roomMembersRequest');
+    });
+
+    cy.reload();
+    cy.wait('@roomRequest');
+    cy.get('#tab-members').click();
+
+    // Switch to next page with 401 error
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 401
+    }).as('roomMembersRequest');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 403,
+      body: {
+        message: 'guests_not_allowed'
+      }
+    }).as('roomRequest');
+
+    cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+    cy.wait('@roomMembersRequest');
+
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
+
+    // Check that the error message is shown
+    cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // Reload with logged in user and members
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+    cy.fixture('roomMembers.json').then(roomMembers => {
+      roomMembers.data = roomMembers.data.slice(0, 1);
+      roomMembers.meta.last_page = 3;
+      roomMembers.meta.per_page = 1;
+      roomMembers.meta.to = 1;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+        statusCode: 200,
+        body: roomMembers
+      }).as('roomMembersRequest');
+    });
+
+    cy.reload();
+    cy.wait('@roomRequest');
+    cy.get('#tab-members').click();
+
+    // respond with 403 error
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.is_member = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    // 403 error
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 403,
+      body: {
+        message: 'This action is unauthorized.'
+      }
     }).as('roomMembersRequest');
 
     cy.get('[data-test="paginator-next-button"]').eq(1).click();
     cy.wait('@roomMembersRequest');
 
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
+    cy.wait('@roomMembersRequest');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    // Check that file tab is shown
+    cy.wait('@roomFilesRequest');
+
+    cy.url().should('not.include', '#tab=members');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthorized');
 
     // Reload page with 401 error
-    cy.visit('/rooms/abc-def-123#members');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    cy.reload();
+    cy.wait('@roomRequest');
+    cy.wait('@roomFilesRequest');
+
+    cy.interceptRoomFilesRequest();
+
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    // 401 error but room has no access code
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 401
+    }).as('roomMembersRequest');
+
+    cy.get('#tab-members').click();
+
+    cy.wait('@roomMembersRequest');
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
+    // Check that file tab is shown
+    cy.wait('@roomFilesRequest');
+
+    cy.url().should('not.include', '#tab=members');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // Reload with logged in user
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    cy.reload();
+    cy.wait('@roomRequest');
+
+    // 401 error but room has an access code
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    cy.get('#tab-members').click();
+
+    cy.wait('@roomMembersRequest');
+    cy.wait('@roomRequest');
+
+    // Check that access code overlay is shown
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // 401 error but guests are forbidden
+    // Reload with logged in user
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    // 403 error
+    const roomMembersRequest1 = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 401
+    }, 'roomMembersRequest');
+
+    cy.reload();
+    cy.wait('@roomRequest').then(() => {
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 403,
+        body: {
+          message: 'guests_not_allowed'
+        }
+      }).as('roomRequest');
+
+      roomMembersRequest1.sendResponse();
+    });
+
+    cy.wait('@roomMembersRequest');
+    cy.wait('@roomRequest');
+
+    // Check that the error message is shown
+    cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    // 403 error
+    const roomMembersRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/member*', {
+      statusCode: 403,
+      body: {
+        message: 'This action is unauthorized.'
+      }
+    }, 'roomMembersRequest');
+
+    cy.reload();
+    cy.wait('@roomRequest').then(() => {
+      cy.fixture('room.json').then((room) => {
+        room.data.owner = { id: 2, name: 'Max Doe' };
+        room.data.is_member = true;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+          statusCode: 200,
+          body: room
+        }).as('roomRequest');
+      });
+
+      roomMembersRequest.sendResponse();
+    });
 
     cy.wait('@roomMembersRequest');
 
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login');
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    // Check that file tab is shown
+    cy.wait('@roomFilesRequest');
+
+    cy.url().should('not.include', '#tab=members');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthorized');
   });
 
   it('add new member', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -405,7 +695,8 @@ describe('Rooms view members', function () {
   });
 
   it('add new member errors', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
+    cy.wait('@roomRequest');
 
     cy.wait('@roomMembersRequest');
 
@@ -434,24 +725,22 @@ describe('Rooms view members', function () {
 
     // Check that dialog is still open
     cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
+    // Close dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
+    cy.get('[data-test="room-members-add-single-dialog"]').should('not.exist');
 
-    // Test 401 error on user search
-    cy.intercept('GET', '/api/v1/users/search?query=*', {
-      statusCode: 401
-    }).as('userSearchRequest');
-
-    cy.get('[data-test="select-user-dropdown"]').click();
-    cy.get('[data-test="select-user-dropdown"]').find('input').type('a');
-
-    cy.wait('@userSearchRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-members-add-button"]').click();
+      cy.get('#overlay_menu_0').should('have.text', 'rooms.members.add_single_user').click();
+      cy.get('[data-test="select-user-dropdown"]').click();
+      cy.get('[data-test="select-user-dropdown"]').find('input').type('a');
+    }, 'GET', '/api/v1/users/search?query=*', 'members');
 
     // Reload page to check other errors
-    cy.visit('/rooms/abc-def-123#members');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+    cy.reload();
+    cy.wait('@roomRequest');
+    cy.get('#tab-members').click();
 
     cy.wait('@roomMembersRequest');
 
@@ -535,28 +824,15 @@ describe('Rooms view members', function () {
     // Make sure that dialog gets closed
     cy.get('[data-test="room-members-add-single-dialog"]').should('not.exist');
 
-    // Open dialog again
-    cy.get('[data-test="room-members-add-button"]').click();
-
-    cy.get('#overlay_menu_0').should('have.text', 'rooms.members.add_single_user').click();
-
-    // Try to add user to the room and respond with 500 error
-    cy.intercept('POST', '/api/v1/rooms/abc-def-123/member', {
-      statusCode: 401
-    }).as('addUserRequest');
-
-    cy.get('[data-test="dialog-save-button"]').click();
-
-    cy.wait('@addUserRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-members-add-button"]').click();
+      cy.get('#overlay_menu_0').should('have.text', 'rooms.members.add_single_user').click();
+      cy.get('[data-test="dialog-save-button"]').click();
+    }, 'POST', '/api/v1/rooms/abc-def-123/member', 'members');
   });
 
   it('edit member', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -637,7 +913,7 @@ describe('Rooms view members', function () {
   });
 
   it('edit member errors', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -703,26 +979,14 @@ describe('Rooms view members', function () {
 
     cy.get('[data-test="room-members-edit-dialog"]').should('not.exist');
 
-    // Check with 401 error
-    cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
-
-    // Check with member gone
-    cy.intercept('PUT', '/api/v1/rooms/abc-def-123/member/6', {
-      statusCode: 401
-    }).as('editUserRequest');
-
-    cy.get('[data-test="dialog-save-button"]').click();
-
-    cy.wait('@editUserRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
+      cy.get('[data-test="dialog-save-button"]').click();
+    }, 'PUT', '/api/v1/rooms/abc-def-123/member/6', 'members');
   });
 
   it('delete member', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -780,7 +1044,7 @@ describe('Rooms view members', function () {
   });
 
   it('delete member errors', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -847,26 +1111,14 @@ describe('Rooms view members', function () {
     // Check that dialog is closed
     cy.get('[data-test="room-members-delete-dialog"]').should('not.exist');
 
-    // Check with 401 error
-    cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
-
-    // Check delete with member gone
-    cy.intercept('DELETE', '/api/v1/rooms/abc-def-123/member/6', {
-      statusCode: 401
-    }).as('deleteMemberRequest');
-
-    cy.get('[data-test="dialog-continue-button"]').click();
-
-    cy.wait('@deleteMemberRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
+    }, 'DELETE', '/api/v1/rooms/abc-def-123/member/6', 'members');
   });
 
   it('search members', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest').then(interception => {
       expect(interception.request.query.search).to.be.undefined;
@@ -1034,7 +1286,7 @@ describe('Rooms view members', function () {
   });
 
   it('filter members', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest').then(interception => {
       expect(interception.request.query.filter).to.be.undefined;
@@ -1227,7 +1479,7 @@ describe('Rooms view members', function () {
   });
 
   it('sort members', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest').then(interception => {
       expect(interception.request.query).to.contain({
@@ -1435,7 +1687,7 @@ describe('Rooms view members', function () {
       }).as('roomMembersRequest');
     });
 
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     // Check that add buttons are shown
     cy.get('[data-test="room-members-add-button"]').should('be.visible').click();
@@ -1547,7 +1799,7 @@ describe('Rooms view members', function () {
       }).as('roomRequest');
     });
 
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomRequest');
     cy.wait('@roomMembersRequest');

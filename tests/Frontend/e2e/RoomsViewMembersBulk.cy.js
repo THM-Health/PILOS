@@ -8,7 +8,7 @@ describe('Rooms view members bulk', function () {
   });
 
   it('bulk edit members', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -150,7 +150,7 @@ describe('Rooms view members bulk', function () {
   });
 
   it('bulk edit members errors', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -238,27 +238,18 @@ describe('Rooms view members bulk', function () {
     cy.get('[data-test="room-member-item"]').eq(1).find('input').should('be.checked');
     cy.get('[data-test="room-member-item"]').eq(2).find('input').should('be.checked');
 
-    // Open bulk edit dialog again
-    cy.get('[data-test="room-members-bulk-edit-button"]').should('be.visible').click();
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').should('be.visible');
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').find('#participant-moderator').click();
+    // Deselect all users
+    cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
 
-    // Check with 401 error
-    cy.intercept('PUT', 'api/v1/rooms/abc-def-123/member/bulk', {
-      statusCode: 401
-    }).as('bulkEditRequest');
-
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').find('[data-test="dialog-save-button"]').click();
-    cy.wait('@bulkEditRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
+      cy.get('[data-test="room-members-bulk-edit-button"]').should('be.visible').click();
+      cy.get('[data-test="dialog-save-button"]').click();
+    }, 'PUT', 'api/v1/rooms/abc-def-123/member/bulk', 'members');
   });
 
   it('bulk delete members', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -372,7 +363,7 @@ describe('Rooms view members bulk', function () {
   });
 
   it('bulk delete members errors', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
 
     cy.wait('@roomMembersRequest');
 
@@ -428,22 +419,14 @@ describe('Rooms view members bulk', function () {
     cy.get('[data-test="room-member-item"]').eq(1).find('input').should('be.checked');
     cy.get('[data-test="room-member-item"]').eq(2).find('input').should('be.checked');
 
-    // Open bulk delete dialog again
-    cy.get('[data-test="room-members-bulk-delete-button"]').should('be.visible').click();
-    cy.get('[data-test="room-members-bulk-delete-dialog"]').should('be.visible');
+    // Deselect all users
+    cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
 
-    // Check with 401 error
-    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/member/bulk', {
-      statusCode: 401
-    }).as('bulkDeleteRequest');
-
-    cy.get('[data-test="room-members-bulk-delete-dialog"]').find('[data-test="dialog-continue-button"]').click();
-    cy.wait('@bulkDeleteRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
+      cy.get('[data-test="room-members-bulk-delete-button"]').should('be.visible').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
+    }, 'DELETE', 'api/v1/rooms/abc-def-123/member/bulk', 'members');
   });
 
   it('bulk import members', function () {
@@ -460,7 +443,7 @@ describe('Rooms view members bulk', function () {
       }).as('roomMembersRequest');
     });
 
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
     cy.wait('@roomMembersRequest');
 
     cy.get('#overlay_menu').should('not.exist');
@@ -513,7 +496,7 @@ describe('Rooms view members bulk', function () {
       cy.fixture('roomMembers.json').then(roomMembers => {
         roomMembers.data = roomMembers.data.slice(0, 1);
         roomMembers.data[0].role = 2;
-        roomMembers.data.push({ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraMWalter@domain.tld', role: 2, image: null });
+        roomMembers.data.push({ id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null });
         roomMembers.meta.to = 2;
         roomMembers.meta.total = 2;
         roomMembers.meta.total_no_filter = 2;
@@ -580,7 +563,7 @@ describe('Rooms view members bulk', function () {
         statusCode: 422,
         body: {
           errors: {
-            'user_emails.2': ['notanemail must be a valid email adress.'],
+            'user_emails.2': ['notanemail must be a valid email address.'],
             'user_emails.3': ['No user was found with this e-mail']
           }
         }
@@ -631,9 +614,9 @@ describe('Rooms view members bulk', function () {
           cy.get('[data-test="room-members-bulk-import-list-item"]')
             .eq(0).within(() => {
               cy.contains('notanemail').should('be.visible');
-              cy.contains('notanemail must be a valid email adress.').should('not.be.visible');
+              cy.contains('notanemail must be a valid email address.').should('not.be.visible');
               cy.get('button').click();
-              cy.contains('notanemail must be a valid email adress.').should('be.visible');
+              cy.contains('notanemail must be a valid email address.').should('be.visible');
             });
           cy.get('[data-test="room-members-bulk-import-list-item"]')
             .eq(1).within(() => {
@@ -654,7 +637,7 @@ describe('Rooms view members bulk', function () {
       cy.fixture('roomMembers.json').then(roomMembers => {
         roomMembers.data[0].role = 2;
         roomMembers.data[1].role = 3;
-        roomMembers.data.push({ id: 6, firstname: 'Juan', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null });
+        roomMembers.data.push({ id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null });
 
         roomMembers.meta.per_page = 4;
         roomMembers.meta.to = 4;
@@ -706,9 +689,9 @@ describe('Rooms view members bulk', function () {
           cy.get('[data-test="room-members-bulk-import-list-item"]')
             .eq(0).within(() => {
               cy.contains('notanemail').should('be.visible');
-              cy.contains('notanemail must be a valid email adress.').should('not.be.visible');
+              cy.contains('notanemail must be a valid email address.').should('not.be.visible');
               cy.get('button').click();
-              cy.contains('notanemail must be a valid email adress.').should('be.visible');
+              cy.contains('notanemail must be a valid email address.').should('be.visible');
             });
           cy.get('[data-test="room-members-bulk-import-list-item"]')
             .eq(1).within(() => {
@@ -818,7 +801,7 @@ describe('Rooms view members bulk', function () {
         roomMembers.data[0].role = 2;
         roomMembers.data[1].role = 3;
         roomMembers.data.unshift({ id: 2, firstname: 'Max', lastname: 'Doe', email: 'maxdoe@domain.tld', role: 1, image: null });
-        roomMembers.data.push({ id: 6, firstname: 'Juan', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null });
+        roomMembers.data.push({ id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null });
 
         roomMembers.meta.per_page = 5;
         roomMembers.meta.to = 5;
@@ -864,7 +847,7 @@ describe('Rooms view members bulk', function () {
   });
 
   it('bulk import members errors', function () {
-    cy.visit('/rooms/abc-def-123#members');
+    cy.visit('/rooms/abc-def-123#tab=members');
     cy.wait('@roomMembersRequest');
 
     cy.get('[data-test="room-members-add-button"]').click();
@@ -934,18 +917,14 @@ describe('Rooms view members bulk', function () {
 
     cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', '\nlaurawrivera@domain.tld');
 
-    // Check with 401 error
-    cy.intercept('POST', '/api/v1/rooms/abc-def-123/member/bulk', {
-      statusCode: 401
-    }).as('bulkImportRequest');
+    // Close dialog
+    cy.get('[data-test="dialog-header-close-button"]').click();
 
-    cy.get('[data-test="room-members-bulk-import-dialog"]').find('[data-test="dialog-continue-button"]').click();
-
-    cy.wait('@bulkImportRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-members-add-button"]').click();
+      cy.get('#overlay_menu_1').should('have.text', 'rooms.members.bulk_import_users').click();
+      cy.get('[data-test="room-members-bulk-import-textarea"]').type('\n');
+      cy.get('[data-test="dialog-continue-button"]').click();
+    }, 'POST', 'api/v1/rooms/abc-def-123/member/bulk', 'members');
   });
 });

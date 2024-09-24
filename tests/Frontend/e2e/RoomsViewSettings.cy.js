@@ -20,7 +20,7 @@ describe('Rooms view settings', function () {
 
       cy.get('#tab-settings').click();
 
-      cy.url().should('include', '/rooms/abc-def-123#settings');
+      cy.url().should('include', '/rooms/abc-def-123#tab=settings');
 
       // Check loading
 
@@ -291,7 +291,9 @@ describe('Rooms view settings', function () {
       }
     });
 
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
+
+    cy.wait('@roomRequest');
 
     cy.get('[data-test="overlay"]').should('be.visible');
 
@@ -305,17 +307,130 @@ describe('Rooms view settings', function () {
     cy.get('[data-test="room-settings-expert-mode-button"]').should('be.disabled');
     cy.get('[data-test="room-settings-save-button"]').should('be.disabled');
 
-    // Reload with 401 error
+    cy.interceptRoomFilesRequest();
+
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    // 401 error but room has no access code
     cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', {
       statusCode: 401
-    });
+    }).as('roomSettingsRequest');
 
     cy.get('[data-test="loading-retry-button"]').should('be.visible').and('have.text', 'app.reload').click();
 
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+    cy.wait('@roomSettingsRequest');
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
+    // Check that file tab is shown
+    cy.wait('@roomFilesRequest');
+    cy.url().should('not.include', '#tab=settings');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // Reload with logged in user
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    cy.reload();
+    cy.wait('@roomRequest');
+
+    // 401 error but room has an access code
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+      room.data.authenticated = false;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    cy.get('#tab-settings').click();
+
+    cy.wait('@roomSettingsRequest');
+    cy.wait('@roomRequest');
+
+    // Check that access code overlay is shown
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // 401 error but guests are forbidden
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    const roomSettingRequest1 = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/settings', {
+      statusCode: 401
+    }, 'roomSettingsRequest');
+
+    cy.reload();
+    cy.wait('@roomRequest').then(() => {
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 403,
+        body: {
+          message: 'guests_not_allowed'
+        }
+      }).as('roomRequest');
+
+      roomSettingRequest1.sendResponse();
+    });
+
+    cy.wait('@roomSettingsRequest');
+    cy.wait('@roomRequest');
+
+    // Check that the error message is shown
+    cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+
+    // 403 error
+    const roomSettingRequest2 = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/settings', {
+      statusCode: 403,
+      body: {
+        message: 'This action is unauthorized.'
+      }
+    }, 'roomSettingsRequest');
+
+    cy.reload();
+    cy.wait('@roomRequest').then(() => {
+      cy.fixture('room.json').then((room) => {
+        room.data.owner = { id: 2, name: 'Max Doe' };
+        room.data.is_member = true;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+          statusCode: 200,
+          body: room
+        }).as('roomRequest');
+      });
+
+      roomSettingRequest2.sendResponse();
+    });
+
+    cy.wait('@roomSettingsRequest');
+
+    // Check that room gets reloaded
+    cy.wait('@roomRequest');
+
+    // Check that file tab is shown
+    cy.wait('@roomFilesRequest');
+
+    cy.url().should('not.include', '#tab=settings');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
+
+    // Check that error message is shown
+    cy.checkToastMessage('app.flash.unauthorized');
   });
 
   it('load settings with different permissions', function () {
@@ -334,7 +449,7 @@ describe('Rooms view settings', function () {
       }).as('roomRequest');
     });
 
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomRequest');
     cy.wait('@roomSettingsRequest');
@@ -611,7 +726,7 @@ describe('Rooms view settings', function () {
       });
     });
 
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     // Change settings
     cy.get('#room-name').clear();
@@ -883,7 +998,7 @@ describe('Rooms view settings', function () {
       });
     });
 
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     // Check that access code setting is shown correctly
     cy.get('[data-test="access-code-setting"]')
@@ -1023,25 +1138,15 @@ describe('Rooms view settings', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Save settings and respond with 401 error
-    cy.intercept('PUT', 'api/v1/rooms/abc-def-123', {
-      statusCode: 401
-    }).as('roomSettingsSaveRequest');
-
-    cy.get('[data-test="room-settings-save-button"]').click();
-
-    cy.wait('@roomSettingsSaveRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-settings-save-button"]').click();
+    }, 'PUT', 'api/v1/rooms/abc-def-123', 'settings');
   });
 
   it('change room type', function () { // ToDo Check if needs to be split into multiple tests
     cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypesWithSettings.json' });
 
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomSettingsRequest');
 
@@ -1534,7 +1639,7 @@ describe('Rooms view settings', function () {
   });
 
   it('delete room', function () {
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomSettingsRequest');
 
@@ -1571,7 +1676,7 @@ describe('Rooms view settings', function () {
   });
 
   it('delete room errors', function () {
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomSettingsRequest');
 
@@ -1614,25 +1719,18 @@ describe('Rooms view settings', function () {
     ]);
 
     // Check that modal stays open
-    cy.get('[data-test=room-delete-dialog]').should('be.visible');
+    cy.get('[data-test=room-delete-dialog]').should('be.visible'); // ToDo??
 
-    // Check with 401 error
-    cy.intercept('DELETE', 'api/v1/rooms/abc-def-123', {
-      statusCode: 401
-    }).as('roomDeleteRequest');
+    cy.get('[data-test=dialog-cancel-button]').click();
 
-    cy.get('[data-test=room-delete-dialog]').find('[data-test="dialog-continue-button"]').click();
-
-    cy.wait('@roomDeleteRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-delete-button"]').click();
+      cy.get('[data-test=room-delete-dialog]').find('[data-test="dialog-continue-button"]').click();
+    }, 'DELETE', 'api/v1/rooms/abc-def-123', 'settings');
   });
 
   it('transfer ownership', function () {
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomSettingsRequest');
 
@@ -1735,6 +1833,8 @@ describe('Rooms view settings', function () {
         statusCode: 204
       }, 'transferOwnershipRequest');
 
+      cy.interceptRoomFilesRequest();
+
       cy.fixture('room.json').then((room) => {
         room.data.owner = { id: 10, name: 'Laura Walter' };
         room.data.is_member = true;
@@ -1752,16 +1852,21 @@ describe('Rooms view settings', function () {
       });
     });
 
-    cy.wait('@transferOwnershipRequest').then(intercepetion => {
-      expect(intercepetion.request.body).to.eql({
+    cy.wait('@transferOwnershipRequest').then(interception => {
+      expect(interception.request.body).to.eql({
         user: 10,
         role: 1
       });
     });
 
-    cy.wait('@roomRequest'); // ToDo check that page was switched????
+    cy.wait('@roomRequest');
 
     cy.contains('Laura Walter').should('be.visible');
+
+    cy.wait('@roomFilesRequest');
+
+    cy.url().should('not.include', '#tab=settings');
+    cy.url().should('include', '/rooms/abc-def-123#tab=files');
 
     // Reload page with user as owner
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
@@ -1769,6 +1874,8 @@ describe('Rooms view settings', function () {
     cy.reload();
 
     cy.wait('@roomRequest');
+
+    cy.get('#tab-settings').click();
 
     // Transfer ownership with no role selected
     cy.get('[data-test="room-transfer-ownership-button"]').click();
@@ -1810,7 +1917,7 @@ describe('Rooms view settings', function () {
   });
 
   it('transfer ownership errors', function () {
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomSettingsRequest');
 
@@ -1838,23 +1945,20 @@ describe('Rooms view settings', function () {
     // Check that dialog is still open
     cy.get('[data-test=room-transfer-ownership-dialog]').should('be.visible');
 
-    // Test 401 error on user search
-    cy.intercept('GET', '/api/v1/users/search?query=*', {
-      statusCode: 401
-    }).as('userSearchRequest');
+    cy.get('[data-test="dialog-cancel-button"]').click();
 
-    cy.get('[data-test="new-owner-dropdown"]').click();
-    cy.get('[data-test="new-owner-dropdown"]').find('input').type('L');
-
-    cy.wait('@userSearchRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-transfer-ownership-button"]').click();
+      cy.get('[data-test="new-owner-dropdown"]').click();
+      cy.get('[data-test="new-owner-dropdown"]').find('input').type('L');
+    }, 'GET', '/api/v1/users/search?query=*', 'settings');
 
     // Reload page to check other errors
-    cy.visit('/rooms/abc-def-123#settings');
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+    cy.reload();
+    cy.get('#tab-settings').click();
+
+    cy.wait('@roomRequest');
 
     cy.get('[data-test="room-transfer-ownership-button"]').click();
 
@@ -1933,20 +2037,13 @@ describe('Rooms view settings', function () {
     ]);
 
     // Check that dialog stays open
-    cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible');
+    cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible'); // ToDo??
 
-    // Transfer ownership with 401 error
-    cy.intercept('POST', 'api/v1/rooms/abc-def-123/transfer', {
-      statusCode: 401
-    }).as('transferOwnershipRequest');
+    cy.get('[data-test="dialog-cancel-button"]').click();
 
-    cy.get('[data-test="dialog-continue-button"]').click();
-
-    cy.wait('@transferOwnershipRequest');
-
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
-
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkRoomAuthErrors(() => {
+      cy.get('[data-test="room-transfer-ownership-button"]').click();
+      cy.get('[data-test="dialog-continue-button"]').click();
+    }, 'POST', 'api/v1/rooms/abc-def-123/transfer', 'settings');
   });
 });

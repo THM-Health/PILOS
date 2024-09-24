@@ -966,17 +966,32 @@ describe('Room View general', function () {
     cy.get('[data-test="reload-room-button"]').click();
     cy.wait('@roomRequest');
 
-    // Test join membership with 401 error
+    // Test join membership with 401 error //ToDo improve
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
       statusCode: 401
     }).as('joinMembershipRequest');
 
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+      room.data.description = '<p>Test</p>';
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
     cy.get('[data-test="room-join-membership-button"]').click();
 
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+    cy.wait('@joinMembershipRequest');
+    cy.wait('@roomRequest');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.url().should('include', '/rooms/abc-def-123');
+    cy.url().should('not.include', '/login');
+
+    cy.checkToastMessage('app.flash.unauthenticated');
+
+    cy.contains('auth.login').should('be.visible');
 
     // Reload room with user being a member of the room
     cy.fixture('room.json').then((room) => {
@@ -1028,10 +1043,23 @@ describe('Room View general', function () {
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="end-membership-dialog"]').should('not.exist');
 
-    // Test end membership with 401 error
+    // Test end membership with 401 error //ToDo improve
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/membership', {
       statusCode: 401
     }).as('endMembershipRequest');
+
+    // Check with 401 errors but room has an access code
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+      room.data.authenticated = false;
+      room.data.allow_membership = true;
+      room.data.description = '<p>Test</p>';
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-end-membership-button"]').click();
 
@@ -1042,10 +1070,18 @@ describe('Room View general', function () {
       expect(interception.request.headers['access-code']).to.be.undefined;
     });
 
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+    cy.wait('@roomRequest');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    // Check that redirect worked and error message is shown
+    cy.url().should('include', '/rooms/abc-def-123');
+    cy.url().should('not.include', '/login');
+
+    cy.checkToastMessage('app.flash.unauthenticated');
+
+    cy.contains('auth.login').should('be.visible');
+
+    // Check that access code overlay is shown
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
   });
 
   it('trigger favorites button', function () {
@@ -1169,21 +1205,34 @@ describe('Room View general', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Test add to favorites with unauthenticated error
+    // Test add to favorites with unauthenticated error //ToDo improve
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
       statusCode: 401
     }).as('addFavoritesRequest');
+
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+      room.data.description = '<p>Test</p>';
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-favorites-button"]')
       .should('have.attr', 'aria-label', 'rooms.favorites.add')
       .click();
 
     cy.wait('@addFavoritesRequest');
+    cy.wait('@roomRequest');
 
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+    cy.url().should('include', '/rooms/abc-def-123');
+    cy.url().should('not.include', '/login');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
+
+    cy.contains('auth.login').should('be.visible');
 
     // Reload room but room is already in favorites
     cy.fixture('room.json').then((room) => {
@@ -1226,21 +1275,39 @@ describe('Room View general', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Test remove from favorites with unauthenticated error
+    // Test remove from favorites with unauthenticated error //ToDo improve
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
       statusCode: 401
     }).as('deleteFavoritesRequest');
+
+    // Check with 401 errors but room has an access code
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+      room.data.authenticated = false;
+      room.data.allow_membership = true;
+      room.data.description = '<p>Test</p>';
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
 
     cy.get('[data-test="room-favorites-button"]')
       .should('have.attr', 'aria-label', 'rooms.favorites.remove')
       .click();
 
     cy.wait('@deleteFavoritesRequest');
+    cy.wait('@roomRequest');
 
-    // Check that redirect worked and error message is shown
-    cy.url().should('include', '/login?redirect=/rooms/abc-def-123');
+    cy.url().should('include', '/rooms/abc-def-123');
+    cy.url().should('not.include', '/login');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
+    cy.contains('auth.login').should('be.visible');
+
+    // Check that access code overlay is shown
+    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
   });
 
   it('visit with guest forbidden', function () {
