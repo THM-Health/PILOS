@@ -78,6 +78,7 @@ import RoomTabSettings from './RoomTabSettings.vue';
 import RoomTabRecordings from './RoomTabRecordings.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
+import { useUrlSearchParams } from '@vueuse/core';
 
 const props = defineProps({
   room: Object,
@@ -99,13 +100,14 @@ const toggle = (event) => {
 // Current active tab
 const activeTabKey = ref('');
 
+const hashParams = useUrlSearchParams('hash-params');
+
 // Initial tab selection
 onMounted(() => {
   // Check if tab selection is saved in URL hash and try to select it if it exists
-  if (route.hash) {
-    const savedTab = route.hash.replace('#', '');
-    if (availableTabs.value.find(tab => tab.key === savedTab)) {
-      activeTabKey.value = savedTab;
+  if (hashParams.tab) {
+    if (availableTabs.value.find(tab => tab.key === hashParams.tab)) {
+      activeTabKey.value = hashParams.tab;
       return;
     }
   }
@@ -119,7 +121,7 @@ function onRoomChanged () {
   // If active tab has become undefined, fallback to first tab
   if (activeTab.value === undefined) {
     activeTabKey.value = availableTabs.value[0].key;
-    router.replace({ hash: '#' + activeTabKey.value });
+    hashParams.tab = activeTabKey.value;
   }
 }
 
@@ -154,7 +156,7 @@ const availableTabs = computed(() => {
       command: () => {
         activeTabKey.value = tab.key;
         // Save tab selection in URL hash
-        router.replace({ hash: '#' + tab.key });
+        hashParams.tab = tab.key;
       }
     };
   });
