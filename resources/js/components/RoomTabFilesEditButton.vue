@@ -75,7 +75,7 @@
 <script setup>
 import env from '../env';
 import { useApi } from '../composables/useApi.js';
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
@@ -186,11 +186,4 @@ function save () {
     isLoadingAction.value = false;
   });
 }
-
-onBeforeUnmount(() => {
-  if (showModal.value) {
-    toast.error(t('rooms.flash.file_gone'));
-  }
-});
-
 </script>

@@ -36,7 +36,7 @@
 <script setup>
 import env from '../env';
 import { useApi } from '../composables/useApi.js';
-import { onBeforeUnmount, ref } from 'vue';
+import { ref } from 'vue';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
 
@@ -97,11 +97,4 @@ function deleteFile () {
     isLoadingAction.value = false;
   });
 }
-
-onBeforeUnmount(() => {
-  if (showModal.value) {
-    toast.error(t('rooms.flash.file_gone'));
-  }
-});
-
 </script>
