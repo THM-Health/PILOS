@@ -76,7 +76,6 @@ import RoomTabFiles from './RoomTabFiles.vue';
 import RoomTabHistory from './RoomTabHistory.vue';
 import RoomTabSettings from './RoomTabSettings.vue';
 import RoomTabRecordings from './RoomTabRecordings.vue';
-import { useRoute, useRouter } from 'vue-router';
 import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
 import { useUrlSearchParams } from '@vueuse/core';
 
