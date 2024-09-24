@@ -55,7 +55,7 @@
         "primeicons": "^7.0.0",
         "primevue": "^4.0.7",
         "sass": "^1.79.3",
-        "tailwindcss": "^3.4.12",
+        "tailwindcss": "^3.4.13",
         "tailwindcss-primeui": "^0.3.3",
         "ua-parser-js": "^1.0.39",
         "unplugin-vue-components": "^0.27.4",
