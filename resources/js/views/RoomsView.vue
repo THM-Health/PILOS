@@ -199,8 +199,7 @@ import { useUserPermissions } from '../composables/useUserPermission.js';
 import RoomHeader from '../components/RoomHeader.vue';
 import RoomShareButton from '../components/RoomShareButton.vue';
 import EventBus from '../services/EventBus.js';
-import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events.js';
-import _ from 'lodash';
+import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from '../constants/events.js';
 
 const props = defineProps({
   id: {
@@ -239,10 +238,16 @@ onMounted(() => {
     return;
   }
 
+  EventBus.on(EVENT_FORBIDDEN, reload);
+  EventBus.on(EVENT_UNAUTHORIZED, reload);
+
   load();
 });
 
 onUnmounted(() => {
+  EventBus.off(EVENT_UNAUTHORIZED, reload);
+  EventBus.off(EVENT_FORBIDDEN, reload);
+
   clearInterval(reloadInterval.value);
 });
 
@@ -353,7 +358,7 @@ function load () {
         }
       }
 
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }).finally(() => {
       // Disable loading indicator
       roomLoading.value = false;
@@ -380,17 +385,11 @@ function reload () {
   // Load data
   api.call(url, config)
     .then(response => {
-      const newRoomData = response.data.data;
-
-      const roomDataChanged = !_.isEqual(room.value, newRoomData);
-
-      room.value = newRoomData;
+      room.value = response.data.data;
       // If logged in, reset the access code valid
       if (room.value.authenticated) {
         accessCodeInvalid.value = null;
       }
-
-      if (roomDataChanged) { EventBus.emit(EVENT_CURRENT_ROOM_CHANGED, room.value); }
 
       setPageTitle(room.value.name);
 
@@ -423,7 +422,7 @@ function reload () {
           return handleGuestsNotAllowed();
         }
       }
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }).finally(() => {
       // Disable loading indicator
       loading.value = false;

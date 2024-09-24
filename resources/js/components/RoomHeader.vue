@@ -26,7 +26,12 @@
             :icon="props.loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
             data-test="reload-room-button"
           />
-          <RoomFavoriteButton v-if="!hideFavorites && authStore.isAuthenticated" :room="props.room" @favorites-changed="emit('reload')" />
+          <RoomFavoriteButton
+            v-if="!hideFavorites && authStore.isAuthenticated"
+            :room="props.room"
+            @favorites-changed="emit('reload')"
+            :no-redirect-on-unauthenticated="true"
+          />
           <RoomMembershipButton
             v-if="!hideMembership && authStore.isAuthenticated"
             :room="props.room"

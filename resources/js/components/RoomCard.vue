@@ -25,7 +25,7 @@
                   data-test="room-info-button"
                   @click.stop="showModal = true"
                 />
-                <room-favorite-button
+                <RoomFavoriteButton
                   :room="props.room"
                   class="p-0 h-8 w-8 text-sm"
                   @favorites-changed="$emit('favoritesChanged')"
@@ -66,7 +66,7 @@
       <div class="flex justify-between items-start mt-2">
         <RoomTypeBadge :room-type="props.room.type" />
         <div class="room-card-buttons shrink-0">
-          <room-favorite-button
+          <RoomFavoriteButton
             :room="props.room"
             @favorites-changed="$emit('favoritesChanged')"
           />

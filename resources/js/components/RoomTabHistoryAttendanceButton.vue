@@ -155,7 +155,7 @@ function loadData () {
       attendance.value = response.data.data;
     }).catch((error) => {
       // error during stats loading
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
     }).finally(() => {
       // disable loading indicator
       isLoadingAction.value = false;

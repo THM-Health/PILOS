@@ -185,7 +185,7 @@ function save () {
         return;
       }
     }
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
   });

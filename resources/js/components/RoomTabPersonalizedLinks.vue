@@ -92,7 +92,7 @@
 
         <template #list="slotProps">
           <div class="px-2">
-            <div v-for="(item, index) in slotProps.items" :key="index">
+            <div v-for="(item) in slotProps.items" :key="item.token">
               <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
                 <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0">{{ item.firstname }} {{ item.lastname }}</p>
@@ -224,7 +224,7 @@ function loadData (page = null) {
     })
     .catch((error) => {
       paginator.revertFirst();
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
       loadingError.value = true;
     })
     .finally(() => {

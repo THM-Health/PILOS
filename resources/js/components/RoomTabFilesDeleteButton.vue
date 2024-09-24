@@ -94,7 +94,7 @@ function deleteFile () {
       }
     }
     showModal.value = false;
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
   });

@@ -67,7 +67,7 @@
 </template>
 <script setup>
 import { useUserPermissions } from '../composables/useUserPermission.js';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import RoomTabDescription from './RoomTabDescription.vue';
 import RoomTabMembers from './RoomTabMembers.vue';
@@ -76,7 +76,8 @@ import RoomTabFiles from './RoomTabFiles.vue';
 import RoomTabHistory from './RoomTabHistory.vue';
 import RoomTabSettings from './RoomTabSettings.vue';
 import RoomTabRecordings from './RoomTabRecordings.vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
+import { useUrlSearchParams } from '@vueuse/core';
 
 const props = defineProps({
   room: Object,
@@ -86,8 +87,6 @@ const props = defineProps({
 
 const userPermissions = useUserPermissions();
 const { t } = useI18n();
-const router = useRouter();
-const route = useRoute();
 
 // Dropdown menu for mobile layout
 const menu = ref();
@@ -98,19 +97,30 @@ const toggle = (event) => {
 // Current active tab
 const activeTabKey = ref('');
 
+const hashParams = useUrlSearchParams('hash-params');
+
 // Initial tab selection
 onMounted(() => {
   // Check if tab selection is saved in URL hash and try to select it if it exists
-  if (route.hash) {
-    const savedTab = route.hash.replace('#', '');
-    if (availableTabs.value.find(tab => tab.key === savedTab)) {
-      activeTabKey.value = savedTab;
+  if (hashParams.tab) {
+    if (availableTabs.value.find(tab => tab.key === hashParams.tab)) {
+      activeTabKey.value = hashParams.tab;
       return;
     }
   }
   // Default and fallback to first tab
   activeTabKey.value = availableTabs.value[0].key;
 });
+
+onRoomHasChanged(() => props.room, () => onRoomChanged());
+
+function onRoomChanged () {
+  // If active tab has become undefined, fallback to first tab
+  if (activeTab.value === undefined) {
+    activeTabKey.value = availableTabs.value[0].key;
+    hashParams.tab = activeTabKey.value;
+  }
+}
 
 const availableTabs = computed(() => {
   const tabs = [];
@@ -143,7 +153,7 @@ const availableTabs = computed(() => {
       command: () => {
         activeTabKey.value = tab.key;
         // Save tab selection in URL hash
-        router.replace({ hash: '#' + tab.key });
+        hashParams.tab = tab.key;
       }
     };
   });
@@ -152,14 +162,6 @@ const availableTabs = computed(() => {
 // Array of all tabs available to the user
 const activeTab = computed(() => {
   return availableTabs.value.find(tab => tab.key === activeTabKey.value);
-});
-
-watch(() => activeTab.value?.key, () => {
-  // If active tab has become undefined, fallback to first tab
-  if (activeTab.value === undefined) {
-    activeTabKey.value = availableTabs.value[0].key;
-    router.replace({ hash: '#' + activeTabKey.value });
-  }
 });
 
 // Keyboard navigation

@@ -153,7 +153,7 @@
 
         <template #list="slotProps">
           <div class="px-2">
-            <div v-for="(item, index) in slotProps.items" :key="index">
+            <div v-for="(item) in slotProps.items" :key="item.id">
               <div data-test="room-file-item" class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
                 <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0 text-word-break">{{ item.filename }}</p>
@@ -199,7 +199,6 @@
                     @file-not-found="loadData()"
                     @invalid-code="emit('invalidCode')"
                     @invalid-token="emit('invalidToken')"
-                    @forbidden="loadData()"
                   />
                   <RoomTabFilesEditButton
                     :room-id="props.room.id"
@@ -232,13 +231,12 @@
 </template>
 <script setup>
 import env from '../env.js';
-import EventBus from '../services/EventBus';
-import { EVENT_CURRENT_ROOM_CHANGED } from '../constants/events';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useApi } from '../composables/useApi.js';
 import { usePaginator } from '../composables/usePaginator.js';
 import { useI18n } from 'vue-i18n';
+import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
 
 const props = defineProps({
   room: Object,
@@ -344,7 +342,7 @@ function loadData (page = null) {
           return emit('invalidCode');
         }
       }
-      api.error(error);
+      api.error(error, { noRedirectOnUnauthenticated: true });
       paginator.revertFirst();
       loadingError.value = true;
     }).finally(() => {
@@ -356,29 +354,10 @@ function onPage (event) {
   loadData(event.page + 1);
 }
 
-/**
- * Sets the event listener for current room change to reload the file list.
- *
- * @method mounted
- * @return undefined
- */
 onMounted(() => {
-  EventBus.on(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
   loadData();
 });
 
-function onRoomChanged () {
-  loadData();
-}
-
-/**
- * Removes the listener for current room change
- *
- * @method beforeDestroy
- * @return undefined
- */
-onBeforeUnmount(() => {
-  EventBus.off(EVENT_CURRENT_ROOM_CHANGED, onRoomChanged);
-});
+onRoomHasChanged(() => props.room, () => loadData());
 
 </script>

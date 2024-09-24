@@ -76,7 +76,7 @@ function deleteRoom () {
     showModal.value = false;
   }).catch((error) => {
     isLoadingAction.value = false;
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   });
 }
 </script>

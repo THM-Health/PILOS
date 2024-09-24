@@ -112,6 +112,8 @@ import { useApi } from '../composables/useApi.js';
 import env from '../env.js';
 import { useToast } from '../composables/useToast.js';
 import { useI18n } from 'vue-i18n';
+import { EVENT_FORBIDDEN } from '../constants/events.js';
+import EventBus from '../services/EventBus.js';
 
 const props = defineProps({
   roomId: {
@@ -144,7 +146,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'changed', 'forbidden']);
+const emit = defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'changed']);
 
 const authStore = useAuthStore();
 
@@ -265,7 +267,7 @@ function getJoinUrl () {
         if (error.response.status === env.HTTP_FORBIDDEN) {
           // Show error message
           toast.error(t('rooms.flash.start_forbidden'));
-          emit('forbidden');
+          EventBus.emit(EVENT_FORBIDDEN);
           showModal.value = false;
           return;
         }

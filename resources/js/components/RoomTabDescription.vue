@@ -193,7 +193,7 @@ function save () {
       return;
     }
     // Handle other errors
-    api.error(error);
+    api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     // Disable saving indicator
     isBusy.value = false;
