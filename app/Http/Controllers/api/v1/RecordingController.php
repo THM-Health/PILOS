@@ -11,7 +11,6 @@ use App\Models\Room;
 use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Log;
 
 class RecordingController extends Controller
@@ -65,7 +64,7 @@ class RecordingController extends Controller
 
         // Apply search filter
         if ($request->has('search')) {
-            $resource = $resource->where(DB::raw('LOWER(description)'), 'like', '%'.strtolower($request->query('search')).'%');
+            $resource = $resource->whereLike('description', '%'.$request->query('search').'%');
         }
 
         // Apply filter if set, first element is the column, second the value to query

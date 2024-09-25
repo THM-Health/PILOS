@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Enums\RoomUserRole;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class BulkImportRequest extends FormRequest
@@ -24,7 +23,7 @@ class BulkImportRequest extends FormRequest
                 }, ],
             'user_emails.*' => ['bail', 'required', 'email', 'distinct:ignore_case',
                 function ($attribute, $value, $fail) {
-                    $users = User::where(DB::raw('LOWER(email)'), strtolower($value));
+                    $users = User::whereLike('email', $value);
                     if ($users->count() == 0) {
                         $fail(__('validation.custom.room.user_not_found_email'));
 

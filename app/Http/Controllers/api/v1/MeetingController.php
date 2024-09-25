@@ -12,7 +12,6 @@ use App\Services\MeetingService;
 use App\Settings\GeneralSettings;
 use App\Settings\RecordingSettings;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Log;
 
 /**
@@ -51,17 +50,16 @@ class MeetingController extends Controller
         if ($request->has('search') && trim($request->search) != '') {
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
-                $searchQuery = strtolower($searchQuery);
                 $resource = $resource->where(function ($query) use ($searchQuery) {
                     $query->whereHas('room', function ($subQuery) use ($searchQuery) {
-                        $subQuery->where(DB::raw('LOWER(name)'), 'like', '%'.$searchQuery.'%');
+                        $subQuery->whereLike('name', '%'.$searchQuery.'%');
                     })
                         ->orWhereHas('room.owner', function ($subQuery) use ($searchQuery) {
-                            $subQuery->where(DB::raw('LOWER(firstname)'), 'like', '%'.$searchQuery.'%')
-                                ->orWhere(DB::raw('LOWER(lastname)'), 'like', '%'.$searchQuery.'%');
+                            $subQuery->whereLike('firstname', '%'.$searchQuery.'%')
+                                ->orWhereLike('lastname', '%'.$searchQuery.'%');
                         })
                         ->orWhereHas('server', function ($subQuery) use ($searchQuery) {
-                            $subQuery->where(DB::raw('LOWER(name)'), 'like', '%'.$searchQuery.'%');
+                            $subQuery->whereLike('name', '%'.$searchQuery.'%');
                         });
                 });
             }

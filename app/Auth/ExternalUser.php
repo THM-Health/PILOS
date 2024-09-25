@@ -6,7 +6,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use Hash;
-use Illuminate\Support\Facades\DB;
 use Log;
 use Str;
 
@@ -159,7 +158,7 @@ abstract class ExternalUser
         $roleIds = [];
 
         foreach ($matchedRoles as $roleName) {
-            $role = Role::where(DB::raw('LOWER(name)'), strtolower($roleName))->first();
+            $role = Role::whereLike('name', $roleName)->first();
 
             if (! empty($role)) {
                 $roleIds[$role->id] = ['automatic' => true];

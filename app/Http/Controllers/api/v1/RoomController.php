@@ -124,11 +124,10 @@ class RoomController extends Controller
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
                 $collection = $collection->where(function ($query) use ($searchQuery) {
-                    $searchQuery = strtolower($searchQuery);
-                    $query->where(DB::raw('LOWER(rooms.name)'), 'like', '%'.$searchQuery.'%')
+                    $query->whereLike('rooms.name', '%'.$searchQuery.'%')
                         ->orWhereHas('owner', function ($query2) use ($searchQuery) {
-                            $query2->where(DB::raw('LOWER(users.firstname)'), 'like', '%'.$searchQuery.'%')
-                                ->orWhere(DB::raw('LOWER(users.lastname)'), 'like', '%'.$searchQuery.'%');
+                            $query2->whereLike('users.firstname', '%'.$searchQuery.'%')
+                                ->orWhereLike('users.lastname', '%'.$searchQuery.'%');
                         });
                 });
             }

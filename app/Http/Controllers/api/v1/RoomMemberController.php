@@ -15,7 +15,6 @@ use App\Models\User;
 use App\Settings\GeneralSettings;
 use Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Log;
 
 class RoomMemberController extends Controller
@@ -65,10 +64,9 @@ class RoomMemberController extends Controller
             // Split search query into single words and search for them in firstname and lastname
             $searchQueries = explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
-                $searchQuery = strtolower($searchQuery);
                 $resource = $resource->where(function ($query) use ($searchQuery) {
-                    $query->where(DB::raw('LOWER(firstname)'), 'like', '%'.$searchQuery.'%')
-                        ->orWhere(DB::raw('LOWER(lastname)'), 'like', '%'.$searchQuery.'%');
+                    $query->whereLike('firstname', '%'.$searchQuery.'%')
+                        ->orWhereLike('lastname', '%'.$searchQuery.'%');
                 });
             }
         }
@@ -105,7 +103,7 @@ class RoomMemberController extends Controller
     public function bulkImport(Room $room, BulkImportRequest $request)
     {
         foreach ($request->user_emails as $userEmail) {
-            $user = User::firstWhere(DB::raw('LOWER(email)'), strtolower($userEmail));
+            $user = User::whereLike('email', $userEmail)->first();
             $room->members()->attach($user, ['role' => $request->role]);
         }
 
