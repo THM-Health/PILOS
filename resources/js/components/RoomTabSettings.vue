@@ -537,6 +537,33 @@
           </div>
         </div>
 
+        <div class="py-4 sticky bottom-0" v-if="settingsDirty">
+          <div class="dark:bg-surface-900/80 rounded-lg">
+            <Message
+            severity="warn"
+            :pt="{
+              text: 'w-full',
+            }"
+          >
+            <div class="flex flex-col md:flex-row justify-between gap-4 items-center">
+              <span class="text-center md:text-left"><i class="fas fa-warning mr-2"/> {{ $t('rooms.settings.unsaved_changes')}}</span>
+
+              <Button
+                v-if="!saveButtonIsVisible"
+                class="shrink-0 w-full md:w-auto"
+                severity="contrast"
+                :disabled="disabled"
+                :label="$t('app.save')"
+                :loading="isBusy"
+                icon="fa-solid fa-save"
+                type="submit"
+              />
+            </div>
+
+          </Message>
+          </div>
+        </div>
+
       </OverlayComponent>
       <Divider v-if="userPermissions.can('manageSettings', props.room)" />
       <div class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start" v-if="userPermissions.can('manageSettings', props.room)">
@@ -558,18 +585,13 @@
           />
         </div>
         <Button
+          ref="saveButton"
           :disabled="disabled"
           :label="$t('app.save')"
           :loading="isBusy"
           icon="fa-solid fa-save"
           type="submit"
         />
-      </div>
-
-      <div class="py-4 sticky bottom-0" v-if="settingsDirty">
-        <Message severity="warn">
-          <span>{{ $t('rooms.settings.unsaved_changes')}}</span>
-        </Message>
       </div>
     </form>
   </div>
@@ -586,6 +608,7 @@ import { useUserPermissions } from '../composables/useUserPermission.js';
 import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
 import RoomSettingEnforcedIcon from './RoomSettingEnforcedIcon.vue';
 import { sha256 } from '@noble/hashes/sha2';
+import { useElementVisibility } from '@vueuse/core';
 
 const props = defineProps({
   room: {
@@ -611,6 +634,8 @@ const api = useApi();
 const formErrors = useFormErrors();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
+const saveButton = ref(null);
+const saveButtonIsVisible = useElementVisibility(saveButton);
 
 /**
  * Save room settings
