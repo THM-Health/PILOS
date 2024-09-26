@@ -11,6 +11,7 @@ TAGS=()
 BRANCHES=(
   master
   2.x
+  3.x
 )
 REMOTE="origin"
 
@@ -44,9 +45,9 @@ for branch in "${BRANCHES[@]}"; do
 
   git checkout "$branch"
   if [ -f docusaurus.config.js ]; then
-    # If branch name is master, use 3.x as version
+    # If branch name is master, use 4.x as version
     if [ "$branch" == "master" ]; then
-      version="v3"
+      version="v4"
     else
       # Otherwise, name version as the branch name
       majorVersion=$(echo "$branch" | cut -d. -f1)
