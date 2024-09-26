@@ -1,56 +1,28 @@
-.room-icon {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    display: grid;
-    place-items: center center;
-    color: $white;
-    font-size: 15px;
-    font-weight: bold;
-    @include border-radius($thumbnail-border-radius);
-}
-
-.room-card{
-    pointer-events: auto;
-    cursor: pointer;
-}
-.room-card:hover{
-    background-color: darken(#FFF, 7.5%) !important;
-}
-
-.room-status {
-    content: '';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    @if($showRoomClosedIndicator) {
-        display: block;
-        background-color: $red;
+.room-details {
+    &__icon{
+        width: 1.5rem;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+        text-align: center
     }
-    @else {
-        display: none;
+
+    &__text{
+        flex-grow: 1;
     }
 }
 
-.room-status.running {
-    display: block;
-    background-color: $green;
+.room-dropdown {
+    ul {
+        i {
+            width: 1rem;
+            margin-right: 0.5rem;
+            text-align: center;
+        }
+    }
 }
 
 /* Basic editor styles */
 .ProseMirror {
-
-    margin-top: 10px;
-    padding: 10px;
-    outline: none;
-    border: 1px solid;
-    @include border-radius($thumbnail-border-radius);
 
     > * + * {
         margin-top: 0.75em;
@@ -59,18 +31,19 @@
         max-width: 100%;
         height: auto;
         &.ProseMirror-selectednode {
-            outline: 3px solid #68CEF8;
+            outline: 2px solid var(--p-primary-color);
         }
     }
     blockquote {
         padding-left: 1rem;
-        border-left: 3px solid rgba(#0D0D0D, 0.1);
+        border-left: 3px solid var(--p-surface-300);
     }
     ul,
     ol {
         padding: 0 1rem;
     }
 }
+
 
 .room-description {
 
@@ -80,7 +53,7 @@
     }
     blockquote {
         padding-left: 1rem;
-        border-left: 3px solid rgba(#0D0D0D, 0.1);
+        border-left: 3px solid var(--p-surface-300);
     }
     ul,
     ol {
@@ -88,14 +61,101 @@
     }
 }
 
-.color-picker-block {
-    width: 10px;
-    height: 10px;
-    display: inline-block;
-    margin-right: 5px;
+/* Dark mode */
+.dark {
+    .room-description,
+    .ProseMirror {
+        blockquote {
+            border-left: 3px solid var(--p-surface-700);
+        }
+    }
+}
+
+.room-description,
+.ProseMirror {
+    h1{
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 600;
+    }
+
+    h2{
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        font-weight: 600;
+    }
+
+    h3{
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        font-weight: 600;
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    a {
+        color: var(--p-primary-color);
+        &:hover {
+            text-decoration: underline;
+        }
+
+    }
 }
 
 .room-bulk-import-preview {
     overflow-y: auto;
     max-height: 200px;
+}
+
+.room-type-badge {
+    white-space: normal;
+    color: #FFF;
+}
+
+.room-role-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-role-participant {
+        background-color: var(--p-emerald-500);
+    }
+
+    &.room-role-moderator {
+        background-color: var(--p-sky-500);
+    }
+
+    &.room-role-co-owner {
+        background-color: var(--p-amber-500);
+    }
+
+    &.room-role-no-role {
+        background-color: var(--p-slate-500);
+    }
+}
+
+.room-recording-access-badge {
+    white-space: normal;
+    color: #FFF;
+
+    &.room-access-everyone {
+        background-color: var(--p-slate-500);
+    }
+
+    &.room-access-participant {
+        background-color: var(--p-emerald-500);
+    }
+
+    &.room-access-moderator {
+        background-color: var(--p-sky-500);
+    }
+
+    &.room-access-owner {
+        background-color: var(--p-amber-500);
+    }
 }

@@ -1,35 +1,21 @@
 <template>
-  <b-container class="mt-3 mb-5">
-    <b-card class="p-3 border bg-white">
-      <h3>
-        {{ $t('app.profile') }}
-      </h3>
-      <hr>
-
-      <b-overlay :show="!currentUser">
-        <template #overlay>
-          <div class="text-center">
-            <b-spinner></b-spinner>
-          </div>
-        </template>
-        <view-edit-component v-if="currentUser" :id="currentUser.id"></view-edit-component>
-      </b-overlay>
-    </b-card>
-  </b-container>
+  <div class="container pt-8 mb-8">
+    <Card>
+      <template #title><h1 class="text-3xl">{{ $t('app.profile') }}</h1></template>
+      <template #content>
+        <OverlayComponent :show="!authStore.currentUser">
+          <UserTabSection
+            v-if="authStore.currentUser"
+            :id="authStore.currentUser.id"
+          />
+        </OverlayComponent>
+      </template>
+    </Card>
+  </div>
 </template>
 
-<script>
-import ViewEditComponent from '../components/User/ViewEditComponent.vue';
+<script setup>
 import { useAuthStore } from '../stores/auth';
-import { mapState } from 'pinia';
 
-export default {
-  components: {
-    ViewEditComponent
-  },
-  computed: {
-    ...mapState(useAuthStore, ['currentUser'])
-  }
-};
-
+const authStore = useAuthStore();
 </script>

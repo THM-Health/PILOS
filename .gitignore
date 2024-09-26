@@ -11,11 +11,16 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+.DS_Store
 /public/build
 /public/fonts
 .nyc_output
 coverage
 coverage.xml
 /db
-/ssl
+/redis
 version
+components.d.ts
+public/playback-player
+tests/Frontend/screenshots
+tests/Frontend/videos

@@ -6,7 +6,6 @@ use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIfConfig;
-use App\Http\Middleware\RouteEnableIfSetting;
 use App\Http\Middleware\StoreSessionData;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
@@ -69,20 +68,19 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middlewareAliases = [
-        'auth'                  => \App\Http\Middleware\Authenticate::class,
-        'auth.basic'            => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'cache.headers'         => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can'                   => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest'                 => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'password.confirm'      => \Illuminate\Auth\Middleware\RequirePassword::class,
-        'signed'                => \Illuminate\Routing\Middleware\ValidateSignature::class,
-        'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified'              => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'room.authenticate'     => RoomAuthenticate::class,
-        'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
-        'check.stale'           => EnsureModelNotStale::class,
-        'enable_if_config'      => RouteEnableIfConfig::class,
-        'enable_if_setting'     => RouteEnableIfSetting::class,
-        'shibboleth'            => \App\Auth\Shibboleth\ShibbolethSessionMiddleware::class,
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'room.authenticate' => RoomAuthenticate::class,
+        'loggedin' => \App\Http\Middleware\LoggedInUser::class,
+        'check.stale' => EnsureModelNotStale::class,
+        'enable_if_config' => RouteEnableIfConfig::class,
+        'shibboleth' => \App\Auth\Shibboleth\ShibbolethSessionMiddleware::class,
     ];
 }

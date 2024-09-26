@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Models\User;
-use App\Services\RoomTestHelper;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RoomFactory extends Factory
@@ -25,14 +24,15 @@ class RoomFactory extends Factory
     public function definition()
     {
         return [
-            'name'         => self::createValidRoomName(),
+            'name' => self::createValidRoomName(),
             'room_type_id' => RoomType::factory(),
-            'user_id'      => User::factory(),
+            'user_id' => User::factory(),
         ];
     }
 
     /**
      * Create valid random room name
+     *
      * @return string
      */
     public static function createValidRoomName()
@@ -40,7 +40,7 @@ class RoomFactory extends Factory
         $faker = \Faker\Factory::create();
         while (true) {
             $name = $faker->word;
-            if (strlen($name) > 1 && strlen($name) < config('bigbluebutton.room_name_limit') ) {
+            if (strlen($name) > 1 && strlen($name) < config('bigbluebutton.room_name_limit')) {
                 return $name;
             }
         }

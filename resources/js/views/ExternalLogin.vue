@@ -1,47 +1,57 @@
 <template>
-    <div class="container">
-    <div class="row mt-4 mb-5">
-      <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
-        <b-card v-if="error" :header="$t('auth.error.login_failed')" bg-variant="white" header-bg-variant="danger" >
-
-          <strong>{{ $t('auth.error.reason') }}</strong>
-          <p v-if="error == 'missing_attributes'">{{ $t('auth.error.missing_attributes') }}</p>
-          <p v-if="error == 'shibboleth_session_duplicate_exception'">{{ $t('auth.error.shibboleth_session_duplicate_exception') }}</p>
-
-          <template #footer>
-            <b-button variant="dark" block :to="{ name: 'home'}">
-              {{ $t('app.home') }}
-          </b-button>
+  <div class="container">
+    <div class="grid grid-cols-12 gap-4 mt-6 mb-8">
+      <div class="col-span-12 md:col-span-8 lg:col-span-6 md:col-start-3 lg:col-start-4">
+        <Card v-if="error">
+          <template #title> {{ $t('auth.error.login_failed') }} </template>
+          <template #content>
+            <Message v-if="props.error === 'missing_attributes'" severity="error" :closable="false" >{{ $t('auth.error.missing_attributes') }}</Message>
+            <Message v-if="props.error === 'shibboleth_session_duplicate_exception'" severity="error" :closable="false">{{ $t('auth.error.shibboleth_session_duplicate_exception') }}</Message>
           </template>
-        </b-card>
+          <template #footer>
+            <Button
+              as="router-link"
+              :to="{ name: 'home'}"
+              :label="$t('app.home')"
+            />
+          </template>
+        </Card>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
+<script setup>
 
-  props: {
-    error: {
-      type: String,
-      default: null
-    }
-  },
+import { onMounted } from 'vue';
+import { useToast } from '../composables/useToast.js';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
-  mounted () {
-    // Successfull login via external provider
-    if (!this.error) {
-      // show toast message
-      this.toastSuccess(this.$t('auth.flash.login'));
-      // check if user should be redirected back after login,
-      // otherwise redirect to own rooms (dashboard)
-      if (this.$route.query.redirect !== undefined) {
-        this.$router.push(this.$route.query.redirect);
-      } else {
-        this.$router.push({ name: 'rooms.own_index' });
-      }
+const props = defineProps({
+  error: {
+    type: String,
+    default: null
+  }
+});
+
+const toast = useToast();
+const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
+
+onMounted(() => {
+  // Successfully login via external provider
+  if (!props.error) {
+    // show toast message
+    toast.success(t('auth.flash.login'));
+    // check if user should be redirected back after login,
+    // otherwise redirect to own rooms (dashboard)
+    if (route.query.redirect !== undefined) {
+      router.push(route.query.redirect);
+    } else {
+      router.push({ name: 'rooms.index' });
     }
   }
-};
+});
 </script>

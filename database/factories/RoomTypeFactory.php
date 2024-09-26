@@ -23,10 +23,9 @@ class RoomTypeFactory extends Factory
     public function definition()
     {
         return [
-            'short' => $this->faker->randomLetter . "" . $this->faker->randomLetter,
-            'description' => $this->faker->word,
+            'name' => $this->faker->word,
             'color' => $this->faker->hexColor,
-            'server_pool_id' => ServerPool::factory()
+            'server_pool_id' => ServerPool::factory(),
         ];
     }
 }

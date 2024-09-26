@@ -24,15 +24,24 @@ class MeetingFactory extends Factory
     public function definition()
     {
         $length = $this->faker->numberBetween(1, 20000);
-        $end    = $this->faker->date('U');
+        $end = $this->faker->date('U');
 
         return [
-            'room_id'     => Room::factory(),
-            'server_id'   => Server::factory(),
-            'attendee_pw'  => $this->faker->password,
-            'moderator_pw' => $this->faker->password,
-            'start'       => date('Y-m-d H:i:s', $end - $length),
-            'end'         => date('Y-m-d H:i:s', $end),
+            'room_id' => Room::factory(),
+            'server_id' => Server::factory(),
+            'start' => date('Y-m-d H:i:s', $end - $length),
+            'end' => date('Y-m-d H:i:s', $end),
         ];
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Meeting $meeting) {
+            $meeting->room->latestMeeting()->associate($meeting);
+            $meeting->room->save();
+        });
     }
 }

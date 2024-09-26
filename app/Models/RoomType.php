@@ -11,12 +11,27 @@ class RoomType extends Model
 {
     use AddsModelNameTrait, HasFactory;
 
-    protected $casts = [
-        'allow_listing' => 'boolean',
-        'restrict'      => 'boolean'
-    ];
+    protected function casts()
+    {
+        $casts = [
+            'restrict' => 'boolean',
+            'max_participants' => 'integer',
+            'max_duration' => 'integer',
+            // Default room settings
+            'has_access_code_default' => 'boolean',
+            'has_access_code_enforced' => 'boolean',
+        ];
 
-    protected $fillable = ['short','description','color', 'restrict'];
+        // Generate casts for default room settings (that are also present in the room)
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $casts[$setting.'_default'] = $config['cast'];
+            $casts[$setting.'_enforced'] = 'boolean';
+        }
+
+        return $casts;
+    }
+
+    protected $fillable = ['name', 'color', 'restrict'];
 
     public function rooms()
     {

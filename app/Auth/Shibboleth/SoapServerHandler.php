@@ -13,7 +13,7 @@ class SoapServerHandler
     {
         // Delete all sessions with the given shibboleth session id
         $hashShibbolethSessionId = app(ShibbolethProvider::class)->hashShibbolethSessionId($SessionID);
-        $lookupSessions          = SessionData::where('key', 'shibboleth_session_id')->where('value', $hashShibbolethSessionId)->get();
+        $lookupSessions = SessionData::where('key', 'shibboleth_session_id')->where('value', $hashShibbolethSessionId)->get();
         foreach ($lookupSessions as $lookupSession) {
             $lookupSession->session()->delete();
         }

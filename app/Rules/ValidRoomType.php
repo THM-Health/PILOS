@@ -10,7 +10,7 @@ use Illuminate\Contracts\Validation\Rule;
 class ValidRoomType implements Rule
 {
     /**
-     * @var User $owner The owner of the room.
+     * @var User The owner of the room.
      */
     private User $owner;
 
@@ -27,13 +27,12 @@ class ValidRoomType implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string $attribute
+     * @param  string  $attribute
      * @param  mixed  $value
-     * @return bool
      */
     public function passes($attribute, $value): bool
     {
-        if (!is_numeric($value)) {
+        if (! is_numeric($value)) {
             return false;
         }
 
@@ -42,8 +41,6 @@ class ValidRoomType implements Rule
 
     /**
      * Get the validation error message.
-     *
-     * @return string
      */
     public function message(): string
     {

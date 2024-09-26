@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Facade;
 use App\Services\LocaleService;
+use Illuminate\Support\Facades\Facade;
 
 // Directories to search for locale files
 $defaultLocaleDir = base_path('lang');
@@ -39,13 +39,11 @@ return [
 
     'name' => env('APP_NAME', 'PILOS'),
 
-    'theme' => env('VITE_THEME', 'default'),
-
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
     'version' => $appVersion,
 
-    'whitelabel' => env('WHITELABEL', false),
+    'whitelabel' => (bool) env('WHITELABEL', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -228,15 +226,16 @@ return [
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\FakerServiceProvider::class,
 
         App\Auth\LDAP\LDAPServiceProvider::class,
         App\Auth\Shibboleth\ShibbolethServiceProvider::class,
 
-        // Laravel IDE helper
-        \Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
-
         App\Providers\TranslationServiceProvider::class,
+
+        App\Plugins\PluginServiceProvider::class,
     ],
 
     /*

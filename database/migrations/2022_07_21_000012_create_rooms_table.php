@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      *
@@ -13,12 +14,12 @@ return new class extends Migration {
     public function up()
     {
         Schema::create('rooms', function (Blueprint $table) {
-            $table->string('id',15);
+            $table->string('id', 15);
             $table->primary('id');
-            $table->string('name',256);
-            $table->string('welcome',5000)->nullable();
-            $table->integer('max_participants')->nullable();
-            $table->integer('duration')->nullable();
+            $table->string('name', 256);
+            $table->text('description')->nullable();
+            $table->string('short_description', 300)->nullable();
+            $table->string('welcome', 5000)->nullable();
             $table->boolean('webcams_only_for_moderator')->default(false);
             $table->boolean('mute_on_start')->default(false);
             $table->boolean('lock_settings_disable_cam')->default(false);
@@ -44,10 +45,15 @@ return new class extends Migration {
             $table->integer('listener_count')->nullable();
             $table->integer('voice_participant_count')->nullable();
             $table->integer('video_count')->nullable();
-            $table->boolean('listed')->default(false);
-            $table->boolean('record_attendance')->default(false);
-            $table->dateTime('delete_inactive')->nullable();
+            $table->integer('visibility')->default(\App\Enums\RoomVisibility::PRIVATE);
 
+            $table->boolean('record_attendance')->default(false);
+            $table->boolean('record')->default(false);
+            $table->boolean('auto_start_recording')->default(false);
+
+            $table->boolean('expert_mode')->default(false);
+
+            $table->dateTime('delete_inactive')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

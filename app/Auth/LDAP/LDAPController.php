@@ -34,8 +34,8 @@ class LDAPController extends Controller
     protected function credentials(Request $request)
     {
         return [
-            'password' => $request->get('password'),
-            'username' => $request->get('username')
+            'password' => $request->input('password'),
+            'username' => $request->input('username'),
         ];
     }
 
@@ -50,7 +50,6 @@ class LDAPController extends Controller
     /**
      * Process the login request
      *
-     * @param  Request $request
      * @return void
      */
     public function login(Request $request)
@@ -67,8 +66,7 @@ class LDAPController extends Controller
     /**
      * The user has been authenticated.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  mixed                    $user
+     * @param  mixed  $user
      * @return mixed
      */
     protected function authenticated(Request $request, $user)

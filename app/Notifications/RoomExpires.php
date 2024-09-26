@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Models\Room;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class RoomExpires extends Notification
+class RoomExpires extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -25,13 +26,13 @@ class RoomExpires extends Notification
      */
     public function __construct(Room $room)
     {
-        $this->room      = $room;
+        $this->room = $room;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -42,7 +43,7 @@ class RoomExpires extends Notification
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed                                          $notifiable
+     * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
@@ -61,7 +62,7 @@ class RoomExpires extends Notification
         $url = url('rooms/'.$this->room->id);
 
         // Get the latest meeting of the room
-        $lastMeeting = $this->room->latestMeeting();
+        $lastMeeting = $this->room->latestMeeting;
 
         $message = (new MailMessage)
             ->subject(__('mail.room_expires.subject', ['name' => $this->room->name]))
@@ -69,16 +70,16 @@ class RoomExpires extends Notification
 
         // If room has no meeting, room will deleted due to creating but never using the room
         if ($lastMeeting == null) {
-            $message->line(__('mail.room_expires.no_meeting', ['name' => $this->room->name,'date' => $createdAt]));
+            $message->line(__('mail.room_expires.no_meeting', ['name' => $this->room->name, 'date' => $createdAt]));
         }
         // If room has a meeting, that was too long ago
         else {
             $days = now()->diffInDays($lastMeeting->start);
-            $message->line(__('mail.room_expires.inactivity', ['name' => $this->room->name,'date' => $createdAt, 'days' => $days]));
+            $message->line(__('mail.room_expires.inactivity', ['name' => $this->room->name, 'date' => $createdAt, 'days' => $days]));
         }
 
         return $message
-            ->action(__('mail.room_expires.open', ), $url)
+            ->action(__('mail.room_expires.open'), $url)
             ->line(__('mail.room_expires.expire', ['date' => $date]))
             ->line(__('mail.room_expires.keep'))
             ->line(__('mail.room_expires.delete'))

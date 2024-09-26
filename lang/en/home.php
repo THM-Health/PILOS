@@ -1,47 +1,48 @@
 <?php
 
 return [
-    'description'          => 'The application is based on the Open Source Project BigBlueButton.',
-    'description_extended' => 'You can create rooms for your lectures, seminars and tutorials and invite students, employees and guest over a short link. Also you can use the platform for exams and meetings.',
-    'possibilities'        => [
-        'audio' => [
-            'description' => 'Communicate over a high quality audio connection',
-            'title'       => 'Audio',
+    'description_details' => 'Designed with education at its core, PILOS offers a seamless, interactive, and secure solution for online learning, teaching, and all kinds of virtual meetings. Adaptable to your needs, PILOS delivers high-quality video, robust collaboration tools, and an intuitive user experience.',
+    'description_intro' => 'All in one video conferencing platform powered by BigBlueButton™.',
+    'features' => [
+        'collaboration' => [
+            'description' => 'Share your screen, use the interactive multi-user whiteboard, and work together in breakout rooms.',
+            'title' => 'Collaboration',
         ],
-        'chat' => [
-            'description' => 'Direct feedback from your viewers',
-            'title'       => 'Emojis',
+        'communication' => [
+            'description' => 'High quality video and audio to foster a more personal and engaging experience.',
+            'title' => 'Video and Audio',
         ],
-        'emojis' => [
-            'description' => 'Send public and private messages',
-            'title'       => 'Chat',
+        'description' => 'Explore what makes PILOS the perfect solution for you next video conference and how it can help you reach your audience in an engaging and interactive way.',
+        'engagement' => [
+            'description' => 'Engage your audience with interactive tools like chat, emojis, surveys and much more.',
+            'title' => 'Engagement',
         ],
-        'groups' => [
-            'description' => 'Divide user in small groups for team works',
-            'title'       => 'Small groups',
+        'recording' => [
+            'description' => 'Record your videoconferences and make them available using fine grained permission control.',
+            'title' => 'Recording',
         ],
-        'screen_sharing' => [
-            'description' => 'Share your screen or application',
-            'title'       => 'Screen sharing',
+        'security' => [
+            'description' => 'All communication data is securely encrypted during transmission using the WebRTC protocol.',
+            'title' => 'Security',
         ],
         'statistics' => [
-            'description' => 'Measure attendance and media use',
-            'title'       => 'Reports',
+            'description' => 'Get detailed reports on the attendance and usage of your videoconferences.',
+            'title' => 'Statistics',
         ],
-        'surveys' => [
-            'description' => 'Interact at any time with your viewers',
-            'title'       => 'Surveys',
+        'title' => 'All you need for a great video conference experience',
+        'vision' => 'Connecting People',
+    ],
+    'title' => [
+        'first_line' => [
+            'after_flip_words' => ' ',
+            'before_flip_words' => 'Online ',
+            'flip_words' => 'Meetings|Lectures|Seminars|Exams',
         ],
-        'title'   => 'Possibilities of PILOS',
-        'webcams' => [
-            'description' => 'Allow personal visual conversations',
-            'title'       => 'Webcams',
-        ],
-        'whiteboard' => [
-            'description' => 'Use a virtual, interactive multi user whiteboard',
-            'title'       => 'Multi user whiteboard',
+        'get_started' => 'Get started',
+        'second_line' => [
+            'after_underline' => '.',
+            'before_underline' => 'made simple and ',
+            'underline' => 'secure',
         ],
     ],
-    'subtitle' => 'PILOS is the platform for interactive Live-Online-Seminars.',
-    'title'    => 'Welcome to PILOS.',
 ];

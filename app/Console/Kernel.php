@@ -2,14 +2,17 @@
 
 namespace App\Console;
 
-use App\Console\Commands\CleanupAttendance;
-use App\Console\Commands\CleanupRooms;
-use App\Console\Commands\CleanupStatistics;
-use App\Console\Commands\CreateAdminUser;
-use App\Console\Commands\BuildHistory;
-use App\Console\Commands\DeleteObsoleteTokens;
-use App\Console\Commands\DeleteUnverifiedNewUsers;
-use App\Console\Commands\ImportGreenlight2;
+use App\Console\Commands\CleanupAttendanceCommand;
+use App\Console\Commands\CleanupRecordingsCommand;
+use App\Console\Commands\CleanupRoomsCommand;
+use App\Console\Commands\CleanupStatisticsCommand;
+use App\Console\Commands\CreateSuperuserCommand;
+use App\Console\Commands\DeleteObsoleteTokensCommand;
+use App\Console\Commands\DeleteUnverifiedNewUsersCommand;
+use App\Console\Commands\ImportGreenlight2Command;
+use App\Console\Commands\ImportRecordingsCommand;
+use App\Console\Commands\PollServerCommand;
+use Database\Seeders\Demo\CreateDemoSystem;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -21,13 +24,16 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        BuildHistory::class,
-        CreateAdminUser::class,
-        ImportGreenlight2::class,
-        CleanupAttendance::class,
-        CleanupStatistics::class,
-        DeleteObsoleteTokens::class,
-        CleanupRooms::class
+        PollServerCommand::class,
+        CreateSuperuserCommand::class,
+        ImportGreenlight2Command::class,
+        CleanupAttendanceCommand::class,
+        CleanupStatisticsCommand::class,
+        DeleteObsoleteTokensCommand::class,
+        CleanupRoomsCommand::class,
+        CleanupRecordingsCommand::class,
+        ImportRecordingsCommand::class,
+        CreateDemoSystem::class,
     ];
 
     /**
@@ -35,12 +41,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command(BuildHistory::class)->everyMinute();
-        $schedule->command(DeleteUnverifiedNewUsers::class)->everyMinute();
-        $schedule->command(CleanupStatistics::class)->daily();
-        $schedule->command(CleanupAttendance::class)->daily();
-        $schedule->command(CleanupRooms::class)->daily();
-        $schedule->command(DeleteObsoleteTokens::class)->daily();
+        $schedule->command(PollServerCommand::class)->everyMinute()->onOneServer();
+        $schedule->command(DeleteUnverifiedNewUsersCommand::class)->everyMinute()->onOneServer();
+        $schedule->command(CleanupStatisticsCommand::class)->daily()->onOneServer();
+        $schedule->command(CleanupAttendanceCommand::class)->daily()->onOneServer();
+        $schedule->command(CleanupRoomsCommand::class)->daily()->onOneServer();
+        $schedule->command(CleanupRecordingsCommand::class)->daily()->onOneServer();
+        $schedule->command(DeleteObsoleteTokensCommand::class)->daily()->onOneServer();
+        $schedule->command('telescope:prune')->daily()->onOneServer();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes()->onOneServer();
+        $schedule->command(ImportRecordingsCommand::class)->everyMinute()->onOneServer();
     }
 
     /**
@@ -48,7 +58,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

@@ -3,31 +3,31 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * This class provides the notification for password reset emails.
- *
- * @package App\Notifications
  */
-class EmailChanged extends Notification
+class EmailChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
     private string $email;
+
     private string $fullname;
 
     public function __construct(string $email, string $fullname)
     {
-        $this->email    = $email;
+        $this->email = $email;
         $this->fullname = $fullname;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -38,8 +38,7 @@ class EmailChanged extends Notification
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed       $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     public function toMail($notifiable): MailMessage
     {

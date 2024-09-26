@@ -17,7 +17,6 @@ class MeetingPolicy
     /**
      * Determine whether the user can view any rooms.
      *
-     * @param  User $user
      * @return bool
      */
     public function viewAny(User $user)

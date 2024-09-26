@@ -2,17 +2,25 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * User role in a room enum
- * @package App\Enums
  */
-final class RoomUserRole extends Enum
+enum RoomUserRole: int
 {
-    public const GUEST     =   0;
-    public const USER      =   1;
-    public const MODERATOR =   2;
-    public const CO_OWNER  =   3;
-    public const OWNER     =   4;
+    case GUEST = 0;
+    case USER = 1;
+    case MODERATOR = 2;
+    case CO_OWNER = 3;
+    case OWNER = 4;
+
+    public function label(): string
+    {
+        return match ($this) {
+            RoomUserRole::GUEST => 'Guest',
+            RoomUserRole::USER => 'User',
+            RoomUserRole::MODERATOR => 'Moderator',
+            RoomUserRole::CO_OWNER => 'Co-Owner',
+            RoomUserRole::OWNER => 'Owner',
+        };
+    }
 }

@@ -8,7 +8,7 @@
 - Other (please describe):
 
 ## Checklist
-- [ ] Code updated to current masters head
+- [ ] Code updated to current develop branch head
 - [ ] Passes CI checks
 - [ ] Is a part of an issue
 - [ ] Tests added for the bugfix or newly implemented feature, describe below why if not

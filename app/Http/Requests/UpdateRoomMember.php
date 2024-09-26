@@ -11,7 +11,7 @@ class UpdateRoomMember extends FormRequest
     public function rules()
     {
         return [
-            'role' => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR,RoomUserRole::CO_OWNER])],
+            'role' => ['required', Rule::in([RoomUserRole::USER, RoomUserRole::MODERATOR, RoomUserRole::CO_OWNER])],
         ];
     }
 }

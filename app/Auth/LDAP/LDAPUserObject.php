@@ -9,8 +9,6 @@ class LDAPUserObject extends Model
 {
     /**
      * The "booting" method of the model.
-     *
-     * @return void
      */
     protected static function boot(): void
     {
@@ -36,7 +34,7 @@ class LDAPUserObject extends Model
         );
 
         // Only select the attributes that are defined in the mapping
-        $attributeMap   = config('ldap.mapping')->attributes;
+        $attributeMap = config('ldap.mapping')->attributes;
         foreach ($attributeMap as $attribute) {
             $query->addSelect($attribute);
         }

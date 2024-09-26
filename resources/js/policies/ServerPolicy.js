@@ -5,50 +5,50 @@ export default {
   /**
    * Returns a boolean that indicates whether the user can view all servers or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.viewAny');
+  viewAny (user) {
+    return !user ? false : user.permissions.includes('servers.viewAny');
   },
 
   /**
    * Returns a boolean that indicates whether the user can create servers or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  create (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.create');
+  create (user) {
+    return !user ? false : user.permissions.includes('servers.create');
   },
 
   /**
    * Returns a boolean that indicates whether the user can view server or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  view (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.view');
+  view (user) {
+    return !user ? false : user.permissions.includes('servers.view');
   },
 
   /**
    * Returns a boolean that indicates whether the user can update the passed server or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  update (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.update');
+  update (user) {
+    return !user ? false : user.permissions.includes('servers.update');
   },
 
   /**
    * Returns a boolean that indicates whether the user can delete the passed server or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  delete (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.delete');
+  delete (user) {
+    return !user ? false : user.permissions.includes('servers.delete');
   }
 };

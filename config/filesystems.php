@@ -36,6 +36,18 @@ return [
             'throw' => false,
         ],
 
+        'recordings' => [
+            'driver' => 'local',
+            'root' => storage_path('recordings'),
+            'throw' => false,
+        ],
+
+        'recordings-spool' => [
+            'driver' => 'local',
+            'root' => storage_path('recordings-spool'),
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
@@ -74,7 +86,7 @@ return [
     ],
 
     'x-accel' => [
-        'url_prefix' => '/private-storage'
-    ]
+        'url_prefix' => '/private-storage',
+    ],
 
 ];

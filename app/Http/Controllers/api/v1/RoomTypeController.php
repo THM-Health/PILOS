@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTypeDestroyRequest;
 use App\Http\Requests\RoomTypeRequest;
 use App\Http\Resources\RoomType as RoomTypeResource;
+use App\Http\Resources\RoomTypeResourceCollection;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Http\JsonResponse;
@@ -18,31 +19,31 @@ class RoomTypeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(RoomType::class, 'roomType');
-        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withServerPool', ['only' => 'update']);
+        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withDetails,withDefaultRoomSettings', ['only' => 'update']);
     }
 
     /**
      * Return a json array with all room types
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return RoomTypeResourceCollection
      */
     public function index(Request $request)
     {
         $roomTypes = RoomType::query();
 
         if ($request->has('filter')) {
-            $filter = $request->get('filter');
+            $filter = $request->query('filter');
 
             if ($filter === 'own') {
+                // Get list of the room type the current user has access to (Used when creating a new room)
                 $roomTypes = $roomTypes->where('restrict', '=', false)
                     ->orWhereIn('id', function ($query) {
                         $query->select('role_room_type.room_type_id')
                             ->from('role_room_type as role_room_type')
                             ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
                     });
-            } elseif ($filter === 'searchable') {
-                $roomTypes = $roomTypes->where('allow_listing', '=', true);
             } else {
+                // Get list of room types the owner of the given room has access to (Used when changing room type)
                 $room = Room::find($filter);
 
                 if (is_null($room) || Auth::user()->cannot('viewSettings', $room)) {
@@ -57,73 +58,99 @@ class RoomTypeController extends Controller
                     });
             }
         }
+        if ($request->boolean('with_room_settings')) {
+            return (new RoomTypeResourceCollection($roomTypes->orderByRaw('LOWER(name)')->get()))->withDefaultRoomSettings();
+        } else {
+            return new RoomTypeResourceCollection($roomTypes->orderByRaw('LOWER(name)')->get());
+        }
 
-        return RoomTypeResource::collection($roomTypes->get());
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  RoomType         $roomType
      * @return RoomTypeResource
      */
     public function show(RoomType $roomType)
     {
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+
+        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  RoomTypeRequest  $request
-     * @param  RoomType         $roomType
      * @return RoomTypeResource
      */
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
-        $roomType->description   = $request->description;
-        $roomType->short         = $request->short;
-        $roomType->color         = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
-        $roomType->restrict      = $request->restrict;
+        $roomType->name = $request->name;
+        $roomType->description = $request->description;
+        $roomType->color = $request->color;
+        $roomType->restrict = $request->restrict;
+        $roomType->max_participants = $request->max_participants;
+        $roomType->max_duration = $request->max_duration;
+        $roomType->create_parameters = $request->create_parameters;
         $roomType->serverPool()->associate($request->server_pool);
+
+        // Save default room settings
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $roomType[$setting.'_default'] = $request[$setting.'_default'];
+            $roomType[$setting.'_enforced'] = $request[$setting.'_enforced'];
+        }
+
+        $roomType->has_access_code_default = $request->has_access_code_default;
+        $roomType->has_access_code_enforced = $request->has_access_code_enforced;
+
         $roomType->save();
+
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  RoomTypeRequest  $request
      * @return RoomTypeResource
      */
     public function store(RoomTypeRequest $request)
     {
-        $roomType                = new RoomType();
-        $roomType->description   = $request->description;
-        $roomType->short         = $request->short;
-        $roomType->color         = $request->color;
-        $roomType->allow_listing = $request->allow_listing;
-        $roomType->restrict      = $request->restrict;
+        $roomType = new RoomType;
+        $roomType->name = $request->name;
+        $roomType->description = $request->description;
+        $roomType->color = $request->color;
+        $roomType->restrict = $request->restrict;
+        $roomType->max_participants = $request->max_participants;
+        $roomType->max_duration = $request->max_duration;
+        $roomType->create_parameters = $request->create_parameters;
         $roomType->serverPool()->associate($request->server_pool);
+
+        // Safe default room settings
+        foreach (Room::ROOM_SETTINGS_DEFINITION as $setting => $config) {
+            $roomType[$setting.'_default'] = $request[$setting.'_default'];
+            $roomType[$setting.'_enforced'] = $request[$setting.'_enforced'];
+        }
+
+        $roomType->has_access_code_default = $request->has_access_code_default;
+        $roomType->has_access_code_enforced = $request->has_access_code_enforced;
+
         $roomType->save();
+
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
 
-        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
+        return (new RoomTypeResource($roomType))->withDetails()->withDefaultRoomSettings();
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  RoomTypeDestroyRequest $request
-     * @param  RoomType               $roomType
      * @return JsonResponse|Response
+     *
      * @throws \Exception
      */
     public function destroy(RoomTypeDestroyRequest $request, RoomType $roomType)

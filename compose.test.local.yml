@@ -1,0 +1,26 @@
+name: pilos-ci
+
+services:
+  app:
+    image: 'pilos/pilos:local-dev'
+    build:
+      context: ./
+      dockerfile: docker/app/Dockerfile
+      args:
+        WWWGROUP: '${WWWGROUP}'
+        WWWUSER: '${WWWUSER}'
+    volumes:
+      - './:/var/www/html/'
+    environment:
+      APP_URL: http://localhost:9080
+      APP_ENV: local
+      APP_DEBUG: true
+      DB_DATABASE: app
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      REDIS_PASSWORD: null
+      REDIS_PORT: 6379
+      LDAP_ENABLED: false
+      LOCAL_AUTH_ENABLED: true
+      SHIBBOLETH_ENABLED: false

@@ -10,7 +10,7 @@ class UserSearch extends JsonResource
     /**
      * User resource constructor.
      *
-     * @param \App\Models\User $resource The user model that should be transformed.
+     * @param  \App\Models\User  $resource  The user model that should be transformed.
      */
     public function __construct($resource)
     {
@@ -20,16 +20,16 @@ class UserSearch extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
-            'firstname'     => $this->firstname,
-            'lastname'      => $this->lastname,
-            'email'         => $this->email
+            'id' => $this->id,
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'email' => $this->email,
         ];
     }
 }

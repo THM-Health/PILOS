@@ -2,15 +2,12 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
 /**
  * Custom status response codes of the api
- * @package App\Enums
  */
-final class ServerStatus extends Enum
+enum ServerStatus: int
 {
-    public const DISABLED         =   -1;
-    public const OFFLINE          =   0;
-    public const ONLINE           =   1;
+    case DISABLED = -1;
+    case DRAINING = 0;
+    case ENABLED = 1;
 }

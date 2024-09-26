@@ -1,29 +1,53 @@
 html {
-    position: relative;
-    min-height: 100%;
+    font-size: 14px;
+}
+
+html, body, #app, #app > .overlay-wrap {
+    height: 100%;
 }
 
 body {
-    margin-bottom: $footer-height;
+    margin: 0;
 }
 
-.footer {
-    height: $footer-height;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-.custom-select:disabled {
-    color: $input-color;
-    opacity: 1;
-}
-.collapsed > .when-open,
-.not-collapsed > .when-closed {
-    display: none;
+header {
+    flex-shrink: 0;
 }
 
+main {
+    flex: 1 0 auto;
+}
 
-.is-invalid .ProseMirror{
-    border-color: $danger;
+footer {
+    flex-shrink: 0;
+}
+
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto
+}
+
+fieldset:not(.p-fieldset) {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+legend:not(.p-fieldset-legend) {
+    float: left;
+    padding: 0;
+}
+
+a.p-button-link {
+    &:hover {
+        text-decoration: underline;
+    }
 }

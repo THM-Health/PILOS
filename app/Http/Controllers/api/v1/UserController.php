@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Notifications\UserWelcome;
 use App\Services\AuthenticationService;
 use App\Services\EmailVerification\EmailVerificationService;
+use App\Settings\GeneralSettings;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -39,32 +40,50 @@ class UserController extends Controller
 
     /**
      * Search for users in the whole database, based on first name and last name
-     * @param  Request                     $request query parameter with search query
+     *
+     * @param  Request  $request  query parameter with search query
      * @return AnonymousResourceCollection
      */
     public function search(Request $request)
     {
-        return UserSearch::collection(User::withName($request->get('query'))->orderBy('lastname', 'ASC')->orderBy('firstname', 'ASC')->limit(config('bigbluebutton.user_search_limit'))->get());
+        $query = User::withName($request->query('query'));
+
+        if ($query->count() > config('bigbluebutton.user_search_limit')) {
+            abort(204, 'Too many results');
+        }
+
+        return UserSearch::collection($query->orderByRaw('LOWER(lastname) ASC')->orderByRaw('LOWER(firstname) ASC')->get());
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @param  Request                     $request
      * @return AnonymousResourceCollection
      */
     public function index(Request $request)
     {
+        $additionalMeta = [];
         $resource = User::query();
 
-        if ($request->has('sort_by') && $request->has('sort_direction')) {
-            $by  = $request->query('sort_by');
-            $dir = $request->query('sort_direction');
+        // Sort by column, fallback/default is id
+        $sortBy = match ($request->query('sort_by')) {
+            'authenticator' => 'authenticator',
+            'email' => 'LOWER(email)',
+            'lastname' => 'LOWER(lastname)',
+            'firstname' => 'LOWER(firstname)',
+            default => 'id',
+        };
 
-            if (in_array($by, ['id', 'firstname', 'lastname', 'email', 'authenticator']) && in_array($dir, ['asc', 'desc'])) {
-                $resource = $resource->orderBy($by, $dir);
-            }
-        }
+        // Sort direction, fallback/default is asc
+        $sortOrder = match ($request->query('sort_direction')) {
+            'desc' => 'DESC',
+            default => 'ASC',
+        };
+
+        $resource = $resource->orderByRaw($sortBy.' '.$sortOrder);
+
+        // count all before search
+        $additionalMeta['meta']['total_no_filter'] = $resource->count();
 
         if ($request->has('role')) {
             Validator::make($request->all(), [
@@ -77,9 +96,9 @@ class UserController extends Controller
             $resource = $resource->withName($request->query('name'));
         }
 
-        $resource = $resource->paginate(setting('pagination_page_size'));
+        $resource = $resource->paginate(app(GeneralSettings::class)->pagination_page_size);
 
-        return UserResource::collection($resource);
+        return UserResource::collection($resource)->additional($additionalMeta);
     }
 
     /**
@@ -90,18 +109,18 @@ class UserController extends Controller
      */
     public function store(NewUserRequest $request)
     {
-        $user = new User();
+        $user = new User;
 
-        $user->firstname            = $request->firstname;
-        $user->lastname             = $request->lastname;
-        $user->email                = $request->email;
-        $user->locale               = $request->user_locale;
-        $user->timezone             = $request->timezone;
+        $user->firstname = $request->firstname;
+        $user->lastname = $request->lastname;
+        $user->email = $request->email;
+        $user->locale = $request->user_locale;
+        $user->timezone = $request->timezone;
 
-        if (!$request->generate_password) {
+        if (! $request->generate_password) {
             $user->password = Hash::make($request->new_password);
         } else {
-            $user->password             = Hash::make(bin2hex(random_bytes(32)));
+            $user->password = Hash::make(bin2hex(random_bytes(32)));
             $user->initial_password_set = true;
         }
 
@@ -116,8 +135,8 @@ class UserController extends Controller
 
         if ($request->generate_password) {
             $broker = Password::broker('new_users');
-            $token  = $broker->createToken($user);
-            $reset  = DB::table('password_resets')
+            $token = $broker->createToken($user);
+            $reset = DB::table('password_resets')
                 ->where('email', '=', $user->email)
                 ->first();
             $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)));
@@ -129,7 +148,6 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  User         $user
      * @return UserResource
      */
     public function show(User $user)
@@ -140,9 +158,8 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  UserRequest            $request
-     * @param  User                   $user
      * @return UserResource
+     *
      * @throws AuthorizationException
      */
     public function update(UserRequest $request, User $user)
@@ -163,9 +180,9 @@ class UserController extends Controller
                 Storage::disk('public')->delete($user->image);
             }
             // User has provided a new profile image
-            if (!empty($request->file('image'))) {
+            if (! empty($request->file('image'))) {
                 // Save new image
-                $path        = $request->file('image')->storePublicly('profile_images', 'public');
+                $path = $request->file('image')->storePublicly('profile_images', 'public');
                 $user->image = $path;
                 Log::info('Updated profile image of user {user}', ['user' => $user->getLogLabel()]);
             }
@@ -207,8 +224,8 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  User                  $user
      * @return JsonResponse|Response
+     *
      * @throws Exception
      */
     public function destroy(User $user)
@@ -221,17 +238,16 @@ class UserController extends Controller
     /**
      * Send a password reset email to the specified users email.
      *
-     * @param  User         $user
      * @return JsonResponse
      */
     public function resetPassword(User $user)
     {
         $authService = new AuthenticationService($user);
-        $response    = $authService->sendResetLink();
+        $response = $authService->sendResetLink();
 
         return response()->json([
-            'message' => trans($response)
-        ], $response === Password::RESET_LINK_SENT ? 200 : CustomStatusCodes::PASSWORD_RESET_FAILED);
+            'message' => trans($response),
+        ], $response === Password::RESET_LINK_SENT ? 200 : CustomStatusCodes::PASSWORD_RESET_FAILED->value);
     }
 
     public function changeEmail(ChangeEmailRequest $request, User $user)
@@ -242,14 +258,14 @@ class UserController extends Controller
             if (Auth::user()->is($user)) {
                 Log::info('Requesting to change email to {email}', ['email' => $request->email]);
                 $emailVerificationService = new EmailVerificationService($user);
-                $success                  = $emailVerificationService->sendEmailVerificationNotification($request->email);
+                $success = $emailVerificationService->sendEmailVerificationNotification($request->email);
                 if ($success) {
                     Log::info('Verification for email change was send to {email}', ['email' => $request->email]);
 
                     return response()->noContent(202);
                 } else {
                     Log::warning('Reached throttle limit for email change', ['email' => $request->email]);
-                    abort(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
+                    abort(CustomStatusCodes::EMAIL_CHANGE_THROTTLE->value);
                 }
             }
             // Admin is changing the email of another user, no verification required

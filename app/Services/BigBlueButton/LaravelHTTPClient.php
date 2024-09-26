@@ -47,8 +47,8 @@ final class LaravelHTTPClient implements TransportInterface
             }
         } catch (ConnectionException $e) {
             Log::error('BigBlueButton API request to url {url} failed with a connection error.', [
-                'url'     => $request->getUrl(),
-                'message' => $e->getMessage()
+                'url' => $request->getUrl(),
+                'message' => $e->getMessage(),
             ]);
 
             throw new RuntimeException(sprintf('HTTP request failed: %s', $e->getMessage()), 0, $e);
@@ -56,7 +56,7 @@ final class LaravelHTTPClient implements TransportInterface
 
         if ($httpResponse->failed()) {
             Log::error('BigBlueButton API request to url {url} failed with status {status}.', [
-                'url'    => $request->getUrl(),
+                'url' => $request->getUrl(),
                 'status' => $httpResponse->status(),
             ]);
 

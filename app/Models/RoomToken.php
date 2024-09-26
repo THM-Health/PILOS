@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\RoomUserRole;
+use App\Enums\TimePeriod;
+use App\Settings\RoomSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +17,7 @@ class RoomToken extends Model
 
     protected $casts = [
         'last_usage' => 'datetime',
+        'role' => RoomUserRole::class,
     ];
 
     /**
@@ -52,6 +56,7 @@ class RoomToken extends Model
 
     /**
      * Room the token belongs to
+     *
      * @return BelongsTo
      */
     public function room()
@@ -69,6 +74,7 @@ class RoomToken extends Model
 
     /**
      * Full name of the token owner.
+     *
      * @return string
      */
     public function getFullnameAttribute()
@@ -78,10 +84,13 @@ class RoomToken extends Model
 
     /**
      * Expire datetime of the token
+     *
      * @return null
      */
     public function getExpiresAttribute()
     {
-        return setting('room_token_expiration') > -1 ? ($this->last_usage != null ? $this->last_usage->addMinutes(setting('room_token_expiration')) : $this->created_at->addMinutes(setting('room_token_expiration'))) : null;
+        $tokenExpiration = app(RoomSettings::class)->token_expiration;
+
+        return $tokenExpiration != TimePeriod::UNLIMITED ? ($this->last_usage != null ? $this->last_usage->addDays($tokenExpiration->value) : $this->created_at->addDays($tokenExpiration->value)) : null;
     }
 }

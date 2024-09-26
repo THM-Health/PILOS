@@ -1,0 +1,90 @@
+user www-data;
+
+# Set number of worker processes automatically based on number of CPU cores.
+worker_processes ${NGINX_WORKER_PROCESSES};
+
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+# Maximum number of open files per worker process
+# Should be twice the number of worker connections due to reverse proxying
+worker_rlimit_nofile ${NGINX_WORKER_RLIMIT_NOFILE};
+
+events {
+    #
+    # Determines how many clients will be served by each worker process.
+    # (Max clients = worker connections * worker processes)
+    # Can be set in the .env file with NGINX_WORKER_CONNECTIONS
+    worker_connections ${NGINX_WORKER_CONNECTIONS};
+
+    #
+    # Let each process accept multiple connections.
+    # Accept as many connections as possible, after nginx gets notification
+    # about a new connection.
+    # May flood worker_connections, if that option is set too low.
+    #
+    multi_accept on;
+
+    #
+    # Preferred connection method for newer linux versions.
+    # Essential for linux, optmized to serve many clients with each thread.
+    #
+    use epoll;
+}
+
+http {
+
+        ##
+        # Basic Settings
+        ##
+
+        sendfile on;
+        tcp_nodelay on;
+        tcp_nopush on;
+
+        client_body_timeout   10;
+        client_header_timeout 10;
+        keepalive_timeout     15;
+        send_timeout          10;
+
+
+        types_hash_max_size 2048;
+
+        server_tokens off;
+
+        # server_names_hash_bucket_size 64;
+        # server_name_in_redirect off;
+
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        ##
+        # SSL Settings
+        ##
+
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+        ssl_prefer_server_ciphers on;
+
+        ##
+        # Logging Settings
+        ##
+
+        error_log /dev/stderr warn;
+
+        ##
+        # Gzip Settings
+        ##
+
+        gzip on;
+        gzip_vary       on;
+        gzip_proxied    any;
+        gzip_comp_level 6;
+        gzip_types      text/plain text/css text/xml application/json application/javascript application/rss+xml application/atom+xml image/svg+xml;
+
+        ##
+        # Virtual Host Configs
+        ##
+
+        include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/sites-enabled/*;
+}

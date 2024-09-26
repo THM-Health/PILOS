@@ -10,6 +10,14 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      tiptap:
+        patterns:
+        - "@tiptap*"
+      primevue:
+        patterns:
+        - "primevue*"
+        - "@primevue*"
 
   # Maintain dependencies for Composer
   - package-ecosystem: "composer"

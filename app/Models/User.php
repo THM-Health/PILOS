@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Notifications\PasswordReset;
+use App\Settings\RoomSettings;
 use App\Traits\AddsModelNameTrait;
 use Carbon\Carbon;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,12 +15,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Contracts\Translation\HasLocalePreference;
 use Storage;
 
 class User extends Authenticatable implements HasLocalePreference
 {
-    use Notifiable, HasApiTokens, AddsModelNameTrait, HasFactory;
+    use AddsModelNameTrait, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The "booted" method of the model.
@@ -39,7 +40,7 @@ class User extends Authenticatable implements HasLocalePreference
      */
     protected $fillable = [
         'firstname', 'lastname', 'email', 'password', 'external_id', 'guid', 'domain', 'locale', 'bbb_skip_check_audio', 'authenticator',
-        'initial_password_set', 'timezone'
+        'initial_password_set', 'timezone',
     ];
 
     /**
@@ -57,15 +58,15 @@ class User extends Authenticatable implements HasLocalePreference
      * @var array
      */
     protected $casts = [
-        'email_verified_at'    => 'datetime',
+        'email_verified_at' => 'datetime',
         'bbb_skip_check_audio' => 'boolean',
-        'initial_password_set' => 'boolean'
+        'initial_password_set' => 'boolean',
     ];
 
     protected $appends = ['fullname'];
 
     // Cached list of all permissions of the user
-    protected ?array $permissionsCache         = null;
+    protected ?array $permissionsCache = null;
 
     // Clear the permissionsCache of all users before the next permission check
     // Is set to true on any change by the pivot models that control the permissions of the user (RoleUser, PermissionRole, IncludedPermissionPermission)
@@ -83,6 +84,7 @@ class User extends Authenticatable implements HasLocalePreference
 
     /**
      * Get public url of the users profile picture
+     *
      * @return string|null
      */
     public function getImageUrlAttribute()
@@ -92,9 +94,6 @@ class User extends Authenticatable implements HasLocalePreference
 
     /**
      * Route notifications for the mail channel.
-     *
-     * @param  Notification $notification
-     * @return array
      */
     public function routeNotificationForMail(Notification $notification): array
     {
@@ -103,11 +102,22 @@ class User extends Authenticatable implements HasLocalePreference
 
     /**
      * Rooms the user is owner of
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function myRooms()
     {
         return $this->hasMany(Room::class);
+    }
+
+    /**
+     * The user favorites
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function roomFavorites()
+    {
+        return $this->belongsToMany(Room::class, 'room_favorites');
     }
 
     /**
@@ -120,9 +130,11 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function getRoomLimitAttribute()
     {
+        $globalRoomLimit = app(RoomSettings::class)->limit;
+
         $role_limits = $this->roles()->pluck('room_limit');
-        $role_limits->transform(function ($item, $key) {
-            return $item !== null ? $item : setting('room_limit');
+        $role_limits->transform(function ($item, $key) use ($globalRoomLimit) {
+            return $item !== null ? $item : $globalRoomLimit;
         });
 
         // check if any role has unlimited rooms, if yes set to unlimited
@@ -131,11 +143,24 @@ class User extends Authenticatable implements HasLocalePreference
         }
 
         // return highest room limit
-        return intval($role_limits->max());
+        return (int) $role_limits->max();
+    }
+
+    /**
+     * Check if the users room limit has exceeded
+     *
+     * @return bool
+     */
+    public function hasRoomLimitExceeded()
+    {
+        $roomLimit = $this->room_limit;
+
+        return $roomLimit !== -1 && $this->myRooms()->count() >= $roomLimit;
     }
 
     /**
      * Rooms the user is member of
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function sharedRooms()
@@ -146,20 +171,20 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Scope a query to only get users that have a firstname like the passed one.
      *
-     * @param  Builder $query     Query that should be scoped
-     * @param  String  $firstname Firstname to search for
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $firstname  Firstname to search for
      * @return Builder The scoped query
      */
     public function scopeWithFirstName(Builder $query, $firstname)
     {
-        return $query->where('firstname', 'like', '%' . $firstname . '%');
+        return $query->whereLike('firstname', '%'.$firstname.'%');
     }
 
     /**
      * Scope a query to only get users that are members of a given role.
      *
-     * @param  Builder $query Query that should be scoped
-     * @param  int     $role  Role the user has
+     * @param  Builder  $query  Query that should be scoped
+     * @param  int  $role  Role the user has
      * @return Builder The scoped query
      */
     public function scopeWithRole(Builder $query, $role)
@@ -170,13 +195,25 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Scope a query to only get users that have a lastname like the passed one.
      *
-     * @param  Builder $query    Query that should be scoped
-     * @param  String  $lastname Lastname to search for
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $lastname  Lastname to search for
      * @return Builder The scoped query
      */
     public function scopeWithLastName(Builder $query, $lastname)
     {
-        return $query->where('lastname', 'like', '%' . $lastname . '%');
+        return $query->whereLike('lastname', '%'.$lastname.'%');
+    }
+
+    /**
+     * Scope a query to only get users that have an email like the passed one.
+     *
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $email  Email to search for
+     * @return Builder The scoped query
+     */
+    public function scopeWithEmail(Builder $query, $email)
+    {
+        return $query->whereLike('email', '%'.$email.'%');
     }
 
     /**
@@ -185,19 +222,19 @@ class User extends Authenticatable implements HasLocalePreference
      * The name gets split up by the whitespaces and each part will be searched
      * in the corresponding name fields.
      *
-     * @param  Builder $query Query that should be scoped
-     * @param  String  $name  Name to search for
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $name  Name to search for
      * @return Builder The scoped query
      */
     public function scopeWithName(Builder $query, $name)
     {
-        $name         =  preg_replace('/\s\s+/', ' ', $name);
+        $name = preg_replace('/\s\s+/', ' ', $name);
         $splittedName = explode(' ', $name);
 
         return $query->where(function (Builder $query) use ($splittedName) {
             foreach ($splittedName as $name) {
                 $query->where(function (Builder $query) use ($name) {
-                    $query->withFirstName($name)->orWhere->withLastName($name);
+                    $query->withFirstName($name)->orWhere->withLastName($name)->orWhere->withEmail($name);
                 });
             }
         });
@@ -216,7 +253,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Array of unique permission names that are given to the user through the assigned roles and inherited by other permissions.
      *
-     * @return String[]
+     * @return string[]
      */
     public function getPermissionsAttribute()
     {
@@ -233,7 +270,7 @@ class User extends Authenticatable implements HasLocalePreference
                 if ($item->included_permission_name != null) {
                     array_push($permissions, $item->included_permission_name);
                 }
-                
+
                 array_push($permissions, $item->name);
             });
 
@@ -243,15 +280,16 @@ class User extends Authenticatable implements HasLocalePreference
 
     /**
      * Check if user has the given permission
-     * @param  string $permission Name of a permission
-     * @return bool   has permission
+     *
+     * @param  string  $permission  Name of a permission
+     * @return bool has permission
      */
     public function hasPermission(string $permission)
     {
         // Check if the permission cache is not set or if it should be cleared
         if ($this->permissionsCache == null || self::$clearPermissionCache) {
             // Build permission cache
-            $this->permissionsCache     = $this->getPermissionsAttribute();
+            $this->permissionsCache = $this->getPermissionsAttribute();
 
             self::$clearPermissionCache = false;
         }
@@ -278,7 +316,7 @@ class User extends Authenticatable implements HasLocalePreference
     /**
      * Send a password reset notification to the user.
      *
-     * @param  string $token
+     * @param  string  $token
      * @return void
      */
     public function sendPasswordResetNotification($token)

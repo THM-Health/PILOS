@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Auth\LDAP\LDAPProvider;
+use App\Auth\Local\LocalProvider;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -25,11 +26,11 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         // 'App\Model' => 'App\Policies\ModelPolicy',
-        Role::class     => RolePolicy::class,
-        User::class     => UserPolicy::class,
-        Room::class     => RoomPolicy::class,
+        Role::class => RolePolicy::class,
+        User::class => UserPolicy::class,
+        Room::class => RoomPolicy::class,
         RoomType::class => RoomTypePolicy::class,
-        Server::class   => ServerPolicy::class,
+        Server::class => ServerPolicy::class,
     ];
 
     /**
@@ -46,6 +47,14 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->app->auth->provider('ldap', function ($app, array $config) {
             return new LDAPProvider($app['hash'], $config['model']);
+        });
+
+        $this->app->auth->provider('local', function ($app, array $config) {
+            return new LocalProvider($app['hash'], $config['model']);
+        });
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->can('system.monitor');
         });
     }
 }

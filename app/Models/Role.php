@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Role
- * @package App
  */
 class Role extends Model
 {
@@ -23,7 +23,7 @@ class Role extends Model
     protected $fillable = ['name'];
 
     protected $casts = [
-        'default' => 'boolean'
+        'superuser' => 'boolean',
     ];
 
     /**
@@ -54,5 +54,17 @@ class Role extends Model
     public function roomTypes()
     {
         return $this->belongsToMany(RoomType::class);
+    }
+
+    /**
+     * Scope a query to only get roles that have a name like the passed one.
+     *
+     * @param  Builder  $query  Query that should be scoped
+     * @param  string  $name  Name to search for
+     * @return Builder The scoped query
+     */
+    public function scopeWithName(Builder $query, $name)
+    {
+        return $query->whereLike('name', '%'.$name.'%');
     }
 }

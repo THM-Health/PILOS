@@ -5,50 +5,50 @@ export default {
   /**
    * Returns a boolean that indicates whether the user can view all server pools or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.viewAny');
+  viewAny (user) {
+    return !user ? false : user.permissions.includes('serverPools.viewAny');
   },
 
   /**
    * Returns a boolean that indicates whether the user can create server pools or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  create (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.create');
+  create (user) {
+    return !user ? false : user.permissions.includes('serverPools.create');
   },
 
   /**
    * Returns a boolean that indicates whether the user can view server pool or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  view (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.view');
+  view (user) {
+    return !user ? false : user.permissions.includes('serverPools.view');
   },
 
   /**
    * Returns a boolean that indicates whether the user can update the passed server pool or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  update (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.update');
+  update (user) {
+    return !user ? false : user.permissions.includes('serverPools.update');
   },
 
   /**
    * Returns a boolean that indicates whether the user can delete the passed server pool or not.
    *
-   * @param permissionService
+   * @param user
    * @return {boolean}
    */
-  delete (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.delete');
+  delete (user) {
+    return !user ? false : user.permissions.includes('serverPools.delete');
   }
 };

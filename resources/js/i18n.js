@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { createI18n } from 'vue-i18n';
-import Base from './api/base';
+import { useApi } from './composables/useApi.js';
 
 /**
  * Custom message compiler for vue-i18n to use Laravel locale file syntax
@@ -39,9 +39,11 @@ export function setTimeZone (i18n, timezone) {
  * Set the locale for the app and load the translations from the backend if necessary
  */
 export async function setLocale (i18n, locale) {
+  const api = useApi();
+
   // Load translations from backend if not already loaded
   if (!i18n.availableLocales.includes(locale)) {
-    await Base.call('locale/' + locale).then((response) => {
+    await api.call('locale/' + locale).then((response) => {
       i18n.setLocaleMessage(locale, response.data.data);
       i18n.setDateTimeFormat(locale, response.data.meta.dateTimeFormat);
     }).catch((error) => {

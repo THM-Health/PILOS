@@ -1,10 +1,50 @@
-.action-column{
-    // width of the default three action buttons (view, edit, delete) + cell padding
-    width: calc(3 * #{$action-column-button-width} + 2 * #{$table-cell-padding});
+$actionColumButtonGap: 0.5rem;
+$paddingActionColumn: 1rem;
+
+th.action-column {
+    .p-column-header-content{
+        justify-content: end;
+    }
 }
-.action-button{
-    button, a {
-        width: $action-column-button-width;
-        height: $action-column-button-height;
+
+td.action-column > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    gap: $actionColumButtonGap;
+}
+
+
+.table-auto {
+    table{
+        table-layout: auto;
+
+        th.id-column {
+            width: 1px;
+        }
+
+        th.action-column {
+            width: 1px;
+        }
+    }
+}
+
+@media (screen(lg)) {
+     .table-fixed {
+        table{
+            @for $i from 2 through 6 {
+                th.action-column-1 {
+                    width: 5rem;
+                }
+
+                th.action-column-#{$i} {
+                    width: calc($i * var(--p-button-icon-only-width)  + (($i - 1) * $actionColumButtonGap) + 2 * #{$paddingActionColumn});
+                }
+            }
+
+            th.id-column {
+                width: 5rem;
+            }
+        }
     }
 }
