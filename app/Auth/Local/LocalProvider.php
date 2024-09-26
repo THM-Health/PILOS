@@ -4,7 +4,6 @@ namespace App\Auth\Local;
 
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\UserProvider;
-use Illuminate\Support\Facades\DB;
 
 class LocalProvider extends EloquentUserProvider implements UserProvider
 {
@@ -29,7 +28,7 @@ class LocalProvider extends EloquentUserProvider implements UserProvider
         $query = $this->newModelQuery();
 
         $query->where('authenticator', 'local')
-            ->where(DB::raw('LOWER(email)'), '=', strtolower($email));
+            ->whereLike('email', $email);
 
         return $query->first();
     }
