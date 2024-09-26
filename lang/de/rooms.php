@@ -125,7 +125,7 @@ return [
         ],
         'title' => 'Dateien',
         'upload' => 'Dateien hochladen',
-        'uploaded' => 'Datei hochgeladen',
+        'uploaded' => 'Datei ":name" hochgeladen',
         'use_in_next_meeting' => 'In Videokonferenz verfügbar',
         'use_in_next_meeting_disabled' => 'In Videokonferenz nicht verfügbar',
         'view' => 'Datei anzeigen',
@@ -400,6 +400,7 @@ return [
             'webcams_only_for_moderator' => 'Webcam nur für Moderatoren sichtbar',
         ],
         'title' => 'Einstellungen',
+        'unsaved_changes' => 'Achtung! Die Raumeinstellungen wurden geändert, aber noch nicht gespeichert.',
         'video_conference' => [
             'allow_starting' => 'Meeting starten',
             'attendance' => 'Anwesenheit',
