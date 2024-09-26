@@ -537,6 +537,33 @@
           </div>
         </div>
 
+        <div class="py-4 px-px sticky bottom-0" v-if="settingsDirty">
+          <div class="dark:bg-surface-900/80 rounded-lg">
+            <Message
+            severity="warn"
+            :pt="{
+              text: 'w-full',
+            }"
+          >
+            <div class="flex flex-col md:flex-row justify-between gap-4 items-center">
+              <span class="text-center md:text-left"><i class="fas fa-warning mr-2"/> {{ $t('rooms.settings.unsaved_changes')}}</span>
+
+              <Button
+                v-if="!saveButtonIsVisible"
+                class="shrink-0 w-full md:w-auto"
+                severity="contrast"
+                :disabled="disabled"
+                :label="$t('app.save')"
+                :loading="isBusy"
+                icon="fa-solid fa-save"
+                type="submit"
+              />
+            </div>
+
+          </Message>
+          </div>
+        </div>
+
       </OverlayComponent>
       <Divider v-if="userPermissions.can('manageSettings', props.room)" />
       <div class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start" v-if="userPermissions.can('manageSettings', props.room)">
@@ -558,6 +585,7 @@
           />
         </div>
         <Button
+          ref="saveButton"
           :disabled="disabled"
           :label="$t('app.save')"
           :loading="isBusy"
@@ -579,6 +607,8 @@ import { onMounted, ref, computed } from 'vue';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
 import RoomSettingEnforcedIcon from './RoomSettingEnforcedIcon.vue';
+import { sha256 } from '@noble/hashes/sha2';
+import { useElementVisibility } from '@vueuse/core';
 
 const props = defineProps({
   room: {
@@ -593,6 +623,10 @@ const settings = ref({
   expert_mode: false,
   room_type: {}
 });
+
+const loaded = ref(false);
+const settingsHash = ref(null);
+
 const isBusy = ref(false);
 const loadingError = ref(false);
 
@@ -600,6 +634,8 @@ const api = useApi();
 const formErrors = useFormErrors();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
+const saveButton = ref(null);
+const saveButtonIsVisible = useElementVisibility(saveButton);
 
 /**
  * Save room settings
@@ -628,6 +664,7 @@ function save (event) {
     settings.value = response.data.data;
     // inform parent component about changed settings
     emit('settingsChanged');
+    settingsHash.value = getSettingsHash(settings.value);
   }).catch((error) => {
     // Settings couldn't be saved
     if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -640,6 +677,17 @@ function save (event) {
     isBusy.value = false;
   });
 }
+
+function getSettingsHash (settingsData) {
+  const data = _.clone(settingsData);
+  data.room_type = data.room_type?.id;
+
+  return btoa(sha256(JSON.stringify(data)));
+}
+
+const settingsDirty = computed(() => {
+  return loaded.value && getSettingsHash(settings.value) !== settingsHash.value;
+});
 
 /**
  * Load the room settings
@@ -654,6 +702,8 @@ function load () {
     .then(response => {
       // fetch successful
       settings.value = response.data.data;
+      settingsHash.value = getSettingsHash(settings.value);
+      loaded.value = true;
     }).catch((error) => {
       api.error(error, { noRedirectOnUnauthenticated: true });
       loadingError.value = true;
