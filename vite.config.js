@@ -43,7 +43,6 @@ export default ({ mode }) => {
         ]
       })
     ],
-    publicDir: 'public',
     server: {
       https: getSslConfig(),
       host: true,
@@ -55,6 +54,13 @@ export default ({ mode }) => {
     },
     optimizeDeps: {
       include: ['axe-core']
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler'
+        }
+      }
     }
   });
 };
