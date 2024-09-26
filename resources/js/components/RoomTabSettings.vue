@@ -537,7 +537,7 @@
           </div>
         </div>
 
-        <div class="py-4 sticky bottom-0" v-if="settingsDirty">
+        <div class="py-4 px-px sticky bottom-0" v-if="settingsDirty">
           <div class="dark:bg-surface-900/80 rounded-lg">
             <Message
             severity="warn"
