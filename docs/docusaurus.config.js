@@ -41,13 +41,13 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          lastVersion: 'current',
-          //lastVersion: 'v3',
+          //lastVersion: 'current',
+          lastVersion: 'v4',
           includeCurrentVersion: true,
           versions: {
             current: {
               label: 'v4',
-              banner: 'unreleased'
+              //banner: 'unreleased'
             }
           },
           // Please change this to your repo.
