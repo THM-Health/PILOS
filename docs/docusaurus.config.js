@@ -43,12 +43,12 @@ const config = {
           sidebarPath: './sidebars.js',
           //lastVersion: 'current',
           lastVersion: 'v4',
-          includeCurrentVersion: true,
-          versions: {
-            current: {
-              label: 'v4',
-              //banner: 'unreleased'
-            }
+          includeCurrentVersion: false,
+          //versions: {
+          //  current: {
+          //    label: 'v4',
+          //    banner: 'unreleased'
+          //  }
           },
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
