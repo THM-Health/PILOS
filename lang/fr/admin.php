@@ -185,7 +185,7 @@ return [
         'new' => 'Créer un nouveau groupe de serveur',
         'no_data' => 'Aucun groupe de serveur trouvé !',
         'no_data_filtered' => 'Aucun groupe de serveur trouvé avec ces filtres sélectionnés !',
-        'remove_server' => 'Supprimer le serveur',
+        'remove_server' => 'Supprimer le serveur :name',
         'select_servers' => 'Selection du serveur',
         'server_count' => 'Nombre de serveurs',
         'tile_description' => 'Pour l\'équilibrage de charge, plusieurs serveurs sont regroupés et attribués à chaque salle via le type de salle.',
@@ -431,7 +431,7 @@ return [
         'no_data_filtered' => 'Aucun utilisateur trouvé avec ces filtres sélectionnés !',
         'other_settings' => 'Autre paramètres',
         'password_reset_success' => 'L\'e-mail de réinitialisation du mot de passe a été envoyé avec succès à :mail!',
-        'remove_role' => 'Supprimer le rôle',
+        'remove_role' => 'Supprimer le rôle  :name',
         'reset_password' => [
             'confirm' => 'Voulez-vous vraiment réinitialiser le mot de passe de :firstname :lastname?',
             'item' => 'Réinitialiser le mot de passe pour l\'utilisateur :firstname :lastname',

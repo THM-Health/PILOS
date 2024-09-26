@@ -185,7 +185,7 @@ return [
         'new' => 'Neuen Serverpool hinzufügen',
         'no_data' => 'Es sind keine Serverpools vorhanden!',
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Serverpools gefunden!',
-        'remove_server' => 'Server entfernen',
+        'remove_server' => 'Server :name entfernen',
         'select_servers' => 'Server auswählen',
         'server_count' => 'Anzahl Server',
         'tile_description' => 'Für die Lastverteilung werden mehrere Server gebündelt und über die Raumart jedem Raum zugewiesen.',
@@ -431,7 +431,7 @@ return [
         'no_data_filtered' => 'Für die Suchanfrage wurden keine Benutzer gefunden!',
         'other_settings' => 'Weitere Einstellungen',
         'password_reset_success' => 'Passwort-Rücksetz-Mail wurde erfolgreich an :mail verschickt!',
-        'remove_role' => 'Rolle entfernen',
+        'remove_role' => 'Rolle :name entfernen',
         'reset_password' => [
             'confirm' => 'Wollen Sie das Passwort für :firstname :lastname wirklich zurücksetzen?',
             'item' => 'Passwort für den Benutzer :firstname :lastname zurücksetzen',

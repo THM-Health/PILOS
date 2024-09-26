@@ -125,7 +125,7 @@ return [
         ],
         'title' => 'Fichiers',
         'upload' => 'Transmettre des fichiers',
-        'uploaded' => 'Fichier transmis',
+        'uploaded' => 'Fichier \':name\' transmis',
         'use_in_next_meeting' => 'À utiliser lors de la prochaine réunion',
         'use_in_next_meeting_disabled' => 'Non disponible dans la vidéo conférence',
         'view' => 'Voir le fichier',
@@ -198,7 +198,7 @@ return [
         'modals' => [
             'add' => [
                 'add' => 'Ajouter',
-                'no_options' => 'Aucune entrée, veuillez rechercher un utilisateur.',
+                'no_options' => 'Veuillez saisir le nom ou l\'adresse mail de l\'utilisateur.',
                 'no_result' => 'Aucun utilisateur trouvé avec cette requête.',
                 'placeholder' => 'Nom ou email',
                 'select_role' => 'Merci de sélectionner un rôle',
@@ -400,6 +400,7 @@ return [
             'webcams_only_for_moderator' => 'Caméras visible uniquement par les modérateurs',
         ],
         'title' => 'Paramètres',
+        'unsaved_changes' => 'Attention! Les configurations de la salle ont été changées, mais pas encore enregistrées.',
         'video_conference' => [
             'allow_starting' => 'Démarrer la salle',
             'attendance' => 'Présence',

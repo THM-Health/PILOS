@@ -5,7 +5,7 @@ return [
     'description_intro' => 'Die universelle Plattform für Videokonferenzen, basierend auf BigBlueButton™.',
     'features' => [
         'collaboration' => [
-            'description' => 'Nutzen Sie Ihren Bildschirm gemeinsam, verwenden Sie das interaktive Multi-User-Whiteboard, und arbeiten Sie gemeinsam in den Nebenräumen.',
+            'description' => 'Teilen Sie Ihren Bildschirm, nutzen Sie das interaktive Multi-User-Whiteboard und arbeiten Sie zusammen in Breakout-Räumen.',
             'title' => 'Zusammenarbeit',
         ],
         'communication' => [
