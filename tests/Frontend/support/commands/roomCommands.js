@@ -95,34 +95,32 @@ Cypress.Commands.add('checkCompareRoomSettingField', (field, currentValue, curre
  * @param  {string} requestUrl
  * @param  {string} roomTabName
  * @returns void
- * @pre current room tab is not allowed to be the same as the one defined in the roomTabName //ToDo remove precondition
  */
 Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl, roomTabName) => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequestAuthErrorsLoadingTab');
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestAuthErrorsLoadingTab');
 
+  const request1 = interceptIndefinitely(requestMethod, requestUrl, {
+    statusCode: 401
+  }, 'requestAuthErrorsLoadingTab');
+
+  cy.visit('/rooms/abc-def-123#tab=' + roomTabName);
   cy.reload();
-  cy.wait('@roomRequestAuthErrorsLoadingTab');
+  cy.wait('@roomRequestAuthErrorsLoadingTab').then(() => {
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
 
-  cy.fixture('room.json').then((room) => {
-    room.data.current_user = null;
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequestAuthErrorsLoadingTab');
+    });
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-      statusCode: 200,
-      body: room
-    }).as('roomRequestAuthErrorsLoadingTab');
+    request1.sendResponse();
   });
 
-  // Check with 401 errors and room that has no access code
-  cy.intercept(requestMethod, requestUrl, {
-    statusCode: 401
-  }).as('requestAuthErrorsLoadingTab');
-
-  cy.get('#tab-' + roomTabName).click();
-
-  cy.wait('@requestAuthErrorsLoadingTab');
-
   // Check that room gets reloaded
+  cy.wait('@requestAuthErrorsLoadingTab');
   cy.wait('@roomRequestAuthErrorsLoadingTab');
 
   // Check that file tab is shown
@@ -170,7 +168,7 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
   // Reload with logged in user
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestAuthErrorsLoadingTab');
 
-  const request1 = interceptIndefinitely(requestMethod, requestUrl, {
+  const request2 = interceptIndefinitely(requestMethod, requestUrl, {
     statusCode: 401
   }, 'requestAuthErrorsLoadingTab');
 
@@ -183,7 +181,7 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
       }
     }).as('roomRequestAuthErrorsLoadingTab');
 
-    request1.sendResponse();
+    request2.sendResponse();
   });
 
   cy.wait('@requestAuthErrorsLoadingTab');
@@ -197,7 +195,7 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
   // Reload with logged in user
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestAuthErrorsLoadingTab');
 
-  const request2 = interceptIndefinitely(requestMethod, requestUrl, {
+  const request3 = interceptIndefinitely(requestMethod, requestUrl, {
     statusCode: 403,
     body: {
       message: 'This action is unauthorized.'
@@ -215,7 +213,7 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
         body: room
       }).as('roomRequestAuthErrorsLoadingTab');
     });
-    request2.sendResponse();
+    request3.sendResponse();
   });
 
   cy.wait('@requestAuthErrorsLoadingTab');
@@ -243,6 +241,7 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
  * @param  {string} roomTabName
  * @returns void
  */
+// ToDo think about adding description to get to description tab
 // ToDo improve to allow checking from files tab
 // ToDo add possibility to load with correct data and then trigger error
 // ToDo add possibility to change room data (maybe get room data/additional room data as parameter)
@@ -282,12 +281,9 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   // Reload with logged in user
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestCheckRoomAuthErrors');
 
-  cy.reload(); // ToDo could maybe me changed to only click on reload button
-
+  cy.visit('/rooms/abc-def-123#tab=' + roomTabName);
+  cy.reload();
   cy.wait('@roomRequestCheckRoomAuthErrors');
-  cy.wait('@roomFilesRequestCheckRoomAuthErrors');
-
-  cy.get('#tab-' + roomTabName).click();
 
   // Check with 401 errors but room has an access code
   cy.fixture('room.json').then((room) => {
@@ -317,8 +313,7 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   // Reload with logged in user
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestCheckRoomAuthErrors');
 
-  cy.reload(); // ToDo could maybe me changed to only click on reload button
-
+  cy.reload();
   cy.wait('@roomRequestCheckRoomAuthErrors');
 
   // Check with 401 error but guests are forbidden
@@ -344,7 +339,7 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   // Reload with logged in user
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestCheckRoomAuthErrors');
 
-  cy.reload(); // ToDo could maybe me changed to only click on reload button
+  cy.reload();
 
   cy.wait('@roomRequestCheckRoomAuthErrors');
 

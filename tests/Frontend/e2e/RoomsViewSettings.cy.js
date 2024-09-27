@@ -320,8 +320,6 @@ describe('Rooms view settings', function () {
 
     cy.get('[data-test="loading-retry-button"]').should('be.visible').and('have.text', 'app.reload');
 
-    cy.get('#tab-files').click(); // ToDo improve custom command so that this can be deleted
-
     cy.checkRoomAuthErrorsLoadingTab('GET', 'api/v1/rooms/abc-def-123/settings', 'settings');
   });
 
@@ -1611,7 +1609,7 @@ describe('Rooms view settings', function () {
     ]);
 
     // Check that modal stays open
-    cy.get('[data-test=room-delete-dialog]').should('be.visible'); // ToDo (close dialog after error)??
+    cy.get('[data-test=room-delete-dialog]').should('be.visible');
 
     cy.get('[data-test=dialog-cancel-button]').click();
 
@@ -1929,7 +1927,7 @@ describe('Rooms view settings', function () {
     ]);
 
     // Check that dialog stays open
-    cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible'); // ToDo (close dialog after error)??
+    cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible');
 
     cy.get('[data-test="dialog-cancel-button"]').click();
 

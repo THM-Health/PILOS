@@ -21,18 +21,18 @@ Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
  * @param  {boolean} [closeToastMessage=true]
  * @returns void
  */
-// ToDo multiple toasts (change this or add separate command)
 Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => {
-  cy.get('.p-toast-message').should('be.visible');
-  if (Array.isArray(messages)) {
-    for (const message of messages) {
-      cy.get('.p-toast-message').should('include.text', message);
+  cy.contains('.p-toast-message', Array.isArray(messages) ? messages[0] : messages).then(($toast) => {
+    cy.wrap($toast, { log: false }).should('be.visible');
+
+    if (Array.isArray(messages)) {
+      for (const message of messages) {
+        cy.wrap($toast, { log: false }).should('include.text', message);
+      }
+    } else {
+      cy.wrap($toast, { log: false }).should('have.text', messages);
     }
-  } else {
-    cy.get('.p-toast-message').should('have.text', messages);
-  }
-  if (closeToastMessage) {
-    cy.get('.p-toast-message').find('button').click();
-    cy.get('.p-toast-message').should('not.exist');
-  }
+    cy.wrap($toast, { log: false }).find('button').click();
+    cy.wrap($toast, { log: false }).should('not.exist');
+  });
 });
