@@ -3,8 +3,9 @@
       <slot />
       <div
         v-if="props.show"
-        class="inset-0"
-        :class="fixed ? 'fixed' : 'absolute'" style="backdrop-filter: blur(2px);" :style="{'z-index': props.zIndex}"
+        class="inset-0 backdrop-blur-sm"
+        :class="fixed ? 'fixed' : 'absolute'"
+        :style="{'z-index': props.zIndex}"
       >
         <div class="absolute bg-surface-100 dark:bg-surface-900" style="inset: 0;" :style="{opacity: props.opacity}" />
 
