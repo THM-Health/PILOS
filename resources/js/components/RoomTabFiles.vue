@@ -14,7 +14,7 @@
       {{ $t('rooms.files.terms_of_use.content') }}
       <Divider/>
       <div class="flex items-center">
-        <Checkbox v-model="downloadAgreement" inputId="terms_of_use" :binary="true" />
+        <Checkbox v-model="downloadAgreement" input-id="terms_of_use" :binary="true" />
         <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
       </div>
     </Message>

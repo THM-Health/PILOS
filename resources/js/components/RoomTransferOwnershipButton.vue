@@ -73,17 +73,17 @@
       <label for="role">{{ $t('rooms.modals.transfer_ownership.new_role') }}</label>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRoleInRoom" inputId="participant-role" name="role" :value="1" />
+        <RadioButton v-model="newRoleInRoom" input-id="participant-role" name="role" :value="1" />
         <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
       </div>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRoleInRoom" inputId="participant-moderator" name="role" :value="2" />
+        <RadioButton v-model="newRoleInRoom" input-id="moderator-role" name="role" :value="2" />
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRoleInRoom" inputId="participant-co-owner" name="role" :value="3" />
+        <RadioButton v-model="newRoleInRoom" input-id="co-owner-role" name="role" :value="3" />
         <label for="participant-co-owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
 
@@ -91,7 +91,7 @@
       <!--option to not add the current user as a member of the room-->
       <div>
         <div class="flex items-center">
-          <RadioButton v-model="newRoleInRoom" inputId="participant-no-role" name="role" :value="-1" />
+          <RadioButton v-model="newRoleInRoom" input-id="no-role" name="role" :value="-1" />
           <label for="participant-no-role" class="ml-2"><RoomRoleBadge /></label>
         </div>
         <small>{{$t('rooms.modals.transfer_ownership.warning')}}</small>
