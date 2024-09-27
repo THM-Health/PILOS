@@ -156,7 +156,7 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
   });
 
-  it('load files with access code errors', function () { // ToDo file requests after room request (problem???)
+  it('load files with access code errors', function () {
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
       room.data.authenticated = false;

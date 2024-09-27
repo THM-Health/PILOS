@@ -21,7 +21,8 @@ Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
  * @param  {boolean} [closeToastMessage=true]
  * @returns void
  */
-Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => { // ToDo multiple toasts
+// ToDo multiple toasts (change this or add separate command)
+Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => {
   cy.get('.p-toast-message').should('be.visible');
   if (Array.isArray(messages)) {
     for (const message of messages) {

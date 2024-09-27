@@ -1,3 +1,5 @@
+import { interceptIndefinitely } from '../utils/interceptIndefinitely.js';
+
 /**
  * Check if a room setting field inside the room type details view is displayed correctly
  * @memberof cy
@@ -85,7 +87,151 @@ Cypress.Commands.add('checkCompareRoomSettingField', (field, currentValue, curre
   });
 });
 
-// ToDo Add separate function to check auth errors when loading tabs
+/**
+ * Check that the auth errors are handled correctly when loading a room tab
+ * @memberof cy
+ * @method checkRoomAuthErrorsLoadingTab
+ * @param  {string} requestMethod
+ * @param  {string} requestUrl
+ * @param  {string} roomTabName
+ * @returns void
+ * @pre current room tab is not allowed to be the same as the one defined in the roomTabName //ToDo remove precondition
+ */
+Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl, roomTabName) => {
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequestAuthErrorsLoadingTab');
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestAuthErrorsLoadingTab');
+
+  cy.reload();
+  cy.wait('@roomRequestAuthErrorsLoadingTab');
+
+  cy.fixture('room.json').then((room) => {
+    room.data.current_user = null;
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 200,
+      body: room
+    }).as('roomRequestAuthErrorsLoadingTab');
+  });
+
+  // Check with 401 errors and room that has no access code
+  cy.intercept(requestMethod, requestUrl, {
+    statusCode: 401
+  }).as('requestAuthErrorsLoadingTab');
+
+  cy.get('#tab-' + roomTabName).click();
+
+  cy.wait('@requestAuthErrorsLoadingTab');
+
+  // Check that room gets reloaded
+  cy.wait('@roomRequestAuthErrorsLoadingTab');
+
+  // Check that file tab is shown
+  cy.wait('@roomFilesRequestAuthErrorsLoadingTab');
+  cy.url().should('not.include', '#tab=' + roomTabName);
+  cy.url().should('include', '/rooms/abc-def-123#tab=files');
+
+  // Check that toast message is shown and user is logged out
+  cy.checkToastMessage('app.flash.unauthenticated');
+  cy.contains('auth.login').should('be.visible');
+
+  // Reload with logged in user
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestAuthErrorsLoadingTab');
+
+  cy.reload();
+  cy.wait('@roomRequestAuthErrorsLoadingTab');
+  cy.wait('@roomFilesRequestAuthErrorsLoadingTab');
+
+  // Check with 401 errors but room has an access code
+  cy.fixture('room.json').then((room) => {
+    room.data.current_user = null;
+    room.data.authenticated = false;
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 200,
+      body: room
+    }).as('roomRequestAuthErrorsLoadingTab');
+  });
+
+  cy.get('#tab-' + roomTabName).click();
+
+  cy.wait('@requestAuthErrorsLoadingTab');
+
+  // Check that room gets reloaded
+  cy.wait('@roomRequestAuthErrorsLoadingTab');
+
+  // Check that access code overlay is shown
+  cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
+
+  // Check that error message is shown
+  cy.checkToastMessage('app.flash.unauthenticated');
+  cy.contains('auth.login').should('be.visible');
+
+  // Check with 401 error but guests are forbidden
+  // Reload with logged in user
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestAuthErrorsLoadingTab');
+
+  const request1 = interceptIndefinitely(requestMethod, requestUrl, {
+    statusCode: 401
+  }, 'requestAuthErrorsLoadingTab');
+
+  cy.reload();
+  cy.wait('@roomRequestAuthErrorsLoadingTab').then(() => {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 403,
+      body: {
+        message: 'guests_not_allowed'
+      }
+    }).as('roomRequestAuthErrorsLoadingTab');
+
+    request1.sendResponse();
+  });
+
+  cy.wait('@requestAuthErrorsLoadingTab');
+  cy.wait('@roomRequestAuthErrorsLoadingTab');
+
+  cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
+  cy.checkToastMessage('app.flash.unauthenticated');
+  cy.contains('auth.login').should('be.visible');
+
+  // Check with 403 error
+  // Reload with logged in user
+  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestAuthErrorsLoadingTab');
+
+  const request2 = interceptIndefinitely(requestMethod, requestUrl, {
+    statusCode: 403,
+    body: {
+      message: 'This action is unauthorized.'
+    }
+  }, 'requestAuthErrorsLoadingTab');
+
+  cy.reload();
+  cy.wait('@roomRequestAuthErrorsLoadingTab').then(() => {
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.is_member = true;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequestAuthErrorsLoadingTab');
+    });
+    request2.sendResponse();
+  });
+
+  cy.wait('@requestAuthErrorsLoadingTab');
+
+  // Check that room gets reloaded
+  cy.wait('@roomRequestAuthErrorsLoadingTab');
+
+  // Check that file tab is shown
+  cy.wait('@roomFilesRequestAuthErrorsLoadingTab');
+
+  cy.url().should('not.include', '#tab=' + roomTabName);
+  cy.url().should('include', '/rooms/abc-def-123#tab=files');
+
+  // Check that toast message is shown
+  cy.checkToastMessage('app.flash.unauthorized');
+});
 
 /**
  * Check that the auth errors for room actions are handled correctly for the given request actions
@@ -98,6 +244,8 @@ Cypress.Commands.add('checkCompareRoomSettingField', (field, currentValue, curre
  * @returns void
  */
 // ToDo improve to allow checking from files tab
+// ToDo add possibility to load with correct data and then trigger error
+// ToDo add possibility to change room data (maybe get room data/additional room data as parameter)
 Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMethod, requestUrl, roomTabName) => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequestCheckRoomAuthErrors');
 

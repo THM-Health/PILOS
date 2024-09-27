@@ -228,6 +228,7 @@ describe('Rooms view members', function () {
     cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Switch to next page with 401 error
+    // ToDo Change to custom command (difficult because members need to be loaded "normally" first)
     cy.fixture('room.json').then((room) => {
       room.data.current_user = null;
 
@@ -404,140 +405,8 @@ describe('Rooms view members', function () {
     // Check that error message is shown
     cy.checkToastMessage('app.flash.unauthorized');
 
-    // Reload page with 401 error
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
-
-    cy.reload();
-    cy.wait('@roomRequest');
-    cy.wait('@roomFilesRequest');
-
-    cy.interceptRoomFilesRequest();
-
-    cy.fixture('room.json').then((room) => {
-      room.data.current_user = null;
-
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-        statusCode: 200,
-        body: room
-      }).as('roomRequest');
-    });
-
-    // 401 error but room has no access code
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
-      statusCode: 401
-    }).as('roomMembersRequest');
-
-    cy.get('#tab-members').click();
-
-    cy.wait('@roomMembersRequest');
-    // Check that room gets reloaded
-    cy.wait('@roomRequest');
-    // Check that file tab is shown
-    cy.wait('@roomFilesRequest');
-
-    cy.url().should('not.include', '#tab=members');
-    cy.url().should('include', '/rooms/abc-def-123#tab=files');
-
-    // Check that error message is shown
-    cy.checkToastMessage('app.flash.unauthenticated');
-    cy.contains('auth.login').should('be.visible');
-
-    // Reload with logged in user
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
-
-    cy.reload();
-    cy.wait('@roomRequest');
-
-    // 401 error but room has an access code
-    cy.fixture('room.json').then((room) => {
-      room.data.current_user = null;
-      room.data.authenticated = false;
-
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-        statusCode: 200,
-        body: room
-      }).as('roomRequest');
-    });
-
-    cy.get('#tab-members').click();
-
-    cy.wait('@roomMembersRequest');
-    cy.wait('@roomRequest');
-
-    // Check that access code overlay is shown
-    cy.get('[data-test="room-access-code-overlay"]').should('be.visible');
-
-    // Check that error message is shown
-    cy.checkToastMessage('app.flash.unauthenticated');
-    cy.contains('auth.login').should('be.visible');
-
-    // 401 error but guests are forbidden
-    // Reload with logged in user
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
-
-    // 403 error
-    const roomMembersRequest1 = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/member*', {
-      statusCode: 401
-    }, 'roomMembersRequest');
-
-    cy.reload();
-    cy.wait('@roomRequest').then(() => {
-      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-        statusCode: 403,
-        body: {
-          message: 'guests_not_allowed'
-        }
-      }).as('roomRequest');
-
-      roomMembersRequest1.sendResponse();
-    });
-
-    cy.wait('@roomMembersRequest');
-    cy.wait('@roomRequest');
-
-    // Check that the error message is shown
-    cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
-    cy.checkToastMessage('app.flash.unauthenticated');
-    cy.contains('auth.login').should('be.visible');
-
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
-
-    // 403 error
-    const roomMembersRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/member*', {
-      statusCode: 403,
-      body: {
-        message: 'This action is unauthorized.'
-      }
-    }, 'roomMembersRequest');
-
-    cy.reload();
-    cy.wait('@roomRequest').then(() => {
-      cy.fixture('room.json').then((room) => {
-        room.data.owner = { id: 2, name: 'Max Doe' };
-        room.data.is_member = true;
-
-        cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
-          statusCode: 200,
-          body: room
-        }).as('roomRequest');
-      });
-
-      roomMembersRequest.sendResponse();
-    });
-
-    cy.wait('@roomMembersRequest');
-
-    // Check that room gets reloaded
-    cy.wait('@roomRequest');
-
-    // Check that file tab is shown
-    cy.wait('@roomFilesRequest');
-
-    cy.url().should('not.include', '#tab=members');
-    cy.url().should('include', '/rooms/abc-def-123#tab=files');
-
-    // Check that error message is shown
-    cy.checkToastMessage('app.flash.unauthorized');
+    // Check auth errors when loading members
+    cy.checkRoomAuthErrorsLoadingTab('GET', 'api/v1/rooms/abc-def-123/member*', 'members');
   });
 
   it('add new member', function () {
