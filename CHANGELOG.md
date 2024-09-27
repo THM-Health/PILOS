@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v4.0.0] - 2024-09-26
 ### Added
 - Short description for rooms ([#373])
 - Room favorites ([#373])
@@ -152,8 +154,9 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v3.0.3...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
 [v3.0.3]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.3
+[v4.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.0.0
