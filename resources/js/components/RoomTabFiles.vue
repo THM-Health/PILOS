@@ -6,17 +6,33 @@
       :closable="false"
       class="mx-2 mb-4"
       :pt="{
-        wrapper: { class: 'items-start gap-2'},
-        icon: { class: [ 'mt-1' ] }
+        text: 'w-full'
       }"
     >
-      <strong>{{ $t('rooms.files.terms_of_use.title') }}</strong><br>
-      {{ $t('rooms.files.terms_of_use.content') }}
-      <Divider/>
-      <div class="flex items-center">
-        <Checkbox v-model="downloadAgreement" inputId="terms_of_use" :binary="true" />
-        <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
-      </div>
+      <Accordion
+        :value="showTermsOfUse"
+        @update:value="showTermsOfUse = $event"
+        expandIcon="fa-solid fa-plus"
+        collapseIcon="fa-solid fa-minus"
+      >
+        <AccordionPanel :value="true" class="border-0">
+          <AccordionHeader class="bg-transparent p-0 pr-2 text-blue-600">
+            {{ $t('rooms.files.terms_of_use.title') }}
+          </AccordionHeader>
+          <AccordionContent unstyled>
+            <div
+              class="w-full max-h-32 overflow-y-auto mt-2"
+            >
+              {{ settingsStore.getSetting('room.file_terms_of_use') }}
+            </div>
+            <Divider/>
+            <div class="flex items-center mb-2">
+              <Checkbox v-model="downloadAgreement" @update:modelValue="(checked) => showTermsOfUse = !checked" inputId="terms_of_use" :binary="true" />
+              <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
+            </div>
+          </AccordionContent>
+        </AccordionPanel>
+      </Accordion>
     </Message>
 
     <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
@@ -151,7 +167,8 @@
                     :file-id="item.id"
                     :token="props.token"
                     :access-code="props.accessCode"
-                    :disabled="isBusy || (!downloadAgreement && requireAgreement)"
+                    :disabled="isBusy"
+                    :requireTermsOfUseAcceptance="(!downloadAgreement && requireAgreement)"
                     @file-not-found="loadData()"
                     @invalid-code="emit('invalidCode')"
                     @invalid-token="emit('invalidToken')"
@@ -193,6 +210,7 @@ import { useApi } from '../composables/useApi.js';
 import { usePaginator } from '../composables/usePaginator.js';
 import { useI18n } from 'vue-i18n';
 import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
+import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
   room: Object,
@@ -213,6 +231,7 @@ const api = useApi();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 const { t } = useI18n();
+const settingsStore = useSettingsStore();
 
 const files = ref([]);
 const defaultFile = ref(null);
@@ -220,6 +239,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const sortField = ref('uploaded');
 const sortOrder = ref(0);
+const showTermsOfUse = ref(true);
 
 const search = ref('');
 const filter = ref('all');
@@ -243,7 +263,7 @@ const toggleSortOrder = () => {
 const downloadAgreement = ref(false);
 
 const requireAgreement = computed(() => {
-  return !userPermissions.can('manageSettings', props.room);
+  return !userPermissions.can('manageSettings', props.room) && settingsStore.getSetting('room.file_terms_of_use') !== null;
 });
 
 /**

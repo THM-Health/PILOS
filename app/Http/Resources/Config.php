@@ -59,6 +59,7 @@ class Config extends JsonResource
                 'limit' => $roomSettings->limit,
                 'token_expiration' => $roomSettings->token_expiration,
                 'refresh_rate' => config('bigbluebutton.room_refresh_rate'),
+                'file_terms_of_use' => $roomSettings->file_terms_of_use,
             ],
             'user' => [
                 'password_change_allowed' => $userSettings->password_change_allowed,

@@ -361,6 +361,10 @@ return [
                 'title' => 'Period until never used rooms are deleted',
             ],
         ],
+        'room_file_terms_of_use' => [
+            'description' => 'Users must agree to the terms of use in order to download files. If the field is empty, no consent is required.',
+            'title' => 'Terms of use for file download',
+        ],
         'room_limit' => [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',
             'title' => 'Number of rooms per user',
