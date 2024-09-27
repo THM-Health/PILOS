@@ -621,7 +621,7 @@
             </fieldset>
             </AdminPanel>
 
-            <AdminPanel :title="$t('admin.settings.attendance_and_statistics_title')">
+            <AdminPanel :title="$t('admin.settings.recording_and_statistics_title')">
               <fieldset class="grid grid-cols-12 gap-4">
                 <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.statistics.servers.enabled_title')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
