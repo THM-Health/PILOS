@@ -22,6 +22,13 @@
     :dismissableMask="false"
     :closable="!isUploading"
     data-test="room-files-upload-dialog"
+    :pt="{
+      pcCloseButton: {
+        root:{
+          'data-test': 'dialog-header-close-button'
+        }
+      }
+    }"
   >
     <div class="flex flex-col gap-2">
       <label
@@ -31,6 +38,7 @@
         tabindex="0"
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
+        data-test="upload-file-button"
       >
         <i class="fa-solid fa-upload"></i> {{ $t('app.browse') }}
       </label>
@@ -63,7 +71,7 @@
       <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
 
       <div v-if="uploadedFiles.length" class="mt-2 flex flex-col gap-2">
-        <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle">
+        <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle" data-test="uploaded-file-message">
           {{ $t('rooms.files.uploaded', { name: file.name }) }}
         </Message>
       </div>
