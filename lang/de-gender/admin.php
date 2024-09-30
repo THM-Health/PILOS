@@ -249,7 +249,6 @@ return [
         'attendance' => [
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
         ],
-        'attendance_and_statistics_title' => 'Aufzeichnung und Statistik',
         'banner' => [
             'background' => 'Hintergrundfarbe des Banners',
             'banner_title' => 'Überschrift',

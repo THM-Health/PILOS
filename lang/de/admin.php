@@ -249,7 +249,6 @@ return [
         'attendance' => [
             'retention_period_title' => 'Speicherdauer der Anwesenheitsprotokollierung in Tagen',
         ],
-        'attendance_and_statistics_title' => 'Aufzeichnung und Statistik',
         'banner' => [
             'background' => 'Hintergrundfarbe des Banners',
             'banner_title' => 'Überschrift',
@@ -344,6 +343,7 @@ return [
         'recording' => [
             'retention_period_title' => 'Speicherdauer der Aufzeichnungen in Tagen',
         ],
+        'recording_and_statistics_title' => 'Aufzeichnung und Statistik',
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Zeitraum zwischen Zustellung der Informations-E-Mail und der Löschung',
