@@ -29,7 +29,7 @@ describe('Rooms view files file actions', function () {
         cy.get('[data-test="upload-file-button"]')
           .should('be.visible')
           .and('include.text', 'app.browse')
-          .click();
+          .trigger('keyup', { key: 'Enter' });
 
         // Check that button is connected to file input
         cy.get('@fileInputClick').should('be.calledOnce');

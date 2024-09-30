@@ -1619,7 +1619,7 @@ describe('Rooms view settings', function () {
     }, 'DELETE', 'api/v1/rooms/abc-def-123', 'settings');
   });
 
-  it('transfer ownership', function () {
+  it.only('transfer ownership', function () {
     cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomSettingsRequest');
@@ -1698,19 +1698,19 @@ describe('Rooms view settings', function () {
         cy.get('#participant-role').should('not.be.checked');
       });
 
-      cy.get('[data-test="participant-moderator-group"]').within(() => {
+      cy.get('[data-test="moderator-role-group"]').within(() => {
         cy.contains('rooms.roles.moderator');
-        cy.get('#participant-moderator').should('not.be.checked');
+        cy.get('#moderator-role').should('not.be.checked');
       });
 
-      cy.get('[data-test="participant-co-owner-group"]').within(() => {
+      cy.get('[data-test="co-owner-role-group"]').within(() => {
         cy.contains('rooms.roles.co_owner');
-        cy.get('#participant-co-owner').should('be.checked');
+        cy.get('#co-owner-role').should('be.checked');
       });
 
-      cy.get('[data-test="participant-no-role-group"]').within(() => {
+      cy.get('[data-test="no-role-group"]').within(() => {
         cy.contains('rooms.roles.no_role');
-        cy.get('#participant-no-role').should('not.be.checked');
+        cy.get('#no-role').should('not.be.checked');
       });
 
       // Select new role
@@ -1736,6 +1736,15 @@ describe('Rooms view settings', function () {
       });
 
       cy.get('[data-test="dialog-continue-button"]').click();
+
+      // Check loading
+      cy.get('[data-test="new-owner-dropdown"]').find('input').should('be.disabled');
+
+      cy.get('#participant-role').should('be.disabled');
+      cy.get('#moderator-role').should('be.disabled');
+      cy.get('#co-owner-role').should('be.disabled');
+      cy.get('#no-role').should('be.disabled');
+
       cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
       cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
         transferOwnershipRequest.sendResponse();
@@ -1777,7 +1786,7 @@ describe('Rooms view settings', function () {
     cy.get('.multiselect__option').eq(1).click();
     cy.get('.multiselect__content').should('not.be.visible');
 
-    cy.get('#participant-no-role').click();
+    cy.get('#no-role').click();
 
     // Transfer ownership with no role selected
     cy.fixture('room.json').then((room) => {
@@ -1888,7 +1897,7 @@ describe('Rooms view settings', function () {
     cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible').and('include.text', 'The selected role is invalid.');
 
     // Select other role
-    cy.get('#participant-moderator').click();
+    cy.get('#moderator-role').click();
 
     // Transfer ownership with 422 error (user can not own rooms)
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/transfer', {

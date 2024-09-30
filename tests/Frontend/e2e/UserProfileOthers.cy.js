@@ -18,7 +18,7 @@ describe('User Profile Others', function () {
     cy.get('[data-test="bbb-skip-check-audio-field"]')
       .should('be.visible')
       .and('include.text', 'admin.users.skip_check_audio')
-      .find('#bbb_skip_check_audio > input')
+      .find('#bbb_skip_check_audio')
       .should('not.be.checked')
       .click();
 
@@ -34,7 +34,7 @@ describe('User Profile Others', function () {
       cy.get('[data-test="user-tab-others-save-button"]').click();
 
       // Check loading
-      cy.get('#bbb_skip_check_audio > input').should('be.disabled');
+      cy.get('#bbb_skip_check_audio').should('be.disabled');
       cy.get('[data-test="user-tab-others-save-button"]').should('be.disabled').then(() => {
         saveChangesRequest.sendResponse();
       });
@@ -47,7 +47,7 @@ describe('User Profile Others', function () {
     });
 
     // Check that the changes are shown
-    cy.get('#bbb_skip_check_audio > input').should('be.checked');
+    cy.get('#bbb_skip_check_audio').should('be.checked');
   });
 
   it('save changes errors', function () {
@@ -71,7 +71,7 @@ describe('User Profile Others', function () {
 
     cy.wait('@saveChangesRequest');
 
-    cy.get('#bbb_skip_check_audio > input').should('not.be.checked');
+    cy.get('#bbb_skip_check_audio').should('not.be.checked');
 
     cy.get('[data-test="bbb-skip-check-audio-field"]')
       .should('include.text', 'The bbb skip check audio field is required.');
@@ -103,7 +103,7 @@ describe('User Profile Others', function () {
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 
     // Check that the changes are shown
-    cy.get('#bbb_skip_check_audio > input').should('be.checked');
+    cy.get('#bbb_skip_check_audio').should('be.checked');
 
     // Check with 500 error
     cy.intercept('POST', 'api/v1/users/1', {

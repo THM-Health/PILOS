@@ -502,19 +502,19 @@ describe('Rooms view members', function () {
       cy.get('#participant-role').should('not.be.checked');
     });
 
-    cy.get('[data-test="participant-moderator-group"]').within(() => {
+    cy.get('[data-test="moderator-role-group"]').within(() => {
       cy.contains('rooms.roles.moderator');
-      cy.get('#participant-moderator').should('not.be.checked');
+      cy.get('#moderator-role').should('not.be.checked');
     });
 
-    cy.get('[data-test="participant-co-owner-group"]').within(() => {
+    cy.get('[data-test="co-owner-role-group"]').within(() => {
       cy.contains('rooms.roles.co_owner');
-      cy.get('#participant-co_owner').should('not.be.checked');
+      cy.get('#co_owner-role').should('not.be.checked');
     });
 
     // Select role (moderator)
-    cy.get('#participant-moderator').click();
-    cy.get('#participant-moderator').should('be.checked');
+    cy.get('#moderator-role').click();
+    cy.get('#moderator-role').should('be.checked');
 
     // Add user to the room
     const addUserRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/member', {
@@ -537,6 +537,12 @@ describe('Rooms view members', function () {
     cy.get('[data-test="dialog-save-button"]').should('have.text', 'rooms.members.modals.add.add').click();
 
     // Check loading and send response
+    cy.get('[data-test="select-user-dropdown"]').find('input').should('be.disabled');
+
+    cy.get('#participant-role').should('be.disabled');
+    cy.get('#moderator-role').should('be.disabled');
+    cy.get('#co_owner-role').should('be.disabled');
+
     cy.get('[data-test="dialog-cancel-button"]').and('be.disabled');
     cy.get('[data-test="dialog-save-button"]').should('be.disabled').then(() => {
       addUserRequest.sendResponse();
@@ -730,20 +736,20 @@ describe('Rooms view members', function () {
       cy.get('#participant-role').should('be.checked');
     });
 
-    cy.get('[data-test="participant-moderator-group"]').within(() => {
+    cy.get('[data-test="moderator-role-group"]').within(() => {
       cy.contains('rooms.roles.moderator');
-      cy.get('#participant-moderator').should('not.be.checked');
+      cy.get('#moderator-role').should('not.be.checked');
     });
 
-    cy.get('[data-test="participant-co-owner-group"]').within(() => {
+    cy.get('[data-test="co-owner-role-group"]').within(() => {
       cy.contains('rooms.roles.co_owner');
-      cy.get('#participant-co_owner').should('not.be.checked');
+      cy.get('#co_owner-role').should('not.be.checked');
     });
 
     // Select new role (moderator)
-    cy.get('#participant-moderator').click();
+    cy.get('#moderator-role').click();
     cy.get('#participant-role').should('not.be.checked');
-    cy.get('#participant-moderator').should('be.checked');
+    cy.get('#moderator-role').should('be.checked');
 
     // Save changes
     const editUserRequest = interceptIndefinitely('PUT', '/api/v1/rooms/abc-def-123/member/5', {

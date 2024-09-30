@@ -44,22 +44,22 @@ describe('Rooms view members bulk', function () {
         cy.get('#participant-role').should('not.be.checked').and('have.value', 1);
       });
 
-      cy.get('[data-test="participant-moderator-group"]').within(() => {
+      cy.get('[data-test="moderator-role-group"]').within(() => {
         cy.contains('rooms.roles.moderator');
-        cy.get('#participant-moderator').should('not.be.checked').and('have.value', 2);
+        cy.get('#moderator-role').should('not.be.checked').and('have.value', 2);
       });
 
-      cy.get('[data-test="participant-co-owner-group"]').within(() => {
+      cy.get('[data-test="co-owner-role-group"]').within(() => {
         cy.contains('rooms.roles.co_owner');
-        cy.get('#participant-co_owner').should('not.be.checked').and('have.value', 3);
+        cy.get('#co_owner-role').should('not.be.checked').and('have.value', 3);
       });
 
       // Select moderator role and save
-      cy.get('#participant-moderator').click();
+      cy.get('#moderator-role').click();
 
-      cy.intercept('PUT', 'api/v1/rooms/abc-def-123/member/bulk', {
+      const bulkEditRequest = interceptIndefinitely('PUT', 'api/v1/rooms/abc-def-123/member/bulk', {
         statusCode: 204
-      }).as('bulkEditRequest');
+      }, 'bulkEditRequest');
 
       cy.fixture('roomMembers.json').then(roomMembers => {
         roomMembers.data[0].role = 2;
@@ -70,8 +70,17 @@ describe('Rooms view members bulk', function () {
         }).as('roomMembersRequest');
       });
 
-      cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel');
       cy.get('[data-test="dialog-save-button"]').should('have.text', 'app.save').click();
+
+      // Check loading
+      cy.get('#participant-role').should('be.disabled');
+      cy.get('#moderator-role').should('be.disabled');
+      cy.get('#co_owner-role').should('be.disabled');
+
+      cy.get('[data-test="dialog-save-button"]').should('be.disabled');
+      cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel').should('be.disabled').then(() => {
+        bulkEditRequest.sendResponse();
+      });
     });
 
     cy.wait('@bulkEditRequest').then(interception => {
@@ -193,7 +202,7 @@ describe('Rooms view members bulk', function () {
 
     // Open dialog again and select moderator role
     cy.get('[data-test="room-members-bulk-edit-button"]').should('be.visible').click();
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').find('#participant-moderator').click();
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').find('#moderator-role').click();
 
     // Check with 422 error (one of the users isn't a member)
     cy.intercept('PUT', 'api/v1/rooms/abc-def-123/member/bulk', {
@@ -276,9 +285,9 @@ describe('Rooms view members bulk', function () {
       cy.contains('rooms.members.modals.remove.title_bulk_{"numberOfSelectedUsers":1}').should('be.visible');
       cy.contains('rooms.members.modals.remove.confirm_bulk_{"numberOfSelectedUsers":1}').should('be.visible');
 
-      cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/member/bulk', {
+      const bulkDeleteRequest = interceptIndefinitely('DELETE', 'api/v1/rooms/abc-def-123/member/bulk', {
         statusCode: 204
-      }).as('bulkDeleteRequest');
+      }, 'bulkDeleteRequest');
 
       cy.fixture('roomMembers.json').then(roomMembers => {
         roomMembers.data = roomMembers.data.slice(1, 3);
@@ -292,8 +301,13 @@ describe('Rooms view members bulk', function () {
         }).as('roomMembersRequest');
       });
 
-      cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.no');
       cy.get('[data-test="dialog-continue-button"]').should('have.text', 'app.yes').click();
+
+      // Check loading
+      cy.get('[data-test="dialog-cancel-button"]').should('be.disabled').and('have.text', 'app.no');
+      cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
+        bulkDeleteRequest.sendResponse();
+      });
     });
 
     cy.wait('@bulkDeleteRequest').then(interception => {
@@ -475,18 +489,18 @@ describe('Rooms view members bulk', function () {
         cy.get('#participant-role').should('be.checked').and('have.value', 1);
       });
 
-      cy.get('[data-test="participant-moderator-group"]').within(() => {
+      cy.get('[data-test="moderator-role-group"]').within(() => {
         cy.contains('rooms.roles.moderator');
-        cy.get('#participant-moderator').should('not.be.checked').and('have.value', 2);
+        cy.get('#moderator-role').should('not.be.checked').and('have.value', 2);
       });
 
-      cy.get('[data-test="participant-co-owner-group"]').within(() => {
+      cy.get('[data-test="co-owner-role-group"]').within(() => {
         cy.contains('rooms.roles.co_owner');
-        cy.get('#participant-co_owner').should('not.be.checked').and('have.value', 3);
+        cy.get('#co_owner-role').should('not.be.checked').and('have.value', 3);
       });
 
       // Select moderator role
-      cy.get('#participant-moderator').click();
+      cy.get('#moderator-role').click();
 
       // Check with only valid users
       const bulkImportRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/member/bulk', {
@@ -511,6 +525,10 @@ describe('Rooms view members bulk', function () {
       cy.get('[data-test="dialog-continue-button"]').click();
 
       // Check loading
+      cy.get('#participant-role').should('be.disabled');
+      cy.get('#moderator-role').should('be.disabled');
+      cy.get('#co_owner-role').should('be.disabled');
+
       cy.get('[data-test="dialog-continue-button"]').should('be.disabled');
       cy.get('[data-test="room-members-bulk-import-textarea"]').should('be.disabled').then(() => {
         bulkImportRequest.sendResponse();
@@ -555,9 +573,9 @@ describe('Rooms view members bulk', function () {
       cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', '');
       cy.get('[data-test="room-members-bulk-import-textarea"]').type('\n\n\nJuanMWalter@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n');
       // Check that role stayed selected
-      cy.get('#participant-moderator').should('be.checked');
+      cy.get('#moderator-role').should('be.checked');
       // Select co_owner role
-      cy.get('#participant-co_owner').click();
+      cy.get('#co_owner-role').click();
 
       cy.intercept('POST', '/api/v1/rooms/abc-def-123/member/bulk', {
         statusCode: 422,
@@ -729,7 +747,7 @@ describe('Rooms view members bulk', function () {
       cy.get('[data-test="room-members-bulk-import-textarea"]').type('invalidEmail@domain.tld\nnotAnEmail');
 
       // Check that role stayed selected
-      cy.get('#participant-co_owner').should('be.checked');
+      cy.get('#co_owner-role').should('be.checked');
       // Select participant role
       cy.get('#participant-role').click();
 
