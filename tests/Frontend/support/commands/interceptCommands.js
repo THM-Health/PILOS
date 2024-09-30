@@ -44,14 +44,14 @@ Cypress.Commands.add('init', () => {
       }
     }
   });
-  cy.intercept('GET', 'api/v1/config', {
-    data: {
-      theme: {
-        primary_color: '#14b8a6',
-        rounded: true
-      },
-      general: { toast_lifetime: 0 }
-    }
+
+  cy.fixture('config.json').then((config) => {
+    config.data.general.base_url = Cypress.config('baseUrl');
+
+    cy.intercept('GET', 'api/v1/config', {
+      statusCode: 200,
+      body: config
+    });
   });
 });
 
@@ -73,13 +73,6 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
  * @returns void
  */
 Cypress.Commands.add('interceptRoomViewRequests', () => {
-  cy.intercept('GET', 'api/v1/config', {
-    data: {
-      general: { toast_lifetime: 0 },
-      theme: { primary_color: '#14b8a6', rounded: true },
-      room: { refresh_rate: 5000 }
-    }
-  });
   cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
 });
 
@@ -87,10 +80,15 @@ Cypress.Commands.add('interceptRoomViewRequests', () => {
  * Intercept all requests that are needed when visiting the files tab of a room (rooms/abc-def-123)
  * @memberof cy
  * @method interceptRoomFilesRequest
+ * @param  {boolean} [withFileDetails=false]
  * @returns void
  */
-Cypress.Commands.add('interceptRoomFilesRequest', () => {
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequest');
+Cypress.Commands.add('interceptRoomFilesRequest', (withFileDetails = false) => {
+  if (withFileDetails) {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequest');
+  } else {
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFilesNoDetails.json' }).as('roomFilesRequest');
+  }
 });
 
 /**
@@ -111,18 +109,6 @@ Cypress.Commands.add('interceptRoomMembersRequest', () => {
  */
 Cypress.Commands.add('interceptRoomSettingsRequest', () => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettings.json' }).as('roomSettingsRequest');
-
-  cy.intercept('GET', 'api/v1/config', {
-    data: {
-      theme: {
-        primary_color: '#14b8a6',
-        rounded: true
-      },
-      general: { toast_lifetime: 0 },
-      room: { refresh_rate: 5000 },
-      bbb: { welcome_message_limit: 500 }
-    }
-  });
 });
 
 /**
@@ -138,63 +124,6 @@ Cypress.Commands.add('interceptUserProfileRequests', () => {
     cy.intercept('GET', 'api/v1/currentUser', currentUser);
   });
 
-  cy.intercept('GET', 'api/v1/config', {
-    data: {
-      theme: {
-        primary_color: '#14b8a6',
-        rounded: true
-      },
-      general: {
-        toast_lifetime: 0,
-        enabled_locales: {
-          de: 'Deutsch',
-          en: 'English',
-          fr: 'Français'
-        }
-      },
-      user: {
-        password_change_allowed: true
-      }
-    }
-  });
-  cy.intercept('GET', 'api/v1/locale/de', {
-    data: {},
-    meta: {
-      dateTimeFormat: {
-        dateShort: {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'
-        },
-        dateLong: {
-          year: 'numeric',
-          month: 'short',
-          day: '2-digit'
-        },
-        time: {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        },
-        datetimeShort: {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        },
-        datetimeLong: {
-          year: 'numeric',
-          month: 'short',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        }
-      }
-    }
-  });
   cy.intercept('GET', 'api/v1/users/1', { fixture: 'user.json' }).as('userRequest');
   cy.intercept('GET', 'api/v1/getTimezones', { fixture: 'timezones.json' });
   cy.intercept('GET', 'api/v1/sessions', { fixture: 'sessions.json' });

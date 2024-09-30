@@ -80,7 +80,7 @@ describe('User Profile Base', function () {
 
         cy.get('[data-test="upload-file-input"]')
           .should('not.be.visible')
-          .selectFile('tests/Frontend/fixtures/profileImage.jpg', { force: true });
+          .selectFile('tests/Frontend/fixtures/files/profileImage.jpg', { force: true });
       });
 
     cy.get('[data-test="crop-image-dialog"]')
@@ -88,7 +88,7 @@ describe('User Profile Base', function () {
       .and('include.text', 'admin.users.image.crop');
 
     // Check if correct image is shown
-    cy.fixture('profileImage.jpg').then((content) => {
+    cy.fixture('files/profileImage.jpg', 'base64').then((content) => {
       cy.get('[data-test="crop-image-dialog"]')
         .find('img')
         .should('have.attr', 'src')
@@ -107,7 +107,7 @@ describe('User Profile Base', function () {
         .should('be.visible')
         .find('img')
         .should('have.attr', 'src').then(src => {
-          cy.fixture('profileImagePreview.jpg', 'base64').then((content) => {
+          cy.fixture('files/profileImagePreview.jpg', 'base64').then((content) => {
             expect(src).to.eql('data:image/jpeg;base64,' + content);
           });
         });
@@ -134,7 +134,7 @@ describe('User Profile Base', function () {
       // Upload image again
       cy.get('[data-test="upload-file-input"]')
         .should('not.be.visible')
-        .selectFile('tests/Frontend/fixtures/profileImage.jpg', { force: true });
+        .selectFile('tests/Frontend/fixtures/files/profileImage.jpg', { force: true });
     });
 
     cy.get('[data-test="crop-image-dialog"]')
@@ -142,7 +142,7 @@ describe('User Profile Base', function () {
       .and('include.text', 'admin.users.image.crop');
 
     // Check if correct image is shown
-    cy.fixture('profileImage.jpg').then((content) => {
+    cy.fixture('files/profileImage.jpg', 'base64').then((content) => {
       cy.get('[data-test="crop-image-dialog"]')
         .find('img')
         .should('have.attr', 'src')
@@ -162,7 +162,7 @@ describe('User Profile Base', function () {
         .should('be.visible')
         .find('img')
         .should('have.attr', 'src').then(src => {
-          cy.fixture('profileImagePreview.jpg', 'base64').then((content) => {
+          cy.fixture('files/profileImagePreview.jpg', 'base64').then((content) => {
             expect(src).to.eql('data:image/jpeg;base64,' + content);
           });
         });
@@ -176,6 +176,45 @@ describe('User Profile Base', function () {
     });
 
     // Check locale setting and change it
+    cy.intercept('GET', 'api/v1/locale/de', {
+      data: {},
+      meta: {
+        dateTimeFormat: {
+          dateShort: {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          },
+          dateLong: {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit'
+          },
+          time: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          },
+          datetimeShort: {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          },
+          datetimeLong: {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }
+        }
+      }
+    });
+
     cy.get('[data-test="locale-dropdown-items').should('not.exist');
     cy.get('[data-test="locale-field"]')
       .should('be.visible')
@@ -288,7 +327,7 @@ describe('User Profile Base', function () {
         const uploadedFile = formData.get('image');
         expect(uploadedFile.name).to.eql('image.png');
         expect(uploadedFile.type).to.eql('image/jpeg');
-        cy.fixture('profileImagePreview.jpg').then((content) => {
+        cy.fixture('files/profileImagePreview.jpg', 'base64').then((content) => {
           uploadedFile.arrayBuffer().then((arrayBuffer) => {
             const base64 = _arrayBufferToBase64(arrayBuffer);
             expect(content).to.eql(base64);

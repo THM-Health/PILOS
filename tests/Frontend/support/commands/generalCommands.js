@@ -18,10 +18,9 @@ Cypress.Commands.add('testVisitWithoutCurrentUser', (path) => {
  * @memberof cy
  * @method checkToastMessage
  * @param  {(string|string[])} messages The text of the toast message or an array of texts that should be contained in the toast message
- * @param  {boolean} [closeToastMessage=true]
  * @returns void
  */
-Cypress.Commands.add('checkToastMessage', (messages, closeToastMessage = true) => {
+Cypress.Commands.add('checkToastMessage', (messages) => {
   cy.contains('.p-toast-message', Array.isArray(messages) ? messages[0] : messages).then(($toast) => {
     cy.wrap($toast, { log: false }).should('be.visible');
 

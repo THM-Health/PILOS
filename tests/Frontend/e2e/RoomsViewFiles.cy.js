@@ -4,7 +4,7 @@ describe('Rooms View Files', function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
-    cy.interceptRoomFilesRequest();
+    cy.interceptRoomFilesRequest(true);
   });
 
   it('load files', function () {
@@ -97,7 +97,7 @@ describe('Rooms View Files', function () {
       }).as('roomRequest');
     });
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFilesNoDetails.json' }).as('roomFilesRequest');
+    cy.interceptRoomFilesRequest();
 
     cy.visit('/rooms/abc-def-123');
 
@@ -124,6 +124,8 @@ describe('Rooms View Files', function () {
     });
 
     cy.contains('rooms.files.title').should('be.visible');
+
+    cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
     // Check that download agreement is shown
     cy.get('[data-test="download-agreement-message"]').should('be.visible');
@@ -281,7 +283,7 @@ describe('Rooms View Files', function () {
       }).as('roomRequest');
     });
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFilesNoDetails.json' }).as('roomFilesRequest');
+    cy.interceptRoomFilesRequest();
 
     // Visit room with token
     cy.visit('/rooms/abc-def-123/xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
@@ -294,6 +296,7 @@ describe('Rooms View Files', function () {
     });
 
     cy.contains('rooms.files.title').should('be.visible');
+    cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
     // Check that files are shown correctly
     // Check that download agreement is shown
@@ -506,11 +509,13 @@ describe('Rooms View Files', function () {
       }).as('roomRequest');
     });
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFilesNoDetails.json' }).as('roomFilesRequest');
+    cy.interceptRoomFilesRequest();
 
     cy.visit('/rooms/abc-def-123');
     cy.wait('@roomRequest');
     cy.wait('@roomFilesRequest');
+
+    cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
     // Check that download agreement is shown
     cy.get('[data-test="download-agreement-message"]').should('be.visible');
@@ -567,6 +572,7 @@ describe('Rooms View Files', function () {
     cy.wait('@roomFilesRequest');
 
     // Check that files are shown correctly
+    cy.get('[data-test="room-files-upload-button"]').should('not.exist');
     // Check that download agreement is shown
     cy.get('[data-test="download-agreement-message"]').should('be.visible');
     cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
@@ -611,7 +617,7 @@ describe('Rooms View Files', function () {
       }).as('roomRequest');
     });
 
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequest');
+    cy.interceptRoomFilesRequest(true);
 
     cy.reload();
     cy.wait('@roomRequest');
@@ -620,6 +626,7 @@ describe('Rooms View Files', function () {
     // Check that download agreement is hidden
     cy.get('[data-test="download-agreement-message"]').should('not.exist');
 
+    cy.get('[data-test="room-files-upload-button"]').should('be.visible');
     // Check that files are shown correctly and buttons are enabled
     cy.get('[data-test="room-file-item"]').should('have.length', 3);
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
@@ -671,6 +678,7 @@ describe('Rooms View Files', function () {
 
     // Check that download agreement is hidden
     cy.get('[data-test="download-agreement-message"]').should('not.exist');
+    cy.get('[data-test="room-files-upload-button"]').should('be.visible');
 
     // Check that files are shown correctly and buttons are enabled
     cy.get('[data-test="room-file-item"]').should('have.length', 3);

@@ -4,17 +4,6 @@ describe('Room View general', function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
-
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: {
-          name: 'PILOS Test',
-          toast_lifetime: 0
-        },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        room: { refresh_rate: 5000 }
-      }
-    });
   });
 
   it('room view as guest', function () {
@@ -329,17 +318,6 @@ describe('Room View general', function () {
   });
 
   it('room view as moderator', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: {
-          name: 'PILOS Test',
-          toast_lifetime: 0,
-          base_url: Cypress.config('baseUrl')
-        },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        room: { refresh_rate: 5000 }
-      }
-    });
     cy.interceptRoomFilesRequest();
 
     cy.fixture('room.json').then((room) => {

@@ -2,20 +2,6 @@ describe('General', function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomIndexRequests();
-
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: {
-          toast_lifetime: 0,
-          enabled_locales: {
-            de: 'Deutsch',
-            en: 'English',
-            fr: 'Français'
-          }
-        },
-        theme: { primary_color: '#14b8a6', rounded: true }
-      }
-    });
   });
 
   it('all locales get rendered', function () {

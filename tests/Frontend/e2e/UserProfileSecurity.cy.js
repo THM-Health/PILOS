@@ -145,21 +145,13 @@ describe('User Profile Security', function () {
   });
 
   it('view without password change allowed', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        theme: {
-          primary_color: '#14b8a6',
-          rounded: true
-        },
-        general: {
-          toast_lifetime: 0,
-          enabled_locales: {
-            de: 'Deutsch',
-            en: 'English',
-            fr: 'Français'
-          }
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.user.password_change_allowed = false;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     cy.visit('/profile');

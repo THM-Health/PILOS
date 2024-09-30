@@ -7,14 +7,13 @@ describe('Login', function () {
 
   it('ldap login', function () {
     // Intercept config request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          ldap: true
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.auth.ldap = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
     // Intercept csrf-cookie request to set defined cookie that can be checked later
     cy.intercept('GET', '/sanctum/csrf-cookie', {
@@ -67,15 +66,14 @@ describe('Login', function () {
 
   it('hide ldap login if disabled', function () {
     // Intercept config request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          ldap: false
-        }
-      }
-    }).as('configRequest');
+    cy.fixture('config.json').then(config => {
+      config.data.auth.ldap = false;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      }).as('configRequest');
+    });
 
     cy.visit('/login');
 
@@ -85,14 +83,13 @@ describe('Login', function () {
 
   it('ldap login with redirect query set', function () {
     // Intercept config request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          ldap: true
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.auth.ldap = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Intercept login request
@@ -133,15 +130,15 @@ describe('Login', function () {
 
   it('local login', function () {
     // Intercept config request to only show local login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          local: true
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.auth.local = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
+
     // Intercept csrf-cookie request to set defined cookie that can be checked later
     cy.intercept('GET', '/sanctum/csrf-cookie', {
       statusCode: 200,
@@ -192,15 +189,14 @@ describe('Login', function () {
   });
 
   it('hide local login if disabled', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          local: false
-        }
-      }
-    }).as('configRequest');
+    cy.fixture('config.json').then(config => {
+      config.data.auth.local = false;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      }).as('configRequest');
+    });
 
     cy.visit('/login');
 
@@ -210,14 +206,13 @@ describe('Login', function () {
 
   it('local login with redirect query set', function () {
     // Intercept config request to only show local login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          local: true
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.auth.local = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Intercept login request
@@ -256,14 +251,13 @@ describe('Login', function () {
 
   it('login errors', function () {
     // Intercept config request to only show local login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          local: true
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.auth.local = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Unprocessable entity error gets displayed
@@ -361,14 +355,13 @@ describe('Login', function () {
 
   it('shibboleth login', function () {
     // Intercept config request to only show local login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          shibboleth: true
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.auth.shibboleth = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     cy.visit('/login');
@@ -389,15 +382,14 @@ describe('Login', function () {
 
   it('hide shibboleth login if disabled', function () {
     // Intercept config request to only show local login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          shibboleth: false
-        }
-      }
-    }).as('configRequest');
+    cy.fixture('config.json').then(config => {
+      config.data.auth.shibboleth = false;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      }).as('configRequest');
+    });
 
     cy.visit('/login');
 
@@ -407,14 +399,13 @@ describe('Login', function () {
 
   it('shibboleth login with redirect query set', function () {
     // Intercept config request to only show ldap login tab
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: { toast_lifetime: 0 },
-        theme: { primary_color: '#14b8a6', rounded: true },
-        auth: {
-          shibboleth: true
-        }
-      }
+    cy.fixture('config.json').then(config => {
+      config.data.auth.shibboleth = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Visit page that can only be visited by logged in users

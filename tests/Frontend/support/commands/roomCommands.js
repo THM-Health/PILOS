@@ -242,7 +242,6 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
  * @returns void
  */
 // ToDo think about adding description to get to description tab
-// ToDo improve to allow checking from files tab
 // ToDo add possibility to load with correct data and then trigger error
 // ToDo add possibility to change room data (maybe get room data/additional room data as parameter)
 Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMethod, requestUrl, roomTabName) => {
@@ -269,10 +268,22 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   // Check that room gets reloaded
   cy.wait('@roomRequestCheckRoomAuthErrors');
 
-  // Check that file tab is shown
-  cy.wait('@roomFilesRequestCheckRoomAuthErrors');
-  cy.url().should('not.include', '#tab=' + roomTabName);
-  cy.url().should('include', '/rooms/abc-def-123#tab=files');
+  switch (roomTabName) { // ToDo improve (also add description tab / add description tab everywhere??)
+    case 'files':
+      // Check reload of files and check that tab stayed the same
+      cy.wait('@roomFilesRequestCheckRoomAuthErrors');
+      cy.url().should('include', '/rooms/abc-def-123#tab=files');
+      break;
+    case 'recordings':
+      // Check that tab stayed the same (ToDo check that recordings are reload)
+      cy.url().should('include', '/rooms/abc-def-123#tab=recordings');
+      break;
+    default:
+      // Check that file tab is shown
+      cy.wait('@roomFilesRequestCheckRoomAuthErrors');
+      cy.url().should('not.include', '#tab=' + roomTabName);
+      cy.url().should('include', '/rooms/abc-def-123#tab=files');
+  }
 
   // Check that toast message is shown and user is logged out
   cy.checkToastMessage('app.flash.unauthenticated');
@@ -368,11 +379,22 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   // Check that room gets reloaded
   cy.wait('@roomRequestCheckRoomAuthErrors');
 
-  // Check that file tab is shown
-  cy.wait('@roomFilesRequestCheckRoomAuthErrors');
-
-  cy.url().should('not.include', '#tab=' + roomTabName);
-  cy.url().should('include', '/rooms/abc-def-123#tab=files');
+  switch (roomTabName) { // ToDo improve (also add description tab / add description tab everywhere??)
+    case 'files':
+      // Check reload of files and check that tab stayed the same
+      cy.wait('@roomFilesRequestCheckRoomAuthErrors');
+      cy.url().should('include', '/rooms/abc-def-123#tab=files');
+      break;
+    case 'recordings':
+      // Check that tab stayed the same (ToDo check that recordings are reload)
+      cy.url().should('include', '/rooms/abc-def-123#tab=recordings');
+      break;
+    default:
+      // Check that file tab is shown
+      cy.wait('@roomFilesRequestCheckRoomAuthErrors');
+      cy.url().should('not.include', '#tab=' + roomTabName);
+      cy.url().should('include', '/rooms/abc-def-123#tab=files');
+  }
 
   // Check that toast message is shown
   cy.checkToastMessage('app.flash.unauthorized');
