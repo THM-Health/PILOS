@@ -25,7 +25,7 @@
       <label
         for="file"
         class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
-        :class="{'p-disabled': disabled}"
+        :class="{'p-disabled': (disabled || isUploading)}"
         tabindex="0"
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
@@ -37,7 +37,7 @@
         ref="fileInputRef"
         id="file"
         class="sr-only"
-        :disabled="disabled"
+        :disabled="disabled || isUploading"
         @input="fileSelected"
         :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
       />
@@ -142,6 +142,14 @@ useEventListener(dropZoneRef, 'drop', (event) => {
 });
 
 const dropZoneClasses = computed(() => {
+  if (props.disabled || isUploading.value) {
+    return [
+      'cursor-wait',
+      'bg-surface-50 dark:bg-surface-800',
+      'border-surface-200 dark:border-surface-500'
+    ];
+  }
+
   if (isOverDropZone.value) {
     return [
       'bg-green-100 dark:bg-surface-600',
@@ -163,6 +171,14 @@ function openModal () {
 
 function fileSelected (event) {
   uploadFile(event.target.files[0]);
+}
+
+function reset () {
+  // Clear file field and busy status
+  isUploading.value = false;
+  uploadingFile.value = null;
+  uploadProgress.value = 0;
+  fileInputRef.value.value = null;
 }
 
 function uploadFile (file) {
@@ -195,7 +211,9 @@ function uploadFile (file) {
     // Fetch successful
     uploadedFiles.value.push(file);
     emit('uploaded');
+    reset();
   }).catch((error) => {
+    reset();
     if (error.response) {
       if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
         formErrors.set({ file: [t('app.validation.too_large')] });
@@ -207,12 +225,6 @@ function uploadFile (file) {
       }
     }
     api.error(error, { noRedirectOnUnauthenticated: true });
-  }).finally(() => {
-    // Clear file field and busy status
-    isUploading.value = false;
-    uploadingFile.value = null;
-    uploadProgress.value = 0;
-    fileInputRef.value.value = null;
   });
 }
 
