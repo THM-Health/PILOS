@@ -34,7 +34,7 @@
       <label for="download" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.downloadable') }}</label>
       <div class="col-span-12 md:col-span-6">
         <ToggleSwitch
-          id="download"
+          input-id="download"
           v-model="newDownload"
           required
           :disabled="isLoadingAction"
@@ -48,7 +48,7 @@
       <label for="use_in_meeting" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.use_in_next_meeting') }}</label>
       <div class="col-span-12 md:col-span-6">
         <ToggleSwitch
-          id="use_in_meeting"
+          input-id="use_in_meeting"
           v-model="newUseInMeeting"
           required
           :disabled="isLoadingAction"
@@ -62,7 +62,7 @@
       <label for="default" class="col-span-12 mb-2 md:col-span-6 md:mb-0">{{ $t('rooms.files.default') }}</label>
       <div class="col-span-12 md:col-span-6">
         <ToggleSwitch
-          id="default"
+          input-id="default"
           v-model="newDefault"
           required
           :disabled="isLoadingAction"

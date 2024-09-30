@@ -59,7 +59,7 @@
           <span class="font-semibold">{{ $t('rooms.recording_attendance_info') }}</span>
           <div class="flex items-center gap-2">
             <Checkbox
-              inputId="record-attendance-agreement"
+              input-id="record-attendance-agreement"
               v-model="recordAttendanceAgreement"
               binary
               :invalid="formErrors.fieldInvalid('consent_record_attendance')"
@@ -74,7 +74,7 @@
           <i>{{ $t('rooms.recording_hint') }}</i>
           <div class="flex items-center gap-2">
             <Checkbox
-              inputId="record-agreement"
+              input-id="record-agreement"
               v-model="recordAgreement"
               binary
               :class="{'p-invalid': formErrors.fieldInvalid('consent_record')}"
@@ -84,7 +84,7 @@
           <FormError :errors="formErrors.fieldError('consent_record')" />
           <div class="flex items-center gap-2">
             <Checkbox
-              inputId="record-video-agreement"
+              input-id="record-video-agreement"
               v-model="recordVideoAgreement"
               binary
               :class="{'p-invalid': formErrors.fieldInvalid('consent_record_video')}"

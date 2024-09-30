@@ -20,7 +20,7 @@
       <div class="flex flex-col gap-2 mt-6">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
-          :id="`${props.id}-password`"
+          :input-id="`${props.id}-password`"
           v-model="password"
           autocomplete="current-password"
           :feedback="false"

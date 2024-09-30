@@ -84,17 +84,17 @@
         <label for="role">{{ $t('rooms.role') }}</label>
 
         <div class="flex items-center" data-test="participant-role-group">
-          <RadioButton v-model="newUsersRole" inputId="participant-role" name="role" :value="1" />
+          <RadioButton v-model="newUsersRole" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
           <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
         </div>
 
-        <div class="flex items-center" data-test="participant-moderator-group">
-          <RadioButton v-model="newUsersRole" inputId="participant-moderator" name="role" :value="2" />
+        <div class="flex items-center" data-test="moderator-role-group">
+          <RadioButton v-model="newUsersRole" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
           <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
         </div>
 
-        <div class="flex items-center" data-test="participant-co-owner-group">
-          <RadioButton v-model="newUsersRole" inputId="participant-co_owner" name="role" :value="3" />
+        <div class="flex items-center" data-test="co-owner-role-group">
+          <RadioButton v-model="newUsersRole" :disabled="isLoadingAction" input-id="co_owner-role" name="role" :value="3" />
           <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
         </div>
 

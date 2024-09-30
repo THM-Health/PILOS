@@ -1,8 +1,8 @@
 <template>
   <div>
   <Select
+    :input-id="props.id"
     data-test="locale-dropdown"
-    :inputId="props.id"
     :options="locales"
     optionLabel="text"
     optionValue="value"
