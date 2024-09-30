@@ -1619,7 +1619,7 @@ describe('Rooms view settings', function () {
     }, 'DELETE', 'api/v1/rooms/abc-def-123', 'settings');
   });
 
-  it.only('transfer ownership', function () {
+  it('transfer ownership', function () {
     cy.visit('/rooms/abc-def-123#tab=settings');
 
     cy.wait('@roomSettingsRequest');
