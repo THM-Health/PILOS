@@ -1,3 +1,5 @@
+import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
+
 describe('General', function () {
   beforeEach(function () {
     cy.init();
@@ -19,19 +21,28 @@ describe('General', function () {
 
   it('changing selected locale', function () {
     // Intercept locale and de request
-    cy.intercept('POST', '/api/v1/locale', {
+    const localeRequest = interceptIndefinitely('POST', '/api/v1/locale', {
       statusCode: 200
-    }).as('localeRequest');
+    }, 'localeRequest');
 
     cy.intercept('GET', '/api/v1/locale/de', {
       statusCode: 200
     }).as('deRequest');
 
     cy.visit('/rooms');
+
+    cy.wait('@roomRequest');
+
+    cy.get('[data-test="overlay"]').should('not.exist');
     // Open menu and click on a different locale than the current one
     cy.get('.fa-solid.fa-language').click();
     cy.get('[data-test="submenu"]').eq(1).should('be.visible').within(() => {
       cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch').click();
+    });
+
+    // Check loading
+    cy.get('[data-test="overlay"]').should('be.visible').then(() => {
+      localeRequest.sendResponse();
     });
 
     // Check that the correct requests are made
