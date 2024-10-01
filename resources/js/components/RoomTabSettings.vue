@@ -559,6 +559,9 @@
             severity="warn"
             :pt="{
               text: 'w-full',
+              content:{
+                'data-test': 'room-unsaved-changes-message'
+              }
             }"
           >
             <div class="flex flex-col md:flex-row justify-between gap-4 items-center">
@@ -573,6 +576,7 @@
                 :loading="isBusy"
                 icon="fa-solid fa-save"
                 type="submit"
+                data-test="room-unsaved-changes-save-button"
               />
             </div>
 

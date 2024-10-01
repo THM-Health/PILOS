@@ -618,9 +618,21 @@ describe('Rooms view settings', function () {
 
     cy.visit('/rooms/abc-def-123#tab=settings');
 
+    cy.wait('@roomSettingsRequest');
+
+    cy.get('[data-test="room-unsaved-changes-message"]').should('not.exist');
+
     // Change settings
     cy.get('#room-name').clear();
     cy.get('#room-name').type('Meeting Two');
+
+    // Check that settings changed message is shown after changing settings
+    cy.get('[data-test="room-unsaved-changes-message"]')
+      .should('be.visible')
+      .and('include.text', 'rooms.settings.unsaved_changes')
+      .find('[data-test="room-unsaved-changes-save-button"]')
+      .should('be.visible')
+      .and('have.text', 'app.save');
 
     cy.get('[data-test="clear-access-code-button"]').click();
     cy.get('#access-code').should('have.value', '').and('have.attr', 'placeholder', 'rooms.settings.general.unprotected_placeholder');
@@ -724,7 +736,13 @@ describe('Rooms view settings', function () {
 
           }, 'roomSettingsSaveRequest');
 
-          cy.get('[data-test="room-settings-save-button"]').click();
+          // Save settings by clicking on the save button inside the settings changed message
+          cy.scrollTo('top');
+          cy.get('[data-test="room-unsaved-changes-message"]')
+            .should('be.visible')
+            .find('[data-test="room-unsaved-changes-save-button"]')
+            .should('be.visible')
+            .click({ scrollBehavior: false });
 
           // Check loading
           cy.get('[data-test="overlay"]').should('be.visible');
@@ -732,6 +750,8 @@ describe('Rooms view settings', function () {
           cy.get('[data-test="overlay"]').should('be.visible');
 
           // Check that buttons are disabled
+          cy.scrollTo('top');
+          cy.get('[data-test="room-unsaved-changes-save-button"]').should('be.disabled');
           cy.get('[data-test="room-delete-button"]').should('be.disabled');
           cy.get('[data-test="room-transfer-ownership-button"]').should('be.disabled');
           cy.get('[data-test="room-settings-expert-mode-button"]').should('be.disabled');
@@ -771,6 +791,9 @@ describe('Rooms view settings', function () {
 
       // Check that overlay is hidden
       cy.get('[data-test="overlay"]').should('not.exist');
+
+      // Check that settings changed message is hidden
+      cy.get('[data-test="room-unsaved-changes-message"]').should('not.exist');
 
       // Check that buttons are enabled
       cy.get('[data-test="room-delete-button"]').should('not.be.disabled');
@@ -814,13 +837,19 @@ describe('Rooms view settings', function () {
     cy.get('#room-name').clear();
     cy.get('#room-name').type('Meeting Three');
 
+    // Check that settings changed message is shown but button
+    // is hidden because normal save button is visible without scrolling
+    cy.get('[data-test="room-unsaved-changes-message"]')
+      .should('be.visible')
+      .find('[data-test="room-unsaved-changes-save-button"]')
+      .should('not.exist');
+
     cy.get('[data-test="clear-access-code-button"]').click();
     cy.get('#access-code').should('have.value', '');
     cy.get('#allow-guests').click();
     cy.get('#short-description').clear();
 
     // Save settings
-
     cy.fixture('roomTypesWithSettings.json').then((roomTypes) => {
       cy.fixture('roomSettings.json').then((roomSettings) => {
         roomSettings.data.name = 'Meeting Three';
@@ -1041,6 +1070,7 @@ describe('Rooms view settings', function () {
     cy.wait('@roomSettingsRequest');
 
     cy.get('#room-type').should('have.value', 'Meeting');
+    cy.get('[data-test="room-unsaved-changes-message').should('not.exist');
     cy.get('[data-test="room-type-change-dialog]').should('not.exist');
     cy.get('[data-test="room-type-change-button"]').click();
     cy.get('[data-test="room-type-change-dialog"]')
@@ -1090,6 +1120,8 @@ describe('Rooms view settings', function () {
     cy.get('[data-test="room-type-change-dialog"]').should('not.exist');
 
     // Check that settings did not change
+    cy.get('[data-test="room-unsaved-changes-message').should('not.exist');
+
     cy.get('#room-type').should('have.value', 'Meeting');
     cy.get('#access-code').should('have.value', '123456789');
     cy.get('#allow-guests').should('not.be.disabled').and('be.checked');
@@ -1281,7 +1313,14 @@ describe('Rooms view settings', function () {
         cy.get('[data-test="confirmation-dialog-save-button"]').click();
       });
 
-    // Check that settings were updated
+    // Check that settings were updated and settings changed message is shown
+    cy.get('[data-test="room-unsaved-changes-message"]')
+      .should('be.visible')
+      .and('include.text', 'rooms.settings.unsaved_changes')
+      .find('[data-test="room-unsaved-changes-save-button"]')
+      .should('be.visible')
+      .and('have.text', 'app.save');
+
     cy.get('#room-type').should('have.value', 'Exam');
     cy.get('#access-code').should('have.value', '123456789');
     cy.get('#allow-guests').should('not.be.disabled').and('not.be.checked');
@@ -1378,7 +1417,14 @@ describe('Rooms view settings', function () {
       cy.get('[data-test="confirmation-dialog-save-button"]').click();
     });
 
-    // Check that settings were updated
+    // Check that settings were updated and settings changed message is shown
+    cy.get('[data-test="room-unsaved-changes-message"]')
+      .should('be.visible')
+      .and('include.text', 'rooms.settings.unsaved_changes')
+      .find('[data-test="room-unsaved-changes-save-button"]')
+      .should('be.visible')
+      .and('have.text', 'app.save');
+
     cy.get('#room-type').should('have.value', 'Meeting');
     cy.get('#access-code').should('have.value', '123456789');
     cy.get('#allow-guests').should('not.be.disabled').and('not.be.checked');
@@ -1478,7 +1524,14 @@ describe('Rooms view settings', function () {
       cy.get('[data-test="confirmation-dialog-save-button"]').click();
     });
 
-    // Check that settings were updated
+    // Check that settings were updated and settings changed message is shown
+    cy.get('[data-test="room-unsaved-changes-message"]')
+      .should('be.visible')
+      .and('include.text', 'rooms.settings.unsaved_changes')
+      .find('[data-test="room-unsaved-changes-save-button"]')
+      .should('be.visible')
+      .and('have.text', 'app.save');
+
     cy.get('#room-type').should('have.value', 'Seminar');
     cy.get('#access-code').should('have.value', '123456789');
     cy.get('[data-test="access-code-setting"]')
