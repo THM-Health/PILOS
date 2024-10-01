@@ -37,6 +37,7 @@ class UpdateSettings extends FormRequest
             'general_help_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_legal_notice_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_privacy_policy_url' => ['nullable', 'string', 'url', 'max:255'],
+            'general_no_welcome_page' => ['required', 'boolean'],
 
             'theme_logo' => ['required_without:theme_logo_file', 'string', 'max:255'],
             'theme_logo_file' => ['required_without:theme_logo', 'image', 'max:500'], // 500 KB, larger files are bad for loading times

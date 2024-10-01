@@ -20,6 +20,8 @@ class GeneralSettings extends Settings
 
     public int $toast_lifetime;
 
+    public bool $no_welcome_page;
+
     public static function group(): string
     {
         return 'general';

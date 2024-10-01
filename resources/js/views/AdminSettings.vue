@@ -161,6 +161,22 @@
                   <FormError :errors="formErrors.fieldError('general_default_timezone')"/>
                 </div>
               </div>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.no_welcome_page')}}</legend>
+                <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+                  <div class="flex items-center gap-2">
+                    <ToggleSwitch
+                      inputId="no-welcome-page"
+                      v-model="settings.general_no_welcome_page"
+                      binary
+                      :disabled="disabled"
+                      :invalid="formErrors.fieldInvalid('general_no_welcome_page')"
+                    />
+                    <label for="no-welcome-page">{{ $t('app.enable') }}</label>
+                  </div>
+                  <FormError :errors="formErrors.fieldError('general_no_welcome_page')"/>
+                </div>
+              </fieldset>
             </AdminPanel>
 
             <AdminPanel :title="$t('admin.settings.theme.title')">

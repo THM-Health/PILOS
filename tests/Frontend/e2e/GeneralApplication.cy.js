@@ -200,4 +200,75 @@ describe('General', function () {
     // Check if error message is shown
     cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
   });
+
+  it('disabled welcome page redirect unauthenticated users to login', function () {
+    cy.intercept('GET', 'api/v1/currentUser', {
+      data: {}
+    });
+    cy.intercept('GET', 'api/v1/config', {
+      data: {
+        theme: {
+          primary_color: '#14b8a6',
+          rounded: true
+        },
+        general: {
+          toast_lifetime: 0,
+          no_welcome_page: true
+        },
+        auth: {
+          local: true
+        }
+      }
+    });
+
+    // Visit the root page
+    cy.visit('/');
+
+    // Should be redirected to rooms overview, but since the user is not authenticated, should be redirected to login page
+    cy.url().should('contain', '/login?redirect=/rooms');
+
+    cy.get('[data-test="login-tab-local"]').should('be.visible');
+  });
+
+  it('disabled welcome page redirect authenticated users to rooms overview', function () {
+    cy.intercept('GET', 'api/v1/config', {
+      data: {
+        theme: {
+          primary_color: '#14b8a6',
+          rounded: true
+        },
+        general: {
+          toast_lifetime: 0,
+          no_welcome_page: true
+        }
+      }
+    });
+
+    // Visit the root page
+    cy.visit('/');
+
+    // Should be redirected to rooms overview
+    cy.url().should('contain', '/rooms');
+  });
+
+  it('welcome page shown', function () {
+    cy.intercept('GET', 'api/v1/config', {
+      data: {
+        theme: {
+          primary_color: '#14b8a6',
+          rounded: true
+        },
+        general: {
+          toast_lifetime: 0,
+          no_welcome_page: false
+        }
+      }
+    });
+
+    // Visit the root page
+    cy.visit('/');
+
+    // Check if the welcome page is shown
+    cy.get('h1').should('be.visible').and('contain', 'home.title');
+  });
 });

@@ -99,6 +99,7 @@ return [
         'name' => 'Name',
         'new_password' => 'New password',
         'new_password_confirmation' => 'New password confirmation',
+        'no_welcome_page' => 'Hide welcome page',
         'only_favorites' => 'Only favorites',
         'page' => 'Page',
         'password' => 'Password',

@@ -40,6 +40,7 @@ class Settings extends JsonResource
             'general_help_url' => $generalSettings->help_url,
             'general_legal_notice_url' => $generalSettings->legal_notice_url,
             'general_privacy_policy_url' => $generalSettings->privacy_policy_url,
+            'general_no_welcome_page' => $generalSettings->no_welcome_page,
             'theme_logo' => $themeSettings->logo,
             'theme_favicon' => $themeSettings->favicon,
             'theme_logo_dark' => $themeSettings->logo_dark,
