@@ -876,7 +876,7 @@
             <label for="create-parameters" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{$t('admin.room_types.bbb_api.create_parameters')}}</label>
             <div class="col-span-12 md:col-span-8">
               <Textarea
-                input-id="create-parameters"
+                id="create-parameters"
                 class="w-full"
                 autoResize
                 v-model="model.create_parameters"
