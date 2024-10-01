@@ -125,6 +125,7 @@ function save () {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
         emit('edited');
+        showModal.value = false;
       }
       // failed due to form validation errors
       if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -132,7 +133,6 @@ function save () {
         return;
       }
     }
-    showModal.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;

@@ -104,7 +104,7 @@ function downloadFile () {
 
         // File gone
         if (error.response.status === env.HTTP_NOT_FOUND) {
-        // Show error message
+          // Show error message
           toast.error(t('rooms.flash.file_gone'));
           // Remove file from list
           emit('fileNotFound');

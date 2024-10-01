@@ -162,7 +162,7 @@ function downloadFormat (format) {
 
         // Recording gone
         if (error.response.status === env.HTTP_NOT_FOUND) {
-        // Show error message
+          // Show error message
           toast.error(t('rooms.flash.recording_gone'));
           return emit('notFound');
         }
