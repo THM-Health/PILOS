@@ -4,7 +4,7 @@
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadUser" />
       </template>
-      <Tabs v-if="!isBusy && user" value="base" scrollable>
+      <Tabs v-if="!isBusy && user" value="base" scrollable lazy>
         <TabList>
           <Tab value="base"><i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}</Tab>
           <Tab value="email"><i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}</Tab>
