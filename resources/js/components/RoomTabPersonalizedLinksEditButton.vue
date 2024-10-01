@@ -106,7 +106,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['added']);
+const emit = defineEmits(['edited']);
 
 const api = useApi();
 const formErrors = useFormErrors();
