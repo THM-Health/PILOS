@@ -333,8 +333,8 @@ describe('Rooms view files file actions', function () {
     cy.wait('@roomFilesRequest');
 
     // Check that file is not shown anymore and dialog is closed
-    cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-files-delete-dialog"]').should('not.exist');
+    cy.get('[data-test="room-file-item"]').should('have.length', 2);
 
     // Check that error message is shown
     cy.checkToastMessage('rooms.flash.file_gone');
@@ -492,8 +492,8 @@ describe('Rooms view files file actions', function () {
     cy.wait('@roomFilesRequest');
 
     // Check that file is not shown anymore and dialog is closed
-    cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-files-edit-dialog"]').should('not.exist');
+    cy.get('[data-test="room-file-item"]').should('have.length', 2);
 
     // Check that error message is shown
     cy.checkToastMessage('rooms.flash.file_gone');

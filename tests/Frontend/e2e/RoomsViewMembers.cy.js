@@ -427,18 +427,6 @@ describe('Rooms view members', function () {
 
     cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
 
-    // Cancel add of new member
-    cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel').click();
-
-    cy.get('[data-test="room-members-add-single-dialog"]').should('not.exist');
-
-    // Open dialog again
-    cy.get('[data-test="room-members-add-button"]').click();
-
-    cy.get('#overlay_menu_0').click();
-
-    cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
-
     cy.intercept('GET', '/api/v1/users/search?query=*', {
       statusCode: 200,
       body: {
@@ -543,7 +531,7 @@ describe('Rooms view members', function () {
     cy.get('#moderator-role').should('be.disabled');
     cy.get('#co_owner-role').should('be.disabled');
 
-    cy.get('[data-test="dialog-cancel-button"]').and('be.disabled');
+    cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel').and('be.disabled');
     cy.get('[data-test="dialog-save-button"]').should('be.disabled').then(() => {
       addUserRequest.sendResponse();
     });
@@ -592,14 +580,13 @@ describe('Rooms view members', function () {
 
     cy.wait('@userSearchRequest');
 
-    // Check that error message gets shown
+    // Check that dialog is still open and error message is shown
+    cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Check that dialog is still open
-    cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
     // Close dialog
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="room-members-add-single-dialog"]').should('not.exist');
@@ -690,13 +677,15 @@ describe('Rooms view members', function () {
 
     cy.wait('@addUserRequest');
 
-    // Check that error message gets shown
+    // Check that dialog is still open and that error message gets shown
+    cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Make sure that dialog gets closed
+    // Close dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="room-members-add-single-dialog"]').should('not.exist');
 
     cy.checkRoomAuthErrors(() => {
@@ -716,16 +705,6 @@ describe('Rooms view members', function () {
     // Open edit dialog
     cy.get('[data-test="room-members-edit-dialog"]').should('not.exist');
 
-    cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
-
-    cy.get('[data-test="room-members-edit-dialog"]').should('be.visible');
-
-    // Cancel edit member
-    cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel').click();
-
-    cy.get('[data-test="room-members-edit-dialog"]').should('not.exist');
-
-    // Open dialog again
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
 
     cy.get('[data-test="room-members-edit-dialog"]').should('be.visible');
@@ -768,7 +747,7 @@ describe('Rooms view members', function () {
     cy.get('[data-test="dialog-save-button"]').should('have.text', 'app.save').click();
 
     // Check loading and send response
-    cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+    cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.cancel').and('be.disabled');
     cy.get('[data-test="dialog-save-button"]').should('be.disabled').then(() => {
       editUserRequest.sendResponse();
     });
@@ -834,7 +813,6 @@ describe('Rooms view members', function () {
     // Check with 500 error
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
 
-    // Check with member gone
     cy.intercept('PUT', '/api/v1/rooms/abc-def-123/member/6', {
       statusCode: 500,
       body: {
@@ -846,12 +824,15 @@ describe('Rooms view members', function () {
 
     cy.wait('@editUserRequest');
 
-    // Check that error message gets shown
+    // Check that dialog is still open and that error message gets shown
+    cy.get('[data-test="room-members-edit-dialog"]').should('be.visible');
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
+    // Close dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="room-members-edit-dialog"]').should('not.exist');
 
     cy.checkRoomAuthErrors(() => {
@@ -871,13 +852,6 @@ describe('Rooms view members', function () {
     cy.get('[data-test="room-members-delete-dialog"]').should('not.exist');
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
     cy.get('[data-test="room-members-delete-dialog"]').should('be.visible');
-
-    // Cancel delete of member
-    cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.no').click();
-    cy.get('[data-test="room-members-delete-dialog"]').should('not.exist');
-
-    // Open delete dialog again
-    cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
 
     // Check that dialog shows correct data
     cy.get('[data-test="room-members-delete-dialog"]')
@@ -903,7 +877,7 @@ describe('Rooms view members', function () {
     });
 
     cy.get('[data-test="dialog-continue-button"]').should('have.text', 'app.yes').click();
-    cy.get('[data-test="dialog-cancel-button"]').should('be.disabled');
+    cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.no').and('be.disabled');
     cy.get('[data-test="dialog-continue-button"]').should('be.disabled').then(() => {
       deleteMemberRequest.sendResponse();
     });
@@ -953,8 +927,8 @@ describe('Rooms view members', function () {
     cy.wait('@roomMembersRequest');
 
     // Check that user list was updated and dialog is closed
-    cy.get('[data-test="room-member-item"]').should('have.length', 2);
     cy.get('[data-test="room-members-delete-dialog"]').should('not.exist');
+    cy.get('[data-test="room-member-item"]').should('have.length', 2);
 
     // Check that error message is shown
     cy.checkToastMessage([
@@ -977,13 +951,15 @@ describe('Rooms view members', function () {
 
     cy.wait('@deleteMemberRequest');
 
-    // Check that error message gets shown
+    // Check that dialog is still open and that error message gets shown
+    cy.get('[data-test="room-members-delete-dialog"]').should('be.visible');
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Check that dialog is closed
+    // Close dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="room-members-delete-dialog"]').should('not.exist');
 
     cy.checkRoomAuthErrors(() => {

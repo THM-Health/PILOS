@@ -725,6 +725,9 @@ describe('Rooms view meetings', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
+    // Check that dialog is still open
+    cy.get('[data-test="room-join-dialog"]').should('be.visible');
+
     // Test meeting error room closed
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/join*', {
       statusCode: 460,
@@ -737,7 +740,6 @@ describe('Rooms view meetings', function () {
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@joinRequest');
@@ -1454,7 +1456,8 @@ describe('Rooms view meetings', function () {
     cy.wait('@startRequest');
 
     // Check that room join dialog is closed
-    cy.get('[data-test="room-join-dialog"]').should('not.exist');
+    cy.get('[data-test="room-join-dialog"]').should('be.visible');
+
     // Check if error message is shown and close it
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
@@ -1481,7 +1484,6 @@ describe('Rooms view meetings', function () {
     });
 
     // Try to start meeting
-    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@startRequest');

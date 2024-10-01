@@ -234,12 +234,16 @@ describe('Rooms view members bulk', function () {
     cy.get('[data-test="room-members-bulk-edit-dialog"]').find('[data-test="dialog-save-button"]').click();
     cy.wait('@bulkEditRequest');
 
-    // Check that the dialog is closed and error is displayed
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').should('not.exist');
+    // Check that dialog is still open and error is displayed
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').should('be.visible');
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
+
+    // Close dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').should('not.exist');
 
     // Check that users are still selected
     cy.get('[data-test="room-members-select-all-checkbox"] > input').should('be.checked');
@@ -356,7 +360,6 @@ describe('Rooms view members bulk', function () {
         }).as('roomMembersRequest');
       });
 
-      cy.get('[data-test="dialog-cancel-button"]').should('have.text', 'app.no');
       cy.get('[data-test="dialog-continue-button"]').should('have.text', 'app.yes').click();
     });
 
@@ -420,12 +423,16 @@ describe('Rooms view members bulk', function () {
 
     cy.wait('@bulkDeleteRequest');
 
-    // Check that the dialog is closed and error is displayed
-    cy.get('[data-test="room-members-bulk-delete-dialog"]').should('not.exist');
+    // Check that the dialog is still open and error is displayed
+    cy.get('[data-test="room-members-bulk-delete-dialog"]').should('be.visible');
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
+
+    // Close dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
+    cy.get('[data-test="room-members-bulk-delete-dialog"]').should('not.exist');
 
     // Check that users are still selected
     cy.get('[data-test="room-members-select-all-checkbox"] > input').should('be.checked');
@@ -929,14 +936,13 @@ describe('Rooms view members bulk', function () {
     ]);
 
     // Check that dialog is still shown
-
-    cy.get('[data-test="room-members-bulk-import-dialog"]')
-      .should('be.visible');
+    cy.get('[data-test="room-members-bulk-import-dialog"]').should('be.visible');
 
     cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', '\nlaurawrivera@domain.tld');
 
     // Close dialog
     cy.get('[data-test="dialog-header-close-button"]').click();
+    cy.get('[data-test="room-members-bulk-import-dialog"]').should('not.exist');
 
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-members-add-button"]').click();
