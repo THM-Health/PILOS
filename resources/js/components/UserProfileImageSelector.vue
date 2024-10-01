@@ -119,7 +119,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits('newImage', 'deleteImage');
+const emit = defineEmits(['newImage', 'deleteImage']);
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);

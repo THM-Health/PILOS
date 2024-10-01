@@ -47,26 +47,22 @@
 defineProps({
   background: {
     type: String,
-    default: null,
-    required: false
+    default: null
   },
 
   color: {
     type: String,
-    default: null,
-    required: false
+    default: null
   },
 
   icon: {
     type: String,
-    default: null,
-    required: false
+    default: null
   },
 
   link: {
     type: String,
-    default: null,
-    required: false
+    default: null
   },
 
   linkStyle: {
@@ -81,19 +77,17 @@ defineProps({
 
   linkText: {
     type: String,
-    default: null,
-    required: false
+    default: null
   },
 
   message: {
     type: String,
-    required: true
+    default: null
   },
 
   title: {
     type: String,
-    default: null,
-    required: false
+    default: null
   }
 });
 
