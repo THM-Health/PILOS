@@ -294,7 +294,6 @@ function getJoinUrl () {
       }
 
       api.error(error);
-      showModal.value = false;
     });
 }
 
