@@ -58,6 +58,7 @@
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
         @click="fileInputRef.click()"
+        data-test="drop-zone"
       >
         <span v-if="!isUploading" class="text-center">
           {{ $t('rooms.files.select_or_drag') }}
@@ -67,7 +68,7 @@
         </span>
       </div>
 
-      <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
+      <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" data-test="progress-bar"/>
       <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
 
       <div v-if="uploadedFiles.length" class="mt-2 flex flex-col gap-2">

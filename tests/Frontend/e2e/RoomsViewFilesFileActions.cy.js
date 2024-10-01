@@ -22,22 +22,27 @@ describe('Rooms view files file actions', function () {
       .should('include.text', 'rooms.files.size_{"size":30')
       .should('be.visible')
       .within(() => {
+        cy.get('[data-test="drop-zone"]')
+          .should('not.have.class', 'cursor-wait')
+          .and('have.text', 'rooms.files.select_or_drag');
+        cy.get('[data-test="progress-bar"]').should('not.exist');
+
         cy.get('#file').then(fileInput => {
           cy.stub(fileInput[0], 'click').as('fileInputClick');
         });
 
         cy.get('[data-test="upload-file-button"]')
           .should('be.visible')
+          .and('not.have.class', 'p-disabled')
           .and('include.text', 'app.browse')
           .trigger('keyup', { key: 'Enter' });
 
         // Check that button is connected to file input
         cy.get('@fileInputClick').should('be.calledOnce');
 
-        // ToDo check loading (right now nothing disabled so there is nothing to check)
-        cy.intercept('POST', '/api/v1/rooms/abc-def-123/files', {
+        const uploadFileRequest = interceptIndefinitely('POST', '/api/v1/rooms/abc-def-123/files', {
           statusCode: 204
-        }).as('uploadFileRequest');
+        }, 'uploadFileRequest');
 
         cy.fixture('roomFiles.json').then((roomFiles) => {
           roomFiles.data.push({ id: 4, filename: 'testFile.txt', download: false, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:10:00.000000Z' });
@@ -55,6 +60,15 @@ describe('Rooms view files file actions', function () {
         cy.get('#file')
           .should('not.be.visible')
           .selectFile('tests/Frontend/fixtures/files/testFile.txt', { force: true });
+
+        // Check loading
+        cy.get('[data-test="upload-file-button"]').should('have.class', 'p-disabled');
+        cy.get('[data-test="drop-zone"]')
+          .should('have.class', 'cursor-wait')
+          .and('have.text', 'testFile.txt');
+        cy.get('[data-test="progress-bar"]').should('be.visible').then(() => {
+          uploadFileRequest.sendResponse();
+        });
       });
 
     // Check that file is uploaded correctly
@@ -77,6 +91,13 @@ describe('Rooms view files file actions', function () {
     cy.get('[data-test="room-files-upload-dialog"]')
       .should('be.visible')
       .within(() => {
+        // Check that loading is finished
+        cy.get('[data-test="upload-file-button"]').should('not.have.class', 'p-disabled');
+        cy.get('[data-test="drop-zone"]')
+          .should('not.have.class', 'cursor-wait')
+          .and('have.text', 'rooms.files.select_or_drag');
+        cy.get('[data-test="progress-bar"]').should('not.exist');
+
         cy.get('[data-test="uploaded-file-message"]').should('have.length', 1);
 
         cy.get('[data-test="uploaded-file-message"]').eq(0).should('have.text', 'rooms.files.uploaded_{"name":"testFile.txt"}');
