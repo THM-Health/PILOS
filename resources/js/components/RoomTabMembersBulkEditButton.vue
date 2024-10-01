@@ -114,7 +114,6 @@ function save () {
         return;
       }
     }
-    showModal.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;

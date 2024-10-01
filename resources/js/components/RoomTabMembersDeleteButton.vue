@@ -86,9 +86,9 @@ function deleteMember () {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
         emit('deleted');
+        showModal.value = false;
       }
     }
-    showModal.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
