@@ -64,7 +64,7 @@
 
       <div class="flex items-center">
         <RadioButton v-model="role" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
-        <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
+        <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
       <FormError :errors="formErrors.fieldError('role')" />

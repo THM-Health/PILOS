@@ -183,13 +183,13 @@
 
           <!-- Selection of the roles -->
           <div class="field grid grid-cols-12 gap-4" v-if="model.restrict">
-            <label for="roles" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.roles')}}</label>
+            <label id="roles-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.roles')}}</label>
             <div class="col-span-12 md:col-span-8">
               <RoleSelect
+                aria-labelledby="roles-label"
                 v-model="model.roles"
                 :invalid="formErrors.fieldInvalid('roles')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
-                id="roles"
                 @busy="(value) => rolesLoading = value"
                 @rolesLoadingError="(value) => rolesLoadingError = value"
               />

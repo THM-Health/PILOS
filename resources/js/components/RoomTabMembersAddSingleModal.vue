@@ -21,8 +21,9 @@
 
     <!-- select user -->
     <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
-      <label for="user">{{ $t('app.user') }}</label>
+      <label id="user-label">{{ $t('app.user') }}</label>
       <multiselect
+        aria-labelledby="user-label"
         autofocus
         v-model="user"
         label="lastname"
@@ -78,12 +79,12 @@
 
       <div class="flex items-center">
         <RadioButton v-model="role" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
-        <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
+        <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
       <div class="flex items-center">
         <RadioButton v-model="role" :disabled="isLoadingAction" input-id="co_owner-role" name="role" :value="3" />
-        <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
+        <label for="co_owner-role" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
 
       <FormError :errors="formErrors.fieldError('role')" />

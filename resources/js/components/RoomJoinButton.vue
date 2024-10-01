@@ -45,6 +45,7 @@
         <div v-if="!authStore.isAuthenticated && !token" class="flex flex-col gap-2 mb-4" >
           <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
           <InputText
+            id="guest-name"
             autofocus
             v-model="name"
             :placeholder="$t('rooms.placeholder_name')"
