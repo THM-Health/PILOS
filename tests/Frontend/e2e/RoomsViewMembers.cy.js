@@ -627,6 +627,7 @@ describe('Rooms view members', function () {
 
     // Select new user
     cy.get('.multiselect__option').eq(1).click();
+    cy.get('.multiselect__content').should('not.be.visible');
 
     // Try to add user to the room and respond with 422 error (role missing)
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/member', {
@@ -1514,7 +1515,6 @@ describe('Rooms view members', function () {
   it('check button visibility co_owner', function () {
     cy.fixture('room').then(room => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
       room.data.allow_membership = true;
       room.data.is_member = true;
       room.data.is_co_owner = true;
@@ -1640,7 +1640,6 @@ describe('Rooms view members', function () {
 
     cy.fixture('room').then(room => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
       room.data.allow_membership = true;
       room.data.current_user.permissions = ['rooms.viewAll'];
 
@@ -1694,7 +1693,6 @@ describe('Rooms view members', function () {
 
     cy.fixture('room').then(room => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
       room.data.allow_membership = true;
       room.data.current_user.permissions = ['rooms.create', 'rooms.viewAll', 'rooms.manage'];
 

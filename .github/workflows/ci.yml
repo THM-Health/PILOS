@@ -232,6 +232,7 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: 'http://localhost:9080'
+          TZ: 'America/New_York'
       - name: Cypress run system tests
         uses: cypress-io/github-action@v6
         with:
@@ -247,4 +248,5 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: 'http://localhost:9080'
+          TZ: 'America/New_York'
 

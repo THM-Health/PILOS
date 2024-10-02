@@ -56,7 +56,7 @@ describe('Room View general', function () {
       room.data.owner.id = 2;
       room.data.owner.name = 'Max Doe';
       room.data.last_meeting = {
-        start: '2023-08-21 08:18:28:00',
+        start: '2023-08-21T08:18:28.000000Z',
         end: null
       };
       room.data.description = '<p>Test</p>';
@@ -274,8 +274,8 @@ describe('Room View general', function () {
         name: 'Max Doe'
       };
       room.data.last_meeting = {
-        start: '2023-08-21 08:18:28:00',
-        end: '2023-08-21 08:20:28:00'
+        start: '2023-08-21T08:18:28.000000Z',
+        end: '2023-08-21T08:20:28.000000Z'
       };
       room.data.allow_membership = true;
       room.data.is_member = true;
@@ -293,7 +293,7 @@ describe('Room View general', function () {
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('Max Doe').should('be.visible');
-    cy.contains('rooms.index.room_component.last_ran_till_{"date":"08/21/2023, 08:20"}').should('be.visible');
+    cy.contains('rooms.index.room_component.last_ran_till_{"date":"08/21/2023, 10:20"}').should('be.visible');
 
     // Check that buttons are shown correctly
     cy.get('[data-test="reload-room-button"]').should('be.visible');
@@ -386,7 +386,7 @@ describe('Room View general', function () {
         name: 'Max Doe'
       };
       room.data.last_meeting = {
-        start: '2023-08-21 08:18:28:00',
+        start: '2023-08-21T08:18:28.000000Z',
         end: null
       };
       room.data.allow_membership = true;
@@ -406,7 +406,7 @@ describe('Room View general', function () {
     // Check that room Header is shown correctly
     cy.contains('Meeting One').should('be.visible');
     cy.contains('Max Doe').should('be.visible');
-    cy.contains('rooms.index.room_component.running_since_{"date":"08/21/2023, 08:18"}').should('be.visible');
+    cy.contains('rooms.index.room_component.running_since_{"date":"08/21/2023, 10:18"}').should('be.visible');
 
     // Check that buttons are shown correctly
     cy.get('[data-test="reload-room-button"]').should('be.visible');

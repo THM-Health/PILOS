@@ -76,7 +76,7 @@ describe('Room Index', function () {
 
     cy.get('[data-test="room-card"]').eq(2).should('include.text', 'Meeting Three');
     cy.get('[data-test="room-card"]').eq(2).should('include.text', 'John Doe');
-    cy.get('[data-test="room-card"]').eq(2).should('include.text', 'rooms.index.room_component.last_ran_till_{"date":"08/21/2023, 08:20"}');
+    cy.get('[data-test="room-card"]').eq(2).should('include.text', 'rooms.index.room_component.last_ran_till_{"date":"08/21/2023, 10:20"}');
     cy.get('[data-test="room-card"]').eq(2).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/def-abc-456');
       cy.get('[data-test="room-info-button"]').should('not.exist');
@@ -85,7 +85,7 @@ describe('Room Index', function () {
 
     cy.get('[data-test="room-card"]').eq(1).should('include.text', 'Meeting Two');
     cy.get('[data-test="room-card"]').eq(1).should('include.text', 'John Doe');
-    cy.get('[data-test="room-card"]').eq(1).should('include.text', 'rooms.index.room_component.running_since_{"date":"08/21/2023, 08:18"}');
+    cy.get('[data-test="room-card"]').eq(1).should('include.text', 'rooms.index.room_component.running_since_{"date":"08/21/2023, 10:18"}');
     cy.get('[data-test="room-card"]').eq(1).within(() => {
       cy.get('a').should('have.attr', 'href', '/rooms/def-abc-123');
       cy.get('[data-test="room-info-button"]').should('not.exist');

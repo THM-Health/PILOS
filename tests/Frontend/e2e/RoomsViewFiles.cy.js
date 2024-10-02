@@ -309,7 +309,7 @@ describe('Rooms View Files', function () {
     // Check that files are shown correctly
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
-    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 09:08');
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('be.disabled');
@@ -317,7 +317,7 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
 
     cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'File2.pdf');
-    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 09:08');
+    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('be.disabled');
@@ -527,7 +527,7 @@ describe('Rooms View Files', function () {
     // Check that files are shown correctly and buttons are disabled or hidden
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
-    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 09:08');
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('be.disabled');
@@ -535,7 +535,7 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
 
     cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'File2.pdf');
-    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 09:08');
+    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('be.disabled');

@@ -8,7 +8,7 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting', function () {
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
         statusCode: 200,
@@ -58,7 +58,7 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting attendance logging', function () {
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.record_attendance = true;
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -113,7 +113,7 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting with recording', function () {
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.record = true;
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -171,7 +171,7 @@ describe('Rooms view meetings', function () {
 
   it('join running meeting with recording without video', function () {
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.record = true;
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -219,7 +219,7 @@ describe('Rooms view meetings', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
 
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.current_user = null;
       room.data.record_attendance = true;
       room.data.record = true;
@@ -299,7 +299,7 @@ describe('Rooms view meetings', function () {
   it('join running meeting with access code', function () {
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.authenticated = false;
       room.data.record_attendance = true;
       room.data.record = true;
@@ -318,7 +318,7 @@ describe('Rooms view meetings', function () {
 
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.record_attendance = true;
       room.data.record = true;
 
@@ -371,7 +371,7 @@ describe('Rooms view meetings', function () {
     cy.interceptRoomFilesRequest();
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.authenticated = false;
       room.data.record_attendance = true;
       room.data.record = true;
@@ -390,7 +390,7 @@ describe('Rooms view meetings', function () {
 
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.record_attendance = true;
       room.data.record = true;
 
@@ -415,7 +415,7 @@ describe('Rooms view meetings', function () {
 
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.authenticated = false;
       room.data.record_attendance = true;
       room.data.record = true;
@@ -448,7 +448,7 @@ describe('Rooms view meetings', function () {
     // Intercept room request for reload (after entering access code)
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
         statusCode: 200,
@@ -463,7 +463,7 @@ describe('Rooms view meetings', function () {
     // Intercept join request with error response and room request for reload (not authenticated anymore)
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.authenticated = false;
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -501,7 +501,7 @@ describe('Rooms view meetings', function () {
   it('join running meeting token', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.record_attendance = true;
       room.data.record = true;
       room.data.current_user = null;
@@ -553,7 +553,7 @@ describe('Rooms view meetings', function () {
     cy.intercept('GET', 'api/v1/currentUser', {});
     cy.interceptRoomFilesRequest();
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
         statusCode: 200,
@@ -584,7 +584,7 @@ describe('Rooms view meetings', function () {
 
   it('join meeting errors', function () {
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.current_user = null;
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -613,7 +613,7 @@ describe('Rooms view meetings', function () {
     cy.contains('rooms.only_used_by_authenticated_users').should('be.visible');
 
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
         statusCode: 200,
@@ -643,7 +643,7 @@ describe('Rooms view meetings', function () {
     }, 'joinRequest');
 
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
       room.data.record_attendance = true;
       room.data.record = true;
 
@@ -1522,7 +1522,7 @@ describe('Rooms view meetings', function () {
     }).as('startRequest');
 
     cy.fixture('room.json').then((room) => {
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
+      room.data.last_meeting = { start: '2023-08-21T08:18:28.000000Z', end: null };
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
         statusCode: 200,

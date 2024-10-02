@@ -329,7 +329,6 @@ describe('Rooms view settings', function () {
     // Check with co_owner
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
       room.data.is_member = true;
       room.data.is_co_owner = true;
 
@@ -427,7 +426,6 @@ describe('Rooms view settings', function () {
 
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
       room.data.current_user.permissions = ['rooms.viewAll'];
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -517,7 +515,6 @@ describe('Rooms view settings', function () {
 
     cy.fixture('room.json').then((room) => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.last_meeting = { start: '2023-08-21 08:18:28:00', end: null };
       room.data.current_user.permissions = ['rooms.create', 'rooms.viewAll', 'rooms.manage'];
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -1931,6 +1928,7 @@ describe('Rooms view settings', function () {
 
     // Select new owner
     cy.get('.multiselect__option').eq(1).click();
+    cy.get('.multiselect__content').should('not.be.visible');
 
     // Transfer ownership with 422 error (role missing)
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/transfer', {
