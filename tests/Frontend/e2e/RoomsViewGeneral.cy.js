@@ -80,7 +80,7 @@ describe('Room View general', function () {
     // Check that room Header is shown correctly
     cy.contains('Meeting Two').should('be.visible');
     cy.contains('Max Doe').should('be.visible');
-    cy.contains('rooms.index.room_component.running_since_{"date":"08/21/2023, 08:18"}').should('be.visible');
+    cy.contains('rooms.index.room_component.running_since_{"date":"08/21/2023, 04:18"}').should('be.visible');
 
     // Check that tabs are shown correctly
     cy.get('#tab-description').should('be.visible');
