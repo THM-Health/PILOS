@@ -473,12 +473,20 @@ describe('Rooms view members', function () {
     // Check if correct options are shown
     cy.get('.multiselect__content').should('be.visible');
     cy.get('.multiselect__option').should('have.length', 4);
-    cy.get('.multiselect__option').eq(0).should('include.text', 'Laura Rivera');
-    cy.get('.multiselect__option').eq(0).should('include.text', 'LauraWRivera@domain.tld');
-    cy.get('.multiselect__option').eq(1).should('include.text', 'Laura Walter');
-    cy.get('.multiselect__option').eq(1).should('include.text', 'LauraMWalter@domain.tld');
-    cy.get('.multiselect__option').eq(2).should('include.text', 'rooms.members.modals.add.no_result').and('not.be.visible');
-    cy.get('.multiselect__option').eq(3).should('include.text', 'rooms.members.modals.add.no_options').and('not.be.visible');
+    cy.get('.multiselect__option').eq(0)
+      .should('include.text', 'Laura Rivera')
+      .and('include.text', 'LauraWRivera@domain.tld')
+      .and('be.visible');
+    cy.get('.multiselect__option').eq(1)
+      .should('include.text', 'Laura Walter')
+      .and('include.text', 'LauraMWalter@domain.tld')
+      .and('be.visible');
+    cy.get('.multiselect__option').eq(2)
+      .should('include.text', 'rooms.members.modals.add.no_result')
+      .and('not.be.visible');
+    cy.get('.multiselect__option').eq(3)
+      .should('include.text', 'rooms.members.modals.add.no_options')
+      .and('not.be.visible');
 
     // Select new user
     cy.get('.multiselect__option').eq(1).click();
