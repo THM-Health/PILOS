@@ -596,6 +596,7 @@ describe('Rooms view members', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-members-add-button"]').click();
       cy.get('#overlay_menu_0').should('have.text', 'rooms.members.add_single_user').click();
+      cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
       cy.get('[data-test="select-user-dropdown"]').click();
       cy.get('[data-test="select-user-dropdown"]').find('input').type('a');
     }, 'GET', '/api/v1/users/search?query=*', 'members');
@@ -712,6 +713,7 @@ describe('Rooms view members', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-members-add-button"]').click();
       cy.get('#overlay_menu_0').should('have.text', 'rooms.members.add_single_user').click();
+      cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
       cy.get('[data-test="dialog-save-button"]').click();
     }, 'POST', '/api/v1/rooms/abc-def-123/member', 'members');
   });
