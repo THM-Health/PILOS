@@ -114,7 +114,7 @@
                     <div class="flex items-center">
                       <RadioButton
                         v-model="toastLifetimeMode"
-                        input-id="toast-lifetime-custom"
+                        input-id="toast-lifetime-mode-custom"
                         name="toast-lifetime-mode"
                         value="custom"
                         :disabled="disabled"
@@ -125,13 +125,12 @@
                         }
                       }"
                       />
-                      <label for="toast-lifetime-mode-custom" id="toast-lifetime-mode-custom-label" class="ml-2">{{ $t('admin.settings.toast_lifetime.custom') }}</label>
+                      <label for="toast-lifetime-mode-custom" id="toast-lifetime-custom-label" class="ml-2">{{ $t('admin.settings.toast_lifetime.custom') }}</label>
                     </div>
                   </div>
                   <InputText
                     v-if="toastLifetimeMode === 'custom'"
                     class="mt-1"
-                    id="toast-lifetime-custom"
                     v-model.number="settings.general_toast_lifetime"
                     min="1"
                     max="30"
