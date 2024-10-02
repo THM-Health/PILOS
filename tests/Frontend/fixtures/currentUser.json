@@ -5,6 +5,7 @@
     "lastname": "Doe",
     "locale": "en",
     "permissions": [],
+    "timezone": "Europe/Berlin",
     "model_name": "User",
     "room_limit": -1
   }
