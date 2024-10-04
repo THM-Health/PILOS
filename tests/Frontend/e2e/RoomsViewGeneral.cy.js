@@ -943,7 +943,7 @@ describe('Room View general', function () {
     cy.get('[data-test="reload-room-button"]').click();
     cy.wait('@roomRequest');
 
-    // Test join membership with 401 error //ToDo improve (custom command usable?)
+    // Test join membership with 401 error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/membership', {
       statusCode: 401
     }).as('joinMembershipRequest');
@@ -1020,7 +1020,7 @@ describe('Room View general', function () {
     cy.get('[data-test="dialog-cancel-button"]').click();
     cy.get('[data-test="end-membership-dialog"]').should('not.exist');
 
-    // Test end membership with 401 error //ToDo improve (custom command usable?)
+    // Test end membership with 401 error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/membership', {
       statusCode: 401
     }).as('endMembershipRequest');
@@ -1182,7 +1182,7 @@ describe('Room View general', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Test add to favorites with unauthenticated error //ToDo improve (custom command usable?)
+    // Test add to favorites with unauthenticated error
     cy.intercept('POST', 'api/v1/rooms/abc-def-123/favorites', {
       statusCode: 401
     }).as('addFavoritesRequest');
@@ -1252,7 +1252,7 @@ describe('Room View general', function () {
       'app.flash.server_error.error_code_{"statusCode":500}'
     ]);
 
-    // Test remove from favorites with unauthenticated error //ToDo improve (custom command usable?)
+    // Test remove from favorites with unauthenticated error
     cy.intercept('DELETE', 'api/v1/rooms/abc-def-123/favorites', {
       statusCode: 401
     }).as('deleteFavoritesRequest');

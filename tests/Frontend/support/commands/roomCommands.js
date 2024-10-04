@@ -241,9 +241,6 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
  * @param  {string} roomTabName
  * @returns void
  */
-// ToDo think about adding description to get to description tab
-// ToDo add possibility to load with correct data and then trigger error
-// ToDo add possibility to change room data (maybe get room data/additional room data as parameter)
 Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMethod, requestUrl, roomTabName) => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequestCheckRoomAuthErrors');
 
@@ -268,14 +265,14 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   // Check that room gets reloaded
   cy.wait('@roomRequestCheckRoomAuthErrors');
 
-  switch (roomTabName) { // ToDo improve (also add description tab / add description tab everywhere??)
+  switch (roomTabName) {
     case 'files':
       // Check reload of files and check that tab stayed the same
       cy.wait('@roomFilesRequestCheckRoomAuthErrors');
       cy.url().should('include', '/rooms/abc-def-123#tab=files');
       break;
     case 'recordings':
-      // Check that tab stayed the same (ToDo check that recordings are reload)
+      // Check that tab stayed the same
       cy.url().should('include', '/rooms/abc-def-123#tab=recordings');
       break;
     default:
@@ -379,14 +376,14 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   // Check that room gets reloaded
   cy.wait('@roomRequestCheckRoomAuthErrors');
 
-  switch (roomTabName) { // ToDo improve (also add description tab / add description tab everywhere??)
+  switch (roomTabName) {
     case 'files':
       // Check reload of files and check that tab stayed the same
       cy.wait('@roomFilesRequestCheckRoomAuthErrors');
       cy.url().should('include', '/rooms/abc-def-123#tab=files');
       break;
     case 'recordings':
-      // Check that tab stayed the same (ToDo check that recordings are reload)
+      // Check that tab stayed the same
       cy.url().should('include', '/rooms/abc-def-123#tab=recordings');
       break;
     default:

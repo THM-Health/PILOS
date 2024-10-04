@@ -228,7 +228,6 @@ describe('Rooms view members', function () {
     cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
 
     // Switch to next page with 401 error
-    // ToDo Change to custom command (difficult because members need to be loaded "normally" first)
     cy.fixture('room.json').then((room) => {
       room.data.current_user = null;
 
