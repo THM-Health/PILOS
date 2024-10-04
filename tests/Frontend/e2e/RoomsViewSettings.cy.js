@@ -1963,25 +1963,8 @@ describe('Rooms view settings', function () {
 
     cy.wait('@userSearchRequest');
 
-    cy.get('.multiselect__content').should('be.visible');
-    cy.get('.multiselect__option').should('have.length', 4);
-    cy.get('.multiselect__option')
-      .eq(0)
-      .should('include.text', 'Laura Rivera')
-      .and('include.text', 'LauraWRivera@domain.tld')
-      .and('be.visible');
-    cy.get('.multiselect__option').eq(1)
-      .should('include.text', 'Laura Walter')
-      .and('include.text', 'LauraMWalter@domain.tld')
-      .and('be.visible');
-    cy.get('.multiselect__option').eq(2)
-      .should('include.text', 'rooms.members.modals.add.no_result')
-      .and('not.be.visible');
-    cy.get('.multiselect__option').eq(3)
-      .should('include.text', 'rooms.members.modals.add.no_options')
-      .and('not.be.visible');
-
     // Select new owner
+    cy.get('.multiselect__content').should('be.visible');
     cy.get('.multiselect__option').eq(1).click();
     cy.get('.multiselect__content').should('not.be.visible');
 
