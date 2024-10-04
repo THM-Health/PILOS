@@ -557,17 +557,16 @@ describe('Rooms view files file actions', function () {
 
     // Stub window.open to check if correct url is opened
     cy.window().then((win) => {
-      cy.stub(win, 'open').as('popup').callsFake(url => {
-        expect(url).to.eq('https://example.org/?foo=a&bar=b');
-        return true;
-      });
+      cy.stub(win, 'open').as('fileDownload').returns(true);
     });
 
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').click();
 
     cy.wait('@downloadFileRequest');
 
-    cy.get('@popup').should('be.calledOnce');
+    cy.get('@fileDownload')
+      .should('be.calledOnce')
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
   });
 
   it('download file with access code', function () {
@@ -614,10 +613,7 @@ describe('Rooms view files file actions', function () {
 
     // Stub window.open to check if correct url is opened
     cy.window().then((win) => {
-      cy.stub(win, 'open').as('popup').callsFake(url => {
-        expect(url).to.eq('https://example.org/?foo=a&bar=b');
-        return true;
-      });
+      cy.stub(win, 'open').as('fileDownload').returns(true);
     });
 
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').click();
@@ -626,7 +622,9 @@ describe('Rooms view files file actions', function () {
       // Check that header for access code is set
       expect(interception.request.headers['access-code']).to.eq('123456789');
     });
-    cy.get('@popup').should('be.calledOnce');
+    cy.get('@fileDownload')
+      .should('be.calledOnce')
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
   });
 
   it('download file with access code errors', function () {
@@ -783,10 +781,7 @@ describe('Rooms view files file actions', function () {
 
     // Stub window.open to check if correct url is opened
     cy.window().then((win) => {
-      cy.stub(win, 'open').as('popup').callsFake(url => {
-        expect(url).to.eq('https://example.org/?foo=a&bar=b');
-        return true;
-      });
+      cy.stub(win, 'open').as('fileDownload').returns(true);
     });
 
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').click();
@@ -796,7 +791,9 @@ describe('Rooms view files file actions', function () {
       expect(interception.request.headers.token).to.eq('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     });
 
-    cy.get('@popup').should('be.calledOnce');
+    cy.get('@fileDownload')
+      .should('be.calledOnce')
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
   });
 
   it('download file with token errors', function () {
@@ -840,6 +837,30 @@ describe('Rooms view files file actions', function () {
     cy.visit('/rooms/abc-def-123#tab=files');
 
     cy.wait('@roomFilesRequest');
+
+    // Check with browser blocking download
+    cy.intercept('GET', '/api/v1/rooms/abc-def-123/files/1', {
+      statusCode: 200,
+      body: {
+        url: 'https://example.org/?foo=a&bar=b'
+      }
+    }).as('downloadFileRequest');
+
+    // Stub window open to simulate browser blocking download
+    cy.window().then((win) => {
+      cy.stub(win, 'open').as('fileDownload').returns(false);
+    });
+
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').click();
+
+    cy.wait('@downloadFileRequest');
+
+    cy.get('@fileDownload')
+      .should('be.calledOnce')
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+
+    // Check toast message is shown (browser is blocking download)
+    cy.checkToastMessage('app.flash.popup_blocked');
 
     // Check with 404 error (file not found / already deleted)
     cy.intercept('GET', '/api/v1/rooms/abc-def-123/files/1', {
