@@ -788,6 +788,7 @@ describe('Rooms view members', function () {
     cy.wait('@roomMembersRequest');
 
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
+    cy.get('[data-test="room-members-edit-dialog"]').should('be.visible');
 
     // Check with member gone
     cy.intercept('PUT', '/api/v1/rooms/abc-def-123/member/5', {
@@ -828,6 +829,7 @@ describe('Rooms view members', function () {
 
     // Check with 500 error
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
+    cy.get('[data-test="room-members-edit-dialog"]').should('be.visible');
 
     cy.intercept('PUT', '/api/v1/rooms/abc-def-123/member/6', {
       statusCode: 500,
@@ -853,6 +855,7 @@ describe('Rooms view members', function () {
 
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
+      cy.get('[data-test="room-members-edit-dialog"]').should('be.visible');
       cy.get('[data-test="dialog-save-button"]').click();
     }, 'PUT', '/api/v1/rooms/abc-def-123/member/6', 'members');
   });
@@ -916,6 +919,7 @@ describe('Rooms view members', function () {
     cy.get('[data-test="room-member-item"]').should('have.length', 3);
 
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
+    cy.get('[data-test="room-members-delete-dialog"]').should('be.visible');
 
     // Check delete with member gone
     cy.intercept('DELETE', '/api/v1/rooms/abc-def-123/member/5', {
@@ -954,6 +958,7 @@ describe('Rooms view members', function () {
 
     // Check with 500 error
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
+    cy.get('[data-test="room-members-delete-dialog"]').should('be.visible');
 
     // Check delete with member gone
     cy.intercept('DELETE', '/api/v1/rooms/abc-def-123/member/6', {
@@ -980,6 +985,7 @@ describe('Rooms view members', function () {
 
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-delete-button"]').click();
+      cy.get('[data-test="room-members-delete-dialog"]').should('be.visible');
       cy.get('[data-test="dialog-continue-button"]').click();
     }, 'DELETE', '/api/v1/rooms/abc-def-123/member/6', 'members');
   });
@@ -1620,7 +1626,9 @@ describe('Rooms view members', function () {
 
     cy.get('[data-test="room-members-bulk-edit-button"]').click();
 
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').should('include.text', 'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":3}');
+    cy.get('[data-test="room-members-bulk-edit-dialog"]')
+      .should('be.visible')
+      .should('include.text', 'rooms.members.modals.edit.title_bulk_{"numberOfSelectedUsers":3}');
     cy.get('[data-test="room-members-bulk-edit-dialog"]').find('[data-test="dialog-cancel-button"]').click();
 
     // Reload members with only self as member (role co_owner)

@@ -666,10 +666,10 @@ describe('Rooms view settings', function () {
 
       // Deactivate expert mode and activate again
       cy.get('[data-test="room-settings-expert-mode-button"]').click();
-      cy.get('[data-test="room-settings-expert-mode-dialog"]').find('[data-test="dialog-continue-button"]').click();
+      cy.get('[data-test="room-settings-expert-mode-dialog"]').should('be.visible').find('[data-test="dialog-continue-button"]').click();
 
       cy.get('[data-test="room-settings-expert-mode-button"]').click();
-      cy.get('[data-test="room-settings-expert-mode-dialog"]').find('[data-test="dialog-continue-button"]').click();
+      cy.get('[data-test="room-settings-expert-mode-dialog"]').should('be.visible').find('[data-test="dialog-continue-button"]').click();
 
       // Check that expert settings are reset to the default values and change settings again
       cy.get('#room-name').should('have.value', 'Meeting Two');
@@ -829,7 +829,7 @@ describe('Rooms view settings', function () {
 
     // Deactivate expert mode and change settings again
     cy.get('[data-test="room-settings-expert-mode-button"]').click();
-    cy.get('[data-test="room-settings-expert-mode-dialog"]').find('[data-test="dialog-continue-button"]').click();
+    cy.get('[data-test="room-settings-expert-mode-dialog"]').should('be.visible').find('[data-test="dialog-continue-button"]').click();
 
     cy.get('#room-name').clear();
     cy.get('#room-name').type('Meeting Three');
@@ -1665,7 +1665,10 @@ describe('Rooms view settings', function () {
 
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-delete-button"]').click();
-      cy.get('[data-test=room-delete-dialog]').find('[data-test="dialog-continue-button"]').click();
+      cy.get('[data-test=room-delete-dialog]')
+        .should('be.visible')
+        .find('[data-test="dialog-continue-button"]')
+        .click();
     }, 'DELETE', 'api/v1/rooms/abc-def-123', 'settings');
   });
 

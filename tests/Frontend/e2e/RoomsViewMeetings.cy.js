@@ -715,6 +715,7 @@ describe('Rooms view meetings', function () {
 
     // Try to join meeting
     cy.get('[data-test="room-join-button"]').should('have.text', 'rooms.join').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible');
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@joinRequest');
@@ -1159,6 +1160,7 @@ describe('Rooms view meetings', function () {
 
     // Try to start meeting
     cy.get('[data-test="room-start-button"]').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible');
     cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
@@ -1451,6 +1453,7 @@ describe('Rooms view meetings', function () {
 
     // Try to start meeting
     cy.get('[data-test="room-start-button"]').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible');
     cy.get('[data-test="dialog-continue-button"]').click();
 
     cy.wait('@startRequest');
@@ -1531,6 +1534,7 @@ describe('Rooms view meetings', function () {
     });
 
     cy.get('[data-test="room-start-button"]').click();
+    cy.get('[data-test="room-join-dialog"]').should('be.visible');
     cy.contains('rooms.not_running').should('not.exist');
     cy.get('[data-test="dialog-continue-button"]').click();
 

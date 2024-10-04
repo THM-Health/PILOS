@@ -202,7 +202,7 @@ describe('Rooms view members bulk', function () {
 
     // Open dialog again and select moderator role
     cy.get('[data-test="room-members-bulk-edit-button"]').should('be.visible').click();
-    cy.get('[data-test="room-members-bulk-edit-dialog"]').find('#moderator-role').click();
+    cy.get('[data-test="room-members-bulk-edit-dialog"]').should('be.visible').find('#moderator-role').click();
 
     // Check with 422 error (one of the users isn't a member)
     cy.intercept('PUT', 'api/v1/rooms/abc-def-123/member/bulk', {
@@ -257,6 +257,7 @@ describe('Rooms view members bulk', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
       cy.get('[data-test="room-members-bulk-edit-button"]').should('be.visible').click();
+      cy.get('[data-test="room-members-bulk-edit-dialog"]').should('be.visible');
       cy.get('[data-test="dialog-save-button"]').click();
     }, 'PUT', 'api/v1/rooms/abc-def-123/member/bulk', 'members');
   });
@@ -446,6 +447,7 @@ describe('Rooms view members bulk', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-members-select-all-checkbox"] > input').click();
       cy.get('[data-test="room-members-bulk-delete-button"]').should('be.visible').click();
+      cy.get('[data-test="room-members-bulk-delete-dialog"]').should('be.visible');
       cy.get('[data-test="dialog-continue-button"]').click();
     }, 'DELETE', 'api/v1/rooms/abc-def-123/member/bulk', 'members');
   });
@@ -947,6 +949,7 @@ describe('Rooms view members bulk', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-members-add-button"]').click();
       cy.get('#overlay_menu_1').should('have.text', 'rooms.members.bulk_import_users').click();
+      cy.get('[data-test="room-members-bulk-import-dialog"]').should('be.visible');
       cy.get('[data-test="room-members-bulk-import-textarea"]').type('\n');
       cy.get('[data-test="dialog-continue-button"]').click();
     }, 'POST', 'api/v1/rooms/abc-def-123/member/bulk', 'members');

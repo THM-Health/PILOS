@@ -174,6 +174,7 @@ describe('Rooms view files file actions', function () {
     cy.wait('@roomFilesRequest');
 
     cy.get('[data-test="room-files-upload-button"]').click();
+    cy.get('[data-test="room-files-upload-dialog"]').should('be.visible');
 
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/files', {
       statusCode: 413
@@ -236,6 +237,7 @@ describe('Rooms view files file actions', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-files-upload-button"]').click();
       cy.get('[data-test="room-files-upload-dialog"]')
+        .should('be.visible')
         .find('#file')
         .selectFile('tests/Frontend/fixtures/files/testFile.txt', { force: true });
     }, 'POST', '/api/v1/rooms/abc-def-123/files', 'files');
@@ -305,6 +307,7 @@ describe('Rooms view files file actions', function () {
 
     // Check with 404 error (file not found / already deleted)
     cy.get('[data-test="room-file-item"]').eq(2).find('[data-test="room-files-delete-button"]').click();
+    cy.get('[data-test="room-files-delete-dialog"]').should('be.visible');
 
     cy.intercept('DELETE', '/api/v1/rooms/abc-def-123/files/3', {
       statusCode: 404,
@@ -377,6 +380,7 @@ describe('Rooms view files file actions', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').click();
       cy.get('[data-test="room-files-delete-dialog"]')
+        .should('be.visible')
         .find('[data-test="dialog-continue-button"]')
         .click();
     }, 'DELETE', '/api/v1/rooms/abc-def-123/files/1', 'files');
@@ -464,6 +468,7 @@ describe('Rooms view files file actions', function () {
 
     // Check with 404 error (file not found / already deleted)
     cy.get('[data-test="room-file-item"]').eq(2).find('[data-test="room-files-edit-button"]').click();
+    cy.get('[data-test="room-files-edit-dialog"]').should('be.visible');
 
     cy.intercept('PUT', '/api/v1/rooms/abc-def-123/files/3', {
       statusCode: 404,
@@ -500,6 +505,7 @@ describe('Rooms view files file actions', function () {
 
     // Check with 500 error
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').click();
+    cy.get('[data-test="room-files-edit-dialog"]').should('be.visible');
 
     cy.intercept('PUT', '/api/v1/rooms/abc-def-123/files/2', {
       statusCode: 500,
@@ -531,6 +537,7 @@ describe('Rooms view files file actions', function () {
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').click();
       cy.get('[data-test="room-files-edit-dialog"]')
+        .should('be.visible')
         .find('[data-test="dialog-save-button"]')
         .click();
     }, 'PUT', '/api/v1/rooms/abc-def-123/files/1', 'files');
