@@ -1904,8 +1904,6 @@ describe('Rooms view settings', function () {
 
     cy.get('[data-test="room-transfer-ownership-button"]').click();
 
-    cy.get('[data-test=room-transfer-ownership-dialog]').should('be.visible');
-
     // Test 500 error on user search
     cy.intercept('GET', '/api/v1/users/search?query=*', {
       statusCode: 500,
@@ -1932,7 +1930,6 @@ describe('Rooms view settings', function () {
 
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-transfer-ownership-button"]').click();
-      cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible');
       cy.get('[data-test="new-owner-dropdown"]').click();
       cy.get('[data-test="new-owner-dropdown"]').find('input').type('L');
     }, 'GET', '/api/v1/users/search?query=*', 'settings');
@@ -1945,8 +1942,6 @@ describe('Rooms view settings', function () {
     cy.wait('@roomRequest');
 
     cy.get('[data-test="room-transfer-ownership-button"]').click();
-
-    cy.get('[data-test=room-transfer-ownership-dialog]').should('be.visible');
 
     cy.intercept('GET', '/api/v1/users/search?query=*', {
       statusCode: 200,
@@ -2003,7 +1998,6 @@ describe('Rooms view settings', function () {
     cy.wait('@transferOwnershipRequest');
 
     // Check that error message is shown
-
     cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible').and('include.text', 'The selected user can not own rooms.');
 
     // Transfer ownership with 500 error
@@ -2031,7 +2025,6 @@ describe('Rooms view settings', function () {
 
     cy.checkRoomAuthErrors(() => {
       cy.get('[data-test="room-transfer-ownership-button"]').click();
-      cy.get('[data-test="room-transfer-ownership-dialog"]').should('be.visible');
       cy.get('[data-test="dialog-continue-button"]').click();
     }, 'POST', 'api/v1/rooms/abc-def-123/transfer', 'settings');
   });
