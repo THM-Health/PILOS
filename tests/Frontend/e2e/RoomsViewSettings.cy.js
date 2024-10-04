@@ -1059,7 +1059,7 @@ describe('Rooms view settings', function () {
     }, 'PUT', 'api/v1/rooms/abc-def-123', 'settings');
   });
 
-  it('change room type', function () { // ToDo Check if needs to be split into multiple tests
+  it('change room type', function () {
     cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypesWithSettings.json' });
 
     cy.visit('/rooms/abc-def-123#tab=settings');

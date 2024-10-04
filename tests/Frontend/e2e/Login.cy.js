@@ -59,7 +59,7 @@ describe('Login', function () {
     });
 
     // Check toast message
-    cy.checkToastMessage('auth.flash.login', false);
+    cy.checkToastMessage('auth.flash.login');
     // Check if redirect works
     cy.url().should('include', '/rooms').and('not.include', '/login');
   });
@@ -122,7 +122,7 @@ describe('Login', function () {
     cy.wait('@loginRequest');
 
     // Check toast message
-    cy.checkToastMessage('auth.flash.login', false);
+    cy.checkToastMessage('auth.flash.login');
 
     // Check if redirect works
     cy.url().should('include', '/admin').and('not.include', '/login');
@@ -183,7 +183,7 @@ describe('Login', function () {
     });
 
     // Check toast message
-    cy.checkToastMessage('auth.flash.login', false);
+    cy.checkToastMessage('auth.flash.login');
     // Check if redirect works
     cy.url().should('include', '/rooms').and('not.include', '/login');
   });
@@ -243,7 +243,7 @@ describe('Login', function () {
     });
     cy.wait('@loginRequest');
     // Check toast message
-    cy.checkToastMessage('auth.flash.login', false);
+    cy.checkToastMessage('auth.flash.login');
 
     // Check if redirect works
     cy.url().should('include', '/admin').and('not.include', '/login');
@@ -341,7 +341,7 @@ describe('Login', function () {
     });
     cy.wait('@loginRequest');
 
-    cy.checkToastMessage('app.flash.guests_only', false);
+    cy.checkToastMessage('app.flash.guests_only');
     cy.url().should('not.include', '/login');
   });
 
@@ -349,7 +349,7 @@ describe('Login', function () {
     cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
 
     cy.visit('/login');
-    cy.checkToastMessage('app.flash.guests_only', false);
+    cy.checkToastMessage('app.flash.guests_only');
     cy.url().should('not.include', '/login');
   });
 

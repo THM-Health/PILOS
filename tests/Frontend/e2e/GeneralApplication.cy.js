@@ -107,6 +107,6 @@ describe('General', function () {
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":["Test"]}',
       'app.flash.server_error.error_code_{"statusCode":500}'
-    ], false);
+    ]);
   });
 });

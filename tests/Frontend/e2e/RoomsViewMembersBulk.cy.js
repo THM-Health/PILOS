@@ -730,7 +730,7 @@ describe('Rooms view members bulk', function () {
       cy.get('[data-test="dialog-close-button"]').should('have.text', 'app.close');
       cy.get('[data-test="room-members-copy-and-close-button"]').should('have.text', 'rooms.members.modals.bulk_import.copy_and_close').click();
 
-      // Close dialog with copy and close button // ToDo check if this always works
+      // Close dialog with copy and close button
       cy.window().then(win => {
         win.navigator.clipboard.readText().then(text => {
           expect(text).to.eq('notanemail\ninvalidemail@domain.tld');

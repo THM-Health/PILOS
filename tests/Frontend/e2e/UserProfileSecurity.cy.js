@@ -356,7 +356,7 @@ describe('User Profile Security', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/profile');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
 
     cy.visit('/profile');
 
@@ -393,7 +393,7 @@ describe('User Profile Security', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/profile');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
   });
 
   it('load sessions error', function () {

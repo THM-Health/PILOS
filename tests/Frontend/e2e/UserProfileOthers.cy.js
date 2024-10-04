@@ -135,6 +135,6 @@ describe('User Profile Others', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/profile');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
   });
 });

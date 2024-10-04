@@ -211,7 +211,6 @@ describe('Rooms index create new room', function () {
     // Open room create modal
     cy.get('[data-test="room-create-button"]').should('have.text', 'rooms.create.title').click();
 
-    // Open room create modal
     cy.get('[data-test="room-create-dialog"]').should('be.visible').within(() => {
       // Enter room name
       cy.get('#room-name').should('have.value', '').type('New Room');
@@ -347,7 +346,7 @@ describe('Rooms index create new room', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/rooms');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
   });
 
   it('create new room limit reached', function () {

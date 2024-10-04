@@ -155,7 +155,7 @@ describe('User Profile Email', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/profile');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
   });
 
   it('view without users.update permission', function () {

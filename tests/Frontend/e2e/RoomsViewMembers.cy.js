@@ -1530,7 +1530,6 @@ describe('Rooms view members', function () {
   it('check button visibility co_owner', function () {
     cy.fixture('room').then(room => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.allow_membership = true;
       room.data.is_member = true;
       room.data.is_co_owner = true;
 
@@ -1655,7 +1654,6 @@ describe('Rooms view members', function () {
 
     cy.fixture('room').then(room => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.allow_membership = true;
       room.data.current_user.permissions = ['rooms.viewAll'];
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
@@ -1708,7 +1706,6 @@ describe('Rooms view members', function () {
 
     cy.fixture('room').then(room => {
       room.data.owner = { id: 2, name: 'Max Doe' };
-      room.data.allow_membership = true;
       room.data.current_user.permissions = ['rooms.create', 'rooms.viewAll', 'rooms.manage'];
 
       cy.intercept('GET', 'api/v1/rooms/abc-def-123', {

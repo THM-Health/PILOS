@@ -1572,7 +1572,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/rooms');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
 
     // Visit rooms again with a room that is already a favorite
     cy.fixture('rooms.json').then(rooms => {
@@ -1629,7 +1629,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/rooms');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
   });
 
   it('error loading rooms', function () {
@@ -1804,7 +1804,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login?redirect=/rooms');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
 
     // Reload page with 401 error
     cy.visit('/rooms');
@@ -1814,7 +1814,7 @@ describe('Room Index', function () {
     // Check that redirect worked and error message is shown
     cy.url().should('include', '/login');
 
-    cy.checkToastMessage('app.flash.unauthenticated', false);
+    cy.checkToastMessage('app.flash.unauthenticated');
   });
 
   it('error loading room types', function () {

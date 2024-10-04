@@ -369,9 +369,8 @@ describe('Room View general', function () {
 
     cy.get('[data-test="room-copy-invitation-button"]').click();
 
-    cy.checkToastMessage('rooms.invitation.copied', false);
+    cy.checkToastMessage('rooms.invitation.copied');
 
-    // ToDo check if this always works
     cy.window().then(win => {
       win.navigator.clipboard.readText().then(text => {
         expect(text).to.eq('rooms.invitation.room_{"roomname":"Meeting One","platform":"PILOS Test"}\nrooms.invitation.link: ' + Cypress.config('baseUrl') + '/rooms/abc-def-123\nrooms.invitation.code: 508-307-005');
