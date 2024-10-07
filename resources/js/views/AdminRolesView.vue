@@ -71,7 +71,7 @@
               <div v-for="option in roomLimitModeOptions" :key="option.value" class="mb-2">
                 <RadioButton
                   v-model="roomLimitMode"
-                  :inputId="option.value"
+                  :input-id="option.value"
                   :value="option.value"
                   @change="roomLimitModeChanged(option.value)"
                   :disabled="isBusy || modelLoadingError || viewOnly || model.superuser"

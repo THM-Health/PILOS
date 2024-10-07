@@ -249,7 +249,6 @@ return [
         'attendance' => [
             'retention_period_title' => 'Retention period of the attendance logging in days',
         ],
-        'attendance_and_statistics_title' => 'Attendance and statistics',
         'banner' => [
             'background' => 'Background color of the banner',
             'banner_title' => 'Title',
@@ -344,6 +343,7 @@ return [
         'recording' => [
             'retention_period_title' => 'Storage duration of the recordings in days',
         ],
+        'recording_and_statistics_title' => 'Recording and statistics',
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Period between delivery of the information email and the deletion',

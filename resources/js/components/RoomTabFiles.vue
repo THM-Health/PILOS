@@ -27,7 +27,7 @@
             </div>
             <Divider/>
             <div class="flex items-center mb-2">
-              <Checkbox v-model="downloadAgreement" @update:modelValue="(checked) => showTermsOfUse = !checked" inputId="terms_of_use" :binary="true" />
+              <Checkbox v-model="downloadAgreement" @update:modelValue="(checked) => showTermsOfUse = !checked" input-id="terms_of_use" :binary="true" />
               <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
             </div>
           </AccordionContent>

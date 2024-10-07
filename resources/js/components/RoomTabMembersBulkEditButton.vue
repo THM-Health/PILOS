@@ -32,17 +32,17 @@
       <label for="role">{{ $t('rooms.role') }}</label>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-role" name="role" :value="1" />
+        <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
         <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
       </div>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-moderator" name="role" :value="2" />
+        <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-co_owner" name="role" :value="3" />
+        <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="co_owner-role" name="role" :value="3" />
         <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
 
@@ -114,7 +114,6 @@ function save () {
         return;
       }
     }
-    showModal.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
