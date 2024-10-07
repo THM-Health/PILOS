@@ -274,6 +274,7 @@ jobs:
       - name: Load image
         run: |
           docker load --input /tmp/pilos-image.tar
+          docker image ls -a
 
       - name: Copy .env
         run: docker run --rm pilos:latest cat ./.env.ci > .env
