@@ -219,8 +219,9 @@ jobs:
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
       - name: Rebuild frontend for coverage
-        run: docker compose -f compose.test.yml -f compose.test.ci.yml exec app pilos-cli frontend:build-coverage
-
+        run: |
+          docker compose -f compose.test.yml -f compose.test.ci.yml exec app su-exec www-data npm install
+          docker compose -f compose.test.yml -f compose.test.ci.yml exec app su-exec www-data npm run build:coverage
       - name: Cypress run frontend tests
         uses: cypress-io/github-action@v6
         with:

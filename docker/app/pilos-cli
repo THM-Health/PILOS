@@ -17,10 +17,6 @@ case $ACTION in
     su-exec www-data npm run build
     ;;
 
-  frontend:build-coverage)
-    su-exec www-data npm run build:coverage
-    ;;
-
   playback-player:build)
     su-exec www-data /usr/local/etc/playback-player/build.sh "$2"
     ;;
