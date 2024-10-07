@@ -16,3 +16,4 @@
 import './commands/generalCommands.js';
 import './commands/roomCommands.js';
 import './commands/interceptCommands.js';
+import '@cypress/code-coverage/support';

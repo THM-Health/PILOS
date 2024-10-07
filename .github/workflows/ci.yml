@@ -218,6 +218,9 @@ jobs:
       - name: Start app
         run: docker compose -f compose.test.yml -f compose.test.ci.yml up -d
 
+      - name: Rebuild frontend for coverage
+        run: docker compose -f compose.test.yml -f compose.test.ci.yml exec app pilos-cli frontend:build-coverage
+
       - name: Cypress run frontend tests
         uses: cypress-io/github-action@v6
         with:
@@ -233,6 +236,12 @@ jobs:
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           APP_URL: 'http://localhost:9080'
           TZ: 'America/New_York'
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: coverage
       - name: Cypress run system tests
         uses: cypress-io/github-action@v6
         with:
