@@ -205,6 +205,8 @@ jobs:
     needs: docker-build
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -266,6 +268,8 @@ jobs:
     needs: docker-build
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
