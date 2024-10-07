@@ -203,6 +203,12 @@ jobs:
     name: Frontend Tests
     runs-on: ubuntu-latest
     needs: docker-build
+    strategy:
+      # don't fail the entire matrix on failure
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [ 1, 2, 3, 4, 5 ]
 
     steps:
       - name: Checkout
@@ -246,6 +252,7 @@ jobs:
         with:
           wait-on: 'http://localhost:9080' # Waits for above
           group: 'Frontend tests'
+          parallel: true
           record: true
           tag: ${{ github.event_name }}
         env:
