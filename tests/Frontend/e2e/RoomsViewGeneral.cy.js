@@ -1507,7 +1507,7 @@ describe('Room View general', function () {
         id: 2,
         firstname: 'Max',
         lastname: 'Doe',
-        locale: 'en',
+        user_locale: 'en',
         permissions: ['rooms.create'],
         model_name: 'User',
         room_limit: -1
