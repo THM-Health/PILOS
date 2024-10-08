@@ -255,7 +255,9 @@ async function logout () {
     return;
   }
 
-  await router.push({ name: 'logout' });
+  const message = response.data.message || null;
+
+  await router.push({ name: 'logout', query: { message } });
 
   loadingStore.setLoadingFinished();
 }

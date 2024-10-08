@@ -99,6 +99,7 @@ class Config extends JsonResource
                 'local' => config('auth.local.enabled'),
                 'ldap' => config('ldap.enabled'),
                 'shibboleth' => config('services.shibboleth.enabled'),
+                'oidc' => config('services.oidc.enabled'),
             ],
         ];
     }
