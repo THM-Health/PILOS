@@ -7,6 +7,11 @@
     @click="downloadFile"
     :icon="loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-eye'"
   />
+
+  <Popover ref="op" class="max-w-96">
+    <InlineNote severity="info">{{ $t('rooms.files.terms_of_use.required') }}</InlineNote>
+  </Popover>
+
 </template>
 <script setup>
 import env from '../env.js';
@@ -18,6 +23,10 @@ import EventBus from '../services/EventBus.js';
 import { EVENT_FORBIDDEN } from '../constants/events.js';
 
 const props = defineProps({
+  requireTermsOfUseAcceptance: {
+    type: Boolean,
+    required: false
+  },
   accessCode: {
     type: Number,
     required: false
@@ -48,13 +57,19 @@ const toast = useToast();
 const { t } = useI18n();
 
 const loading = ref(false);
+const op = ref();
 
 /**
  * Request file download url
- * @param file file object
  * @return string url
+ * @param event
  */
-function downloadFile () {
+function downloadFile (event) {
+  if (props.requireTermsOfUseAcceptance) {
+    op.value.toggle(event);
+    return;
+  }
+
   loading.value = true;
   // Update value for the setting and the effected file
   const config = {};

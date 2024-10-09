@@ -600,6 +600,22 @@
                   <FormError :errors="formErrors.fieldError('room_auto_delete_never_used_period')"/>
                 </div>
               </div>
+              <div class="grid grid-cols-12 gap-4">
+                <label for="room-file-terms-of-use" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.room_file_terms_of_use.title')}}</label>
+                <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+                  <Textarea
+                    id="room-file-terms-of-use"
+                    v-model="settings.room_file_terms_of_use"
+                    rows="3"
+                    :invalid="formErrors.fieldInvalid('room_file_terms_of_use')"
+                    :disabled="disabled"
+                    aria-describedby="room-file-terms-of-use-help"
+                  />
+                  <small id="room-file-terms-of-use-help">{{ $t('admin.settings.room_file_terms_of_use.description') }}</small>
+
+                  <FormError :errors="formErrors.fieldError('room_file_terms_of_use')"/>
+                </div>
+              </div>
             </AdminPanel>
 
             <AdminPanel :title="$t('app.users')">

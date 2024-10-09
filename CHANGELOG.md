@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
+
 ### Fixed
 - Loading overlay not covering whole page during scrolling ([#1442])
 - Inconsistent error handling in dialogs ([#1444])
@@ -156,6 +159,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1435]: https://github.com/THM-Health/PILOS/issues/1435
+[#1440]: https://github.com/THM-Health/PILOS/pull/1440
 [#1442]: https://github.com/THM-Health/PILOS/pull/1442
 [#1444]: https://github.com/THM-Health/PILOS/pull/1444
 
