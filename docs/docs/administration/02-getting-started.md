@@ -149,7 +149,7 @@ location / {
 ```apacheconf
 ProxyPreserveHost On
 
-ProxyPass "/"  "http://127.0.0.1:5000/"
+ProxyPass "/"  "http://127.0.0.1:5000/" nocanon
 ProxyPassReverse "/"  "http://127.0.0.1:5000/"
 
 RequestHeader set X-Forwarded-Proto "https"
