@@ -903,12 +903,12 @@ describe('Rooms view members bulk', function () {
 
     cy.get('[data-test="room-members-bulk-import-textarea"]').type('laurawrivera@domain.tld');
 
-    // Check with 422 error (role field is required)
+    // Check with 422 error (role field is invalid)
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/member/bulk', {
       statusCode: 422,
       body: {
         errors: {
-          user_emails: ['The selected role is invalid.']
+          role: ['The selected role is invalid.']
         }
       }
     }).as('bulkImportRequest');
