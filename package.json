@@ -2,9 +2,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite --host",
+        "dev": "vite",
         "build": "vite build",
-        "build:coverage": "VITE_COVERAGE=true vite build",
         "lint": "eslint --ext .js,.vue,.json .",
         "fix-cs": "eslint --ext .js,.vue,.json . --fix",
         "docs:install": "cd docs && npm install",
@@ -26,7 +25,8 @@
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^6.6.0",
         "eslint-plugin-vue": "^9.28.0",
-        "nyc": "^17.1.0"
+        "nyc": "^17.1.0",
+        "vite-plugin-istanbul": "^6.0.2"
     },
     "dependencies": {
         "@floating-ui/vue": "^1.1.5",
@@ -67,7 +67,6 @@
         "ua-parser-js": "^1.0.39",
         "unplugin-vue-components": "^0.27.4",
         "vite": "^5.4.8",
-        "vite-plugin-istanbul": "^6.0.2",
         "vue": "^3.5",
         "vue-axe": "^3.1.2",
         "vue-chartjs": "^5.3.1",
