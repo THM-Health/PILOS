@@ -127,20 +127,13 @@ describe('Rooms View Files', function () {
 
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
-    // Check that download agreement is shown
-    cy.get('[data-test="download-agreement-message"]').should('be.visible');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.content');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').should('not.be.checked');
-
     // Check that files are shown correctly
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 09:08');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
 
@@ -148,14 +141,9 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 09:08');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-delete-button"]').should('not.exist');
-
-    // Accept download agreement
-    cy.get('#terms_of_use').click();
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
   });
 
   it('load files with access code errors', function () {
@@ -299,20 +287,12 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
     // Check that files are shown correctly
-    // Check that download agreement is shown
-    cy.get('[data-test="download-agreement-message"]').should('be.visible');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.content');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').should('not.be.checked');
-
-    // Check that files are shown correctly
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
 
@@ -320,14 +300,9 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-delete-button"]').should('not.exist');
-
-    // Accept download agreement
-    cy.get('#terms_of_use').click();
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
   });
 
   it('load files with token errors', function () {
@@ -498,7 +473,7 @@ describe('Rooms View Files', function () {
   });
 
   it('view with different permissions', function () {
-    // Check view for guest
+    // Check view for guest without terms of use
     cy.intercept('GET', 'api/v1/currentUser', {});
     cy.fixture('room.json').then((room) => {
       room.data.current_user = null;
@@ -517,20 +492,16 @@ describe('Rooms View Files', function () {
 
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
-    // Check that download agreement is shown
-    cy.get('[data-test="download-agreement-message"]').should('be.visible');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.content');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').should('not.be.checked');
+    // Check that download agreement is hidden
+    cy.get('[data-test="download-agreement-message"]').should('not.exist');
 
-    // Check that files are shown correctly and buttons are disabled or hidden
+    // Check that files are shown correctly and buttons are enabled or hidden
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
 
@@ -538,16 +509,119 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 03:08');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-delete-button"]').should('not.exist');
 
-    // Accept download agreement
-    cy.get('#terms_of_use').click();
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
+    // Check view with rooms.viewAll permission without terms of use
+    cy.fixture('currentUser.json').then(currentUser => {
+      currentUser.data.permissions = ['rooms.viewAll'];
+      cy.intercept('GET', 'api/v1/currentUser', {
+        statusCode: 200,
+        body: currentUser
+      });
+    });
 
-    // Check view with rooms.viewAll permission
+    cy.fixture('room.json').then((room) => {
+      room.data.owner = { id: 2, name: 'Max Doe' };
+      room.data.current_user.permissions = ['rooms.viewAll'];
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    cy.reload();
+    cy.wait('@roomRequest');
+    cy.get('#tab-files').click();
+    cy.wait('@roomFilesRequest');
+
+    // Check that files are shown correctly
+    cy.get('[data-test="room-files-upload-button"]').should('not.exist');
+    // Check that download agreement is hidden
+    cy.get('[data-test="download-agreement-message"]').should('not.exist');
+
+    // Check that files are shown correctly and buttons are enabled or hidden
+    cy.get('[data-test="room-file-item"]').should('have.length', 2);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 09:08');
+    cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
+    cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
+
+    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'File2.pdf');
+    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 09:08');
+    cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
+    cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').should('not.exist');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-delete-button"]').should('not.exist');
+
+    // Reload with terms of use
+    cy.fixture('config.json').then((config) => {
+      config.data.room.file_terms_of_use = 'Test terms of use';
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
+    });
+
+    // Check view for guest with terms of use
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    cy.interceptRoomFilesRequest();
+
+    cy.reload();
+    cy.wait('@roomRequest');
+    cy.wait('@roomFilesRequest');
+
+    cy.get('[data-test="room-files-upload-button"]').should('not.exist');
+
+    // Check that download agreement is shown
+    cy.get('[data-test="download-agreement-message"]').should('be.visible');
+    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
+    cy.get('[data-test="download-agreement-message"]').should('include.text', 'Test terms of use');
+    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
+    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').should('not.be.checked');
+
+    // Check that files are shown correctly and buttons are enabled or hidden
+    cy.get('[data-test="room-file-item"]').should('have.length', 2);
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
+    cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 03:08');
+    cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
+    cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
+
+    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'File2.pdf');
+    cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 03:08');
+    cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
+    cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').should('not.exist');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-delete-button"]').should('not.exist');
+
+    // Accept terms of use
+    cy.get('#terms_of_use').click();
+    cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
+
+    cy.get('[data-test="download-agreement-message"]').contains('Test terms of use').should('not.be.visible');
+    cy.get('#terms_of_use').should('not.be.visible');
+
+    // Check view with rooms.viewAll permission with terms of use
     cy.fixture('currentUser.json').then(currentUser => {
       currentUser.data.permissions = ['rooms.viewAll'];
       cy.intercept('GET', 'api/v1/currentUser', {
@@ -576,17 +650,17 @@ describe('Rooms View Files', function () {
     // Check that download agreement is shown
     cy.get('[data-test="download-agreement-message"]').should('be.visible');
     cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.content');
+    cy.get('[data-test="download-agreement-message"]').should('include.text', 'Test terms of use');
     cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
     cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').should('not.be.checked');
 
-    // Check that files are shown correctly and buttons are disabled or hidden
+    // Check that files are shown correctly and buttons are enabled or hidden
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'File1.pdf');
     cy.get('[data-test="room-file-item"]').eq(0).should('include.text', 'Sep 21, 2020, 09:08');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(0).should('not.include.text', 'rooms.files.use_in_next_meeting_disabled');
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
 
@@ -594,15 +668,15 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-file-item"]').eq(1).should('include.text', 'Sep 21, 2020, 09:08');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.download_visible');
     cy.get('[data-test="room-file-item"]').eq(1).should('not.include.text', 'rooms.files.use_in_next_meeting');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('be.disabled');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-delete-button"]').should('not.exist');
 
-    // Accept download agreement
+    // Accept terms of use
     cy.get('#terms_of_use').click();
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
+    cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
 
+    cy.get('[data-test="download-agreement-message"]').contains('Test terms of use').should('not.be.visible');
+    cy.get('#terms_of_use').should('not.be.visible');
     // Check for co_owner
     cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
 

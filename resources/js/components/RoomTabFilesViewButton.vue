@@ -9,7 +9,7 @@
     data-test="room-files-view-button"
   />
 
-  <Popover ref="op" class="max-w-96">
+  <Popover ref="op" class="max-w-96" data-test="terms-of-use-required-info">
     <InlineNote severity="info">{{ $t('rooms.files.terms_of_use.required') }}</InlineNote>
   </Popover>
 

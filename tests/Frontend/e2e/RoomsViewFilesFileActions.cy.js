@@ -567,6 +567,56 @@ describe('Rooms view files file actions', function () {
     cy.get('@fileDownload')
       .should('be.calledOnce')
       .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+
+    // Reload as guest and with terms of use
+    cy.fixture('config.json').then((config) => {
+      config.data.room.file_terms_of_use = 'Test terms of use';
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
+    });
+
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.fixture('room.json').then((room) => {
+      room.data.current_user = null;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+        statusCode: 200,
+        body: room
+      }).as('roomRequest');
+    });
+
+    cy.reload();
+
+    cy.wait('@roomFilesRequest');
+
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').click();
+
+    // Check that require terms of use info is shown
+    cy.get('[data-test="terms-of-use-required-info"]')
+      .should('be.visible')
+      .and('have.text', 'rooms.files.terms_of_use.required');
+
+    // Stub window.open to check if correct url is opened
+    cy.window().then((win) => {
+      cy.stub(win, 'open').as('secondFileDownload').returns(true);
+    });
+
+    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').click();
+
+    cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
+
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').click();
+
+    cy.wait('@downloadFileRequest');
+
+    cy.get('@secondFileDownload')
+      .should('be.calledOnce')
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+
+    cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
   });
 
   it('download file with access code', function () {
@@ -601,8 +651,6 @@ describe('Rooms view files file actions', function () {
 
     cy.wait('@roomRequest');
     cy.wait('@roomFilesRequest');
-
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').click();
 
     cy.intercept('GET', '/api/v1/rooms/abc-def-123/files/1', {
       statusCode: 200,
@@ -660,8 +708,6 @@ describe('Rooms view files file actions', function () {
     cy.wait('@roomRequest');
     cy.wait('@roomFilesRequest');
 
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').click();
-
     // Check with invalid_code error
     cy.intercept('GET', '/api/v1/rooms/abc-def-123/files/1', {
       statusCode: 401,
@@ -710,8 +756,6 @@ describe('Rooms view files file actions', function () {
 
     cy.wait('@roomRequest');
     cy.wait('@roomFilesRequest');
-
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').click();
 
     // Check require_code error
     cy.intercept('GET', '/api/v1/rooms/abc-def-123/files/1', {
@@ -770,8 +814,6 @@ describe('Rooms view files file actions', function () {
 
     cy.wait('@roomFilesRequest');
 
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').click();
-
     cy.intercept('GET', '/api/v1/rooms/abc-def-123/files/1', {
       statusCode: 200,
       body: {
@@ -814,8 +856,6 @@ describe('Rooms view files file actions', function () {
     cy.wait('@roomRequest');
     cy.wait('@roomFilesRequest');
 
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').click();
-
     cy.intercept('GET', '/api/v1/rooms/abc-def-123/files/1', {
       statusCode: 401,
       body: {
@@ -834,6 +874,15 @@ describe('Rooms view files file actions', function () {
   });
 
   it('download file errors', function () {
+    cy.fixture('config.json').then((config) => {
+      config.data.room.file_terms_of_use = 'Test terms of use';
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
+    });
+
     cy.visit('/rooms/abc-def-123#tab=files');
 
     cy.wait('@roomFilesRequest');
@@ -939,11 +988,11 @@ describe('Rooms view files file actions', function () {
     // Check that action buttons are hidden and download agreement message is shown
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
     cy.get('[data-test="download-agreement-message"]').should('be.visible');
-    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');
 
-    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('be.disabled');
+    cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-delete-button"]').should('not.exist');
   });
