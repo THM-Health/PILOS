@@ -604,7 +604,7 @@ describe('Rooms view files file actions', function () {
       cy.stub(win, 'open').as('secondFileDownload').returns(true);
     });
 
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').click();
+    cy.get('[data-test="terms-of-use-message"]').find('#terms_of_use').click();
 
     cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
 
@@ -987,7 +987,7 @@ describe('Rooms view files file actions', function () {
 
     // Check that action buttons are hidden and download agreement message is shown
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
-    cy.get('[data-test="download-agreement-message"]').should('be.visible');
+    cy.get('[data-test="terms-of-use-message"]').should('be.visible');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-view-button"]').should('not.be.disabled');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-edit-button"]').should('not.exist');
     cy.get('[data-test="room-file-item"]').eq(0).find('[data-test="room-files-delete-button"]').should('not.exist');

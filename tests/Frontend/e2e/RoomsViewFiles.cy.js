@@ -493,7 +493,7 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
     // Check that download agreement is hidden
-    cy.get('[data-test="download-agreement-message"]').should('not.exist');
+    cy.get('[data-test="-message"]').should('not.exist');
 
     // Check that files are shown correctly and buttons are enabled or hidden
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
@@ -540,7 +540,7 @@ describe('Rooms View Files', function () {
     // Check that files are shown correctly
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
     // Check that download agreement is hidden
-    cy.get('[data-test="download-agreement-message"]').should('not.exist');
+    cy.get('[data-test="terms-of-use-message"]').should('not.exist');
 
     // Check that files are shown correctly and buttons are enabled or hidden
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
@@ -590,11 +590,11 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
 
     // Check that download agreement is shown
-    cy.get('[data-test="download-agreement-message"]').should('be.visible');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'Test terms of use');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').should('not.be.checked');
+    cy.get('[data-test="terms-of-use-message"]').should('be.visible');
+    cy.get('[data-test="terms-of-use-message"]').should('include.text', 'rooms.files.terms_of_use.title');
+    cy.get('[data-test="terms-of-use-message"]').should('include.text', 'Test terms of use');
+    cy.get('[data-test="terms-of-use-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
+    cy.get('[data-test="terms-of-use-message"]').find('#terms_of_use').should('not.be.checked');
 
     // Check that files are shown correctly and buttons are enabled or hidden
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
@@ -618,7 +618,7 @@ describe('Rooms View Files', function () {
     cy.get('#terms_of_use').click();
     cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
 
-    cy.get('[data-test="download-agreement-message"]').contains('Test terms of use').should('not.be.visible');
+    cy.get('[data-test="terms-of-use-message"]').contains('Test terms of use').should('not.be.visible');
     cy.get('#terms_of_use').should('not.be.visible');
 
     // Check view with rooms.viewAll permission with terms of use
@@ -648,11 +648,11 @@ describe('Rooms View Files', function () {
     // Check that files are shown correctly
     cy.get('[data-test="room-files-upload-button"]').should('not.exist');
     // Check that download agreement is shown
-    cy.get('[data-test="download-agreement-message"]').should('be.visible');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.title');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'Test terms of use');
-    cy.get('[data-test="download-agreement-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
-    cy.get('[data-test="download-agreement-message"]').find('#terms_of_use').should('not.be.checked');
+    cy.get('[data-test="terms-of-use-message"]').should('be.visible');
+    cy.get('[data-test="terms-of-use-message"]').should('include.text', 'rooms.files.terms_of_use.title');
+    cy.get('[data-test="terms-of-use-message"]').should('include.text', 'Test terms of use');
+    cy.get('[data-test="terms-of-use-message"]').should('include.text', 'rooms.files.terms_of_use.accept');
+    cy.get('[data-test="terms-of-use-message"]').find('#terms_of_use').should('not.be.checked');
 
     // Check that files are shown correctly and buttons are enabled or hidden
     cy.get('[data-test="room-file-item"]').should('have.length', 2);
@@ -675,7 +675,7 @@ describe('Rooms View Files', function () {
     cy.get('#terms_of_use').click();
     cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
 
-    cy.get('[data-test="download-agreement-message"]').contains('Test terms of use').should('not.be.visible');
+    cy.get('[data-test="terms-of-use-message"]').contains('Test terms of use').should('not.be.visible');
     cy.get('#terms_of_use').should('not.be.visible');
     // Check for co_owner
     cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
@@ -698,7 +698,7 @@ describe('Rooms View Files', function () {
     cy.wait('@roomFilesRequest');
 
     // Check that download agreement is hidden
-    cy.get('[data-test="download-agreement-message"]').should('not.exist');
+    cy.get('[data-test="terms-of-use-message"]').should('not.exist');
 
     cy.get('[data-test="room-files-upload-button"]').should('be.visible');
     // Check that files are shown correctly and buttons are enabled
@@ -751,7 +751,7 @@ describe('Rooms View Files', function () {
     cy.wait('@roomFilesRequest');
 
     // Check that download agreement is hidden
-    cy.get('[data-test="download-agreement-message"]').should('not.exist');
+    cy.get('[data-test="terms-of-use-message"]').should('not.exist');
     cy.get('[data-test="room-files-upload-button"]').should('be.visible');
 
     // Check that files are shown correctly and buttons are enabled

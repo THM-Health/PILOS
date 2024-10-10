@@ -1,7 +1,7 @@
 <template>
   <div>
     <Message
-      data-test="download-agreement-message"
+      data-test="terms-of-use-message"
       severity="info"
       v-if="requireAgreement && files.length >0"
       :closable="false"
