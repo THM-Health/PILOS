@@ -9,6 +9,7 @@
     icon="fa-solid fa-user"
     v-tooltip="$t('rooms.become_member')"
     :aria-label="$t('rooms.become_member')"
+    data-test="room-join-membership-button"
   />
   <!-- If user is member, allow user to end the membership -->
   <Button
@@ -19,6 +20,7 @@
     icon="fa-solid fa-user"
     v-tooltip="$t('rooms.end_membership.button')"
     :aria-label="$t('rooms.end_membership.button')"
+    data-test="room-end-membership-button"
   />
 
   <Dialog
@@ -31,13 +33,26 @@
     :closeOnEscape="!isLoadingAction"
     :dismissableMask="false"
     :closable="!isLoadingAction"
+    data-test="end-membership-dialog"
   >
     {{ $t('rooms.end_membership.message') }}
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="leaveMembership" />
+        <Button
+          :label="$t('app.no')"
+          severity="secondary"
+          @click="showModal = false"
+          :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
+        />
+        <Button
+          :label="$t('app.yes')"
+          severity="danger" :loading="isLoadingAction"
+          :disabled="isLoadingAction"
+          @click="leaveMembership"
+          data-test="dialog-continue-button"
+        />
       </div>
     </template>
   </Dialog>

@@ -1,6 +1,7 @@
 <template>
   <InputGroup>
     <multiselect
+      data-test="role-dropdown"
       :id="id"
       ref="rolesMultiselectRef"
       :placeholder="$t('admin.roles.select_roles')"
@@ -68,6 +69,7 @@
         outlined
         @click="loadRoles(currentPage)"
         icon="fa-solid fa-sync"
+        data-test="roles-reload-button"
       />
   </InputGroup>
 </template>

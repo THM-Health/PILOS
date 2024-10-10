@@ -27,6 +27,7 @@
   <Message v-else severity="info">{{ $t('rooms.not_running') }}</Message>
 
   <Dialog
+    data-test="room-join-dialog"
     v-model:visible="showModal"
     modal
     :header="running ? $t('rooms.join_room') : $t('rooms.start_room')"
@@ -45,6 +46,7 @@
         <div v-if="!authStore.isAuthenticated && !token" class="flex flex-col gap-2 mb-4" >
           <label for="guest-name">{{ $t('rooms.first_and_lastname') }}</label>
           <InputText
+            id="guest-name"
             autofocus
             v-model="name"
             :placeholder="$t('rooms.placeholder_name')"
@@ -95,8 +97,8 @@
     </OverlayComponent>
 
     <div class="flex items-center justify-end mt-6 gap-2">
-      <Button :label="$t('app.cancel')" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"/>
-      <Button :label="$t('app.continue')" :disabled="isLoadingAction" @click="getJoinUrl" size="small"/>
+      <Button :label="$t('app.cancel')" data-test="dialog-cancel-button" :disabled="isLoadingAction" @click="showModal = false" severity="secondary" size="small"/>
+      <Button :label="$t('app.continue')" data-test="dialog-continue-button" :disabled="isLoadingAction" @click="getJoinUrl" size="small"/>
     </div>
   </Dialog>
 

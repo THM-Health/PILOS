@@ -1,6 +1,6 @@
 <template>
   <div class="container pt-8 mb-8">
-    <Card>
+    <Card data-test="user-profile">
       <template #title><h1 class="text-3xl">{{ $t('app.profile') }}</h1></template>
       <template #content>
         <OverlayComponent :show="!authStore.currentUser">

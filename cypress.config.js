@@ -1,4 +1,5 @@
 import { defineConfig } from 'cypress';
+import configCodeCoverage from '@cypress/code-coverage/task.js'
 import 'dotenv/config'
 
 const baseUrl = process.env.APP_URL  || 'http://localhost';
@@ -12,7 +13,13 @@ export default defineConfig({
 
   e2e: {
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      configCodeCoverage(on, config);
+
+      // include any other plugin code...
+
+      // It's IMPORTANT to return the config object
+      // with any changed environment variables
+      return config
     },
     baseUrl: baseUrl,
     experimentalStudio: true,

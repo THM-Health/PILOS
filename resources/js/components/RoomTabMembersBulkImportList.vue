@@ -3,6 +3,7 @@
     <div
       v-if="list.length > 0"
       class="mb-4"
+      data-test="room-members-bulk-import-list"
     >
       <p class="font-bold">
         {{ description }} <Badge :severity="variant">
@@ -16,6 +17,9 @@
           :header="user.email"
           :disabled="!user.error"
           :pt="{
+            root:{
+              'data-test': 'room-members-bulk-import-list-item'
+            },
             header: {
               class: 'opacity-100'
             },

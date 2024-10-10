@@ -1,5 +1,6 @@
 <template>
   <Button
+    data-test="room-settings-expert-mode-button"
     severity="secondary"
     icon="fa-solid fa-cog"
     :label="expertMode? $t('rooms.settings.expert_mode.deactivate'): $t('rooms.settings.expert_mode.activate')"
@@ -8,6 +9,7 @@
   />
 
   <Dialog
+    data-test="room-settings-expert-mode-dialog"
     v-model:visible="showModal"
     modal
     :header="expertMode? $t('rooms.settings.expert_mode.deactivate'): $t('rooms.settings.expert_mode.activate')"
@@ -21,11 +23,13 @@
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button
+          data-test="dialog-cancel-button"
           :label=" $t('app.cancel')"
           severity="secondary"
           @click="showModal = false"
         />
         <Button
+          data-test="dialog-continue-button"
           :label="expertMode? $t('rooms.settings.expert_mode.deactivate'): $t('rooms.settings.expert_mode.activate')"
           severity="danger"
           @click="toggleExpertMode"

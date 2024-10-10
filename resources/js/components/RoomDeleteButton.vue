@@ -8,6 +8,7 @@
     severity="danger"
     icon="fa-solid fa-trash"
     :label="$t('rooms.modals.delete.title')"
+    data-test="room-delete-button"
   />
 
   <!-- Remove room modal -->
@@ -21,13 +22,14 @@
     :closeOnEscape="!isLoadingAction"
     :dismissableMask="false"
     :closable="!isLoadingAction"
+    data-test="room-delete-dialog"
   >
     {{ $t('rooms.modals.delete.confirm',{name: room.name}) }}
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteRoom" />
+        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteRoom" data-test="dialog-continue-button"/>
       </div>
     </template>
   </Dialog>

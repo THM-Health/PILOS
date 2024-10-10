@@ -6,6 +6,7 @@ LABEL description="Development and production container for PILOS, compatible wi
 ARG WWWGROUP=82
 ARG WWWUSER=82
 ARG PLAYBACK_PLAYER_VERSION=5.1.3
+ARG VITE_COVERAGE="false"
 
 WORKDIR /var/www/html
 
@@ -83,11 +84,15 @@ COPY ./docker/app/ldap/ /etc/openldap
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
-# Run npm install command
-RUN su-exec www-data npm install --omit=dev
-
 # Build frontend
-RUN su-exec www-data npm run build
+RUN if [ "$VITE_COVERAGE" != "true" ] ; then \
+    su-exec www-data npm install --omit=dev && \
+    su-exec www-data npm run build; \
+  else \
+    echo "Build frontend for coverage (instrumented and with sourcemap)" && \
+    su-exec www-data npm install && \
+    su-exec www-data npm run coverage -- --config vite.config.overage.js; \
+  fi
 
 # Run and optimize composer for production
 RUN su-exec www-data composer install --no-dev

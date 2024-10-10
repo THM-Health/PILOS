@@ -22,7 +22,13 @@
            "*.json"
         ],
         "parser":"jsonc-eslint-parser"
-     }
+     },
+    {
+      "files": ["*.cy.js"],
+      "rules": {
+        "no-unused-expressions": "off"
+      }
+    }
   ],
   "parser":"vue-eslint-parser",
   "parserOptions":{

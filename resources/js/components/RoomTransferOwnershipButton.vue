@@ -1,5 +1,6 @@
 <template>
   <Button
+    data-test="room-transfer-ownership-button"
     v-if="userPermissions.can('transfer', room)"
     @click="showTransferOwnershipModal"
     severity="secondary"
@@ -10,6 +11,7 @@
 
   <!--transfer ownership modal-->
   <Dialog
+    data-test="room-transfer-ownership-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.modals.transfer_ownership.title')"
@@ -26,6 +28,7 @@
       <label for="user">{{ $t('app.user') }}</label>
       <multiselect
         autofocus
+        data-test="new-owner-dropdown"
         v-model="newOwner"
         :disabled="isLoadingAction"
         label="lastname"
@@ -73,17 +76,17 @@
     <div class="flex flex-col gap-2 mt-6">
       <label for="role">{{ $t('rooms.modals.transfer_ownership.new_role') }}</label>
 
-      <div class="flex items-center">
+      <div class="flex items-center" data-test="participant-role-group">
         <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
         <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
       </div>
 
-      <div class="flex items-center">
+      <div class="flex items-center" data-test="moderator-role-group">
         <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 
-      <div class="flex items-center">
+      <div class="flex items-center" data-test="co-owner-role-group">
         <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="co-owner-role" name="role" :value="3" />
         <label for="participant-co-owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
       </div>
@@ -91,7 +94,7 @@
       <Divider />
       <!--option to not add the current user as a member of the room-->
       <div>
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="no-role-group">
           <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="no-role" name="role" :value="-1" />
           <label for="participant-no-role" class="ml-2"><RoomRoleBadge /></label>
         </div>
@@ -103,8 +106,8 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('rooms.modals.transfer_ownership.transfer')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="transferOwnership" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('rooms.modals.transfer_ownership.transfer')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="transferOwnership" data-test="dialog-continue-button"/>
       </div>
     </template>
 

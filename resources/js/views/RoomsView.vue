@@ -43,6 +43,7 @@
           <div class="flex justify-start w-full">
             <!-- Reload page, in case the room settings changed -->
             <Button
+              data-test="reload-room-button"
               :disabled="loading"
               @click="reload"
               :loading="loading"
@@ -56,7 +57,7 @@
 
     <div v-else>
       <div v-if="!room">
-        <div class="text-center my-2">
+        <div class="text-center my-2" data-test="no-room-overlay">
           <i
             v-if="roomLoading"
             class="fa-solid fa-circle-notch fa-spin text-3xl"
@@ -67,6 +68,7 @@
             icon="fa-solid fa-sync"
             :label="$t('app.reload')"
             :aria-label="$t('app.reload')"
+            data-test="reload-button"
           />
         </div>
       </div>
@@ -106,6 +108,7 @@
                 :loading="loading"
                 icon="fa-solid fa-lock"
                 :label="$t('rooms.login')"
+                data-test="room-login-button"
               />
               </InputGroup>
               <p class="text-red-500 mt-1" role="alert" v-if="accessCodeInvalid">{{ $t('rooms.flash.access_code_invalid') }}</p>

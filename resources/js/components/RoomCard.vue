@@ -22,6 +22,7 @@
                   severity="secondary"
                   class="p-0 h-8 w-8 text-sm"
                   icon="fa-solid fa-info"
+                  data-test="room-info-button"
                   @click.stop="showModal = true"
                 />
                 <RoomFavoriteButton
@@ -59,6 +60,7 @@
       :style="{ width: '500px' }"
       :breakpoints="{ '575px': '90vw' }"
       :draggable="false"
+      data-test="room-info-dialog"
     >
 
       <div class="flex justify-between items-start mt-2">
@@ -82,8 +84,8 @@
       />
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="$t('app.close')" severity="secondary" @click="handleCancel" />
-          <Button as="router-link" :to="link" :label="$t('rooms.index.room_component.open')"/>
+          <Button :label="$t('app.close')" severity="secondary" @click="handleCancel" data-test="dialog-cancel-button"/>
+          <Button as="router-link" :to="link" :label="$t('rooms.index.room_component.open')" data-test="dialog-continue-button"/>
         </div>
       </template>
     </Dialog>

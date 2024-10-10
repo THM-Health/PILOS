@@ -6,6 +6,7 @@
     severity="danger"
     @click="showModal = true"
     icon="fa-solid fa-trash"
+    data-test="room-files-delete-button"
   />
 
   <!-- modal -->
@@ -19,12 +20,13 @@
     :closeOnEscape="!isLoadingAction"
     :dismissableMask="false"
     :closable="!isLoadingAction"
+    data-test="room-files-delete-dialog"
   >
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteFile" />
+        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteFile" data-test="dialog-continue-button"/>
         </div>
     </template>
 

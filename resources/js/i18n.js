@@ -6,6 +6,13 @@ import { useApi } from './composables/useApi.js';
  * Custom message compiler for vue-i18n to use Laravel locale file syntax
  */
 function messageCompiler (message) {
+  // Check if message is missing in the locales (!!missing!! injected by missingHandler)
+  const isMissing = message.startsWith('!!missing!!');
+  // Remove "!!missing!!" from message
+  if (isMissing) {
+    message = message.slice(11);
+  }
+
   if (typeof message === 'string') {
     return (ctx) => {
       if (!ctx.values) {
@@ -16,9 +23,18 @@ function messageCompiler (message) {
         message = message.replace(`:${key}`, ctx.values[key]);
       });
 
+      // If message is missing and values are present, append values to message for debugging
+      if (isMissing && Object.keys(ctx.values).length > 0) {
+        return message + '_' + JSON.stringify(ctx.values);
+      }
+
       return message;
     };
   }
+}
+
+function missingHandler (locale, key, instance, type) {
+  return '!!missing!!' + key;
 }
 
 /**
@@ -59,6 +75,7 @@ export async function setLocale (i18n, locale) {
 const i18n = createI18n({
   legacy: false,
   globalInjection: true,
-  messageCompiler
+  messageCompiler,
+  missing: missingHandler
 });
 export default i18n;

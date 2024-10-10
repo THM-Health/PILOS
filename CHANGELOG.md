@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
+- Frontend tests for Login, Logout, Locales ([#1150], [#1457])
+- Frontend tests for Room Index page ([#1150], [#1457])
+- Frontend tests for Room page  ([#1150], [#1457])
+- Frontend tests for Room Members Tab  ([#1150], [#722],[#1457])
+- Frontend tests for Room Settings Tab  ([#1150], [#721], [#1457])
+- Frontend tests for Room Files Tab ([#1150], [#1457])
+- Frontend tests for User Profile ([#1150], [#1457])
 
 ### Fixed
 - Loading overlay not covering whole page during scrolling ([#1442])
@@ -123,6 +130,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#686]: https://github.com/THM-Health/PILOS/pull/686
 [#695]: https://github.com/THM-Health/PILOS/issues/695
 [#704]: https://github.com/THM-Health/PILOS/issues/704
+[#721]: https://github.com/THM-Health/PILOS/issues/721
+[#722]: https://github.com/THM-Health/PILOS/issues/722
 [#724]: https://github.com/THM-Health/PILOS/pull/724
 [#735]: https://github.com/THM-Health/PILOS/pull/735
 [#743]: https://github.com/THM-Health/PILOS/pull/743
@@ -163,6 +172,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1440]: https://github.com/THM-Health/PILOS/pull/1440
 [#1442]: https://github.com/THM-Health/PILOS/pull/1442
 [#1444]: https://github.com/THM-Health/PILOS/pull/1444
+[#1150]: https://github.com/THM-Health/PILOS/issues/1150
+[#1457]: https://github.com/THM-Health/PILOS/pull/1457
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

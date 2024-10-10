@@ -1,0 +1,10 @@
+{
+    "all": true,
+    "excludeAfterRemap": false,
+    "reporter": ["json"],
+    "extension": [
+        ".js",
+        ".vue"
+    ],
+    "include": [ "resources/js/*"]
+}

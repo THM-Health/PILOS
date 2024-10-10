@@ -13,6 +13,7 @@
             class: 'sm:flex-row items-start flex-col gap-2'
           }
         }"
+        data-test="session-panel"
       >
         <template #header>
           <div class="flex items-center gap-2">
@@ -65,6 +66,7 @@
           :label="$t('auth.sessions.logout_all')"
           icon="fa-solid fa-right-from-bracket"
           :loading="loading"
+          data-test="logout-all-sessions-button"
         />
       </div>
     </OverlayComponent>

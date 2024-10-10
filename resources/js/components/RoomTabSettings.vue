@@ -17,7 +17,7 @@
           </div>
 
           <!-- Room type setting -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col" data-test="room-type-setting">
             <label for="room-type" class="mb-2">{{ $t('rooms.settings.general.type') }}</label>
 
             <RoomTypeChangeButton
@@ -33,7 +33,7 @@
           </div>
 
           <!-- Room name -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col" data-test="room-name-setting">
             <label for="room-name" class="mb-2">{{ $t('rooms.name') }}</label>
             <InputText
               class="w-full"
@@ -46,7 +46,7 @@
           </div>
 
           <!-- Access code -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="access-code-setting">
             <label for="access-code" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.has_access_code_enforced"/>
               {{ $t('rooms.access_code') }}
@@ -55,6 +55,7 @@
             <InputGroup>
               <!-- Generate random access code -->
               <Button
+                data-test="generate-access-code-button"
                 v-tooltip="$t('rooms.settings.general.generate_access_code')"
                 :aria-label="$t('rooms.settings.general.generate_access_code')"
                 icon="fa-solid fa-dice"
@@ -78,6 +79,7 @@
                 :aria-label="$t('rooms.settings.general.delete_access_code')"
                 icon="fa-solid fa-trash"
                 @click="settings.access_code = null"
+                data-test="clear-access-code-button"
               />
             </InputGroup>
             <small v-if="settings.room_type.has_access_code_enforced">
@@ -87,7 +89,7 @@
           </div>
 
           <!-- Checkbox allow guests to access the room -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="allow-guests-setting">
             <label for="allow-guests" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.allow_guests_enforced"/>
               {{$t('rooms.settings.general.access_by_guests')}}
@@ -107,7 +109,7 @@
           </div>
 
           <!-- Short description-->
-          <div class="col-span-12 flex flex-col gap-2">
+          <div class="col-span-12 flex flex-col gap-2" data-test="short-description-setting">
             <label for="short-description">{{ $t('rooms.settings.general.short_description') }}</label>
 
             <Textarea
@@ -139,7 +141,7 @@
           </div>
 
           <!-- Everyone can start a new meeting, not only the moderator -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="everyone-can-start-setting">
             <label for="everyone-can-start" class="items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.everyone_can_start_enforced"/>
               {{$t('rooms.settings.video_conference.allow_starting')}}
@@ -159,7 +161,7 @@
           </div>
 
           <!-- Mute everyone's microphone on meeting join -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="mute-on-start-setting">
             <label for="mute-on-start" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.mute_on_start_enforced"/>
               {{$t('rooms.settings.video_conference.microphone')}}
@@ -179,7 +181,7 @@
           </div>
 
           <!-- Radio usage of the waiting room/guest lobby -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="lobby-setting">
             <fieldset class="flex flex-col gap-2">
               <legend class="flex items-center gap-2">
                 <RoomSettingEnforcedIcon v-if="settings.room_type.lobby_enforced"/>
@@ -229,7 +231,7 @@
           </div>
 
           <!-- Welcome message -->
-          <div class="col-span-12 flex flex-col">
+          <div class="col-span-12 flex flex-col" data-test="welcome-setting">
             <label for="welcome-message" class="mb-2">{{ $t('rooms.settings.video_conference.welcome_message') }}</label>
             <Textarea
               class="w-full"
@@ -254,7 +256,7 @@
           </div>
 
           <!-- Checkbox record attendance of users and guests -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="record-attendance-setting">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.record_attendance"
@@ -272,7 +274,7 @@
           </div>
 
           <!-- Checkbox record video conference -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="record-setting">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.record"
@@ -290,7 +292,7 @@
           </div>
 
           <!-- Checkbox auto start recording of video conference -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="auto-start-recording-setting">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.auto_start_recording"
@@ -315,7 +317,7 @@
           </div>
 
           <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="lock-settings-disable-cam-setting">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_cam"
@@ -336,7 +338,7 @@
           Disable the ability to see the webcam of non moderator-users, moderators can see all webcams,
           can be changed during the meeting
           -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="webcams-only-for-moderator-setting">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.webcams_only_for_moderator"
@@ -354,7 +356,7 @@
           </div>
 
           <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="lock-settings-disable-mic-setting">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_mic"
@@ -372,7 +374,7 @@
           </div>
 
           <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="lock-settings-disable-public-chat-setting">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_public_chat"
@@ -394,7 +396,7 @@
           private chats with the moderators is still possible
           can be changed during the meeting
           -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="lock-settings-disable-private-chat-setting">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_private_chat"
@@ -412,7 +414,7 @@
           </div>
 
           <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="lock-settings-disable-note-setting">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_note"
@@ -430,7 +432,7 @@
           </div>
 
           <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="lock-settings-hide-user-list-setting">
             <div class="flex items-center gap-2 h-full">
               <ToggleSwitch
                 v-model="settings.lock_settings_hide_user_list"
@@ -455,7 +457,7 @@
           </div>
 
           <!-- Checkbox allow users to become room members -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3" data-test="allow-membership-setting">
             <div class="flex items-center gap-2">
               <ToggleSwitch
                 v-model="settings.allow_membership"
@@ -473,7 +475,7 @@
           </div>
 
           <!-- Default user role for logged in users only -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col" data-test="default-role-setting">
             <label id="default-role-label" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.default_role_enforced"/>
               {{ $t('rooms.settings.participants.default_role.title') }}
@@ -497,6 +499,13 @@
                 aria-labelledby="default-role-label"
                 optionLabel="label"
                 optionValue="role"
+                :pt="{
+                  pcToggleButton: {
+                    root:{
+                      'data-test': 'room-settings-default-role-button'
+                    }
+                   }
+                }"
               />
             </div>
             <FormError :errors="formErrors.fieldError('default_role')"/>
@@ -510,7 +519,7 @@
           </div>
 
           <!-- Room visibility setting -->
-          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2">
+          <div class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2" data-test="visibility-setting">
             <label id="visibility-label" class="flex items-center gap-2">
               <RoomSettingEnforcedIcon v-if="settings.room_type.visibility_enforced"/>
               {{ $t('rooms.settings.advanced.visibility.title') }}
@@ -531,6 +540,13 @@
                 aria-labelledby="visibility-label"
                 optionLabel="label"
                 optionValue="visibility"
+                :pt="{
+                  pcToggleButton: {
+                    root:{
+                      'data-test': 'room-settings-visibility-button'
+                    }
+                  }
+                }"
               />
             </div>
             <FormError :errors="formErrors.fieldError('visibility')"/>
@@ -543,6 +559,9 @@
             severity="warn"
             :pt="{
               text: 'w-full',
+              content:{
+                'data-test': 'room-unsaved-changes-message'
+              }
             }"
           >
             <div class="flex flex-col md:flex-row justify-between gap-4 items-center">
@@ -557,6 +576,7 @@
                 :loading="isBusy"
                 icon="fa-solid fa-save"
                 type="submit"
+                data-test="room-unsaved-changes-save-button"
               />
             </div>
 
@@ -586,6 +606,7 @@
         </div>
         <Button
           ref="saveButton"
+          data-test="room-settings-save-button"
           :disabled="disabled"
           :label="$t('app.save')"
           :loading="isBusy"

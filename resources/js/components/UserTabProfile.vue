@@ -4,7 +4,7 @@
     <AdminPanel :title="$t('admin.users.base_data')">
       <form @submit.prevent="save" class="flex flex-col gap-4">
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="firstname-field">
           <label for="firstname" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.firstname') }}</label>
           <div class="col-span-12 md:col-span-9">
             <InputText
@@ -20,7 +20,7 @@
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="lastname-field">
           <label for="lastname" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.lastname') }}</label>
           <div class="col-span-12 md:col-span-9">
             <InputText
@@ -36,7 +36,7 @@
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="authenticator-field">
           <label for="authenticator" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.authenticator') }}</label>
           <div class="col-span-12 md:col-span-9">
             <InputText
@@ -49,7 +49,7 @@
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4" v-if="model.authenticator !== 'local'">
+        <div class="field grid grid-cols-12 gap-4" v-if="model.authenticator !== 'local'" data-test="authenticator-id-field">
           <label for="authenticator_id" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.authenticator_id') }}</label>
           <div class="col-span-12 md:col-span-9">
             <InputText
@@ -63,7 +63,7 @@
         </div>
 
         <!-- Profile image-->
-        <div class="grid grid-cols-12 gap-4">
+        <div class="grid grid-cols-12 gap-4" data-test="profile-image-field">
           <label class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.image.title') }}</label>
           <div class="col-span-12 md:col-span-9">
             <UserProfileImageSelector
@@ -80,7 +80,7 @@
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="locale-field">
           <label for="user_locale" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.user_locale') }}</label>
           <div class="col-span-12 md:col-span-9">
             <LocaleSelect
@@ -94,7 +94,7 @@
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="timezone-field">
           <label for="timezone" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.timezone') }}</label>
           <div class="col-span-12 md:col-span-9">
             <timezone-select
@@ -119,6 +119,7 @@
             :loading="isBusy"
             icon="fa-solid fa-save"
             :label="$t('app.save')"
+            data-test="user-tab-profile-save-button"
           />
         </div>
       </form>
@@ -211,7 +212,6 @@ function save () {
   }
 
   formErrors.clear();
-
   api.call('users/' + model.value.id, {
     method: 'POST',
     data: formData

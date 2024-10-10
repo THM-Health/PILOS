@@ -11,6 +11,7 @@
           <template #footer>
             <Button
               class="mt-4"
+              data-test="home-button"
               as="router-link"
               :to="{ name: 'home'}"
               :label="$t('app.home')"

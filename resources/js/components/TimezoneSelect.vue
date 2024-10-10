@@ -1,6 +1,7 @@
 <template>
   <InputGroup class="w-full">
     <Select
+      data-test="timezone-dropdown"
       :aria-labelledby="props.ariaLabelledby"
       :options="timezones"
       :required="props.required"
@@ -9,6 +10,14 @@
       :disabled="props.disabled || loadingError"
       :placeholder="props.placeholder"
       :loading="loading"
+      :pt="{
+        listContainer: {
+          'data-test': 'timezone-dropdown-items'
+        },
+         option:{
+          'data-test': 'timezone-dropdown-option'
+         }
+      }"
     />
     <Button
       v-if="loadingError"
@@ -17,6 +26,7 @@
       severity="secondary"
       @click="loadTimezones()"
       icon="fa-solid fa-sync"
+      data-test="timezone-reload-button"
     />
   </InputGroup>
 </template>

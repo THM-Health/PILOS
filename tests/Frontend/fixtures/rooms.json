@@ -14,7 +14,7 @@
         "color": "#4a5c66"
       },
       "is_favorite": false,
-      "short_description": "Own room"
+      "short_description": "Room short description"
     },
     {
       "id": "def-abc-123",
@@ -24,7 +24,7 @@
         "name": "John Doe"
       },
       "last_meeting": {
-        "start": "2023-08-21 08:18:28:00",
+        "start": "2023-08-21T08:18:28.000000Z",
         "end": null
       },
       "type": {
@@ -32,7 +32,7 @@
         "name": "Meeting",
         "color": "#4a5c66"
       },
-      "is_favorite": false,
+      "is_favorite": true,
       "short_description": null
     },
     {
@@ -43,8 +43,8 @@
         "name": "John Doe"
       },
       "last_meeting": {
-        "start": "2023-08-21 08:18:28:00",
-        "end": "2023-08-21 08:20:28:00"
+        "start": "2023-08-21T08:18:28.000000Z",
+        "end": "2023-08-21T08:20:28.000000Z"
       },
       "type": {
         "id": 2,
@@ -60,7 +60,7 @@
     "from": 1,
     "last_page": 1,
     "per_page": 10,
-    "to": 5,
+    "to": 3,
     "total": 3,
     "total_no_filter": 3,
     "total_own": 1

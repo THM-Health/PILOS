@@ -2,7 +2,7 @@
   <div>
     <form @submit="changePassword" class="flex flex-col gap-4">
 
-      <div class="field grid grid-cols-12 gap-4" v-if="isOwnUser">
+      <div class="field grid grid-cols-12 gap-4" v-if="isOwnUser" data-test="security-tab-current-password-field">
         <label for="current_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.current_password') }}</label>
         <div class="col-span-12 md:col-span-9">
           <InputText
@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      <div class="field grid grid-cols-12 gap-4">
+      <div class="field grid grid-cols-12 gap-4" data-test="new-password-field">
         <label for="new_password" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.new_password') }}</label>
         <div class="col-span-12 md:col-span-9">
           <InputText
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="field grid grid-cols-12 gap-4">
+      <div class="field grid grid-cols-12 gap-4" data-test="new-password-confirmation-field">
         <label for="new_password_confirmation" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('auth.new_password_confirmation') }}</label>
         <div class="col-span-12 md:col-span-9">
           <InputText
@@ -56,6 +56,7 @@
           :loading="isBusy"
           :label="$t('auth.change_password')"
           icon="fa-solid fa-save"
+          data-test="change-password-save-button"
         />
       </div>
     </form>

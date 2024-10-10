@@ -1,6 +1,7 @@
 <template>
   <div>
     <Message
+      data-test="terms-of-use-message"
       severity="info"
       v-if="requireAgreement && files.length >0"
       :closable="false"
@@ -38,7 +39,7 @@
     <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
       <div class="flex justify-between flex-col lg:flex-row grow gap-2">
         <div>
-          <InputGroup>
+          <InputGroup data-test="room-files-search">
             <InputText
               v-model="search"
               :disabled="isBusy"
@@ -59,14 +60,46 @@
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              :disabled="isBusy"
+              v-model="filter"
+              :options="filterOptions"
+              @change="loadData(1)"
+              option-label="name"
+              option-value="value"
+              data-test="filter-dropdown"
+              :pt="{
+                listContainer: {
+                'data-test': 'filter-dropdown-items'
+              },
+              option:{
+                'data-test': 'filter-dropdown-option'
+              }
+              }"
+            />
           </InputGroup>
 
-          <InputGroup>
+          <InputGroup data-test="sorting-type-inputgroup">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              :disabled="isBusy"
+              v-model="sortField"
+              :options="sortFields"
+              @change="loadData(1)"
+              option-label="name"
+              option-value="value"
+              data-test="sorting-type-dropdown"
+              :pt="{
+                listContainer: {
+                'data-test': 'sorting-type-dropdown-items'
+                },
+                option:{
+                'data-test': 'sorting-type-dropdown-option'
+                }
+              }"
+            />
             <InputGroupAddon class="p-0">
               <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="rounded-l-none"  />
             </InputGroupAddon>
@@ -83,6 +116,7 @@
 
         <!-- Reload file list -->
         <Button
+          data-test="room-files-reload-button"
           class="shrink-0"
           v-tooltip="$t('app.reload')"
           severity="secondary"
@@ -112,6 +146,16 @@
         rowHover
         @page="onPage"
         class="mt-6"
+        :pt="{
+          pcPaginator: {
+            page: {
+              'data-test': 'paginator-page'
+            },
+            next: {
+              'data-test': 'paginator-next-button'
+            }
+          }
+        }"
       >
         <!-- Show message on empty list -->
         <template #empty>
@@ -126,7 +170,7 @@
         <template #list="slotProps">
           <div class="px-2">
             <div v-for="(item) in slotProps.items" :key="item.id">
-              <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
+              <div data-test="room-file-item" class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
                 <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0 text-word-break">{{ item.filename }}</p>
                   <div class="flex flex-col gap-2 items-start">
