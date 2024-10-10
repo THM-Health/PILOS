@@ -17,6 +17,8 @@ class RoomSettings extends Settings
 
     public TimePeriod $auto_delete_deadline_period;
 
+    public ?string $file_terms_of_use;
+
     public static function group(): string
     {
         return 'room';

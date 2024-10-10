@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Settings\BigBlueButtonSettings;
 use App\Settings\GeneralSettings;
+use App\Settings\RoomSettings;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -75,6 +76,7 @@ class SettingsTest extends TestCase
         $this->roomSettings->auto_delete_never_used_period = TimePeriod::TWO_WEEKS;
         $this->roomSettings->auto_delete_deadline_period = TimePeriod::ONE_MONTH;
         $this->roomSettings->token_expiration = TimePeriod::ONE_WEEK;
+        $this->roomSettings->file_terms_of_use = 'test';
         $this->roomSettings->save();
 
         $this->userSettings->password_change_allowed = true;
@@ -140,6 +142,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_never_used_period' => 14,
                     'room_auto_delete_deadline_period' => 30,
                     'room_token_expiration' => 7,
+                    'room_file_terms_of_use' => 'test',
 
                     'user_password_change_allowed' => true,
 
@@ -198,6 +201,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 14,
             'room_auto_delete_never_used_period' => 30,
             'room_auto_delete_deadline_period' => 7,
+            'room_file_terms_of_use' => 'test',
 
             'user_password_change_allowed' => 1,
 
@@ -256,6 +260,7 @@ class SettingsTest extends TestCase
                     'room_auto_delete_inactive_period' => 14,
                     'room_auto_delete_never_used_period' => 30,
                     'room_auto_delete_deadline_period' => 7,
+                    'room_file_terms_of_use' => 'test',
 
                     'user_password_change_allowed' => 1,
 
@@ -276,6 +281,7 @@ class SettingsTest extends TestCase
         $payload['general_help_url'] = '';
         $payload['general_legal_notice_url'] = '';
         $payload['general_privacy_policy_url'] = '';
+        $payload['room_file_terms_of_use'] = '';
 
         $this->putJson(route('api.v1.settings.update'), $payload)
             ->assertSuccessful();
@@ -283,6 +289,7 @@ class SettingsTest extends TestCase
         $this->assertNull(app(GeneralSettings::class)->help_url);
         $this->assertNull(app(GeneralSettings::class)->legal_notice_url);
         $this->assertNull(app(GeneralSettings::class)->privacy_policy_url);
+        $this->assertNull(app(RoomSettings::class)->file_terms_of_use);
     }
 
     /**
@@ -654,6 +661,7 @@ class SettingsTest extends TestCase
             'room_auto_delete_inactive_period' => 1000,
             'room_auto_delete_never_used_period' => 1000,
             'room_auto_delete_deadline_period' => 366,
+            'room_file_terms_of_use' => str_repeat('a', 65001),
 
             'user_password_change_allowed' => 1,
 
@@ -674,6 +682,7 @@ class SettingsTest extends TestCase
                 'room_auto_delete_inactive_period',
                 'room_auto_delete_never_used_period',
                 'room_auto_delete_deadline_period',
+                'room_file_terms_of_use',
                 'recording_server_usage_retention_period',
                 'recording_meeting_usage_retention_period',
                 'recording_attendance_retention_period',

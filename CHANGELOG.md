@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
 - Frontend tests for Login, Logout, Locales ([#1150], [#1457])
 - Frontend tests for Room Index page ([#1150], [#1457])
 - Frontend tests for Room page  ([#1150], [#1457])
@@ -167,6 +168,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1435]: https://github.com/THM-Health/PILOS/issues/1435
+[#1440]: https://github.com/THM-Health/PILOS/pull/1440
 [#1442]: https://github.com/THM-Health/PILOS/pull/1442
 [#1444]: https://github.com/THM-Health/PILOS/pull/1444
 [#1150]: https://github.com/THM-Health/PILOS/issues/1150
