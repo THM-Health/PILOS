@@ -25,7 +25,6 @@
               v-model="settings.room_type"
               :disabled="disabled"
               :invalid="formErrors.fieldInvalid('room_type')"
-              :room-id="room.id"
               :current-settings="settings"
               @room-type-changed="(resetToDefaults) => resetToRoomTypeSettings(resetToDefaults)"
             />

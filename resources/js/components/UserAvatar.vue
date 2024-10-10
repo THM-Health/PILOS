@@ -27,6 +27,7 @@ const props = defineProps({
 });
 
 const avatarLabel = computed(() => {
+  if (!props.firstname || !props.lastname) { return ''; }
   return props.firstname?.toUpperCase().charAt(0) + props.lastname?.toUpperCase().charAt(0);
 });
 

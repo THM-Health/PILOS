@@ -23,8 +23,9 @@
     <!--select new owner-->
     <!-- select user -->
     <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
-      <label for="user">{{ $t('app.user') }}</label>
+      <label id="user-label">{{ $t('app.user') }}</label>
       <multiselect
+        aria-labelledby="user-label"
         autofocus
         v-model="newOwner"
         :disabled="isLoadingAction"
@@ -71,34 +72,48 @@
 
     <!--select new role with which the current owner should be added as a member of the room -->
     <div class="flex flex-col gap-2 mt-6">
-      <label for="role">{{ $t('rooms.modals.transfer_ownership.new_role') }}</label>
+      <fieldset class="flex w-full flex-col gap-2">
+        <legend>{{ $t('rooms.modals.transfer_ownership.new_role') }}</legend>
 
-      <div class="flex items-center">
-        <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
-        <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
-      </div>
-
-      <div class="flex items-center">
-        <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
-        <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
-      </div>
-
-      <div class="flex items-center">
-        <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="co-owner-role" name="role" :value="3" />
-        <label for="participant-co-owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
-      </div>
-
-      <Divider />
-      <!--option to not add the current user as a member of the room-->
-      <div>
         <div class="flex items-center">
-          <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="no-role" name="role" :value="-1" />
-          <label for="participant-no-role" class="ml-2"><RoomRoleBadge /></label>
+          <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
+          <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
         </div>
-        <small>{{$t('rooms.modals.transfer_ownership.warning')}}</small>
-      </div>
 
-      <FormError :errors="formErrors.fieldError('role')" />
+        <div class="flex items-center">
+          <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
+          <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
+        </div>
+
+        <div class="flex items-center">
+          <RadioButton v-model="newRoleInRoom" :disabled="isLoadingAction" input-id="co-owner-role" name="role" :value="3" />
+          <label for="co-owner-role" class="ml-2"><RoomRoleBadge :role="3" /></label>
+        </div>
+
+        <Divider />
+        <!--option to not add the current user as a member of the room-->
+        <div>
+          <div class="flex items-center">
+            <RadioButton
+              v-model="newRoleInRoom"
+              :disabled="isLoadingAction"
+              input-id="no-role"
+
+              name="role"
+              :value="-1"
+              :pt="{
+                input: {
+                  'aria-describedby': 'no-role-warning'
+                }
+              }"
+            />
+            <label for="no-role" class="ml-2"><RoomRoleBadge /></label>
+          </div>
+          <small id="no-role-warning">{{$t('rooms.modals.transfer_ownership.warning')}}</small>
+        </div>
+
+        <FormError :errors="formErrors.fieldError('role')" />
+      </fieldset>
     </div>
 
     <template #footer>

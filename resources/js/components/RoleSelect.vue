@@ -1,7 +1,7 @@
 <template>
   <InputGroup>
     <multiselect
-      :id="id"
+      :aria-labelledby="ariaLabelledby"
       ref="rolesMultiselectRef"
       :placeholder="$t('admin.roles.select_roles')"
       :model-value="selectedRoles"
@@ -100,9 +100,8 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  id: {
-    type: String,
-    default: 'roles'
+  ariaLabelledby: {
+    type: String
   }
 });
 

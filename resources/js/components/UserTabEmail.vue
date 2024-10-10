@@ -8,6 +8,7 @@
             <InputText
               id="current_password"
               v-model="currentPassword"
+              autocomplete="current-password"
               type="password"
               required
               :disabled="isBusy"
@@ -24,6 +25,7 @@
             <InputText
               id="email"
               v-model="email"
+              autocomplete="off"
               type="email"
               required
               :disabled="isBusy || viewOnly || !userPermissions.can('updateAttributes', user)"

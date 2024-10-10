@@ -85,7 +85,7 @@ defineProps({
     type: Boolean
   },
   fileError: {
-    type: String
+    type: Object
   },
   disabled: {
     type: Boolean

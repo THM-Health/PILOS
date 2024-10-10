@@ -49,7 +49,7 @@ class FormError {
    *    that contains a list of the messages for the passed field.
    */
   fieldError (field, wildcard = false) {
-    if (!this.fieldInvalid(field, wildcard)) { return ''; }
+    if (!this.fieldInvalid(field, wildcard)) { return {}; }
 
     let errors = this.errors[field];
 

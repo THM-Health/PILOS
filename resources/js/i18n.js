@@ -59,6 +59,8 @@ export async function setLocale (i18n, locale) {
 const i18n = createI18n({
   legacy: false,
   globalInjection: true,
+  missingWarn: false,
+  fallbackWarn: false,
   messageCompiler
 });
 export default i18n;

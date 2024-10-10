@@ -81,10 +81,10 @@
         </div>
 
         <div class="field grid grid-cols-12 gap-4">
-          <label for="user_locale" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.user_locale') }}</label>
+          <label id="locale-label" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.user_locale') }}</label>
           <div class="col-span-12 md:col-span-9">
             <LocaleSelect
-              id="user_locale"
+              aria-labelledby="locale-label"
               v-model="model.user_locale"
               required
               :invalid="formErrors.fieldInvalid('user_locale')"
@@ -95,10 +95,10 @@
         </div>
 
         <div class="field grid grid-cols-12 gap-4">
-          <label for="timezone" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.timezone') }}</label>
+          <label id="timezone-label" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('admin.users.timezone') }}</label>
           <div class="col-span-12 md:col-span-9">
             <timezone-select
-              id="timezone"
+              aria-labelledby="timezone-label"
               v-model="model.timezone"
               required
               :invalid="formErrors.fieldInvalid('timezone')"

@@ -69,10 +69,11 @@
           </div>
         </div>
         <div class="field grid grid-cols-12 gap-4">
-          <label for="servers" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.servers') }}</label>
+          <label id="servers-label" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.servers') }}</label>
           <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <multiselect
+                aria-labelledby="servers-label"
                 id="servers"
                 ref="serversMultiselectRef"
                 v-model="model.servers"

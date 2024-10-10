@@ -62,7 +62,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['added']);
+const emit = defineEmits(['deleted']);
 
 const api = useApi();
 
