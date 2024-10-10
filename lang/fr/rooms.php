@@ -120,7 +120,6 @@ return [
         ],
         'terms_of_use' => [
             'accept' => 'J\'accepte les conditions d\'utilisation',
-            'content' => 'Les fichiers qui peuvent être téléchargés ici sont uniquement destinés à une étude personnelle. Les fichiers, ou des parties de ceux-ci, ne peuvent être partagés ou distribués.',
             'title' => 'Conditions d\'utilisation',
         ],
         'title' => 'Fichiers',
