@@ -327,6 +327,7 @@ return [
             'title' => 'Name of the application',
         ],
         'never' => 'Never',
+        'no_welcome_page' => 'Hide welcome page',
         'one_day' => '1 Day (24 Hours)',
         'one_month' => '1 Month (30 Days)',
         'one_week' => '1 Week (7 Day)',
