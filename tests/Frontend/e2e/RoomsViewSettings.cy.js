@@ -1691,25 +1691,49 @@ describe('Rooms view settings', function () {
     cy.get('[data-test="room-transfer-ownership-button"]').click();
 
     cy.get('[data-test=room-transfer-ownership-dialog]')
-      .should('be.visible').within(() => {
+      .should('be.visible')
+      .within(() => {
+        cy.get('.multiselect__content').should('not.be.visible');
+
+        // Start typing and respond with too many results
         cy.intercept('GET', '/api/v1/users/search?query=*', {
-          statusCode: 200,
-          body: {
-            data: [
-              { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', image: null },
-              { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', image: null }
-            ]
-          }
+          statusCode: 204
         }).as('userSearchRequest');
+
         // Check that dialog is shown correctly
         cy.get('[data-test="new-owner-dropdown"]').should('include.text', 'app.user_name').click();
-        cy.get('[data-test="new-owner-dropdown"]').find('input').type('Laura');
+
+        cy.get('[data-test="new-owner-dropdown"]').find('input').type('L');
 
         cy.wait('@userSearchRequest').then(interception => {
           expect(interception.request.query).to.contain({
             query: 'L'
           });
         });
+
+        // Check if correct options are shown
+        cy.get('.multiselect__content').should('be.visible');
+        cy.get('.multiselect__option').should('have.length', 2);
+        cy.get('.multiselect__option').eq(0)
+          .should('include.text', 'rooms.members.modals.add.too_many_results')
+          .and('be.visible');
+        cy.get('.multiselect__option').eq(1)
+          .should('include.text', 'rooms.members.modals.add.no_options')
+          .and('not.be.visible');
+
+        cy.intercept('GET', '/api/v1/users/search?query=*', {
+          statusCode: 200,
+          body: {
+            data: [
+              { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', image: null },
+              { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', image: null },
+              { id: 1, firstname: 'John', lastname: 'Doe', email: 'JohnDoe@domain.tld', image: null }
+            ]
+          }
+        }).as('userSearchRequest');
+
+        cy.get('[data-test="new-owner-dropdown"]').find('input').type('aura');
+
         cy.wait('@userSearchRequest').then(interception => {
           expect(interception.request.query).to.contain({
             query: 'La'
@@ -1734,7 +1758,7 @@ describe('Rooms view settings', function () {
 
         // Check if correct options are shown
         cy.get('.multiselect__content').should('be.visible');
-        cy.get('.multiselect__option').should('have.length', 4);
+        cy.get('.multiselect__option').should('have.length', 5);
         cy.get('.multiselect__option')
           .eq(0)
           .should('include.text', 'Laura Rivera')
@@ -1745,9 +1769,14 @@ describe('Rooms view settings', function () {
           .and('include.text', 'LauraMWalter@domain.tld')
           .and('be.visible');
         cy.get('.multiselect__option').eq(2)
+          .should('include.text', 'John Doe')
+          .and('include.text', 'JohnDoe@domain.tld')
+          .and('be.visible')
+          .and('have.class', 'multiselect__option--disabled');
+        cy.get('.multiselect__option').eq(3)
           .should('include.text', 'rooms.members.modals.add.no_result')
           .and('not.be.visible');
-        cy.get('.multiselect__option').eq(3)
+        cy.get('.multiselect__option').eq(4)
           .should('include.text', 'rooms.members.modals.add.no_options')
           .and('not.be.visible');
 
@@ -1850,7 +1879,7 @@ describe('Rooms view settings', function () {
     cy.wait('@userSearchRequest');
 
     cy.get('.multiselect__content').should('be.visible');
-    cy.get('.multiselect__option').should('have.length', 4);
+    cy.get('.multiselect__option').should('have.length', 5);
     cy.get('.multiselect__option')
       .eq(0)
       .should('include.text', 'Laura Rivera')
@@ -1861,9 +1890,14 @@ describe('Rooms view settings', function () {
       .and('include.text', 'LauraMWalter@domain.tld')
       .and('be.visible');
     cy.get('.multiselect__option').eq(2)
+      .should('include.text', 'John Doe')
+      .and('include.text', 'JohnDoe@domain.tld')
+      .and('be.visible')
+      .and('have.class', 'multiselect__option--disabled');
+    cy.get('.multiselect__option').eq(3)
       .should('include.text', 'rooms.members.modals.add.no_result')
       .and('not.be.visible');
-    cy.get('.multiselect__option').eq(3)
+    cy.get('.multiselect__option').eq(4)
       .should('include.text', 'rooms.members.modals.add.no_options')
       .and('not.be.visible');
 
