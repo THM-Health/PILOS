@@ -207,7 +207,7 @@ describe('Rooms view description', function () {
     cy.get('[data-test="tip-tap-editor"]').should('not.exist');
     cy.get('[data-test="room-description-edit-button"]').should('be.visible');
 
-    // Check with different description with different options //ToDo think about  moving to RoomsViewDescriptionTipTapEditor tests
+    // Check with different description with different options
     cy.get('[data-test="room-description-edit-button"]').click();
 
     cy.get('[data-test="tip-tap-editor"]').should('be.visible');
