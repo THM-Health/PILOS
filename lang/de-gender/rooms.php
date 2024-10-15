@@ -120,7 +120,6 @@ return [
         ],
         'terms_of_use' => [
             'accept' => 'Ich akzeptiere die Nutzungsbedingungen',
-            'content' => 'Dateien, welche hier zum Download angeboten werden, sind ausschließlich für das persönliche Studium. Die Dateien, oder Inhalte aus diesen, dürfen nicht geteilt oder weiterverbreitet werden.',
             'title' => 'Nutzungsbedingungen',
         ],
         'title' => 'Dateien',
