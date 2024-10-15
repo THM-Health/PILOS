@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frontend tests for Room Members Tab  ([#1150], [#722],[#1457])
 - Frontend tests for Room Settings Tab  ([#1150], [#721], [#1457])
 - Frontend tests for Room Files Tab ([#1150], [#1457])
+- Frontend tests for Room Description Tab ([#1150], [#1457])
 - Frontend tests for User Profile ([#1150], [#1457])
 
 ### Fixed

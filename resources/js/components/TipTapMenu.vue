@@ -4,6 +4,7 @@
       <template #start>
         <!-- Text type -->
         <TipTapMenuDropdownButton
+          data-test="tip-tap-text-type-dropdown"
           severity="secondary"
         >
           <template v-slot:button-content>
@@ -41,6 +42,7 @@
           text
           @click="props.editor.chain().focus().toggleBold().run()"
           icon="fa-solid fa-bold"
+          data-test="tip-tap-bold-button"
         />
         <Button
           v-tooltip="$t('rooms.description.tooltips.italic')"

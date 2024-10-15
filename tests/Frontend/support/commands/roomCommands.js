@@ -241,12 +241,17 @@ Cypress.Commands.add('checkRoomAuthErrorsLoadingTab', (requestMethod, requestUrl
  * @param  {string} roomTabName
  * @returns void
  */
+// ToDo add possibility to load with correct data and then trigger error
+// ToDo add possibility to change room data (maybe get room data/additional room data as parameter)
 Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMethod, requestUrl, roomTabName) => {
   cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequestCheckRoomAuthErrors');
 
   // Check with 401 errors and room that has no access code
   cy.fixture('room.json').then((room) => {
     room.data.current_user = null;
+    if (roomTabName === 'description') {
+      room.data.description = '<p>Room description</p>';
+    }
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 200,
@@ -266,13 +271,18 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   cy.wait('@roomRequestCheckRoomAuthErrors');
 
   switch (roomTabName) {
+    case 'description':
+      // Check that tab stayed the same
+      cy.url().should('not.include', '/rooms/abc-def-123#tab=files');
+      cy.contains('rooms.description.title');
+      break;
     case 'files':
       // Check reload of files and check that tab stayed the same
       cy.wait('@roomFilesRequestCheckRoomAuthErrors');
       cy.url().should('include', '/rooms/abc-def-123#tab=files');
       break;
     case 'recordings':
-      // Check that tab stayed the same
+      // Check that tab stayed the same (ToDo check that recordings are reload)
       cy.url().should('include', '/rooms/abc-def-123#tab=recordings');
       break;
     default:
@@ -287,7 +297,16 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   cy.contains('auth.login').should('be.visible');
 
   // Reload with logged in user
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestCheckRoomAuthErrors');
+  cy.fixture('room.json').then((room) => {
+    if (roomTabName === 'description') {
+      room.data.description = '<p>Room description</p>';
+    }
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 200,
+      body: room
+    }).as('roomRequestCheckRoomAuthErrors');
+  });
 
   cy.visit('/rooms/abc-def-123#tab=' + roomTabName);
   cy.reload();
@@ -297,6 +316,9 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   cy.fixture('room.json').then((room) => {
     room.data.current_user = null;
     room.data.authenticated = false;
+    if (roomTabName === 'description') {
+      room.data.description = '<p>Room description</p>';
+    }
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 200,
@@ -319,7 +341,16 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   cy.contains('auth.login').should('be.visible');
 
   // Reload with logged in user
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestCheckRoomAuthErrors');
+  cy.fixture('room.json').then((room) => {
+    if (roomTabName === 'description') {
+      room.data.description = '<p>Room description</p>';
+    }
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 200,
+      body: room
+    }).as('roomRequestCheckRoomAuthErrors');
+  });
 
   cy.reload();
   cy.wait('@roomRequestCheckRoomAuthErrors');
@@ -345,7 +376,16 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   cy.contains('auth.login').should('be.visible');
 
   // Reload with logged in user
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequestCheckRoomAuthErrors');
+  cy.fixture('room.json').then((room) => {
+    if (roomTabName === 'description') {
+      room.data.description = '<p>Room description</p>';
+    }
+
+    cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
+      statusCode: 200,
+      body: room
+    }).as('roomRequestCheckRoomAuthErrors');
+  });
 
   cy.reload();
 
@@ -355,6 +395,9 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   cy.fixture('room.json').then((room) => {
     room.data.owner = { id: 2, name: 'Max Doe' };
     room.data.is_member = true;
+    if (roomTabName === 'description') {
+      room.data.description = '<p>Room description</p>';
+    }
 
     cy.intercept('GET', 'api/v1/rooms/abc-def-123', {
       statusCode: 200,
@@ -377,13 +420,18 @@ Cypress.Commands.add('checkRoomAuthErrors', (triggerRequestActions, requestMetho
   cy.wait('@roomRequestCheckRoomAuthErrors');
 
   switch (roomTabName) {
+    case 'description':
+      // Check that tab stayed the same
+      cy.url().should('not.include', '/rooms/abc-def-123#tab=files');
+      cy.contains('rooms.description.title');
+      break;
     case 'files':
       // Check reload of files and check that tab stayed the same
       cy.wait('@roomFilesRequestCheckRoomAuthErrors');
       cy.url().should('include', '/rooms/abc-def-123#tab=files');
       break;
     case 'recordings':
-      // Check that tab stayed the same
+      // Check that tab stayed the same (ToDo check that recordings are reload)
       cy.url().should('include', '/rooms/abc-def-123#tab=recordings');
       break;
     default:
