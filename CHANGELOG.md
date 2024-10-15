@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Loading overlay not covering whole page during scrolling ([#1442])
 - Inconsistent error handling in dialogs ([#1444])
+- Missing "user not found" error message after the "too many results" error in room transfer ([#1477])
 
 ## [v4.0.0] - 2024-09-26
 ### Added
@@ -178,6 +179,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1444]: https://github.com/THM-Health/PILOS/pull/1444
 [#1150]: https://github.com/THM-Health/PILOS/issues/1150
 [#1457]: https://github.com/THM-Health/PILOS/pull/1457
+[#1477]: https://github.com/THM-Health/PILOS/pull/1477
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
