@@ -129,6 +129,7 @@ class SettingsController extends Controller
         $generalSettings->legal_notice_url = $request->input('general_legal_notice_url');
         $generalSettings->privacy_policy_url = $request->input('general_privacy_policy_url');
         $generalSettings->toast_lifetime = $request->integer('general_toast_lifetime');
+        $generalSettings->no_welcome_page = $request->boolean('general_no_welcome_page');
 
         $themeSettings->logo = $logo;
         $themeSettings->favicon = $favicon;

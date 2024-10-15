@@ -38,7 +38,12 @@ export const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+    beforeEnter: (to, from, next) => {
+      if (useSettingsStore().getSetting('general.no_welcome_page')) {
+        next({ name: 'rooms.index' });
+      } else { next(); }
+    }
   },
   {
     path: '/profile',
