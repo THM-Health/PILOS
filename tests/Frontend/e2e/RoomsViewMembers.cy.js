@@ -408,6 +408,73 @@ describe('Rooms view members', function () {
     cy.checkRoomAuthErrorsLoadingTab('GET', 'api/v1/rooms/abc-def-123/member*', 'members');
   });
 
+  it('load members page out of range', function () {
+    cy.fixture('roomMembers.json').then(roomMembers => {
+      roomMembers.data = roomMembers.data.slice(0, 1);
+      roomMembers.data[0].role = 3;
+      roomMembers.meta.last_page = 2;
+      roomMembers.meta.per_page = 1;
+      roomMembers.meta.to = 1;
+      roomMembers.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+        statusCode: 200,
+        body: roomMembers
+      }).as('roomMembersRequest');
+    });
+
+    cy.visit('/rooms/abc-def-123#tab=members');
+
+    cy.wait('@roomMembersRequest');
+
+    // Switch to next page but respond with no room members on second page
+    cy.fixture('roomMembers.json').then(roomMembers => {
+      roomMembers.data = [];
+      roomMembers.meta.current_page = 2;
+      roomMembers.meta.from = null;
+      roomMembers.meta.per_page = 2;
+      roomMembers.meta.to = null;
+      roomMembers.meta.total = 2;
+      roomMembers.meta.total_no_filter = 2;
+
+      const emptyRoomMembersRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/member*', {
+        statusCode: 200,
+        body: roomMembers
+      }, 'roomMembersRequest');
+
+      cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+      cy.fixture('roomMembers.json').then(roomMembers => {
+        roomMembers.data = roomMembers.data.slice(0, 2);
+        roomMembers.meta.per_page = 2;
+        roomMembers.meta.to = 2;
+        roomMembers.meta.total = 2;
+        roomMembers.meta.total_no_filter = 2;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', {
+          statusCode: 200,
+          body: roomMembers
+        }).as('roomMembersRequest').then(() => {
+          emptyRoomMembersRequest.sendResponse();
+        });
+      });
+    });
+
+    // Wait for first room request and check that page is still the same
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '2'
+      });
+    });
+
+    // Wait for second room request and check that page is reset
+    cy.wait('@roomMembersRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+  });
+
   it('add new member', function () {
     cy.visit('/rooms/abc-def-123#tab=members');
 
@@ -426,6 +493,34 @@ describe('Rooms view members', function () {
 
     cy.get('[data-test="room-members-add-single-dialog"]').should('be.visible');
 
+    // Start typing and respond with too many results
+    cy.intercept('GET', '/api/v1/users/search?query=*', {
+      statusCode: 204
+    }).as('userSearchRequest');
+
+    cy.get('.multiselect__content').should('not.be.visible');
+
+    cy.get('[data-test="select-user-dropdown"]').should('include.text', 'rooms.members.modals.add.placeholder').click();
+
+    cy.get('[data-test="select-user-dropdown"]').find('input').type('L');
+
+    cy.wait('@userSearchRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        query: 'L'
+      });
+    });
+
+    // Check if correct options are shown
+    cy.get('.multiselect__content').should('be.visible');
+    cy.get('.multiselect__option').should('have.length', 2);
+    cy.get('.multiselect__option').eq(0)
+      .should('include.text', 'rooms.members.modals.add.too_many_results')
+      .and('be.visible');
+    cy.get('.multiselect__option').eq(1)
+      .should('include.text', 'rooms.members.modals.add.no_options')
+      .and('not.be.visible');
+
+    // Continue typing and respond with results
     cy.intercept('GET', '/api/v1/users/search?query=*', {
       statusCode: 200,
       body: {
@@ -436,17 +531,8 @@ describe('Rooms view members', function () {
       }
     }).as('userSearchRequest');
 
-    cy.get('.multiselect__content').should('not.be.visible');
+    cy.get('[data-test="select-user-dropdown"]').find('input').type('aura');
 
-    cy.get('[data-test="select-user-dropdown"]').should('include.text', 'rooms.members.modals.add.placeholder').click();
-
-    cy.get('[data-test="select-user-dropdown"]').find('input').type('Laura');
-
-    cy.wait('@userSearchRequest').then(interception => {
-      expect(interception.request.query).to.contain({
-        query: 'L'
-      });
-    });
     cy.wait('@userSearchRequest').then(interception => {
       expect(interception.request.query).to.contain({
         query: 'La'
@@ -826,10 +912,29 @@ describe('Rooms view members', function () {
       'app.flash.server_error.error_code_{"statusCode":410}'
     ]);
 
-    // Check with 500 error
+    // Check with 422 error
     cy.get('[data-test="room-member-item"]').eq(0).find('[data-test="room-members-edit-button"]').click();
     cy.get('[data-test="room-members-edit-dialog"]').should('be.visible');
 
+    cy.intercept('PUT', '/api/v1/rooms/abc-def-123/member/6', {
+      statusCode: 422,
+      body: {
+        errors: {
+          role: ['The selected role is invalid.']
+        }
+      }
+    }).as('editUserRequest');
+
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait('@editUserRequest');
+
+    // Check that dialog is still open and that error message gets shown
+    cy.get('[data-test="room-members-edit-dialog"]')
+      .should('be.visible')
+      .and('include.text', 'The selected role is invalid.');
+
+    // Check with 500 error
     cy.intercept('PUT', '/api/v1/rooms/abc-def-123/member/6', {
       statusCode: 500,
       body: {

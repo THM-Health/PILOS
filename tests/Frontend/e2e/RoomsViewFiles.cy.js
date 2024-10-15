@@ -472,6 +472,73 @@ describe('Rooms View Files', function () {
     cy.get('[data-test="paginator-page"]').eq(0).should('have.attr', 'data-p-active', 'true');
   });
 
+  it('load files page out of range', function () {
+    cy.fixture('roomFiles.json').then(roomFiles => {
+      roomFiles.data = roomFiles.data.slice(0, 1);
+      roomFiles.data[0].role = 3;
+      roomFiles.meta.last_page = 2;
+      roomFiles.meta.per_page = 1;
+      roomFiles.meta.to = 1;
+      roomFiles.meta.total = 2;
+
+      cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }).as('roomFilesRequest');
+    });
+
+    cy.visit('/rooms/abc-def-123#tab=files');
+
+    cy.wait('@roomFilesRequest');
+
+    // Switch to next page but respond with no room members on second page
+    cy.fixture('roomFiles.json').then(roomFiles => {
+      roomFiles.data = [];
+      roomFiles.meta.current_page = 2;
+      roomFiles.meta.from = null;
+      roomFiles.meta.per_page = 2;
+      roomFiles.meta.to = null;
+      roomFiles.meta.total = 2;
+      roomFiles.meta.total_no_filter = 2;
+
+      const emptyRoomFilesRequest = interceptIndefinitely('GET', 'api/v1/rooms/abc-def-123/files*', {
+        statusCode: 200,
+        body: roomFiles
+      }, 'roomFilesRequest');
+
+      cy.get('[data-test="paginator-next-button"]').eq(1).click();
+
+      cy.fixture('roomFiles.json').then(roomFiles => {
+        roomFiles.data = roomFiles.data.slice(0, 2);
+        roomFiles.meta.per_page = 2;
+        roomFiles.meta.to = 2;
+        roomFiles.meta.total = 2;
+        roomFiles.meta.total_no_filter = 2;
+
+        cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', {
+          statusCode: 200,
+          body: roomFiles
+        }).as('roomFilesRequest').then(() => {
+          emptyRoomFilesRequest.sendResponse();
+        });
+      });
+    });
+
+    // Wait for first room request and check that page is still the same
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '2'
+      });
+    });
+
+    // Wait for second room request and check that page is reset
+    cy.wait('@roomFilesRequest').then(interception => {
+      expect(interception.request.query).to.contain({
+        page: '1'
+      });
+    });
+  });
+
   it('view with different permissions', function () {
     // Check view for guest without terms of use
     cy.intercept('GET', 'api/v1/currentUser', {});

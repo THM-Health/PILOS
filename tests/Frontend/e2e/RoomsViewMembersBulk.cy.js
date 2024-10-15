@@ -16,20 +16,23 @@ describe('Rooms view members bulk', function () {
     cy.get('[data-test="room-members-bulk-edit-button"]').should('not.exist');
     cy.get('[data-test="room-members-bulk-edit-dialog"]').should('not.exist');
 
-    // Check that no user is selected and select first user
+    // Check that no user is selected and select first and second user
     cy.get('[data-test="room-member-item').should('have.length', 3);
     cy.get('[data-test="room-member-item"]').eq(0).find('input').should('not.be.checked').click();
-    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('not.be.checked');
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('not.be.checked').click();
     cy.get('[data-test="room-member-item"]').eq(2).find('input').should('not.be.checked');
 
     cy.get('[data-test="room-member-item"]').eq(0).find('input').should('be.checked');
-    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('not.be.checked');
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').should('be.checked');
     cy.get('[data-test="room-member-item"]').eq(2).find('input').should('not.be.checked');
 
     // Check that correct roles are shown
     cy.get('[data-test="room-member-item"]').eq(0).should('include.text', 'rooms.roles.participant');
     cy.get('[data-test="room-member-item"]').eq(1).should('include.text', 'rooms.roles.moderator');
     cy.get('[data-test="room-member-item"]').eq(2).should('include.text', 'rooms.roles.co_owner');
+
+    // Unselect second user again
+    cy.get('[data-test="room-member-item"]').eq(1).find('input').click();
 
     // Check that edit button is shown and open bulk edit dialog
     cy.get('[data-test="room-members-bulk-edit-dialog"]').should('not.exist');

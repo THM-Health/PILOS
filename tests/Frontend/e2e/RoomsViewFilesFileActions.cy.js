@@ -503,10 +503,35 @@ describe('Rooms view files file actions', function () {
     // Check that error message is shown
     cy.checkToastMessage('rooms.flash.file_gone');
 
-    // Check with 500 error
+    // Check with 422 error
     cy.get('[data-test="room-file-item"]').eq(1).find('[data-test="room-files-edit-button"]').click();
     cy.get('[data-test="room-files-edit-dialog"]').should('be.visible');
 
+    cy.intercept('PUT', '/api/v1/rooms/abc-def-123/files/2', {
+      statusCode: 422,
+      body: {
+        errors: {
+          download: ['The Downloadable field is required.'],
+          use_in_meeting: ['The Use in the next meeting field is required.'],
+          default: ['The Default field is required.']
+        }
+      }
+    }).as('editFileRequest');
+
+    cy.get('[data-test="room-files-edit-dialog"]')
+      .find('[data-test="dialog-save-button"]')
+      .click();
+
+    cy.wait('@editFileRequest');
+
+    // Check that dialog stayed open and error message is shown
+    cy.get('[data-test="room-files-edit-dialog"]')
+      .should('be.visible')
+      .and('include.text', 'The Downloadable field is required.')
+      .and('include.text', 'The Use in the next meeting field is required.')
+      .and('include.text', 'The Default field is required.');
+
+    // Check with 500 error
     cy.intercept('PUT', '/api/v1/rooms/abc-def-123/files/2', {
       statusCode: 500,
       body: {
@@ -566,7 +591,7 @@ describe('Rooms view files file actions', function () {
 
     cy.get('@fileDownload')
       .should('be.calledOnce')
-      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b', '_blank');
 
     // Reload as guest and with terms of use
     cy.fixture('config.json').then((config) => {
@@ -614,7 +639,7 @@ describe('Rooms view files file actions', function () {
 
     cy.get('@secondFileDownload')
       .should('be.calledOnce')
-      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b', '_blank');
 
     cy.get('[data-test="terms-of-use-required-info"]').should('not.exist');
   });
@@ -672,7 +697,7 @@ describe('Rooms view files file actions', function () {
     });
     cy.get('@fileDownload')
       .should('be.calledOnce')
-      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b', '_blank');
   });
 
   it('download file with access code errors', function () {
@@ -835,7 +860,7 @@ describe('Rooms view files file actions', function () {
 
     cy.get('@fileDownload')
       .should('be.calledOnce')
-      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b', '_blank');
   });
 
   it('download file with token errors', function () {
@@ -906,7 +931,7 @@ describe('Rooms view files file actions', function () {
 
     cy.get('@fileDownload')
       .should('be.calledOnce')
-      .and('be.calledWith', 'https://example.org/?foo=a&bar=b');
+      .and('be.calledWith', 'https://example.org/?foo=a&bar=b', '_blank');
 
     // Check toast message is shown (browser is blocking download)
     cy.checkToastMessage('app.flash.popup_blocked');
