@@ -4,6 +4,9 @@ namespace App\Faker;
 
 use Faker\Provider\Base;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TextProvider extends Base
 {
     /**
