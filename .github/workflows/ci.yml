@@ -188,7 +188,7 @@ jobs:
           cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/pilos-image.tar
           build-args: |
-            VITE_COVERAGE="true"
+            VITE_COVERAGE=true
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
