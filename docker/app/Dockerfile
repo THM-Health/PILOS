@@ -91,7 +91,7 @@ RUN if [ "$VITE_COVERAGE" != "true" ] ; then \
   else \
     echo "Build frontend for coverage (instrumented and with sourcemap)" && \
     su-exec www-data npm install && \
-    su-exec www-data npm run coverage -- --config vite.config.overage.js; \
+    su-exec www-data npm run build -- --config vite.config.overage.js; \
   fi
 
 # Run and optimize composer for production
