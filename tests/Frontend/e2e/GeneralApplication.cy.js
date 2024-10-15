@@ -111,23 +111,15 @@ describe('General', function () {
   });
 
   it('disabled welcome page redirect unauthenticated users to login', function () {
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {}
-    });
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        theme: {
-          primary_color: '#14b8a6',
-          rounded: true
-        },
-        general: {
-          toast_lifetime: 0,
-          no_welcome_page: true
-        },
-        auth: {
-          local: true
-        }
-      }
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.fixture('config.json').then((config) => {
+      config.data.general.no_welcome_page = true;
+      config.data.auth.local = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Visit the root page
@@ -140,17 +132,13 @@ describe('General', function () {
   });
 
   it('disabled welcome page redirect authenticated users to rooms overview', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        theme: {
-          primary_color: '#14b8a6',
-          rounded: true
-        },
-        general: {
-          toast_lifetime: 0,
-          no_welcome_page: true
-        }
-      }
+    cy.fixture('config.json').then((config) => {
+      config.data.general.no_welcome_page = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Visit the root page
@@ -161,19 +149,6 @@ describe('General', function () {
   });
 
   it('welcome page shown', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        theme: {
-          primary_color: '#14b8a6',
-          rounded: true
-        },
-        general: {
-          toast_lifetime: 0,
-          no_welcome_page: false
-        }
-      }
-    });
-
     // Visit the root page
     cy.visit('/');
 

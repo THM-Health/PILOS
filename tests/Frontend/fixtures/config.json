@@ -3,6 +3,7 @@
     "general": {
       "name": "PILOS Test",
       "toast_lifetime": 0,
+      "no_welcome_page": false,
       "enabled_locales" : {
         "de": "Deutsch",
         "en": "English",
