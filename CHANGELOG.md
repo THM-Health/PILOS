@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Admin option to disable welcome page ([#1420], [#1441])
+- Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
+
+### Fixed
+- Loading overlay not covering whole page during scrolling ([#1442])
+- Inconsistent error handling in dialogs ([#1444])
 
 ## [v4.0.0] - 2024-09-26
 ### Added
@@ -156,7 +161,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
 [#1420]: https://github.com/THM-Health/PILOS/issues/1420
+[#1435]: https://github.com/THM-Health/PILOS/issues/1435
+[#1440]: https://github.com/THM-Health/PILOS/pull/1440
 [#1441]: https://github.com/THM-Health/PILOS/pull/1441
+[#1442]: https://github.com/THM-Health/PILOS/pull/1442
+[#1444]: https://github.com/THM-Health/PILOS/pull/1444
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

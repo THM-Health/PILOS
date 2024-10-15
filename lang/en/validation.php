@@ -120,6 +120,7 @@ return [
         'room_auto_delete_deadline_period' => 'Deadline for deletion',
         'room_auto_delete_inactive_period' => 'Period until inactive rooms are deleted',
         'room_auto_delete_never_used_period' => 'Period until never used rooms are deleted',
+        'room_file_terms_of_use' => 'Terms of use for file download',
         'room_limit' => 'Room limit',
         'room_token_expiration' => 'Expiration time for personalized room links',
         'room_type' => 'Room type',

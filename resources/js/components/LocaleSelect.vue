@@ -1,7 +1,7 @@
 <template>
   <div>
   <Select
-    :inputId="props.id"
+    :input-id="props.id"
     :options="locales"
     optionLabel="text"
     optionValue="value"

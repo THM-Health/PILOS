@@ -35,6 +35,7 @@
         autofocus
         id="firstname"
         v-model.trim="newFirstname"
+        :disabled="isLoadingAction"
         :invalid="formErrors.fieldInvalid('firstname')"
       />
       <FormError :errors="formErrors.fieldError('firstname')" />
@@ -46,6 +47,7 @@
       <InputText
         id="lastname"
         v-model.trim="newLastname"
+        :disabled="isLoadingAction"
         :invalid="formErrors.fieldInvalid('lastname')"
       />
       <FormError :errors="formErrors.fieldError('lastname')" />
@@ -56,12 +58,12 @@
       <label for="role">{{ $t('rooms.role') }}</label>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-role" name="role" :value="1" />
+        <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
         <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
       </div>
 
       <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-moderator" name="role" :value="2" />
+        <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="participant-moderator" name="role" :value="2" />
         <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
       </div>
 

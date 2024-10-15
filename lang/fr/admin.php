@@ -249,7 +249,6 @@ return [
         'attendance' => [
             'retention_period_title' => 'Nombre de jours de conservation de la journalisation des présences',
         ],
-        'attendance_and_statistics_title' => 'Fréquentation et statistiques',
         'banner' => [
             'background' => 'Couleur de fond de la bannière',
             'banner_title' => 'Titre',
@@ -344,6 +343,7 @@ return [
         'recording' => [
             'retention_period_title' => 'Nombre de jours de conservation des enregistrements',
         ],
+        'recording_and_statistics_title' => 'Enregistrement et statistiques',
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Délai entre l\'envoi de l\'email d\'information et la suppression',

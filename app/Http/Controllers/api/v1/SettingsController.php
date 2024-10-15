@@ -143,6 +143,7 @@ class SettingsController extends Controller
         $roomSettings->auto_delete_inactive_period = $request->enum('room_auto_delete_inactive_period', TimePeriod::class);
         $roomSettings->auto_delete_never_used_period = $request->enum('room_auto_delete_never_used_period', TimePeriod::class);
         $roomSettings->auto_delete_deadline_period = $request->enum('room_auto_delete_deadline_period', TimePeriod::class);
+        $roomSettings->file_terms_of_use = $request->input('room_file_terms_of_use');
 
         $userSettings->password_change_allowed = $request->boolean('user_password_change_allowed');
 

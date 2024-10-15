@@ -107,6 +107,7 @@ class ApplicationTest extends TestCase
                         'rounded' => true,
                     ],
                     'room' => [
+                        'file_terms_of_use' => null,
                         'limit' => -1,
                         'token_expiration' => -1,
                         'refresh_rate' => 20,
@@ -155,6 +156,7 @@ class ApplicationTest extends TestCase
         $this->bannerSettings->save();
 
         $this->roomSettings->token_expiration = TimePeriod::THREE_MONTHS;
+        $this->roomSettings->file_terms_of_use = 'Test';
         $this->roomSettings->save();
 
         $this->recordingSettings->meeting_usage_enabled = false;
@@ -189,6 +191,7 @@ class ApplicationTest extends TestCase
                         'rounded' => true,
                     ],
                     'room' => [
+                        'file_terms_of_use' => 'Test',
                         'limit' => -1,
                         'token_expiration' => 90,
                         'refresh_rate' => 5,

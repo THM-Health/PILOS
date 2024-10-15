@@ -120,7 +120,7 @@ return [
         ],
         'terms_of_use' => [
             'accept' => 'I accept the terms of use',
-            'content' => 'Files that can be downloaded here are for personal study only. The files, or parts of them, may not be shared or distributed.',
+            'required' => 'You must accept the terms of use before downloading this file.',
             'title' => 'Terms of Use',
         ],
         'title' => 'Files',
