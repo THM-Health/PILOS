@@ -116,7 +116,7 @@
               <div class="col-span-12 md:col-span-8">
                 <Password
                   fluid
-                  id="new_password"
+                  input-id="new_password"
                   :inputProps="{ autocomplete: 'off' }"
                   v-model="model.new_password"
                   required
@@ -133,7 +133,7 @@
               <label for="new_password_confirmation" class="col-span-12 md:col-span-4 md:mb-0">{{$t('auth.new_password_confirmation')}}</label>
               <div class="col-span-12 md:col-span-8">
                 <Password
-                  id="new_password_confirmation"
+                  input-id="new_password_confirmation"
                   fluid
                   v-model="model.new_password_confirmation"
                   :type="showPassword ? 'text' : 'password'"

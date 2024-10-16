@@ -81,7 +81,7 @@
               <InputNumber
                 class="w-full"
                 v-if="roomLimitMode === 'custom'"
-                id="room-limit"
+                input-id="room-limit"
                 v-model="model.room_limit"
                 mode="decimal"
                 show-buttons

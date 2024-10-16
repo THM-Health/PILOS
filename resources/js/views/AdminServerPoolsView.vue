@@ -74,7 +74,6 @@
             <InputGroup>
               <multiselect
                 aria-labelledby="servers-label"
-                id="servers"
                 ref="serversMultiselectRef"
                 v-model="model.servers"
                 :placeholder="$t('admin.server_pools.select_servers')"

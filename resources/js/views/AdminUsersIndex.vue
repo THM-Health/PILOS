@@ -22,7 +22,6 @@
         <div class="flex flex-col md:flex-row gap-2 justify-end">
           <InputGroup class="grow shrink-0 min-w-80">
               <multiselect
-                id="roles"
                 ref="rolesMultiselectRef"
                 v-model="filter.role"
                 @update:modelValue="loadData(1)"

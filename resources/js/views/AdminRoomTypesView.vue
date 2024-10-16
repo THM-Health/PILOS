@@ -68,11 +68,10 @@
           </div>
 
           <!-- Room type color -->
-          <div class="field grid grid-cols-12 gap-4">
-            <label for="color" class="col-span-12 md:col-span-4 md:mb-0 items-start">{{ $t('admin.room_types.color') }}</label>
+          <fieldset class="field grid grid-cols-12 gap-4">
+            <legend class="col-span-12 md:col-span-4 md:mb-0 items-start">{{ $t('admin.room_types.color') }}</legend>
             <div class="col-span-12 md:col-span-8">
               <ColorSelect
-                id="color"
                 class="mb-2"
                 :disabled='isBusy || modelLoadingError || viewOnly'
                 :colors="colors.getAllColors()"
@@ -89,7 +88,7 @@
               />
               <FormError :errors="formErrors.fieldError('color')"/>
             </div>
-          </div>
+          </fieldset>
 
           <!-- Preview -->
           <div class="field grid grid-cols-12 gap-4">
