@@ -487,7 +487,7 @@ describe('Rooms view members bulk', function () {
       // Check that continue button is disabled and shows the correct text
       cy.get('[data-test="dialog-continue-button"]').should('have.text', 'rooms.members.modals.add.add').and('be.disabled');
       // Check that textarea is empty and enter users
-      cy.get('[data-test="room-members-bulk-import-textarea"]')
+      cy.get('#user-emails')
         .should('have.value', '')
         .and('have.attr', 'placeholder', 'rooms.members.modals.bulk_import.list_placeholder')
         .type('LauraWRivera@domain.tld\nLauraMWalter@domain.tld');
@@ -542,7 +542,7 @@ describe('Rooms view members bulk', function () {
       cy.get('#co_owner-role').should('be.disabled');
 
       cy.get('[data-test="dialog-continue-button"]').should('be.disabled');
-      cy.get('[data-test="room-members-bulk-import-textarea"]').should('be.disabled').then(() => {
+      cy.get('#user-emails').should('be.disabled').then(() => {
         bulkImportRequest.sendResponse();
       });
 
@@ -582,8 +582,8 @@ describe('Rooms view members bulk', function () {
     cy.get('#overlay_menu_1').should('have.text', 'rooms.members.bulk_import_users').click();
     cy.get('[data-test="room-members-bulk-import-dialog"]').should('be.visible').within(() => {
       // Enter users with valid and invalid emails
-      cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', '');
-      cy.get('[data-test="room-members-bulk-import-textarea"]').type('\n\n\nJuanMWalter@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n');
+      cy.get('#user-emails').should('have.value', '');
+      cy.get('#user-emails').type('\n\n\nJuanMWalter@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n');
       // Check that role stayed selected
       cy.get('#moderator-role').should('be.checked');
       // Select co_owner role
@@ -615,7 +615,7 @@ describe('Rooms view members bulk', function () {
 
       // Go back and check that text inside the textarea is still there
       cy.get('[data-test="dialog-back-button"]').should('have.text', 'app.back').click();
-      cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', '\n\n\nJuanMWalter@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n');
+      cy.get('#user-emails').should('have.value', '\n\n\nJuanMWalter@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n');
 
       cy.get('[data-test="dialog-continue-button"]').click();
       cy.wait('@bulkImportRequest');
@@ -755,8 +755,8 @@ describe('Rooms view members bulk', function () {
     cy.get('#overlay_menu_1').should('have.text', 'rooms.members.bulk_import_users').click();
     cy.get('[data-test="room-members-bulk-import-dialog"]').should('be.visible').within(() => {
       // Enter only invalid users
-      cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', '');
-      cy.get('[data-test="room-members-bulk-import-textarea"]').type('invalidEmail@domain.tld\nnotAnEmail');
+      cy.get('#user-emails').should('have.value', '');
+      cy.get('#user-emails').type('invalidEmail@domain.tld\nnotAnEmail');
 
       // Check that role stayed selected
       cy.get('#co_owner-role').should('be.checked');
@@ -787,7 +787,7 @@ describe('Rooms view members bulk', function () {
 
       // Go back and check that text inside the textarea is still there
       cy.get('[data-test="dialog-back-button"]').should('have.text', 'app.back').click();
-      cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', 'invalidEmail@domain.tld\nnotAnEmail');
+      cy.get('#user-emails').should('have.value', 'invalidEmail@domain.tld\nnotAnEmail');
 
       cy.get('[data-test="dialog-continue-button"]').click();
       cy.wait('@bulkImportRequest');
@@ -820,8 +820,8 @@ describe('Rooms view members bulk', function () {
 
       // Go back and enter valid user and save
       cy.get('[data-test="dialog-back-button"]').should('have.text', 'app.back').click();
-      cy.get('[data-test="room-members-bulk-import-textarea"]').clear();
-      cy.get('[data-test="room-members-bulk-import-textarea"]').type('maxdoe@domain.tld');
+      cy.get('#user-emails').clear();
+      cy.get('#user-emails').type('maxdoe@domain.tld');
 
       cy.intercept('POST', '/api/v1/rooms/abc-def-123/member/bulk', {
         statusCode: 204
@@ -884,7 +884,7 @@ describe('Rooms view members bulk', function () {
     cy.get('#overlay_menu_1').should('have.text', 'rooms.members.bulk_import_users').click();
     cy.get('[data-test="room-members-bulk-import-dialog"]').should('be.visible');
 
-    cy.get('[data-test="room-members-bulk-import-textarea"]').type('\n');
+    cy.get('#user-emails').type('\n');
 
     // Check with 422 error (email field is required)
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/member/bulk', {
@@ -904,7 +904,7 @@ describe('Rooms view members bulk', function () {
       .should('be.visible')
       .and('include.text', 'The user emails field is required.');
 
-    cy.get('[data-test="room-members-bulk-import-textarea"]').type('laurawrivera@domain.tld');
+    cy.get('#user-emails').type('laurawrivera@domain.tld');
 
     // Check with 422 error (role field is invalid)
     cy.intercept('POST', '/api/v1/rooms/abc-def-123/member/bulk', {
@@ -943,7 +943,7 @@ describe('Rooms view members bulk', function () {
     // Check that dialog is still shown
     cy.get('[data-test="room-members-bulk-import-dialog"]').should('be.visible');
 
-    cy.get('[data-test="room-members-bulk-import-textarea"]').should('have.value', '\nlaurawrivera@domain.tld');
+    cy.get('#user-emails').should('have.value', '\nlaurawrivera@domain.tld');
 
     // Close dialog
     cy.get('[data-test="dialog-header-close-button"]').click();
@@ -953,7 +953,7 @@ describe('Rooms view members bulk', function () {
       cy.get('[data-test="room-members-add-button"]').click();
       cy.get('#overlay_menu_1').should('have.text', 'rooms.members.bulk_import_users').click();
       cy.get('[data-test="room-members-bulk-import-dialog"]').should('be.visible');
-      cy.get('[data-test="room-members-bulk-import-textarea"]').type('\n');
+      cy.get('#user-emails').type('\n');
       cy.get('[data-test="dialog-continue-button"]').click();
     }, 'POST', 'api/v1/rooms/abc-def-123/member/bulk', 'members');
   });

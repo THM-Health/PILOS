@@ -347,6 +347,7 @@ describe('Login', function () {
 
   it('visit login page with already logged in user', function () {
     cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
+    cy.interceptRoomIndexRequests();
 
     cy.visit('/login');
     cy.checkToastMessage('app.flash.guests_only');
