@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v4.1.0] - 2024-10-16
 ### Added
 - Admin option to disable welcome page ([#1420], [#1441])
 - Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
@@ -19,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improve autocomplete in user profile  ([#1452])
+- Disable file upload UI elements during upload ([#1449])
 
 ### Fixed
 - Loading overlay not covering whole page during scrolling ([#1442])
@@ -183,13 +186,15 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1441]: https://github.com/THM-Health/PILOS/pull/1441
 [#1442]: https://github.com/THM-Health/PILOS/pull/1442
 [#1444]: https://github.com/THM-Health/PILOS/pull/1444
+[#1449]: https://github.com/THM-Health/PILOS/pull/1449
 [#1452]: https://github.com/THM-Health/PILOS/pull/1452
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
 [#1483]: https://github.com/THM-Health/PILOS/pull/1483
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
 [v3.0.3]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.3
 [v4.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.0.0
+[v4.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.0
