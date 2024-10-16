@@ -8,6 +8,7 @@
         @click="edit"
         icon="fa-solid fa-edit"
         :label="$t('app.edit')"
+        data-test="room-description-edit-button"
       />
       <Button
         v-if="editorOpen"
@@ -16,6 +17,7 @@
         @click="cancel"
         icon="fa-solid fa-times"
         :label="$t('app.cancel_editing')"
+        data-test="room-description-cancel-edit-button"
       />
     </div>
 
@@ -49,6 +51,7 @@
         @click="save"
         icon="fa-solid fa-save"
         :label="$t('rooms.description.save')"
+        data-test="room-description-save-button"
       />
     </div>
   </div>

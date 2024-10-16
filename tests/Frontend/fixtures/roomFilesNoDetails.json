@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "filename": "File1.pdf",
+      "uploaded": "2020-09-21T07:08:00.000000Z"
+    },
+    {
+      "id": 2,
+      "filename": "File2.pdf",
+      "uploaded": "2020-09-21T07:08:00.000000Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 2,
+    "to": 2,
+    "total": 2,
+    "total_no_filter": 2
+  }
+}

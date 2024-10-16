@@ -1,10 +1,11 @@
 <template>
   <InputGroup v-if="model">
     <InputText :value="model.name" readonly :disabled="disabled" :invalid="invalid" :id="inputId" />
-    <Button icon="fa-solid fa-edit" @click="editRoomType" v-if="!disabled" :aria-label="$t('rooms.change_type.title')" />
+    <Button icon="fa-solid fa-edit" @click="editRoomType" v-if="!disabled" :aria-label="$t('rooms.change_type.title')" data-test="room-type-change-button"/>
   </InputGroup>
 
   <Dialog
+    data-test="room-type-change-dialog"
     v-model:visible="modalVisible"
     modal
     :header="$t('rooms.change_type.title')"
@@ -20,8 +21,8 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="modalVisible = false" />
-        <Button :label="$t('app.save')" :disabled="!newRoomType" @click="handleOk" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="modalVisible = false" data-test="dialog-cancel-button"/>
+        <Button :label="$t('app.save')" :disabled="!newRoomType" @click="handleOk" data-test="dialog-save-button"/>
       </div>
     </template>
   </Dialog>

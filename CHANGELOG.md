@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Admin option to disable welcome page ([#1420], [#1441])
 - Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
+- Frontend tests for Login, Logout, Locales ([#1150], [#1483])
+- Frontend tests for Room Index page ([#1150], [#1483])
+- Frontend tests for Room page  ([#1150], [#1483])
+- Frontend tests for Room Members Tab  ([#1150], [#722],[#1483])
+- Frontend tests for Room Settings Tab  ([#1150], [#721], [#1483])
+- Frontend tests for Room Files Tab ([#1150], [#1483])
+- Frontend tests for Room Description Tab ([#1150], [#1483])
+- Frontend tests for User Profile ([#1150], [#1483])
 
 ### Changed
 - Improve autocomplete in user profile  ([#1452])
@@ -130,6 +138,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#686]: https://github.com/THM-Health/PILOS/pull/686
 [#695]: https://github.com/THM-Health/PILOS/issues/695
 [#704]: https://github.com/THM-Health/PILOS/issues/704
+[#721]: https://github.com/THM-Health/PILOS/issues/721
+[#722]: https://github.com/THM-Health/PILOS/issues/722
 [#724]: https://github.com/THM-Health/PILOS/pull/724
 [#735]: https://github.com/THM-Health/PILOS/pull/735
 [#743]: https://github.com/THM-Health/PILOS/pull/743
@@ -161,6 +171,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1102]: https://github.com/THM-Health/PILOS/pull/1102
 [#1120]: https://github.com/THM-Health/PILOS/pull/1120
 [#1126]: https://github.com/THM-Health/PILOS/pull/1126
+[#1150]: https://github.com/THM-Health/PILOS/issues/1150
 [#1159]: https://github.com/THM-Health/PILOS/pull/1159
 [#1166]: https://github.com/THM-Health/PILOS/pull/1166
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
@@ -174,6 +185,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1444]: https://github.com/THM-Health/PILOS/pull/1444
 [#1452]: https://github.com/THM-Health/PILOS/pull/1452
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
+[#1483]: https://github.com/THM-Health/PILOS/pull/1483
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0

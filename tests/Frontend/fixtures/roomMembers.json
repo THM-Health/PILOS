@@ -1,0 +1,37 @@
+{
+  "data": [
+    {
+      "id": 5,
+      "firstname": "Laura",
+      "lastname": "Rivera",
+      "email": "LauraWRivera@domain.tld",
+      "role": 1,
+      "image": null
+    },
+    {
+      "id": 6,
+      "firstname": "Juan",
+      "lastname": "Walter",
+      "email": "JuanMWalter@domain.tld",
+      "role": 2,
+      "image": null
+    },
+    {
+      "id": 7,
+      "firstname": "Tammy",
+      "lastname": "Law",
+      "email": "TammyGLaw@domain.tld",
+      "role": 3,
+      "image": "test.jpg"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 3,
+    "to": 3,
+    "total": 3,
+    "total_no_filter": 3
+  }
+}

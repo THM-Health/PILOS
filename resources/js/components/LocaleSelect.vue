@@ -2,6 +2,7 @@
   <div>
   <Select
     :aria-labelledby="props.ariaLabelledby"
+    data-test="locale-dropdown"
     :options="locales"
     optionLabel="text"
     optionValue="value"
@@ -11,6 +12,14 @@
     :disabled="props.disabled"
     :placeholder="$t('app.select_locale')"
     class="w-full"
+    :pt="{
+      listContainer: {
+        'data-test': 'locale-dropdown-items'
+      },
+        option:{
+      'data-test': 'locale-dropdown-option'
+        }
+      }"
   />
   </div>
 </template>

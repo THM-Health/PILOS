@@ -4,8 +4,23 @@
       class="px-2 room-description link-color"
       v-html="props.html"
       ref="roomDescription"
+      data-test="room-description-viewer"
     />
-    <ConfirmDialog />
+    <ConfirmDialog
+      data-test="room-description-viewer-confirm-dialog"
+      :pt="{
+        pcRejectButton:{
+          root:{
+            'data-test': 'confirm-dialog-reject-button'
+          }
+        },
+        pcAcceptButton:{
+          root:{
+            'data-test': 'confirm-dialog-accept-button'
+          }
+        }
+      }"
+    />
   </div>
 </template>
 <script setup>

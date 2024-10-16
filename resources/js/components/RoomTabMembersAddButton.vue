@@ -9,6 +9,7 @@
     aria-haspopup="true"
     aria-controls="overlay_menu"
     :disabled="props.disabled"
+    data-test="room-members-add-button"
   />
   <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
   <!-- Add existing user from database -->

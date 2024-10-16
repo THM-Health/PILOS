@@ -5,6 +5,7 @@
     text
     @click="openModal"
     icon="fa-solid fa-link"
+    data-test="tip-tap-link-button"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -13,8 +14,9 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
+    data-test="tip-tap-link-dialog"
   >
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="flex flex-col gap-2 mt-6" data-test="url-field">
       <label for="url">{{ $t('rooms.description.modals.link.url') }}</label>
       <InputText
         autofocus
@@ -33,6 +35,7 @@
             severity="danger"
             @click="deleteLink"
             :label="$t('app.delete')"
+            data-test="tip-tap-link-delete-button"
           />
         </div>
         <div class="flex gap-2">
@@ -40,11 +43,13 @@
             severity="secondary"
             @click="modalVisible = false"
             :label="$t('app.cancel')"
+            data-test="dialog-cancel-button"
           />
           <Button
             :disabled="urlInvalid !== false"
             @click="save"
             :label="$t('app.save')"
+            data-test="dialog-save-button"
           />
         </div>
       </div>

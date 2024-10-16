@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-test="tip-tap-editor">
     <tip-tap-menu :editor="editor" />
     <editor-content :editor="editor" />
   </div>

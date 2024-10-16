@@ -54,8 +54,8 @@
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="$t('app.cancel')" severity="secondary" :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
-          <Button :label="$t('rooms.create.ok')" severity="success" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
+          <Button :label="$t('app.cancel')" data-test="dialog-cancel-button" severity="secondary" :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
+          <Button :label="$t('rooms.create.ok')" data-test="dialog-save-button" severity="success" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
         </div>
       </template>
     </Dialog>

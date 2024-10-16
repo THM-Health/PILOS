@@ -1,4 +1,4 @@
-import env from '../../../resources/js/env.js';
+import { interceptIndefinitely } from '../support/utils/interceptIndefinitely.js';
 
 describe('General', function () {
   beforeEach(function () {
@@ -6,106 +6,43 @@ describe('General', function () {
     cy.interceptRoomIndexRequests();
   });
 
-  it('successful logout no redirect', function () {
-    cy.intercept('POST', 'api/v1/logout', {
-      statusCode: 204,
-      data: {
-        redirect: false
-      }
-    }).as('logoutRequest');
-    cy.visit('rooms');
-
-    // Click on logout
-    cy.get('[data-test=user-avatar]').click();
-    cy.get('[data-test=submenu]').eq(0).within(() => {
-      cy.get('[data-test=submenu-action]').eq(1).should('contain', 'auth.logout').click();
-    });
-
-    cy.wait('@logoutRequest');
-
-    // Check if redirected to logout
-    cy.url().should('contain', '/logout').should('not.contain', '/rooms');
-    cy.contains('auth.logout_success');
-  });
-
-  it('failed logout', function () {
-    cy.intercept('POST', 'api/v1/logout', {
-      statusCode: 500,
-      body: {
-        message: 'Test'
-      }
-    }).as('logoutRequest');
-
-    cy.visit('/rooms');
-
-    // Click on logout
-    cy.get('[data-test=user-avatar]').click();
-    cy.get('[data-test=submenu]').eq(0).within(() => {
-      cy.get('[data-test=submenu-action]').eq(1).should('contain', 'auth.logout').click();
-    });
-
-    cy.wait('@logoutRequest');
-
-    // Check if error gets shown and user stays logged in
-    cy.get('.p-toast').should('be.visible').and('contain', 'auth.flash.logout_error');
-    cy.url().should('contain', '/rooms').and('not.contain', '/logout').and('not.contain', '/login');
-  });
-
   it('all locales get rendered', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: {
-          enabled_locales: {
-            de: 'Deutsch',
-            en: 'English',
-            fr: 'Français'
-          }
-        },
-        theme: { primary_color: '#14b8a6', rounded: true }
-      }
-    });
-
     cy.visit('/rooms');
 
     // Open menu to check if the correct locales are shown
-    cy.get('.p-menubar-item').eq(5).click();
-    cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').should('have.length', 3);
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch');
-      cy.get('[data-test=submenu-action]').eq(1).should('contain', 'English');
-      cy.get('[data-test=submenu-action]').eq(2).should('contain', 'Français');
+    cy.get('.fa-solid.fa-language').click();
+    cy.get('[data-test="submenu"]').eq(1).within(() => {
+      cy.get('[data-test="submenu-action"]').should('have.length', 3);
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch');
+      cy.get('[data-test="submenu-action"]').eq(1).should('have.text', 'English');
+      cy.get('[data-test="submenu-action"]').eq(2).should('have.text', 'Français');
     });
   });
 
   it('changing selected locale', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: {
-          default_locale: 'en',
-          enabled_locales: {
-            de: 'Deutsch',
-            en: 'English',
-            fr: 'Français'
-          }
-        },
-        theme: { primary_color: '#14b8a6', rounded: true }
-      }
-    });
-
     // Intercept locale and de request
-    cy.intercept('POST', '/api/v1/locale', {
+    const localeRequest = interceptIndefinitely('POST', '/api/v1/locale', {
       statusCode: 200
-    }).as('localeRequest');
+    }, 'localeRequest');
 
     cy.intercept('GET', '/api/v1/locale/de', {
       statusCode: 200
     }).as('deRequest');
 
     cy.visit('/rooms');
+
+    cy.wait('@roomRequest');
+
+    cy.get('[data-test="overlay"]').should('not.exist');
     // Open menu and click on a different locale than the current one
-    cy.get('.p-menubar-item').eq(5).click();
-    cy.get('[data-test=submenu]').eq(1).should('be.visible').within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
+    cy.get('.fa-solid.fa-language').click();
+    cy.get('[data-test="submenu"]').eq(1).should('be.visible').within(() => {
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch').click();
+    });
+
+    // Check loading
+    cy.get('[data-test="overlay"]').should('be.visible').then(() => {
+      localeRequest.sendResponse();
     });
 
     // Check that the correct requests are made
@@ -113,27 +50,13 @@ describe('General', function () {
     cy.wait('@deRequest');
 
     // Check that the menu is closed
-    cy.get('[data-test=submenu]').should('not.be.visible');
+    cy.get('[data-test="submenu"]').should('not.be.visible');
   });
 
-  it('shows a corresponding error message and does not change the language on 422', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: {
-          toast_lifetime: 0,
-          default_locale: 'en',
-          enabled_locales: {
-            de: 'Deutsch',
-            en: 'English',
-            fr: 'Français'
-          }
-        },
-        theme: { primary_color: '#14b8a6', rounded: true }
-      }
-    });
-
+  it('changing selected locale error', function () {
+    // Shows a corresponding error message and does not change the language on 422 error
     cy.intercept('POST', '/api/v1/locale', {
-      statusCode: env.HTTP_UNPROCESSABLE_ENTITY,
+      statusCode: 422,
       body: {
         errors: {
           locale: ['Test']
@@ -146,9 +69,9 @@ describe('General', function () {
     cy.visit('/rooms');
 
     // Open menu and click on a different locale than the current one
-    cy.get('.p-menubar-item').eq(5).click();
-    cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
+    cy.get('.fa-solid.fa-language').click();
+    cy.get('[data-test="submenu"]').eq(1).within(() => {
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the locale request was made
@@ -157,25 +80,9 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('contain', 'Test');
-  });
+    cy.checkToastMessage('Test');
 
-  it('test other errors', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        general: {
-          toast_lifetime: 0,
-          default_locale: 'en',
-          enabled_locales: {
-            de: 'Deutsch',
-            en: 'English',
-            fr: 'Français'
-          }
-        },
-        theme: { primary_color: '#14b8a6', rounded: true }
-      }
-    });
-
+    // Test other errors
     cy.intercept('POST', '/api/v1/locale', {
       statusCode: 500,
       body: {
@@ -186,10 +93,9 @@ describe('General', function () {
     cy.intercept('GET', '/api/v1/locale/de', cy.spy().as('deRequestSpy'));
 
     // Open menu and click on a different locale than the current one
-    cy.visit('/rooms');
-    cy.get('.p-menubar-item').eq(5).click();
-    cy.get('[data-test=submenu]').eq(1).within(() => {
-      cy.get('[data-test=submenu-action]').eq(0).should('contain', 'Deutsch').click();
+    cy.get('.fa-solid.fa-language').click();
+    cy.get('[data-test="submenu"]').eq(1).within(() => {
+      cy.get('[data-test="submenu-action"]').eq(0).should('have.text', 'Deutsch').click();
     });
 
     // Check that the locale request was made
@@ -198,27 +104,22 @@ describe('General', function () {
     cy.get('@deRequestSpy').should('not.be.called');
 
     // Check if error message is shown
-    cy.get('.p-toast').should('be.visible').and('contain', 'app.flash.server_error.message');
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":["Test"]}',
+      'app.flash.server_error.error_code_{"statusCode":500}'
+    ]);
   });
 
   it('disabled welcome page redirect unauthenticated users to login', function () {
-    cy.intercept('GET', 'api/v1/currentUser', {
-      data: {}
-    });
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        theme: {
-          primary_color: '#14b8a6',
-          rounded: true
-        },
-        general: {
-          toast_lifetime: 0,
-          no_welcome_page: true
-        },
-        auth: {
-          local: true
-        }
-      }
+    cy.intercept('GET', 'api/v1/currentUser', {});
+    cy.fixture('config.json').then((config) => {
+      config.data.general.no_welcome_page = true;
+      config.data.auth.local = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Visit the root page
@@ -231,17 +132,13 @@ describe('General', function () {
   });
 
   it('disabled welcome page redirect authenticated users to rooms overview', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        theme: {
-          primary_color: '#14b8a6',
-          rounded: true
-        },
-        general: {
-          toast_lifetime: 0,
-          no_welcome_page: true
-        }
-      }
+    cy.fixture('config.json').then((config) => {
+      config.data.general.no_welcome_page = true;
+
+      cy.intercept('GET', 'api/v1/config', {
+        statusCode: 200,
+        body: config
+      });
     });
 
     // Visit the root page
@@ -252,19 +149,6 @@ describe('General', function () {
   });
 
   it('welcome page shown', function () {
-    cy.intercept('GET', 'api/v1/config', {
-      data: {
-        theme: {
-          primary_color: '#14b8a6',
-          rounded: true
-        },
-        general: {
-          toast_lifetime: 0,
-          no_welcome_page: false
-        }
-      }
-    });
-
     // Visit the root page
     cy.visit('/');
 

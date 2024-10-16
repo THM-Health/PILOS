@@ -3,7 +3,7 @@
     <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
       <div class="flex justify-between flex-col lg:flex-row grow gap-2">
         <div>
-          <InputGroup>
+          <InputGroup data-test="room-members-search">
             <InputText
               v-model="search"
               :disabled="isBusy"
@@ -24,16 +24,54 @@
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              data-test="filter-dropdown"
+              :disabled="isBusy"
+              v-model="filter"
+              :options="filterOptions"
+              @change="loadData(1)"
+              option-label="name"
+              option-value="value"
+              :pt="{
+                listContainer: {
+                'data-test': 'filter-dropdown-items'
+              },
+              option:{
+                'data-test': 'filter-dropdown-option'
+              }
+              }"
+            />
           </InputGroup>
 
-          <InputGroup>
+          <InputGroup data-test="sorting-type-inputgroup">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              data-test="sorting-type-dropdown"
+              :disabled="isBusy"
+              v-model="sortField"
+              :options="sortFields"
+              @change="loadData(1)"
+              option-label="name"
+              option-value="value"
+              :pt="{
+                listContainer: {
+                'data-test': 'sorting-type-dropdown-items'
+                },
+                option:{
+                'data-test': 'sorting-type-dropdown-option'
+                }
+              }"
+            />
             <InputGroupAddon class="p-0">
-              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="rounded-l-none"  />
+              <Button
+                :disabled="isBusy"
+                :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'"
+                @click="toggleSortOrder"
+                severity="secondary"
+                text class="rounded-l-none"
+              />
             </InputGroupAddon>
           </InputGroup>
         </div>
@@ -48,6 +86,7 @@
 
         <!-- Reload -->
         <Button
+          data-test="room-members-reload-button"
           class="shrink-0"
           v-tooltip="$t('app.reload')"
           severity="secondary"
@@ -77,6 +116,16 @@
         rowHover
         @page="onPage"
         class="mt-6"
+        :pt="{
+          pcPaginator: {
+            page: {
+              'data-test': 'paginator-page'
+            },
+            next: {
+              'data-test': 'paginator-next-button'
+            }
+          }
+        }"
       >
 
         <!-- Show message on empty list -->
@@ -95,6 +144,7 @@
                 :model-value="selectedMembers.length === selectableMembers.length"
                 @update:modelValue="toggleSelectAll"
                 :binary="true"
+                data-test="room-members-select-all-checkbox"
               />
             <!-- selected rows action buttons -->
             <div class="flex gap-1" v-if="selectedMembers.length > 0">
@@ -119,7 +169,7 @@
         <template #list="slotProps">
           <div class="px-2">
             <div v-for="(item, index) in slotProps.items" :key="item.id">
-              <div class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-t border-surface': index !== 0 }">
+              <div data-test="room-member-item" class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-t border-surface': index !== 0 }">
                 <div class="flex flex-row gap-6">
                   <div class="flex items-center" v-if="userPermissions.can('manageSettings', props.room)">
                     <Checkbox

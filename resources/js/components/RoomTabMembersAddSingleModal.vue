@@ -1,6 +1,7 @@
 <template>
   <!-- add new user modal -->
   <Dialog
+    data-test="room-members-add-single-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.members.add_single_user')"
@@ -14,8 +15,8 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('rooms.members.modals.add.add')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('rooms.members.modals.add.add')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" data-test="dialog-save-button"/>
         </div>
     </template>
 
@@ -25,6 +26,7 @@
       <multiselect
         aria-labelledby="user-label"
         autofocus
+        data-test="select-user-dropdown"
         v-model="user"
         label="lastname"
         track-by="id"
@@ -73,17 +75,17 @@
       <fieldset class="flex w-full flex-col gap-2">
         <legend>{{ $t('rooms.role') }}</legend>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="participant-role-group">
           <RadioButton v-model="role" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
           <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
         </div>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="moderator-role-group">
           <RadioButton v-model="role" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
           <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
         </div>
 
-        <div class="flex items-center">
+        <div class="flex items-center" data-test="co-owner-role-group">
           <RadioButton v-model="role" :disabled="isLoadingAction" input-id="co_owner-role" name="role" :value="3" />
           <label for="co_owner-role" class="ml-2"><RoomRoleBadge :role="3" /></label>
         </div>

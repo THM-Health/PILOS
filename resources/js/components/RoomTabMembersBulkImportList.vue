@@ -3,6 +3,7 @@
     <div
       v-if="list.length > 0"
       class="mb-4"
+      data-test="room-members-bulk-import-list"
     >
       <p class="font-bold">
         {{ description }} <Badge :severity="variant">
@@ -21,6 +22,7 @@
           :value="user.email"
           :disabled="!user.error"
           class="opacity-100"
+          data-test="room-members-bulk-import-list-item"
         >
           <AccordionHeader
             :pt="{

@@ -2,14 +2,18 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite --host",
+        "dev": "vite",
         "build": "vite build",
         "lint": "eslint --ext .js,.vue,.json .",
         "fix-cs": "eslint --ext .js,.vue,.json . --fix",
         "docs:install": "cd docs && npm install",
-        "docs:dev": "cd docs && npm run start -- --host 0.0.0.0"
+        "docs:dev": "cd docs && npm run start -- --host 0.0.0.0",
+        "cypress:open": "TZ=America/New_York cypress open",
+        "cypress:run": "TZ=America/New_York cypress run",
+        "create-coverage-report": "nyc report --reporter html -t coverage"
     },
     "devDependencies": {
+        "@cypress/code-coverage": "^3.13.4",
         "@intlify/eslint-plugin-vue-i18n": "^3.0.0",
         "cypress": "^13.15.0",
         "eslint": "^8.57.1",
@@ -20,7 +24,9 @@
         "eslint-plugin-mocha": "^10.5.0",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^6.6.0",
-        "eslint-plugin-vue": "^9.29.0"
+        "eslint-plugin-vue": "^9.29.0",
+        "nyc": "^17.1.0",
+        "vite-plugin-istanbul": "^6.0.2"
     },
     "dependencies": {
         "@floating-ui/vue": "^1.1.5",

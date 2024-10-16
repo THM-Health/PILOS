@@ -5,6 +5,7 @@
     text
     @click="openModal"
     icon="fa-solid fa-image"
+    data-test="tip-tap-image-button"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -13,8 +14,9 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
+    data-test="tip-tap-image-dialog"
   >
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="flex flex-col gap-2 mt-6" data-test="src-field">
       <label for="src">{{ $t('rooms.description.modals.image.src') }}</label>
       <InputText
         autofocus
@@ -25,7 +27,7 @@
       <p v-if="srcInvalid" class="text-red-500" role="alert">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
     </div>
 
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="flex flex-col gap-2 mt-6" data-test="width-field">
       <label for="width">{{ $t('rooms.description.modals.image.width') }}</label>
       <InputText
         id="width"
@@ -35,7 +37,7 @@
       <small id="width-help">{{ $t('rooms.description.modals.image.width_description') }}</small>
     </div>
 
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="flex flex-col gap-2 mt-6" data-test="alt-field">
       <label for="alt">{{ $t('rooms.description.modals.image.alt') }}</label>
       <InputText
         id="alt"
@@ -51,6 +53,7 @@
             severity="danger"
             @click="deleteImage"
             :label="$t('app.delete')"
+            data-test="tip-tap-image-delete-button"
           />
         </div>
         <div class="flex gap-2">
@@ -58,11 +61,13 @@
             severity="secondary"
             @click="modalVisible = false"
             :label="$t('app.cancel')"
+            data-test="dialog-cancel-button"
           />
           <Button
             :disabled="srcInvalid !== false"
             @click="save"
             :label="$t('app.save')"
+            data-test="dialog-save-button"
           />
         </div>
       </div>

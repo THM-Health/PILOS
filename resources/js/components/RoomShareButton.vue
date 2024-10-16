@@ -1,5 +1,6 @@
 <template>
   <Button
+    data-test="room-share-button"
     :label="$t('rooms.invitation.share')"
     icon="fa-solid fa-share-nodes"
     severity="secondary"
@@ -47,6 +48,7 @@
         </div>
       </fieldset>
       <Button
+        data-test="room-copy-invitation-button"
         @click="copyInvitationText"
         :label="$t('rooms.invitation.copy')"
         icon="fa-solid fa-copy"
