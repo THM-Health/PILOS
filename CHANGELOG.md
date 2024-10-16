@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing "user not found" error message after the "too many results" error in room transfer ([#1477])
 - Wrong and missing ids and labels in forms ([#1452])
 - Lazy load profile tabs to prevent form id issues ([#1452])
+- Missing nocanon apache reverse proxy keyword in docs ([e4830ba](https://github.com/THM-Health/PILOS/commit/e4830ba5ca5ea9dc3f98f7fc6e7cf4e42d1977f4))
 
 ## [v4.0.0] - 2024-09-26
 ### Added
