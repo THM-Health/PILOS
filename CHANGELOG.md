@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Wrong and missing ids and labels in forms ([#1452])
+- Lazy load profile tabs to prevent form id issues ([#1452])
+  
+### Changed
+- Improve autocomplete in user profile  ([#1452])
+
 ## [v4.0.0] - 2024-09-26
 ### Added
 - Short description for rooms ([#373])
@@ -153,6 +160,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1452]: https://github.com/THM-Health/PILOS/pull/1452
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
