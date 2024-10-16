@@ -33,6 +33,19 @@ export default (mode) => {
         ]
       })
     ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (path) => {
+            if (path.includes('node_modules')) {
+              return 'vendor';
+            }
+    
+            return 'app';
+          }
+        }
+      },
+    },
     server: {
       https: getSslConfig(process.env),
       host: '0.0.0.0',

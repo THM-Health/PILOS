@@ -8,9 +8,7 @@ export default ({ mode }) => {
     forceBuildInstrument: true
   }));
 
-  config.build = {
-    sourcemap: true
-  };
+  config.build.sourcemap = true;
 
   return defineConfig(
     config
