@@ -234,7 +234,9 @@ function asyncFind (query) {
       if (props.room.owner.id === user.id) { user.$isDisabled = true; }
       return user;
     });
+    tooManyResults.value = false;
   }).catch((error) => {
+    tooManyResults.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingSearch.value = false;

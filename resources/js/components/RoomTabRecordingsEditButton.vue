@@ -89,6 +89,8 @@ import { useFormErrors } from '../composables/useFormErrors.js';
 import { computed, ref } from 'vue';
 import _ from 'lodash';
 import { useSettingsStore } from '../stores/settings.js';
+import { useToast } from '../composables/useToast.js';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   recordingId: {
@@ -130,6 +132,8 @@ const emit = defineEmits(['edited', 'notFound']);
 const api = useApi();
 const formErrors = useFormErrors();
 const settingsStore = useSettingsStore();
+const toast = useToast();
+const { t } = useI18n();
 
 const showModal = ref(false);
 const newDescription = ref(null);
@@ -178,6 +182,7 @@ function save () {
     if (error.response) {
       // recording not found
       if (error.response.status === env.HTTP_NOT_FOUND) {
+        toast.error(t('rooms.flash.recording_gone'));
         showModal.value = false;
         emit('notFound');
         return;

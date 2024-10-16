@@ -37,6 +37,7 @@ class ApplicationTest extends TestCase
         $this->generalSettings->legal_notice_url = 'http://localhost';
         $this->generalSettings->privacy_policy_url = 'http://localhost';
         $this->generalSettings->toast_lifetime = 10;
+        $this->generalSettings->no_welcome_page = false;
         $this->generalSettings->save();
 
         $this->themeSettings->logo = 'testlogo.svg';
@@ -95,6 +96,7 @@ class ApplicationTest extends TestCase
                         'help_url' => 'http://localhost',
                         'legal_notice_url' => 'http://localhost',
                         'privacy_policy_url' => 'http://localhost',
+                        'no_welcome_page' => false,
                     ],
                     'theme' => [
                         'logo' => 'testlogo.svg',
@@ -105,6 +107,7 @@ class ApplicationTest extends TestCase
                         'rounded' => true,
                     ],
                     'room' => [
+                        'file_terms_of_use' => null,
                         'limit' => -1,
                         'token_expiration' => -1,
                         'refresh_rate' => 20,
@@ -146,12 +149,14 @@ class ApplicationTest extends TestCase
         $this->generalSettings->help_url = null;
         $this->generalSettings->legal_notice_url = null;
         $this->generalSettings->privacy_policy_url = null;
+        $this->generalSettings->no_welcome_page = true;
         $this->generalSettings->save();
 
         $this->bannerSettings->enabled = false;
         $this->bannerSettings->save();
 
         $this->roomSettings->token_expiration = TimePeriod::THREE_MONTHS;
+        $this->roomSettings->file_terms_of_use = 'Test';
         $this->roomSettings->save();
 
         $this->recordingSettings->meeting_usage_enabled = false;
@@ -175,6 +180,7 @@ class ApplicationTest extends TestCase
                         'help_url' => null,
                         'legal_notice_url' => null,
                         'privacy_policy_url' => null,
+                        'no_welcome_page' => true,
                     ],
                     'theme' => [
                         'logo' => 'testlogo.svg',
@@ -185,6 +191,7 @@ class ApplicationTest extends TestCase
                         'rounded' => true,
                     ],
                     'room' => [
+                        'file_terms_of_use' => 'Test',
                         'limit' => -1,
                         'token_expiration' => 90,
                         'refresh_rate' => 5,

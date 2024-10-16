@@ -249,7 +249,6 @@ return [
         'attendance' => [
             'retention_period_title' => 'Retention period of the attendance logging in days',
         ],
-        'recording_and_statistics_title' => 'Recording and statistics',
         'banner' => [
             'background' => 'Background color of the banner',
             'banner_title' => 'Title',
@@ -328,6 +327,7 @@ return [
             'title' => 'Name of the application',
         ],
         'never' => 'Never',
+        'no_welcome_page' => 'Hide welcome page',
         'one_day' => '1 Day (24 Hours)',
         'one_month' => '1 Month (30 Days)',
         'one_week' => '1 Week (7 Day)',
@@ -344,6 +344,7 @@ return [
         'recording' => [
             'retention_period_title' => 'Storage duration of the recordings in days',
         ],
+        'recording_and_statistics_title' => 'Recording and statistics',
         'room_auto_delete' => [
             'deadline_period' => [
                 'description' => 'Period between delivery of the information email and the deletion',
@@ -360,6 +361,10 @@ return [
                 'description' => 'Rooms that were created before the period but have not been used yet',
                 'title' => 'Period until never used rooms are deleted',
             ],
+        ],
+        'room_file_terms_of_use' => [
+            'description' => 'Users must agree to the terms of use in order to download files. If the field is empty, no consent is required.',
+            'title' => 'Terms of use for file download',
         ],
         'room_limit' => [
             'description' => 'Limits the number of rooms a user can have. This setting is overwritten by the group-specific limits.',

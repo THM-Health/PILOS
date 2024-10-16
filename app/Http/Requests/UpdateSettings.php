@@ -37,6 +37,7 @@ class UpdateSettings extends FormRequest
             'general_help_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_legal_notice_url' => ['nullable', 'string', 'url', 'max:255'],
             'general_privacy_policy_url' => ['nullable', 'string', 'url', 'max:255'],
+            'general_no_welcome_page' => ['required', 'boolean'],
 
             'theme_logo' => ['required_without:theme_logo_file', 'string', 'max:255'],
             'theme_logo_file' => ['required_without:theme_logo', 'image', 'max:500'], // 500 KB, larger files are bad for loading times
@@ -65,6 +66,7 @@ class UpdateSettings extends FormRequest
             'room_auto_delete_inactive_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_never_used_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)],
             'room_auto_delete_deadline_period' => ['required', 'numeric', Rule::enum(TimePeriod::class)->only([TimePeriod::ONE_WEEK, TimePeriod::TWO_WEEKS, TimePeriod::ONE_MONTH])],
+            'room_file_terms_of_use' => ['nullable', 'string', 'max:65000'],
 
             'user_password_change_allowed' => ['required', 'boolean'],
 

@@ -5,13 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Admin option to disable welcome page ([#1420], [#1441])
+- Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
 
-### Fixed
-- Wrong and missing ids and labels in forms ([#1452])
-- Lazy load profile tabs to prevent form id issues ([#1452])
-  
 ### Changed
 - Improve autocomplete in user profile  ([#1452])
+
+### Fixed
+- Loading overlay not covering whole page during scrolling ([#1442])
+- Inconsistent error handling in dialogs ([#1444])
+- Missing "user not found" error message after the "too many results" error in room transfer ([#1477])
+- Wrong and missing ids and labels in forms ([#1452])
+- Lazy load profile tabs to prevent form id issues ([#1452])
 
 ## [v4.0.0] - 2024-09-26
 ### Added
@@ -160,7 +166,14 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1420]: https://github.com/THM-Health/PILOS/issues/1420
+[#1435]: https://github.com/THM-Health/PILOS/issues/1435
+[#1440]: https://github.com/THM-Health/PILOS/pull/1440
+[#1441]: https://github.com/THM-Health/PILOS/pull/1441
+[#1442]: https://github.com/THM-Health/PILOS/pull/1442
+[#1444]: https://github.com/THM-Health/PILOS/pull/1444
 [#1452]: https://github.com/THM-Health/PILOS/pull/1452
+[#1477]: https://github.com/THM-Health/PILOS/pull/1477
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
