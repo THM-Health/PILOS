@@ -59,7 +59,7 @@ import { useRoomTypeSettings } from '../composables/useRoomTypeSettings.js';
 const modalVisible = defineModel();
 const roomTypeSettings = useRoomTypeSettings();
 
-const emit = defineEmits('confirmedRoomTypeChange');
+const emit = defineEmits(['confirmedRoomTypeChange']);
 const props = defineProps({
   currentSettings: {
     type: Object,

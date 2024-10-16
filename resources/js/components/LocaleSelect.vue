@@ -1,7 +1,7 @@
 <template>
   <div>
   <Select
-    :input-id="props.id"
+    :aria-labelledby="props.ariaLabelledby"
     data-test="locale-dropdown"
     :options="locales"
     optionLabel="text"
@@ -45,9 +45,8 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  id: {
-    type: String,
-    default: 'locale'
+  ariaLabelledby: {
+    type: String
   }
 });
 

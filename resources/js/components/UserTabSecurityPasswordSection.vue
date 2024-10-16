@@ -8,6 +8,7 @@
           <InputText
             id="current_password"
             v-model="currentPassword"
+            autocomplete="current-password"
             type="password"
             required
             :disabled="isBusy"
@@ -24,6 +25,7 @@
           <InputText
             id="new_password"
             v-model="newPassword"
+            :autocomplete="isOwnUser ? 'new-password' : 'off'"
             type="password"
             required
             :disabled="isBusy"
@@ -40,6 +42,7 @@
           <InputText
             id="new_password_confirmation"
             v-model="newPasswordConfirmation"
+            :autocomplete="isOwnUser ? 'new-password' : 'off'"
             type="password"
             required
             :disabled="isBusy"

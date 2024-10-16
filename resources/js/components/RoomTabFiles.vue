@@ -128,7 +128,7 @@
     </div>
 
     <!-- Display files -->
-    <OverlayComponent :show="isBusy || loadingError" z-index="1">
+    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>

@@ -32,6 +32,8 @@ import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
+defineEmits(['added']);
+
 const props = defineProps({
   roomId: {
     type: String,

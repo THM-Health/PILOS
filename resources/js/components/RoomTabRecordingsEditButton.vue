@@ -57,25 +57,27 @@
       <label>{{ $t('rooms.recordings.available_formats') }}</label>
       <div class="flex items-center" v-for="format in newFormats" :key="format.id">
         <ToggleSwitch
-          :input-id="format.id"
+          :input-id="'format-'+format.id"
           :disabled="isLoadingAction"
           v-model="format.disabled"
           :true-value="false"
           :false-value="true"
         />
-        <label :for="format.id" class="ml-2">{{ $t('rooms.recordings.format_types.'+format.format)}}</label>
+        <label :for="'format-'+format.id" class="ml-2">{{ $t('rooms.recordings.format_types.'+format.format)}}</label>
       </div>
       <FormError :errors="formErrors.fieldError('formats', true)" />
     </div>
 
     <!-- access -->
     <div class="flex flex-col gap-2 mt-6">
-      <label>{{ $t('rooms.recordings.access') }}</label>
-      <div v-for="accessType in accessTypes" :key="accessType" class="flex items-center">
-        <RadioButton v-model="newAccess" :disabled="isLoadingAction" :input-id="'access-'+accessType" name="access" :value="accessType" />
-        <label :for="'access-'+accessType" class="ml-2"><RoomRecordingAccessBadge :access="accessType"/></label>
-      </div>
-      <FormError :errors="formErrors.fieldError('access')" />
+      <fieldset class="flex w-full flex-col gap-2">
+        <label>{{ $t('rooms.recordings.access') }}</label>
+        <div v-for="accessType in accessTypes" :key="accessType" class="flex items-center">
+          <RadioButton v-model="newAccess" :disabled="isLoadingAction" :input-id="'access-'+accessType" name="access" :value="accessType" />
+          <label :for="'access-'+accessType" class="ml-2"><RoomRecordingAccessBadge :access="accessType"/></label>
+        </div>
+        <FormError :errors="formErrors.fieldError('access')" />
+      </fieldset>
     </div>
 
   </Dialog>

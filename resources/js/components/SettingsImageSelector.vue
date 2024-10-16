@@ -109,10 +109,10 @@ defineProps({
     type: Boolean
   },
   urlError: {
-    type: String
+    type: Object
   },
   fileError: {
-    type: String
+    type: Object
   },
   disabled: {
     type: Boolean

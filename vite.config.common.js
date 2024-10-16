@@ -40,11 +40,11 @@ export default (mode) => {
             if (path.includes('node_modules')) {
               return 'vendor';
             }
-    
+
             return 'app';
           }
         }
-      },
+      }
     },
     server: {
       https: getSslConfig(process.env),

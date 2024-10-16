@@ -18,8 +18,7 @@ const { t } = useI18n();
 
 const props = defineProps({
   role: {
-    type: Number,
-    required: true
+    type: Number
   }
 });
 

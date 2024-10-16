@@ -100,7 +100,7 @@
             <div class="col-span-12 md:col-span-8">
               <Password
                 fluid
-                id="secret"
+                input-id="secret"
                 :inputProps="{ autocomplete: 'off' }"
                 v-model="model.secret"
                 :disabled="isBusy || modelLoadingError || viewOnly"
@@ -111,13 +111,12 @@
               <FormError :errors="formErrors.fieldError('secret')"/>
             </div>
           </div>
-          <div class="field grid grid-cols-12 gap-4">
-            <label class="col-span-12 md:col-span-4 md:mb-0" for="strength">{{
+          <fieldset class="field grid grid-cols-12 gap-4">
+            <legend class="col-span-12 md:col-span-4 md:mb-0">{{
                 $t('admin.servers.strength')
-              }}</label>
+              }}</legend>
             <div class="col-span-12 md:col-span-8">
               <Rating
-                id="strength"
                 v-model="model.strength"
                 :cancel="false"
                 :disabled="isBusy || modelLoadingError || viewOnly"
@@ -129,14 +128,14 @@
               <small id="strength-help">{{ $t('admin.servers.strength_description') }}</small>
               <FormError :errors="formErrors.fieldError('strength')"/>
             </div>
-          </div>
+          </fieldset>
 
           <div class="field grid grid-cols-12 gap-4">
-            <label class="col-span-12 md:col-span-4 md:mb-0" for="status">{{ $t('admin.servers.status') }}</label>
+            <label class="col-span-12 md:col-span-4 md:mb-0" id="status-label">{{ $t('admin.servers.status') }}</label>
             <div class="col-span-12 md:col-span-8">
               <div>
                 <Select
-                  id="status"
+                  aria-labelledby="status-label"
                   v-model="model.status"
                   :options="serverStatusOptions"
                   option-label="name"
