@@ -114,7 +114,7 @@
                     <div class="flex items-center">
                       <RadioButton
                         v-model="toastLifetimeMode"
-                        input-id="toast-lifetime-custom"
+                        input-id="toast-lifetime-mode-custom"
                         name="toast-lifetime-mode"
                         value="custom"
                         :disabled="disabled"
@@ -125,13 +125,12 @@
                         }
                       }"
                       />
-                      <label for="toast-lifetime-mode-custom" id="toast-lifetime-mode-custom-label" class="ml-2">{{ $t('admin.settings.toast_lifetime.custom') }}</label>
+                      <label for="toast-lifetime-mode-custom" id="toast-lifetime-custom-label" class="ml-2">{{ $t('admin.settings.toast_lifetime.custom') }}</label>
                     </div>
                   </div>
                   <InputText
                     v-if="toastLifetimeMode === 'custom'"
                     class="mt-1"
-                    id="toast-lifetime-custom"
                     v-model.number="settings.general_toast_lifetime"
                     min="1"
                     max="30"
@@ -264,8 +263,8 @@
                   />
                 </div>
               </fieldset>
-              <div class="grid grid-cols-12 gap-4">
-                <label for="theme-primary-color" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.primary_color')}}</label>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.primary_color')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <ColorSelect
                     class="my-2"
@@ -273,7 +272,7 @@
                     :colors="colors.getAllColors()"
                     v-model="settings.theme_primary_color"
                   />
-                  <label for="banner-color">{{ $t('admin.settings.theme.custom_color') }}</label>
+                  <label for="theme-primary-color">{{ $t('admin.settings.theme.custom_color') }}</label>
                   <InputText
                     id="theme-primary-color"
                     v-model="settings.theme_primary_color"
@@ -283,7 +282,7 @@
                   />
                   <FormError :errors="formErrors.fieldError('theme_primary_color')"/>
                 </div>
-              </div>
+              </fieldset>
               <fieldset class="grid grid-cols-12 gap-4">
               <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.rounded')}}</legend>
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
@@ -404,10 +403,10 @@
                 </div>
               </div>
               <div class="grid grid-cols-12 gap-4">
-                <label for="banner-link-style" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_style')}}</label>
+                <label id="banner-link-style-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_style')}}</label>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <Select
-                    input-id="banner-link-style"
+                    aria-labelledby="banner-link-style-label"
                     v-model="settings.banner_link_style"
                     :options="linkBtnStyles"
                     :placeholder="$t('admin.settings.banner.select_link_style')"
@@ -420,10 +419,10 @@
                 </div>
               </div>
               <div class="grid grid-cols-12 gap-4">
-                <label for="banner-link-target" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_target')}}</label>
+                <label id="banner-link-target-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_target')}}</label>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <Select
-                    input-id="banner-link-target"
+                    aria-labelledby="banner-link-target-label"
                     v-model="settings.banner_link_target"
                     :options="linkTargets"
                     :placeholder="$t('admin.settings.banner.select_link_target')"
@@ -435,8 +434,8 @@
                   <FormError :errors="formErrors.fieldError('banner_link_target')"/>
                 </div>
               </div>
-              <div class="grid grid-cols-12 gap-4">
-                <label for="banner-color" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.color')}}</label>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.color')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <ColorSelect
                     class="my-2"
@@ -454,9 +453,9 @@
                   />
                   <FormError :errors="formErrors.fieldError('banner_color')"/>
                 </div>
-              </div>
-              <div class="grid grid-cols-12 gap-4">
-                <label for="banner-background" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.background')}}</label>
+              </fieldset>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.background')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <ColorSelect
                     class="my-2"
@@ -474,7 +473,7 @@
                   />
                   <FormError :errors="formErrors.fieldError('banner_background')"/>
                 </div>
-              </div>
+              </fieldset>
             </AdminPanel>
 
             <AdminPanel :title="$t('app.rooms')">

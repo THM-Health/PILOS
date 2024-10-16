@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin option to disable welcome page ([#1420], [#1441])
 - Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
 
+### Changed
+- Improve autocomplete in user profile  ([#1452])
+
 ### Fixed
 - Loading overlay not covering whole page during scrolling ([#1442])
 - Inconsistent error handling in dialogs ([#1444])
 - Missing "user not found" error message after the "too many results" error in room transfer ([#1477])
+- Wrong and missing ids and labels in forms ([#1452])
+- Lazy load profile tabs to prevent form id issues ([#1452])
 
 ## [v4.0.0] - 2024-09-26
 ### Added
@@ -167,6 +172,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1441]: https://github.com/THM-Health/PILOS/pull/1441
 [#1442]: https://github.com/THM-Health/PILOS/pull/1442
 [#1444]: https://github.com/THM-Health/PILOS/pull/1444
+[#1452]: https://github.com/THM-Health/PILOS/pull/1452
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop

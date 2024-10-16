@@ -50,7 +50,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits('loadingError', 'busy');
+const emit = defineEmits(['loadingError', 'busy']);
 
 const timezones = ref([]);
 const loading = ref(false);

@@ -153,7 +153,6 @@
                 @invalidToken="handleInvalidToken"
                 @guests-not-allowed="handleGuestsNotAllowed"
                 @changed="reload"
-                @forbidden="reload"
               />
               <RoomBrowserNotification
                 :room-name="room.name"
