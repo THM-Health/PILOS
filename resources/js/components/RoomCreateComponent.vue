@@ -22,7 +22,11 @@
       :closable="!isLoadingAction && !roomTypeSelectBusy"
       :draggable="false"
       @hide="clearModal"
+      aria-labelledby="room-create-dialog-title"
     >
+      <template #header>
+        <h2 id="room-create-dialog-title" class="p-dialog-title">{{ $t('rooms.create.title') }}</h2>
+      </template>
       <div>
         <!-- Room name -->
         <div class="flex flex-col gap-2 mt-6">

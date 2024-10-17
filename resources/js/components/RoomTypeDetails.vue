@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-4 w-full"  data-test="room-type-details">
-    <RoomTypeBadge :roomType="roomType" class="w-full text-base" />
+    <h3><RoomTypeBadge :roomType="roomType" class="w-full text-base" /></h3>
 
     <div class="w-full">
       <div class="flex flex-col gap-2 border border-surface-200 dark:border-surface-600 rounded-border p-4  md:overflow-y-auto md:max-h-64">
