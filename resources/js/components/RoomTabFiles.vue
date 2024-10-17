@@ -22,7 +22,7 @@
           </AccordionHeader>
           <AccordionContent unstyled>
             <div
-              class="w-full max-h-32 overflow-y-auto mt-2"
+              class="w-full max-h-32 overflow-y-auto mt-2 whitespace-pre-wrap"
             >
               {{ settingsStore.getSetting('room.file_terms_of_use') }}
             </div>

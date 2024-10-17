@@ -27,7 +27,7 @@
         />
         {{ title }}
       </p>
-      <p class="m-0">
+      <p class="m-0 whitespace-pre-wrap">
         {{ message }}
       </p>
       <a v-if="link" :href="link" :target="`_${linkTarget}`">
