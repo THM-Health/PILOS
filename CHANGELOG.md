@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improve autocomplete in user profile  ([#1452])
 - Disable file upload UI elements during upload ([#1449])
+- Improve accessibility for icon only buttons ([#1489])
 
 ### Fixed
 - Loading overlay not covering whole page during scrolling ([#1442])
@@ -30,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wrong and missing ids and labels in forms ([#1452])
 - Lazy load profile tabs to prevent form id issues ([#1452])
 - Missing nocanon apache reverse proxy keyword in docs ([e4830ba](https://github.com/THM-Health/PILOS/commit/e4830ba5ca5ea9dc3f98f7fc6e7cf4e42d1977f4))
+- Text truncate in data tables ([#1489])
+- Accessibility issues with wrong html header element order ([#1489])
 
 ## [v4.0.0] - 2024-09-26
 ### Added
@@ -191,6 +194,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1452]: https://github.com/THM-Health/PILOS/pull/1452
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
 [#1483]: https://github.com/THM-Health/PILOS/pull/1483
+[#1489]: https://github.com/THM-Health/PILOS/pull/1489
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
