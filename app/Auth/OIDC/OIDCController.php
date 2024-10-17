@@ -39,6 +39,7 @@ class OIDCController extends Controller
             $this->oidc->authenticate();
         } catch (OpenIDConnectClientException $e) {
             Log::error($e);
+
             return redirect('/external_login');
         }
 
@@ -82,14 +83,16 @@ class OIDCController extends Controller
     {
         Log::debug('OIDC backchannel logout handler called');
 
-        if (!$this->oidc->verifyLogoutToken()) {
+        if (! $this->oidc->verifyLogoutToken()) {
             Log::warning('Logout token verification failed');
+
             return;
         }
 
         $sub = $this->oidc->getSubjectFromBackChannel();
-        if (!isset($sub)) {
+        if (! isset($sub)) {
             Log::warning('Getting subject from backchannel failed');
+
             return;
         }
 
@@ -111,7 +114,7 @@ class OIDCController extends Controller
 
     public function signoutRedirectURL(string $logout_url)
     {
-        if(!$this->oidc->hasEndSessionEndpoint()) {
+        if (! $this->oidc->hasEndSessionEndpoint()) {
             return false;
         }
 
@@ -119,6 +122,7 @@ class OIDCController extends Controller
             'id_token' => session('oidc_id_token'),
             'logout_url' => $logout_url,
         ];
+
         return route('auth.oidc.signout', $params);
     }
 }

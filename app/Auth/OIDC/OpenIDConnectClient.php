@@ -22,11 +22,11 @@ class OpenIDConnectClient extends OpenIDConnectClientBase
     }
 
     /**
-     * @param string $key
+     * @param  string  $key
      */
     protected function getSessionKey($key): mixed
     {
-        if (!Session::has($key)) {
+        if (! Session::has($key)) {
             return false;
         }
 
@@ -34,8 +34,8 @@ class OpenIDConnectClient extends OpenIDConnectClientBase
     }
 
     /**
-     * @param string $key
-     * @param mixed $value mixed
+     * @param  string  $key
+     * @param  mixed  $value  mixed
      */
     protected function setSessionKey($key, $value): void
     {
@@ -43,7 +43,7 @@ class OpenIDConnectClient extends OpenIDConnectClientBase
     }
 
     /**
-     * @param string $key
+     * @param  string  $key
      */
     protected function unsetSessionKey($key): void
     {
@@ -54,8 +54,6 @@ class OpenIDConnectClient extends OpenIDConnectClientBase
      * Overwrite the redirect method to use Laravel abort method.
      * Sometimes the error 'Cannot modify header information - headers already sent' was thrown.
      * By using Laravel abort method, this error is prevented.
-     * @param string $url
-     * @return void
      */
     public function redirect(string $url): void
     {
@@ -64,11 +62,11 @@ class OpenIDConnectClient extends OpenIDConnectClientBase
 
     /**
      * Checks if an end_session_endpoint is available in the OIDC provider's well-known configuration.
+     *
      * @return {boolean}
      */
     public function hasEndSessionEndpoint(): bool
     {
         return (bool) $this->getProviderConfigValue('end_session_endpoint', false);
     }
-
 }
