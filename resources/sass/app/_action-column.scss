@@ -30,21 +30,19 @@ td.action-column > div {
 }
 
 @media (screen(lg)) {
-     .table-fixed {
-        table{
-            @for $i from 2 through 6 {
-                th.action-column-1 {
-                    width: 5rem;
-                }
-
-                th.action-column-#{$i} {
-                    width: calc($i * var(--p-button-icon-only-width)  + (($i - 1) * $actionColumButtonGap) + 2 * #{$paddingActionColumn});
-                }
-            }
-
-            th.id-column {
+     .lg\:table-fixed{
+        @for $i from 2 through 6 {
+            th.action-column-1 {
                 width: 5rem;
             }
+
+            th.action-column-#{$i} {
+                width: calc($i * var(--p-button-icon-only-width)  + (($i - 1) * $actionColumButtonGap) + 2 * #{$paddingActionColumn});
+            }
+        }
+
+        th.id-column {
+            width: 5rem;
         }
     }
 }

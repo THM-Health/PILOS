@@ -38,7 +38,9 @@
       :loading="isBusy"
       :rows="settingsStore.getSetting('general.pagination_page_size')"
       v-model:filters="filters"
-      class="table-auto lg:table-fixed"
+      :pt="{
+        table: 'table-auto lg:table-fixed'
+      }"
     >
       <template #empty>
         <InlineNote v-if="roomTypes.length === 0">{{ $t('admin.room_types.no_data') }}</InlineNote>
@@ -51,7 +53,7 @@
       </Column>
       <Column field="actions" :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
-          <div class="flex flex-row gap-2">
+          <div>
             <Button
               as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"

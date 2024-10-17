@@ -62,7 +62,9 @@
       stripedRows
       @page="onPage"
       @sort="onSort"
-      class="table-auto lg:table-fixed"
+      :pt="{
+        table: 'table-auto lg:table-fixed'
+      }"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData(null, false)"/>
@@ -180,7 +182,7 @@
       </Column>
       <Column :header="$t('app.actions')"  :class="actionColumn.classes" v-if="actionColumn.visible">
         <template #body="slotProps">
-          <div class="flex flex-row gap-2">
+          <div>
             <Button
               as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
