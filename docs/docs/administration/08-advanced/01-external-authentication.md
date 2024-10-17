@@ -11,7 +11,8 @@ PILOS has two types of users:
 Local users can be created by administrators. They can log in to the system with the combination of email address and password. Via PILOS, an email can be sent to the user upon creation, also a password reset function can be activated.
 
 **External users**
-In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP and Shibboleth are available as interfaces. All authentication providers can be operated in parallel, but none of them more than once.
+In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP, Shibboleth and OpenID-Connect are available as interfaces. All three authentication providers can be operated in parallel, but none of them more than once.
+
 
 ## Setup of external authenticators
 
@@ -125,6 +126,27 @@ To disable the shibboleth session check you can set the following `.env` variabl
 SHIBBOLETH_SESSION_CHECK_ENABLED=false
 ```
 
+### OpenID Connect
+
+To enable OpenID Connect, you need to add/set the following options in the  `.env` file and adjust to your needs.
+
+The required `openid` scope is always present, even if not explicitly set. If you need more scopes to get all required attributes, add them as a comma separated list. The default value for `OIDC_SCOPES` is `profile,email`.
+
+```
+# OpenID Connect config
+OIDC_ENABLED=true
+OIDC_ISSUER=http://idp.university.org
+OIDC_CLIENT_ID=my_client_id
+OIDC_CLIENT_SECRET=my_client_secret
+OIDC_SCOPES="profile,email"
+```
+
+In your IDP you should configure the following:
+
+- Redirect URI: https://your-domain.com/auth/oidc/callback
+- Post Logout Redirect URI: https://your-domain.com/logout
+- Backchannel Logout URI: https://your-domain.com/auth/oidc/logout
+
 
 ## Configure mapping
 
@@ -135,6 +157,7 @@ The mapping is defined in a JSON file, which is stored in the directory `app/Aut
 |-----------------|-------------------------|
 | LDAP            | ldap_mapping.json       |
 | Shibboleth      | shibboleth_mapping.json |
+| OpenID Connect | oidc_mapping.json       |
 
 ### Attribute mapping
 
@@ -196,15 +219,14 @@ The negation of arrays means: Check that regular expression doesn't match on any
 If the `all` attribute is also true: Check that regular expression doesn't match matches all entries
 
 
-
 ### Examples
 
-### LDAP
+#### LDAP
 
-#### Attributes
+##### Attributes
 In this example the LDAP schema uses the common name (CN) as username and has the group memberships in the memberof attribute.
 
-#### Roles
+##### Roles
 - The "superuser" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
 
 - The "user" role is given to everyone.
@@ -248,14 +270,13 @@ In this example the LDAP schema uses the common name (CN) as username and has th
 }
 ```
 
-### Shibboleth
+#### Shibboleth
 
-#### Attributes
+##### Attributes
 The attribute names are the header names in which the attribute values are send by the apache mod_shib to the application. 
 
-#### Roles
+##### Roles
 - The "superuser" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
-
 - The "user" role is given to everyone.
 
 ```json
@@ -290,6 +311,38 @@ The attribute names are the header names in which the attribute values are send 
                 {
                     "attribute": "external_id",
                     "regex": "/^.*/im"
+                }
+            ]
+        }
+    ]
+}
+```
+
+####  OpenID Connect
+
+##### Attributes
+In this example the OpenID Connect provider returns the claim `preferred_username` which contains the username and an additional claim `roles` with an array of roles.
+
+##### Roles
+- The "superuser" role is assigned to any user who has the "pilos-superuser" role.
+
+```json
+{
+    "attributes": {
+        "external_id": "preferred_username",
+        "first_name": "given_name",
+        "last_name": "family_name",
+        "email": "email",
+        "roles": "roles"
+    },
+    "roles":[
+        {
+            "name": "superuser",
+            "disabled": false,
+            "rules": [
+                {
+                    "attribute": "roles",
+                    "regex": "/^pilos-superuser$/im"
                 }
             ]
         }

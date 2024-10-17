@@ -37,6 +37,12 @@ return [
     'logout_success' => 'Successfully logged out',
     'new_password' => 'New password',
     'new_password_confirmation' => 'New password confirmation',
+    'oidc' => [
+        'redirect' => 'Log in',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'Log in with OpenID Connect',
+        'logout_incomplete' => 'You are still logged in at the OpenID Connect provider.',
+    ],
     'password' => 'Password',
     'reset_password' => 'Reset password',
     'send_email_confirm_mail' => 'A verification email has been sent to :email. Please confirm the new email address by clicking on the link in the email.',

@@ -37,6 +37,11 @@ return [
     'logout_success' => 'Déconnexion réussie',
     'new_password' => 'Nouveau mot de passe',
     'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
+    'oidc' => [
+        'redirect' => 'Connexion',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'Connexion avec OpenID Connect',
+    ],
     'password' => 'Mot de passe',
     'reset_password' => 'Réinitialiser le mot de passe',
     'send_email_confirm_mail' => 'Un e-mail de vérification a été envoyé à :email. Veuillez confirmer la nouvelle adresse en cliquant sur le lien dans l\'e-mail.',
