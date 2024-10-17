@@ -2,6 +2,7 @@
   <Button
     data-test="room-members-edit-button"
     v-tooltip="$t('rooms.members.edit_user')"
+    :aria-label="$t('rooms.members.edit_user')"
     :disabled="disabled"
     severity="info"
     @click="showEditMemberModal"

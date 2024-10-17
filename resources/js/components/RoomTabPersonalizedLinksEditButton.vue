@@ -6,6 +6,7 @@
     @click="showEditModal"
     icon="fa-solid fa-edit"
     v-tooltip="$t('rooms.tokens.edit')"
+    :aria-label="$t('rooms.tokens.edit')"
   />
 
   <!-- modal -->

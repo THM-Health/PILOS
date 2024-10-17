@@ -6,6 +6,7 @@
         <TipTapMenuDropdownButton
           data-test="tip-tap-text-type-dropdown"
           severity="secondary"
+          :label="$t('rooms.description.tooltips.text_type')"
         >
           <template v-slot:button-content>
             <i class="fa-solid fa-heading" />
@@ -38,6 +39,7 @@
         <!-- Text font styling -->
         <Button
           v-tooltip="$t('rooms.description.tooltips.bold')"
+          :aria-label="$t('rooms.description.tooltips.bold')"
           :severity="props.editor.isActive('bold') ? 'primary' : 'secondary'"
           text
           @click="props.editor.chain().focus().toggleBold().run()"
@@ -46,6 +48,7 @@
         />
         <Button
           v-tooltip="$t('rooms.description.tooltips.italic')"
+          :aria-label="$t('rooms.description.tooltips.italic')"
           :severity="props.editor.isActive('italic') ? 'primary' : 'secondary'"
           text
           @click="props.editor.chain().focus().toggleItalic().run()"
@@ -53,6 +56,7 @@
         />
         <Button
           v-tooltip="$t('rooms.description.tooltips.underline')"
+          :aria-label="$t('rooms.description.tooltips.underline')"
           :severity="props.editor.isActive('underline') ? 'primary' : 'secondary'"
           text
           @click="props.editor.chain().focus().toggleUnderline().run()"
@@ -60,6 +64,7 @@
         />
         <Button
           v-tooltip="$t('rooms.description.tooltips.strikethrough')"
+          :aria-label="$t('rooms.description.tooltips.strikethrough')"
           :severity="props.editor.isActive('strike') ? 'primary' : 'secondary'"
           text
           @click="props.editor.chain().focus().toggleStrike().run()"
@@ -69,7 +74,7 @@
         <!-- Text color -->
         <TipTapMenuDropdownButton
           severity="secondary"
-          v-tooltip="$t('rooms.description.tooltips.color')"
+          :label="$t('rooms.description.tooltips.color')"
         >
           <template v-slot:button-content>
             <i class="fa-solid fa-palette" />
@@ -100,7 +105,7 @@
         <!-- Highlight -->
         <TipTapMenuDropdownButton
           severity="secondary"
-          v-tooltip="$t('rooms.description.tooltips.highlight')"
+          :label="$t('rooms.description.tooltips.highlight')"
         >
           <template v-slot:button-content>
             <i class="fa-solid fa-highlighter" />
@@ -120,6 +125,7 @@
 
         <Button
           v-tooltip="$t('rooms.description.tooltips.clear')"
+          :aria-label="$t('rooms.description.tooltips.clear')"
           severity="secondary"
           text
           @click="props.editor.chain().focus().unsetAllMarks().run()"
@@ -130,6 +136,7 @@
           <!-- Text alignment -->
           <Button
             v-tooltip="$t('rooms.description.tooltips.left')"
+            :aria-label="$t('rooms.description.tooltips.left')"
             :severity="props.editor.isActive({ textAlign: 'left' }) ? 'primary' : 'secondary'"
             text
             @click="props.editor.chain().focus().setTextAlign('left').run()"
@@ -137,6 +144,7 @@
           />
           <Button
             v-tooltip="$t('rooms.description.tooltips.center')"
+            :aria-label="$t('rooms.description.tooltips.center')"
             :severity="props.editor.isActive({ textAlign: 'center' }) ? 'primary' : 'secondary'"
             text
             @click="props.editor.chain().focus().setTextAlign('center').run()"
@@ -144,6 +152,7 @@
           />
           <Button
             v-tooltip="$t('rooms.description.tooltips.right')"
+            :aria-label="$t('rooms.description.tooltips.right')"
             :severity="props.editor.isActive({ textAlign: 'right' }) ? 'primary' : 'secondary'"
             text
             @click="props.editor.chain().focus().setTextAlign('right').run()"
@@ -154,6 +163,7 @@
           <!-- Unordered list -->
         <Button
           v-tooltip="$t('rooms.description.tooltips.list')"
+          :aria-label="$t('rooms.description.tooltips.list')"
           :severity="props.editor.isActive('bulletList') ? 'primary' : 'secondary'"
           text
           @click="props.editor.chain().focus().toggleBulletList().run()"
@@ -162,6 +172,7 @@
           <!-- Ordered list -->
         <Button
           v-tooltip="$t('rooms.description.tooltips.numbered_list')"
+          :aria-label="$t('rooms.description.tooltips.numbered_list')"
           :severity="props.editor.isActive('orderedList') ? 'primary' : 'secondary'"
           text
           @click="props.editor.chain().focus().toggleOrderedList().run()"
@@ -170,6 +181,7 @@
           <!-- Quote -->
         <Button
           v-tooltip="$t('rooms.description.tooltips.quote')"
+          :aria-label="$t('rooms.description.tooltips.quote')"
           :severity="props.editor.isActive('blockquote') ? 'primary' : 'secondary'"
           text
           @click="props.editor.chain().focus().toggleBlockquote().run()"
@@ -184,15 +196,19 @@
       <template #end>
         <!-- History -->
         <Button
-          severity="secondary" text
+          severity="secondary"
+          text
           v-tooltip="$t('rooms.description.tooltips.undo')"
+          :aria-label="$t('rooms.description.tooltips.undo')"
           :disabled="!props.editor.can().undo()"
           @click="props.editor.chain().focus().undo().run()"
           icon="fa-solid fa-undo"
         />
         <Button
-          severity="secondary" text
+          severity="secondary"
+          text
           v-tooltip="$t('rooms.description.tooltips.redo')"
+          :aria-label="$t('rooms.description.tooltips.redo')"
           :disabled="!props.editor.can().redo()"
           @click="props.editor.chain().focus().redo().run()"
           icon="fa-solid fa-redo"
@@ -200,6 +216,7 @@
         <Button
           severity="danger" text
           v-tooltip="$t('rooms.description.tooltips.delete')"
+          :aria-label="$t('rooms.description.tooltips.delete')"
           @click="props.editor.commands.clearContent(true)"
           icon="fa-solid fa-trash"
         />

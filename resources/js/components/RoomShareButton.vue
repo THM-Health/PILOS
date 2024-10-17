@@ -17,6 +17,7 @@
               <i
                 class="fa-solid fa-link"
                 v-tooltip="$t('rooms.invitation.link')"
+                :aria-label="$t('rooms.invitation.link')"
               />
             </InputIcon>
             <InputText
@@ -34,6 +35,7 @@
               <i
                 class="fa-solid fa-key"
                 v-tooltip="$t('rooms.invitation.code')"
+                :aria-label="$t('rooms.invitation.code')"
               />
             </InputIcon>
             <InputText

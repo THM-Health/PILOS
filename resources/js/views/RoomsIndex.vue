@@ -39,6 +39,7 @@
             icon="fa-solid fa-magnifying-glass"
             @click="loadRooms(1)"
             :disabled="loadingRooms"
+            :aria-label="$t('app.search')"
             v-tooltip="$t('app.search')"
           />
         </InputGroup>

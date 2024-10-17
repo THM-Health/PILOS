@@ -2,6 +2,7 @@
   <!-- View file -->
   <Button
     v-tooltip="$t('rooms.files.view')"
+    :aria-label="$t('rooms.files.view')"
     :disabled="disabled"
     target="_blank"
     @click="downloadFile"

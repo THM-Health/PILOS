@@ -21,6 +21,7 @@
         <Button
           class="shrink-0"
           v-tooltip="$t('app.reload')"
+          :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
           @click="loadData()"

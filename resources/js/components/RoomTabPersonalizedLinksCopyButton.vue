@@ -5,6 +5,7 @@
     @click="copyLink"
     icon="fa-solid fa-link"
     v-tooltip="$t('rooms.tokens.copy')"
+    :aria-label="$t('rooms.tokens.copy')"
   />
 </template>
 

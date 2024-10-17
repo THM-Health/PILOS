@@ -1,6 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('rooms.description.tooltips.source_code')"
+    :aria-label="$t('rooms.description.tooltips.source_code')"
     severity="secondary"
     text
     @click="openModal"
