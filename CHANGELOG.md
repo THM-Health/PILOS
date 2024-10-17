@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v4.1.0] - 2024-10-16
+## [v4.1.0] - 2024-10-17
 ### Added
 - Admin option to disable welcome page ([#1420], [#1441])
 - Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
