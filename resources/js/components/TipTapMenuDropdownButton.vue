@@ -1,7 +1,14 @@
 <template>
-    <Button ref="dropdownButton" text @click="dropdown = !dropdown" v-bind="$attrs">
+    <Button
+      ref="dropdownButton"
+      text
+      v-tooltip="label"
+      :aria-label="label"
+      @click="dropdown = !dropdown"
+      v-bind="$attrs"
+    >
       <span class="p-button-icon">
-        <slot name="button-content">{{ props.text }}</slot>
+        <slot name="button-content"/>
         <i class="fa-solid fa-caret-down ml-auto lg:ml-2"></i>
       </span>
     </Button>
@@ -15,8 +22,8 @@ import { ref } from 'vue';
 import { vOnClickOutside } from '@vueuse/components';
 import { autoPlacement, useFloating } from '@floating-ui/vue';
 
-const props = defineProps({
-  text: {
+defineProps({
+  label: {
     type: String
   }
 });

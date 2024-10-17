@@ -1,6 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('meetings.view_meeting_stats')"
+    :aria-label="$t('meetings.view_meeting_stats')"
     :disabled="disabled"
     @click="showStatisticModal"
     icon="fa-solid fa-chart-line"

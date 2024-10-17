@@ -2,6 +2,7 @@
   <!-- button -->
   <Button
     v-tooltip="$t('rooms.files.edit')"
+    :aria-label="$t('rooms.files.edit')"
     :disabled="disabled"
     severity="info"
     @click="showEditModal"

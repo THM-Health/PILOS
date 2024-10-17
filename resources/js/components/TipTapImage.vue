@@ -1,6 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('rooms.description.tooltips.image')"
+    :aria-label="$t('rooms.description.tooltips.image')"
     :severity="props.editor.isActive('image') ? 'primary' : 'secondary'"
     text
     @click="openModal"

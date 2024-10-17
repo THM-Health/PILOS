@@ -2,6 +2,7 @@
   <!-- button -->
   <Button
     v-tooltip="$t('rooms.files.delete')"
+    :aria-label="$t('rooms.files.delete')"
     :disabled="disabled"
     severity="danger"
     @click="showModal = true"

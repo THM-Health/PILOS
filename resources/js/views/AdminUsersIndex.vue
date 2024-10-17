@@ -116,7 +116,9 @@
       v-model:sortOrder="sortOrder"
       @page="onPage"
       @sort="onSort"
-      class="table-auto lg:table-fixed"
+      :pt="{
+        table: 'table-auto lg:table-fixed'
+      }"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />

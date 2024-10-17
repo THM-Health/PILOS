@@ -3,6 +3,7 @@
   <Button
     data-test="room-members-delete-button"
     v-tooltip="$t('rooms.members.remove_user')"
+    :aria-label="$t('rooms.members.remove_user')"
     :disabled="disabled"
     severity="danger"
     @click="showModal = true"

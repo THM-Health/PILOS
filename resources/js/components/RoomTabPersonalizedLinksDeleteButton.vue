@@ -6,6 +6,7 @@
     @click="showDeleteModal"
     icon="fa-solid fa-trash"
     v-tooltip="$t('rooms.tokens.delete')"
+    :aria-label="$t('rooms.tokens.delete')"
   />
 
   <!-- modal -->

@@ -38,6 +38,7 @@
             severity="secondary"
             v-if="!session.current"
             v-tooltip="$t('auth.sessions.last_active')"
+            :aria-label="$t('auth.sessions.last_active')"
             icon="fa-solid fa-clock"
             :value="$d(new Date( session.last_activity),'datetimeShort')"
           />

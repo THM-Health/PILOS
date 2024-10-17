@@ -10,10 +10,10 @@
 
       <Button
         v-if="modelLoadingError"
-        v-tooltip="$t('rooms.room_types.reload')"
+        v-tooltip="$t('app.reload')"
+        :aria-label="$t('app.reload')"
         :disabled="disabled || isLoadingAction"
         @click="reloadRoomTypes"
-        :label="$t('app.reload')"
         :icon="isLoadingAction ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
       />
     </div>

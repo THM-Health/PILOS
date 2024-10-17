@@ -2,6 +2,7 @@
   <Button
     data-test="room-members-bulk-edit-button"
     v-tooltip="$t('rooms.members.bulk_edit_user',{numberOfSelectedUsers: props.userIds.length})"
+    :aria-label="$t('rooms.members.bulk_edit_user',{numberOfSelectedUsers: props.userIds.length})"
     :disabled="disabled"
     severity="info"
     @click="showBulkEditMembersModal"

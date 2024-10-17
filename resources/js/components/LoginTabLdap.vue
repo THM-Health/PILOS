@@ -1,6 +1,6 @@
 <template>
   <div data-test="login-tab-ldap">
-    <p class="p-card-title">{{ props.title }}</p>
+    <h1 class="p-card-title">{{ props.title }}</h1>
     <form @submit.prevent="submit">
       <div class="flex flex-col gap-2">
         <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>

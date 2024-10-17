@@ -2,6 +2,7 @@
   <Button
     data-test="room-members-bulk-delete-button"
     v-tooltip="$t('rooms.members.bulk_remove_user',{numberOfSelectedUsers: props.userIds.length})"
+    :aria-label="$t('rooms.members.bulk_remove_user',{numberOfSelectedUsers: props.userIds.length})"
     :disabled="disabled"
     severity="danger"
     @click="showBulkDeleteMembersModal"
