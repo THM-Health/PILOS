@@ -1,5 +1,6 @@
 <template>
   <Button
+    data-test="room-share-button"
     :label="$t('rooms.invitation.share')"
     icon="fa-solid fa-share-nodes"
     severity="secondary"
@@ -16,6 +17,7 @@
               <i
                 class="fa-solid fa-link"
                 v-tooltip="$t('rooms.invitation.link')"
+                :aria-label="$t('rooms.invitation.link')"
               />
             </InputIcon>
             <InputText
@@ -33,6 +35,7 @@
               <i
                 class="fa-solid fa-key"
                 v-tooltip="$t('rooms.invitation.code')"
+                :aria-label="$t('rooms.invitation.code')"
               />
             </InputIcon>
             <InputText
@@ -47,6 +50,7 @@
         </div>
       </fieldset>
       <Button
+        data-test="room-copy-invitation-button"
         @click="copyInvitationText"
         :label="$t('rooms.invitation.copy')"
         icon="fa-solid fa-copy"

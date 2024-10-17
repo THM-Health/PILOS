@@ -1,7 +1,8 @@
 <template>
   <div>
   <Select
-    :inputId="props.id"
+    :aria-labelledby="props.ariaLabelledby"
+    data-test="locale-dropdown"
     :options="locales"
     optionLabel="text"
     optionValue="value"
@@ -11,6 +12,14 @@
     :disabled="props.disabled"
     :placeholder="$t('app.select_locale')"
     class="w-full"
+    :pt="{
+      listContainer: {
+        'data-test': 'locale-dropdown-items'
+      },
+        option:{
+      'data-test': 'locale-dropdown-option'
+        }
+      }"
   />
   </div>
 </template>
@@ -36,9 +45,8 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  id: {
-    type: String,
-    default: 'locale'
+  ariaLabelledby: {
+    type: String
   }
 });
 

@@ -1,6 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('meetings.attendance.view')"
+    :aria-label="$t('meetings.attendance.view')"
     :disabled="disabled"
     @click="showAttendanceModal"
     icon="fa-solid fa-user-clock"

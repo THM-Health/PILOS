@@ -1,6 +1,6 @@
 <template>
   <div data-test="login-tab-local">
-    <p class="p-card-title">{{ props.title }}</p>
+    <h1 class="p-card-title">{{ props.title }}</h1>
     <form @submit.prevent="submit">
       <div class="flex flex-col gap-2">
         <label :for="`${props.id}-email`">{{ props.emailLabel }}</label>
@@ -20,7 +20,7 @@
       <div class="flex flex-col gap-2 mt-6">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
-          :id="`${props.id}-password`"
+          :input-id="`${props.id}-password`"
           v-model="password"
           autocomplete="current-password"
           :feedback="false"

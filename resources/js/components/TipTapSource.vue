@@ -1,10 +1,12 @@
 <template>
   <Button
     v-tooltip="$t('rooms.description.tooltips.source_code')"
+    :aria-label="$t('rooms.description.tooltips.source_code')"
     severity="secondary"
     text
     @click="openModal"
     icon="fa-solid fa-code"
+    data-test="tip-tap-source-button"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -13,6 +15,7 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
+    data-test="tip-tap-source-dialog"
   >
 
     <Textarea
@@ -20,6 +23,7 @@
       v-model="source"
       class="w-full mt-2"
       rows="5"
+      data-test="source-textarea"
     />
 
     <template #footer>
@@ -28,10 +32,12 @@
             severity="secondary"
             @click="modalVisible = false"
             :label="$t('app.cancel')"
+            data-test="dialog-cancel-button"
           />
           <Button
             @click="save"
             :label="$t('app.save')"
+            data-test="dialog-save-button"
           />
         </div>
     </template>

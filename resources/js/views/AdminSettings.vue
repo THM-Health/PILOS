@@ -98,7 +98,7 @@
                     <div class="flex items-center">
                       <RadioButton
                         v-model="toastLifetimeMode"
-                        inputId="toast-lifetime-mode-unlimited"
+                        input-id="toast-lifetime-mode-unlimited"
                         name="toast-lifetime-mode"
                         value="unlimited"
                         :disabled="disabled"
@@ -114,7 +114,7 @@
                     <div class="flex items-center">
                       <RadioButton
                         v-model="toastLifetimeMode"
-                        inputId="toast-lifetime-custom"
+                        input-id="toast-lifetime-mode-custom"
                         name="toast-lifetime-mode"
                         value="custom"
                         :disabled="disabled"
@@ -125,13 +125,12 @@
                         }
                       }"
                       />
-                      <label for="toast-lifetime-mode-custom" id="toast-lifetime-mode-custom-label" class="ml-2">{{ $t('admin.settings.toast_lifetime.custom') }}</label>
+                      <label for="toast-lifetime-mode-custom" id="toast-lifetime-custom-label" class="ml-2">{{ $t('admin.settings.toast_lifetime.custom') }}</label>
                     </div>
                   </div>
                   <InputText
                     v-if="toastLifetimeMode === 'custom'"
                     class="mt-1"
-                    id="toast-lifetime-custom"
                     v-model.number="settings.general_toast_lifetime"
                     min="1"
                     max="30"
@@ -161,6 +160,22 @@
                   <FormError :errors="formErrors.fieldError('general_default_timezone')"/>
                 </div>
               </div>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.no_welcome_page')}}</legend>
+                <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+                  <div class="flex items-center gap-2">
+                    <ToggleSwitch
+                      inputId="no-welcome-page"
+                      v-model="settings.general_no_welcome_page"
+                      binary
+                      :disabled="disabled"
+                      :invalid="formErrors.fieldInvalid('general_no_welcome_page')"
+                    />
+                    <label for="no-welcome-page">{{ $t('app.enable') }}</label>
+                  </div>
+                  <FormError :errors="formErrors.fieldError('general_no_welcome_page')"/>
+                </div>
+              </fieldset>
             </AdminPanel>
 
             <AdminPanel :title="$t('admin.settings.theme.title')">
@@ -177,7 +192,7 @@
                     preview-bg-class="bg-surface-0"
                     :preview-alt="$t('admin.settings.favicon.alt')"
                     :allowed-extensions="['ico']"
-                    inputId="favicon"
+                    input-id="favicon"
                     :url-invalid="formErrors.fieldInvalid('theme_favicon')"
                     :file-invalid="formErrors.fieldInvalid('theme_favicon_file')"
                     :url-error="formErrors.fieldError('theme_favicon')"
@@ -198,7 +213,7 @@
                     preview-bg-class="bg-surface-900"
                     :preview-alt="$t('admin.settings.favicon.alt')"
                     :allowed-extensions="['ico']"
-                    inputId="favicon-dark"
+                    input-id="favicon-dark"
                     :url-invalid="formErrors.fieldInvalid('theme_favicon_dark')"
                     :file-invalid="formErrors.fieldInvalid('theme_favicon_dark_file')"
                     :url-error="formErrors.fieldError('theme_favicon_dark')"
@@ -219,7 +234,7 @@
                     preview-bg-class="bg-surface-0"
                     :preview-alt="$t('admin.settings.logo.alt')"
                     :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
-                    inputId="logo"
+                    input-id="logo"
                     :url-invalid="formErrors.fieldInvalid('theme_logo')"
                     :file-invalid="formErrors.fieldInvalid('theme_logo_file')"
                     :url-error="formErrors.fieldError('theme_logo')"
@@ -240,7 +255,7 @@
                     preview-bg-class="bg-surface-900"
                     :preview-alt="$t('admin.settings.logo.alt')"
                     :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
-                    inputId="logo-dark"
+                    input-id="logo-dark"
                     :url-invalid="formErrors.fieldInvalid('theme_logo_dark')"
                     :file-invalid="formErrors.fieldInvalid('theme_logo_dark_file')"
                     :url-error="formErrors.fieldError('theme_logo_dark')"
@@ -248,8 +263,8 @@
                   />
                 </div>
               </fieldset>
-              <div class="grid grid-cols-12 gap-4">
-                <label for="theme-primary-color" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.primary_color')}}</label>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.primary_color')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <ColorSelect
                     class="my-2"
@@ -257,7 +272,7 @@
                     :colors="colors.getAllColors()"
                     v-model="settings.theme_primary_color"
                   />
-                  <label for="banner-color">{{ $t('admin.settings.theme.custom_color') }}</label>
+                  <label for="theme-primary-color">{{ $t('admin.settings.theme.custom_color') }}</label>
                   <InputText
                     id="theme-primary-color"
                     v-model="settings.theme_primary_color"
@@ -267,13 +282,13 @@
                   />
                   <FormError :errors="formErrors.fieldError('theme_primary_color')"/>
                 </div>
-              </div>
+              </fieldset>
               <fieldset class="grid grid-cols-12 gap-4">
               <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.theme.rounded')}}</legend>
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    inputId="theme-rounded"
+                    input-id="theme-rounded"
                     v-model="settings.theme_rounded"
                     binary
                     :disabled="disabled"
@@ -292,7 +307,7 @@
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <div class="flex items-center gap-2">
                     <ToggleSwitch
-                      inputId="banner-enabled"
+                      input-id="banner-enabled"
                       v-model="settings.banner_enabled"
                       binary
                       :disabled="disabled"
@@ -388,10 +403,10 @@
                 </div>
               </div>
               <div class="grid grid-cols-12 gap-4">
-                <label for="banner-link-style" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_style')}}</label>
+                <label id="banner-link-style-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_style')}}</label>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <Select
-                    input-id="banner-link-style"
+                    aria-labelledby="banner-link-style-label"
                     v-model="settings.banner_link_style"
                     :options="linkBtnStyles"
                     :placeholder="$t('admin.settings.banner.select_link_style')"
@@ -404,10 +419,10 @@
                 </div>
               </div>
               <div class="grid grid-cols-12 gap-4">
-                <label for="banner-link-target" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_target')}}</label>
+                <label id="banner-link-target-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.link_target')}}</label>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <Select
-                    input-id="banner-link-target"
+                    aria-labelledby="banner-link-target-label"
                     v-model="settings.banner_link_target"
                     :options="linkTargets"
                     :placeholder="$t('admin.settings.banner.select_link_target')"
@@ -419,8 +434,8 @@
                   <FormError :errors="formErrors.fieldError('banner_link_target')"/>
                 </div>
               </div>
-              <div class="grid grid-cols-12 gap-4">
-                <label for="banner-color" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.color')}}</label>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.color')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <ColorSelect
                     class="my-2"
@@ -438,9 +453,9 @@
                   />
                   <FormError :errors="formErrors.fieldError('banner_color')"/>
                 </div>
-              </div>
-              <div class="grid grid-cols-12 gap-4">
-                <label for="banner-background" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.background')}}</label>
+              </fieldset>
+              <fieldset class="grid grid-cols-12 gap-4">
+                <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.banner.background')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <ColorSelect
                     class="my-2"
@@ -458,7 +473,7 @@
                   />
                   <FormError :errors="formErrors.fieldError('banner_background')"/>
                 </div>
-              </div>
+              </fieldset>
             </AdminPanel>
 
             <AdminPanel :title="$t('app.rooms')">
@@ -469,7 +484,7 @@
                     <div class="flex items-center">
                       <RadioButton
                         v-model="roomLimitMode"
-                        inputId="room-limit-mode-unlimited"
+                        input-id="room-limit-mode-unlimited"
                         name="room-limit-mode"
                         value="unlimited"
                         :disabled="disabled"
@@ -485,7 +500,7 @@
                     <div class="flex items-center">
                       <RadioButton
                         v-model="roomLimitMode"
-                        inputId="room-limit-mode-custom"
+                        input-id="room-limit-mode-custom"
                         name="room-limit-mode"
                         value="custom"
                         :disabled="disabled"
@@ -600,6 +615,22 @@
                   <FormError :errors="formErrors.fieldError('room_auto_delete_never_used_period')"/>
                 </div>
               </div>
+              <div class="grid grid-cols-12 gap-4">
+                <label for="room-file-terms-of-use" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.room_file_terms_of_use.title')}}</label>
+                <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+                  <Textarea
+                    id="room-file-terms-of-use"
+                    v-model="settings.room_file_terms_of_use"
+                    rows="3"
+                    :invalid="formErrors.fieldInvalid('room_file_terms_of_use')"
+                    :disabled="disabled"
+                    aria-describedby="room-file-terms-of-use-help"
+                  />
+                  <small id="room-file-terms-of-use-help">{{ $t('admin.settings.room_file_terms_of_use.description') }}</small>
+
+                  <FormError :errors="formErrors.fieldError('room_file_terms_of_use')"/>
+                </div>
+              </div>
             </AdminPanel>
 
             <AdminPanel :title="$t('app.users')">
@@ -608,7 +639,7 @@
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    inputId="password-change-allowed"
+                    input-id="password-change-allowed"
                     v-model="settings.user_password_change_allowed"
                     binary
                     :disabled="disabled"
@@ -621,13 +652,13 @@
             </fieldset>
             </AdminPanel>
 
-            <AdminPanel :title="$t('admin.settings.attendance_and_statistics_title')">
+            <AdminPanel :title="$t('admin.settings.recording_and_statistics_title')">
               <fieldset class="grid grid-cols-12 gap-4">
                 <legend class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.settings.statistics.servers.enabled_title')}}</legend>
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <div class="flex items-center gap-2">
                     <ToggleSwitch
-                      inputId="statistics-servers-enabled"
+                      input-id="statistics-servers-enabled"
                       v-model="settings.recording_server_usage_enabled"
                       binary
                       :disabled="disabled"
@@ -658,7 +689,7 @@
                 <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                   <div class="flex items-center gap-2">
                     <ToggleSwitch
-                      inputId="statistics-meetings-enabled"
+                      input-id="statistics-meetings-enabled"
                       v-model="settings.recording_meeting_usage_enabled"
                       binary
                       :disabled="disabled"
@@ -731,7 +762,7 @@
                     show-delete
                     :preview-alt="$t('admin.settings.bbb.logo.alt')"
                     :allowed-extensions="['jpg', 'jpeg', 'png', 'gif', 'svg']"
-                    inputId="bbb-logo"
+                    input-id="bbb-logo"
                     :url-invalid="formErrors.fieldInvalid('bbb_logo')"
                     :file-invalid="formErrors.fieldInvalid('bbb_logo_file')"
                     :url-error="formErrors.fieldError('bbb_logo')"

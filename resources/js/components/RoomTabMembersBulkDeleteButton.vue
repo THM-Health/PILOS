@@ -1,6 +1,8 @@
 <template>
   <Button
+    data-test="room-members-bulk-delete-button"
     v-tooltip="$t('rooms.members.bulk_remove_user',{numberOfSelectedUsers: props.userIds.length})"
+    :aria-label="$t('rooms.members.bulk_remove_user',{numberOfSelectedUsers: props.userIds.length})"
     :disabled="disabled"
     severity="danger"
     @click="showBulkDeleteMembersModal"
@@ -9,6 +11,7 @@
 
   <!-- bulk edit user role modal -->
   <Dialog
+    data-test="room-members-bulk-delete-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.members.modals.remove.title_bulk', {numberOfSelectedUsers: props.userIds.length})"
@@ -22,8 +25,8 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteMembers" />
+        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button" />
+        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteMembers" data-test="dialog-continue-button"/>
         </div>
     </template>
 
@@ -97,7 +100,6 @@ function deleteMembers () {
         return;
       }
     }
-    showModal.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;

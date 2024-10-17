@@ -11,6 +11,16 @@
       class="w-full"
       @uploader="onFileSelect"
       :choose-label="$t('admin.users.image.upload')"
+      :pt="{
+        pcChooseButton: {
+          root: {
+            'data-test': 'upload-file-button'
+          },
+        },
+        input: {
+          'data-test': 'upload-file-input'
+        }
+      }"
     >
       <template #uploadicon>
         <i class="fa-solid fa-upload" />
@@ -24,6 +34,7 @@
       :disabled="disabled"
       :label="$t('app.cancel')"
       icon="fa-solid fa-times"
+      data-test="reset-file-upload-button"
     />
     <Button
       v-if="!imageDeleted && !croppedImage && props.image"
@@ -32,6 +43,7 @@
       @click="emit('deleteImage', true)"
       :label="$t('admin.users.image.delete')"
       icon="fa-solid fa-trash"
+      data-test="delete-image-button"
     />
     <Button
       v-if="imageDeleted"
@@ -40,6 +52,7 @@
       @click="emit('deleteImage', false)"
       :label="$t('app.undo_delete')"
       icon="fa-solid fa-undo"
+      data-test="undo-delete-button"
     />
     </div>
     <div class="col-span-12 lg:col-span-3 text-left"  :class="{'lg:text-right': !viewOnly}">
@@ -50,8 +63,10 @@
       size="xlarge"
       class="rounded-border overflow-hidden"
       shape="square"
+      data-test="profile-image-preview"
     />
     <UserAvatar
+      data-test="default-profile-image-preview"
       v-else
       :firstname="firstname"
       :lastname="lastname"
@@ -62,6 +77,7 @@
     </div>
   </div>
   <Dialog
+    data-test="crop-image-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('admin.users.image.crop')"
@@ -74,8 +90,8 @@
   >
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('admin.users.image.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('admin.users.image.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" data-test="dialog-save-button"/>
       </div>
     </template>
 
@@ -119,7 +135,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits('newImage', 'deleteImage');
+const emit = defineEmits(['newImage', 'deleteImage']);
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);

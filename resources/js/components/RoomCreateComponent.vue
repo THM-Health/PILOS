@@ -22,7 +22,11 @@
       :closable="!isLoadingAction && !roomTypeSelectBusy"
       :draggable="false"
       @hide="clearModal"
+      aria-labelledby="room-create-dialog-title"
     >
+      <template #header>
+        <h2 id="room-create-dialog-title" class="p-dialog-title">{{ $t('rooms.create.title') }}</h2>
+      </template>
       <div>
         <!-- Room name -->
         <div class="flex flex-col gap-2 mt-6">
@@ -54,8 +58,8 @@
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="$t('app.cancel')" severity="secondary" :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
-          <Button :label="$t('rooms.create.ok')" severity="success" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
+          <Button :label="$t('app.cancel')" data-test="dialog-cancel-button" severity="secondary" :disabled="isLoadingAction || roomTypeSelectBusy" @click="handleCancel" />
+          <Button :label="$t('rooms.create.ok')" data-test="dialog-save-button" severity="success" :disabled="roomTypeSelectLoadingError || isLoadingAction || roomTypeSelectBusy" @click="handleOk" />
         </div>
       </template>
     </Dialog>

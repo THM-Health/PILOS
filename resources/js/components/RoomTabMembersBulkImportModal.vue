@@ -1,6 +1,7 @@
 <template>
   <!-- bulk add new user modal -->
   <Dialog
+    data-test="room-members-bulk-import-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.members.bulk_import_users')"
@@ -10,6 +11,13 @@
     :closeOnEscape="!isLoadingAction"
     :dismissableMask="false"
     :closable="!isLoadingAction"
+    :pt="{
+      pcCloseButton: {
+        root:{
+          'data-test': 'dialog-header-close-button'
+        }
+      }
+    }"
   >
     <template #footer>
       <div class="flex justify-end w-full flex-col sm:flex-row gap-2" v-if="step === 0">
@@ -18,6 +26,7 @@
           @click="importUsers(true)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
+          data-test="dialog-continue-button"
         />
       </div>
 
@@ -27,6 +36,7 @@
           severity="secondary"
           @click="step = 0"
           :label="$t('app.back')"
+          data-test="dialog-back-button"
         />
         <Button
           v-if="validUsers.length > 0"
@@ -34,6 +44,7 @@
           @click="importUsers(false)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.bulk_import.import_importable_button')"
+          data-test="dialog-continue-button"
         />
       </div>
 
@@ -41,12 +52,14 @@
         <Button
           @click="finish"
           :label="$t('app.close')"
+          data-test="dialog-close-button"
         />
         <Button
           v-if="invalidUsers.length>0"
           severity="secondary"
           @click="copyInvalidUsers"
           :label="$t('rooms.members.modals.bulk_import.copy_and_close')"
+          data-test="room-members-copy-and-close-button"
         />
       </div>
     </template>
@@ -56,6 +69,8 @@
         <label for="user-emails">{{ $t('rooms.members.modals.bulk_import.label') }}</label>
         <Textarea
           autofocus
+          id="user-emails"
+          aria-describedby="user-emails-help"
           v-model="rawList"
           :disabled="isLoadingAction"
           :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
@@ -67,24 +82,26 @@
       </div>
       <!-- select role -->
       <div class="flex flex-col gap-2 mt-6">
-        <label for="role">{{ $t('rooms.role') }}</label>
+        <fieldset class="flex w-full flex-col gap-2">
+          <legend>{{ $t('rooms.role') }}</legend>
 
-        <div class="flex items-center">
-          <RadioButton v-model="newUsersRole" inputId="participant-role" name="role" :value="1" />
-          <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
-        </div>
+          <div class="flex items-center" data-test="participant-role-group">
+            <RadioButton v-model="newUsersRole" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
+            <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
+          </div>
 
-        <div class="flex items-center">
-          <RadioButton v-model="newUsersRole" inputId="participant-moderator" name="role" :value="2" />
-          <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
-        </div>
+          <div class="flex items-center" data-test="moderator-role-group">
+            <RadioButton v-model="newUsersRole" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
+            <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
+          </div>
 
-        <div class="flex items-center">
-          <RadioButton v-model="newUsersRole" inputId="participant-co_owner" name="role" :value="3" />
-          <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
-        </div>
+          <div class="flex items-center" data-test="co-owner-role-group">
+            <RadioButton v-model="newUsersRole" :disabled="isLoadingAction" input-id="co_owner-role" name="role" :value="3" />
+            <label for="co_owner-role" class="ml-2"><RoomRoleBadge :role="3" /></label>
+          </div>
 
-        <FormError :errors="formErrors.fieldError('role')" />
+          <FormError :errors="formErrors.fieldError('role')" />
+        </fieldset>
       </div>
     </div>
 

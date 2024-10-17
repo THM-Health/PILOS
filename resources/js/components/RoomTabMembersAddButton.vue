@@ -9,6 +9,7 @@
     aria-haspopup="true"
     aria-controls="overlay_menu"
     :disabled="props.disabled"
+    data-test="room-members-add-button"
   />
   <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
   <!-- Add existing user from database -->
@@ -30,6 +31,8 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
+
+defineEmits(['added']);
 
 const props = defineProps({
   roomId: {

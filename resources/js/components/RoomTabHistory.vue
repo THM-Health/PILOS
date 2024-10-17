@@ -21,6 +21,7 @@
         <Button
           class="shrink-0"
           v-tooltip="$t('app.reload')"
+          :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
           @click="loadData()"
@@ -30,7 +31,7 @@
     </div>
 
     <!-- List of all meetings -->
-    <OverlayComponent :show="isBusy || loadingError" z-index="1">
+    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>

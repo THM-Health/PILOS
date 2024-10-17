@@ -6,6 +6,7 @@
     @click="showEditModal"
     icon="fa-solid fa-edit"
     v-tooltip="$t('rooms.tokens.edit')"
+    :aria-label="$t('rooms.tokens.edit')"
   />
 
   <!-- modal -->
@@ -35,6 +36,7 @@
         autofocus
         id="firstname"
         v-model.trim="newFirstname"
+        :disabled="isLoadingAction"
         :invalid="formErrors.fieldInvalid('firstname')"
       />
       <FormError :errors="formErrors.fieldError('firstname')" />
@@ -46,6 +48,7 @@
       <InputText
         id="lastname"
         v-model.trim="newLastname"
+        :disabled="isLoadingAction"
         :invalid="formErrors.fieldInvalid('lastname')"
       />
       <FormError :errors="formErrors.fieldError('lastname')" />
@@ -53,17 +56,19 @@
 
     <!-- select role -->
     <div class="flex flex-col gap-2 mt-6">
-      <label for="role">{{ $t('rooms.role') }}</label>
+      <fieldset class="flex w-full flex-col gap-2">
+        <legend>{{ $t('rooms.role') }}</legend>
 
-      <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-role" name="role" :value="1" />
-        <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
-      </div>
+        <div class="flex items-center">
+          <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
+          <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
+        </div>
 
-      <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-moderator" name="role" :value="2" />
-        <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
-      </div>
+        <div class="flex items-center">
+          <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
+          <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
+        </div>
+      </fieldset>
 
       <FormError :errors="formErrors.fieldError('role')" />
     </div>
@@ -104,7 +109,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['added']);
+const emit = defineEmits(['edited']);
 
 const api = useApi();
 const formErrors = useFormErrors();

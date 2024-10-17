@@ -17,6 +17,7 @@ const emit = defineEmits(['reload']);
       severity="secondary"
       icon="fa-solid fa-sync"
       :label="$t('app.reload')"
+      data-test="loading-retry-button"
     />
   </div>
   <i v-else class="fa-solid fa-circle-notch fa-spin text-3xl" />

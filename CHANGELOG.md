@@ -6,6 +6,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v4.1.0] - 2024-10-17
+### Added
+- Admin option to disable welcome page ([#1420], [#1441])
+- Admin option to customize terms of use for file download or disable it ([#1435], [#1440])
+- Frontend tests for Login, Logout, Locales ([#1150], [#1483])
+- Frontend tests for Room Index page ([#1150], [#1483])
+- Frontend tests for Room page  ([#1150], [#1483])
+- Frontend tests for Room Members Tab  ([#1150], [#722],[#1483])
+- Frontend tests for Room Settings Tab  ([#1150], [#721], [#1483])
+- Frontend tests for Room Files Tab ([#1150], [#1483])
+- Frontend tests for Room Description Tab ([#1150], [#1483])
+- Frontend tests for User Profile ([#1150], [#1483])
+
+### Changed
+- Improve autocomplete in user profile  ([#1452])
+- Disable file upload UI elements during upload ([#1449])
+- Improve accessibility for icon only buttons ([#1489])
+
+### Fixed
+- Loading overlay not covering whole page during scrolling ([#1442])
+- Inconsistent error handling in dialogs ([#1444])
+- Missing "user not found" error message after the "too many results" error in room transfer ([#1477])
+- Wrong and missing ids and labels in forms ([#1452])
+- Lazy load profile tabs to prevent form id issues ([#1452])
+- Missing nocanon apache reverse proxy keyword in docs ([e4830ba](https://github.com/THM-Health/PILOS/commit/e4830ba5ca5ea9dc3f98f7fc6e7cf4e42d1977f4))
+- Text truncate in data tables ([#1489])
+- Accessibility issues with wrong html header element order ([#1489])
+
 ## [v4.0.0] - 2024-09-26
 ### Added
 - Short description for rooms ([#373])
@@ -117,6 +145,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#686]: https://github.com/THM-Health/PILOS/pull/686
 [#695]: https://github.com/THM-Health/PILOS/issues/695
 [#704]: https://github.com/THM-Health/PILOS/issues/704
+[#721]: https://github.com/THM-Health/PILOS/issues/721
+[#722]: https://github.com/THM-Health/PILOS/issues/722
 [#724]: https://github.com/THM-Health/PILOS/pull/724
 [#735]: https://github.com/THM-Health/PILOS/pull/735
 [#743]: https://github.com/THM-Health/PILOS/pull/743
@@ -148,15 +178,28 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1102]: https://github.com/THM-Health/PILOS/pull/1102
 [#1120]: https://github.com/THM-Health/PILOS/pull/1120
 [#1126]: https://github.com/THM-Health/PILOS/pull/1126
+[#1150]: https://github.com/THM-Health/PILOS/issues/1150
 [#1159]: https://github.com/THM-Health/PILOS/pull/1159
 [#1166]: https://github.com/THM-Health/PILOS/pull/1166
 [#1204]: https://github.com/THM-Health/PILOS/pull/1204
 [#1216]: https://github.com/THM-Health/PILOS/issues/1216
 [#1332]: https://github.com/THM-Health/PILOS/pull/1332
+[#1420]: https://github.com/THM-Health/PILOS/issues/1420
+[#1435]: https://github.com/THM-Health/PILOS/issues/1435
+[#1440]: https://github.com/THM-Health/PILOS/pull/1440
+[#1441]: https://github.com/THM-Health/PILOS/pull/1441
+[#1442]: https://github.com/THM-Health/PILOS/pull/1442
+[#1444]: https://github.com/THM-Health/PILOS/pull/1444
+[#1449]: https://github.com/THM-Health/PILOS/pull/1449
+[#1452]: https://github.com/THM-Health/PILOS/pull/1452
+[#1477]: https://github.com/THM-Health/PILOS/pull/1477
+[#1483]: https://github.com/THM-Health/PILOS/pull/1483
+[#1489]: https://github.com/THM-Health/PILOS/pull/1489
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.0.0...develop
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
 [v3.0.2]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.2
 [v3.0.3]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.3
 [v4.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.0.0
+[v4.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v4.1.0

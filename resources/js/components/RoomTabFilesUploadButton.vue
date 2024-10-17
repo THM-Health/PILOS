@@ -7,6 +7,7 @@
     :disabled="disabled"
     @click="openModal"
     icon="fa-solid fa-upload"
+    data-test="room-files-upload-button"
   />
 
   <!-- modal -->
@@ -20,15 +21,24 @@
     :closeOnEscape="!isUploading"
     :dismissableMask="false"
     :closable="!isUploading"
+    data-test="room-files-upload-dialog"
+    :pt="{
+      pcCloseButton: {
+        root:{
+          'data-test': 'dialog-header-close-button'
+        }
+      }
+    }"
   >
     <div class="flex flex-col gap-2">
       <label
         for="file"
         class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
-        :class="{'p-disabled': disabled}"
+        :class="{'p-disabled': (disabled || isUploading)}"
         tabindex="0"
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
+        data-test="upload-file-button"
       >
         <i class="fa-solid fa-upload"></i> {{ $t('app.browse') }}
       </label>
@@ -37,7 +47,7 @@
         ref="fileInputRef"
         id="file"
         class="sr-only"
-        :disabled="disabled"
+        :disabled="disabled || isUploading"
         @input="fileSelected"
         :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
       />
@@ -48,6 +58,7 @@
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
         @click="fileInputRef.click()"
+        data-test="drop-zone"
       >
         <span v-if="!isUploading" class="text-center">
           {{ $t('rooms.files.select_or_drag') }}
@@ -57,11 +68,11 @@
         </span>
       </div>
 
-      <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" />
+      <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" data-test="progress-bar"/>
       <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
 
       <div v-if="uploadedFiles.length" class="mt-2 flex flex-col gap-2">
-        <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle">
+        <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle" data-test="uploaded-file-message">
           {{ $t('rooms.files.uploaded', { name: file.name }) }}
         </Message>
       </div>
@@ -142,6 +153,14 @@ useEventListener(dropZoneRef, 'drop', (event) => {
 });
 
 const dropZoneClasses = computed(() => {
+  if (props.disabled || isUploading.value) {
+    return [
+      'cursor-wait',
+      'bg-surface-50 dark:bg-surface-800',
+      'border-surface-200 dark:border-surface-500'
+    ];
+  }
+
   if (isOverDropZone.value) {
     return [
       'bg-green-100 dark:bg-surface-600',
@@ -163,6 +182,14 @@ function openModal () {
 
 function fileSelected (event) {
   uploadFile(event.target.files[0]);
+}
+
+function reset () {
+  // Clear file field and busy status
+  isUploading.value = false;
+  uploadingFile.value = null;
+  uploadProgress.value = 0;
+  fileInputRef.value.value = null;
 }
 
 function uploadFile (file) {
@@ -195,7 +222,9 @@ function uploadFile (file) {
     // Fetch successful
     uploadedFiles.value.push(file);
     emit('uploaded');
+    reset();
   }).catch((error) => {
+    reset();
     if (error.response) {
       if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
         formErrors.set({ file: [t('app.validation.too_large')] });
@@ -207,12 +236,6 @@ function uploadFile (file) {
       }
     }
     api.error(error, { noRedirectOnUnauthenticated: true });
-  }).finally(() => {
-    // Clear file field and busy status
-    isUploading.value = false;
-    uploadingFile.value = null;
-    uploadProgress.value = 0;
-    fileInputRef.value.value = null;
   });
 }
 

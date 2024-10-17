@@ -3,13 +3,13 @@
     <template #header>
 
   <!-- Tab header -->
-    <div role="tablist" class="flex flex-row justify-between mb-5 border-surface border-b px-6 py-4">
+    <div class="flex flex-row justify-between mb-5 border-surface border-b px-6 py-4">
       <!-- Current tab -->
       <div class="flex flex-row gap-2 px-2 items-center text-xl">
-        <i :class="activeTab?.icon" /> <h3 class="m-0">{{ activeTab?.label }}</h3>
+        <i :class="activeTab?.icon" /> <h2 class="m-0">{{ activeTab?.label }}</h2>
       </div>
       <!-- Tab navigation -->
-      <div v-if="availableTabs.length > 1">
+      <div v-if="availableTabs.length > 1" role="tablist" >
         <!-- Desktop layout, icons only-->
         <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
           <Button

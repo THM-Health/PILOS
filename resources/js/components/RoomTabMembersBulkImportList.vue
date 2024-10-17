@@ -3,43 +3,43 @@
     <div
       v-if="list.length > 0"
       class="mb-4"
+      data-test="room-members-bulk-import-list"
     >
       <p class="font-bold">
         {{ description }} <Badge :severity="variant">
           {{ list.length }}
         </Badge>
       </p>
-      <Accordion class="room-bulk-import-preview" :multiple="true">
-        <AccordionTab
+      <Accordion
+        expandIcon="fa-solid fa-plus"
+        collapseIcon="fa-solid fa-minus"
+        class="room-bulk-import-preview"
+        :multiple="true"
+      >
+        <AccordionPanel
           v-for="user in list"
           :key="user.email"
-          :header="user.email"
+          :value="user.email"
           :disabled="!user.error"
-          :pt="{
-            header: {
-              class: 'opacity-100'
-            },
-            headerAction: {
-              class: {
-                'p-2': true,
-                'justify-end': !user.error
-              }
-            },
-            headerIcon: {
-              class: {
-                'hidden': !user.error
-              }
-            },
-            content: {
-              class: {
-                'p-2': true
-              }
-            }
-
-          }"
+          class="opacity-100"
+          data-test="room-members-bulk-import-list-item"
         >
-          <InlineNote severity="error">{{ user.error }}</InlineNote>
-        </AccordionTab>
+          <AccordionHeader
+            :pt="{
+              toggleIcon: {
+                class: {
+                  '!hidden': !user.error
+                }
+              }
+            }"
+          >
+            {{ user.email }}
+          </AccordionHeader>
+          <AccordionContent>
+            <InlineNote severity="error">{{ user.error }}</InlineNote>
+          </AccordionContent>
+
+        </AccordionPanel>
       </Accordion>
     </div>
   </div>

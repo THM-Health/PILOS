@@ -1,6 +1,7 @@
 <template>
   <Button
     v-tooltip="$t('admin.room_types.delete.item', { id: props.name })"
+    :aria-label="$t('admin.room_types.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
     @click="showDeleteModal"

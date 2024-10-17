@@ -4,12 +4,12 @@
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadUser" />
       </template>
-      <Tabs v-if="!isBusy && user" value="base" scrollable>
+      <Tabs v-if="!isBusy && user" value="base" scrollable lazy>
         <TabList>
-          <Tab value="base"><i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}</Tab>
-          <Tab value="email"><i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}</Tab>
-          <Tab value="security"><i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}</Tab>
-          <Tab value="others"><i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}</Tab>
+          <Tab value="base" data-test="base-tab-button"><i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}</Tab>
+          <Tab value="email" data-test="email-tab-button"><i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}</Tab>
+          <Tab value="security" data-test="security-tab-button"><i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}</Tab>
+          <Tab value="others" data-test="others-tab-button"><i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}</Tab>
         </TabList>
         <TabPanels class="px-0">
           <TabPanel value="base">
@@ -53,6 +53,7 @@
 
     <!-- Stale user modal -->
     <Dialog
+      data-test="stale-user-dialog"
       v-model:visible="showModal"
       modal
       :style="{ width: '500px' }"
@@ -64,7 +65,7 @@
     >
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="$t('app.reload')" :loading="isBusy" :disabled="isBusy" @click="refreshUser" />
+          <Button :label="$t('app.reload')" :loading="isBusy" :disabled="isBusy" @click="refreshUser" data-test="stale-dialog-reload-button"/>
         </div>
       </template>
 

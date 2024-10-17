@@ -39,6 +39,7 @@ class Config extends JsonResource
                 'help_url' => $generalSettings->help_url,
                 'legal_notice_url' => $generalSettings->legal_notice_url,
                 'privacy_policy_url' => $generalSettings->privacy_policy_url,
+                'no_welcome_page' => $generalSettings->no_welcome_page,
                 'default_locale' => config('app.locale'),
                 'enabled_locales' => array_map(function ($locale) {
                     return $locale['name'];
@@ -59,6 +60,7 @@ class Config extends JsonResource
                 'limit' => $roomSettings->limit,
                 'token_expiration' => $roomSettings->token_expiration,
                 'refresh_rate' => config('bigbluebutton.room_refresh_rate'),
+                'file_terms_of_use' => $roomSettings->file_terms_of_use,
             ],
             'user' => [
                 'password_change_allowed' => $userSettings->password_change_allowed,

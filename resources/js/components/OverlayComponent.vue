@@ -3,13 +3,16 @@
       <slot />
       <div
         v-if="props.show"
-        class="absolute" style="inset: 0; backdrop-filter: blur(2px);" :style="{'z-index': props.zIndex}"
+        data-test="overlay"
+        class="inset-0 backdrop-blur-sm"
+        :class="fixed ? 'fixed' : 'absolute'"
+        :style="{'z-index': props.zIndex}"
       >
         <div class="absolute bg-surface-100 dark:bg-surface-900" style="inset: 0;" :style="{opacity: props.opacity}" />
 
-        <div class="overlay-wrapper absolute top-0 left-0 right-0 bottom-0" :class="wrapperClass" >
+        <div class="overlay-wrapper absolute inset-0" :class="wrapperClass" >
           <slot name="overlay">
-            <i class="fa-solid fa-circle-notch fa-spin text-3xl" />
+              <i class="fa-solid fa-circle-notch fa-spin text-3xl" />
           </slot>
         </div>
       </div>
@@ -35,6 +38,10 @@ const props = defineProps({
   opacity: {
     type: Number,
     default: 0.85
+  },
+  fixed: {
+    type: Boolean,
+    default: false
   }
 });
 

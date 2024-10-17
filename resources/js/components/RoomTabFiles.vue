@@ -1,28 +1,45 @@
 <template>
   <div>
     <Message
+      data-test="terms-of-use-message"
       severity="info"
       v-if="requireAgreement && files.length >0"
       :closable="false"
-      class="mx-2"
+      class="mx-2 mb-4"
       :pt="{
-        wrapper: { class: 'items-start gap-2'},
-        icon: { class: [ 'mt-1' ] }
+        text: 'w-full'
       }"
     >
-      <strong>{{ $t('rooms.files.terms_of_use.title') }}</strong><br>
-      {{ $t('rooms.files.terms_of_use.content') }}
-      <Divider/>
-      <div class="flex items-center">
-        <Checkbox v-model="downloadAgreement" inputId="terms_of_use" :binary="true" />
-        <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
-      </div>
+      <Accordion
+        :value="showTermsOfUse"
+        @update:value="showTermsOfUse = $event"
+        expandIcon="fa-solid fa-plus"
+        collapseIcon="fa-solid fa-minus"
+      >
+        <AccordionPanel :value="true" class="border-0">
+          <AccordionHeader class="bg-transparent p-0 pr-2 text-blue-600">
+            {{ $t('rooms.files.terms_of_use.title') }}
+          </AccordionHeader>
+          <AccordionContent unstyled>
+            <div
+              class="w-full max-h-32 overflow-y-auto mt-2"
+            >
+              {{ settingsStore.getSetting('room.file_terms_of_use') }}
+            </div>
+            <Divider/>
+            <div class="flex items-center mb-2">
+              <Checkbox v-model="downloadAgreement" @update:modelValue="(checked) => showTermsOfUse = !checked" input-id="terms_of_use" :binary="true" />
+              <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
+            </div>
+          </AccordionContent>
+        </AccordionPanel>
+      </Accordion>
     </Message>
 
     <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
       <div class="flex justify-between flex-col lg:flex-row grow gap-2">
         <div>
-          <InputGroup>
+          <InputGroup data-test="room-files-search">
             <InputText
               v-model="search"
               :disabled="isBusy"
@@ -43,14 +60,46 @@
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              :disabled="isBusy"
+              v-model="filter"
+              :options="filterOptions"
+              @change="loadData(1)"
+              option-label="name"
+              option-value="value"
+              data-test="filter-dropdown"
+              :pt="{
+                listContainer: {
+                'data-test': 'filter-dropdown-items'
+              },
+              option:{
+                'data-test': 'filter-dropdown-option'
+              }
+              }"
+            />
           </InputGroup>
 
-          <InputGroup>
+          <InputGroup data-test="sorting-type-inputgroup">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              :disabled="isBusy"
+              v-model="sortField"
+              :options="sortFields"
+              @change="loadData(1)"
+              option-label="name"
+              option-value="value"
+              data-test="sorting-type-dropdown"
+              :pt="{
+                listContainer: {
+                'data-test': 'sorting-type-dropdown-items'
+                },
+                option:{
+                'data-test': 'sorting-type-dropdown-option'
+                }
+              }"
+            />
             <InputGroupAddon class="p-0">
               <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="rounded-l-none"  />
             </InputGroupAddon>
@@ -67,8 +116,10 @@
 
         <!-- Reload file list -->
         <Button
+          data-test="room-files-reload-button"
           class="shrink-0"
           v-tooltip="$t('app.reload')"
+          :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
           @click="loadData()"
@@ -78,7 +129,7 @@
     </div>
 
     <!-- Display files -->
-    <OverlayComponent :show="isBusy || loadingError" z-index="1">
+    <OverlayComponent :show="isBusy || loadingError" :z-index="1">
       <template #overlay>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
@@ -96,6 +147,16 @@
         rowHover
         @page="onPage"
         class="mt-6"
+        :pt="{
+          pcPaginator: {
+            page: {
+              'data-test': 'paginator-page'
+            },
+            next: {
+              'data-test': 'paginator-next-button'
+            }
+          }
+        }"
       >
         <!-- Show message on empty list -->
         <template #empty>
@@ -110,7 +171,7 @@
         <template #list="slotProps">
           <div class="px-2">
             <div v-for="(item) in slotProps.items" :key="item.id">
-              <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
+              <div data-test="room-file-item" class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
                 <div class="flex flex-col gap-2">
                   <p class="text-lg font-semibold m-0 text-word-break">{{ item.filename }}</p>
                   <div class="flex flex-col gap-2 items-start">
@@ -151,7 +212,8 @@
                     :file-id="item.id"
                     :token="props.token"
                     :access-code="props.accessCode"
-                    :disabled="isBusy || (!downloadAgreement && requireAgreement)"
+                    :disabled="isBusy"
+                    :requireTermsOfUseAcceptance="(!downloadAgreement && requireAgreement)"
                     @file-not-found="loadData()"
                     @invalid-code="emit('invalidCode')"
                     @invalid-token="emit('invalidToken')"
@@ -193,6 +255,7 @@ import { useApi } from '../composables/useApi.js';
 import { usePaginator } from '../composables/usePaginator.js';
 import { useI18n } from 'vue-i18n';
 import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
+import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
   room: Object,
@@ -213,6 +276,7 @@ const api = useApi();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
 const { t } = useI18n();
+const settingsStore = useSettingsStore();
 
 const files = ref([]);
 const defaultFile = ref(null);
@@ -220,6 +284,7 @@ const isBusy = ref(false);
 const loadingError = ref(false);
 const sortField = ref('uploaded');
 const sortOrder = ref(0);
+const showTermsOfUse = ref(true);
 
 const search = ref('');
 const filter = ref('all');
@@ -243,7 +308,7 @@ const toggleSortOrder = () => {
 const downloadAgreement = ref(false);
 
 const requireAgreement = computed(() => {
-  return !userPermissions.can('manageSettings', props.room);
+  return !userPermissions.can('manageSettings', props.room) && settingsStore.getSetting('room.file_terms_of_use') !== null;
 });
 
 /**

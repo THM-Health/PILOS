@@ -1,7 +1,9 @@
 <template>
   <!-- button -->
   <Button
+    data-test="room-members-delete-button"
     v-tooltip="$t('rooms.members.remove_user')"
+    :aria-label="$t('rooms.members.remove_user')"
     :disabled="disabled"
     severity="danger"
     @click="showModal = true"
@@ -10,6 +12,7 @@
 
   <!-- modal -->
   <Dialog
+    data-test="room-members-delete-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.members.modals.remove.title')"
@@ -23,8 +26,8 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteMember" />
+        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteMember" data-test="dialog-continue-button"/>
         </div>
     </template>
 
@@ -86,9 +89,9 @@ function deleteMember () {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
         emit('deleted');
+        showModal.value = false;
       }
     }
-    showModal.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;

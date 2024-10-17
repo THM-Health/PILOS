@@ -6,6 +6,7 @@
     @click="showDeleteModal"
     icon="fa-solid fa-trash"
     v-tooltip="$t('rooms.tokens.delete')"
+    :aria-label="$t('rooms.tokens.delete')"
   />
 
   <!-- modal -->
@@ -62,7 +63,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['added']);
+const emit = defineEmits(['deleted']);
 
 const api = useApi();
 

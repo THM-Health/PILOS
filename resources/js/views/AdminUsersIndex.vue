@@ -22,7 +22,6 @@
         <div class="flex flex-col md:flex-row gap-2 justify-end">
           <InputGroup class="grow shrink-0 min-w-80">
               <multiselect
-                id="roles"
                 ref="rolesMultiselectRef"
                 v-model="filter.role"
                 @update:modelValue="loadData(1)"
@@ -117,7 +116,9 @@
       v-model:sortOrder="sortOrder"
       @page="onPage"
       @sort="onSort"
-      class="table-auto lg:table-fixed"
+      :pt="{
+        table: 'table-auto lg:table-fixed'
+      }"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />

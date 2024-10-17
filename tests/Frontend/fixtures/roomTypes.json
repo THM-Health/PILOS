@@ -2,7 +2,7 @@
   "data": [
     {
       "id": 1,
-      "name": "Vorlesung",
+      "name": "Lecture",
       "color": "#80BA27"
     },
     {
@@ -12,12 +12,12 @@
     },
     {
       "id": 3,
-      "name": "Pr\u00fcfung",
+      "name": "Exam",
       "color": "#9C132E"
     },
     {
       "id": 4,
-      "name": "\u00dcbung",
+      "name": "Seminar",
       "color": "#00B8E4"
     }
   ]

@@ -50,11 +50,11 @@
               </div>
             </div>
             <div class="field grid grid-cols-12 gap-4">
-              <label for="user_locale" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.users.user_locale')}}</label>
+              <label id="locale-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.users.user_locale')}}</label>
               <div class="col-span-12 md:col-span-8">
                 <LocaleSelect
                   class="w-full"
-                  id="user_locale"
+                  aria-labelledby="locale-label"
                   v-model="model.user_locale"
                   required
                   :invalid="formErrors.fieldInvalid('user_locale')"
@@ -64,10 +64,10 @@
               </div>
             </div>
             <div class="field grid grid-cols-12 gap-4">
-              <label for="timezone" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.users.timezone')}}</label>
+              <label id="timezone-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('admin.users.timezone')}}</label>
               <div class="col-span-12 md:col-span-8">
                 <TimezoneSelect
-                  id="timezone"
+                  aria-labelledby="default-timezone-label"
                   v-model="model.timezone"
                   required
                   :invalid="formErrors.fieldInvalid('timezone')"
@@ -80,10 +80,10 @@
               </div>
             </div>
             <div class="field grid grid-cols-12 gap-4">
-              <label for="roles" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.roles')}}</label>
+              <label id="roles-label" class="col-span-12 md:col-span-4 md:mb-0">{{$t('app.roles')}}</label>
               <div class="col-span-12 md:col-span-8">
                 <RoleSelect
-                  id="roles"
+                  aria-labelledby="roles-label"
                   v-model="model.roles"
                   :invalid="formErrors.fieldInvalid('roles', true)"
                   :disabled="isBusy"
@@ -100,7 +100,7 @@
               <div class="col-span-12 md:col-span-8">
                 <div>
                   <ToggleSwitch
-                    id="generate_password"
+                    input-id="generate_password"
                     v-model="generatePassword"
                     :invalid="formErrors.fieldInvalid('generate_password')"
                     :disabled="isBusy"
@@ -116,7 +116,7 @@
               <div class="col-span-12 md:col-span-8">
                 <Password
                   fluid
-                  id="new_password"
+                  input-id="new_password"
                   :inputProps="{ autocomplete: 'off' }"
                   v-model="model.new_password"
                   required
@@ -133,7 +133,7 @@
               <label for="new_password_confirmation" class="col-span-12 md:col-span-4 md:mb-0">{{$t('auth.new_password_confirmation')}}</label>
               <div class="col-span-12 md:col-span-8">
                 <Password
-                  id="new_password_confirmation"
+                  input-id="new_password_confirmation"
                   fluid
                   v-model="model.new_password_confirmation"
                   :type="showPassword ? 'text' : 'password'"

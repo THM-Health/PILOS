@@ -1,6 +1,8 @@
 <template>
   <Button
+    data-test="room-members-edit-button"
     v-tooltip="$t('rooms.members.edit_user')"
+    :aria-label="$t('rooms.members.edit_user')"
     :disabled="disabled"
     severity="info"
     @click="showEditMemberModal"
@@ -9,6 +11,7 @@
 
   <!-- edit user role modal -->
   <Dialog
+    data-test="room-members-edit-dialog"
     v-model:visible="showModal"
     modal
     :header="$t('rooms.members.modals.edit.title',{firstname: props.firstname,lastname: props.lastname})"
@@ -22,31 +25,34 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
+        <Button :label="$t('app.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" data-test="dialog-save-button"/>
         </div>
     </template>
 
     <!-- select role -->
     <div class="flex flex-col gap-2 mt-6">
-      <label for="role">{{ $t('rooms.role') }}</label>
+      <fieldset class="flex w-full flex-col gap-2">
+        <legend>{{ $t('rooms.role') }}</legend>
 
-      <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-role" name="role" :value="1" />
-        <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
-      </div>
+        <div class="flex items-center" data-test="participant-role-group">
+          <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
+          <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
+        </div>
 
-      <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-moderator" name="role" :value="2" />
-        <label for="participant-moderator" class="ml-2"><RoomRoleBadge :role="2" /></label>
-      </div>
+        <div class="flex items-center" data-test="moderator-role-group">
+          <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
+          <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
+        </div>
 
-      <div class="flex items-center">
-        <RadioButton v-model="newRole" inputId="participant-co_owner" name="role" :value="3" />
-        <label for="participant-co_owner" class="ml-2"><RoomRoleBadge :role="3" /></label>
-      </div>
+        <div class="flex items-center" data-test="co-owner-role-group">
+          <RadioButton v-model="newRole" :disabled="isLoadingAction" input-id="co_owner-role" name="role" :value="3" />
+          <label for="co_owner-role" class="ml-2"><RoomRoleBadge :role="3" /></label>
+        </div>
 
-      <FormError :errors="formErrors.fieldError('role')" />
+        <FormError :errors="formErrors.fieldError('role')" />
+      </fieldset>
+
     </div>
   </Dialog>
 </template>
@@ -123,6 +129,7 @@ function save () {
       // user not found
       if (error.response.status === env.HTTP_GONE) {
         emit('edited');
+        showModal.value = false;
       }
       // failed due to form validation errors
       if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -130,7 +137,6 @@ function save () {
         return;
       }
     }
-    showModal.value = false;
     api.error(error, { noRedirectOnUnauthenticated: true });
   }).finally(() => {
     isLoadingAction.value = false;
