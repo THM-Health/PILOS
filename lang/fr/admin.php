@@ -403,6 +403,7 @@ return [
         'authenticator' => [
             'ldap' => 'LDAP',
             'local' => 'Interne',
+            'oidc' => 'OIDC',
             'shibboleth' => 'Shibboleth',
             'title' => 'Type d\'identification',
         ],

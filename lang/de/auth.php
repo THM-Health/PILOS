@@ -37,6 +37,11 @@ return [
     'logout_success' => 'Erfolgreich abgemeldet',
     'new_password' => 'Neues Passwort',
     'new_password_confirmation' => 'Neues Passwort bestätigen',
+    'oidc' => [
+        'redirect' => 'Anmelden',
+        'tab_title' => 'OpenID Connect',
+        'title' => 'Mit OpenID Connect anmelden',
+    ],
     'password' => 'Passwort',
     'reset_password' => 'Passwort zurücksetzen',
     'send_email_confirm_mail' => 'Es wurde eine Bestätigungsmail an :email gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.',
