@@ -796,7 +796,7 @@
                     v-model:file-deleted="defaultPresentationDeleted"
                     :disabled="disabled"
                     :readonly="viewOnly"
-                    :max-file-size="settingsStore.getSetting('bbb.max_filesize')*1000"
+                    :max-file-size="settingsStore.getSetting('bbb.max_filesize')*1000000"
                     show-delete
                     :allowed-extensions="String(settingsStore.getSetting('bbb.file_mimes')).split(',')"
                     :file-invalid="formErrors.fieldInvalid('bbb_default_presentation')"
