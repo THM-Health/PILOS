@@ -6,11 +6,10 @@ We actively support PILOS through the matrix chat and through security updates.
 
 | Version | Supported          |
 |---------| ------------------ |
-| 3.0.x   | :white_check_mark: |
-| 2.0.x   | :white_check_mark: |
+| 4.0.x   | :white_check_mark: |
+| 3.0.x   | :x: |
+| 2.0.x   | :x: |
 | 1.9.x   | :x: |
-
-v2 is much simpler and more secure than v1, so we recommend that all administrators migrate to v2 as soon as possible.
 
 ## Reporting a Vulnerability
 
