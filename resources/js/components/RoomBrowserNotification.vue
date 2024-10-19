@@ -14,6 +14,7 @@
         : $t('rooms.notification.enable')
     "
     @click="notificationEnabled ? disableNotification() : enableNotification()"
+    data-test="room-notification-button"
   />
 </template>
 
