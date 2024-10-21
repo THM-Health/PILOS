@@ -1019,7 +1019,7 @@ function resetExpertSettings() {
       resetSetting(setting);
     }
   }
-  // Reset settings that don't gave a default setting in the room type
+  // Reset settings that don't have a default setting in the room type
   settings.value.welcome = "";
 }
 

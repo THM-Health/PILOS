@@ -150,7 +150,7 @@ function roomSettingsChanged() {
     }
   }
 
-  // There are no change for the visible settings
+  // There are no change for the settings that the user can modify
   return false;
 }
 

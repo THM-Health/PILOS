@@ -84,8 +84,8 @@ describe("Rooms view settings", function () {
       .should("be.visible")
       .and("include.text", "rooms.settings.general.access_by_guests")
       .within(() => {
-        cy.get('[data-test="room-setting-enforced-icon"]').should("not.exist");
-        cy.get("#allow-guests").should("not.be.disabled").and("be.checked");
+        cy.get('[data-test="room-setting-enforced-icon"]').should("be.visible");
+        cy.get("#allow-guests").should("be.disabled").and("be.checked");
       });
 
     cy.get('[data-test="short-description-setting"]')
@@ -445,7 +445,7 @@ describe("Rooms view settings", function () {
       "not.be.disabled",
     );
     cy.get('[data-test="clear-access-code-button"]').should("not.be.disabled");
-    cy.get("#allow-guests").should("be.checked").and("not.be.disabled");
+    cy.get("#allow-guests").should("be.checked").and("be.disabled");
 
     // Video conference settings
     cy.get("#everyone-can-start")
@@ -676,7 +676,7 @@ describe("Rooms view settings", function () {
       "not.be.disabled",
     );
     cy.get('[data-test="clear-access-code-button"]').should("not.be.disabled");
-    cy.get("#allow-guests").should("be.checked").and("not.be.disabled");
+    cy.get("#allow-guests").should("be.checked").and("be.disabled");
 
     // Video conference settings
     cy.get("#everyone-can-start")
@@ -1362,7 +1362,7 @@ describe("Rooms view settings", function () {
     );
   });
 
-  it("change room type", function () {
+  it("change room type with expert mode enabled", function () {
     cy.intercept("GET", "api/v1/roomTypes*", {
       fixture: "roomTypesWithSettings.json",
     });
@@ -1424,7 +1424,7 @@ describe("Rooms view settings", function () {
               false,
               false,
             );
-            cy.checkDefaultRoomSettingField("allow_guests", true, false, false);
+            cy.checkDefaultRoomSettingField("allow_guests", true, true, false);
             cy.checkDefaultRoomSettingField(
               "everyone_can_start",
               false,
@@ -1526,7 +1526,7 @@ describe("Rooms view settings", function () {
 
     cy.get("#room-type").should("have.value", "Meeting");
     cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("not.be.disabled").and("be.checked");
+    cy.get("#allow-guests").should("be.disabled").and("be.checked");
     cy.get("#short-description").should("have.value", "Short description");
     cy.get("#everyone-can-start")
       .should("not.be.disabled")
@@ -1690,7 +1690,7 @@ describe("Rooms view settings", function () {
         cy.checkCompareRoomSettingField(
           "allow_guests",
           true,
-          false,
+          true,
           true,
           false,
           false,
@@ -1946,7 +1946,7 @@ describe("Rooms view settings", function () {
         cy.checkCompareRoomSettingField(
           "allow_guests",
           true,
-          false,
+          true,
           false,
           false,
           false,
@@ -2198,8 +2198,8 @@ describe("Rooms view settings", function () {
           "allow_guests",
           false,
           false,
-          false,
-          false,
+          true,
+          true,
           false,
         );
         cy.checkCompareRoomSettingField(
@@ -2345,7 +2345,7 @@ describe("Rooms view settings", function () {
 
     cy.get("#room-type").should("have.value", "Meeting");
     cy.get("#access-code").should("have.value", "123456789");
-    cy.get("#allow-guests").should("not.be.disabled").and("not.be.checked");
+    cy.get("#allow-guests").should("be.disabled").and("be.checked");
     cy.get("#short-description").should("have.value", "Short description");
     cy.get("#everyone-can-start").should("not.be.disabled").and("be.checked");
     cy.get("#mute-on-start").should("be.disabled").and("be.checked");
@@ -2485,8 +2485,8 @@ describe("Rooms view settings", function () {
         );
         cy.checkCompareRoomSettingField(
           "allow_guests",
-          false,
-          false,
+          true,
+          true,
           false,
           true,
           false,
@@ -2686,6 +2686,565 @@ describe("Rooms view settings", function () {
       .eq(1)
       .should("have.attr", "aria-pressed", "false")
       .and("be.disabled");
+  });
+
+  it("change room type no expert", function () {
+    cy.intercept("GET", "api/v1/roomTypes*", {
+      fixture: "roomTypesWithSettings.json",
+    });
+
+    cy.fixture("roomSettings.json").then((roomSettings) => {
+      roomSettings.data.expert_mode = false;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
+        statusCode: 200,
+        body: roomSettings,
+      }).as("roomSettingsRequest");
+    });
+
+    cy.visit("/rooms/abc-def-123#tab=settings");
+
+    cy.wait("@roomSettingsRequest");
+
+    cy.get("#room-type").should("have.value", "Meeting");
+    cy.get("#access-code").should("have.value", "123456789");
+
+    // Change to another room type and reset default settings
+    cy.get('[data-test="room-type-change-button"]').click();
+    cy.get('[data-test="room-type-change-dialog"]').should("be.visible");
+    cy.get('[data-test="room-type-select-option"]').eq(2).click();
+    cy.get("#allow-guests").should("be.disabled").and("be.checked");
+
+    cy.get('[data-test="dialog-save-button"]')
+      .should("have.text", "app.save")
+      .click();
+
+    cy.get('[data-test="room-type-change-confirmation-dialog')
+      .should("be.visible")
+      .and("include.text", "rooms.change_type.title")
+      .within(() => {
+        // Check that fields were updated
+        cy.checkCompareRoomSettingField(
+          "has_access_code",
+          true,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "allow_guests",
+          true,
+          true,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "everyone_can_start",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "mute_on_start",
+          true,
+          true,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lobby",
+          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          true,
+          "app.enabled",
+          false,
+          true,
+        );
+        cy.checkCompareRoomSettingField(
+          "record_attendance",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "record",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "auto_start_recording",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_cam",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "webcams_only_for_moderator",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_mic",
+          false,
+          true,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_public_chat",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_private_chat",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_note",
+          true,
+          true,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_hide_user_list",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "allow_membership",
+          false,
+          true,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "default_role",
+          "rooms.roles.participant",
+          false,
+          "rooms.roles.moderator",
+          false,
+          true,
+        );
+        cy.checkCompareRoomSettingField(
+          "visibility",
+          "rooms.settings.advanced.visibility.public",
+          false,
+          "rooms.settings.advanced.visibility.private",
+          false,
+          true,
+        );
+
+        // Trigger reset to defaults
+        cy.get("#reset-to-defaults").click();
+
+        // Check that only non-expert settings were updated
+        cy.checkCompareRoomSettingField(
+          "has_access_code",
+          true,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "allow_guests",
+          true,
+          true,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "everyone_can_start",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "mute_on_start",
+          true,
+          true,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lobby",
+          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          true,
+          "app.enabled",
+          false,
+          true,
+        );
+        cy.checkCompareRoomSettingField(
+          "record_attendance",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "record",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "auto_start_recording",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_cam",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "webcams_only_for_moderator",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_mic",
+          false,
+          true,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_public_chat",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_private_chat",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_note",
+          true,
+          true,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_hide_user_list",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "allow_membership",
+          false,
+          true,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "default_role",
+          "rooms.roles.participant",
+          false,
+          "rooms.roles.moderator",
+          false,
+          true,
+        );
+        cy.checkCompareRoomSettingField(
+          "visibility",
+          "rooms.settings.advanced.visibility.public",
+          false,
+          "rooms.settings.advanced.visibility.private",
+          false,
+          true,
+        );
+
+        // Trigger reset to defaults again
+        cy.get("#reset-to-defaults").click();
+
+        // Save changes
+        cy.get('[data-test="confirmation-dialog-save-button"]').click();
+      });
+
+    // Check that settings were updated and settings changed message is shown
+
+    cy.get('[data-test="room-unsaved-changes-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.settings.unsaved_changes")
+      .find('[data-test="room-unsaved-changes-save-button"]')
+      .should("not.exist");
+
+    // Check that settings where changed
+    cy.get("#room-type").should("have.value", "Exam");
+    cy.get("#room-name").should("have.value", "Meeting One");
+    cy.get("#access-code").should("have.value", "123456789");
+    cy.get("#allow-guests").should("not.be.disabled").and("be.checked");
+    cy.get("#short-description").should("have.value", "Short description");
+
+    // Check other settings hidden
+    // Video conference settings
+    cy.contains("rooms.settings.video_conference.title").should("not.exist");
+
+    // Recording settings
+    cy.contains("rooms.settings.recordings.title").should("not.exist");
+
+    // Restriction settings
+    cy.contains("rooms.settings.restrictions.title").should("not.exist");
+
+    // Participant settings
+    cy.contains("rooms.settings.participants.title").should("not.exist");
+
+    // Advanced settings
+    cy.contains("rooms.settings.advanced.title").should("not.exist");
+
+    // Change room type again and check that comparison is shown correctly
+    cy.get('[data-test="room-type-change-button"]').click();
+    cy.get('[data-test="room-type-change-dialog"]').should("be.visible");
+    cy.get('[data-test="room-type-select-option"]').eq(1).click();
+    cy.get("#allow-guests").should("not.be.disabled").and("be.checked");
+
+    cy.get('[data-test="dialog-save-button"]')
+      .should("have.text", "app.save")
+      .click();
+
+    cy.get('[data-test="room-type-change-confirmation-dialog')
+      .should("be.visible")
+      .and("include.text", "rooms.change_type.title")
+      .within(() => {
+        // Check that fields were updated
+        cy.checkCompareRoomSettingField(
+          "has_access_code",
+          true,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "allow_guests",
+          true,
+          false,
+          true,
+          true,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "everyone_can_start",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "mute_on_start",
+          false,
+          false,
+          true,
+          true,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lobby",
+          "app.enabled",
+          false,
+          "rooms.settings.video_conference.lobby.only_for_guests_enabled",
+          true,
+          true,
+        );
+        cy.checkCompareRoomSettingField(
+          "record_attendance",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "record",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "auto_start_recording",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_cam",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "webcams_only_for_moderator",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_mic",
+          true,
+          false,
+          false,
+          true,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_public_chat",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_private_chat",
+          true,
+          false,
+          false,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_disable_note",
+          false,
+          false,
+          true,
+          true,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "lock_settings_hide_user_list",
+          false,
+          false,
+          true,
+          false,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "allow_membership",
+          true,
+          false,
+          false,
+          true,
+          false,
+        );
+        cy.checkCompareRoomSettingField(
+          "default_role",
+          "rooms.roles.moderator",
+          false,
+          "rooms.roles.participant",
+          false,
+          true,
+        );
+        cy.checkCompareRoomSettingField(
+          "visibility",
+          "rooms.settings.advanced.visibility.private",
+          false,
+          "rooms.settings.advanced.visibility.public",
+          false,
+          true,
+        );
+
+        // Save changes
+        cy.get('[data-test="confirmation-dialog-save-button"]').click();
+      });
+
+    // Check that settings were updated and settings changed message is hidden because there are no unsaved changes
+    cy.get('[data-test="room-unsaved-changes-message"]').should("not.exist");
+
+    // Check that settings where changed
+    cy.get("#room-type").should("have.value", "Meeting");
+    cy.get("#room-name").should("have.value", "Meeting One");
+    cy.get("#access-code").should("have.value", "123456789");
+    cy.get("#allow-guests").should("be.disabled").and("be.checked");
+    cy.get("#short-description").should("have.value", "Short description");
+
+    // Check other settings hidden
+    // Video conference settings
+    cy.contains("rooms.settings.video_conference.title").should("not.exist");
+
+    // Recording settings
+    cy.contains("rooms.settings.recordings.title").should("not.exist");
+
+    // Restriction settings
+    cy.contains("rooms.settings.restrictions.title").should("not.exist");
+
+    // Participant settings
+    cy.contains("rooms.settings.participants.title").should("not.exist");
+
+    // Advanced settings
+    cy.contains("rooms.settings.advanced.title").should("not.exist");
   });
 
   it("delete room", function () {
