@@ -107,13 +107,26 @@ function handleOk() {
  * @returns {boolean} boolean that indicates if the setting is changed
  */
 function roomSettingChanged(settingName) {
-  // Check if default value of the setting changed / is different to the current setting
   if (
-    props.currentSettings[settingName] !==
-    newRoomType.value[settingName + "_default"]
+    ROOM_SETTINGS_DEFINITION[settingName].expert_setting &&
+    !props.currentSettings.expert_mode
   ) {
-    return true;
+    if (
+      props.currentSettings.room_type[settingName + "_default"] !==
+      newRoomType.value[settingName + "_default"]
+    ) {
+      return true;
+    }
+  } else {
+    // Check if default value of the setting changed / is different to the current setting
+    if (
+      props.currentSettings[settingName] !==
+      newRoomType.value[settingName + "_default"]
+    ) {
+      return true;
+    }
   }
+
   // Check if the enforced status of the setting changed
   if (
     props.currentSettings.room_type[settingName + "_enforced"] !==
@@ -127,7 +140,7 @@ function roomSettingChanged(settingName) {
 }
 
 /**
- * Checks if any of the current visible settings change with the new room type
+ * Checks if any of the current settings change with the new room type
  * @returns {boolean}
  */
 function roomSettingsChanged() {
@@ -139,15 +152,9 @@ function roomSettingsChanged() {
     return true;
   }
 
-  // Check all other visible settings for changes
+  // Check all other settings for changes
   for (const setting in ROOM_SETTINGS_DEFINITION) {
-    // check if expert mode is enabled or the setting is not an expert setting
-    if (
-      props.currentSettings.expert_mode ||
-      !ROOM_SETTINGS_DEFINITION[setting].expert_setting
-    ) {
-      if (roomSettingChanged(setting)) return true;
-    }
+    if (roomSettingChanged(setting)) return true;
   }
 
   // There are no change for the settings that the user can modify
