@@ -89,17 +89,14 @@ const userPermissions = useUserPermissions();
 const domPurify = createDOMPurify();
 
 // Add a hook to sanitize the style attribute
-domPurify.addHook(
-  "uponSanitizeAttribute",
-  function (currentNode, hookEvent) {
-    if (hookEvent.attrName === "style") {
-      hookEvent.attrValue = sanitizeCss(currentNode);
-    }
-    if (hookEvent.attrName === "src") {
-      hookEvent.attrValue = sanitizeSrc(currentNode);
-    }
-  },
-);
+domPurify.addHook("uponSanitizeAttribute", function (currentNode, hookEvent) {
+  if (hookEvent.attrName === "style") {
+    hookEvent.attrValue = sanitizeCss(currentNode);
+  }
+  if (hookEvent.attrName === "src") {
+    hookEvent.attrValue = sanitizeSrc(currentNode);
+  }
+});
 
 /**
  * Sanitize the CSS of a given node. It checks each style property of the node
