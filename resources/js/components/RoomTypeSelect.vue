@@ -185,7 +185,7 @@ function reloadRoomTypes() {
 }
 
 // detect changes of the select and notify parent
-function changeRoomType(event) {
+function changeRoomType() {
   const newRoomType =
     roomTypes.value.find((entry) => entry.id === roomTypeId.value) ?? null;
   emit("update:modelValue", newRoomType);

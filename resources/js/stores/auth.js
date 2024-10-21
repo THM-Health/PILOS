@@ -62,8 +62,8 @@ export const useAuthStore = defineStore("auth", {
         method: "post",
       });
 
-      // logout successfull, clear current user
-      this.setCurrentUser(null, false);
+      // logout successfully, clear current user
+      this.setCurrentUser(null);
       // reset timezone of i18n to use local system timezone
       const locale = useLocaleStore();
       locale.setTimezone(undefined);
@@ -71,7 +71,7 @@ export const useAuthStore = defineStore("auth", {
       return response;
     },
 
-    setCurrentUser(currentUser, emit = true) {
+    setCurrentUser(currentUser) {
       this.currentUser = currentUser;
     },
   },

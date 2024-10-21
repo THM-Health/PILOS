@@ -84,7 +84,7 @@ function deleteRoom() {
     .call("rooms/" + props.room.id, {
       method: "delete",
     })
-    .then((response) => {
+    .then(() => {
       // delete successful
       emit("roomDeleted");
       showModal.value = false;

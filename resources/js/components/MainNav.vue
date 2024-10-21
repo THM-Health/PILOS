@@ -317,6 +317,7 @@ async function logout() {
   } catch (error) {
     loadingStore.setLoadingFinished();
     toast.error(t("auth.flash.logout_error"));
+    console.error(error);
     return;
   }
 

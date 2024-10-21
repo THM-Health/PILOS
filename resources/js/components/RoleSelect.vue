@@ -133,7 +133,7 @@ watch(
 
 watch(
   () => props.disabledRoles,
-  (value) => {
+  () => {
     disableRoles(selectedRoles.value);
     disableRoles(roles.value);
   },

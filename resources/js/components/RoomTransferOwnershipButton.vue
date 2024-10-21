@@ -222,7 +222,7 @@ function transferOwnership() {
       method: "post",
       data,
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, emit "transferred-ownership" to reload room view and close modal
       emit("transferredOwnership");
       showModal.value = false;

@@ -1446,7 +1446,7 @@ const name = ref("");
 
 watch(
   () => name.value,
-  (value) => {
+  () => {
     breakcrumbLabelData.value = {
       name: name.value,
     };

@@ -160,7 +160,7 @@ function save() {
       method: "put",
       data: { role: newRole.value },
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("edited");

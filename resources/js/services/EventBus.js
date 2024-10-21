@@ -7,7 +7,7 @@ import mitt from "mitt";
 const EventBus = mitt();
 
 // listen to all events in development mode
-if (process.env.NODE_ENV === "development") {
+if (import.meta.env.DEV) {
   EventBus.on("*", (type, e) => console.debug("[EventBus]", type, e));
 }
 

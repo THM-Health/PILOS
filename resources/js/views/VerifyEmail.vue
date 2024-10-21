@@ -79,7 +79,7 @@ function verifyEmail() {
         token: props.token,
       },
     })
-    .then((response) => {
+    .then(() => {
       success.value = true;
     })
     .catch((error) => {

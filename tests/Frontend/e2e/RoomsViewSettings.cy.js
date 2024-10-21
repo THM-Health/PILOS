@@ -1052,7 +1052,7 @@ describe("Rooms view settings", function () {
     cy.get("#short-description").clear();
 
     // Save settings
-    cy.fixture("roomTypesWithSettings.json").then((roomTypes) => {
+    cy.fixture("roomTypesWithSettings.json").then(() => {
       cy.fixture("roomSettings.json").then((roomSettings) => {
         roomSettings.data.name = "Meeting Three";
         roomSettings.data.expert_mode = false;

@@ -297,7 +297,7 @@ function importUsers(firstRound = false) {
       method: "post",
       data: { user_emails: userEmails, role: newUsersRole.value },
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, go to the last step and emit "imported" to reload member list
       step.value = 2;
       emit("imported");

@@ -117,7 +117,7 @@ function deleteMembers() {
       method: "delete",
       data: { users: props.userIds },
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("deleted");

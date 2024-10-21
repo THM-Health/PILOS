@@ -209,7 +209,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query, vm) => {
+          accessPermitted: (userPermissions, params) => {
             const id = params.id;
 
             return Promise.resolve(
@@ -231,7 +231,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query, vm) => {
+          accessPermitted: (userPermissions, params) => {
             const id = params.id;
 
             return Promise.resolve(
@@ -258,7 +258,7 @@ export const routes = [
         path: "roles/new",
         name: "admin.roles.new",
         component: RolesView,
-        props: (route) => {
+        props: () => {
           return {
             id: "new",
             viewOnly: false,
@@ -266,7 +266,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query, vm) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("create", "RolePolicy"),
@@ -286,7 +286,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query, vm) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("view", "RolePolicy"),
@@ -306,7 +306,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query, vm) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("update", "RolePolicy"),
@@ -341,7 +341,7 @@ export const routes = [
         path: "room_types/new",
         name: "admin.room_types.new",
         component: RoomTypesView,
-        props: (route) => {
+        props: () => {
           return {
             id: "new",
             viewOnly: false,
@@ -349,7 +349,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("create", "RoomTypePolicy"),
@@ -369,7 +369,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("view", "RoomTypePolicy"),
@@ -389,7 +389,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("update", "RoomTypePolicy"),
@@ -414,7 +414,7 @@ export const routes = [
         path: "servers/new",
         name: "admin.servers.new",
         component: ServersView,
-        props: (route) => {
+        props: () => {
           return {
             id: "new",
             viewOnly: false,
@@ -422,7 +422,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("create", "ServerPolicy"),
@@ -442,7 +442,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("view", "ServerPolicy"),
@@ -462,7 +462,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("update", "ServerPolicy"),
@@ -487,7 +487,7 @@ export const routes = [
         path: "server_pools/new",
         name: "admin.server_pools.new",
         component: ServerPoolsView,
-        props: (route) => {
+        props: () => {
           return {
             id: "new",
             viewOnly: false,
@@ -495,7 +495,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("create", "ServerPoolPolicy"),
@@ -515,7 +515,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("view", "ServerPoolPolicy"),
@@ -535,7 +535,7 @@ export const routes = [
         },
         meta: {
           requiresAuth: true,
-          accessPermitted: (userPermissions, params, query) => {
+          accessPermitted: (userPermissions) => {
             return Promise.resolve(
               userPermissions.can("view", "AdminPolicy") &&
                 userPermissions.can("update", "ServerPoolPolicy"),

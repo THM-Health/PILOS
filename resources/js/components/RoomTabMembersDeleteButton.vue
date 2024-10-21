@@ -98,7 +98,7 @@ function deleteMember() {
     .call("rooms/" + props.roomId + "/member/" + props.userId, {
       method: "delete",
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("deleted");

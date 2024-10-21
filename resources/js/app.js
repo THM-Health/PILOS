@@ -44,9 +44,9 @@ const setupApp = (app) => {
   app.use(ConfirmationService);
   app.use(Toast);
 
-  app.config.errorHandler = (err, vm, info) => {
+  app.config.errorHandler = (err, instance, info) => {
     toast.error(t("app.flash.client_error"));
-    console.error(err);
+    console.error(err, instance, info);
   };
 
   app.provide("$router", app.config.globalProperties.$router);

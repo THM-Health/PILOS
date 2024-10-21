@@ -33,7 +33,7 @@ function messageCompiler(message) {
   }
 }
 
-function missingHandler(locale, key, instance, type) {
+function missingHandler(locale, key) {
   return "!!missing!!" + key;
 }
 

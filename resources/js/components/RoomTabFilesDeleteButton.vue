@@ -93,7 +93,7 @@ function deleteFile() {
     .call("rooms/" + props.roomId + "/files/" + props.fileId, {
       method: "delete",
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("deleted");

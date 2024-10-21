@@ -187,7 +187,7 @@ function save() {
 
   api
     .call(`rooms/${props.roomId}/files/${props.fileId}`, config)
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("edited");

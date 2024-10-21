@@ -216,7 +216,7 @@ function save() {
         formats: newFormats.value,
       },
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("edited");

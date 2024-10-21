@@ -85,7 +85,7 @@ function deleteRecording() {
     .call("rooms/" + props.roomId + "/recordings/" + props.recordingId, {
       method: "delete",
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("deleted");

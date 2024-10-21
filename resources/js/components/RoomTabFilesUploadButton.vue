@@ -247,7 +247,7 @@ function uploadFile(file) {
         uploadProgress.value = progressEvent.progress.toFixed(2) * 100;
       },
     })
-    .then((response) => {
+    .then(() => {
       // Fetch successful
       uploadedFiles.value.push(file);
       emit("uploaded");

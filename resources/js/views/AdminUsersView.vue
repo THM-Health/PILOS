@@ -75,7 +75,7 @@ const lastname = computed(() => {
 
 watch(
   () => firstname.value + " " + lastname.value,
-  (value) => {
+  () => {
     breakcrumbLabelData.value = {
       firstname: firstname.value,
       lastname: lastname.value,

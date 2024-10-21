@@ -231,7 +231,7 @@ function save() {
       method: "post",
       data: { user: user.value?.id, role: role.value },
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("added");

@@ -81,22 +81,21 @@ export class Api {
     }
   }
 
-  getErrorMessage(error, options) {
+  getErrorMessage(error) {
     return error.response && error.response.data
       ? error.response.data.message
       : undefined;
   }
 
-  getErrorStatusCode(error, options) {
+  getErrorStatusCode(error) {
     return error.response !== undefined ? error.response.status : undefined;
   }
 
-  // eslint-disable-next-line n/handle-callback-err
   handleUnauthorized(error, options) {
     EventBus.emit(EVENT_UNAUTHORIZED);
     if (this.auth.isAuthenticated) {
       this.toast.info(this.t("app.flash.unauthenticated"));
-      this.auth.setCurrentUser(null, false);
+      this.auth.setCurrentUser(null);
       if (!options.noRedirectOnUnauthenticated) {
         this.router.replace({
           name: "login",
@@ -106,34 +105,29 @@ export class Api {
     }
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleForbidden(error, options) {
+  handleForbidden() {
     EventBus.emit(EVENT_FORBIDDEN);
     this.toast.error(this.t("app.flash.unauthorized"));
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleGuestsOnly(error, options) {
+  handleGuestsOnly() {
     this.toast.info(this.t("app.flash.guests_only"));
     this.router.replace({ name: "home" });
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handlePayloadTooLarge(error, options) {
+  handlePayloadTooLarge() {
     this.toast.error(this.t("app.flash.too_large"));
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleTooManyRequests(error, options) {
+  handleTooManyRequests() {
     this.toast.error(this.t("app.flash.too_many_requests"));
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleMaintenance(error, options) {
+  handleMaintenance() {
     window.location.reload();
   }
 
-  handleOtherServerError(error, options) {
+  handleOtherServerError(error) {
     const statusCode = this.getErrorStatusCode(error);
     const message = this.getErrorMessage(error);
 
@@ -145,7 +139,7 @@ export class Api {
     );
   }
 
-  handleClientError(error, options) {
+  handleClientError(error) {
     this.toast.error(this.t("app.flash.client_error"));
     console.error(error);
   }

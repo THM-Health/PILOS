@@ -155,7 +155,7 @@ function save() {
       method: "put",
       data: { role: newRole.value, users: props.userIds },
     })
-    .then((response) => {
+    .then(() => {
       // operation successful, close modal and reload list
       showModal.value = false;
       emit("edited");

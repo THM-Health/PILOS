@@ -91,7 +91,7 @@ const domPurify = createDOMPurify();
 // Add a hook to sanitize the style attribute
 domPurify.addHook(
   "uponSanitizeAttribute",
-  function (currentNode, hookEvent, config) {
+  function (currentNode, hookEvent) {
     if (hookEvent.attrName === "style") {
       hookEvent.attrValue = sanitizeCss(currentNode);
     }

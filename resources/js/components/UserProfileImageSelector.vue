@@ -164,7 +164,7 @@ const cropperRef = ref();
 
 watch(
   () => props.image,
-  (value) => {
+  () => {
     croppedImage.value = null;
     selectedFile.value = null;
   },
