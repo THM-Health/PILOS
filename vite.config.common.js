@@ -57,10 +57,7 @@ export default (mode) => {
       preprocessorOptions: {
         scss: {
           api: "modern-compiler",
-          silenceDeprecations: [
-            'import',
-            'global-builtin'
-          ]
+          silenceDeprecations: ["import", "global-builtin"],
         },
       },
     },
