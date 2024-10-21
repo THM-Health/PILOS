@@ -3,24 +3,27 @@ title: Upgrade
 ---
 
 ## Introduction
+
 This document describes the upgrade process from PILOS v2/v3 to PILOS v4.
 Before upgrading, please make sure you have the latest version of PILOS v2/v3 installed.
 
 Please make sure to back up your database and files before upgrading, so you can restore them in case of any issues.
 
 ## Starting the upgrade
+
 To start the upgrade process, stop your current PILOS installation by running:
+
 ```bash
 docker compose down
 ```
 
-
 ## Replace the app service
+
 In v2/v3 only one service was used for the app. In v4 the app service was split into three services: `app`, `cron` and `horizon`.
 
-- **app**: Frontend and backend with nginx and php-fpm
-- **cron**: Cronjob runner
-- **horizon**: Laravel Horizon for queue jobs
+-   **app**: Frontend and backend with nginx and php-fpm
+-   **cron**: Cronjob runner
+-   **horizon**: Laravel Horizon for queue jobs
 
 As all services use the same image, environment variables and volumes, these are defined in a common section in the `docker-compose.yml` file.
 Replace the app service in the `docker-compose.yml` file:
@@ -29,15 +32,15 @@ Replace the app service in the `docker-compose.yml` file:
 x-docker-pilos-common: &pilos-common
     env_file: .env
     volumes:
-        - './storage/app:/var/www/html/storage/app'
-        - './storage/recordings:/var/www/html/storage/recordings'
-        - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
-        - './app/Auth/config:/var/www/html/app/Auth/config'
+        - "./storage/app:/var/www/html/storage/app"
+        - "./storage/recordings:/var/www/html/storage/recordings"
+        - "./storage/recordings-spool:/var/www/html/storage/recordings-spool"
+        - "./app/Auth/config:/var/www/html/app/Auth/config"
 services:
     app:
-        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        image: "${CONTAINER_IMAGE:-pilos/pilos:latest}"
         ports:
-            - '127.0.0.1:5000:80'
+            - "127.0.0.1:5000:80"
         <<: *pilos-common
         sysctls:
             net.core.somaxconn: 65536
@@ -55,16 +58,16 @@ services:
             redis:
                 condition: service_healthy
     cron:
-        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        image: "${CONTAINER_IMAGE:-pilos/pilos:latest}"
         <<: *pilos-common
-        entrypoint: [ 'pilos-cli', 'run:cron' ]
+        entrypoint: ["pilos-cli", "run:cron"]
         depends_on:
             app:
                 condition: service_healthy
     horizon:
-        image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+        image: "${CONTAINER_IMAGE:-pilos/pilos:latest}"
         <<: *pilos-common
-        entrypoint: [ 'pilos-cli', 'run:horizon' ]
+        entrypoint: ["pilos-cli", "run:horizon"]
         depends_on:
             app:
                 condition: service_healthy
@@ -81,7 +84,7 @@ CONTAINER_IMAGE=pilos/pilos:4.0.0-beta.1
 ### New default values
 
 | Option          | Old Default | New Default | Description                                                                                            |
-|-----------------|-------------|-------------|--------------------------------------------------------------------------------------------------------|
+| --------------- | ----------- | ----------- | ------------------------------------------------------------------------------------------------------ |
 | `DB_CONNECTION` | `mysql`     | `mariadb`   | Database connection driver<br/>Explicitly set to mariadb to support db specific features in the future |
 | `MAIL_HOST`     | `mailhog`   | `mailpit`   | [DEV ONLY] Replaced default local mail server                                                          |
 
@@ -90,11 +93,11 @@ CONTAINER_IMAGE=pilos/pilos:4.0.0-beta.1
 Many .env options that were only used during initial setup, as the values were stored in the database.
 Some basic application settings have been renamed to better reflect their purpose.
 
-| Old Option Name       | New Option Name               | Description   |
-|-----------------------|-------------------------------|---------------|
-| `HELP_URL`            | `DEFAULT_HELP_URL`            |               |
-| `LEGAL_NOTICE_URL`    | `DEFAULT_LEGAL_NOTICE_URL`    |               |
-| `PRIVACY_POLICY_URL`  | `DEFAULT_PRIVACY_POLICY_URL`  |               |
+| Old Option Name      | New Option Name              | Description |
+| -------------------- | ---------------------------- | ----------- |
+| `HELP_URL`           | `DEFAULT_HELP_URL`           |             |
+| `LEGAL_NOTICE_URL`   | `DEFAULT_LEGAL_NOTICE_URL`   |             |
+| `PRIVACY_POLICY_URL` | `DEFAULT_PRIVACY_POLICY_URL` |             |
 
 ### Removed options
 
@@ -106,24 +109,24 @@ The new default values are only used for new installations.
 Existing installations will keep their current values as they are stored in the database.
 
 | Option                                 | Old Default        | New Default      | Upgrade steps                                                                                                                                                           |
-|----------------------------------------|--------------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `OWN_ROOMS_PAGINATION_PAGE_SIZE`       | `5`                | *REMOVED*        | Client selects the optimum value for the given device size                                                                                                              |
+| -------------------------------------- | ------------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OWN_ROOMS_PAGINATION_PAGE_SIZE`       | `5`                | _REMOVED_        | Client selects the optimum value for the given device size                                                                                                              |
 | `DEFAULT_PAGINATION_PAGE_SIZE`         | `15`               | `20`             |                                                                                                                                                                         |
-| `STATISTICS_SERVERS_ENABLED`           | `false`            | *enabled*        |                                                                                                                                                                         |
-| `STATISTICS_SERVERS_RETENTION_PERIOD`  | `90` (*90 days*)   | *60 days*        |                                                                                                                                                                         |
-| `STATISTICS_MEETINGS_ENABLED`          | `false`            | *enabled*        |                                                                                                                                                                         |
-| `STATISTICS_MEETINGS_RETENTION_PERIOD` | `30` (*30 days*)   | *30 days*        |                                                                                                                                                                         |
-| `ATTENDANCE_ENABLED`                   | `false`            | *REMOVED*        | Attendance logging can be controlled by the room type setting.<br/>To disable attendance logging enforce 'Log attendance of participants' to disabled in all room types |
-| `ATTENDANCE_RETENTION_PERIOD`          | `14` (*14 days*)   | `14` (*14 days*) |                                                                                                                                                                         |
+| `STATISTICS_SERVERS_ENABLED`           | `false`            | _enabled_        |                                                                                                                                                                         |
+| `STATISTICS_SERVERS_RETENTION_PERIOD`  | `90` (_90 days_)   | _60 days_        |                                                                                                                                                                         |
+| `STATISTICS_MEETINGS_ENABLED`          | `false`            | _enabled_        |                                                                                                                                                                         |
+| `STATISTICS_MEETINGS_RETENTION_PERIOD` | `30` (_30 days_)   | _30 days_        |                                                                                                                                                                         |
+| `ATTENDANCE_ENABLED`                   | `false`            | _REMOVED_        | Attendance logging can be controlled by the room type setting.<br/>To disable attendance logging enforce 'Log attendance of participants' to disabled in all room types |
+| `ATTENDANCE_RETENTION_PERIOD`          | `14` (_14 days_)   | `14` (_14 days_) |                                                                                                                                                                         |
 | `PASSWORD_CHANGE_ALLOWED`              | `true`             | `true`           |                                                                                                                                                                         |
-| `ROOM_TOKEN_EXPIRATION`                | `-1` (*disabled*)  | *90 days*        |                                                                                                                                                                         |
-| `DEFAULT_ROOM_LIMIT`                   | `-1` (*unlimited*) | *unlimited*      |                                                                                                                                                                         |
-| `ROOM_AUTO_DELETE_ENABLED`             | `false`            | *REMOVED*        | Can be disabled by setting the inactive-perdiod and never-used-perdiod to unlimited                                                                                     |
-| `ROOM_AUTO_DELETE_INACTIVE_PERIOD`     | `365` (*365 days*) | *unlimited*      |                                                                                                                                                                         |
-| `ROOM_AUTO_DELETE_NEVER_USED_PERIOD`   | `90` (*90 days*)   | *unlimited*      |                                                                                                                                                                         |
-| `ROOM_AUTO_DELETE_DEADLINE_PERIOD`     | `14` (*14 days*)   | *14 days*        |                                                                                                                                                                         |
-| `CACHE_DRIVER`                         | `file`             | *REMOVED*        | Removed as setup with redis is new default and highly recommended                                                                                                       |
-| `QUEUE_CONNECTION`                     | `sync`             | *REMOVED*        | Removed as setup with redis is new default and highly recommended                                                                                                       |
+| `ROOM_TOKEN_EXPIRATION`                | `-1` (_disabled_)  | _90 days_        |                                                                                                                                                                         |
+| `DEFAULT_ROOM_LIMIT`                   | `-1` (_unlimited_) | _unlimited_      |                                                                                                                                                                         |
+| `ROOM_AUTO_DELETE_ENABLED`             | `false`            | _REMOVED_        | Can be disabled by setting the inactive-perdiod and never-used-perdiod to unlimited                                                                                     |
+| `ROOM_AUTO_DELETE_INACTIVE_PERIOD`     | `365` (_365 days_) | _unlimited_      |                                                                                                                                                                         |
+| `ROOM_AUTO_DELETE_NEVER_USED_PERIOD`   | `90` (_90 days_)   | _unlimited_      |                                                                                                                                                                         |
+| `ROOM_AUTO_DELETE_DEADLINE_PERIOD`     | `14` (_14 days_)   | _14 days_        |                                                                                                                                                                         |
+| `CACHE_DRIVER`                         | `file`             | _REMOVED_        | Removed as setup with redis is new default and highly recommended                                                                                                       |
+| `QUEUE_CONNECTION`                     | `sync`             | _REMOVED_        | Removed as setup with redis is new default and highly recommended                                                                                                       |
 
 ## User Interface
 
@@ -139,30 +142,34 @@ The room type selection and the process for changing room types were redesigned 
 To facilitate users in selecting the appropriate room type, an option was added to set a description for each room type, allowing administrators to explain the differences in natural language.
 
 ### Theme
+
 Custom theming via SASS files has been removed. Instead, you can dynamically change the base color and toggle the rounded corners in the admin interface.
 Users can also choose between light and dark mode, so a new option for a dark logo and a favicon version has been introduced.
 
 ### Locales
+
 Many translations have been added, moved and changed. Please check the `resources/lang` folder for new translations and adjust your custom translations accordingly.
 
 ## Redis
+
 In v4, Redis is used as the default caching and queuing driver to allow multi-node setups.
 You need to update your docker compose setup to include the Redis service or use an [external Redis server](https://thm-health.github.io/PILOS/docs/administration/configuration#redis-configuration).
 
 ### Adding Redis service to docker compose
+
 Add the following service to your `docker-compose.yml` file:
 
 ```yaml
-    redis:
-      image: redis:7.2-alpine3.18
-      restart: unless-stopped
-      volumes:
-          - ./redis/data:/data
-      healthcheck:
-          test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-          interval: 5s
-          retries: 12
-          timeout: 5s
+redis:
+    image: redis:7.2-alpine3.18
+    restart: unless-stopped
+    volumes:
+        - ./redis/data:/data
+    healthcheck:
+        test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+        interval: 5s
+        retries: 12
+        timeout: 5s
 ```
 
 Next you need to set the hostname of the Redis server in the `.env` file:
@@ -173,6 +180,7 @@ REDIS_HOST=redis
 ```
 
 ### Remove .env option
+
 The default values for `CACHE_DRIVER` and `QUEUE_CONNECTION` are set to `redis`.
 Remove the options from your `.env` file to use Redis as the cache and queue driver.
 
@@ -186,24 +194,26 @@ QUEUE_CONNECTION=redis
 ## Database
 
 ### MariaDB
+
 In v4, the MariaDB version has been bumped to 11.
 All new installations will use this version, existing installations will not be automatically upgraded.
 
 #### Upgrade MariaDB container (optional)
+
 To upgrade your MariaDB container, you need to edit your `docker-compose.yml` file:
 
-- Change the MariaDB image tag to `11`.
-- Add a new environment variable `MARIADB_AUTO_UPGRADE` to trigger the service to upgrade the database:
-
+-   Change the MariaDB image tag to `11`.
+-   Add a new environment variable `MARIADB_AUTO_UPGRADE` to trigger the service to upgrade the database:
 
     ```yaml
-       db:
-         image: 'mariadb:11'
-         environment:
-           MARIADB_AUTO_UPGRADE: 1
+    db:
+        image: "mariadb:11"
+        environment:
+            MARIADB_AUTO_UPGRADE: 1
     ```
 
 ### Database schema changes
+
 The database schema has changed quite a lot from v2/3 to v4.
 This was necessary for many new features and a more stable global application settings storage.
 
@@ -216,16 +226,17 @@ Please check the settings in the admin UI after the migration.
 ## Finish the upgrade
 
 1. Start the new version of PILOS
-   ```bash
-   docker compose up -d
-   ```
+    ```bash
+    docker compose up -d
+    ```
 2. Run the command to upgrade the database schema
-   ```bash
-   docker compose exec app pilos-cli db:upgrade
+    ```bash
+    docker compose exec app pilos-cli db:upgrade
     ```
 
 ### Cleanup
 
 To revert the changes made for the upgrade process, please follow these steps:
+
 1. Re-enable the automatic database migration by setting the `.env` variable `RUN_MIGRATIONS=true` or remove the variable.
 2. If you changed the MariaDB version, also remove the `MARIADB_AUTO_UPGRADE` environment variable from the MariaDB service in your `docker-compose.yml` file.

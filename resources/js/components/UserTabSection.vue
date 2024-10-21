@@ -6,10 +6,21 @@
       </template>
       <Tabs v-if="!isBusy && user" value="base" scrollable lazy>
         <TabList>
-          <Tab value="base" data-test="base-tab-button"><i class="fa-solid fa-user mr-2" /> {{ $t('admin.users.base_data') }}</Tab>
-          <Tab value="email" data-test="email-tab-button"><i class="fa-solid fa-envelope mr-2" /> {{ $t('app.email') }}</Tab>
-          <Tab value="security" data-test="security-tab-button"><i class="fa-solid fa-user-shield mr-2" /> {{ $t('app.security') }}</Tab>
-          <Tab value="others" data-test="others-tab-button"><i class="fa-solid fa-user-gear mr-2" /> {{ $t('admin.users.other_settings') }}</Tab>
+          <Tab value="base" data-test="base-tab-button"
+            ><i class="fa-solid fa-user mr-2" />
+            {{ $t("admin.users.base_data") }}</Tab
+          >
+          <Tab value="email" data-test="email-tab-button"
+            ><i class="fa-solid fa-envelope mr-2" /> {{ $t("app.email") }}</Tab
+          >
+          <Tab value="security" data-test="security-tab-button"
+            ><i class="fa-solid fa-user-shield mr-2" />
+            {{ $t("app.security") }}</Tab
+          >
+          <Tab value="others" data-test="others-tab-button"
+            ><i class="fa-solid fa-user-gear mr-2" />
+            {{ $t("admin.users.other_settings") }}</Tab
+          >
         </TabList>
         <TabPanels class="px-0">
           <TabPanel value="base">
@@ -53,19 +64,25 @@
 
     <!-- Stale user modal -->
     <Dialog
-      data-test="stale-user-dialog"
       v-model:visible="showModal"
+      data-test="stale-user-dialog"
       modal
       :style="{ width: '500px' }"
       :breakpoints="{ '575px': '90vw' }"
       :draggable="false"
-      :closeOnEscape="false"
-      :dismissableMask="false"
+      :close-on-escape="false"
+      :dismissable-mask="false"
       :closable="false"
     >
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="$t('app.reload')" :loading="isBusy" :disabled="isBusy" @click="refreshUser" data-test="stale-dialog-reload-button"/>
+          <Button
+            :label="$t('app.reload')"
+            :loading="isBusy"
+            :disabled="isBusy"
+            data-test="stale-dialog-reload-button"
+            @click="refreshUser"
+          />
         </div>
       </template>
 
@@ -75,23 +92,23 @@
 </template>
 
 <script setup>
-import env from '../env';
-import { onMounted, ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { useRouter } from 'vue-router';
+import env from "../env";
+import { onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   id: {
     type: [String, Number],
-    required: true
+    required: true,
   },
   viewOnly: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['updateUser']);
+const emit = defineEmits(["updateUser"]);
 
 const user = ref(null);
 const isBusy = ref(false);
@@ -106,30 +123,30 @@ onMounted(() => {
   loadUser();
 });
 
-function handleNotFoundError (error) {
-  router.push({ name: 'admin.users' });
+function handleNotFoundError(error) {
+  router.push({ name: "admin.users" });
   api.error(error);
 }
 
-function handleStaleError (error) {
+function handleStaleError(error) {
   staleError.value = error;
   showModal.value = true;
 }
 
-function updateUser (newUser) {
+function updateUser(newUser) {
   user.value = newUser;
-  emit('updateUser', newUser);
+  emit("updateUser", newUser);
 }
 
 /**
  * Refreshes the current model with the new passed from the stale error response.
  */
-function refreshUser () {
+function refreshUser() {
   user.value = staleError.value.new_model;
-  user.value.roles.forEach(role => {
+  user.value.roles.forEach((role) => {
     role.$isDisabled = role.automatic;
   });
-  emit('updateUser', staleError.value.new_model);
+  emit("updateUser", staleError.value.new_model);
   staleError.value = {};
   showModal.value = false;
 }
@@ -137,26 +154,29 @@ function refreshUser () {
 /**
  * Load user from the API.
  */
-function loadUser () {
+function loadUser() {
   isBusy.value = true;
 
-  api.call('users/' + props.id).then(response => {
-    loadingError.value = false;
-    user.value = response.data.data;
-    user.value.roles.forEach(role => {
-      role.$isDisabled = role.automatic;
+  api
+    .call("users/" + props.id)
+    .then((response) => {
+      loadingError.value = false;
+      user.value = response.data.data;
+      user.value.roles.forEach((role) => {
+        role.$isDisabled = role.automatic;
+      });
+      emit("updateUser", user.value);
+    })
+    .catch((error) => {
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        router.push({ name: "admin.users" });
+      }
+
+      loadingError.value = true;
+      api.error(error);
+    })
+    .finally(() => {
+      isBusy.value = false;
     });
-    emit('updateUser', user.value);
-  }).catch(error => {
-    if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-      router.push({ name: 'admin.users' });
-    }
-
-    loadingError.value = true;
-    api.error(error);
-  }).finally(() => {
-    isBusy.value = false;
-  });
 }
-
 </script>

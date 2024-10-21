@@ -1,10 +1,13 @@
 <template>
-  <div class="container mt-8 mb-8">
+  <div class="container mb-8 mt-8">
     <Card>
-      <template #title><h1 class="m-0 text-3xl">{{ $t('meetings.currently_running') }}</h1></template>
+      <template #title
+        ><h1 class="m-0 text-3xl">
+          {{ $t("meetings.currently_running") }}
+        </h1></template
+      >
 
       <template #content>
-
         <div class="flex justify-between">
           <div>
             <InputGroup>
@@ -14,11 +17,11 @@
                 :placeholder="$t('app.search')"
                 @keyup.enter="loadData(1)"
               />
-                <Button
-                  :disabled="isBusy "
-                  @click="loadData(1)"
-                  icon="fa-solid fa-magnifying-glass"
-                />
+              <Button
+                :disabled="isBusy"
+                icon="fa-solid fa-magnifying-glass"
+                @click="loadData(1)"
+              />
             </InputGroup>
           </div>
           <div>
@@ -27,30 +30,32 @@
               :aria-label="$t('app.reload')"
               severity="secondary"
               :disabled="isBusy"
-              @click="loadData()"
               icon="fa-solid fa-sync"
               :loading="isBusy"
+              @click="loadData()"
             />
           </div>
         </div>
 
         <!-- table with room members -->
         <DataTable
+          v-model:sort-field="sortField"
+          v-model:sort-order="sortOrder"
           class="mt-6"
-          :totalRecords="paginator.getTotalRecords()"
+          :total-records="paginator.getTotalRecords()"
           :rows="paginator.getRows()"
           :first="paginator.getFirst()"
-          @update:first="paginator.setFirst($event)"
           :value="meetings"
           lazy
-          dataKey="id"
+          data-key="id"
           paginator
           :paginator-template="paginator.getTemplate()"
-          :current-page-report-template="paginator.getCurrentPageReportTemplate()"
+          :current-page-report-template="
+            paginator.getCurrentPageReportTemplate()
+          "
           :loading="isBusy || loadingError"
-          rowHover
-          v-model:sortField="sortField"
-          v-model:sortOrder="sortOrder"
+          row-hover
+          @update:first="paginator.setFirst($event)"
           @page="onPage"
           @sort="onSort"
         >
@@ -61,8 +66,12 @@
           <!-- Show message on empty attendance list -->
           <template #empty>
             <div v-if="!isBusy && !loadingError">
-              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('meetings.no_data') }}</InlineNote>
-              <InlineNote v-else>{{ $t('meetings.no_data_filtered') }}</InlineNote>
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
+                $t("meetings.no_data")
+              }}</InlineNote>
+              <InlineNote v-else>{{
+                $t("meetings.no_data_filtered")
+              }}</InlineNote>
             </div>
           </template>
 
@@ -73,7 +82,7 @@
             :style="{ width: '120px' }"
           >
             <template #body="slotProps">
-              {{ $d(new Date(slotProps.data.start),'datetimeShort') }}
+              {{ $d(new Date(slotProps.data.start), "datetimeShort") }}
             </template>
           </Column>
           <Column
@@ -115,13 +124,16 @@
             :style="{ width: '64px' }"
           >
             <template #header>
-              <i v-tooltip="$t('meetings.voice_participant_count')" class="fa-solid fa-microphone" />
+              <i
+                v-tooltip="$t('meetings.voice_participant_count')"
+                class="fa-solid fa-microphone"
+              />
             </template>
             <template #body="slotProps">
-              <span v-if="slotProps.data.room.participant_count !== null">{{ slotProps.data.room.participant_count }}</span>
-              <raw-text v-else>
-                ---
-              </raw-text>
+              <span v-if="slotProps.data.room.participant_count !== null">{{
+                slotProps.data.room.participant_count
+              }}</span>
+              <raw-text v-else> --- </raw-text>
             </template>
           </Column>
           <Column
@@ -130,13 +142,16 @@
             :style="{ width: '64px' }"
           >
             <template #header>
-              <i v-tooltip="$t('meetings.listener_count')" class="fa-solid fa-headphones" />
+              <i
+                v-tooltip="$t('meetings.listener_count')"
+                class="fa-solid fa-headphones"
+              />
             </template>
             <template #body="slotProps">
-              <span v-if="slotProps.data.room.listener_count !== null">{{ slotProps.data.room.listener_count }}</span>
-              <raw-text v-else>
-                ---
-              </raw-text>
+              <span v-if="slotProps.data.room.listener_count !== null">{{
+                slotProps.data.room.listener_count
+              }}</span>
+              <raw-text v-else> --- </raw-text>
             </template>
           </Column>
 
@@ -146,13 +161,17 @@
             :style="{ width: '64px' }"
           >
             <template #header>
-              <i v-tooltip="$t('meetings.voice_participant_count')" class="fa-solid fa-microphone" />
+              <i
+                v-tooltip="$t('meetings.voice_participant_count')"
+                class="fa-solid fa-microphone"
+              />
             </template>
             <template #body="slotProps">
-              <span v-if="slotProps.data.room.voice_participant_count !== null">{{ slotProps.data.room.voice_participant_count }}</span>
-              <raw-text v-else>
-                ---
-              </raw-text>
+              <span
+                v-if="slotProps.data.room.voice_participant_count !== null"
+                >{{ slotProps.data.room.voice_participant_count }}</span
+              >
+              <raw-text v-else> --- </raw-text>
             </template>
           </Column>
 
@@ -162,38 +181,47 @@
             :style="{ width: '64px' }"
           >
             <template #header>
-              <i v-tooltip="$t('meetings.video_count')" class="fa-solid fa-video" />
+              <i
+                v-tooltip="$t('meetings.video_count')"
+                class="fa-solid fa-video"
+              />
             </template>
             <template #body="slotProps">
-              <span v-if="slotProps.data.room.video_count !== null">{{ slotProps.data.room.video_count }}</span>
-              <raw-text v-else>
-                ---
-              </raw-text>
+              <span v-if="slotProps.data.room.video_count !== null">{{
+                slotProps.data.room.video_count
+              }}</span>
+              <raw-text v-else> --- </raw-text>
             </template>
           </Column>
 
           <!-- actions -->
-          <Column
-            :style="{ width: '100px' }"
-            :header="$t('app.actions')"
-          >
+          <Column :style="{ width: '100px' }" :header="$t('app.actions')">
             <template #body="slotProps">
               <div class="flex justify-between">
                 <router-link
-                  :to="{ name: 'rooms.view', params: { id: slotProps.data.room.id } }"
+                  :to="{
+                    name: 'rooms.view',
+                    params: { id: slotProps.data.room.id },
+                  }"
                   :disabled="true"
                 >
                   <Button
-                    v-tooltip="$t('meetings.view_room', { name: slotProps.data.room.name })"
-                    :aria-label="$t('meetings.view_room', { name: slotProps.data.room.name })"
-
+                    v-tooltip="
+                      $t('meetings.view_room', {
+                        name: slotProps.data.room.name,
+                      })
+                    "
+                    :aria-label="
+                      $t('meetings.view_room', {
+                        name: slotProps.data.room.name,
+                      })
+                    "
                     icon="fa-solid fa-eye"
                   />
                 </router-link>
               </div>
             </template>
           </Column>
-
         </DataTable>
       </template>
     </Card>
@@ -201,11 +229,11 @@
 </template>
 
 <script setup>
-import RawText from '../components/RawText.vue';
-import TextTruncate from '../components/TextTruncate.vue';
-import { ref, onMounted } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { usePaginator } from '../composables/usePaginator.js';
+import RawText from "../components/RawText.vue";
+import TextTruncate from "../components/TextTruncate.vue";
+import { ref, onMounted } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { usePaginator } from "../composables/usePaginator.js";
 
 const api = useApi();
 const paginator = usePaginator();
@@ -213,14 +241,14 @@ const paginator = usePaginator();
 const isBusy = ref(false);
 const loadingError = ref(false);
 const meetings = ref([]);
-const sortField = ref('lastname');
+const sortField = ref("lastname");
 const sortOrder = ref(1);
-const search = ref('');
+const search = ref("");
 
 /**
  * reload member list from api
  */
-function loadData (page = null) {
+function loadData(page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
@@ -230,16 +258,17 @@ function loadData (page = null) {
     params: {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc'
-    }
+      sort_direction: sortOrder.value === 1 ? "asc" : "desc",
+    },
   };
 
   if (search.value) {
     config.params.search = search.value;
   }
 
-  api.call('meetings', config)
-    .then(response => {
+  api
+    .call("meetings", config)
+    .then((response) => {
       // fetching successful
       meetings.value = response.data.data;
       paginator.updateMeta(response.data.meta).then(() => {
@@ -258,16 +287,15 @@ function loadData (page = null) {
     });
 }
 
-function onPage (event) {
+function onPage(event) {
   loadData(event.page + 1);
 }
 
-function onSort () {
+function onSort() {
   loadData(1);
 }
 
 onMounted(() => {
   loadData();
 });
-
 </script>

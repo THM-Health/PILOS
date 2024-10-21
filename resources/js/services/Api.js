@@ -1,17 +1,17 @@
-import axios from 'axios';
-import env from '../env';
-import { useToast } from '../composables/useToast';
-import i18n from '../i18n';
-import { useAuthStore } from '../stores/auth';
-import { useRouter } from 'vue-router';
-import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from '../constants/events.js';
-import EventBus from './EventBus.js';
+import axios from "axios";
+import env from "../env";
+import { useToast } from "../composables/useToast";
+import i18n from "../i18n";
+import { useAuthStore } from "../stores/auth";
+import { useRouter } from "vue-router";
+import { EVENT_FORBIDDEN, EVENT_UNAUTHORIZED } from "../constants/events.js";
+import EventBus from "./EventBus.js";
 
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
 export class Api {
-  constructor () {
+  constructor() {
     this.auth = useAuthStore();
     this.router = useRouter();
     this.toast = useToast();
@@ -28,8 +28,10 @@ export class Api {
    * @param loadCsrfCookie Boolean, that indicates whether a csrf cookie should be requested or not.
    * @return {Promise<AxiosResponse<any>>} Promise that resolves to a axios response or rejects on errors.
    */
-  call (path, config, loadCsrfCookie = false) {
-    const promise = loadCsrfCookie ? axios.get('/sanctum/csrf-cookie') : Promise.resolve();
+  call(path, config, loadCsrfCookie = false) {
+    const promise = loadCsrfCookie
+      ? axios.get("/sanctum/csrf-cookie")
+      : Promise.resolve();
 
     return promise.then(() => {
       return axios(`/api/v1/${path}`, config);
@@ -46,88 +48,99 @@ export class Api {
    * @param error The occurred error
    * @param options
    */
-  error (error, options = {}) {
+  error(error, options = {}) {
     const statusCode = this.getErrorStatusCode(error);
     const message = this.getErrorMessage(error);
 
-    if (statusCode === env.HTTP_UNAUTHORIZED) { // 401 => unauthorized, redirect and show error messages as flash!
+    if (statusCode === env.HTTP_UNAUTHORIZED) {
+      // 401 => unauthorized, redirect and show error messages as flash!
       this.handleUnauthorized(error, options);
-    } else if (statusCode === env.HTTP_FORBIDDEN && message === 'This action is unauthorized.') { // 403 => unauthorized, show error messages as flash!
+    } else if (
+      statusCode === env.HTTP_FORBIDDEN &&
+      message === "This action is unauthorized."
+    ) {
+      // 403 => unauthorized, show error messages as flash!
       this.handleForbidden(error, options);
-    } else if (statusCode === env.HTTP_GUESTS_ONLY) { // 420 => only for guests, redirect to home route
+    } else if (statusCode === env.HTTP_GUESTS_ONLY) {
+      // 420 => only for guests, redirect to home route
       this.handleGuestsOnly(error, options);
-    } else if (statusCode === env.HTTP_PAYLOAD_TOO_LARGE) { // 413 => payload to large
+    } else if (statusCode === env.HTTP_PAYLOAD_TOO_LARGE) {
+      // 413 => payload to large
       this.handlePayloadTooLarge(error, options);
-    } else if (statusCode === env.HTTP_TOO_MANY_REQUESTS) { // 429 => too many requests
+    } else if (statusCode === env.HTTP_TOO_MANY_REQUESTS) {
+      // 429 => too many requests
       this.handleTooManyRequests(error, options);
-    } else if (statusCode === env.HTTP_SERVICE_UNAVAILABLE) { // 503 => maintenance mode
+    } else if (statusCode === env.HTTP_SERVICE_UNAVAILABLE) {
+      // 503 => maintenance mode
       this.handleMaintenance(error, options);
-    } else if (statusCode !== undefined) { // Another error on server
+    } else if (statusCode !== undefined) {
+      // Another error on server
       this.handleOtherServerError(error, options);
     } else {
       this.handleClientError(error, options);
     }
   }
 
-  getErrorMessage (error, options) {
-    return error.response && error.response.data ? error.response.data.message : undefined;
+  getErrorMessage(error) {
+    return error.response && error.response.data
+      ? error.response.data.message
+      : undefined;
   }
 
-  getErrorStatusCode (error, options) {
+  getErrorStatusCode(error) {
     return error.response !== undefined ? error.response.status : undefined;
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleUnauthorized (error, options) {
+  handleUnauthorized(error, options) {
     EventBus.emit(EVENT_UNAUTHORIZED);
     if (this.auth.isAuthenticated) {
-      this.toast.info(this.t('app.flash.unauthenticated'));
-      this.auth.setCurrentUser(null, false);
+      this.toast.info(this.t("app.flash.unauthenticated"));
+      this.auth.setCurrentUser(null);
       if (!options.noRedirectOnUnauthenticated) {
-        this.router.replace({ name: 'login', query: { redirect: this.router.currentRoute.value.path } });
+        this.router.replace({
+          name: "login",
+          query: { redirect: this.router.currentRoute.value.path },
+        });
       }
     }
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleForbidden (error, options) {
+  handleForbidden() {
     EventBus.emit(EVENT_FORBIDDEN);
-    this.toast.error(this.t('app.flash.unauthorized'));
+    this.toast.error(this.t("app.flash.unauthorized"));
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleGuestsOnly (error, options) {
-    this.toast.info(this.t('app.flash.guests_only'));
-    this.router.replace({ name: 'home' });
+  handleGuestsOnly() {
+    this.toast.info(this.t("app.flash.guests_only"));
+    this.router.replace({ name: "home" });
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handlePayloadTooLarge (error, options) {
-    this.toast.error(this.t('app.flash.too_large'));
+  handlePayloadTooLarge() {
+    this.toast.error(this.t("app.flash.too_large"));
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleTooManyRequests (error, options) {
-    this.toast.error(this.t('app.flash.too_many_requests'));
+  handleTooManyRequests() {
+    this.toast.error(this.t("app.flash.too_many_requests"));
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  handleMaintenance (error, options) {
+  handleMaintenance() {
     window.location.reload();
   }
 
-  handleOtherServerError (error, options) {
+  handleOtherServerError(error) {
     const statusCode = this.getErrorStatusCode(error);
     const message = this.getErrorMessage(error);
 
     this.toast.error(
-      message ? this.t('app.flash.server_error.message', { message }) : this.t('app.flash.server_error.empty_message'),
-      this.t('app.flash.server_error.error_code', { statusCode })
+      message
+        ? this.t("app.flash.server_error.message", { message })
+        : this.t("app.flash.server_error.empty_message"),
+      this.t("app.flash.server_error.error_code", { statusCode }),
     );
   }
 
-  handleClientError (error, options) {
-    this.toast.error(this.t('app.flash.client_error'));
+  handleClientError(error) {
+    this.toast.error(this.t("app.flash.client_error"));
     console.error(error);
   }
 }

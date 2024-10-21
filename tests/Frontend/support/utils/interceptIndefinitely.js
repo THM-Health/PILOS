@@ -1,4 +1,9 @@
-export function interceptIndefinitely (methode, requestMatcher, response, alias) {
+export function interceptIndefinitely(
+  methode,
+  requestMatcher,
+  response,
+  alias,
+) {
   let sendResponse;
   const trigger = new Promise((resolve) => {
     sendResponse = resolve;

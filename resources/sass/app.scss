@@ -9,9 +9,9 @@
     @tailwind utilities;
 }
 
-@import 'primeicons/primeicons.css';
+@import "primeicons/primeicons.css";
 
-@import 'app/app';
+@import "app/app";
 
 // Font Awesome
 $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
@@ -22,4 +22,3 @@ $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
 @import "vue-multiselect/dist/vue-multiselect.css";
 
 @import "override/override";
-

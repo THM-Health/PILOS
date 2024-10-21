@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
-      <div class="flex justify-between flex-col lg:flex-row grow gap-2">
+    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+      <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
           <InputGroup>
             <InputText
@@ -11,34 +11,59 @@
               @keyup.enter="loadData(1)"
             />
             <Button
-              :disabled="isBusy"
-              @click="loadData(1)"
               v-tooltip="$t('app.search')"
+              :disabled="isBusy"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
+              @click="loadData(1)"
             />
           </InputGroup>
         </div>
-        <div class="flex gap-2 flex-col lg:flex-row">
+        <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="filter" :options="filterOptions" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              v-model="filter"
+              :disabled="isBusy"
+              :options="filterOptions"
+              option-label="name"
+              option-value="value"
+              @change="loadData(1)"
+            />
           </InputGroup>
 
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
-            <Select :disabled="isBusy" v-model="sortField" :options="sortFields" @change="loadData(1)" option-label="name" option-value="value" />
+            <Select
+              v-model="sortField"
+              :disabled="isBusy"
+              :options="sortFields"
+              option-label="name"
+              option-value="value"
+              @change="loadData(1)"
+            />
             <InputGroupAddon class="p-0">
-              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="rounded-l-none"  />
+              <Button
+                :disabled="isBusy"
+                :icon="
+                  sortOrder === 1
+                    ? 'fa-solid fa-arrow-up-short-wide'
+                    : 'fa-solid fa-arrow-down-wide-short'
+                "
+                severity="secondary"
+                text
+                class="rounded-l-none"
+                @click="toggleSortOrder"
+              />
             </InputGroupAddon>
           </InputGroup>
         </div>
       </div>
-      <div class="flex gap-2 justify-end">
+      <div class="flex justify-end gap-2">
         <!-- add -->
         <RoomTabPersonalizedLinksAddButton
           v-if="userPermissions.can('manageSettings', props.room)"
@@ -49,13 +74,13 @@
 
         <!-- Reload list -->
         <Button
-          class="shrink-0"
           v-tooltip="$t('app.reload')"
+          class="shrink-0"
           :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData()"
           icon="fa-solid fa-sync"
+          @click="loadData()"
         />
       </div>
     </div>
@@ -66,48 +91,71 @@
       </template>
 
       <DataView
-        :totalRecords="paginator.getTotalRecords()"
+        :total-records="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
-        @update:first="paginator.setFirst($event)"
         :value="tokens"
         lazy
-        dataKey="id"
+        data-key="id"
         paginator
         :paginator-template="paginator.getTemplate()"
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-        rowHover
-        @page="onPage"
+        row-hover
         class="mt-6"
+        @update:first="paginator.setFirst($event)"
+        @page="onPage"
       >
-
         <!-- Show message on empty list -->
         <template #empty>
           <div>
-            <div class="px-2" v-if="!isBusy && !loadingError">
-              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.tokens.nodata') }}</InlineNote>
-              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+            <div v-if="!isBusy && !loadingError" class="px-2">
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
+                $t("rooms.tokens.nodata")
+              }}</InlineNote>
+              <InlineNote v-else>{{ $t("app.filter_no_results") }}</InlineNote>
             </div>
           </div>
         </template>
 
         <template #list="slotProps">
           <div class="px-2">
-            <div v-for="(item) in slotProps.items" :key="item.token">
-              <div class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
+            <div v-for="item in slotProps.items" :key="item.token">
+              <div
+                class="flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
+              >
                 <div class="flex flex-col gap-2">
-                  <p class="text-lg font-semibold m-0">{{ item.firstname }} {{ item.lastname }}</p>
-                  <div class="flex flex-col gap-2 items-start">
+                  <p class="m-0 text-lg font-semibold">
+                    {{ item.firstname }} {{ item.lastname }}
+                  </p>
+                  <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-clock" />
-                      <p class="text-sm m-0">
-                        <span v-if="item.last_usage == null">{{ $t('rooms.tokens.last_used_never') }}</span>
-                        <span v-else>{{ $t('rooms.tokens.last_used_at', {date:  $d(new Date(item.last_usage),'datetimeShort') })}}</span>
+                      <p class="m-0 text-sm">
+                        <span v-if="item.last_usage == null">{{
+                          $t("rooms.tokens.last_used_never")
+                        }}</span>
+                        <span v-else>{{
+                          $t("rooms.tokens.last_used_at", {
+                            date: $d(
+                              new Date(item.last_usage),
+                              "datetimeShort",
+                            ),
+                          })
+                        }}</span>
                       </p>
                     </div>
-                    <div class="flex flex-row gap-2" v-if="item.expires !== null">
+                    <div
+                      v-if="item.expires !== null"
+                      class="flex flex-row gap-2"
+                    >
                       <i class="fa-regular fa-calendar-xmark"></i>
-                      <p class="text-sm m-0">{{ $t('rooms.tokens.expires_at', {date:  $d(new Date(item.expires),'datetimeShort')}) }}</p>
+                      <p class="m-0 text-sm">
+                        {{
+                          $t("rooms.tokens.expires_at", {
+                            date: $d(new Date(item.expires), "datetimeShort"),
+                          })
+                        }}
+                      </p>
                     </div>
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-user-tag"></i>
@@ -116,7 +164,9 @@
                   </div>
                 </div>
 
-                <div class="shrink-0 flex flex-row gap-1 items-start justify-end" >
+                <div
+                  class="flex shrink-0 flex-row items-start justify-end gap-1"
+                >
                   <!-- copy -->
                   <RoomTabPersonalizedLinksCopyButton
                     :room-id="props.room.id"
@@ -157,14 +207,17 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { useI18n } from 'vue-i18n';
-import { usePaginator } from '../composables/usePaginator.js';
+import { computed, onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useI18n } from "vue-i18n";
+import { usePaginator } from "../composables/usePaginator.js";
 
 const props = defineProps({
-  room: Object
+  room: {
+    type: Object,
+    required: true,
+  },
 });
 
 const api = useApi();
@@ -175,21 +228,24 @@ const { t } = useI18n();
 const tokens = ref([]);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const sortField = ref('lastname');
+const sortField = ref("lastname");
 const sortOrder = ref(1);
-const search = ref('');
-const filter = ref('all');
+const search = ref("");
+const filter = ref("all");
 
 const sortFields = computed(() => [
-  { name: t('app.firstname'), value: 'firstname' },
-  { name: t('app.lastname'), value: 'lastname' },
-  { name: t('rooms.tokens.last_usage'), value: 'last_usage' }
+  { name: t("app.firstname"), value: "firstname" },
+  { name: t("app.lastname"), value: "lastname" },
+  { name: t("rooms.tokens.last_usage"), value: "last_usage" },
 ]);
 
 const filterOptions = computed(() => [
-  { name: t('rooms.tokens.filter.all'), value: 'all' },
-  { name: t('rooms.tokens.filter.participant_role'), value: 'participant_role' },
-  { name: t('rooms.tokens.filter.moderator_role'), value: 'moderator_role' }
+  { name: t("rooms.tokens.filter.all"), value: "all" },
+  {
+    name: t("rooms.tokens.filter.participant_role"),
+    value: "participant_role",
+  },
+  { name: t("rooms.tokens.filter.moderator_role"), value: "moderator_role" },
 ]);
 
 const toggleSortOrder = () => {
@@ -200,7 +256,7 @@ const toggleSortOrder = () => {
 /**
  * (Re)loads list of tokens from api
  */
-function loadData (page = null) {
+function loadData(page = null) {
   isBusy.value = true;
   loadingError.value = false;
 
@@ -208,14 +264,15 @@ function loadData (page = null) {
     params: {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
-      search: search.value === '' ? null : search.value,
-      filter: filter.value === 'all' ? null : filter.value
-    }
+      sort_direction: sortOrder.value === 1 ? "asc" : "desc",
+      search: search.value === "" ? null : search.value,
+      filter: filter.value === "all" ? null : filter.value,
+    },
   };
 
-  api.call('rooms/' + props.room.id + '/tokens', config)
-    .then(response => {
+  api
+    .call("rooms/" + props.room.id + "/tokens", config)
+    .then((response) => {
       tokens.value = response.data.data;
       paginator.updateMeta(response.data.meta).then(() => {
         if (paginator.isOutOfRange()) {
@@ -233,12 +290,11 @@ function loadData (page = null) {
     });
 }
 
-function onPage (event) {
+function onPage(event) {
   loadData(event.page + 1);
 }
 
 onMounted(() => {
   loadData();
 });
-
 </script>

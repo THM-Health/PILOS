@@ -10,8 +10,8 @@
         class="mb-2"
         :pt="{
           header: {
-            class: 'sm:flex-row items-start flex-col gap-2'
-          }
+            class: 'sm:flex-row items-start flex-col gap-2',
+          },
         }"
         data-test="session-panel"
       >
@@ -25,37 +25,30 @@
               v-else-if="session.user_agent.device.type === 'tablet'"
               class="fa-solid fa-tablet-screen-button mr-2"
             />
-            <i
-              v-else
-              class="fa-solid fa-display mr-2"
-            />
-            <span>{{ session.user_agent.os.name || $t('auth.sessions.unknown_agent') }}</span>
+            <i v-else class="fa-solid fa-display mr-2" />
+            <span>{{
+              session.user_agent.os.name || $t("auth.sessions.unknown_agent")
+            }}</span>
           </div>
         </template>
 
         <template #icons>
           <Tag
-            severity="secondary"
             v-if="!session.current"
             v-tooltip="$t('auth.sessions.last_active')"
+            severity="secondary"
             :aria-label="$t('auth.sessions.last_active')"
             icon="fa-solid fa-clock"
-            :value="$d(new Date( session.last_activity),'datetimeShort')"
+            :value="$d(new Date(session.last_activity), 'datetimeShort')"
           />
-          <Tag
-            v-else
-            severity="primary"
-            :value="$t('auth.sessions.current')"
-          />
+          <Tag v-else severity="primary" :value="$t('auth.sessions.current')" />
         </template>
-        <p
-          v-if="session.user_agent.browser.name"
-          class="mb-1"
-        >
-          <strong>{{ $t('auth.sessions.browser') }}</strong> {{ session.user_agent.browser.name }}
+        <p v-if="session.user_agent.browser.name" class="mb-1">
+          <strong>{{ $t("auth.sessions.browser") }}</strong>
+          {{ session.user_agent.browser.name }}
         </p>
         <p>
-          <strong>{{ $t('auth.sessions.ip') }}</strong> {{ session.ip_address }}
+          <strong>{{ $t("auth.sessions.ip") }}</strong> {{ session.ip_address }}
         </p>
       </Panel>
       <div class="flex justify-end">
@@ -63,11 +56,11 @@
           severity="danger"
           :disabled="loading || loadingError"
           class="mt-4"
-          @click="deleteAllSessions"
           :label="$t('auth.sessions.logout_all')"
           icon="fa-solid fa-right-from-bracket"
           :loading="loading"
           data-test="logout-all-sessions-button"
+          @click="deleteAllSessions"
         />
       </div>
     </OverlayComponent>
@@ -75,12 +68,11 @@
 </template>
 
 <script setup>
-
-import { onMounted, ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { useToast } from '../composables/useToast.js';
-import { useI18n } from 'vue-i18n';
-import UAParser from 'ua-parser-js';
+import { onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
+import UAParser from "ua-parser-js";
 
 const sessions = ref([]);
 const loading = ref(false);
@@ -97,20 +89,22 @@ onMounted(() => {
 /**
  * Get the user's sessions.
  */
-function getSessions () {
+function getSessions() {
   loading.value = true;
-  api.call('sessions')
-    .then(response => {
+  api
+    .call("sessions")
+    .then((response) => {
       loadingError.value = false;
-      sessions.value = response.data.data.map(session => {
+      sessions.value = response.data.data.map((session) => {
         session.user_agent = parseAgent(session.user_agent);
         return session;
       });
     })
-    .catch(error => {
+    .catch((error) => {
       loadingError.value = true;
       api.error(error);
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }
@@ -121,7 +115,7 @@ function getSessions () {
  * @param {string} agent
  * @returns {object}
  */
-function parseAgent (agent) {
+function parseAgent(agent) {
   const parser = new UAParser();
   parser.setUA(agent);
   return parser.getResult();
@@ -130,17 +124,19 @@ function parseAgent (agent) {
 /**
  * Delete all other sessions
  */
-function deleteAllSessions () {
+function deleteAllSessions() {
   loading.value = true;
 
-  api.call('sessions', { method: 'DELETE' })
+  api
+    .call("sessions", { method: "DELETE" })
     .then(() => {
-      toast.success(t('auth.flash.logout_all_others'));
+      toast.success(t("auth.flash.logout_all_others"));
       getSessions();
     })
-    .catch(error => {
+    .catch((error) => {
       api.error(error);
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }

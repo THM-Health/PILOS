@@ -1,13 +1,13 @@
 <template>
   <!-- button -->
   <Button
-    class="shrink-0"
     v-tooltip="$t('rooms.files.upload')"
+    class="shrink-0"
     :aria-label="$t('rooms.files.upload')"
     :disabled="disabled"
-    @click="openModal"
     icon="fa-solid fa-upload"
     data-test="room-files-upload-button"
+    @click="openModal"
   />
 
   <!-- modal -->
@@ -18,92 +18,120 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isUploading"
-    :dismissableMask="false"
+    :close-on-escape="!isUploading"
+    :dismissable-mask="false"
     :closable="!isUploading"
     data-test="room-files-upload-dialog"
     :pt="{
       pcCloseButton: {
-        root:{
-          'data-test': 'dialog-header-close-button'
-        }
-      }
+        root: {
+          'data-test': 'dialog-header-close-button',
+        },
+      },
     }"
   >
     <div class="flex flex-col gap-2">
       <label
         for="file"
-        class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
-        :class="{'p-disabled': (disabled || isUploading)}"
+        class="p-button p-component flex flex-row justify-center gap-2 rounded-border"
+        :class="{ 'p-disabled': disabled || isUploading }"
         tabindex="0"
+        data-test="upload-file-button"
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
-        data-test="upload-file-button"
       >
-        <i class="fa-solid fa-upload"></i> {{ $t('app.browse') }}
+        <i class="fa-solid fa-upload"></i> {{ $t("app.browse") }}
       </label>
       <input
-        type="file"
-        ref="fileInputRef"
         id="file"
+        ref="fileInputRef"
+        type="file"
         class="sr-only"
         :disabled="disabled || isUploading"
+        :accept="
+          '.' +
+          String(settingsStore.getSetting('bbb.file_mimes'))
+            .split(',')
+            .join(',.')
+        "
         @input="fileSelected"
-        :accept="'.'+String(settingsStore.getSetting('bbb.file_mimes')).split(',').join(',.')"
       />
       <div
-        class="border rounded-border border-surface-400 dark:border-surface-400 text-center cursor-pointer items-center p-2"
-        :class="dropZoneClasses"
         ref="dropZoneRef"
+        class="cursor-pointer items-center border border-surface-400 p-2 text-center rounded-border dark:border-surface-400"
+        :class="dropZoneClasses"
+        data-test="drop-zone"
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
         @click="fileInputRef.click()"
-        data-test="drop-zone"
       >
         <span v-if="!isUploading" class="text-center">
-          {{ $t('rooms.files.select_or_drag') }}
+          {{ $t("rooms.files.select_or_drag") }}
         </span>
         <span v-else>
           {{ uploadingFile }}
         </span>
       </div>
 
-      <ProgressBar class="w-full mt-1" style="height: 1rem" :value="uploadProgress" v-if="isUploading" :showValue="false" data-test="progress-bar"/>
-      <small>{{ $t('rooms.files.formats',{formats: settingsStore.getSetting('bbb.file_mimes').replaceAll(',',', ')}) }}<br>{{ $t('rooms.files.size',{size: settingsStore.getSetting('bbb.max_filesize')}) }}</small>
+      <ProgressBar
+        v-if="isUploading"
+        class="mt-1 w-full"
+        style="height: 1rem"
+        :value="uploadProgress"
+        :show-value="false"
+        data-test="progress-bar"
+      />
+      <small
+        >{{
+          $t("rooms.files.formats", {
+            formats: settingsStore
+              .getSetting("bbb.file_mimes")
+              .replaceAll(",", ", "),
+          })
+        }}<br />{{
+          $t("rooms.files.size", {
+            size: settingsStore.getSetting("bbb.max_filesize"),
+          })
+        }}</small
+      >
 
       <div v-if="uploadedFiles.length" class="mt-2 flex flex-col gap-2">
-        <Message v-for="(file, index) in uploadedFiles" :key="index" severity="success" icon="fa-solid fa-check-circle" data-test="uploaded-file-message">
-          {{ $t('rooms.files.uploaded', { name: file.name }) }}
+        <Message
+          v-for="(file, index) in uploadedFiles"
+          :key="index"
+          severity="success"
+          icon="fa-solid fa-check-circle"
+          data-test="uploaded-file-message"
+        >
+          {{ $t("rooms.files.uploaded", { name: file.name }) }}
         </Message>
       </div>
 
       <FormError :errors="formErrors.fieldError('file')" />
-  </div>
-
+    </div>
   </Dialog>
 </template>
 <script setup>
-
-import { ref, computed } from 'vue';
-import { useEventListener } from '@vueuse/core';
-import { useFormErrors } from '../composables/useFormErrors.js';
-import { useApi } from '../composables/useApi.js';
-import env from '../env.js';
-import { useI18n } from 'vue-i18n';
-import { useSettingsStore } from '../stores/settings.js';
+import { ref, computed } from "vue";
+import { useEventListener } from "@vueuse/core";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import { useApi } from "../composables/useApi.js";
+import env from "../env.js";
+import { useI18n } from "vue-i18n";
+import { useSettingsStore } from "../stores/settings.js";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['uploaded']);
+const emit = defineEmits(["uploaded"]);
 
 const dropZoneRef = ref();
 const fileInputRef = ref();
@@ -122,28 +150,28 @@ const { t } = useI18n();
 
 const formErrors = useFormErrors();
 
-useEventListener(dropZoneRef, 'dragenter', (event) => {
+useEventListener(dropZoneRef, "dragenter", (event) => {
   event.preventDefault();
   if (!isUploading.value) {
     isOverDropZone.value = true;
   }
 });
 
-useEventListener(dropZoneRef, 'dragover', (event) => {
+useEventListener(dropZoneRef, "dragover", (event) => {
   event.preventDefault();
   if (!isUploading.value) {
     isOverDropZone.value = true;
   }
 });
 
-useEventListener(dropZoneRef, 'dragleave', (event) => {
+useEventListener(dropZoneRef, "dragleave", (event) => {
   event.preventDefault();
   if (!isUploading.value) {
     isOverDropZone.value = false;
   }
 });
 
-useEventListener(dropZoneRef, 'drop', (event) => {
+useEventListener(dropZoneRef, "drop", (event) => {
   event.preventDefault();
   if (!isUploading.value) {
     isOverDropZone.value = false;
@@ -155,36 +183,35 @@ useEventListener(dropZoneRef, 'drop', (event) => {
 const dropZoneClasses = computed(() => {
   if (props.disabled || isUploading.value) {
     return [
-      'cursor-wait',
-      'bg-surface-50 dark:bg-surface-800',
-      'border-surface-200 dark:border-surface-500'
+      "cursor-wait",
+      "bg-surface-50 dark:bg-surface-800",
+      "border-surface-200 dark:border-surface-500",
     ];
   }
 
   if (isOverDropZone.value) {
     return [
-      'bg-green-100 dark:bg-surface-600',
-      'border-green-400 dark:border-surface-300'
-
+      "bg-green-100 dark:bg-surface-600",
+      "border-green-400 dark:border-surface-300",
     ];
   }
   return [
-    'bg-surface-100 dark:bg-surface-700',
-    'border-surface-400 dark:border-surface-400'
+    "bg-surface-100 dark:bg-surface-700",
+    "border-surface-400 dark:border-surface-400",
   ];
 });
 
-function openModal () {
+function openModal() {
   showModal.value = true;
   uploadedFiles.value = [];
   formErrors.clear();
 }
 
-function fileSelected (event) {
+function fileSelected(event) {
   uploadFile(event.target.files[0]);
 }
 
-function reset () {
+function reset() {
   // Clear file field and busy status
   isUploading.value = false;
   uploadingFile.value = null;
@@ -192,7 +219,7 @@ function reset () {
   fileInputRef.value.value = null;
 }
 
-function uploadFile (file) {
+function uploadFile(file) {
   if (file == null) {
     return;
   }
@@ -206,37 +233,39 @@ function uploadFile (file) {
 
   // Build form data
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append("file", file);
 
   // Send new file to api
-  api.call('rooms/' + props.roomId + '/files', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    },
-    data: formData,
-    onUploadProgress: (progressEvent) => {
-      uploadProgress.value = progressEvent.progress.toFixed(2) * 100;
-    }
-  }).then(response => {
-    // Fetch successful
-    uploadedFiles.value.push(file);
-    emit('uploaded');
-    reset();
-  }).catch((error) => {
-    reset();
-    if (error.response) {
-      if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
-        formErrors.set({ file: [t('app.validation.too_large')] });
-        return;
+  api
+    .call("rooms/" + props.roomId + "/files", {
+      method: "post",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      data: formData,
+      onUploadProgress: (progressEvent) => {
+        uploadProgress.value = progressEvent.progress.toFixed(2) * 100;
+      },
+    })
+    .then(() => {
+      // Fetch successful
+      uploadedFiles.value.push(file);
+      emit("uploaded");
+      reset();
+    })
+    .catch((error) => {
+      reset();
+      if (error.response) {
+        if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
+          formErrors.set({ file: [t("app.validation.too_large")] });
+          return;
+        }
+        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          formErrors.set(error.response.data.errors);
+          return;
+        }
       }
-      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-        formErrors.set(error.response.data.errors);
-        return;
-      }
-    }
-    api.error(error, { noRedirectOnUnauthenticated: true });
-  });
+      api.error(error, { noRedirectOnUnauthenticated: true });
+    });
 }
-
 </script>

@@ -8,7 +8,7 @@ export default {
    * @param user
    * @return {boolean}
    */
-  view (user) {
-    return !user ? false : user.permissions.includes('admin.view');
-  }
+  view(user) {
+    return !user ? false : user.permissions.includes("admin.view");
+  },
 };

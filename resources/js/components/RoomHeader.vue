@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-col-reverse md:flex-row gap-2">
+    <div class="flex flex-col-reverse gap-2 md:flex-row">
       <div class="grow">
         <!-- Display room type, name and owner  -->
         <RoomTypeBadge :room-type="props.room.type" />
-        <h1 class="text-3xl my-2 text-color">
+        <h1 class="my-2 text-3xl text-color">
           {{ props.room.name }}
         </h1>
 
@@ -14,7 +14,7 @@
           :inline="detailsInline"
         />
       </div>
-      <div class="shrink-0 flex justify-end items-start">
+      <div class="flex shrink-0 items-start justify-end">
         <div class="flex gap-2">
           <!-- Reload general room settings/details -->
           <Button
@@ -22,71 +22,80 @@
             :aria-label="$t('app.reload')"
             severity="secondary"
             :disabled="props.loading"
-            @click="emit('reload')"
             :icon="props.loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
             data-test="reload-room-button"
+            @click="emit('reload')"
           />
           <RoomFavoriteButton
             v-if="!hideFavorites && authStore.isAuthenticated"
             :room="props.room"
-            @favorites-changed="emit('reload')"
             :no-redirect-on-unauthenticated="true"
+            @favorites-changed="emit('reload')"
           />
           <RoomMembershipButton
             v-if="!hideMembership && authStore.isAuthenticated"
             :room="props.room"
             :access-code="props.accessCode"
-            @joinedMembership="emit('joinedMembership')"
-            @leftMembership="emit('reload')"
-            @invalidCode="emit('invalidCode')"
-            @membershipDisabled="emit('reload')"
+            @joined-membership="emit('joinedMembership')"
+            @left-membership="emit('reload')"
+            @invalid-code="emit('invalidCode')"
+            @membership-disabled="emit('reload')"
           />
         </div>
       </div>
     </div>
     <div>
-      <InlineNote v-if="props.room.last_meeting?.detached" severity="warn" icon="fa-solid fa-triangle-exclamation" :closable="false">
-        {{ $t('rooms.connection_error.detached') }}
+      <InlineNote
+        v-if="props.room.last_meeting?.detached"
+        severity="warn"
+        icon="fa-solid fa-triangle-exclamation"
+        :closable="false"
+      >
+        {{ $t("rooms.connection_error.detached") }}
       </InlineNote>
 
-      <InlineNote v-else-if="props.room.last_meeting?.server_connection_issues" severity="warn" icon="fa-solid fa-triangle-exclamation" :closable="false">
-        {{ $t('rooms.connection_error.reconnecting') }}
+      <InlineNote
+        v-else-if="props.room.last_meeting?.server_connection_issues"
+        severity="warn"
+        icon="fa-solid fa-triangle-exclamation"
+        :closable="false"
+      >
+        {{ $t("rooms.connection_error.reconnecting") }}
       </InlineNote>
     </div>
   </div>
 </template>
 <script setup>
-import { useAuthStore } from '../stores/auth.js';
+import { useAuthStore } from "../stores/auth.js";
 
 const authStore = useAuthStore();
 
 const props = defineProps({
   room: {
     type: Object,
-    required: true
+    required: true,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   detailsInline: {
     type: Boolean,
-    default: false
+    default: false,
   },
   hideFavorites: {
     type: Boolean,
-    default: false
+    default: false,
   },
   hideMembership: {
     type: Boolean,
-    default: false
+    default: false,
   },
   accessCode: {
     type: Number,
-    required: false
-  }
+    default: null,
+  },
 });
 
-const emit = defineEmits(['joinedMembership', 'reload', 'invalidCode']);
-
+const emit = defineEmits(["joinedMembership", "reload", "invalidCode"]);
 </script>

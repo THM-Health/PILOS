@@ -2,7 +2,6 @@
 title: Documentation
 ---
 
-
 PILOS has three main types of documentation: Administration, Development, and User. The documentation is written in Markdown and React, using Docusaurus, and can be found in the `docs` directory.
 
 Starting from version 4, the documentation is available online at [https://thm-health.github.io/PILOS/](https://thm-health.github.io/PILOS/). Documentation for older versions can be found in the `docs` directory of the corresponding branch.
@@ -16,11 +15,12 @@ The documentation is automatically generated and deployed to GitHub Pages using 
 To run the documentation locally, follow these steps:
 
 1. **Install Dependencies:**
-   ```bash
-   ./sail npm run docs:install
-   ```
+
+    ```bash
+    ./sail npm run docs:install
+    ```
 
 2. **Start the Development Server:**
-   ```bash
-   ./sail npm run docs:dev
-   ```
+    ```bash
+    ./sail npm run docs:dev
+    ```

@@ -1,17 +1,17 @@
 <template>
   <!-- Add user / users -->
   <Button
+    v-tooltip="$t('rooms.members.add_user')"
     type="button"
     icon="fa-solid fa-user-plus"
     :aria-label="$t('rooms.members.add_user')"
-    v-tooltip="$t('rooms.members.add_user')"
-    @click="toggle"
     aria-haspopup="true"
     aria-controls="overlay_menu"
     :disabled="props.disabled"
     data-test="room-members-add-button"
+    @click="toggle"
   />
-  <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
+  <Menu id="overlay_menu" ref="menu" :model="items" :popup="true" />
   <!-- Add existing user from database -->
   <RoomTabMembersAddSingleModal
     ref="singleModal"
@@ -27,22 +27,22 @@
   />
 </template>
 <script setup>
-import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-defineEmits(['added']);
+defineEmits(["added"]);
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const singleModal = ref();
@@ -51,17 +51,16 @@ const importModal = ref();
 const menu = ref();
 const items = computed(() => [
   {
-    label: t('rooms.members.add_single_user'),
-    command: () => singleModal.value.openModal()
+    label: t("rooms.members.add_single_user"),
+    command: () => singleModal.value.openModal(),
   },
   {
-    label: t('rooms.members.bulk_import_users'),
-    command: () => importModal.value.openModal()
-  }
+    label: t("rooms.members.bulk_import_users"),
+    command: () => importModal.value.openModal(),
+  },
 ]);
 
 const toggle = (event) => {
   menu.value.toggle(event);
 };
-
 </script>

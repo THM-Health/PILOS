@@ -1,41 +1,41 @@
 <template>
   <!-- button -->
   <Button
-    :disabled="disabled"
-    @click="copyLink"
-    icon="fa-solid fa-link"
     v-tooltip="$t('rooms.tokens.copy')"
+    :disabled="disabled"
+    icon="fa-solid fa-link"
     :aria-label="$t('rooms.tokens.copy')"
+    @click="copyLink"
   />
 </template>
 
 <script setup>
-import { useToast } from '../composables/useToast.js';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
-import { useSettingsStore } from '../stores/settings.js';
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { useSettingsStore } from "../stores/settings.js";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   token: {
     type: String,
-    required: true
+    required: true,
   },
   firstname: {
     type: String,
-    required: true
+    required: true,
   },
   lastname: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const toast = useToast();
@@ -46,10 +46,19 @@ const settingsStore = useSettingsStore();
 /**
  * Copies the room link for the personalized token to the users' clipboard.
  */
-function copyLink () {
-  const link = settingsStore.getSetting('general.base_url') + router.resolve({ name: 'rooms.view', params: { id: props.roomId, token: props.token } }).href;
+function copyLink() {
+  const link =
+    settingsStore.getSetting("general.base_url") +
+    router.resolve({
+      name: "rooms.view",
+      params: { id: props.roomId, token: props.token },
+    }).href;
   navigator.clipboard.writeText(link);
-  toast.info(t('rooms.tokens.room_link_copied', { firstname: props.firstname, lastname: props.lastname }));
+  toast.info(
+    t("rooms.tokens.room_link_copied", {
+      firstname: props.firstname,
+      lastname: props.lastname,
+    }),
+  );
 }
-
 </script>

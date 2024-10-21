@@ -1,30 +1,37 @@
 <template>
-
   <Dialog
     v-model:visible="modalVisible"
     :header="$t('rooms.change_type.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :dismissableMask="false"
+    :dismissable-mask="false"
     modal
     data-test="room-type-change-confirmation-dialog"
   >
-    <div class="overflow-y-auto" style="max-height:300px">
-      {{ $t('rooms.change_type.changing_settings') }}
+    <div class="overflow-y-auto" style="max-height: 300px">
+      {{ $t("rooms.change_type.changing_settings") }}
 
       <!-- Show all room setting grouped by category -->
       <div v-for="settingGroup in roomTypeSettings" :key="settingGroup.title">
         <h4 class="my-2 font-bold">{{ settingGroup.title }}</h4>
 
         <RoomTypeCompareSettingsField
-          :data-test="'room-type-' + setting.key + '-comparison'"
           v-for="setting in settingGroup.settings"
           :key="setting.key"
-          :current-value="currentSettings[(setting.current_value_key ? setting.current_value_key : setting.key)]"
-          :current-enforced="currentSettings.room_type[setting.key+'_enforced']"
+          :data-test="'room-type-' + setting.key + '-comparison'"
+          :current-value="
+            currentSettings[
+              setting.current_value_key
+                ? setting.current_value_key
+                : setting.key
+            ]
+          "
+          :current-enforced="
+            currentSettings.room_type[setting.key + '_enforced']
+          "
           :new-value="getResultingSetting(setting.key)"
-          :new-enforced="newRoomType[setting.key+'_enforced']"
+          :new-enforced="newRoomType[setting.key + '_enforced']"
           :label="setting.label"
           :type="setting.type"
           :options="setting.options"
@@ -32,43 +39,49 @@
       </div>
     </div>
 
-    <Divider class="mt-0"/>
+    <Divider class="mt-0" />
 
     <div class="flex items-center gap-2">
-      <ToggleSwitch
-        input-id="reset-to-defaults"
-        v-model="resetToDefaults"
-      />
-      <label for="reset-to-defaults"> {{$t('rooms.change_type.reset_to_default')}}</label>
+      <ToggleSwitch v-model="resetToDefaults" input-id="reset-to-defaults" />
+      <label for="reset-to-defaults">
+        {{ $t("rooms.change_type.reset_to_default") }}</label
+      >
     </div>
     <template #footer>
-      <div class="flex  justify-end w-full gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="handleCancel" data-test="confirmation-dialog-cancel-button"/>
-        <Button :label="$t('app.save')" @click="handleSave" data-test="confirmation-dialog-save-button"/>
+      <div class="flex w-full justify-end gap-2">
+        <Button
+          :label="$t('app.cancel')"
+          severity="secondary"
+          data-test="confirmation-dialog-cancel-button"
+          @click="handleCancel"
+        />
+        <Button
+          :label="$t('app.save')"
+          data-test="confirmation-dialog-save-button"
+          @click="handleSave"
+        />
       </div>
     </template>
   </Dialog>
-
 </template>
 
 <script setup>
+import { ref } from "vue";
+import { useRoomTypeSettings } from "../composables/useRoomTypeSettings.js";
 
-import { ref } from 'vue';
-import { useRoomTypeSettings } from '../composables/useRoomTypeSettings.js';
-
-const modalVisible = defineModel();
+const modalVisible = defineModel({ type: Boolean });
 const roomTypeSettings = useRoomTypeSettings();
 
-const emit = defineEmits(['confirmedRoomTypeChange']);
+const emit = defineEmits(["confirmedRoomTypeChange"]);
 const props = defineProps({
   currentSettings: {
     type: Object,
-    required: true
+    required: true,
   },
   newRoomType: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const resetToDefaults = ref(false);
@@ -78,32 +91,32 @@ const resetToDefaults = ref(false);
  * @param settingName setting name of the setting
  * @returns {*|boolean} resulting setting value for the given setting name
  */
-function getResultingSetting (settingName) {
+function getResultingSetting(settingName) {
   // Access code will always keep its value if not enforced
-  if (settingName === 'has_access_code') {
-    if (props.newRoomType[settingName + '_enforced']) {
-      return props.newRoomType[settingName + '_default'];
+  if (settingName === "has_access_code") {
+    if (props.newRoomType[settingName + "_enforced"]) {
+      return props.newRoomType[settingName + "_default"];
     }
 
     return props.currentSettings.access_code !== null;
   }
 
   // Check if setting will be changed to default value
-  if (resetToDefaults.value || props.newRoomType[settingName + '_enforced']) {
+  if (resetToDefaults.value || props.newRoomType[settingName + "_enforced"]) {
     // Return default value
-    return props.newRoomType[settingName + '_default'];
+    return props.newRoomType[settingName + "_default"];
   } else {
     // Return current setting value
     return props.currentSettings[settingName];
   }
 }
 
-function handleSave () {
-  emit('confirmedRoomTypeChange', resetToDefaults.value);
+function handleSave() {
+  emit("confirmedRoomTypeChange", resetToDefaults.value);
   resetToDefaults.value = false;
 }
 
-function handleCancel () {
+function handleCancel() {
   modalVisible.value = false;
   resetToDefaults.value = false;
 }

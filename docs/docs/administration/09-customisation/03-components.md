@@ -12,9 +12,11 @@ The frontend infrastructure is build so that in theory every component can be ov
 Therefore, we only support overwriting a few selected components that are mostly static and do not interact with to many other components.
 
 ## Welcome page
+
 The welcome page is stored in `resources/js/views/Home.vue` and consists of the two components:
-- LandingHeroSection (`resources/js/components/LandingHeroSection.vue`)
-- LandingFeaturesSection (`resources/js/components/LandingFeaturesSection.vue`)
+
+-   LandingHeroSection (`resources/js/components/LandingHeroSection.vue`)
+-   LandingFeaturesSection (`resources/js/components/LandingFeaturesSection.vue`)
 
 The LandingHeroSection contains the animated hero section with the title (`resources/js/components/LandingHeroTitle.vue`), description, the call to action button (`resources/js/components/LandingHeroCTA.vue`) and the images of users.
 
@@ -24,6 +26,7 @@ If you only want to change the text, you can do this by overwriting the locales.
 See the [Locales](./02-locales.md#overriding-locales) documentation for more information on how to overwrite locales.
 
 ## Footer
+
 The footer component is stored in `resources/js/components/Footer.vue` and accesses global settings to get the links for the legal notice and privacy policy.
 
 ## Overwrite components or pages
@@ -41,13 +44,14 @@ This will automatically build the frontend when the container is started.
 The build is stored in the `public/build` folder, therefore you must also mount this folder in the container in order to preserve the build between container restarts.
 
 ```yaml
-- './resources/custom:/var/www/html/resources/custom'
-- './public/build:/var/www/html/public/build'
+- "./resources/custom:/var/www/html/resources/custom"
+- "./public/build:/var/www/html/public/build"
 ```
 
 **2. Copy the view file**
 
 You can do this using the following docker compose command:
+
 ```bash
 docker compose cp app:/var/www/html/resources/js/views/Home.vue ./resources/custom/js/views/Home.vue
 ```

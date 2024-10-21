@@ -1,30 +1,27 @@
 <template>
   <Message
-    :style="{ 'border-color': background, 'background-color': background, 'color': color }"
-    class="m-0 py-4 rounded-none"
+    :style="{
+      'border-color': background,
+      'background-color': background,
+      color: color,
+    }"
+    class="m-0 rounded-none py-4"
     :closable="false"
     :pt="{
       icon: {
-        class: 'hidden'
+        class: 'hidden',
       },
       wrapper: {
-        class: 'p-4 container'
-      }
+        class: 'p-4 container',
+      },
     }"
     :unstyled="true"
   >
-    <template #messageicon>
-    </template>
+    <template #messageicon> </template>
 
     <div class="container flex flex-col gap-2">
-      <p
-        v-if="title"
-        class="text-lg font-bold m-0"
-      >
-        <i
-          v-if="icon"
-          :class="`${icon}`"
-        />
+      <p v-if="title" class="m-0 text-lg font-bold">
+        <i v-if="icon" :class="`${icon}`" />
         {{ title }}
       </p>
       <p class="m-0 whitespace-pre-wrap">
@@ -33,8 +30,8 @@
       <a v-if="link" :href="link" :target="`_${linkTarget}`">
         <Button
           :link="linkStyle === 'link'"
-          :style="linkStyle === 'link' ? {'color': color}: {}"
-          :class="linkStyle === 'link' ? 'underline p-0': '' "
+          :style="linkStyle === 'link' ? { color: color } : {}"
+          :class="linkStyle === 'link' ? 'p-0 underline' : ''"
           :severity="linkStyle"
           :label="linkText ? linkText : link"
         />
@@ -47,53 +44,52 @@
 defineProps({
   background: {
     type: String,
-    default: null
+    default: null,
   },
 
   color: {
     type: String,
-    default: null
+    default: null,
   },
 
   icon: {
     type: String,
-    default: null
+    default: null,
   },
 
   link: {
     type: String,
-    default: null
+    default: null,
   },
 
   linkStyle: {
     type: String,
-    default: 'primary'
+    default: "primary",
   },
 
   linkTarget: {
     type: String,
-    default: '_self'
+    default: "_self",
   },
 
   linkText: {
     type: String,
-    default: null
+    default: null,
   },
 
   message: {
     type: String,
-    default: null
+    default: null,
   },
 
   title: {
     type: String,
-    default: null
-  }
+    default: null,
+  },
 });
-
 </script>
 <style scoped>
-  .banner-message {
-    white-space: pre-wrap;
-  }
+.banner-message {
+  white-space: pre-wrap;
+}
 </style>

@@ -1,46 +1,46 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
     <div class="col-span-12 flex flex-col gap-2">
-      <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
+      <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
         <FileInput
           v-if="!fileDeleted && !readonly"
+          v-model="file"
+          v-model:too-big="fileTooBig"
+          v-model:invalid-extension="fileInvalidExtension"
           :disabled="disabled"
           :allowed-extensions="allowedExtensions"
           :max-file-size="maxFileSize"
           :invalid="fileInvalid"
-          v-model="file"
-          v-model:too-big="fileTooBig"
-          v-model:invalid-extension="fileInvalidExtension"
         />
 
         <Button
           v-if="file"
           severity="danger"
-          @click="resetFileUpload"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
+          @click="resetFileUpload"
         />
 
         <Button
           v-if="!file && showDelete && fileUrl && !fileDeleted && !readonly"
           :disabled="disabled"
           severity="danger"
-          @click="fileDeleted = true"
           :label="$t('app.delete')"
           icon="fa-solid fa-trash"
+          @click="fileDeleted = true"
         />
         <Button
           v-if="fileDeleted"
           severity="secondary"
-          @click="fileDeleted = false"
           icon="fa-solid fa-undo"
           :label="$t('app.undo_delete')"
+          @click="fileDeleted = false"
         />
 
         <Button
+          v-if="fileUrl && !file && !fileDeleted"
           as="a"
           severity="secondary"
-          v-if="fileUrl && !file && !fileDeleted"
           :href="fileUrl"
           target="_blank"
           :label="$t('app.view')"
@@ -48,24 +48,24 @@
         />
       </div>
       <div>
-        <p class="text-red-500" role="alert" v-if="fileTooBig">
-          {{ $t('app.validation.too_large') }}
+        <p v-if="fileTooBig" class="text-red-500" role="alert">
+          {{ $t("app.validation.too_large") }}
         </p>
-        <p class="text-red-500" role="alert" v-if="fileInvalidExtension">
-          {{ $t('app.validation.invalid_type') }}
+        <p v-if="fileInvalidExtension" class="text-red-500" role="alert">
+          {{ $t("app.validation.invalid_type") }}
         </p>
-        <FormError :errors="fileError"/>
+        <FormError :errors="fileError" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
-const file = defineModel('file');
-const fileUrl = defineModel('fileUrl');
-const fileDeleted = defineModel('fileDeleted');
+const file = defineModel("file", { type: File });
+const fileUrl = defineModel("fileUrl", { type: String });
+const fileDeleted = defineModel("fileDeleted", { type: Boolean });
 
 const fileTooBig = ref(false);
 const fileInvalidExtension = ref(false);
@@ -73,29 +73,35 @@ const fileInvalidExtension = ref(false);
 defineProps({
   showDelete: {
     type: Boolean,
-    default: false
+    default: false,
   },
   maxFileSize: {
-    type: Number
+    type: Number,
+    required: true,
   },
   allowedExtensions: {
-    type: Array
+    type: Array,
+    required: true,
   },
   fileInvalid: {
-    type: Boolean
+    type: Boolean,
+    default: false,
   },
   fileError: {
-    type: Object
+    type: [Object, null],
+    default: null,
   },
   disabled: {
-    type: Boolean
+    type: Boolean,
+    default: false,
   },
   readonly: {
-    type: Boolean
-  }
+    type: Boolean,
+    default: false,
+  },
 });
 
-function resetFileUpload () {
+function resetFileUpload() {
   file.value = null;
 }
 </script>

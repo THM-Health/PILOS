@@ -1,5 +1,5 @@
-import { Api } from '../services/Api.js';
+import { Api } from "../services/Api.js";
 
-export function useApi () {
+export function useApi() {
   return new Api();
 }

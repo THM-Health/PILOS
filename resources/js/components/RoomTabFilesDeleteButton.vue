@@ -5,9 +5,9 @@
     :aria-label="$t('rooms.files.delete')"
     :disabled="disabled"
     severity="danger"
-    @click="showModal = true"
     icon="fa-solid fa-trash"
     data-test="room-files-delete-button"
+    @click="showModal = true"
   />
 
   <!-- modal -->
@@ -18,51 +18,63 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
     data-test="room-files-delete-dialog"
   >
-
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteFile" data-test="dialog-continue-button"/>
-        </div>
+        <Button
+          :label="$t('app.no')"
+          severity="secondary"
+          :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
+          @click="showModal = false"
+        />
+        <Button
+          :label="$t('app.yes')"
+          severity="danger"
+          :loading="isLoadingAction"
+          :disabled="isLoadingAction"
+          data-test="dialog-continue-button"
+          @click="deleteFile"
+        />
+      </div>
     </template>
 
-    <span style="overflow-wrap: break-word;">
-      {{ $t('rooms.files.confirm_delete', { filename: filename }) }}
+    <span style="overflow-wrap: break-word">
+      {{ $t("rooms.files.confirm_delete", { filename: filename }) }}
     </span>
   </Dialog>
 </template>
 <script setup>
-import env from '../env';
-import { useApi } from '../composables/useApi.js';
-import { ref } from 'vue';
-import { useToast } from '../composables/useToast.js';
-import { useI18n } from 'vue-i18n';
+import env from "../env";
+import { useApi } from "../composables/useApi.js";
+import { ref } from "vue";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   fileId: {
     type: Number,
-    required: true
+    required: true,
   },
   filename: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['deleted']);
+const emit = defineEmits(["deleted"]);
 
 const api = useApi();
 const toast = useToast();
@@ -74,29 +86,33 @@ const isLoadingAction = ref(false);
 /*
  * Delete file
  */
-function deleteFile () {
+function deleteFile() {
   isLoadingAction.value = true;
 
-  api.call('rooms/' + props.roomId + '/files/' + props.fileId, {
-    method: 'delete'
-  }).then(response => {
-    // operation successful, close modal and reload list
-    showModal.value = false;
-    emit('deleted');
-  }).catch((error) => {
-    // deleting failed
-    if (error.response) {
-      // file not found
-      if (error.response.status === env.HTTP_NOT_FOUND) {
-        toast.error(t('rooms.flash.file_gone'));
-        emit('deleted');
-        showModal.value = false;
-        return;
+  api
+    .call("rooms/" + props.roomId + "/files/" + props.fileId, {
+      method: "delete",
+    })
+    .then(() => {
+      // operation successful, close modal and reload list
+      showModal.value = false;
+      emit("deleted");
+    })
+    .catch((error) => {
+      // deleting failed
+      if (error.response) {
+        // file not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          toast.error(t("rooms.flash.file_gone"));
+          emit("deleted");
+          showModal.value = false;
+          return;
+        }
       }
-    }
-    api.error(error, { noRedirectOnUnauthenticated: true });
-  }).finally(() => {
-    isLoadingAction.value = false;
-  });
+      api.error(error, { noRedirectOnUnauthenticated: true });
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
 }
 </script>

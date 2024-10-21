@@ -8,7 +8,7 @@ export default {
    * @param user
    * @return {boolean}
    */
-  monitor (user) {
-    return !user ? false : user.permissions.includes('system.monitor');
-  }
+  monitor(user) {
+    return !user ? false : user.permissions.includes("system.monitor");
+  },
 };

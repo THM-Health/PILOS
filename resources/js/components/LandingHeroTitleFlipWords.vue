@@ -8,12 +8,12 @@
     <div
       v-if="currentWord"
       :key="currentWord"
-      class="z-10 inline-block relative text-left text-primary"
+      class="relative z-10 inline-block text-left text-primary"
     >
       <span
         v-for="(letter, index) in currentWord.split('')"
         :key="currentWord + index"
-        class="inline-block "
+        class="inline-block"
       >
         {{ letter }}
       </span>
@@ -22,28 +22,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from 'vue';
+import { ref, onMounted, watchEffect } from "vue";
 
 const props = defineProps({
   words: {
     type: Array,
-    required: true
+    required: true,
   },
   duration: {
     type: Number,
-    default: 5000
+    default: 5000,
   },
   className: {
     type: String,
-    default: ''
-  }
+    default: "",
+  },
 });
 
 const currentWord = ref(props.words[0]);
 const isAnimating = ref(false);
 
 const startAnimation = () => {
-  const word = props.words[props.words.indexOf(currentWord.value) + 1] || props.words[0];
+  const word =
+    props.words[props.words.indexOf(currentWord.value) + 1] || props.words[0];
   currentWord.value = word;
   isAnimating.value = true;
 };
@@ -64,10 +65,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.flip-enter-active, .flip-leave-active {
+.flip-enter-active,
+.flip-leave-active {
   transition: all 0.4s ease-in-out;
 }
-.flip-enter-from, .flip-leave-to {
+.flip-enter-from,
+.flip-leave-to {
   opacity: 0;
   transform: translateY(10px);
 }

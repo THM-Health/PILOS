@@ -1,11 +1,11 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
-    <div class="col-span-12 lg:col-span-9 flex flex-col gap-2">
-      <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
+    <div class="col-span-12 flex flex-col gap-2 lg:col-span-9">
+      <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
         <InputText
           v-if="!image && !imageDeleted && !readonly"
-          :disabled="disabled"
           v-model="imageUrl"
+          :disabled="disabled"
           type="text"
           :invalid="urlInvalid"
           :required="!showDelete"
@@ -13,51 +13,54 @@
 
         <FileInput
           v-if="!imageDeleted && !readonly"
+          v-model="image"
+          v-model:too-big="fileTooBig"
+          v-model:invalid-extension="fileInvalidExtension"
           :disabled="disabled"
           :allowed-extensions="allowedExtensions"
           :max-file-size="maxFileSize"
           :invalid="fileInvalid"
-          v-model="image"
-          v-model:too-big="fileTooBig"
-          v-model:invalid-extension="fileInvalidExtension"
         />
 
         <Button
           v-if="image"
           severity="danger"
-          @click="resetFileUpload"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
+          @click="resetFileUpload"
         />
 
         <Button
           v-if="showDelete && !image && imageUrl && !imageDeleted && !readonly"
           :disabled="disabled"
           severity="danger"
-          @click="imageDeleted = true"
           :label="$t('app.delete')"
           icon="fa-solid fa-trash"
+          @click="imageDeleted = true"
         />
         <Button
           v-if="imageDeleted"
           severity="secondary"
-          @click="imageDeleted = false"
           :label="$t('app.undo_delete')"
           icon="fa-solid fa-undo"
+          @click="imageDeleted = false"
         />
       </div>
       <div>
-        <p class="text-red-500" role="alert" v-if="fileTooBig">
-          {{ $t('app.validation.too_large') }}
+        <p v-if="fileTooBig" class="text-red-500" role="alert">
+          {{ $t("app.validation.too_large") }}
         </p>
-        <p class="text-red-500" role="alert" v-if="fileInvalidExtension">
-          {{ $t('app.validation.invalid_type') }}
+        <p v-if="fileInvalidExtension" class="text-red-500" role="alert">
+          {{ $t("app.validation.invalid_type") }}
         </p>
-        <FormError :errors="fileError"/>
-        <FormError :errors="urlError"/>
+        <FormError :errors="fileError" />
+        <FormError :errors="urlError" />
       </div>
     </div>
-    <div class="col-span-12 lg:col-span-3 flex justify-center rounded-border border p-2" :class="previewBgClass">
+    <div
+      class="col-span-12 flex justify-center border p-2 rounded-border lg:col-span-3"
+      :class="previewBgClass"
+    >
       <img
         v-if="newImageUrl || imageUrl"
         :src="newImageUrl ?? imageUrl"
@@ -69,11 +72,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch } from "vue";
 
-const image = defineModel('image');
-const imageUrl = defineModel('imageUrl');
-const imageDeleted = defineModel('imageDeleted');
+const image = defineModel("image", { type: File });
+const imageUrl = defineModel("imageUrl", { type: String });
+const imageDeleted = defineModel("imageDeleted", { type: Boolean });
 
 const newImageUrl = ref(null);
 
@@ -83,56 +86,67 @@ const fileInvalidExtension = ref(false);
 defineProps({
   showDelete: {
     type: Boolean,
-    default: false
+    default: false,
   },
   previewAlt: {
     type: String,
-    default: 'Image'
+    default: "Image",
   },
   previewWidth: {
     type: String,
-    default: '100%'
+    default: "100%",
   },
   previewBgClass: {
-    type: String
+    type: String,
+    default: "",
   },
   maxFileSize: {
-    type: Number
+    type: Number,
+    required: true,
   },
   allowedExtensions: {
-    type: Array
+    type: Array,
+    required: true,
   },
   urlInvalid: {
-    type: Boolean
+    type: Boolean,
+    default: false,
   },
   fileInvalid: {
-    type: Boolean
+    type: Boolean,
+    default: false,
   },
   urlError: {
-    type: Object
+    type: [Object, null],
+    default: null,
   },
   fileError: {
-    type: Object
+    type: [Object, null],
+    default: null,
   },
   disabled: {
-    type: Boolean
+    type: Boolean,
+    default: false,
   },
   readonly: {
-    type: Boolean
-  }
+    type: Boolean,
+    default: false,
+  },
 });
 
-watch(() => image.value, (value) => {
-  if (value) {
-    newImageUrl.value = URL.createObjectURL(value);
-  } else {
-    newImageUrl.value = null;
-  }
-});
+watch(
+  () => image.value,
+  (value) => {
+    if (value) {
+      newImageUrl.value = URL.createObjectURL(value);
+    } else {
+      newImageUrl.value = null;
+    }
+  },
+);
 
-function resetFileUpload () {
+function resetFileUpload() {
   image.value = null;
   newImageUrl.value = null;
 }
-
 </script>

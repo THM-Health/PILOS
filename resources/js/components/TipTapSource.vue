@@ -4,9 +4,9 @@
     :aria-label="$t('rooms.description.tooltips.source_code')"
     severity="secondary"
     text
-    @click="openModal"
     icon="fa-solid fa-code"
     data-test="tip-tap-source-button"
+    @click="openModal"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -17,40 +17,39 @@
     :draggable="false"
     data-test="tip-tap-source-dialog"
   >
-
     <Textarea
-      autofocus
       v-model="source"
-      class="w-full mt-2"
+      autofocus
+      class="mt-2 w-full"
       rows="5"
       data-test="source-textarea"
     />
 
     <template #footer>
-      <div class="w-full flex justify-end gap-2">
-          <Button
-            severity="secondary"
-            @click="modalVisible = false"
-            :label="$t('app.cancel')"
-            data-test="dialog-cancel-button"
-          />
-          <Button
-            @click="save"
-            :label="$t('app.save')"
-            data-test="dialog-save-button"
-          />
-        </div>
+      <div class="flex w-full justify-end gap-2">
+        <Button
+          severity="secondary"
+          :label="$t('app.cancel')"
+          data-test="dialog-cancel-button"
+          @click="modalVisible = false"
+        />
+        <Button
+          :label="$t('app.save')"
+          data-test="dialog-save-button"
+          @click="save"
+        />
+      </div>
     </template>
   </Dialog>
 </template>
 <script setup>
-
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const props = defineProps({
   editor: {
-    type: Object
-  }
+    type: Object,
+    required: true,
+  },
 });
 
 const source = ref(null);
@@ -59,7 +58,7 @@ const modalVisible = ref(false);
 /**
  * Open modal with current source code
  */
-function openModal () {
+function openModal() {
   source.value = props.editor.getHTML();
   modalVisible.value = true;
 }
@@ -67,7 +66,7 @@ function openModal () {
 /**
  * Apply changes to the editor
  */
-function save () {
+function save() {
   props.editor.commands.setContent(source.value, true);
   modalVisible.value = false;
 }

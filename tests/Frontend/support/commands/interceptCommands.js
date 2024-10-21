@@ -4,53 +4,53 @@
  * @method init
  * @returns void
  */
-Cypress.Commands.add('init', () => {
-  cy.intercept('GET', 'api/v1/currentUser', { fixture: 'currentUser.json' });
-  cy.intercept('GET', 'api/v1/locale/en', {
+Cypress.Commands.add("init", () => {
+  cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
+  cy.intercept("GET", "api/v1/locale/en", {
     data: {},
     meta: {
       dateTimeFormat: {
         dateShort: {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
         },
         dateLong: {
-          year: 'numeric',
-          month: 'short',
-          day: '2-digit'
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
         },
         time: {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
         },
         datetimeShort: {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
         },
         datetimeLong: {
-          year: 'numeric',
-          month: 'short',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        }
-      }
-    }
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        },
+      },
+    },
   });
 
-  cy.fixture('config.json').then((config) => {
-    config.data.general.base_url = Cypress.config('baseUrl');
+  cy.fixture("config.json").then((config) => {
+    config.data.general.base_url = Cypress.config("baseUrl");
 
-    cy.intercept('GET', 'api/v1/config', {
+    cy.intercept("GET", "api/v1/config", {
       statusCode: 200,
-      body: config
+      body: config,
     });
   });
 });
@@ -61,9 +61,11 @@ Cypress.Commands.add('init', () => {
  * @method interceptRoomIndexRequests
  * @returns void
  */
-Cypress.Commands.add('interceptRoomIndexRequests', () => {
-  cy.intercept('GET', 'api/v1/roomTypes*', { fixture: 'roomTypes.json' });
-  cy.intercept('GET', 'api/v1/rooms*', { fixture: 'rooms.json' }).as('roomRequest');
+Cypress.Commands.add("interceptRoomIndexRequests", () => {
+  cy.intercept("GET", "api/v1/roomTypes*", { fixture: "roomTypes.json" });
+  cy.intercept("GET", "api/v1/rooms*", { fixture: "rooms.json" }).as(
+    "roomRequest",
+  );
 });
 
 /**
@@ -72,8 +74,10 @@ Cypress.Commands.add('interceptRoomIndexRequests', () => {
  * @method interceptRoomViewRequests
  * @returns void
  */
-Cypress.Commands.add('interceptRoomViewRequests', () => {
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123', { fixture: 'room.json' }).as('roomRequest');
+Cypress.Commands.add("interceptRoomViewRequests", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123", { fixture: "room.json" }).as(
+    "roomRequest",
+  );
 });
 
 /**
@@ -83,11 +87,15 @@ Cypress.Commands.add('interceptRoomViewRequests', () => {
  * @param  {boolean} [withFileDetails=false]
  * @returns void
  */
-Cypress.Commands.add('interceptRoomFilesRequest', (withFileDetails = false) => {
+Cypress.Commands.add("interceptRoomFilesRequest", (withFileDetails = false) => {
   if (withFileDetails) {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFiles.json' }).as('roomFilesRequest');
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      fixture: "roomFiles.json",
+    }).as("roomFilesRequest");
   } else {
-    cy.intercept('GET', 'api/v1/rooms/abc-def-123/files*', { fixture: 'roomFilesNoDetails.json' }).as('roomFilesRequest');
+    cy.intercept("GET", "api/v1/rooms/abc-def-123/files*", {
+      fixture: "roomFilesNoDetails.json",
+    }).as("roomFilesRequest");
   }
 });
 
@@ -97,8 +105,10 @@ Cypress.Commands.add('interceptRoomFilesRequest', (withFileDetails = false) => {
  * @method interceptRoomMembersRequest
  * @returns void
  */
-Cypress.Commands.add('interceptRoomMembersRequest', () => {
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/member*', { fixture: 'roomMembers.json' }).as('roomMembersRequest');
+Cypress.Commands.add("interceptRoomMembersRequest", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/member*", {
+    fixture: "roomMembers.json",
+  }).as("roomMembersRequest");
 });
 
 /**
@@ -107,8 +117,10 @@ Cypress.Commands.add('interceptRoomMembersRequest', () => {
  * @method interceptRoomSettingsRequest
  * @returns void
  */
-Cypress.Commands.add('interceptRoomSettingsRequest', () => {
-  cy.intercept('GET', 'api/v1/rooms/abc-def-123/settings', { fixture: 'roomSettings.json' }).as('roomSettingsRequest');
+Cypress.Commands.add("interceptRoomSettingsRequest", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
+    fixture: "roomSettings.json",
+  }).as("roomSettingsRequest");
 });
 
 /**
@@ -117,14 +129,16 @@ Cypress.Commands.add('interceptRoomSettingsRequest', () => {
  * @method interceptUserProfileRequests
  * @returns void
  */
-Cypress.Commands.add('interceptUserProfileRequests', () => {
-  cy.fixture('currentUser.json').then((currentUser) => {
-    currentUser.data.permissions = ['users.updateOwnAttributes'];
+Cypress.Commands.add("interceptUserProfileRequests", () => {
+  cy.fixture("currentUser.json").then((currentUser) => {
+    currentUser.data.permissions = ["users.updateOwnAttributes"];
 
-    cy.intercept('GET', 'api/v1/currentUser', currentUser);
+    cy.intercept("GET", "api/v1/currentUser", currentUser);
   });
 
-  cy.intercept('GET', 'api/v1/users/1', { fixture: 'user.json' }).as('userRequest');
-  cy.intercept('GET', 'api/v1/getTimezones', { fixture: 'timezones.json' });
-  cy.intercept('GET', 'api/v1/sessions', { fixture: 'sessions.json' });
+  cy.intercept("GET", "api/v1/users/1", { fixture: "user.json" }).as(
+    "userRequest",
+  );
+  cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
+  cy.intercept("GET", "api/v1/sessions", { fixture: "sessions.json" });
 });

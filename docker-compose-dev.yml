@@ -1,120 +1,120 @@
 name: pilos-dev
 
 x-docker-build-data: &app-image
-  image: 'pilos/pilos:local-dev'
+  image: "pilos/pilos:local-dev"
   build:
     context: ./
     dockerfile: docker/app/Dockerfile
     args:
-      WWWGROUP: '${WWWGROUP}'
-      WWWUSER: '${WWWUSER}'
+      WWWGROUP: "${WWWGROUP}"
+      WWWUSER: "${WWWUSER}"
 services:
-    app:
-        <<: *app-image
-        ports:
-          - '${APP_PORT:-80}:80'
-          - '${APP_SSL_PORT:-443}:443'
-          - '${DOCS_PORT:-3000}:3000'
-          - '${VITE_PORT:-1073}:${VITE_PORT:-1073}'
-        environment:
-          DEV_MODE: 'true'
-          ENABLE_XDEBUG: '${ENABLE_XDEBUG:-no}'
-          PHP_FPM_PM_MAX_CHILDREN: '${PHP_FPM_PM_MAX_CHILDREN:-100}'
-          NGINX_WORKER_PROCESSES: '${NGINX_WORKER_PROCESSES:-auto}'
-          TRUSTED_PROXIES: "*"
-        healthcheck:
-          test: curl --fail http://localhost/ping || exit 1
-          interval: 10s
-          retries: 6
-          timeout: 5s
-        volumes:
-          - './:/var/www/html/'
-          - './ssl:/local/certs/'
-        depends_on:
-          db:
-            condition: service_healthy
-          redis:
-            condition: service_healthy
-    cron:
-      <<: *app-image
-      env_file:
-        - .env
-      entrypoint: [ 'pilos-cli', 'run:cron' ]
-      volumes:
-        - './:/var/www/html/'
-      depends_on:
-        app:
-          condition: service_healthy
-    horizon:
-      <<: *app-image
-      env_file:
-        - .env
-      entrypoint: [ 'pilos-cli', 'run:horizon' ]
-      volumes:
-        - './:/var/www/html/'
-      depends_on:
-        app:
-          condition: service_healthy
-    db:
-      image: 'mariadb:11'
-      environment:
-        MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-        MYSQL_ROOT_HOST: "%"
-        MYSQL_DATABASE: '${DB_DATABASE}'
-        MYSQL_USER: '${DB_USERNAME}'
-        MYSQL_PASSWORD: '${DB_PASSWORD}'
-        MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-      volumes:
-        - 'mariadb:/var/lib/mysql'
-        - './tests/Utils/create-mariadb-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
-      healthcheck:
-        test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
-        interval: 5s
-        retries: 12
-        timeout: 5s
-    redis:
-      image: redis:7.2-alpine3.18
-      restart: unless-stopped
-      volumes:
-        - redis:/data
-      healthcheck:
-        test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-        interval: 5s
-        retries: 12
-        timeout: 5s
-    mailpit:
-      image: 'axllent/mailpit:latest'
-      ports:
-        - '${FORWARD_MAILPIT_PORT:-1025}:1025'
-        - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
-    phpmyadmin:
-      image: 'phpmyadmin:latest'
-      ports:
-        - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
-      environment:
-        MYSQL_USERNAME: "${DB_USERNAME}"
-        MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-        PMA_HOST: db
-        PMA_USER: "${DB_USERNAME}"
-        PMA_PASSWORD: "${DB_PASSWORD}"
-        UPLOAD_LIMIT: 2G
-    openldap:
-      image: osixia/openldap
-      environment:
-        LDAP_ORGANISATION: "Demo University"
-        LDAP_DOMAIN: "university.org"
-        LDAP_READONLY_USER: 'true'
-        LDAP_TLS_VERIFY_CLIENT: 'never'
-      volumes:
-        - './docker/openldap:/container/service/slapd/assets/config/bootstrap/ldif/custom'
-      command: --copy-service
-    phpldapadmin:
-      image: osixia/phpldapadmin
-      ports:
-        - '${FORWARD_PHPLDAPADMIN_PORT:-6680}:80'
-      environment:
-        PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'Local LDAP': [{'server': [{'host': 'openldap'}]},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org'},{'bind_pass': 'admin'},{'auth_type': 'config'}]}]}]"
-        PHPLDAPADMIN_HTTPS: 'false'
+  app:
+    <<: *app-image
+    ports:
+      - "${APP_PORT:-80}:80"
+      - "${APP_SSL_PORT:-443}:443"
+      - "${DOCS_PORT:-3000}:3000"
+      - "${VITE_PORT:-1073}:${VITE_PORT:-1073}"
+    environment:
+      DEV_MODE: "true"
+      ENABLE_XDEBUG: "${ENABLE_XDEBUG:-no}"
+      PHP_FPM_PM_MAX_CHILDREN: "${PHP_FPM_PM_MAX_CHILDREN:-100}"
+      NGINX_WORKER_PROCESSES: "${NGINX_WORKER_PROCESSES:-auto}"
+      TRUSTED_PROXIES: "*"
+    healthcheck:
+      test: curl --fail http://localhost/ping || exit 1
+      interval: 10s
+      retries: 6
+      timeout: 5s
+    volumes:
+      - "./:/var/www/html/"
+      - "./ssl:/local/certs/"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  cron:
+    <<: *app-image
+    env_file:
+      - .env
+    entrypoint: ["pilos-cli", "run:cron"]
+    volumes:
+      - "./:/var/www/html/"
+    depends_on:
+      app:
+        condition: service_healthy
+  horizon:
+    <<: *app-image
+    env_file:
+      - .env
+    entrypoint: ["pilos-cli", "run:horizon"]
+    volumes:
+      - "./:/var/www/html/"
+    depends_on:
+      app:
+        condition: service_healthy
+  db:
+    image: "mariadb:11"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - "mariadb:/var/lib/mysql"
+      - "./tests/Utils/create-mariadb-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 12
+      timeout: 5s
+  redis:
+    image: redis:7.2-alpine3.18
+    restart: unless-stopped
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      retries: 12
+      timeout: 5s
+  mailpit:
+    image: "axllent/mailpit:latest"
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025"
+      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
+  phpmyadmin:
+    image: "phpmyadmin:latest"
+    ports:
+      - "${FORWARD_PHPMYADMIN_PORT:-8080}:80"
+    environment:
+      MYSQL_USERNAME: "${DB_USERNAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      PMA_HOST: db
+      PMA_USER: "${DB_USERNAME}"
+      PMA_PASSWORD: "${DB_PASSWORD}"
+      UPLOAD_LIMIT: 2G
+  openldap:
+    image: osixia/openldap
+    environment:
+      LDAP_ORGANISATION: "Demo University"
+      LDAP_DOMAIN: "university.org"
+      LDAP_READONLY_USER: "true"
+      LDAP_TLS_VERIFY_CLIENT: "never"
+    volumes:
+      - "./docker/openldap:/container/service/slapd/assets/config/bootstrap/ldif/custom"
+    command: --copy-service
+  phpldapadmin:
+    image: osixia/phpldapadmin
+    ports:
+      - "${FORWARD_PHPLDAPADMIN_PORT:-6680}:80"
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'Local LDAP': [{'server': [{'host': 'openldap'}]},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org'},{'bind_pass': 'admin'},{'auth_type': 'config'}]}]}]"
+      PHPLDAPADMIN_HTTPS: "false"
 volumes:
   mariadb:
     driver: local

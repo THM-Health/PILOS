@@ -9,11 +9,13 @@ export default class ParameterMissingError extends Error {
    * @param any {boolean} Indicates whether any or all parameters necessary.
    * @return undefined
    */
-  constructor (parameters = [], any = false) {
-    if (typeof parameters === 'string') {
+  constructor(parameters = [], any = false) {
+    if (typeof parameters === "string") {
       super(parameters);
     } else {
-      super(`${any ? 'One of the' : 'The'} following parameters should be set: ${parameters.join(', ')}!`);
+      super(
+        `${any ? "One of the" : "The"} following parameters should be set: ${parameters.join(", ")}!`,
+      );
     }
   }
 }

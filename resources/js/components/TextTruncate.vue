@@ -3,16 +3,15 @@
     ref="overflow"
     v-tooltip="{ value: slotText, autoHide: false }"
     :aria-label="slotText"
-    class="text-ellipsis overflow-hidden"
+    class="overflow-hidden text-ellipsis"
   >
     <slot />
   </div>
 </template>
 
 <script setup>
-
-import { useResizeObserver } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { useResizeObserver } from "@vueuse/core";
+import { computed, ref } from "vue";
 
 const overflow = ref(null);
 const disabled = ref(false);
@@ -23,7 +22,9 @@ useResizeObserver(overflow, (entries) => {
 });
 
 const slotText = computed(() => {
-  if (disabled.value) { return null; }
+  if (disabled.value) {
+    return null;
+  }
   return overflow?.value?.innerText;
 });
 </script>
