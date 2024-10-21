@@ -234,7 +234,8 @@ const { t } = useI18n();
 
 const props = defineProps({
   editor: {
-    type: Object
+    type: Object,
+    required: true,
   }
 });
 

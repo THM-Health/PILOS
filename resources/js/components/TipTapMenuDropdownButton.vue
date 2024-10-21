@@ -24,7 +24,8 @@ import { autoPlacement, useFloating } from '@floating-ui/vue';
 
 defineProps({
   label: {
-    type: String
+    type: String,
+    required: true
   }
 });
 

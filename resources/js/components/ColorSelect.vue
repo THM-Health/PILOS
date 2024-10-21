@@ -18,11 +18,12 @@
 
 <script setup>
 
-const model = defineModel();
+const model = defineModel({ type: String });
 
 const props = defineProps({
   colors: {
-    type: Array
+    type: Array,
+    required: true
   },
   disabled: {
     type: Boolean,

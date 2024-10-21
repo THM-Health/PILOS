@@ -62,7 +62,8 @@ import { computed, ref } from 'vue';
 
 const props = defineProps({
   editor: {
-    type: Object
+    type: Object,
+    required: true,
   }
 });
 

@@ -1,11 +1,26 @@
 <script setup>
 
 defineProps({
-  label: String,
-  value: [Boolean, Number],
-  enforced: Boolean,
-  type: String,
-  options: Object
+  label: {
+    type: String,
+    required: true
+  },
+  value: {
+    type: [Boolean, Number],
+    required: true
+  },
+  enforced: {
+    type: Boolean,
+    required: true
+  },
+  type: {
+    type: String,
+    required: true
+  },
+  options: {
+    type: Object,
+    default: () => ({})
+  }
 });
 
 </script>

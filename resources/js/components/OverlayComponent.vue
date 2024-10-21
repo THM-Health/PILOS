@@ -29,7 +29,8 @@ const props = defineProps({
   },
   zIndex: {
     type: Number,
-    required: false
+    required: false,
+    default: null
   },
   noCenter: {
     type: Boolean,

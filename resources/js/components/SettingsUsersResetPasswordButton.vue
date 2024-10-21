@@ -54,6 +54,7 @@ const props = defineProps({
     required: true
   },
   email: {
+    type: String,
     required: true
   }
 });

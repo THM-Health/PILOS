@@ -116,7 +116,8 @@ import VueCropper from 'vue-cropperjs';
 
 const props = defineProps({
   image: {
-    type: String
+    type: [String, null],
+    default: null,
   },
   disabled: {
     type: Boolean
@@ -125,10 +126,12 @@ const props = defineProps({
     type: Boolean
   },
   firstname: {
-    type: String
+    type: String,
+    required: true
   },
   lastname: {
-    type: String
+    type: String,
+    required: true
   },
   imageDeleted: {
     type: Boolean

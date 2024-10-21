@@ -258,15 +258,17 @@ import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
 import { useSettingsStore } from '../stores/settings.js';
 
 const props = defineProps({
-  room: Object,
-
+  room: {
+    type: Object,
+    required: true
+  },
   accessCode: {
     type: Number,
-    required: false
+    default: null
   },
   token: {
     type: String,
-    required: false
+    default: null
   }
 });
 

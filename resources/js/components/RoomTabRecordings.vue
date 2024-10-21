@@ -199,12 +199,12 @@ const props = defineProps({
   },
   accessCode: {
     type: Number,
-    required: false
+    default: null
   },
   token: {
     type: String,
-    required: false
-  }
+    default: null
+  },
 });
 
 const emit = defineEmits(['invalidCode', 'invalidToken']);

@@ -98,8 +98,13 @@ import { computed, ref } from 'vue';
 
 const router = useRouter();
 
+defineEmits(['favoritesChanged']);
+
 const props = defineProps({
-  room: Object,
+  room: {
+    type: Object,
+    required: true,
+  },
   modalStatic: {
     type: Boolean,
     default: false

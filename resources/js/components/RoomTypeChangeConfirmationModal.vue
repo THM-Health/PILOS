@@ -56,7 +56,7 @@
 import { ref } from 'vue';
 import { useRoomTypeSettings } from '../composables/useRoomTypeSettings.js';
 
-const modalVisible = defineModel();
+const modalVisible = defineModel({ type: Boolean });
 const roomTypeSettings = useRoomTypeSettings();
 
 const emit = defineEmits(['confirmedRoomTypeChange']);

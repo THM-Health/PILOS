@@ -65,16 +65,18 @@ import { EVENT_FORBIDDEN } from '../constants/events.js';
 const props = defineProps({
   accessCode: {
     type: Number,
-    required: false
+    default: null
   },
   token: {
     type: String,
-    required: false
+    default: null
   },
   roomId: {
+    type: String,
     required: true
   },
   recordingId: {
+    type: String,
     required: true
   },
   hideDisabledFormats: {

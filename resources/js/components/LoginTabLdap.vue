@@ -53,7 +53,9 @@ import FormError from './FormError.vue';
 const emit = defineEmits(['submit']);
 const props = defineProps({
   errors: {
-    type: Object
+    type: [Object, null],
+    required: true,
+    default: null
   },
   id: {
     type: String,

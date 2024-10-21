@@ -36,12 +36,12 @@
 import { onMounted, ref, watch } from 'vue';
 import { useApi } from '../composables/useApi.js';
 
-const model = defineModel();
+const model = defineModel({ type: String });
 
 const props = defineProps({
   placeholder: {
-    type: String,
-    required: false
+    type: [String, null],
+    default: null
   },
   invalid: {
     type: Boolean,
@@ -56,7 +56,8 @@ const props = defineProps({
     default: false
   },
   ariaLabelledby: {
-    type: String
+    type: [String, null],
+    default: null
   }
 });
 

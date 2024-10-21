@@ -40,7 +40,7 @@
 import { ref } from 'vue';
 import _ from 'lodash';
 import { ROOM_SETTINGS_DEFINITION } from '../constants/roomSettings.js';
-const model = defineModel();
+const model = defineModel({ type: Object });
 
 const emit = defineEmits(['roomTypeChanged']);
 const props = defineProps({

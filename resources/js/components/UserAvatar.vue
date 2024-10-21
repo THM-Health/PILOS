@@ -9,16 +9,20 @@ import { computed } from 'vue';
 
 const props = defineProps({
   firstname: {
-    type: String
+    type: String,
+    default: ''
   },
   lastname: {
-    type: String
+    type: String,
+    default: ''
   },
   image: {
-    type: String
+    type: [String, null],
+    default: null
   },
   size: {
-    type: String
+    type: [String, null],
+    default: null
   },
   shape: {
     type: String,

@@ -164,7 +164,10 @@ import { useI18n } from 'vue-i18n';
 import { usePaginator } from '../composables/usePaginator.js';
 
 const props = defineProps({
-  room: Object
+  room: {
+    type: Object,
+    required: true
+  },
 });
 
 const api = useApi();

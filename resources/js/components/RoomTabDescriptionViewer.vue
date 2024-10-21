@@ -31,7 +31,10 @@ import { onMounted, onUpdated, ref } from 'vue';
 import ConfirmDialog from 'primevue/confirmdialog';
 
 const props = defineProps({
-  html: String
+  html: {
+    type: String,
+    required: true
+  }
 });
 
 const confirm = useConfirm();

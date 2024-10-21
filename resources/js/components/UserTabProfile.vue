@@ -131,7 +131,7 @@
 import env from '../env';
 import _ from 'lodash';
 import { useAuthStore } from '../stores/auth';
-import { onMounted, ref, computed, watch } from 'vue';
+import { ref, computed, watch, onBeforeMount } from 'vue';
 import { useFormErrors } from '../composables/useFormErrors.js';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
@@ -168,7 +168,7 @@ watch(() => props.user, (user) => {
   model.value = _.cloneDeep(user);
 }, { deep: true });
 
-onMounted(() => {
+onBeforeMount(() => {
   model.value = _.cloneDeep(props.user);
 });
 

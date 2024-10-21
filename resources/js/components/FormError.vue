@@ -1,7 +1,9 @@
 <script setup>
 const props = defineProps({
   errors: {
-    type: Object
+    type: [Object, null],
+    required: true,
+    default: null
   }
 });
 </script>

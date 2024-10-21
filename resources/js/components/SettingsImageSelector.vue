@@ -71,9 +71,9 @@
 <script setup>
 import { ref, watch } from 'vue';
 
-const image = defineModel('image');
-const imageUrl = defineModel('imageUrl');
-const imageDeleted = defineModel('imageDeleted');
+const image = defineModel('image', { type: File });
+const imageUrl = defineModel('imageUrl', { type: String });
+const imageDeleted = defineModel('imageDeleted', { type: Boolean });
 
 const newImageUrl = ref(null);
 
@@ -94,31 +94,40 @@ defineProps({
     default: '100%'
   },
   previewBgClass: {
-    type: String
+    type: String,
+    default: ''
   },
   maxFileSize: {
-    type: Number
+    type: Number,
+    required: true
   },
   allowedExtensions: {
-    type: Array
+    type: Array,
+    required: true
   },
   urlInvalid: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
   fileInvalid: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
   urlError: {
-    type: Object
+    type: [Object, null],
+    default: null
   },
   fileError: {
-    type: Object
+    type: [Object, null],
+    default: null
   },
   disabled: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
   readonly: {
-    type: Boolean
+    type: Boolean,
+    default: false
   }
 });
 

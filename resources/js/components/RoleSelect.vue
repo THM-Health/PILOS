@@ -76,7 +76,7 @@
 
 <script setup>
 
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { Multiselect } from 'vue-multiselect';
 
@@ -84,7 +84,8 @@ const api = useApi();
 
 const props = defineProps({
   modelValue: {
-    type: Array
+    type: Array,
+    required: true
   },
   invalid: {
     type: Boolean,
@@ -103,7 +104,8 @@ const props = defineProps({
     default: false
   },
   ariaLabelledby: {
-    type: String
+    type: String,
+    required: true
   }
 });
 
@@ -147,7 +149,7 @@ watch(() => props.disabled, (disabled) => {
   }
 });
 
-onMounted(() => {
+onBeforeMount(() => {
   if (!props.disabled) {
     loadRoles();
   }

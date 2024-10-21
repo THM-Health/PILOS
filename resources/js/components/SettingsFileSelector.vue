@@ -63,9 +63,9 @@
 <script setup>
 import { ref } from 'vue';
 
-const file = defineModel('file');
-const fileUrl = defineModel('fileUrl');
-const fileDeleted = defineModel('fileDeleted');
+const file = defineModel('file', { type: File });
+const fileUrl = defineModel('fileUrl', { type: String });
+const fileDeleted = defineModel('fileDeleted', { type: Boolean });
 
 const fileTooBig = ref(false);
 const fileInvalidExtension = ref(false);
@@ -76,22 +76,28 @@ defineProps({
     default: false
   },
   maxFileSize: {
-    type: Number
+    type: Number,
+    required: true
   },
   allowedExtensions: {
-    type: Array
+    type: Array,
+    required: true
   },
   fileInvalid: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
   fileError: {
-    type: Object
+    type: [Object, null],
+    default: null
   },
   disabled: {
-    type: Boolean
+    type: Boolean,
+    default: false
   },
   readonly: {
-    type: Boolean
+    type: Boolean,
+    default: false
   }
 });
 

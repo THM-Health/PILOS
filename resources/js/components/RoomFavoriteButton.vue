@@ -17,7 +17,10 @@ import { ref } from 'vue';
 const api = useApi();
 
 const props = defineProps({
-  room: Object,
+  room: {
+    type: Object,
+    required: true,
+  },
   noRedirectOnUnauthenticated: {
     type: Boolean,
     default: false

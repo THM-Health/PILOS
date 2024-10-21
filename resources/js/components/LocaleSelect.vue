@@ -30,7 +30,7 @@ import { computed } from 'vue';
 
 const settingsStore = useSettingsStore();
 
-const model = defineModel();
+const model = defineModel({ type: String });
 
 const props = defineProps({
   invalid: {
@@ -46,7 +46,8 @@ const props = defineProps({
     default: false
   },
   ariaLabelledby: {
-    type: String
+    type: String,
+    required: true
   }
 });
 

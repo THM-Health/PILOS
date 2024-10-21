@@ -70,7 +70,7 @@ const props = defineProps({
   },
   accessCode: {
     type: Number,
-    required: false
+    default: null
   },
   disabled: {
     type: Boolean,

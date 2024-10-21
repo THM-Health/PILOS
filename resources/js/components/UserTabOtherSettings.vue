@@ -37,7 +37,7 @@ import env from '../env';
 import _ from 'lodash';
 import { useApi } from '../composables/useApi.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 
 const props = defineProps({
   user: {
@@ -62,7 +62,7 @@ watch(() => props.user, (user) => {
   model.value = _.cloneDeep(user);
 }, { deep: true });
 
-onMounted(() => {
+onBeforeMount(() => {
   model.value = _.cloneDeep(props.user);
 });
 

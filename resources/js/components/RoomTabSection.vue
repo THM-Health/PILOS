@@ -79,10 +79,21 @@ import RoomTabRecordings from './RoomTabRecordings.vue';
 import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
 import { useUrlSearchParams } from '@vueuse/core';
 
+defineEmits(['invalidCode', 'invalidToken', 'guestsNotAllowed', 'settingsChanged']);
+
 const props = defineProps({
-  room: Object,
-  accessCode: Number,
-  token: String
+  room: {
+    type: Object,
+    required: true
+  },
+  accessCode: {
+    type: Number,
+    default: null
+  },
+  token: {
+    type: String,
+    default: null
+  },
 });
 
 const userPermissions = useUserPermissions();

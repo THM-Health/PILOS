@@ -17,11 +17,13 @@ import Highlight from '@tiptap/extension-highlight';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeMount, onUnmounted, ref } from 'vue';
 
 const props = defineProps({
   modelValue: {
-    type: String
+    type: String,
+    required: true,
+
   }
 });
 const emit = defineEmits(['update:modelValue']);
@@ -80,7 +82,7 @@ function TipTapEditor (content, onUpdate) {
   });
 }
 
-onMounted(() => {
+onBeforeMount(() => {
   editor.value = TipTapEditor(props.modelValue, () => {
     emit('update:modelValue', editor.value.getHTML());
   });

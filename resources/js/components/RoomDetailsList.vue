@@ -53,7 +53,10 @@
 <script setup>
 
 const props = defineProps({
-  room: Object,
+  room: {
+    type: Object,
+    required: true,
+  },
   inline: {
     type: Boolean,
     default: false

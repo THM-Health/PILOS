@@ -66,7 +66,10 @@ import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 
 const props = defineProps({
-  room: Object
+  room: {
+    type: Object,
+    required: true
+  },
 });
 
 const emit = defineEmits(['settingsChanged']);

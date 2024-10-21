@@ -66,7 +66,7 @@
 <script setup>
 import env from '../env';
 import { useAuthStore } from '../stores/auth';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { useApi } from '../composables/useApi.js';
 import { useUserPermissions } from '../composables/useUserPermission.js';
 import { useFormErrors } from '../composables/useFormErrors.js';
@@ -103,7 +103,7 @@ const isOwnUser = computed(() => {
   return authStore.currentUser.id === props.user.id;
 });
 
-onMounted(() => {
+onBeforeMount(() => {
   email.value = props.user.email;
   validationRequiredEmail.value = null;
 });

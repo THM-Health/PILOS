@@ -38,16 +38,18 @@ const accept = computed(() => {
   return '.' + props.allowedExtensions.join(',.');
 });
 
-const model = defineModel();
-const tooBig = defineModel('tooBig');
-const invalidExtension = defineModel('invalidExtension');
+const model = defineModel({ type: File });
+const tooBig = defineModel('tooBig', { type: Boolean });
+const invalidExtension = defineModel('invalidExtension', { type: Boolean });
 
 const props = defineProps({
   maxFileSize: {
-    type: Number
+    type: Number,
+    required: true
   },
   allowedExtensions: {
-    type: Array
+    type: Array,
+    required: true
   },
   disabled: {
     type: Boolean,

@@ -84,7 +84,8 @@ const api = useApi();
 
 const props = defineProps({
   modelValue: {
-    type: Object
+    type: [Object, null],
+    required: true
   },
   state: {
     type: Boolean
@@ -94,14 +95,16 @@ const props = defineProps({
     default: false
   },
   roomId: {
-    type: String
+    type: [String, null],
+    default: null
   },
   invalid: {
     type: Boolean,
     default: false
   },
   ariaLabelledby: {
-    type: String
+    type: [String, null],
+    default: null
   }
 });
 
@@ -140,7 +143,7 @@ function reloadRoomTypes () {
   isLoadingAction.value = true;
   const config = {
     params: {
-      filter: props.roomId === undefined ? 'own' : props.roomId,
+      filter: props.roomId ? 'own' : props.roomId,
       with_room_settings: true
     }
   };
