@@ -224,7 +224,7 @@ You therefore need to make sure only traffic from the reverse proxy can reach th
 
 **Warning:** If your reverse proxy is on a different host and therefore the ssl termination is done on the reverse proxy, all traffic between the reverse proxy and the application is unencrypted.
 
-You can learn more on the topic in the [Laravel documentation](https://laravel.com/docs/10.x/requests#configuring-trusted-proxies) and [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
+You can learn more on the topic in the [Laravel documentation](https://laravel.com/docs/11.x/requests#configuring-trusted-proxies) and [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
 
 ## Starting
 

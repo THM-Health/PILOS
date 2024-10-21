@@ -3,7 +3,7 @@ title: Code style
 ---
 
 The backend uses the php framework Laravel and therefore it follows the
-[Laravel coding style guide](https://laravel.com/docs/9.x/contributions#coding-style). To apply the code style to your
+[Laravel coding style guide](https://laravel.com/docs/11.x/contributions#coding-style). To apply the code style to your
 implemented code you can run the command `sail composer run fix-cs`.
 
 The frontend style gets checked by prettier and the code is linted using eslint.

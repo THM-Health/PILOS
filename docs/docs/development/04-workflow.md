@@ -29,7 +29,7 @@ A new development shouldn't decrease the code testing coverage. Everything in th
 appropriate unit and feature tests, depending on the case. In case of bugfixes a test, that fails in the appropriate
 case should be implemented, to make regression tests possible for further changes in the application. For the backend the
 api can be tested by using feature tests and other functions just with unit tests. For more information about tests
-checkout the [Laravel testing guides](https://laravel.com/docs/9.x/testing).
+checkout the [Laravel testing guides](https://laravel.com/docs/11.x/testing).
 
 To run the integration tests against a real BigBlueButton server you need to set the test server in
 the `.env` file:
