@@ -115,6 +115,10 @@ function getResultingSetting(settingName) {
  * @returns {*|boolean} current setting value for the given setting
  */
 function getCurrentSettingValue(setting) {
+  if (setting.current_value_key === "access_code") {
+    return props.currentSettings.access_code !== null;
+  }
+
   // Check if setting is an expert setting and expert mode is disabled
   if (
     ROOM_SETTINGS_DEFINITION[setting.key]?.expert_setting &&
