@@ -45,48 +45,57 @@
       </div>
     </div>
     <div>
-      <InlineNote v-if="props.room.last_meeting?.detached" severity="warn" icon="fa-solid fa-triangle-exclamation" :closable="false">
-        {{ $t('rooms.connection_error.detached') }}
+      <InlineNote
+        v-if="props.room.last_meeting?.detached"
+        severity="warn"
+        icon="fa-solid fa-triangle-exclamation"
+        :closable="false"
+      >
+        {{ $t("rooms.connection_error.detached") }}
       </InlineNote>
 
-      <InlineNote v-else-if="props.room.last_meeting?.server_connection_issues" severity="warn" icon="fa-solid fa-triangle-exclamation" :closable="false">
-        {{ $t('rooms.connection_error.reconnecting') }}
+      <InlineNote
+        v-else-if="props.room.last_meeting?.server_connection_issues"
+        severity="warn"
+        icon="fa-solid fa-triangle-exclamation"
+        :closable="false"
+      >
+        {{ $t("rooms.connection_error.reconnecting") }}
       </InlineNote>
     </div>
   </div>
 </template>
 <script setup>
-import { useAuthStore } from '../stores/auth.js';
+import { useAuthStore } from "../stores/auth.js";
 
 const authStore = useAuthStore();
 
 const props = defineProps({
   room: {
     type: Object,
-    required: true
+    required: true,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   detailsInline: {
     type: Boolean,
-    default: false
+    default: false,
   },
   hideFavorites: {
     type: Boolean,
-    default: false
+    default: false,
   },
   hideMembership: {
     type: Boolean,
-    default: false
+    default: false,
   },
   accessCode: {
     type: Number,
-    default: null
-  }
+    default: null,
+  },
 });
 
-const emit = defineEmits(['joinedMembership', 'reload', 'invalidCode']);
-
+const emit = defineEmits(["joinedMembership", "reload", "invalidCode"]);
 </script>

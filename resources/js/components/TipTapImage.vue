@@ -11,39 +11,37 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="newImage ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
+    :header="
+      newImage
+        ? $t('rooms.description.modals.image.new')
+        : $t('rooms.description.modals.image.edit')
+    "
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
     data-test="tip-tap-image-dialog"
   >
     <div class="flex flex-col gap-2 mt-6" data-test="src-field">
-      <label for="src">{{ $t('rooms.description.modals.image.src') }}</label>
-      <InputText
-        autofocus
-        id="src"
-        v-model.trim="src"
-        :invalid="srcInvalid"
-      />
-      <p v-if="srcInvalid" class="text-red-500" role="alert">{{ $t('rooms.description.modals.image.invalid_src') }}</p>
+      <label for="src">{{ $t("rooms.description.modals.image.src") }}</label>
+      <InputText autofocus id="src" v-model.trim="src" :invalid="srcInvalid" />
+      <p v-if="srcInvalid" class="text-red-500" role="alert">
+        {{ $t("rooms.description.modals.image.invalid_src") }}
+      </p>
     </div>
 
     <div class="flex flex-col gap-2 mt-6" data-test="width-field">
-      <label for="width">{{ $t('rooms.description.modals.image.width') }}</label>
-      <InputText
-        id="width"
-        v-model="width"
-        aria-describedby="width-help"
-      />
-      <small id="width-help">{{ $t('rooms.description.modals.image.width_description') }}</small>
+      <label for="width">{{
+        $t("rooms.description.modals.image.width")
+      }}</label>
+      <InputText id="width" v-model="width" aria-describedby="width-help" />
+      <small id="width-help">{{
+        $t("rooms.description.modals.image.width_description")
+      }}</small>
     </div>
 
     <div class="flex flex-col gap-2 mt-6" data-test="alt-field">
-      <label for="alt">{{ $t('rooms.description.modals.image.alt') }}</label>
-      <InputText
-        id="alt"
-        v-model="alt"
-      />
+      <label for="alt">{{ $t("rooms.description.modals.image.alt") }}</label>
+      <InputText id="alt" v-model="alt" />
     </div>
 
     <template #footer>
@@ -76,13 +74,13 @@
   </Dialog>
 </template>
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 
 const props = defineProps({
   editor: {
     type: Object,
     required: true,
-  }
+  },
 });
 
 const src = ref(null);
@@ -92,7 +90,7 @@ const newImage = ref(true);
 const modalVisible = ref(false);
 
 const srcInvalid = computed(() => {
-  if (src.value === null || src.value === '') {
+  if (src.value === null || src.value === "") {
     return null;
   }
   const regex = /^(https):\/\//;
@@ -102,7 +100,7 @@ const srcInvalid = computed(() => {
 /**
  * Delete the image and close modal
  */
-function deleteImage () {
+function deleteImage() {
   props.editor.commands.deleteSelection();
   modalVisible.value = false;
 }
@@ -110,11 +108,11 @@ function deleteImage () {
 /**
  * Open modal and fill fields with current image attributes if image is selected
  */
-function openModal () {
-  if (props.editor.isActive('image')) {
-    src.value = props.editor.getAttributes('image').src;
-    width.value = props.editor.getAttributes('image').width;
-    alt.value = props.editor.getAttributes('image').alt;
+function openModal() {
+  if (props.editor.isActive("image")) {
+    src.value = props.editor.getAttributes("image").src;
+    width.value = props.editor.getAttributes("image").width;
+    alt.value = props.editor.getAttributes("image").alt;
     newImage.value = false;
   } else {
     src.value = null;
@@ -128,15 +126,18 @@ function openModal () {
 /**
  * Save changes to the image and close modal
  */
-function save () {
-  props.editor.chain().insertContent({
-    type: 'image',
-    attrs: {
-      src: src.value,
-      width: width.value,
-      alt: alt.value
-    }
-  }).run();
+function save() {
+  props.editor
+    .chain()
+    .insertContent({
+      type: "image",
+      attrs: {
+        src: src.value,
+        width: width.value,
+        alt: alt.value,
+      },
+    })
+    .run();
   modalVisible.value = false;
 }
 </script>

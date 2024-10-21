@@ -3,11 +3,11 @@
     <Message
       data-test="terms-of-use-message"
       severity="info"
-      v-if="requireAgreement && files.length >0"
+      v-if="requireAgreement && files.length > 0"
       :closable="false"
       class="mx-2 mb-4"
       :pt="{
-        text: 'w-full'
+        text: 'w-full',
       }"
     >
       <Accordion
@@ -18,18 +18,25 @@
       >
         <AccordionPanel :value="true" class="border-0">
           <AccordionHeader class="bg-transparent p-0 pr-2 text-blue-600">
-            {{ $t('rooms.files.terms_of_use.title') }}
+            {{ $t("rooms.files.terms_of_use.title") }}
           </AccordionHeader>
           <AccordionContent unstyled>
             <div
               class="w-full max-h-32 overflow-y-auto mt-2 whitespace-pre-wrap"
             >
-              {{ settingsStore.getSetting('room.file_terms_of_use') }}
+              {{ settingsStore.getSetting("room.file_terms_of_use") }}
             </div>
-            <Divider/>
+            <Divider />
             <div class="flex items-center mb-2">
-              <Checkbox v-model="downloadAgreement" @update:modelValue="(checked) => showTermsOfUse = !checked" input-id="terms_of_use" :binary="true" />
-              <label for="terms_of_use" class="ml-2">{{ $t('rooms.files.terms_of_use.accept') }}</label>
+              <Checkbox
+                v-model="downloadAgreement"
+                @update:modelValue="(checked) => (showTermsOfUse = !checked)"
+                input-id="terms_of_use"
+                :binary="true"
+              />
+              <label for="terms_of_use" class="ml-2">{{
+                $t("rooms.files.terms_of_use.accept")
+              }}</label>
             </div>
           </AccordionContent>
         </AccordionPanel>
@@ -70,11 +77,11 @@
               data-test="filter-dropdown"
               :pt="{
                 listContainer: {
-                'data-test': 'filter-dropdown-items'
-              },
-              option:{
-                'data-test': 'filter-dropdown-option'
-              }
+                  'data-test': 'filter-dropdown-items',
+                },
+                option: {
+                  'data-test': 'filter-dropdown-option',
+                },
               }"
             />
           </InputGroup>
@@ -93,15 +100,26 @@
               data-test="sorting-type-dropdown"
               :pt="{
                 listContainer: {
-                'data-test': 'sorting-type-dropdown-items'
+                  'data-test': 'sorting-type-dropdown-items',
                 },
-                option:{
-                'data-test': 'sorting-type-dropdown-option'
-                }
+                option: {
+                  'data-test': 'sorting-type-dropdown-option',
+                },
               }"
             />
             <InputGroupAddon class="p-0">
-              <Button :disabled="isBusy" :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'" @click="toggleSortOrder" severity="secondary" text class="rounded-l-none"  />
+              <Button
+                :disabled="isBusy"
+                :icon="
+                  sortOrder === 1
+                    ? 'fa-solid fa-arrow-up-short-wide'
+                    : 'fa-solid fa-arrow-down-wide-short'
+                "
+                @click="toggleSortOrder"
+                severity="secondary"
+                text
+                class="rounded-l-none"
+              />
             </InputGroupAddon>
           </InputGroup>
         </div>
@@ -150,70 +168,102 @@
         :pt="{
           pcPaginator: {
             page: {
-              'data-test': 'paginator-page'
+              'data-test': 'paginator-page',
             },
             next: {
-              'data-test': 'paginator-next-button'
-            }
-          }
+              'data-test': 'paginator-next-button',
+            },
+          },
         }"
       >
         <!-- Show message on empty list -->
         <template #empty>
           <div>
             <div class="px-2" v-if="!isBusy && !loadingError">
-              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.files.nodata') }}</InlineNote>
-              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
+                $t("rooms.files.nodata")
+              }}</InlineNote>
+              <InlineNote v-else>{{ $t("app.filter_no_results") }}</InlineNote>
             </div>
           </div>
         </template>
 
         <template #list="slotProps">
           <div class="px-2">
-            <div v-for="(item) in slotProps.items" :key="item.id">
-              <div data-test="room-file-item" class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t">
+            <div v-for="item in slotProps.items" :key="item.id">
+              <div
+                data-test="room-file-item"
+                class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t"
+              >
                 <div class="flex flex-col gap-2">
-                  <p class="text-lg font-semibold m-0 text-word-break">{{ item.filename }}</p>
+                  <p class="text-lg font-semibold m-0 text-word-break">
+                    {{ item.filename }}
+                  </p>
                   <div class="flex flex-col gap-2 items-start">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-clock" />
                       <p class="text-sm m-0">
-                        {{ $d(new Date(item.uploaded), 'datetimeLong') }}
+                        {{ $d(new Date(item.uploaded), "datetimeLong") }}
                       </p>
                     </div>
                   </div>
-                  <div class="flex flex-col gap-2 items-start" v-if="userPermissions.can('manageSettings', props.room)">
+                  <div
+                    class="flex flex-col gap-2 items-start"
+                    v-if="userPermissions.can('manageSettings', props.room)"
+                  >
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-download" />
                       <p class="text-sm m-0">
-                        <Tag v-if="item.download" severity="success">{{ $t('rooms.files.download_visible') }}</Tag>
-                        <Tag v-else severity="danger">{{ $t('rooms.files.download_hidden') }}</Tag>
+                        <Tag v-if="item.download" severity="success">{{
+                          $t("rooms.files.download_visible")
+                        }}</Tag>
+                        <Tag v-else severity="danger">{{
+                          $t("rooms.files.download_hidden")
+                        }}</Tag>
                       </p>
                     </div>
                   </div>
-                  <div class="flex flex-col gap-2 items-start" v-if="userPermissions.can('manageSettings', props.room)">
+                  <div
+                    class="flex flex-col gap-2 items-start"
+                    v-if="userPermissions.can('manageSettings', props.room)"
+                  >
                     <div class="flex flex-row gap-2">
-                      <i v-if="item.use_in_meeting" class="fa-solid fa-circle-check"></i>
+                      <i
+                        v-if="item.use_in_meeting"
+                        class="fa-solid fa-circle-check"
+                      ></i>
                       <i v-else class="fa-solid fa-circle-xmark"></i>
                       <p class="text-sm m-0 flex flex-row gap-2">
-                        <Tag v-if="item.use_in_meeting" severity="success">{{ $t('rooms.files.use_in_next_meeting') }}</Tag>
-                        <Tag v-else severity="danger">{{ $t('rooms.files.use_in_next_meeting_disabled') }}</Tag>
-                        <Tag v-if="defaultFile?.id === item.id" class="flex flex-row gap-2 items-start">
-                          <i class="fa-solid fa-star"></i> {{ $t('rooms.files.default') }}
+                        <Tag v-if="item.use_in_meeting" severity="success">{{
+                          $t("rooms.files.use_in_next_meeting")
+                        }}</Tag>
+                        <Tag v-else severity="danger">{{
+                          $t("rooms.files.use_in_next_meeting_disabled")
+                        }}</Tag>
+                        <Tag
+                          v-if="defaultFile?.id === item.id"
+                          class="flex flex-row gap-2 items-start"
+                        >
+                          <i class="fa-solid fa-star"></i>
+                          {{ $t("rooms.files.default") }}
                         </Tag>
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div class="shrink-0 flex flex-row gap-1 items-start justify-end" >
+                <div
+                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
+                >
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"
                     :file-id="item.id"
                     :token="props.token"
                     :access-code="props.accessCode"
                     :disabled="isBusy"
-                    :requireTermsOfUseAcceptance="(!downloadAgreement && requireAgreement)"
+                    :requireTermsOfUseAcceptance="
+                      !downloadAgreement && requireAgreement
+                    "
                     @file-not-found="loadData()"
                     @invalid-code="emit('invalidCode')"
                     @invalid-token="emit('invalidToken')"
@@ -248,31 +298,31 @@
   </div>
 </template>
 <script setup>
-import env from '../env.js';
-import { computed, onMounted, ref } from 'vue';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { useApi } from '../composables/useApi.js';
-import { usePaginator } from '../composables/usePaginator.js';
-import { useI18n } from 'vue-i18n';
-import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
-import { useSettingsStore } from '../stores/settings.js';
+import env from "../env.js";
+import { computed, onMounted, ref } from "vue";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useApi } from "../composables/useApi.js";
+import { usePaginator } from "../composables/usePaginator.js";
+import { useI18n } from "vue-i18n";
+import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
+import { useSettingsStore } from "../stores/settings.js";
 
 const props = defineProps({
   room: {
     type: Object,
-    required: true
+    required: true,
   },
   accessCode: {
     type: Number,
-    default: null
+    default: null,
   },
   token: {
     type: String,
-    default: null
-  }
+    default: null,
+  },
 });
 
-const emit = defineEmits(['invalidCode', 'invalidToken']);
+const emit = defineEmits(["invalidCode", "invalidToken"]);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -284,22 +334,22 @@ const files = ref([]);
 const defaultFile = ref(null);
 const isBusy = ref(false);
 const loadingError = ref(false);
-const sortField = ref('uploaded');
+const sortField = ref("uploaded");
 const sortOrder = ref(0);
 const showTermsOfUse = ref(true);
 
-const search = ref('');
-const filter = ref('all');
+const search = ref("");
+const filter = ref("all");
 
 const sortFields = computed(() => [
-  { name: t('rooms.files.sort.filename'), value: 'filename' },
-  { name: t('rooms.files.sort.uploaded_at'), value: 'uploaded' }
+  { name: t("rooms.files.sort.filename"), value: "filename" },
+  { name: t("rooms.files.sort.uploaded_at"), value: "uploaded" },
 ]);
 
 const filterOptions = computed(() => [
-  { name: t('rooms.files.filter.all'), value: 'all' },
-  { name: t('rooms.files.filter.downloadable'), value: 'downloadable' },
-  { name: t('rooms.files.filter.use_in_meeting'), value: 'use_in_meeting' }
+  { name: t("rooms.files.filter.all"), value: "all" },
+  { name: t("rooms.files.filter.downloadable"), value: "downloadable" },
+  { name: t("rooms.files.filter.use_in_meeting"), value: "use_in_meeting" },
 ]);
 
 const toggleSortOrder = () => {
@@ -310,13 +360,16 @@ const toggleSortOrder = () => {
 const downloadAgreement = ref(false);
 
 const requireAgreement = computed(() => {
-  return !userPermissions.can('manageSettings', props.room) && settingsStore.getSetting('room.file_terms_of_use') !== null;
+  return (
+    !userPermissions.can("manageSettings", props.room) &&
+    settingsStore.getSetting("room.file_terms_of_use") !== null
+  );
 });
 
 /**
  * (Re)load file list
  */
-function loadData (page = null) {
+function loadData(page = null) {
   // Change table to busy state
   isBusy.value = true;
   loadingError.value = false;
@@ -326,20 +379,21 @@ function loadData (page = null) {
     params: {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
-      search: search.value === '' ? null : search.value,
-      filter: filter.value === 'all' ? null : filter.value
-    }
+      sort_direction: sortOrder.value === 1 ? "asc" : "desc",
+      search: search.value === "" ? null : search.value,
+      filter: filter.value === "all" ? null : filter.value,
+    },
   };
 
   if (props.token) {
     config.headers = { Token: props.token };
   } else if (props.accessCode != null) {
-    config.headers = { 'Access-Code': props.accessCode };
+    config.headers = { "Access-Code": props.accessCode };
   }
 
-  api.call('rooms/' + props.room.id + '/files', config)
-    .then(response => {
+  api
+    .call("rooms/" + props.room.id + "/files", config)
+    .then((response) => {
       // Fetch successful
       files.value = response.data.data;
       defaultFile.value = response.data.default;
@@ -348,32 +402,43 @@ function loadData (page = null) {
           loadData(paginator.getLastPage());
         }
       });
-    }).catch((error) => {
+    })
+    .catch((error) => {
       if (error.response) {
         // Access code invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-          return emit('invalidCode');
+        if (
+          error.response.status === env.HTTP_UNAUTHORIZED &&
+          error.response.data.message === "invalid_code"
+        ) {
+          return emit("invalidCode");
         }
 
         // Room token is invalid
-        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
-          return emit('invalidToken');
+        if (
+          error.response.status === env.HTTP_UNAUTHORIZED &&
+          error.response.data.message === "invalid_token"
+        ) {
+          return emit("invalidToken");
         }
 
         // Forbidden, require access code
-        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-          return emit('invalidCode');
+        if (
+          error.response.status === env.HTTP_FORBIDDEN &&
+          error.response.data.message === "require_code"
+        ) {
+          return emit("invalidCode");
         }
       }
       api.error(error, { noRedirectOnUnauthenticated: true });
       paginator.revertFirst();
       loadingError.value = true;
-    }).finally(() => {
+    })
+    .finally(() => {
       isBusy.value = false;
     });
 }
 
-function onPage (event) {
+function onPage(event) {
   loadData(event.page + 1);
 }
 
@@ -381,6 +446,8 @@ onMounted(() => {
   loadData();
 });
 
-onRoomHasChanged(() => props.room, () => loadData());
-
+onRoomHasChanged(
+  () => props.room,
+  () => loadData(),
+);
 </script>

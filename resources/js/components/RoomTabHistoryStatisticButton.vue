@@ -11,7 +11,7 @@
   <Dialog
     v-model:visible="showModal"
     modal
-    :header="$t('meetings.stats.modal_title',{room: props.roomName })"
+    :header="$t('meetings.stats.modal_title', { room: props.roomName })"
     :style="{ width: '1200px' }"
     :breakpoints="{ '1270px': '90vw' }"
     :draggable="false"
@@ -21,58 +21,74 @@
   >
     <template #header>
       <div>
-      <span class="p-dialog-title">
-        {{ $t('meetings.stats.modal_title',{room: props.roomName }) }}
-      </span>
-        <br/>
-      <small>{{ $d(new Date(props.start),'datetimeShort') }} <raw-text>-</raw-text> {{ props.end == null ? $t('meetings.now') : $d(new Date(props.end),'datetimeShort') }}</small>
+        <span class="p-dialog-title">
+          {{ $t("meetings.stats.modal_title", { room: props.roomName }) }}
+        </span>
+        <br />
+        <small
+          >{{ $d(new Date(props.start), "datetimeShort") }}
+          <raw-text>-</raw-text>
+          {{
+            props.end == null
+              ? $t("meetings.now")
+              : $d(new Date(props.end), "datetimeShort")
+          }}</small
+        >
       </div>
     </template>
 
     <InlineNote class="w-full">
-      {{ $t('meetings.stats.no_breakout_support') }}
+      {{ $t("meetings.stats.no_breakout_support") }}
     </InlineNote>
 
-    <OverlayComponent :show="isLoadingAction" style="min-height: 100px;" class="mt-6">
-      <Chart v-if="!isLoadingAction" type="line" :data="chartData" :options="chartOptions" class="w-full"/>
+    <OverlayComponent
+      :show="isLoadingAction"
+      style="min-height: 100px"
+      class="mt-6"
+    >
+      <Chart
+        v-if="!isLoadingAction"
+        type="line"
+        :data="chartData"
+        :options="chartOptions"
+        class="w-full"
+      />
     </OverlayComponent>
-
   </Dialog>
 </template>
 <script setup>
-
-import { computed, ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { useI18n } from 'vue-i18n';
-import 'chartjs-adapter-date-fns';
-import { useColors } from '../composables/useColors.js';
-import { useCssVar } from '@vueuse/core';
+import { computed, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useI18n } from "vue-i18n";
+import "chartjs-adapter-date-fns";
+import { useColors } from "../composables/useColors.js";
+import { useCssVar } from "@vueuse/core";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   meetingId: {
     type: String,
-    required: true
+    required: true,
   },
   start: {
     type: String,
-    required: true
+    required: true,
   },
   end: {
     type: String,
-    required: true
+    required: true,
   },
   roomName: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const showModal = ref(false);
@@ -80,50 +96,59 @@ const isLoadingAction = ref(false);
 const chartDataRows = ref({
   participants: [],
   voices: [],
-  videos: []
+  videos: [],
 });
 
 const api = useApi();
 const { t, d } = useI18n();
 const colors = useColors();
 
-function showStatisticModal () {
+function showStatisticModal() {
   showModal.value = true;
   loadData();
 }
 
-function loadData () {
+function loadData() {
   isLoadingAction.value = true;
 
-  api.call('meetings/' + props.meetingId + '/stats')
-    .then(response => {
+  api
+    .call("meetings/" + props.meetingId + "/stats")
+    .then((response) => {
       // parse statistical data to format that can be used by the computed property chartData
       chartDataRows.value = {
         participants: [],
         voices: [],
-        videos: []
+        videos: [],
       };
 
-      response.data.data.forEach(stat => {
+      response.data.data.forEach((stat) => {
         const datetime = stat.created_at;
-        chartDataRows.value.participants.push({ x: datetime, y: stat.participant_count });
-        chartDataRows.value.voices.push({ x: datetime, y: stat.voice_participant_count });
+        chartDataRows.value.participants.push({
+          x: datetime,
+          y: stat.participant_count,
+        });
+        chartDataRows.value.voices.push({
+          x: datetime,
+          y: stat.voice_participant_count,
+        });
         chartDataRows.value.videos.push({ x: datetime, y: stat.video_count });
       });
-    }).catch((error) => {
+    })
+    .catch((error) => {
       // error during stats loading
       api.error(error, { noRedirectOnUnauthenticated: true });
-    }).finally(() => {
+    })
+    .finally(() => {
       // disable loading indicator
       isLoadingAction.value = false;
     });
 }
 
 const textColor = computed(() => {
-  return useCssVar('--p-text-color').value;
+  return useCssVar("--p-text-color").value;
 });
 const surfaceBorder = computed(() => {
-  return useCssVar('--p-content-border-color').value;
+  return useCssVar("--p-content-border-color").value;
 });
 
 // chart options for chart.js display of meeting statistics
@@ -133,31 +158,31 @@ const chartOptions = computed(() => {
     animation: false,
     scales: {
       x: {
-        type: 'time',
+        type: "time",
         time: {
           round: true,
-          unit: 'minute',
+          unit: "minute",
           displayFormats: {
-            second: 'MMM YYYY'
-          }
+            second: "MMM YYYY",
+          },
         },
         display: true,
         title: {
           display: true,
-          text: t('meetings.stats.time')
+          text: t("meetings.stats.time"),
         },
         grid: {
-          color: surfaceBorder.value
+          color: surfaceBorder.value,
         },
         ticks: {
           major: {
-            enabled: true
+            enabled: true,
           },
           color: textColor.value,
           font: function (context) {
             if (context.tick && context.tick.major) {
               return {
-                weight: 'bold'
+                weight: "bold",
               };
             }
           },
@@ -170,19 +195,19 @@ const chartOptions = computed(() => {
            */
           callback: (label, index, ticks) => {
             // get value of the current tick that is the unix timestamp chart-js parsed from the ISO 8601 datetime string
-            return d(ticks[index].value, 'time');
-          }
-        }
+            return d(ticks[index].value, "time");
+          },
+        },
       },
       y: {
         title: {
           display: true,
-          text: t('meetings.stats.amount')
+          text: t("meetings.stats.amount"),
         },
         grid: {
-          color: surfaceBorder.value
-        }
-      }
+          color: surfaceBorder.value,
+        },
+      },
     },
     plugins: {
       tooltip: {
@@ -194,42 +219,43 @@ const chartOptions = computed(() => {
            */
           title: (data) => {
             // get x-coordinate of the first dataset (all have the same label) that is the unix timestamp
-            return d(data[0].parsed.x, 'datetimeShort');
-          }
-        }
-      }
-    }
+            return d(data[0].parsed.x, "datetimeShort");
+          },
+        },
+      },
+    },
   };
 });
 
 // chart datasets for chart.js display of meeting statistics
 const chartData = computed(() => {
   return {
-    datasets: [{
-      label: t('meetings.stats.participants'),
-      backgroundColor: colors.getColor('red'),
-      borderColor: colors.getColor('red'),
-      fill: false,
-      cubicInterpolationMode: 'monotone',
-      data: chartDataRows.value.participants
-    },
-    {
-      label: t('meetings.stats.voices'),
-      backgroundColor: colors.getColor('blue'),
-      borderColor: colors.getColor('blue'),
-      fill: false,
-      cubicInterpolationMode: 'monotone',
-      data: chartDataRows.value.voices
-    },
-    {
-      label: t('meetings.stats.videos'),
-      backgroundColor: colors.getColor('green'),
-      borderColor: colors.getColor('green'),
-      fill: false,
-      cubicInterpolationMode: 'monotone',
-      data: chartDataRows.value.videos
-    }]
+    datasets: [
+      {
+        label: t("meetings.stats.participants"),
+        backgroundColor: colors.getColor("red"),
+        borderColor: colors.getColor("red"),
+        fill: false,
+        cubicInterpolationMode: "monotone",
+        data: chartDataRows.value.participants,
+      },
+      {
+        label: t("meetings.stats.voices"),
+        backgroundColor: colors.getColor("blue"),
+        borderColor: colors.getColor("blue"),
+        fill: false,
+        cubicInterpolationMode: "monotone",
+        data: chartDataRows.value.voices,
+      },
+      {
+        label: t("meetings.stats.videos"),
+        backgroundColor: colors.getColor("green"),
+        borderColor: colors.getColor("green"),
+        fill: false,
+        cubicInterpolationMode: "monotone",
+        data: chartDataRows.value.videos,
+      },
+    ],
   };
 });
-
 </script>

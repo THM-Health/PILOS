@@ -2,7 +2,10 @@ html {
     font-size: 14px;
 }
 
-html, body, #app, #app > .overlay-wrap {
+html,
+body,
+#app,
+#app > .overlay-wrap {
     height: 100%;
 }
 
@@ -32,7 +35,7 @@ footer {
     padding-right: 15px;
     padding-left: 15px;
     margin-right: auto;
-    margin-left: auto
+    margin-left: auto;
 }
 
 fieldset:not(.p-fieldset) {

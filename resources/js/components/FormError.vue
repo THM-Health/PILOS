@@ -3,8 +3,8 @@ const props = defineProps({
   errors: {
     type: [Object, null],
     required: true,
-    default: null
-  }
+    default: null,
+  },
 });
 </script>
 

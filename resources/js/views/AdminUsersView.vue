@@ -20,7 +20,10 @@
           severity="info"
         />
         <SettingsUsersResetPasswordButton
-          v-if="userPermissions.can('resetPassword', user) && settingsStore.getSetting('auth.local')"
+          v-if="
+            userPermissions.can('resetPassword', user) &&
+            settingsStore.getSetting('auth.local')
+          "
           :id="user.id"
           :firstname="user.firstname"
           :lastname="user.lastname"
@@ -36,54 +39,53 @@
       </div>
     </div>
 
-    <UserTabSection
-      :id="id"
-      :view-only="viewOnly"
-      @update-user="updateUser"
-    />
+    <UserTabSection :id="id" :view-only="viewOnly" @update-user="updateUser" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, inject, watch } from 'vue';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { useSettingsStore } from '../stores/settings';
-import { useRouter } from 'vue-router';
+import { ref, computed, inject, watch } from "vue";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useSettingsStore } from "../stores/settings";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const userPermissions = useUserPermissions();
 const settingsStore = useSettingsStore();
-const breakcrumbLabelData = inject('breakcrumbLabelData');
+const breakcrumbLabelData = inject("breakcrumbLabelData");
 
 defineProps({
   id: {
     type: Number,
-    required: true
+    required: true,
   },
   viewOnly: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const user = ref(null);
 const firstname = computed(() => {
-  return user.value ? user.value.firstname : '';
+  return user.value ? user.value.firstname : "";
 });
 const lastname = computed(() => {
-  return user.value ? user.value.lastname : '';
+  return user.value ? user.value.lastname : "";
 });
 
-watch(() => firstname.value + ' ' + lastname.value, (value) => {
-  breakcrumbLabelData.value = {
-    firstname: firstname.value,
-    lastname: lastname.value
-  };
-});
+watch(
+  () => firstname.value + " " + lastname.value,
+  (value) => {
+    breakcrumbLabelData.value = {
+      firstname: firstname.value,
+      lastname: lastname.value,
+    };
+  },
+);
 
-function updateUser (newUser) {
+function updateUser(newUser) {
   if (user.value) {
-    router.push({ name: 'admin.users.view', params: { id: newUser.id } });
+    router.push({ name: "admin.users.view", params: { id: newUser.id } });
   }
   user.value = newUser;
 }

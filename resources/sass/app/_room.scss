@@ -1,12 +1,12 @@
 .room-details {
-    &__icon{
+    &__icon {
         width: 1.5rem;
         margin-right: 0.5rem;
         flex-shrink: 0;
-        text-align: center
+        text-align: center;
     }
 
-    &__text{
+    &__text {
         flex-grow: 1;
     }
 }
@@ -23,7 +23,6 @@
 
 /* Basic editor styles */
 .ProseMirror {
-
     > * + * {
         margin-top: 0.75em;
     }
@@ -44,9 +43,7 @@
     }
 }
 
-
 .room-description {
-
     img {
         max-width: 100%;
         height: auto;
@@ -73,19 +70,19 @@
 
 .room-description,
 .ProseMirror {
-    h1{
+    h1 {
         font-size: 1.5rem;
         line-height: 2rem;
         font-weight: 600;
     }
 
-    h2{
+    h2 {
         font-size: 1.25rem;
         line-height: 1.75rem;
         font-weight: 600;
     }
 
-    h3{
+    h3 {
         font-size: 1.125rem;
         line-height: 1.75rem;
         font-weight: 600;
@@ -104,7 +101,6 @@
         &:hover {
             text-decoration: underline;
         }
-
     }
 }
 
@@ -115,12 +111,12 @@
 
 .room-type-badge {
     white-space: normal;
-    color: #FFF;
+    color: #fff;
 }
 
 .room-role-badge {
     white-space: normal;
-    color: #FFF;
+    color: #fff;
 
     &.room-role-participant {
         background-color: var(--p-emerald-500);
@@ -141,7 +137,7 @@
 
 .room-recording-access-badge {
     white-space: normal;
-    color: #FFF;
+    color: #fff;
 
     &.room-access-everyone {
         background-color: var(--p-slate-500);

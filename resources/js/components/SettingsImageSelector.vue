@@ -48,16 +48,19 @@
       </div>
       <div>
         <p class="text-red-500" role="alert" v-if="fileTooBig">
-          {{ $t('app.validation.too_large') }}
+          {{ $t("app.validation.too_large") }}
         </p>
         <p class="text-red-500" role="alert" v-if="fileInvalidExtension">
-          {{ $t('app.validation.invalid_type') }}
+          {{ $t("app.validation.invalid_type") }}
         </p>
-        <FormError :errors="fileError"/>
-        <FormError :errors="urlError"/>
+        <FormError :errors="fileError" />
+        <FormError :errors="urlError" />
       </div>
     </div>
-    <div class="col-span-12 lg:col-span-3 flex justify-center rounded-border border p-2" :class="previewBgClass">
+    <div
+      class="col-span-12 lg:col-span-3 flex justify-center rounded-border border p-2"
+      :class="previewBgClass"
+    >
       <img
         v-if="newImageUrl || imageUrl"
         :src="newImageUrl ?? imageUrl"
@@ -69,11 +72,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch } from "vue";
 
-const image = defineModel('image', { type: File });
-const imageUrl = defineModel('imageUrl', { type: String });
-const imageDeleted = defineModel('imageDeleted', { type: Boolean });
+const image = defineModel("image", { type: File });
+const imageUrl = defineModel("imageUrl", { type: String });
+const imageDeleted = defineModel("imageDeleted", { type: Boolean });
 
 const newImageUrl = ref(null);
 
@@ -83,65 +86,67 @@ const fileInvalidExtension = ref(false);
 defineProps({
   showDelete: {
     type: Boolean,
-    default: false
+    default: false,
   },
   previewAlt: {
     type: String,
-    default: 'Image'
+    default: "Image",
   },
   previewWidth: {
     type: String,
-    default: '100%'
+    default: "100%",
   },
   previewBgClass: {
     type: String,
-    default: ''
+    default: "",
   },
   maxFileSize: {
     type: Number,
-    required: true
+    required: true,
   },
   allowedExtensions: {
     type: Array,
-    required: true
+    required: true,
   },
   urlInvalid: {
     type: Boolean,
-    default: false
+    default: false,
   },
   fileInvalid: {
     type: Boolean,
-    default: false
+    default: false,
   },
   urlError: {
     type: [Object, null],
-    default: null
+    default: null,
   },
   fileError: {
     type: [Object, null],
-    default: null
+    default: null,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   readonly: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-watch(() => image.value, (value) => {
-  if (value) {
-    newImageUrl.value = URL.createObjectURL(value);
-  } else {
-    newImageUrl.value = null;
-  }
-});
+watch(
+  () => image.value,
+  (value) => {
+    if (value) {
+      newImageUrl.value = URL.createObjectURL(value);
+    } else {
+      newImageUrl.value = null;
+    }
+  },
+);
 
-function resetFileUpload () {
+function resetFileUpload() {
   image.value = null;
   newImageUrl.value = null;
 }
-
 </script>

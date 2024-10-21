@@ -9,27 +9,39 @@
         <div class="flex flex-col h-100">
           <div class="grow">
             <div class="flex justify-between items-start">
-              <Skeleton :animation="animation" height="1.5rem" width="5rem" class="mb-2"></Skeleton>
+              <Skeleton
+                :animation="animation"
+                height="1.5rem"
+                width="5rem"
+                class="mb-2"
+              ></Skeleton>
               <div class="room-card__buttons shrink-0">
-                <Skeleton :animation="animation" size="1.5rem" class="mr-2"></Skeleton>
+                <Skeleton
+                  :animation="animation"
+                  size="1.5rem"
+                  class="mr-2"
+                ></Skeleton>
               </div>
             </div>
-            <p
-              class="mt-2 text-break font-bold text-color"
-              style="width: 100% "
-            >
-              <Skeleton :animation="animation" height="1.5rem" class="mb-2"></Skeleton>
+            <p class="mt-2 text-break font-bold text-color" style="width: 100%">
+              <Skeleton
+                :animation="animation"
+                height="1.5rem"
+                class="mb-2"
+              ></Skeleton>
             </p>
           </div>
-          <div
-            class="flex flex-col gap-2 text-color"
-          >
+          <div class="flex flex-col gap-2 text-color">
             <div class="flex">
               <div class="room-details__icon">
                 <Skeleton :animation="animation" size="1rem"></Skeleton>
               </div>
               <div class="room-details__text">
-                <Skeleton :animation="animation" height="1rem" class="mb-2"></Skeleton>
+                <Skeleton
+                  :animation="animation"
+                  height="1rem"
+                  class="mb-2"
+                ></Skeleton>
               </div>
             </div>
             <div class="flex">
@@ -37,7 +49,11 @@
                 <Skeleton :animation="animation" size="1rem"></Skeleton>
               </div>
               <div class="room-details__text">
-                <Skeleton :animation="animation" height="1rem" class="mb-2"></Skeleton>
+                <Skeleton
+                  :animation="animation"
+                  height="1rem"
+                  class="mb-2"
+                ></Skeleton>
               </div>
             </div>
           </div>
@@ -47,11 +63,10 @@
   </div>
 </template>
 <script setup>
-
 defineProps({
   animation: {
     type: String,
-    default: 'wave'
-  }
+    default: "wave",
+  },
 });
 </script>

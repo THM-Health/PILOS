@@ -47,7 +47,7 @@
       @page="onPage"
       @sort="onSort"
       :pt="{
-        table: 'table-auto lg:table-fixed'
+        table: 'table-auto lg:table-fixed',
       }"
     >
       <template #loading>
@@ -56,8 +56,12 @@
       <!-- Show message on empty role list -->
       <template #empty>
         <div v-if="!isBusy && !loadingError">
-          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('admin.roles.no_data') }}</InlineNote>
-          <InlineNote v-else>{{ $t('admin.roles.no_data_filtered') }}</InlineNote>
+          <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
+            $t("admin.roles.no_data")
+          }}</InlineNote>
+          <InlineNote v-else>{{
+            $t("admin.roles.no_data_filtered")
+          }}</InlineNote>
         </div>
       </template>
 
@@ -67,20 +71,34 @@
             <TextTruncate>
               {{ slotProps.data.name }}
             </TextTruncate>
-            <Tag icon="fa-solid fa-crown" value="Superuser" v-if="slotProps.data.superuser" />
+            <Tag
+              icon="fa-solid fa-crown"
+              value="Superuser"
+              v-if="slotProps.data.superuser"
+            />
           </div>
         </template>
       </Column>
-      <Column :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
+      <Column
+        :header="$t('app.actions')"
+        class="action-column"
+        :class="actionColumn.classes"
+        v-if="actionColumn.visible"
+      >
         <template #body="slotProps">
           <div>
             <Button
               as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="$t('admin.roles.view', { name: slotProps.data.name })"
-              :aria-label="$t('admin.roles.view', { name: slotProps.data.name })"
+              :aria-label="
+                $t('admin.roles.view', { name: slotProps.data.name })
+              "
               :disabled="isBusy"
-              :to="{ name: 'admin.roles.view', params: { id: slotProps.data.id } }"
+              :to="{
+                name: 'admin.roles.view',
+                params: { id: slotProps.data.id },
+              }"
               icon="fa-solid fa-eye"
             />
             <Button
@@ -88,9 +106,14 @@
               v-if="userPermissions.can('update', slotProps.data)"
               severity="info"
               v-tooltip="$t('admin.roles.edit', { name: slotProps.data.name })"
-              :aria-label="$t('admin.roles.edit', { name: slotProps.data.name })"
+              :aria-label="
+                $t('admin.roles.edit', { name: slotProps.data.name })
+              "
               :disabled="isBusy"
-              :to="{ name: 'admin.roles.edit', params: { id: slotProps.data.id } }"
+              :to="{
+                name: 'admin.roles.edit',
+                params: { id: slotProps.data.id },
+              }"
               icon="fa-solid fa-edit"
             />
             <SettingsRolesDeleteButton
@@ -107,21 +130,25 @@
 </template>
 
 <script setup>
-import { useApi } from '../composables/useApi.js';
-import { onMounted, ref } from 'vue';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { useActionColumn } from '../composables/useActionColumn.js';
-import { usePaginator } from '../composables/usePaginator.js';
+import { useApi } from "../composables/useApi.js";
+import { onMounted, ref } from "vue";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useActionColumn } from "../composables/useActionColumn.js";
+import { usePaginator } from "../composables/usePaginator.js";
 
 const api = useApi();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
-const actionColumn = useActionColumn([{ permissions: ['roles.view'] }, { permissions: ['roles.update'] }, { permissions: ['roles.delete'] }]);
+const actionColumn = useActionColumn([
+  { permissions: ["roles.view"] },
+  { permissions: ["roles.update"] },
+  { permissions: ["roles.delete"] },
+]);
 
 const isBusy = ref(false);
 const loadingError = ref(false);
 const roles = ref([]);
-const sortField = ref('name');
+const sortField = ref("name");
 const sortOrder = ref(1);
 const filter = ref(undefined);
 
@@ -133,40 +160,43 @@ onMounted(() => {
  * Loads the roles from the backend
  *
  */
-function loadData (page = null) {
+function loadData(page = null) {
   isBusy.value = true;
   loadingError.value = false;
   const config = {
     params: {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
-      name: filter.value
-    }
+      sort_direction: sortOrder.value === 1 ? "asc" : "desc",
+      name: filter.value,
+    },
   };
 
-  api.call('roles', config).then(response => {
-    roles.value = response.data.data;
-    paginator.updateMeta(response.data.meta).then(() => {
-      if (paginator.isOutOfRange()) {
-        loadData(paginator.getLastPage());
-      }
+  api
+    .call("roles", config)
+    .then((response) => {
+      roles.value = response.data.data;
+      paginator.updateMeta(response.data.meta).then(() => {
+        if (paginator.isOutOfRange()) {
+          loadData(paginator.getLastPage());
+        }
+      });
+    })
+    .catch((error) => {
+      paginator.revertFirst();
+      api.error(error);
+      loadingError.value = true;
+    })
+    .finally(() => {
+      isBusy.value = false;
     });
-  }).catch(error => {
-    paginator.revertFirst();
-    api.error(error);
-    loadingError.value = true;
-  }).finally(() => {
-    isBusy.value = false;
-  });
 }
 
-function onPage (event) {
+function onPage(event) {
   loadData(event.page + 1);
 }
 
-function onSort () {
+function onSort() {
   loadData(1);
 }
-
 </script>

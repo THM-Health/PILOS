@@ -17,21 +17,25 @@
     :closeOnEscape="!isBusy"
     :dismissableMask="!isBusy"
     :closeable="!isBusy"
-    :draggable = false
+    :draggable="false"
   >
     <span>
-      {{ $t('admin.room_types.delete.confirm', { name: props.name }) }}
+      {{ $t("admin.room_types.delete.confirm", { name: props.name }) }}
     </span>
-    <Divider/>
+    <Divider />
     <div class="flex flex-col gap-2">
-      <label for="replacement-room-type">{{$t('admin.room_types.delete.replacement')}}</label>
+      <label for="replacement-room-type">{{
+        $t("admin.room_types.delete.replacement")
+      }}</label>
       <Select
         autofocus
         id="replacement-room-type"
         v-model.number="replacement"
         :disabled="isBusy"
         :loading="loadingRoomTypes"
-        :class="{'p-invalid':formErrors.fieldInvalid('replacement_room_type')}"
+        :class="{
+          'p-invalid': formErrors.fieldInvalid('replacement_room_type'),
+        }"
         :options="replacementRoomTypes"
         :placeholder="$t('admin.room_types.delete.no_replacement')"
         option-value="value"
@@ -40,26 +44,41 @@
         show-clear
       >
         <template #clearicon="{ clearCallback }">
-          <span class="p-dropdown-clear" role="button" @click.stop="clearCallback">
-            <i class="fa-solid fa-times"/>
+          <span
+            class="p-dropdown-clear"
+            role="button"
+            @click.stop="clearCallback"
+          >
+            <i class="fa-solid fa-times" />
           </span>
         </template>
       </Select>
       <FormError :errors="formErrors.fieldError('replacement_room_type')" />
-      <small id="replacement-help">{{$t('admin.room_types.delete.replacement_info')}}</small>
+      <small id="replacement-help">{{
+        $t("admin.room_types.delete.replacement_info")
+      }}</small>
     </div>
     <template #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
-      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteRoomType"/>
+      <Button
+        :label="$t('app.no')"
+        severity="secondary"
+        @click="showModal = false"
+      />
+      <Button
+        :label="$t('app.yes')"
+        severity="danger"
+        :loading="isBusy"
+        @click="deleteRoomType"
+      />
     </template>
   </Dialog>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import env from '../env.js';
-import { useFormErrors } from '../composables/useFormErrors.js';
-import { useApi } from '../composables/useApi.js';
+import { ref } from "vue";
+import env from "../env.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import { useApi } from "../composables/useApi.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
@@ -67,15 +86,15 @@ const api = useApi();
 const props = defineProps({
   id: {
     type: Number,
-    required: true
+    required: true,
   },
   name: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const emit = defineEmits(['deleted']);
+const emit = defineEmits(["deleted"]);
 
 const showModal = ref(false);
 const isBusy = ref(false);
@@ -87,58 +106,70 @@ const loadingRoomTypes = ref(false);
  * Shows the delete modal
  *
  */
-function showDeleteModal () {
+function showDeleteModal() {
   formErrors.clear();
   replacement.value = null;
   loadReplacementRoomTypes();
   showModal.value = true;
 }
 
-function loadReplacementRoomTypes () {
+function loadReplacementRoomTypes() {
   loadingRoomTypes.value = true;
-  api.call('roomTypes').then(response => {
-    replacementRoomTypes.value = response.data.data.filter((roomType) => {
-      return roomType.id !== props.id;
-    }).map(roomType => {
-      return {
-        value: roomType.id,
-        text: roomType.name
-      };
+  api
+    .call("roomTypes")
+    .then((response) => {
+      replacementRoomTypes.value = response.data.data
+        .filter((roomType) => {
+          return roomType.id !== props.id;
+        })
+        .map((roomType) => {
+          return {
+            value: roomType.id,
+            text: roomType.name,
+          };
+        });
+    })
+    .catch((error) => {
+      api.error(error);
+    })
+    .finally(() => {
+      loadingRoomTypes.value = false;
     });
-  }).catch(error => {
-    api.error(error);
-  }).finally(() => {
-    loadingRoomTypes.value = false;
-  });
 }
 
 /**
  * Deletes the room type
  */
-function deleteRoomType () {
+function deleteRoomType() {
   isBusy.value = true;
 
-  api.call(`roomTypes/${props.id}`, {
-    method: 'delete',
-    data: { replacement_room_type: replacement.value }
-  }).then(() => {
-    showModal.value = false;
-    emit('deleted');
-  }).catch(error => {
-    // failed due to form validation errors
-    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-      formErrors.set(error.response.data.errors);
-      return;
-    }
-    if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+  api
+    .call(`roomTypes/${props.id}`, {
+      method: "delete",
+      data: { replacement_room_type: replacement.value },
+    })
+    .then(() => {
       showModal.value = false;
-      emit('deleted');
-      return;
-    }
-    api.error(error);
-  }).finally(() => {
-    isBusy.value = false;
-  });
+      emit("deleted");
+    })
+    .catch((error) => {
+      // failed due to form validation errors
+      if (
+        error.response &&
+        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+        return;
+      }
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        showModal.value = false;
+        emit("deleted");
+        return;
+      }
+      api.error(error);
+    })
+    .finally(() => {
+      isBusy.value = false;
+    });
 }
-
 </script>

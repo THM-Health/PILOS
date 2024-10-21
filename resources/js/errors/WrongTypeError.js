@@ -8,7 +8,7 @@ export default class WrongTypeError extends Error {
    * @param parameter {String} Parameter that had the wrong type.
    * @param type {String} Type that was expected for the parameter.
    */
-  constructor (parameter, type) {
+  constructor(parameter, type) {
     super(`Expected '${parameter}' to be of type '${type}'!`);
   }
 }

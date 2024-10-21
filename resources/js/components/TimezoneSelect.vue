@@ -12,11 +12,11 @@
       :loading="loading"
       :pt="{
         listContainer: {
-          'data-test': 'timezone-dropdown-items'
+          'data-test': 'timezone-dropdown-items',
         },
-         option:{
-          'data-test': 'timezone-dropdown-option'
-         }
+        option: {
+          'data-test': 'timezone-dropdown-option',
+        },
       }"
     />
     <Button
@@ -32,36 +32,35 @@
 </template>
 
 <script setup>
-
-import { onMounted, ref, watch } from 'vue';
-import { useApi } from '../composables/useApi.js';
+import { onMounted, ref, watch } from "vue";
+import { useApi } from "../composables/useApi.js";
 
 const model = defineModel({ type: String });
 
 const props = defineProps({
   placeholder: {
     type: [String, null],
-    default: null
+    default: null,
   },
   invalid: {
     type: Boolean,
-    default: null
+    default: null,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   required: {
     type: Boolean,
-    default: false
+    default: false,
   },
   ariaLabelledby: {
     type: [String, null],
-    default: null
-  }
+    default: null,
+  },
 });
 
-const emit = defineEmits(['loadingError', 'busy']);
+const emit = defineEmits(["loadingError", "busy"]);
 
 const timezones = ref([]);
 const loading = ref(false);
@@ -71,12 +70,12 @@ const api = useApi();
 
 // detect changes of the model loading error
 watch(loadingError, () => {
-  emit('loadingError', loadingError.value);
+  emit("loadingError", loadingError.value);
 });
 
 // detect busy status while data fetching and notify parent
 watch(loading, () => {
-  emit('busy', loading.value);
+  emit("busy", loading.value);
 });
 
 onMounted(() => {
@@ -84,19 +83,23 @@ onMounted(() => {
 });
 
 /**
-     * Loads the possible selectable timezones.
-     */
-function loadTimezones () {
+ * Loads the possible selectable timezones.
+ */
+function loadTimezones() {
   loading.value = true;
 
-  api.call('getTimezones').then(response => {
-    timezones.value = response.data.data;
-    loadingError.value = false;
-  }).catch(error => {
-    loadingError.value = true;
-    api.error(error);
-  }).finally(() => {
-    loading.value = false;
-  });
+  api
+    .call("getTimezones")
+    .then((response) => {
+      timezones.value = response.data.data;
+      loadingError.value = false;
+    })
+    .catch((error) => {
+      loadingError.value = true;
+      api.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
 </script>

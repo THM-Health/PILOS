@@ -34,11 +34,11 @@
               option-value="value"
               :pt="{
                 listContainer: {
-                'data-test': 'filter-dropdown-items'
-              },
-              option:{
-                'data-test': 'filter-dropdown-option'
-              }
+                  'data-test': 'filter-dropdown-items',
+                },
+                option: {
+                  'data-test': 'filter-dropdown-option',
+                },
               }"
             />
           </InputGroup>
@@ -57,20 +57,25 @@
               option-value="value"
               :pt="{
                 listContainer: {
-                'data-test': 'sorting-type-dropdown-items'
+                  'data-test': 'sorting-type-dropdown-items',
                 },
-                option:{
-                'data-test': 'sorting-type-dropdown-option'
-                }
+                option: {
+                  'data-test': 'sorting-type-dropdown-option',
+                },
               }"
             />
             <InputGroupAddon class="p-0">
               <Button
                 :disabled="isBusy"
-                :icon="sortOrder === 1 ? 'fa-solid fa-arrow-up-short-wide' : 'fa-solid fa-arrow-down-wide-short'"
+                :icon="
+                  sortOrder === 1
+                    ? 'fa-solid fa-arrow-up-short-wide'
+                    : 'fa-solid fa-arrow-down-wide-short'
+                "
                 @click="toggleSortOrder"
                 severity="secondary"
-                text class="rounded-l-none"
+                text
+                class="rounded-l-none"
               />
             </InputGroupAddon>
           </InputGroup>
@@ -120,33 +125,40 @@
         :pt="{
           pcPaginator: {
             page: {
-              'data-test': 'paginator-page'
+              'data-test': 'paginator-page',
             },
             next: {
-              'data-test': 'paginator-next-button'
-            }
-          }
+              'data-test': 'paginator-next-button',
+            },
+          },
         }"
       >
-
         <!-- Show message on empty list -->
         <template #empty>
           <div>
             <div class="px-2" v-if="!isBusy && !loadingError">
-              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{ $t('rooms.members.nodata') }}</InlineNote>
-              <InlineNote v-else>{{ $t('app.filter_no_results') }}</InlineNote>
+              <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
+                $t("rooms.members.nodata")
+              }}</InlineNote>
+              <InlineNote v-else>{{ $t("app.filter_no_results") }}</InlineNote>
             </div>
           </div>
         </template>
 
-        <template #header v-if="selectableMembers.length > 0 && userPermissions.can('manageSettings', props.room)">
+        <template
+          #header
+          v-if="
+            selectableMembers.length > 0 &&
+            userPermissions.can('manageSettings', props.room)
+          "
+        >
           <div class="flex justify-between mb-2">
-             <Checkbox
-                :model-value="selectedMembers.length === selectableMembers.length"
-                @update:modelValue="toggleSelectAll"
-                :binary="true"
-                data-test="room-members-select-all-checkbox"
-              />
+            <Checkbox
+              :model-value="selectedMembers.length === selectableMembers.length"
+              @update:modelValue="toggleSelectAll"
+              :binary="true"
+              data-test="room-members-select-all-checkbox"
+            />
             <!-- selected rows action buttons -->
             <div class="flex gap-1" v-if="selectedMembers.length > 0">
               <!-- bulk edit membership role -->
@@ -170,25 +182,46 @@
         <template #list="slotProps">
           <div class="px-2">
             <div v-for="(item, index) in slotProps.items" :key="item.id">
-              <div data-test="room-member-item" class="flex flex-col md:flex-row justify-between gap-4 py-4" :class="{ 'border-t border-surface': index !== 0 }">
+              <div
+                data-test="room-member-item"
+                class="flex flex-col md:flex-row justify-between gap-4 py-4"
+                :class="{ 'border-t border-surface': index !== 0 }"
+              >
                 <div class="flex flex-row gap-6">
-                  <div class="flex items-center" v-if="userPermissions.can('manageSettings', props.room)">
+                  <div
+                    class="flex items-center"
+                    v-if="userPermissions.can('manageSettings', props.room)"
+                  >
                     <Checkbox
-                      :disabled="authStore.currentUser && authStore.currentUser.id === item.id"
+                      :disabled="
+                        authStore.currentUser &&
+                        authStore.currentUser.id === item.id
+                      "
                       :model-value="isMemberSelected(item.id)"
-                      @update:modelValue="(selected) => onMemberSelected(item.id, selected)"
+                      @update:modelValue="
+                        (selected) => onMemberSelected(item.id, selected)
+                      "
                       :binary="true"
                     />
                   </div>
                   <div class="flex items-center">
-                    <UserAvatar :firstname="item.firstname" :lastname="item.lastname" :image="item.image" size="large"/>
+                    <UserAvatar
+                      :firstname="item.firstname"
+                      :lastname="item.lastname"
+                      :image="item.image"
+                      size="large"
+                    />
                   </div>
                   <div class="flex flex-col gap-2">
-                    <p class="text-lg font-semibold m-0 text-word-break">{{ item.firstname }} {{ item.lastname }}</p>
+                    <p class="text-lg font-semibold m-0 text-word-break">
+                      {{ item.firstname }} {{ item.lastname }}
+                    </p>
                     <div class="flex flex-col gap-2 items-start">
                       <div class="flex flex-row gap-2">
                         <i class="fa-solid fa-envelope" />
-                        <p class="text-sm m-0 text-word-break">{{ item.email }}</p>
+                        <p class="text-sm m-0 text-word-break">
+                          {{ item.email }}
+                        </p>
                       </div>
                       <div class="flex flex-row gap-2">
                         <i class="fa-solid fa-user-tag"></i>
@@ -198,7 +231,13 @@
                   </div>
                 </div>
 
-                <div class="shrink-0 flex flex-row gap-1 items-start justify-end" v-if="userPermissions.can('manageSettings', props.room) && authStore.currentUser?.id !== item.id">
+                <div
+                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
+                  v-if="
+                    userPermissions.can('manageSettings', props.room) &&
+                    authStore.currentUser?.id !== item.id
+                  "
+                >
                   <!-- edit membership role -->
                   <RoomTabMembersEditButton
                     :room-id="props.room.id"
@@ -228,20 +267,20 @@
   </div>
 </template>
 <script setup>
-import { useAuthStore } from '../stores/auth';
-import { computed, onMounted, ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { usePaginator } from '../composables/usePaginator.js';
-import UserAvatar from './UserAvatar.vue';
-import { useI18n } from 'vue-i18n';
-import { onRoomHasChanged } from '../composables/useRoomHelpers.js';
+import { useAuthStore } from "../stores/auth";
+import { computed, onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { usePaginator } from "../composables/usePaginator.js";
+import UserAvatar from "./UserAvatar.vue";
+import { useI18n } from "vue-i18n";
+import { onRoomHasChanged } from "../composables/useRoomHelpers.js";
 
 const props = defineProps({
   room: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const authStore = useAuthStore();
@@ -253,22 +292,25 @@ const { t } = useI18n();
 const isBusy = ref(false);
 const loadingError = ref(false);
 const members = ref([]);
-const sortField = ref('lastname');
+const sortField = ref("lastname");
 const sortOrder = ref(1);
-const search = ref('');
-const filter = ref('all');
+const search = ref("");
+const filter = ref("all");
 const selectedMembers = ref([]);
 
 const sortFields = computed(() => [
-  { name: t('app.firstname'), value: 'firstname' },
-  { name: t('app.lastname'), value: 'lastname' }
+  { name: t("app.firstname"), value: "firstname" },
+  { name: t("app.lastname"), value: "lastname" },
 ]);
 
 const filterOptions = computed(() => [
-  { name: t('rooms.members.filter.all'), value: 'all' },
-  { name: t('rooms.members.filter.participant_role'), value: 'participant_role' },
-  { name: t('rooms.members.filter.moderator_role'), value: 'moderator_role' },
-  { name: t('rooms.members.filter.co_owner_role'), value: 'co_owner_role' }
+  { name: t("rooms.members.filter.all"), value: "all" },
+  {
+    name: t("rooms.members.filter.participant_role"),
+    value: "participant_role",
+  },
+  { name: t("rooms.members.filter.moderator_role"), value: "moderator_role" },
+  { name: t("rooms.members.filter.co_owner_role"), value: "co_owner_role" },
 ]);
 
 const toggleSortOrder = () => {
@@ -276,7 +318,7 @@ const toggleSortOrder = () => {
   loadData(1);
 };
 
-function toggleSelectAll (checked) {
+function toggleSelectAll(checked) {
   if (checked) {
     selectedMembers.value = selectableMembers.value;
   } else {
@@ -284,22 +326,24 @@ function toggleSelectAll (checked) {
   }
 }
 
-function isMemberSelected (id) {
-  return selectedMembers.value.some(memberId => memberId === id);
+function isMemberSelected(id) {
+  return selectedMembers.value.some((memberId) => memberId === id);
 }
 
-function onMemberSelected (id, selected) {
+function onMemberSelected(id, selected) {
   if (selected) {
     selectedMembers.value.push(id);
   } else {
-    selectedMembers.value = selectedMembers.value.filter(memberId => memberId !== id);
+    selectedMembers.value = selectedMembers.value.filter(
+      (memberId) => memberId !== id,
+    );
   }
 }
 
 /**
  * reload member list from api
  */
-function loadData (page = null) {
+function loadData(page = null) {
   // enable data loading indicator
   isBusy.value = true;
   loadingError.value = false;
@@ -312,14 +356,15 @@ function loadData (page = null) {
     params: {
       page: page || paginator.getCurrentPage(),
       sort_by: sortField.value,
-      sort_direction: sortOrder.value === 1 ? 'asc' : 'desc',
-      search: search.value === '' ? null : search.value,
-      filter: filter.value === 'all' ? null : filter.value
-    }
+      sort_direction: sortOrder.value === 1 ? "asc" : "desc",
+      search: search.value === "" ? null : search.value,
+      filter: filter.value === "all" ? null : filter.value,
+    },
   };
 
-  api.call('rooms/' + props.room.id + '/member', config)
-    .then(response => {
+  api
+    .call("rooms/" + props.room.id + "/member", config)
+    .then((response) => {
       // fetching successful
       members.value = response.data.data;
       paginator.updateMeta(response.data.meta).then(() => {
@@ -338,18 +383,23 @@ function loadData (page = null) {
     });
 }
 
-function onPage (event) {
+function onPage(event) {
   loadData(event.page + 1);
 }
 
 // list of member ids that can be selected on the current page (user cannot select himself)
 const selectableMembers = computed(() => {
-  return members.value.map(member => member.id).filter(id => id !== authStore.currentUser?.id);
+  return members.value
+    .map((member) => member.id)
+    .filter((id) => id !== authStore.currentUser?.id);
 });
 
 onMounted(() => {
   loadData();
 });
 
-onRoomHasChanged(() => props.room, () => loadData());
+onRoomHasChanged(
+  () => props.room,
+  () => loadData(),
+);
 </script>

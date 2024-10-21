@@ -2,12 +2,13 @@
   <label
     :for="inputId"
     class="shrink-0 p-button p-component"
-    :class="{'p-disabled': disabled}"
+    :class="{ 'p-disabled': disabled }"
     tabindex="0"
     @keyup.enter="fileInputRef.click()"
     @keyup.space="fileInputRef.click()"
   >
-    <i class="fa-solid fa-upload mr-2"></i> <span class="p-button-label">{{ model?.name ?? $t('app.browse') }}</span>
+    <i class="fa-solid fa-upload mr-2"></i>
+    <span class="p-button-label">{{ model?.name ?? $t("app.browse") }}</span>
   </label>
   <input
     type="file"
@@ -21,60 +22,66 @@
 </template>
 
 <script setup>
-
-import { computed, onMounted, ref, watch } from 'vue';
-import _ from 'lodash';
+import { computed, onMounted, ref, watch } from "vue";
+import _ from "lodash";
 
 const fileInputRef = ref();
 
 const inputId = ref();
 
 onMounted(() => {
-  inputId.value = _.uniqueId('file-input-');
+  inputId.value = _.uniqueId("file-input-");
 });
 
 const accept = computed(() => {
-  if (!props.allowedExtensions) { return ''; }
-  return '.' + props.allowedExtensions.join(',.');
+  if (!props.allowedExtensions) {
+    return "";
+  }
+  return "." + props.allowedExtensions.join(",.");
 });
 
 const model = defineModel({ type: File });
-const tooBig = defineModel('tooBig', { type: Boolean });
-const invalidExtension = defineModel('invalidExtension', { type: Boolean });
+const tooBig = defineModel("tooBig", { type: Boolean });
+const invalidExtension = defineModel("invalidExtension", { type: Boolean });
 
 const props = defineProps({
   maxFileSize: {
     type: Number,
-    required: true
+    required: true,
   },
   allowedExtensions: {
     type: Array,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   invalid: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-watch(() => model.value, (value) => {
-  if (value) {
-    tooBig.value = !!(props.maxFileSize && value.size > props.maxFileSize);
+watch(
+  () => model.value,
+  (value) => {
+    if (value) {
+      tooBig.value = !!(props.maxFileSize && value.size > props.maxFileSize);
 
-    invalidExtension.value = !!(props.allowedExtensions && !props.allowedExtensions.includes(value.name.split('.').pop()));
-  } else {
-    invalidExtension.value = false;
-    tooBig.value = false;
-    fileInputRef.value.value = null;
-  }
-});
+      invalidExtension.value = !!(
+        props.allowedExtensions &&
+        !props.allowedExtensions.includes(value.name.split(".").pop())
+      );
+    } else {
+      invalidExtension.value = false;
+      tooBig.value = false;
+      fileInputRef.value.value = null;
+    }
+  },
+);
 
-function fileSelected (event) {
+function fileSelected(event) {
   model.value = event.target.files[0];
 }
-
 </script>

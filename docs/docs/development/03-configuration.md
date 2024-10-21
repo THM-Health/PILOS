@@ -7,7 +7,7 @@ Additionally to the [general configuration options](../administration/03-configu
 ## Development Configuration
 
 | Option            | Default Value         | Description                                                 |
-|-------------------|-----------------------|-------------------------------------------------------------|
+| ----------------- | --------------------- | ----------------------------------------------------------- |
 | `APP_PORT`        | `80`                  | Port for the application.                                   |
 | `APP_SSL_PORT`    | `443`                 | Port for the application with SSL.                          |
 | `DOCS_PORT`       | `3000`                | Port for the documentation.                                 |

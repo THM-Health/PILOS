@@ -39,38 +39,67 @@
       :rows="settingsStore.getSetting('general.pagination_page_size')"
       v-model:filters="filters"
       :pt="{
-        table: 'table-auto lg:table-fixed'
+        table: 'table-auto lg:table-fixed',
       }"
     >
       <template #empty>
-        <InlineNote v-if="roomTypes.length === 0">{{ $t('admin.room_types.no_data') }}</InlineNote>
-        <InlineNote v-else>{{ $t('admin.room_types.no_data_filtered') }}</InlineNote>
+        <InlineNote v-if="roomTypes.length === 0">{{
+          $t("admin.room_types.no_data")
+        }}</InlineNote>
+        <InlineNote v-else>{{
+          $t("admin.room_types.no_data_filtered")
+        }}</InlineNote>
       </template>
-      <Column field="name" key="name" :header="$t('app.model_name')" :sortable="true">
+      <Column
+        field="name"
+        key="name"
+        :header="$t('app.model_name')"
+        :sortable="true"
+      >
         <template #body="slotProps">
-          <TextTruncate>{{slotProps.data.name}}</TextTruncate>
+          <TextTruncate>{{ slotProps.data.name }}</TextTruncate>
         </template>
       </Column>
-      <Column field="actions" :header="$t('app.actions')" class="action-column" :class="actionColumn.classes" v-if="actionColumn.visible">
+      <Column
+        field="actions"
+        :header="$t('app.actions')"
+        class="action-column"
+        :class="actionColumn.classes"
+        v-if="actionColumn.visible"
+      >
         <template #body="slotProps">
           <div>
             <Button
               as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
-              v-tooltip="$t('admin.room_types.view', { name: slotProps.data.name })"
-              :aria-label="$t('admin.room_types.view', { name: slotProps.data.name })"
+              v-tooltip="
+                $t('admin.room_types.view', { name: slotProps.data.name })
+              "
+              :aria-label="
+                $t('admin.room_types.view', { name: slotProps.data.name })
+              "
               :disabled="isBusy"
-              :to="{ name: 'admin.room_types.view', params: { id: slotProps.data.id } }"
+              :to="{
+                name: 'admin.room_types.view',
+                params: { id: slotProps.data.id },
+              }"
               icon="fa-solid fa-eye"
             />
             <Button
               as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
               severity="info"
-              v-tooltip="$t('admin.room_types.edit', { name: slotProps.data.name })"
-              :aria-label="$t('admin.room_types.edit', { name: slotProps.data.name })"
+              v-tooltip="
+                $t('admin.room_types.edit', { name: slotProps.data.name })
+              "
+              :aria-label="
+                $t('admin.room_types.edit', { name: slotProps.data.name })
+              "
               :disabled="isBusy"
-              :to="{ name: 'admin.room_types.edit', params: { id: slotProps.data.id } }"
+              :to="{
+                name: 'admin.room_types.edit',
+                params: { id: slotProps.data.id },
+              }"
               icon="fa-solid fa-edit"
             />
             <SettingsRoomTypesDeleteButton
@@ -87,24 +116,28 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { useSettingsStore } from '../stores/settings';
-import { useActionColumn } from '../composables/useActionColumn.js';
-import { usePaginator } from '../composables/usePaginator.js';
+import { onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useSettingsStore } from "../stores/settings";
+import { useActionColumn } from "../composables/useActionColumn.js";
+import { usePaginator } from "../composables/usePaginator.js";
 
 const api = useApi();
 const settingsStore = useSettingsStore();
 const userPermissions = useUserPermissions();
 const paginator = usePaginator();
-const actionColumn = useActionColumn([{ permissions: ['roomTypes.view'] }, { permissions: ['roomTypes.update'] }, { permissions: ['roomTypes.delete'] }]);
+const actionColumn = useActionColumn([
+  { permissions: ["roomTypes.view"] },
+  { permissions: ["roomTypes.update"] },
+  { permissions: ["roomTypes.delete"] },
+]);
 
 const isBusy = ref(false);
 const roomTypes = ref([]);
-const nameSearch = ref('');
+const nameSearch = ref("");
 const filters = ref({
-  name: { value: null, matchMode: 'contains' }
+  name: { value: null, matchMode: "contains" },
 });
 
 onMounted(() => {
@@ -114,14 +147,18 @@ onMounted(() => {
 /**
  * Loads the roles from the backend and calls on finish the callback function.
  */
-function loadData () {
+function loadData() {
   isBusy.value = true;
-  api.call('roomTypes').then(response => {
-    roomTypes.value = response.data.data;
-  }).catch(error => {
-    api.error(error);
-  }).finally(() => {
-    isBusy.value = false;
-  });
+  api
+    .call("roomTypes")
+    .then((response) => {
+      roomTypes.value = response.data.data;
+    })
+    .catch((error) => {
+      api.error(error);
+    })
+    .finally(() => {
+      isBusy.value = false;
+    });
 }
 </script>

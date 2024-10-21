@@ -49,23 +49,23 @@
       </div>
       <div>
         <p class="text-red-500" role="alert" v-if="fileTooBig">
-          {{ $t('app.validation.too_large') }}
+          {{ $t("app.validation.too_large") }}
         </p>
         <p class="text-red-500" role="alert" v-if="fileInvalidExtension">
-          {{ $t('app.validation.invalid_type') }}
+          {{ $t("app.validation.invalid_type") }}
         </p>
-        <FormError :errors="fileError"/>
+        <FormError :errors="fileError" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
-const file = defineModel('file', { type: File });
-const fileUrl = defineModel('fileUrl', { type: String });
-const fileDeleted = defineModel('fileDeleted', { type: Boolean });
+const file = defineModel("file", { type: File });
+const fileUrl = defineModel("fileUrl", { type: String });
+const fileDeleted = defineModel("fileDeleted", { type: Boolean });
 
 const fileTooBig = ref(false);
 const fileInvalidExtension = ref(false);
@@ -73,35 +73,35 @@ const fileInvalidExtension = ref(false);
 defineProps({
   showDelete: {
     type: Boolean,
-    default: false
+    default: false,
   },
   maxFileSize: {
     type: Number,
-    required: true
+    required: true,
   },
   allowedExtensions: {
     type: Array,
-    required: true
+    required: true,
   },
   fileInvalid: {
     type: Boolean,
-    default: false
+    default: false,
   },
   fileError: {
     type: [Object, null],
-    default: null
+    default: null,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   readonly: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-function resetFileUpload () {
+function resetFileUpload() {
   file.value = null;
 }
 </script>

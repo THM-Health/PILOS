@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="flex justify-end mb-6">
-      <div v-if="model.id && id !=='new'" class="flex gap-2">
+      <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
           as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
           :disabled="isBusy"
-          :to="{ name: 'admin.server_pools.view', params: { id: model.id }}"
+          :to="{ name: 'admin.server_pools.view', params: { id: model.id } }"
           severity="secondary"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
@@ -32,7 +32,10 @@
 
     <OverlayComponent :show="isBusy">
       <template #loading>
-        <LoadingRetryButton :error="modelLoadingError" @reload="load"></LoadingRetryButton>
+        <LoadingRetryButton
+          :error="modelLoadingError"
+          @reload="load"
+        ></LoadingRetryButton>
       </template>
 
       <form
@@ -41,7 +44,9 @@
         class="flex flex-col gap-4"
       >
         <div class="field grid grid-cols-12 gap-4">
-          <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.model_name') }}</label>
+          <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{
+            $t("app.model_name")
+          }}</label>
           <div class="col-span-12 md:col-span-8">
             <InputText
               class="w-full"
@@ -51,11 +56,13 @@
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <FormError :errors="formErrors.fieldError('name')"/>
+            <FormError :errors="formErrors.fieldError('name')" />
           </div>
         </div>
         <div class="field grid grid-cols-12 gap-4">
-          <label for="description" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.description') }}</label>
+          <label for="description" class="col-span-12 md:col-span-4 md:mb-0">{{
+            $t("app.description")
+          }}</label>
           <div class="col-span-12 md:col-span-8">
             <InputText
               class="w-full"
@@ -65,11 +72,13 @@
               :invalid="formErrors.fieldInvalid('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
             />
-            <FormError :errors="formErrors.fieldError('description')"/>
+            <FormError :errors="formErrors.fieldError('description')" />
           </div>
         </div>
         <div class="field grid grid-cols-12 gap-4">
-          <label id="servers-label" class="col-span-12 md:col-span-4 md:mb-0">{{ $t('app.servers') }}</label>
+          <label id="servers-label" class="col-span-12 md:col-span-4 md:mb-0">{{
+            $t("app.servers")
+          }}</label>
           <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <multiselect
@@ -87,19 +96,23 @@
                 :show-no-results="false"
                 :show-labels="false"
                 :options="servers"
-                :disabled="isBusy || modelLoadingError || serversLoadingError || viewOnly"
+                :disabled="
+                  isBusy || modelLoadingError || serversLoadingError || viewOnly
+                "
                 :loading="serversLoading"
                 :allow-empty="true"
-                :class="{ 'is-invalid': formErrors.fieldInvalid('servers', true) }"
+                :class="{
+                  'is-invalid': formErrors.fieldInvalid('servers', true),
+                }"
               >
                 <template #noOptions>
-                  {{ $t('admin.servers.no_data') }}
+                  {{ $t("admin.servers.no_data") }}
                 </template>
                 <template v-slot:option="{ option }">
                   {{ option.name }}
                 </template>
                 <template v-slot:tag="{ option, remove }">
-                  <Chip :label="option.name"  >
+                  <Chip :label="option.name">
                     <span>{{ option.name }}</span>
                     <Button
                       severity="contrast"
@@ -107,7 +120,11 @@
                       v-if="!viewOnly"
                       @click="remove(option)"
                       icon="fas fa-xmark"
-                      :aria-label="$t('admin.server_pools.remove_server', { name: option.name })"
+                      :aria-label="
+                        $t('admin.server_pools.remove_server', {
+                          name: option.name,
+                        })
+                      "
                     />
                   </Chip>
                 </template>
@@ -139,12 +156,17 @@
               />
             </InputGroup>
           </div>
-          <FormError :errors="formErrors.fieldError('servers', true)"/>
+          <FormError :errors="formErrors.fieldError('servers', true)" />
         </div>
         <div v-if="!viewOnly">
           <div class="flex justify-end">
             <Button
-              :disabled="isBusy || modelLoadingError || serversLoadingError || serversLoading"
+              :disabled="
+                isBusy ||
+                modelLoadingError ||
+                serversLoadingError ||
+                serversLoading
+              "
               type="submit"
               icon="fa-solid fa-save"
               :label="$t('app.save')"
@@ -158,17 +180,17 @@
 </template>
 
 <script setup>
-import env from '../env.js';
-import { useApi } from '../composables/useApi.js';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { useFormErrors } from '../composables/useFormErrors.js';
-import { useConfirm } from 'primevue/useconfirm';
-import { Multiselect } from 'vue-multiselect';
-import _ from 'lodash';
-import { inject, onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import ConfirmDialog from 'primevue/confirmdialog';
-import { useI18n } from 'vue-i18n';
+import env from "../env.js";
+import { useApi } from "../composables/useApi.js";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import { useConfirm } from "primevue/useconfirm";
+import { Multiselect } from "vue-multiselect";
+import _ from "lodash";
+import { inject, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
@@ -177,30 +199,33 @@ const formErrors = useFormErrors();
 const api = useApi();
 const confirm = useConfirm();
 const router = useRouter();
-const breakcrumbLabelData = inject('breakcrumbLabelData');
+const breakcrumbLabelData = inject("breakcrumbLabelData");
 
 const props = defineProps({
   id: {
     type: [String, Number],
-    required: true
+    required: true,
   },
 
   viewOnly: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const model = ref({
-  servers: []
+  servers: [],
 });
-const name = ref('');
+const name = ref("");
 
-watch(() => name.value, (value) => {
-  breakcrumbLabelData.value = {
-    name: name.value
-  };
-});
+watch(
+  () => name.value,
+  (value) => {
+    breakcrumbLabelData.value = {
+      name: name.value,
+    };
+  },
+);
 
 const isBusy = ref(false);
 const modelLoadingError = ref(false);
@@ -223,25 +248,29 @@ onMounted(() => {
 /**
  * Loads the server pool from the backend
  */
-function load () {
+function load() {
   modelLoadingError.value = false;
 
-  if (props.id !== 'new') {
+  if (props.id !== "new") {
     isBusy.value = true;
 
-    api.call(`serverPools/${props.id}`).then(response => {
-      model.value = response.data.data;
-      name.value = response.data.data.name;
-    }).catch(error => {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'admin.server_pools' });
-      } else {
-        modelLoadingError.value = true;
-      }
-      api.error(error);
-    }).finally(() => {
-      isBusy.value = false;
-    });
+    api
+      .call(`serverPools/${props.id}`)
+      .then((response) => {
+        model.value = response.data.data;
+        name.value = response.data.data.name;
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          router.push({ name: "admin.server_pools" });
+        } else {
+          modelLoadingError.value = true;
+        }
+        api.error(error);
+      })
+      .finally(() => {
+        isBusy.value = false;
+      });
   }
 }
 
@@ -250,75 +279,95 @@ function load () {
  *
  * @param [page=1] The page to load the servers for.
  */
-function loadServers (page = 1) {
+function loadServers(page = 1) {
   serversLoading.value = true;
 
   const config = {
     params: {
-      page
-    }
+      page,
+    },
   };
 
-  api.call('servers', config).then(response => {
-    serversLoadingError.value = false;
-    servers.value = response.data.data;
-    serversCurrentPage.value = page;
-    serversHasNextPage.value = page < response.data.meta.last_page;
-  }).catch(error => {
-    serversMultiselectRef.value.deactivate();
-    serversLoadingError.value = true;
-    api.error(error);
-  }).finally(() => {
-    serversLoading.value = false;
-  });
+  api
+    .call("servers", config)
+    .then((response) => {
+      serversLoadingError.value = false;
+      servers.value = response.data.data;
+      serversCurrentPage.value = page;
+      serversHasNextPage.value = page < response.data.meta.last_page;
+    })
+    .catch((error) => {
+      serversMultiselectRef.value.deactivate();
+      serversLoadingError.value = true;
+      api.error(error);
+    })
+    .finally(() => {
+      serversLoading.value = false;
+    });
 }
 
 /**
  * Saves the changes of the server pool to the database by making a api call.
  *
  */
-function saveServerPool () {
+function saveServerPool() {
   isBusy.value = true;
 
   const config = {
-    method: props.id === 'new' ? 'post' : 'put',
-    data: _.cloneDeep(model.value)
+    method: props.id === "new" ? "post" : "put",
+    data: _.cloneDeep(model.value),
   };
 
-  config.data.servers = config.data.servers.map(server => server.id);
+  config.data.servers = config.data.servers.map((server) => server.id);
 
-  api.call(props.id === 'new' ? 'serverPools' : `serverPools/${props.id}`, config).then(response => {
-    formErrors.clear();
-    router.push({ name: 'admin.server_pools.view', params: { id: response.data.data.id } });
-  }).catch(error => {
-    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-      formErrors.set(error.response.data.errors);
-    } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-      // handle stale errors
-      handleStaleError(error.response.data);
-    } else {
-      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        router.push({ name: 'admin.server_pools' });
+  api
+    .call(
+      props.id === "new" ? "serverPools" : `serverPools/${props.id}`,
+      config,
+    )
+    .then((response) => {
+      formErrors.clear();
+      router.push({
+        name: "admin.server_pools.view",
+        params: { id: response.data.data.id },
+      });
+    })
+    .catch((error) => {
+      if (
+        error.response &&
+        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+      } else if (
+        error.response &&
+        error.response.status === env.HTTP_STALE_MODEL
+      ) {
+        // handle stale errors
+        handleStaleError(error.response.data);
+      } else {
+        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          router.push({ name: "admin.server_pools" });
+        }
+
+        api.error(error);
       }
-
-      api.error(error);
-    }
-  }).finally(() => {
-    isBusy.value = false;
-  });
+    })
+    .finally(() => {
+      isBusy.value = false;
+    });
 }
 
-function handleStaleError (staleError) {
+function handleStaleError(staleError) {
   confirm.require({
     message: staleError.message,
-    header: t('app.errors.stale_error'),
-    icon: 'pi pi-exclamation-triangle',
+    header: t("app.errors.stale_error"),
+    icon: "pi pi-exclamation-triangle",
     rejectProps: {
-      label: t('app.reload'),
-      severity: 'secondary'
+      label: t("app.reload"),
+      severity: "secondary",
     },
     acceptProps: {
-      label: t('app.overwrite')
+      label: t("app.overwrite"),
     },
     accept: () => {
       model.value.updated_at = staleError.new_model.updated_at;
@@ -327,7 +376,7 @@ function handleStaleError (staleError) {
     reject: () => {
       model.value = staleError.new_model;
       name.value = staleError.newMember.name;
-    }
+    },
   });
 }
 </script>

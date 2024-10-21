@@ -20,17 +20,26 @@
     :dismissableMask="false"
     :closable="!isLoadingAction"
   >
-
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.save')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" />
+        <Button
+          :label="$t('app.cancel')"
+          severity="secondary"
+          @click="showModal = false"
+          :disabled="isLoadingAction"
+        />
+        <Button
+          :label="$t('app.save')"
+          :loading="isLoadingAction"
+          :disabled="isLoadingAction"
+          @click="save"
+        />
       </div>
     </template>
 
     <!-- first name -->
     <div class="flex flex-col gap-2 mt-6">
-      <label for="firstname">{{ $t('app.firstname') }}</label>
+      <label for="firstname">{{ $t("app.firstname") }}</label>
       <InputText
         autofocus
         id="firstname"
@@ -43,7 +52,7 @@
 
     <!-- last name -->
     <div class="flex flex-col gap-2 mt-6">
-      <label for="lastname">{{ $t('app.lastname') }}</label>
+      <label for="lastname">{{ $t("app.lastname") }}</label>
       <InputText
         id="lastname"
         v-model.trim="lastname"
@@ -56,16 +65,32 @@
     <!-- select role -->
     <div class="flex flex-col gap-2 mt-6">
       <fieldset class="flex w-full flex-col gap-2">
-        <legend>{{ $t('rooms.role') }}</legend>
+        <legend>{{ $t("rooms.role") }}</legend>
 
         <div class="flex items-center">
-          <RadioButton v-model="role" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
-          <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
+          <RadioButton
+            v-model="role"
+            :disabled="isLoadingAction"
+            input-id="participant-role"
+            name="role"
+            :value="1"
+          />
+          <label for="participant-role" class="ml-2"
+            ><RoomRoleBadge :role="1"
+          /></label>
         </div>
 
         <div class="flex items-center">
-          <RadioButton v-model="role" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
-          <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
+          <RadioButton
+            v-model="role"
+            :disabled="isLoadingAction"
+            input-id="moderator-role"
+            name="role"
+            :value="2"
+          />
+          <label for="moderator-role" class="ml-2"
+            ><RoomRoleBadge :role="2"
+          /></label>
         </div>
 
         <FormError :errors="formErrors.fieldError('role')" />
@@ -75,24 +100,23 @@
 </template>
 
 <script setup>
-
-import { useApi } from '../composables/useApi.js';
-import { useFormErrors } from '../composables/useFormErrors.js';
-import { ref } from 'vue';
-import env from '../env.js';
+import { useApi } from "../composables/useApi.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import { ref } from "vue";
+import env from "../env.js";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['added']);
+const emit = defineEmits(["added"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -106,7 +130,7 @@ const isLoadingAction = ref(false);
 /**
  * show modal
  */
-function showAddModal () {
+function showAddModal() {
   firstname.value = null;
   lastname.value = null;
   role.value = null;
@@ -117,32 +141,38 @@ function showAddModal () {
 /**
  * Sends a request to the server to create a new token or edit a existing.
  */
-function save () {
+function save() {
   isLoadingAction.value = true;
   formErrors.clear();
 
   const config = {
-    method: 'post',
+    method: "post",
     data: {
       firstname: firstname.value,
       lastname: lastname.value,
-      role: role.value
-    }
+      role: role.value,
+    },
   };
 
-  api.call(`rooms/${props.roomId}/tokens/`, config).then(response => {
-    // operation successful, close modal and reload list
-    showModal.value = false;
-    emit('added');
-  }).catch(error => {
-    if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-      formErrors.set(error.response.data.errors);
-    } else {
-      api.error(error, { noRedirectOnUnauthenticated: true });
-    }
-  }).finally(() => {
-    isLoadingAction.value = false;
-  });
+  api
+    .call(`rooms/${props.roomId}/tokens/`, config)
+    .then((response) => {
+      // operation successful, close modal and reload list
+      showModal.value = false;
+      emit("added");
+    })
+    .catch((error) => {
+      if (
+        error.response &&
+        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+      } else {
+        api.error(error, { noRedirectOnUnauthenticated: true });
+      }
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
 }
-
 </script>

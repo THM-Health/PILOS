@@ -11,10 +11,16 @@
           autocomplete="username"
           :placeholder="props.usernameLabel"
           aria-describedby="username-help-block"
-          :invalid="props.errors !== null && props.errors.username && props.errors.username.length > 0"
+          :invalid="
+            props.errors !== null &&
+            props.errors.username &&
+            props.errors.username.length > 0
+          "
           required
         />
-        <small id="username-help-block">{{ $t('auth.ldap.username_help') }}</small>
+        <small id="username-help-block">{{
+          $t("auth.ldap.username_help")
+        }}</small>
         <FormError :errors="props.errors?.username" />
       </div>
 
@@ -29,7 +35,13 @@
           required
           fluid
           :placeholder="props.passwordLabel"
-          :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
+          :state="
+            props.errors !== null &&
+            props.errors.password &&
+            props.errors.password.length > 0
+              ? false
+              : null
+          "
         />
         <FormError :errors="props.errors?.password" />
       </div>
@@ -47,51 +59,51 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import FormError from './FormError.vue';
+import { ref } from "vue";
+import FormError from "./FormError.vue";
 
-const emit = defineEmits(['submit']);
+const emit = defineEmits(["submit"]);
 const props = defineProps({
   errors: {
     type: [Object, null],
     required: true,
-    default: null
+    default: null,
   },
   id: {
     type: String,
-    required: true
+    required: true,
   },
   loading: {
-    type: Boolean
+    type: Boolean,
   },
   passwordLabel: {
     type: String,
-    required: true
+    required: true,
   },
   submitLabel: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   usernameLabel: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const username = ref('');
-const password = ref('');
+const username = ref("");
+const password = ref("");
 
-function submit () {
-  emit('submit', {
+function submit() {
+  emit("submit", {
     id: props.id,
     data: {
       username: username.value,
-      password: password.value
-    }
+      password: password.value,
+    },
   });
 }
 </script>

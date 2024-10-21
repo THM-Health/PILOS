@@ -1,9 +1,9 @@
 <template>
   <Tag
     class="shrink text-break room-type-badge"
-    style="word-break: normal; overflow-wrap: anywhere;"
+    style="word-break: normal; overflow-wrap: anywhere"
     :pt="{
-        root: { style: { background: roomType.color } }
+      root: { style: { background: roomType.color } },
     }"
   >
     {{ roomType.name }}
@@ -11,11 +11,10 @@
 </template>
 
 <script setup>
-
 defineProps({
   roomType: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 </script>

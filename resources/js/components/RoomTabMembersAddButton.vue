@@ -27,22 +27,22 @@
   />
 </template>
 <script setup>
-import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-defineEmits(['added']);
+defineEmits(["added"]);
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const singleModal = ref();
@@ -51,17 +51,16 @@ const importModal = ref();
 const menu = ref();
 const items = computed(() => [
   {
-    label: t('rooms.members.add_single_user'),
-    command: () => singleModal.value.openModal()
+    label: t("rooms.members.add_single_user"),
+    command: () => singleModal.value.openModal(),
   },
   {
-    label: t('rooms.members.bulk_import_users'),
-    command: () => importModal.value.openModal()
-  }
+    label: t("rooms.members.bulk_import_users"),
+    command: () => importModal.value.openModal(),
+  },
 ]);
 
 const toggle = (event) => {
   menu.value.toggle(event);
 };
-
 </script>

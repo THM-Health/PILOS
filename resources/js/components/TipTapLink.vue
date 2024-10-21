@@ -11,21 +11,22 @@
   <Dialog
     v-model:visible="modalVisible"
     modal
-    :header="newLink ? $t('rooms.description.modals.link.new') : $t('rooms.description.modals.link.edit')"
+    :header="
+      newLink
+        ? $t('rooms.description.modals.link.new')
+        : $t('rooms.description.modals.link.edit')
+    "
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
     data-test="tip-tap-link-dialog"
   >
     <div class="flex flex-col gap-2 mt-6" data-test="url-field">
-      <label for="url">{{ $t('rooms.description.modals.link.url') }}</label>
-      <InputText
-        autofocus
-        id="url"
-        v-model.trim="link"
-        :invalid="urlInvalid"
-      />
-      <p v-if="urlInvalid" class="text-red-500" role="alert">{{ $t('rooms.description.modals.link.invalid_url') }}</p>
+      <label for="url">{{ $t("rooms.description.modals.link.url") }}</label>
+      <InputText autofocus id="url" v-model.trim="link" :invalid="urlInvalid" />
+      <p v-if="urlInvalid" class="text-red-500" role="alert">
+        {{ $t("rooms.description.modals.link.invalid_url") }}
+      </p>
     </div>
 
     <template #footer>
@@ -58,13 +59,13 @@
   </Dialog>
 </template>
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 
 const props = defineProps({
   editor: {
     type: Object,
     required: true,
-  }
+  },
 });
 
 const link = ref(null);
@@ -73,7 +74,7 @@ const modalVisible = ref(false);
 
 const urlInvalid = computed(() => {
   // Only return state if link is not empty
-  if (link.value === null || link.value === '') {
+  if (link.value === null || link.value === "") {
     return null;
   }
   // regex checks if url starts with http://, https:// or mailto:
@@ -84,7 +85,7 @@ const urlInvalid = computed(() => {
 /**
  * Delete link and close modal
  */
-function deleteLink () {
+function deleteLink() {
   props.editor.chain().focus().unsetLink().run();
   modalVisible.value = false;
 }
@@ -92,9 +93,9 @@ function deleteLink () {
 /**
  * Open modal to edit or create a link
  */
-function openModal () {
-  if (props.editor.isActive('link')) {
-    link.value = props.editor.getAttributes('link').href;
+function openModal() {
+  if (props.editor.isActive("link")) {
+    link.value = props.editor.getAttributes("link").href;
     newLink.value = false;
   } else {
     link.value = null;
@@ -106,7 +107,7 @@ function openModal () {
 /**
  * Save changes to the link and close modal
  */
-function save () {
+function save() {
   props.editor.chain().focus().setLink({ href: link.value }).run();
   modalVisible.value = false;
 }

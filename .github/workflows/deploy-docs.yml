@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'develop'
+      - "develop"
     paths:
-      - 'docs/**'
+      - "docs/**"
 
 # Do not build the docs concurrently
 concurrency:

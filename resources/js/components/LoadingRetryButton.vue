@@ -2,12 +2,11 @@
 const props = defineProps({
   error: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['reload']);
-
+const emit = defineEmits(["reload"]);
 </script>
 
 <template>

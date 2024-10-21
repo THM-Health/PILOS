@@ -21,49 +21,63 @@
     :dismissableMask="false"
     :closable="!isLoadingAction"
   >
-
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteToken" />
+        <Button
+          :label="$t('app.no')"
+          severity="secondary"
+          @click="showModal = false"
+          :disabled="isLoadingAction"
+        />
+        <Button
+          :label="$t('app.yes')"
+          severity="danger"
+          :loading="isLoadingAction"
+          :disabled="isLoadingAction"
+          @click="deleteToken"
+        />
       </div>
     </template>
 
     <span>
-      {{ $t('rooms.tokens.confirm_delete', { firstname: props.firstname, lastname: props.lastname }) }}
+      {{
+        $t("rooms.tokens.confirm_delete", {
+          firstname: props.firstname,
+          lastname: props.lastname,
+        })
+      }}
     </span>
   </Dialog>
 </template>
 
 <script setup>
-
-import { useApi } from '../composables/useApi.js';
-import { ref } from 'vue';
+import { useApi } from "../composables/useApi.js";
+import { ref } from "vue";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   token: {
     type: String,
-    required: true
+    required: true,
   },
   firstname: {
     type: String,
-    required: true
+    required: true,
   },
   lastname: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['deleted']);
+const emit = defineEmits(["deleted"]);
 
 const api = useApi();
 
@@ -73,29 +87,32 @@ const isLoadingAction = ref(false);
 /**
  * show modal
  */
-function showDeleteModal () {
+function showDeleteModal() {
   showModal.value = true;
 }
 
 /**
  * Sends a request to the server to create a new token or edit a existing.
  */
-function deleteToken () {
+function deleteToken() {
   isLoadingAction.value = true;
 
   const config = {
-    method: 'delete'
+    method: "delete",
   };
 
-  api.call(`rooms/${props.roomId}/tokens/${props.token}`, config).then(response => {
-    // operation successful, close modal and reload list
-    showModal.value = false;
-    emit('deleted');
-  }).catch(error => {
-    api.error(error, { noRedirectOnUnauthenticated: true });
-  }).finally(() => {
-    isLoadingAction.value = false;
-  });
+  api
+    .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
+    .then((response) => {
+      // operation successful, close modal and reload list
+      showModal.value = false;
+      emit("deleted");
+    })
+    .catch((error) => {
+      api.error(error, { noRedirectOnUnauthenticated: true });
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
 }
-
 </script>

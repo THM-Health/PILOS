@@ -1,9 +1,11 @@
 <template>
   <div class="container">
     <div class="grid grid-cols-12 gap-4 mt-6 mb-8">
-      <div class="col-span-12 md:col-span-8 lg:col-span-6 md:col-start-3 lg:col-start-4">
+      <div
+        class="col-span-12 md:col-span-8 lg:col-span-6 md:col-start-3 lg:col-start-4"
+      >
         <Card>
-          <template #title> {{ $t('app.verify_email.title') }} </template>
+          <template #title> {{ $t("app.verify_email.title") }} </template>
           <template #content>
             <OverlayComponent :show="loading">
               <div v-if="!loading">
@@ -13,7 +15,7 @@
                   icon="fa-solid fa-envelope-circle-check"
                   :closable="false"
                 >
-                  {{ $t('app.verify_email.success') }}
+                  {{ $t("app.verify_email.success") }}
                 </Message>
                 <Message
                   v-else-if="error === env.HTTP_UNPROCESSABLE_ENTITY"
@@ -21,7 +23,7 @@
                   icon="fa-solid fa-triangle-exclamation"
                   :closable="false"
                 >
-                  {{ $t('app.verify_email.invalid') }}
+                  {{ $t("app.verify_email.invalid") }}
                 </Message>
                 <Message
                   v-else
@@ -29,7 +31,7 @@
                   icon="fa-solid fa-triangle-exclamation"
                   :closable="false"
                 >
-                  {{ $t('app.verify_email.fail') }}
+                  {{ $t("app.verify_email.fail") }}
                 </Message>
               </div>
             </OverlayComponent>
@@ -41,20 +43,20 @@
 </template>
 
 <script setup>
-import env from '../env';
-import { onMounted, ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
+import env from "../env";
+import { onMounted, ref } from "vue";
+import { useApi } from "../composables/useApi.js";
 
 const props = defineProps({
   token: {
     type: String,
-    default: null
+    default: null,
   },
 
   email: {
     type: String,
-    default: null
-  }
+    default: null,
+  },
 });
 
 const loading = ref(true);
@@ -67,16 +69,17 @@ onMounted(() => {
   verifyEmail();
 });
 
-function verifyEmail () {
+function verifyEmail() {
   loading.value = true;
-  api.call('email/verify', {
-    method: 'POST',
-    data: {
-      email: props.email,
-      token: props.token
-    }
-  })
-    .then(response => {
+  api
+    .call("email/verify", {
+      method: "POST",
+      data: {
+        email: props.email,
+        token: props.token,
+      },
+    })
+    .then((response) => {
       success.value = true;
     })
     .catch((error) => {
@@ -87,7 +90,8 @@ function verifyEmail () {
         }
       }
       success.value = false;
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }

@@ -17,7 +17,6 @@
     :draggable="false"
     data-test="tip-tap-source-dialog"
   >
-
     <Textarea
       autofocus
       v-model="source"
@@ -28,30 +27,29 @@
 
     <template #footer>
       <div class="w-full flex justify-end gap-2">
-          <Button
-            severity="secondary"
-            @click="modalVisible = false"
-            :label="$t('app.cancel')"
-            data-test="dialog-cancel-button"
-          />
-          <Button
-            @click="save"
-            :label="$t('app.save')"
-            data-test="dialog-save-button"
-          />
-        </div>
+        <Button
+          severity="secondary"
+          @click="modalVisible = false"
+          :label="$t('app.cancel')"
+          data-test="dialog-cancel-button"
+        />
+        <Button
+          @click="save"
+          :label="$t('app.save')"
+          data-test="dialog-save-button"
+        />
+      </div>
     </template>
   </Dialog>
 </template>
 <script setup>
-
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const props = defineProps({
   editor: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const source = ref(null);
@@ -60,7 +58,7 @@ const modalVisible = ref(false);
 /**
  * Open modal with current source code
  */
-function openModal () {
+function openModal() {
   source.value = props.editor.getHTML();
   modalVisible.value = true;
 }
@@ -68,7 +66,7 @@ function openModal () {
 /**
  * Apply changes to the editor
  */
-function save () {
+function save() {
   props.editor.commands.setContent(source.value, true);
   modalVisible.value = false;
 }

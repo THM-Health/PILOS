@@ -12,17 +12,28 @@
     :dismissableMask="false"
     :closable="!isLoadingAction"
   >
-
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.cancel')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" data-test="dialog-cancel-button"/>
-        <Button :label="$t('rooms.members.modals.add.add')" :loading="isLoadingAction" :disabled="isLoadingAction" @click="save" data-test="dialog-save-button"/>
-        </div>
+        <Button
+          :label="$t('app.cancel')"
+          severity="secondary"
+          @click="showModal = false"
+          :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
+        />
+        <Button
+          :label="$t('rooms.members.modals.add.add')"
+          :loading="isLoadingAction"
+          :disabled="isLoadingAction"
+          @click="save"
+          data-test="dialog-save-button"
+        />
+      </div>
     </template>
 
     <!-- select user -->
     <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
-      <label id="user-label">{{ $t('app.user') }}</label>
+      <label id="user-label">{{ $t("app.user") }}</label>
       <multiselect
         aria-labelledby="user-label"
         autofocus
@@ -50,18 +61,19 @@
       >
         <template #noResult>
           <span v-if="tooManyResults" class="whitespace-normal">
-            {{ $t('rooms.members.modals.add.too_many_results') }}
+            {{ $t("rooms.members.modals.add.too_many_results") }}
           </span>
           <span v-else>
-            {{ $t('rooms.members.modals.add.no_result') }}
+            {{ $t("rooms.members.modals.add.no_result") }}
           </span>
-
         </template>
         <template #noOptions>
-          {{ $t('rooms.members.modals.add.no_options') }}
+          {{ $t("rooms.members.modals.add.no_options") }}
         </template>
         <template v-slot:option="{ option }">
-          {{ option.firstname }} {{ option.lastname }}<br><small>{{ option.email }}</small>
+          {{ option.firstname }} {{ option.lastname }}<br /><small>{{
+            option.email
+          }}</small>
         </template>
         <template v-slot:singleLabel="{ option }">
           {{ option.firstname }} {{ option.lastname }}
@@ -73,21 +85,45 @@
     <!-- select role -->
     <div class="flex flex-col gap-2 mt-6">
       <fieldset class="flex w-full flex-col gap-2">
-        <legend>{{ $t('rooms.role') }}</legend>
+        <legend>{{ $t("rooms.role") }}</legend>
 
         <div class="flex items-center" data-test="participant-role-group">
-          <RadioButton v-model="role" :disabled="isLoadingAction" input-id="participant-role" name="role" :value="1" />
-          <label for="participant-role" class="ml-2"><RoomRoleBadge :role="1" /></label>
+          <RadioButton
+            v-model="role"
+            :disabled="isLoadingAction"
+            input-id="participant-role"
+            name="role"
+            :value="1"
+          />
+          <label for="participant-role" class="ml-2"
+            ><RoomRoleBadge :role="1"
+          /></label>
         </div>
 
         <div class="flex items-center" data-test="moderator-role-group">
-          <RadioButton v-model="role" :disabled="isLoadingAction" input-id="moderator-role" name="role" :value="2" />
-          <label for="moderator-role" class="ml-2"><RoomRoleBadge :role="2" /></label>
+          <RadioButton
+            v-model="role"
+            :disabled="isLoadingAction"
+            input-id="moderator-role"
+            name="role"
+            :value="2"
+          />
+          <label for="moderator-role" class="ml-2"
+            ><RoomRoleBadge :role="2"
+          /></label>
         </div>
 
         <div class="flex items-center" data-test="co-owner-role-group">
-          <RadioButton v-model="role" :disabled="isLoadingAction" input-id="co_owner-role" name="role" :value="3" />
-          <label for="co_owner-role" class="ml-2"><RoomRoleBadge :role="3" /></label>
+          <RadioButton
+            v-model="role"
+            :disabled="isLoadingAction"
+            input-id="co_owner-role"
+            name="role"
+            :value="3"
+          />
+          <label for="co_owner-role" class="ml-2"
+            ><RoomRoleBadge :role="3"
+          /></label>
         </div>
 
         <FormError :errors="formErrors.fieldError('role')" />
@@ -96,24 +132,24 @@
   </Dialog>
 </template>
 <script setup>
-import Multiselect from 'vue-multiselect';
-import env from '../env';
-import { useApi } from '../composables/useApi.js';
-import { useFormErrors } from '../composables/useFormErrors.js';
-import { ref } from 'vue';
+import Multiselect from "vue-multiselect";
+import env from "../env";
+import { useApi } from "../composables/useApi.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
+import { ref } from "vue";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['added']);
+const emit = defineEmits(["added"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -127,48 +163,52 @@ const isLoadingSearch = ref(false);
 const isLoadingAction = ref(false);
 
 defineExpose({
-  openModal
+  openModal,
 });
 
 /**
  * Search for users in database
  * @param query
  */
-function asyncFind (query) {
+function asyncFind(query) {
   isLoadingSearch.value = true;
 
   const config = {
     params: {
-      query
-    }
+      query,
+    },
   };
 
-  api.call('users/search', config).then(response => {
-    if (response.status === 204) {
-      users.value = [];
-      tooManyResults.value = true;
-      return;
-    }
+  api
+    .call("users/search", config)
+    .then((response) => {
+      if (response.status === 204) {
+        users.value = [];
+        tooManyResults.value = true;
+        return;
+      }
 
-    // disable users that are already members of this room or the room owner
-    // const idOfMembers = this.members.map(user => user.id);
-    users.value = response.data.data.map(user => {
-      // if (idOfMembers.includes(user.id) || this.room.owner.id === user.id) { user.$isDisabled = true; }
-      return user;
+      // disable users that are already members of this room or the room owner
+      // const idOfMembers = this.members.map(user => user.id);
+      users.value = response.data.data.map((user) => {
+        // if (idOfMembers.includes(user.id) || this.room.owner.id === user.id) { user.$isDisabled = true; }
+        return user;
+      });
+      tooManyResults.value = false;
+    })
+    .catch((error) => {
+      tooManyResults.value = false;
+      api.error(error, { noRedirectOnUnauthenticated: true });
+    })
+    .finally(() => {
+      isLoadingSearch.value = false;
     });
-    tooManyResults.value = false;
-  }).catch((error) => {
-    tooManyResults.value = false;
-    api.error(error, { noRedirectOnUnauthenticated: true });
-  }).finally(() => {
-    isLoadingSearch.value = false;
-  });
 }
 
 /**
  * show modal to add a new user as member
  */
-function openModal () {
+function openModal() {
   user.value = null;
   role.value = null;
   formErrors.clear();
@@ -179,32 +219,36 @@ function openModal () {
 /**
  * Add a user as a room member
  */
-function save () {
+function save() {
   isLoadingAction.value = true;
 
   // reset previous error messages
   formErrors.clear();
 
   // post new user as room members
-  api.call('rooms/' + props.roomId + '/member', {
-    method: 'post',
-    data: { user: user.value?.id, role: role.value }
-  }).then(response => {
-    // operation successful, close modal and reload list
-    showModal.value = false;
-    emit('added');
-  }).catch((error) => {
-    // adding failed
-    if (error.response) {
-      // failed due to form validation errors
-      if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-        formErrors.set(error.response.data.errors);
-        return;
+  api
+    .call("rooms/" + props.roomId + "/member", {
+      method: "post",
+      data: { user: user.value?.id, role: role.value },
+    })
+    .then((response) => {
+      // operation successful, close modal and reload list
+      showModal.value = false;
+      emit("added");
+    })
+    .catch((error) => {
+      // adding failed
+      if (error.response) {
+        // failed due to form validation errors
+        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          formErrors.set(error.response.data.errors);
+          return;
+        }
       }
-    }
-    api.error(error, { noRedirectOnUnauthenticated: true });
-  }).finally(() => {
-    isLoadingAction.value = false;
-  });
+      api.error(error, { noRedirectOnUnauthenticated: true });
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
 }
 </script>

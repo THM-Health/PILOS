@@ -2,14 +2,13 @@
  * Policy for room actions
  */
 export default {
-
   /**
    * Is user allowed to create new rooms
    * @param user
    * @return {boolean}
    */
-  create (user) {
-    return !user ? false : user.permissions.includes('rooms.create');
+  create(user) {
+    return !user ? false : user.permissions.includes("rooms.create");
   },
 
   /**
@@ -17,8 +16,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  viewAll (user) {
-    return !user ? false : user.permissions.includes('rooms.viewAll');
+  viewAll(user) {
+    return !user ? false : user.permissions.includes("rooms.viewAll");
   },
 
   /**
@@ -27,8 +26,13 @@ export default {
    * @param model
    * @return {boolean}
    */
-  viewInvitation (user, model) {
-    return !user ? false : model.owner.id === user.id || model.is_moderator || model.is_co_owner || user.permissions.includes('rooms.viewAll');
+  viewInvitation(user, model) {
+    return !user
+      ? false
+      : model.owner.id === user.id ||
+          model.is_moderator ||
+          model.is_co_owner ||
+          user.permissions.includes("rooms.viewAll");
   },
 
   /**
@@ -37,8 +41,10 @@ export default {
    * @param model
    * @return {boolean}
    */
-  delete (user, model) {
-    return !user ? false : model.owner.id === user.id || user.permissions.includes('rooms.manage');
+  delete(user, model) {
+    return !user
+      ? false
+      : model.owner.id === user.id || user.permissions.includes("rooms.manage");
   },
   /**
    * Is user allowed to transfer this room to a different user
@@ -46,8 +52,10 @@ export default {
    * @param model
    * @return {boolean}
    */
-  transfer (user, model) {
-    return !user ? false : model.owner.id === user.id || user.permissions.includes('rooms.manage');
+  transfer(user, model) {
+    return !user
+      ? false
+      : model.owner.id === user.id || user.permissions.includes("rooms.manage");
   },
 
   /**
@@ -56,8 +64,12 @@ export default {
    * @param model
    * @return {boolean}
    */
-  viewSettings (user, model) {
-    return !user ? false : model.owner.id === user.id || model.is_co_owner || user.permissions.includes('rooms.viewAll');
+  viewSettings(user, model) {
+    return !user
+      ? false
+      : model.owner.id === user.id ||
+          model.is_co_owner ||
+          user.permissions.includes("rooms.viewAll");
   },
 
   /**
@@ -66,8 +78,12 @@ export default {
    * @param model
    * @return {boolean}
    */
-  manageSettings (user, model) {
-    return !user ? false : model.owner.id === user.id || model.is_co_owner || user.permissions.includes('rooms.manage');
+  manageSettings(user, model) {
+    return !user
+      ? false
+      : model.owner.id === user.id ||
+          model.is_co_owner ||
+          user.permissions.includes("rooms.manage");
   },
 
   /**
@@ -75,8 +91,11 @@ export default {
    * @param user
    * @param model
    */
-  becomeMember (user, model) {
-    return !user ? false : model.allow_membership && !model.is_member && model.owner.id !== user.id;
-  }
-
+  becomeMember(user, model) {
+    return !user
+      ? false
+      : model.allow_membership &&
+          !model.is_member &&
+          model.owner.id !== user.id;
+  },
 };
