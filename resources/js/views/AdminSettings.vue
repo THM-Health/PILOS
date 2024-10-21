@@ -1069,7 +1069,7 @@
               </div>
             </div>
           </AdminPanel>
-
+          
           <AdminPanel :title="$t('admin.settings.bbb.title')">
             <fieldset class="grid grid-cols-12 gap-4">
               <legend
@@ -1135,7 +1135,7 @@
                   :disabled="disabled"
                   :readonly="viewOnly"
                   :max-file-size="
-                    settingsStore.getSetting('bbb.max_filesize') * 1000
+                    settingsStore.getSetting('bbb.max_filesize') * 1000000
                   "
                   show-delete
                   :allowed-extensions="
