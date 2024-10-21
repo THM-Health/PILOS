@@ -2,7 +2,7 @@ import vueI18n from '@intlify/eslint-plugin-vue-i18n';
 import pluginMocha from 'eslint-plugin-mocha';
 import pluginCypress from 'eslint-plugin-cypress/flat';
 import pluginVue from 'eslint-plugin-vue';
-import neoStandard from 'neostandard';
+import js from '@eslint/js';
 import json from '@eslint/json';
 import globals from 'globals';
 import vueParser from 'vue-eslint-parser';
@@ -12,7 +12,7 @@ export default [
   pluginMocha.configs.flat.recommended,
   pluginCypress.configs.recommended,
   ...vueI18n.configs['flat/recommended'],
-  ...neoStandard({ semi: true }),
+  js.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
   eslintConfigPrettier,
   {
