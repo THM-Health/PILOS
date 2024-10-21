@@ -33,7 +33,7 @@
     <div class="flex flex-col gap-2">
       <label
         for="file"
-        class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
+        class="p-button p-component flex flex-row justify-center gap-2 rounded-border"
         :class="{ 'p-disabled': disabled || isUploading }"
         tabindex="0"
         data-test="upload-file-button"
@@ -58,7 +58,7 @@
       />
       <div
         ref="dropZoneRef"
-        class="border rounded-border border-surface-400 dark:border-surface-400 text-center cursor-pointer items-center p-2"
+        class="cursor-pointer items-center border border-surface-400 p-2 text-center rounded-border dark:border-surface-400"
         :class="dropZoneClasses"
         data-test="drop-zone"
         @keyup.enter="fileInputRef.click()"
@@ -75,7 +75,7 @@
 
       <ProgressBar
         v-if="isUploading"
-        class="w-full mt-1"
+        class="mt-1 w-full"
         style="height: 1rem"
         :value="uploadProgress"
         :show-value="false"

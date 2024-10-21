@@ -91,7 +91,7 @@
           @click="props.editor.chain().focus().unsetColor().run()"
         >
           <div
-            class="h-3 w-3 mr-2 border-surface"
+            class="mr-2 h-3 w-3 border-surface"
             :style="{ background: '#000' }"
           />
           {{ $t("rooms.description.color.black") }}
@@ -103,7 +103,7 @@
           @click="props.editor.chain().focus().setColor(color.color).run()"
         >
           <div
-            class="h-3 w-3 mr-2 border-surface"
+            class="mr-2 h-3 w-3 border-surface"
             :style="{ background: color.color }"
           />
           {{ color.name }}
@@ -131,7 +131,7 @@
           "
         >
           <div
-            class="h-3 w-3 mr-2 border-surface"
+            class="mr-2 h-3 w-3 border-surface"
             :style="{ background: color.color }"
           />
           {{ color.name }}

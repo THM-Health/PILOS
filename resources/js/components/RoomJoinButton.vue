@@ -47,7 +47,7 @@
         <!-- Ask guests for their first and lastname -->
         <div
           v-if="!authStore.isAuthenticated && !token"
-          class="flex flex-col gap-2 mb-4"
+          class="mb-4 flex flex-col gap-2"
         >
           <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
           <InputText
@@ -62,7 +62,7 @@
 
         <div
           v-if="recordAttendance"
-          class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col"
+          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
         >
           <span class="font-semibold">{{
             $t("rooms.recording_attendance_info")
@@ -85,7 +85,7 @@
 
         <div
           v-if="record"
-          class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col"
+          class="mb-4 flex flex-col gap-2 bg-surface-200 p-4 rounded-border dark:bg-surface-600"
         >
           <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
           <i>{{ $t("rooms.recording_hint") }}</i>
@@ -121,7 +121,7 @@
       </div>
     </OverlayComponent>
 
-    <div class="flex items-center justify-end mt-6 gap-2">
+    <div class="mt-6 flex items-center justify-end gap-2">
       <Button
         :label="$t('app.cancel')"
         data-test="dialog-cancel-button"

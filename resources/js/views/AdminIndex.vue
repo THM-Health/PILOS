@@ -1,11 +1,11 @@
 <template>
   <div>
-    <h2 class="text-2xl mb-2">{{ $t("admin.overview") }}</h2>
+    <h2 class="mb-2 text-2xl">{{ $t("admin.overview") }}</h2>
     <p>{{ $t("admin.overview_description") }}</p>
-    <div class="grid grid-cols-12 gap-4 my-4">
+    <div class="my-4 grid grid-cols-12 gap-4">
       <div
         v-if="userPermissions.can('viewAny', 'SettingsPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
         <router-link :to="{ name: 'admin.settings' }">
           <Card
@@ -13,7 +13,7 @@
               title: { class: 'text-center text-primary' },
               content: { class: 'p-0' },
             }"
-            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
+            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
           >
             <template #title>
               <h2 class="m-0">
@@ -31,7 +31,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'UserPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
         <router-link :to="{ name: 'admin.users' }">
           <Card
@@ -39,7 +39,7 @@
               title: { class: 'text-center text-primary' },
               content: { class: 'p-0' },
             }"
-            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
+            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
           >
             <template #title>
               <h2 class="m-0">
@@ -57,7 +57,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RolePolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
         <router-link :to="{ name: 'admin.roles' }">
           <Card
@@ -65,7 +65,7 @@
               title: { class: 'text-center text-primary' },
               content: { class: 'p-0' },
             }"
-            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
+            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
           >
             <template #title>
               <h2 class="m-0">
@@ -83,7 +83,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'RoomTypePolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
         <router-link :to="{ name: 'admin.room_types' }">
           <Card
@@ -91,7 +91,7 @@
               title: { class: 'text-center text-primary' },
               content: { class: 'p-0' },
             }"
-            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
+            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
           >
             <template #title>
               <h2 class="m-0">
@@ -109,7 +109,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
         <router-link :to="{ name: 'admin.servers' }">
           <Card
@@ -117,7 +117,7 @@
               title: { class: 'text-center text-primary' },
               content: { class: 'p-0' },
             }"
-            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
+            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
           >
             <template #title>
               <h2 class="m-0">
@@ -135,7 +135,7 @@
       </div>
       <div
         v-if="userPermissions.can('viewAny', 'ServerPoolPolicy')"
-        class="col-span-12 md:col-span-4 lg:col-span-4 sm:col-span-6"
+        class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4"
       >
         <router-link :to="{ name: 'admin.server_pools' }">
           <Card
@@ -143,7 +143,7 @@
               title: { class: 'text-center text-primary' },
               content: { class: 'p-0' },
             }"
-            class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis text-center"
+            class="relative h-full border text-center shadow-none border-surface rounded-border hover:bg-emphasis"
           >
             <template #title>
               <h2 class="m-0">

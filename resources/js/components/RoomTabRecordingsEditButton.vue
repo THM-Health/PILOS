@@ -69,7 +69,7 @@
     </div>
 
     <!-- available formats -->
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="mt-6 flex flex-col gap-2">
       <label>{{ $t("rooms.recordings.available_formats") }}</label>
       <div
         v-for="format in newFormats"
@@ -91,7 +91,7 @@
     </div>
 
     <!-- access -->
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="mt-6 flex flex-col gap-2">
       <fieldset class="flex w-full flex-col gap-2">
         <label>{{ $t("rooms.recordings.access") }}</label>
         <div

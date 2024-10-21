@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-col md:flex-row justify-between mb-6">
+    <div class="mb-6 flex flex-col justify-between md:flex-row">
       <div>
         <InputGroup>
           <InputText
@@ -67,7 +67,7 @@
 
       <Column field="name" :header="$t('app.model_name')" sortable>
         <template #body="slotProps">
-          <div class="flex flex-row gap-2 items-center">
+          <div class="flex flex-row items-center gap-2">
             <TextTruncate>
               {{ slotProps.data.name }}
             </TextTruncate>

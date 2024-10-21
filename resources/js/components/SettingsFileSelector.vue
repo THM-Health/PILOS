@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
     <div class="col-span-12 flex flex-col gap-2">
-      <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
+      <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
         <FileInput
           v-if="!fileDeleted && !readonly"
           v-model="file"

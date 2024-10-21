@@ -8,11 +8,11 @@
         !settingsStore.getSetting('general.whitelabel')
       "
       ref="footer_container"
-      class="border-t border-surface bg-white dark:bg-surface-900 p-2"
+      class="border-t bg-white p-2 border-surface dark:bg-surface-900"
     >
       <div class="container">
         <div
-          class="flex justify-between flex-col sm:flex-row text-center sm:text-left"
+          class="flex flex-col justify-between text-center sm:flex-row sm:text-left"
         >
           <div>
             <Button

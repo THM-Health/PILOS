@@ -1,6 +1,6 @@
 <template>
   <!-- Feature section -->
-  <div class="mx-auto z-10 mt-24 mb-24 max-w-7xl px-6 sm:mt-24 lg:px-8">
+  <div class="z-10 mx-auto mb-24 mt-24 max-w-7xl px-6 sm:mt-24 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
       <h2 class="text-base font-semibold leading-7 text-primary">
         {{ $t("home.features.vision") }}

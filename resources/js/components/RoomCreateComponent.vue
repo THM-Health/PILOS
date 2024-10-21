@@ -31,7 +31,7 @@
       </template>
       <div>
         <!-- Room name -->
-        <div class="flex flex-col gap-2 mt-6">
+        <div class="mt-6 flex flex-col gap-2">
           <label for="room-name">{{ $t("rooms.name") }}</label>
           <InputText
             id="room-name"

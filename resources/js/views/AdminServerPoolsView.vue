@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-end mb-6">
+    <div class="mb-6 flex justify-end">
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
@@ -117,7 +117,7 @@
                     <Button
                       v-if="!viewOnly"
                       severity="contrast"
-                      class="w-5 h-5 text-sm rounded-full"
+                      class="h-5 w-5 rounded-full text-sm"
                       icon="fas fa-xmark"
                       :aria-label="
                         $t('admin.server_pools.remove_server', {

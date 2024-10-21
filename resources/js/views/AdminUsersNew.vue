@@ -114,7 +114,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="generate_password"
-              class="col-span-12 md:col-span-4 md:mb-0 items-start"
+              class="col-span-12 items-start md:col-span-4 md:mb-0"
               >{{ $t("admin.users.generate_password") }}</label
             >
             <div class="col-span-12 md:col-span-8">

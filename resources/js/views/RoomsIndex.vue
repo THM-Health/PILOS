@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-8 mb-8">
+  <div class="container mb-8 mt-8">
     <Card>
       <!--  heading and option to add new rooms-->
       <template #title>
@@ -11,7 +11,7 @@
           </div>
           <div
             v-if="userPermissions.can('create', 'RoomPolicy')"
-            class="flex items-end gap-2 flex-col"
+            class="flex flex-col items-end gap-2"
           >
             <RoomCreateComponent
               :disabled="limitReached"
@@ -51,7 +51,7 @@
             </InputGroup>
           </div>
           <div
-            class="col-span-12 md:col-span-6 lg:col-span-8 2xl:col-span-9 flex justify-end flex-col-reverse md:flex-row items-start gap-2"
+            class="col-span-12 flex flex-col-reverse items-start justify-end gap-2 md:col-span-6 md:flex-row lg:col-span-8 2xl:col-span-9"
           >
             <div class="flex justify-start gap-2">
               <!--button to open filter menu on small devices-->
@@ -82,10 +82,10 @@
 
         <!--filter checkboxes (on small devices only shown, when filter menu is open)-->
         <div
-          class="flex-col xl:flex-row gap-2 justify-between"
+          class="flex-col justify-between gap-2 xl:flex-row"
           :class="toggleMobileMenu ? 'flex' : 'hidden md:flex'"
         >
-          <div class="flex flex-wrap shrink-0 gap-1">
+          <div class="flex shrink-0 flex-wrap gap-1">
             <ToggleButton
               v-if="
                 !onlyShowFavorites &&
@@ -117,7 +117,7 @@
               @change="loadRooms(1)"
             />
           </div>
-          <div class="flex flex-col md:flex-row items-start gap-2">
+          <div class="flex flex-col items-start gap-2 md:flex-row">
             <!-- room type select (on small devices only shown, when filter menu is open)-->
             <InputGroup
               v-if="!onlyShowFavorites"
@@ -203,7 +203,7 @@
           :z-index="3"
         >
           <template #overlay>
-            <div class="text-center py-20">
+            <div class="py-20 text-center">
               <i
                 v-if="loadingRooms"
                 class="fa-solid fa-circle-notch fa-spin text-3xl"
@@ -226,7 +226,7 @@
             <div
               v-for="i in rooms?.length || 3"
               :key="i"
-              class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3 p-2"
+              class="col-span-12 p-2 md:col-span-6 lg:col-span-4 2xl:col-span-3"
             >
               <RoomCardSkeleton
                 :animation="
@@ -268,7 +268,7 @@
               <div>
                 <div
                   v-if="rooms && !loadingRooms && !loadingRoomsError"
-                  class="text-center mb-2"
+                  class="mb-2 text-center"
                 >
                   <Message
                     v-if="onlyShowFavorites && paginator.isEmptyUnfiltered()"

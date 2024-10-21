@@ -48,7 +48,7 @@
       >
     </div>
     <template #footer>
-      <div class="flex justify-end w-full gap-2">
+      <div class="flex w-full justify-end gap-2">
         <Button
           :label="$t('app.cancel')"
           severity="secondary"

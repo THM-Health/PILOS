@@ -38,7 +38,7 @@
     </template>
 
     <!-- first name -->
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="mt-6 flex flex-col gap-2">
       <label for="firstname">{{ $t("app.firstname") }}</label>
       <InputText
         id="firstname"
@@ -51,7 +51,7 @@
     </div>
 
     <!-- last name -->
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="mt-6 flex flex-col gap-2">
       <label for="lastname">{{ $t("app.lastname") }}</label>
       <InputText
         id="lastname"
@@ -63,7 +63,7 @@
     </div>
 
     <!-- select role -->
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="mt-6 flex flex-col gap-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend>{{ $t("rooms.role") }}</legend>
 

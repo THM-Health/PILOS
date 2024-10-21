@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <div class="grid grid-cols-12 gap-4 mt-6 mb-8">
+    <div class="mb-8 mt-6 grid grid-cols-12 gap-4">
       <div
-        class="col-span-12 md:col-span-8 lg:col-span-6 md:col-start-3 lg:col-start-4"
+        class="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4"
       >
         <Card>
           <template #content>

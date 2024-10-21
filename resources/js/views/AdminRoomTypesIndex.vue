@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-col md:flex-row justify-between mb-6">
+    <div class="mb-6 flex flex-col justify-between md:flex-row">
       <div>
         <InputGroup>
           <InputText

@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-8 mb-8">
+  <div class="container mb-8 mt-8">
     <Card>
       <template #title
         ><h1 class="m-0 text-3xl">

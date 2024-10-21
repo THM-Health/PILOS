@@ -1,10 +1,10 @@
 <template>
-  <div class="flex gap-2 flex-wrap">
+  <div class="flex flex-wrap gap-2">
     <div
       v-for="color in props.colors"
       :key="color"
       role="button"
-      class="color-select h-11 w-11 rounded-border border border-surface relative overflow-hidden"
+      class="color-select relative h-11 w-11 overflow-hidden border border-surface rounded-border"
       :style="{ 'background-color': color }"
       :class="{
         selected: isColorSelected(color),

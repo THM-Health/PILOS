@@ -24,13 +24,13 @@ defineProps({
 </script>
 
 <template>
-  <div class="field grid grid-cols-12 gap-4 mb-4">
+  <div class="field mb-4 grid grid-cols-12 gap-4">
     <span class="col-span-8 flex items-center gap-2">
       <RoomSettingEnforcedIcon v-if="enforced" />
       {{ label }}
     </span>
 
-    <div class="col-span-4 justify-center flex items-center">
+    <div class="col-span-4 flex items-center justify-center">
       <Tag
         v-if="type === 'switch' && value"
         class="h-6 w-6"

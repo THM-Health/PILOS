@@ -22,12 +22,12 @@
           </AccordionHeader>
           <AccordionContent unstyled>
             <div
-              class="w-full max-h-32 overflow-y-auto mt-2 whitespace-pre-wrap"
+              class="mt-2 max-h-32 w-full overflow-y-auto whitespace-pre-wrap"
             >
               {{ settingsStore.getSetting("room.file_terms_of_use") }}
             </div>
             <Divider />
-            <div class="flex items-center mb-2">
+            <div class="mb-2 flex items-center">
               <Checkbox
                 v-model="downloadAgreement"
                 input-id="terms_of_use"
@@ -43,8 +43,8 @@
       </Accordion>
     </Message>
 
-    <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
-      <div class="flex justify-between flex-col lg:flex-row grow gap-2">
+    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+      <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
           <InputGroup data-test="room-files-search">
             <InputText
@@ -62,7 +62,7 @@
             />
           </InputGroup>
         </div>
-        <div class="flex gap-2 flex-col lg:flex-row">
+        <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
@@ -124,7 +124,7 @@
           </InputGroup>
         </div>
       </div>
-      <div class="flex gap-2 justify-end">
+      <div class="flex justify-end gap-2">
         <RoomTabFilesUploadButton
           v-if="userPermissions.can('manageSettings', props.room)"
           :room-id="props.room.id"
@@ -193,27 +193,27 @@
             <div v-for="item in slotProps.items" :key="item.id">
               <div
                 data-test="room-file-item"
-                class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t"
+                class="flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
-                  <p class="text-lg font-semibold m-0 text-word-break">
+                  <p class="text-word-break m-0 text-lg font-semibold">
                     {{ item.filename }}
                   </p>
-                  <div class="flex flex-col gap-2 items-start">
+                  <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-clock" />
-                      <p class="text-sm m-0">
+                      <p class="m-0 text-sm">
                         {{ $d(new Date(item.uploaded), "datetimeLong") }}
                       </p>
                     </div>
                   </div>
                   <div
                     v-if="userPermissions.can('manageSettings', props.room)"
-                    class="flex flex-col gap-2 items-start"
+                    class="flex flex-col items-start gap-2"
                   >
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-download" />
-                      <p class="text-sm m-0">
+                      <p class="m-0 text-sm">
                         <Tag v-if="item.download" severity="success">{{
                           $t("rooms.files.download_visible")
                         }}</Tag>
@@ -225,7 +225,7 @@
                   </div>
                   <div
                     v-if="userPermissions.can('manageSettings', props.room)"
-                    class="flex flex-col gap-2 items-start"
+                    class="flex flex-col items-start gap-2"
                   >
                     <div class="flex flex-row gap-2">
                       <i
@@ -233,7 +233,7 @@
                         class="fa-solid fa-circle-check"
                       ></i>
                       <i v-else class="fa-solid fa-circle-xmark"></i>
-                      <p class="text-sm m-0 flex flex-row gap-2">
+                      <p class="m-0 flex flex-row gap-2 text-sm">
                         <Tag v-if="item.use_in_meeting" severity="success">{{
                           $t("rooms.files.use_in_next_meeting")
                         }}</Tag>
@@ -242,7 +242,7 @@
                         }}</Tag>
                         <Tag
                           v-if="defaultFile?.id === item.id"
-                          class="flex flex-row gap-2 items-start"
+                          class="flex flex-row items-start gap-2"
                         >
                           <i class="fa-solid fa-star"></i>
                           {{ $t("rooms.files.default") }}
@@ -253,7 +253,7 @@
                 </div>
 
                 <div
-                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
+                  class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
                   <RoomTabFilesViewButton
                     :room-id="props.room.id"

@@ -2,7 +2,7 @@
   <div class="px-2">
     <div
       v-if="userPermissions.can('manageSettings', room)"
-      class="flex gap-2 justify-end mb-4"
+      class="mb-4 flex justify-end gap-2"
     >
       <Button
         v-if="!editorOpen"
@@ -47,7 +47,7 @@
         <FormError :errors="formErrors.fieldError('description')" />
       </div>
     </OverlayComponent>
-    <div class="flex justify-end mt-2">
+    <div class="mt-2 flex justify-end">
       <Button
         v-if="editorOpen"
         :disabled="isBusy"

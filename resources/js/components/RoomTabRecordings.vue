@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
-      <div class="flex justify-between flex-col lg:flex-row grow gap-2">
+    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+      <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
           <InputGroup>
             <InputText
@@ -19,7 +19,7 @@
             />
           </InputGroup>
         </div>
-        <div class="flex gap-2 flex-col lg:flex-row">
+        <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup v-if="userPermissions.can('manageSettings', props.room)">
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
@@ -63,7 +63,7 @@
           </InputGroup>
         </div>
       </div>
-      <div class="flex gap-2 justify-end">
+      <div class="flex justify-end gap-2">
         <!-- Reload list -->
         <Button
           v-tooltip="$t('app.reload')"
@@ -115,16 +115,16 @@
           <div class="px-2">
             <div v-for="item in slotProps.items" :key="item.id">
               <div
-                class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t border-surface"
+                class="flex flex-col justify-between gap-4 border-t py-4 border-surface md:flex-row"
               >
                 <div class="flex flex-col gap-2">
-                  <p class="text-lg font-semibold m-0">
+                  <p class="m-0 text-lg font-semibold">
                     {{ item.description }}
                   </p>
-                  <div class="flex flex-col gap-2 items-start">
+                  <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-clock" />
-                      <p class="text-sm m-0">
+                      <p class="m-0 text-sm">
                         {{ $d(new Date(item.start), "datetimeShort") }}
                       </p>
                     </div>
@@ -138,7 +138,7 @@
                             ? $t('meetings.now')
                             : $d(new Date(item.end), 'datetimeShort'))
                         "
-                        class="text-sm m-0"
+                        class="m-0 text-sm"
                       >
                         {{
                           dateDiff.format(
@@ -171,7 +171,7 @@
                   </div>
                 </div>
                 <div
-                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
+                  class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
                   <RoomTabRecordingsViewButton
                     :room-id="props.room.id"
@@ -235,7 +235,7 @@
       aria-live="off"
       role="presentation"
     >
-      <div class="leading-3 font-normal">
+      <div class="font-normal leading-3">
         <p class="text-xl font-semibold">
           {{ $t("rooms.recordings.retention_period.title") }}
         </p>

@@ -2,7 +2,7 @@
   <div>
     <div
       ref="roomDescription"
-      class="px-2 room-description link-color"
+      class="room-description link-color px-2"
       data-test="room-description-viewer"
       v-html="props.html"
     />

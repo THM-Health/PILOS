@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-end mb-6">
+    <div class="mb-6 flex justify-end">
       <div v-if="model.id !== null && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
@@ -136,7 +136,7 @@
               :invalid="formErrors.fieldInvalid('strength')"
               :stars="10"
               aria-describedby="strength-help"
-              class="border border-surface-300 dark:border-surface-700 rounded-border px-6 py-3 flex justify-between"
+              class="flex justify-between border border-surface-300 px-6 py-3 rounded-border dark:border-surface-700"
             />
             <small id="strength-help">{{
               $t("admin.servers.strength_description")
@@ -207,10 +207,10 @@
         v-if="
           !modelLoadingError && viewOnly && !isDisabled && model.id !== null
         "
-        class="flex flex-col gap-4 mt-4"
+        class="mt-4 flex flex-col gap-4"
       >
         <div class="grid grid-cols-12 gap-4">
-          <div class="col-span-12 md:col">
+          <div class="md:col col-span-12">
             <h3 class="mt-0">
               {{ $t("admin.servers.current_usage") }}
             </h3>

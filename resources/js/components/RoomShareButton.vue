@@ -8,11 +8,11 @@
     @click="toggle"
   />
   <Popover ref="op" aria-labelledby="room-invitation-title">
-    <div class="flex flex-col items-start gap-4 min-w-min p-2">
+    <div class="flex min-w-min flex-col items-start gap-4 p-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend
           id="room-invitation-title"
-          class="font-bold block whitespace-nowrap"
+          class="block whitespace-nowrap font-bold"
         >
           {{ $t("rooms.invitation.title") }}
         </legend>
@@ -27,7 +27,7 @@
             </InputIcon>
             <InputText
               id="invitationLink"
-              class="border-surface-0 dark:border-surface-900 shadow-none w-full text-ellipsis"
+              class="w-full text-ellipsis border-surface-0 shadow-none dark:border-surface-900"
               :aria-label="$t('rooms.invitation.link')"
               readonly
               :value="roomUrl"
@@ -45,7 +45,7 @@
             </InputIcon>
             <InputText
               id="invitationCode"
-              class="border-surface-0 dark:border-surface-900 shadow-none w-full"
+              class="w-full border-surface-0 shadow-none dark:border-surface-900"
               :aria-label="$t('rooms.invitation.code')"
               readonly
               :value="formattedAccessCode"

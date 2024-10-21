@@ -1,7 +1,7 @@
 <template>
   <label
     :for="inputId"
-    class="shrink-0 p-button p-component"
+    class="p-button p-component shrink-0"
     :class="{ 'p-disabled': disabled }"
     tabindex="0"
     @keyup.enter="fileInputRef.click()"

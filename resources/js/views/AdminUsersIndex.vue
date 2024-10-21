@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-col md:flex-row gap-4 mb-6 justify-between">
+    <div class="mb-6 flex flex-col justify-between gap-4 md:flex-row">
       <div>
         <InputGroup>
           <InputText
@@ -19,8 +19,8 @@
         </InputGroup>
       </div>
 
-      <div class="flex flex-col md:flex-row gap-2 justify-end">
-        <InputGroup class="grow shrink-0 min-w-80">
+      <div class="flex flex-col justify-end gap-2 md:flex-row">
+        <InputGroup class="min-w-80 shrink-0 grow">
           <multiselect
             ref="rolesMultiselectRef"
             v-model="filter.role"
@@ -50,7 +50,7 @@
               {{ option.name }}
             </template>
             <template #afterList>
-              <div class="flex p-2 gap-2">
+              <div class="flex gap-2 p-2">
                 <Button
                   :disabled="rolesLoading || rolesCurrentPage === 1"
                   outlined

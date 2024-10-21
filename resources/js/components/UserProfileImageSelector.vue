@@ -2,7 +2,7 @@
   <div class="grid grid-cols-12 gap-4">
     <div
       v-if="!viewOnly"
-      class="col-span-12 lg:col-span-9 flex md:flex-row flex-col gap-2 md:items-start"
+      class="col-span-12 flex flex-col gap-2 md:flex-row md:items-start lg:col-span-9"
     >
       <FileUpload
         v-if="!imageDeleted"
@@ -59,7 +59,7 @@
       />
     </div>
     <div
-      class="col-span-12 lg:col-span-3 text-left"
+      class="col-span-12 text-left lg:col-span-3"
       :class="{ 'lg:text-right': !viewOnly }"
     >
       <UserAvatar
@@ -67,7 +67,7 @@
         :image="croppedImage ? croppedImage : image"
         :alt="$t('admin.users.image.title')"
         size="xlarge"
-        class="rounded-border overflow-hidden"
+        class="overflow-hidden rounded-border"
         shape="square"
         data-test="profile-image-preview"
       />

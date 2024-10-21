@@ -1,6 +1,6 @@
 <template>
   <Tag
-    class="shrink text-break room-type-badge"
+    class="text-break room-type-badge shrink"
     style="word-break: normal; overflow-wrap: anywhere"
     :pt="{
       root: { style: { background: roomType.color } },

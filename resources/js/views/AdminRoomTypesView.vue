@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-end mb-6">
+    <div class="mb-6 flex justify-end">
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
@@ -79,7 +79,7 @@
 
           <!-- Room type color -->
           <fieldset class="field grid grid-cols-12 gap-4">
-            <legend class="col-span-12 md:col-span-4 md:mb-0 items-start">
+            <legend class="col-span-12 items-start md:col-span-4 md:mb-0">
               {{ $t("admin.room_types.color") }}
             </legend>
             <div class="col-span-12 md:col-span-8">
@@ -109,7 +109,7 @@
             <label class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("admin.room_types.preview")
             }}</label>
-            <div class="col-span-12 md:col-span-8 flex items-center">
+            <div class="col-span-12 flex items-center md:col-span-8">
               <RoomTypeBadge :room-type="model" />
             </div>
           </div>
@@ -118,7 +118,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               id="server-pool-label"
-              class="col-span-12 md:col-span-4 md:mb-0 items-start"
+              class="col-span-12 items-start md:col-span-4 md:mb-0"
               >{{ $t("app.server_pool") }}</label
             >
             <div class="col-span-12 md:col-span-8">
@@ -156,7 +156,7 @@
                     {{ $t("admin.server_pools.no_data") }}
                   </template>
                   <template #afterList>
-                    <div class="flex p-2 gap-2">
+                    <div class="flex gap-2 p-2">
                       <Button
                         :disabled="
                           serverPoolsLoading || serverPoolsCurrentPage === 1
@@ -203,7 +203,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="restrict"
-              class="col-span-12 md:col-span-4 md:mb-0 items-start"
+              class="col-span-12 items-start md:col-span-4 md:mb-0"
               >{{ $t("admin.room_types.restrict") }}</label
             >
             <div class="col-span-12 md:col-span-8">
@@ -245,7 +245,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="max-participants"
-              class="col-span-12 md:col-span-4 md:mb-0 items-start"
+              class="col-span-12 items-start md:col-span-4 md:mb-0"
               >{{ $t("admin.room_types.max_participants") }}</label
             >
             <div class="col-span-12 md:col-span-8">
@@ -271,7 +271,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="max-duration"
-              class="col-span-12 md:col-span-4 md:mb-0 items-start"
+              class="col-span-12 items-start md:col-span-4 md:mb-0"
               >{{ $t("admin.room_types.max_duration") }}</label
             >
             <div class="col-span-12 md:col-span-8">
@@ -305,12 +305,12 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="has-access-code-default"
-              class="col-span-12 md:col-span-4 md:m-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:m-0"
             >
               {{ $t("rooms.settings.general.has_access_code") }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.has_access_code_default"
                   input-id="has-access-code-default"
@@ -348,11 +348,11 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="allow-guests-default"
-              class="col-span-12 md:col-span-4 md:m-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:m-0"
               >{{ $t("rooms.settings.general.allow_guests") }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.allow_guests_default"
                   input-id="allow-guests-default"
@@ -398,13 +398,13 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="everyone-can-start-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t("rooms.settings.video_conference.everyone_can_start")
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.everyone_can_start_default"
                   input-id="everyone-can-start-default"
@@ -447,11 +447,11 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="mute-on-start-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{ $t("rooms.settings.video_conference.mute_on_start") }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.mute_on_start_default"
                   input-id="mute-on-start-default"
@@ -488,11 +488,11 @@
 
           <!-- Usage of the waiting room/guest lobby -->
           <div class="field grid grid-cols-12 gap-4">
-            <label class="col-span-12 md:col-span-4 md:mb-0 items-center">{{
+            <label class="col-span-12 items-center md:col-span-4 md:mb-0">{{
               $t("rooms.settings.video_conference.lobby.title")
             }}</label>
-            <div class="col-span-12 md:col-span-8 mb-2">
-              <div class="flex flex-row justify-between items-center">
+            <div class="col-span-12 mb-2 md:col-span-8">
+              <div class="flex flex-row items-center justify-between">
                 <div class="flex flex-col gap-2">
                   <div class="flex items-center gap-2">
                     <RadioButton
@@ -570,11 +570,11 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="record-attendance-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{ $t("rooms.settings.recordings.record_attendance") }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.record_attendance_default"
                   input-id="record-attendance-default"
@@ -617,13 +617,13 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="record-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t("rooms.settings.recordings.record_video_conference")
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.record_default"
                   input-id="record-default"
@@ -660,11 +660,11 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="auto-start-recording-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{ $t("rooms.settings.recordings.auto_start_recording") }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.auto_start_recording_default"
                   input-id="auto-start-recording-default"
@@ -716,13 +716,13 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="disable-cam-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t("rooms.settings.restrictions.lock_settings_disable_cam")
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.lock_settings_disable_cam_default"
                   input-id="disable-cam-default"
@@ -774,13 +774,13 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="webcams-only-for-moderator-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t("rooms.settings.restrictions.webcams_only_for_moderator")
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.webcams_only_for_moderator_default"
                   input-id="webcams-only-for-moderator-default"
@@ -832,13 +832,13 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="disable-mic-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t("rooms.settings.restrictions.lock_settings_disable_mic")
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.lock_settings_disable_mic_default"
                   input-id="disable-mic-default"
@@ -887,7 +887,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="disable-public-chat-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t(
                   "rooms.settings.restrictions.lock_settings_disable_public_chat",
@@ -895,7 +895,7 @@
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.lock_settings_disable_public_chat_default"
                   input-id="disable-public-chat-default"
@@ -954,7 +954,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="disable-private-chat-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t(
                   "rooms.settings.restrictions.lock_settings_disable_private_chat",
@@ -962,7 +962,7 @@
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.lock_settings_disable_private_chat_default"
                   input-id="disable-private-chat-default"
@@ -1017,13 +1017,13 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="disable-note-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t("rooms.settings.restrictions.lock_settings_disable_note")
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.lock_settings_disable_note_default"
                   input-id="disable-note-default"
@@ -1074,13 +1074,13 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="hide-user-list-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{
                 $t("rooms.settings.restrictions.lock_settings_hide_user_list")
               }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.lock_settings_hide_user_list_default"
                   input-id="hide-user-list-default"
@@ -1140,11 +1140,11 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="allow-membership-default"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{ $t("rooms.settings.participants.allow_membership") }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <ToggleSwitch
                   v-model="model.allow_membership_default"
                   input-id="allow-membership-default"
@@ -1185,7 +1185,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               id="default-role-label"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{ $t("rooms.settings.participants.default_role.title") }}
               {{
                 $t("rooms.settings.participants.default_role.only_logged_in")
@@ -1193,7 +1193,7 @@
             >
             <div class="col-span-12 md:col-span-8">
               <div
-                class="flex justify-between items-start md:items-center flex-col md:flex-row gap-2"
+                class="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center"
               >
                 <SelectButton
                   v-model="model.default_role_default"
@@ -1247,11 +1247,11 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               id="visibility-label"
-              class="col-span-12 md:col-span-4 md:mb-0 items-center"
+              class="col-span-12 items-center md:col-span-4 md:mb-0"
               >{{ $t("rooms.settings.advanced.visibility.title") }}</label
             >
             <div class="col-span-12 md:col-span-8">
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <SelectButton
                   v-model="model.visibility_default"
                   :allow-empty="false"
@@ -1308,7 +1308,7 @@
           <div class="field grid grid-cols-12 gap-4">
             <label
               for="create-parameters"
-              class="col-span-12 md:col-span-4 md:mb-0 items-start"
+              class="col-span-12 items-start md:col-span-4 md:mb-0"
               >{{ $t("admin.room_types.bbb_api.create_parameters") }}</label
             >
             <div class="col-span-12 md:col-span-8">

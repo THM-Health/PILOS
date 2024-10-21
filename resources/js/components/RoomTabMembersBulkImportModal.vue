@@ -22,7 +22,7 @@
     <template #footer>
       <div
         v-if="step === 0"
-        class="flex justify-end w-full flex-col sm:flex-row gap-2"
+        class="flex w-full flex-col justify-end gap-2 sm:flex-row"
       >
         <Button
           :disabled="rawList.length === 0 || isLoadingAction"
@@ -35,7 +35,7 @@
 
       <div
         v-if="step === 1"
-        class="flex justify-end w-full flex-col sm:flex-row gap-2"
+        class="flex w-full flex-col justify-end gap-2 sm:flex-row"
       >
         <Button
           :disabled="isLoadingAction"
@@ -58,7 +58,7 @@
 
       <div
         v-if="step === 2"
-        class="flex justify-end w-full flex-col sm:flex-row gap-2"
+        class="flex w-full flex-col justify-end gap-2 sm:flex-row"
       >
         <Button
           :label="$t('app.close')"
@@ -76,7 +76,7 @@
     </template>
 
     <div v-if="step === 0">
-      <div class="flex flex-col gap-2 mt-6">
+      <div class="mt-6 flex flex-col gap-2">
         <label for="user-emails">{{
           $t("rooms.members.modals.bulk_import.label")
         }}</label>
@@ -96,7 +96,7 @@
         <FormError :errors="formErrors.fieldError('user_emails')" />
       </div>
       <!-- select role -->
-      <div class="flex flex-col gap-2 mt-6">
+      <div class="mt-6 flex flex-col gap-2">
         <fieldset class="flex w-full flex-col gap-2">
           <legend>{{ $t("rooms.role") }}</legend>
 

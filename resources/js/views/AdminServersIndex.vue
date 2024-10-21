@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-col md:flex-row justify-between">
+    <div class="flex flex-col justify-between md:flex-row">
       <div>
         <InputGroup>
           <InputText
@@ -17,7 +17,7 @@
           />
         </InputGroup>
       </div>
-      <div class="flex gap-2 justify-between mt-2">
+      <div class="mt-2 flex justify-between gap-2">
         <Button
           :disabled="isBusy"
           severity="info"

@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col gap-4 w-full" data-test="room-type-details">
+  <div class="flex w-full flex-col gap-4" data-test="room-type-details">
     <h3><RoomTypeBadge :room-type="roomType" class="w-full text-base" /></h3>
 
     <div class="w-full">
       <div
-        class="flex flex-col gap-2 border border-surface-200 dark:border-surface-600 rounded-border p-4 md:overflow-y-auto md:max-h-64"
+        class="flex flex-col gap-2 border border-surface-200 p-4 rounded-border md:max-h-64 md:overflow-y-auto dark:border-surface-600"
       >
         <!-- Description for the room type -->
         <span class="font-bold">{{ $t("app.description") }}</span>
@@ -31,7 +31,7 @@
               }}</AccordionHeader
             >
             <AccordionContent
-              class="border-surface border-x border-b rounded-b"
+              class="rounded-b border-x border-b border-surface"
             >
               <!-- Show all room setting grouped by category -->
               <div

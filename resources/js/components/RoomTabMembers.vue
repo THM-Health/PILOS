@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
-      <div class="flex justify-between flex-col lg:flex-row grow gap-2">
+    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+      <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
           <InputGroup data-test="room-members-search">
             <InputText
@@ -19,7 +19,7 @@
             />
           </InputGroup>
         </div>
-        <div class="flex gap-2 flex-col lg:flex-row">
+        <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
@@ -81,7 +81,7 @@
           </InputGroup>
         </div>
       </div>
-      <div class="flex gap-2 justify-end">
+      <div class="flex justify-end gap-2">
         <RoomTabMembersAddButton
           v-if="userPermissions.can('manageSettings', props.room)"
           :room-id="props.room.id"
@@ -152,7 +152,7 @@
           "
           #header
         >
-          <div class="flex justify-between mb-2">
+          <div class="mb-2 flex justify-between">
             <Checkbox
               :model-value="selectedMembers.length === selectableMembers.length"
               :binary="true"
@@ -184,7 +184,7 @@
             <div v-for="(item, index) in slotProps.items" :key="item.id">
               <div
                 data-test="room-member-item"
-                class="flex flex-col md:flex-row justify-between gap-4 py-4"
+                class="flex flex-col justify-between gap-4 py-4 md:flex-row"
                 :class="{ 'border-t border-surface': index !== 0 }"
               >
                 <div class="flex flex-row gap-6">
@@ -213,13 +213,13 @@
                     />
                   </div>
                   <div class="flex flex-col gap-2">
-                    <p class="text-lg font-semibold m-0 text-word-break">
+                    <p class="text-word-break m-0 text-lg font-semibold">
                       {{ item.firstname }} {{ item.lastname }}
                     </p>
-                    <div class="flex flex-col gap-2 items-start">
+                    <div class="flex flex-col items-start gap-2">
                       <div class="flex flex-row gap-2">
                         <i class="fa-solid fa-envelope" />
-                        <p class="text-sm m-0 text-word-break">
+                        <p class="text-word-break m-0 text-sm">
                           {{ item.email }}
                         </p>
                       </div>
@@ -236,7 +236,7 @@
                     userPermissions.can('manageSettings', props.room) &&
                     authStore.currentUser?.id !== item.id
                   "
-                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
+                  class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
                   <!-- edit membership role -->
                   <RoomTabMembersEditButton

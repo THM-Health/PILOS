@@ -21,7 +21,7 @@
         <FormError :errors="props.errors?.email" />
       </div>
 
-      <div class="flex flex-col gap-2 mt-6">
+      <div class="mt-6 flex flex-col gap-2">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
           v-model="password"

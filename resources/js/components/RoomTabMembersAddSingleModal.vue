@@ -32,7 +32,7 @@
     </template>
 
     <!-- select user -->
-    <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
+    <div class="relative mt-2 flex flex-col gap-2 overflow-visible">
       <label id="user-label">{{ $t("app.user") }}</label>
       <multiselect
         v-model="user"
@@ -83,7 +83,7 @@
     </div>
 
     <!-- select role -->
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="mt-6 flex flex-col gap-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend>{{ $t("rooms.role") }}</legend>
 

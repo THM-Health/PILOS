@@ -4,34 +4,34 @@
     <div
       tabindex="0"
       data-test="room-card"
-      class="h-full relative border border-surface rounded-border shadow-none hover:bg-emphasis"
+      class="relative h-full border shadow-none border-surface rounded-border hover:bg-emphasis"
       :class="{ '!border-green-500': running }"
       @click="open"
       @keyup.enter="open"
     >
-      <div class="p-4 h-100">
-        <div class="flex flex-col h-100">
+      <div class="h-100 p-4">
+        <div class="h-100 flex flex-col">
           <div class="grow">
-            <div class="flex justify-between items-start">
+            <div class="flex items-start justify-between">
               <RoomTypeBadge :room-type="props.room.type" />
-              <div class="z-10 relative shrink-0 flex gap-2">
+              <div class="relative z-10 flex shrink-0 gap-2">
                 <Button
                   v-if="props.room.short_description != null"
                   severity="secondary"
-                  class="p-0 h-8 w-8 text-sm"
+                  class="h-8 w-8 p-0 text-sm"
                   icon="fa-solid fa-info"
                   data-test="room-info-button"
                   @click.stop="showModal = true"
                 />
                 <RoomFavoriteButton
                   :room="props.room"
-                  class="p-0 h-8 w-8 text-sm"
+                  class="h-8 w-8 p-0 text-sm"
                   @favorites-changed="$emit('favoritesChanged')"
                 />
               </div>
             </div>
             <p
-              class="mt-2 mb-4 text-break font-bold text-color"
+              class="text-break mb-4 mt-2 font-bold text-color"
               style="width: 100%"
             >
               {{ props.room.name }}
@@ -58,7 +58,7 @@
       :draggable="false"
       data-test="room-info-dialog"
     >
-      <div class="flex justify-between items-start mt-2">
+      <div class="mt-2 flex items-start justify-between">
         <RoomTypeBadge :room-type="props.room.type" />
         <div class="room-card-buttons shrink-0">
           <RoomFavoriteButton
@@ -67,7 +67,7 @@
           />
         </div>
       </div>
-      <h1 class="text-2xl font-semibold mb-4 text-break" style="width: 100%">
+      <h1 class="text-break mb-4 text-2xl font-semibold" style="width: 100%">
         {{ props.room.name }}
       </h1>
       <RoomDetailsList :room="props.room" :show-description="true" />

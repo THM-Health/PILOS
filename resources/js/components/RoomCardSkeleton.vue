@@ -3,12 +3,12 @@
     <!--      room card-->
     <div
       tabindex="0"
-      class="room-card h-full relative border-surface-300 dark:border-surface-500 rounded-border shadow-none"
+      class="room-card relative h-full border-surface-300 shadow-none rounded-border dark:border-surface-500"
     >
-      <div class="p-4 h-100">
-        <div class="flex flex-col h-100">
+      <div class="h-100 p-4">
+        <div class="h-100 flex flex-col">
           <div class="grow">
-            <div class="flex justify-between items-start">
+            <div class="flex items-start justify-between">
               <Skeleton
                 :animation="animation"
                 height="1.5rem"
@@ -23,7 +23,7 @@
                 ></Skeleton>
               </div>
             </div>
-            <p class="mt-2 text-break font-bold text-color" style="width: 100%">
+            <p class="text-break mt-2 font-bold text-color" style="width: 100%">
               <Skeleton
                 :animation="animation"
                 height="1.5rem"

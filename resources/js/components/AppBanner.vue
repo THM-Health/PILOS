@@ -5,7 +5,7 @@
       'background-color': background,
       color: color,
     }"
-    class="m-0 py-4 rounded-none"
+    class="m-0 rounded-none py-4"
     :closable="false"
     :pt="{
       icon: {
@@ -20,7 +20,7 @@
     <template #messageicon> </template>
 
     <div class="container flex flex-col gap-2">
-      <p v-if="title" class="text-lg font-bold m-0">
+      <p v-if="title" class="m-0 text-lg font-bold">
         <i v-if="icon" :class="`${icon}`" />
         {{ title }}
       </p>
@@ -31,7 +31,7 @@
         <Button
           :link="linkStyle === 'link'"
           :style="linkStyle === 'link' ? { color: color } : {}"
-          :class="linkStyle === 'link' ? 'underline p-0' : ''"
+          :class="linkStyle === 'link' ? 'p-0 underline' : ''"
           :severity="linkStyle"
           :label="linkText ? linkText : link"
         />

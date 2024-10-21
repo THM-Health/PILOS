@@ -1,13 +1,13 @@
 <template>
   <div>
     <div
-      class="flex justify-between flex-col lg:flex-row items-start gap-2 px-2"
+      class="flex flex-col items-start justify-between gap-2 px-2 lg:flex-row"
     >
       <div>
         <!-- Search field, currently not implemented -->
       </div>
       <div
-        class="w-full lg:w-auto grow lg:grow-0 flex justify-between flex-wrap items-start gap-2"
+        class="flex w-full grow flex-wrap items-start justify-between gap-2 lg:w-auto lg:grow-0"
       >
         <div class="flex gap-2">
           <InputGroup class="w-auto">
@@ -84,13 +84,13 @@
           <div class="px-2">
             <div v-for="item in slotProps.items" :key="item.id">
               <div
-                class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t border-surface"
+                class="flex flex-col justify-between gap-4 border-t py-4 border-surface md:flex-row"
               >
                 <div class="flex flex-col gap-2">
-                  <p class="text-lg font-semibold m-0">
+                  <p class="m-0 text-lg font-semibold">
                     {{ $d(new Date(item.start), "datetimeShort") }}
                   </p>
-                  <div class="flex flex-col gap-2 items-start">
+                  <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p
@@ -101,7 +101,7 @@
                             ? $t('meetings.now')
                             : $d(new Date(item.end), 'datetimeShort'))
                         "
-                        class="text-sm m-0"
+                        class="m-0 text-sm"
                       >
                         {{
                           dateDiff.format(
@@ -114,7 +114,7 @@
                   </div>
                 </div>
                 <div
-                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
+                  class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
                   <RoomTabHistoryStatisticButton
                     v-if="item.statistical"
@@ -147,7 +147,7 @@
       aria-live="off"
       role="presentation"
     >
-      <div class="leading-3 font-normal">
+      <div class="font-normal leading-3">
         <p class="text-xl font-semibold">
           {{ $t("meetings.retention_period") }}
         </p>

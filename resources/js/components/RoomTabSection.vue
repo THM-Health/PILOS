@@ -3,17 +3,17 @@
     <template #header>
       <!-- Tab header -->
       <div
-        class="flex flex-row justify-between mb-5 border-surface border-b px-6 py-4"
+        class="mb-5 flex flex-row justify-between border-b px-6 py-4 border-surface"
       >
         <!-- Current tab -->
-        <div class="flex flex-row gap-2 px-2 items-center text-xl">
+        <div class="flex flex-row items-center gap-2 px-2 text-xl">
           <i :class="activeTab?.icon" />
           <h2 class="m-0">{{ activeTab?.label }}</h2>
         </div>
         <!-- Tab navigation -->
         <div v-if="availableTabs.length > 1" role="tablist">
           <!-- Desktop layout, icons only-->
-          <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
+          <div class="hidden flex-row gap-2 md:flex" @keydown="keydownHandler">
             <Button
               v-for="tab in availableTabs"
               :id="'tab-' + tab.key"

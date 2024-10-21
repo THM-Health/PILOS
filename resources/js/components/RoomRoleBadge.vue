@@ -1,6 +1,6 @@
 <template>
   <Tag
-    class="shrink text-break room-role-badge"
+    class="text-break room-role-badge shrink"
     :pt="{
       root: { class: role.class },
     }"

@@ -20,13 +20,13 @@
     <Textarea
       v-model="source"
       autofocus
-      class="w-full mt-2"
+      class="mt-2 w-full"
       rows="5"
       data-test="source-textarea"
     />
 
     <template #footer>
-      <div class="w-full flex justify-end gap-2">
+      <div class="flex w-full justify-end gap-2">
         <Button
           severity="secondary"
           :label="$t('app.cancel')"

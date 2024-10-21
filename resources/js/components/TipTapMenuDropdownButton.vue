@@ -17,7 +17,7 @@
     ref="dropdownMenu"
     v-on-click-outside="onClickOutsideHandler"
     :style="floatingStyles"
-    class="list-none py-1 px-4 m-0 lg:px-0 lg:py-2 rounded-border shadow-0 lg:shadow lg:border border-surface-50 dark:border-surface-800 lg:absolute lg:z-10 bg-white origin-top w-full right lg:w-60 cursor-pointer"
+    class="shadow-0 right m-0 w-full origin-top cursor-pointer list-none border-surface-50 bg-white px-4 py-1 rounded-border lg:absolute lg:z-10 lg:w-60 lg:border lg:px-0 lg:py-2 lg:shadow dark:border-surface-800"
     @click="closeDropdown"
   >
     <slot />

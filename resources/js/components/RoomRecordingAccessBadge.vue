@@ -1,6 +1,6 @@
 <template>
   <Tag
-    class="shrink text-break"
+    class="text-break shrink"
     style="white-space: normal"
     :pt="{
       root: { class: accessType.class },

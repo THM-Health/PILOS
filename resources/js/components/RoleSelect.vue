@@ -38,7 +38,7 @@
               !props.disabled
             "
             severity="contrast"
-            class="w-5 h-5 text-sm rounded-full"
+            class="h-5 w-5 rounded-full text-sm"
             icon="fas fa-xmark"
             :aria-label="$t('admin.users.remove_role', { name: option.name })"
             @click="remove(option)"
@@ -46,7 +46,7 @@
         </Chip>
       </template>
       <template #afterList>
-        <div class="flex p-2 gap-2">
+        <div class="flex gap-2 p-2">
           <Button
             :disabled="loading || currentPage === 1"
             severity="secondary"

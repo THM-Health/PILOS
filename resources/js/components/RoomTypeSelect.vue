@@ -1,5 +1,5 @@
 <template>
-  <div v-if="modelLoadingError" class="flex flex-col gap-2 items-start">
+  <div v-if="modelLoadingError" class="flex flex-col items-start gap-2">
     <Message severity="error" :closable="false" class="w-full">
       {{ $t("rooms.room_types.loading_error") }}
     </Message>
@@ -55,7 +55,7 @@
             option-label="name"
             option-value="id"
             :invalid="props.invalid"
-            class="w-full hidden md:block"
+            class="hidden w-full md:block"
             scroll-height="19rem"
             :aria-labelledby="ariaLabelledby"
             :pt="{

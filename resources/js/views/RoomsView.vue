@@ -1,7 +1,7 @@
 <template>
-  <div v-cloak class="container mt-8 mb-8">
+  <div v-cloak class="container mb-8 mt-8">
     <!-- room token is invalid -->
-    <div v-if="tokenInvalid" class="flex justify-center mt-20">
+    <div v-if="tokenInvalid" class="mt-20 flex justify-center">
       <!-- Show message that room can only be used by logged in users -->
       <Card
         style="width: 500px; max-width: 90vw"
@@ -10,7 +10,7 @@
         <template #header>
           <Badge
             severity="danger"
-            class="rounded-full flex justify-center items-center h-16 w-16 -mt-8"
+            class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
           >
             <i class="fa-solid fa-unlink text-2xl text-white"></i>
           </Badge>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- room is only for logged in users -->
-    <div v-else-if="guestsNotAllowed" class="flex justify-center mt-20">
+    <div v-else-if="guestsNotAllowed" class="mt-20 flex justify-center">
       <Card
         style="width: 500px; max-width: 90vw"
         :pt="{ header: { class: 'flex justify-center' } }"
@@ -32,7 +32,7 @@
         <template #header>
           <Badge
             severity="danger"
-            class="rounded-full flex justify-center items-center h-16 w-16 -mt-8"
+            class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
           >
             <i class="fa-solid fa-lock text-2xl text-white"></i>
           </Badge>
@@ -43,7 +43,7 @@
           </span>
         </template>
         <template #footer>
-          <div class="flex justify-start w-full">
+          <div class="flex w-full justify-start">
             <!-- Reload page, in case the room settings changed -->
             <Button
               data-test="reload-room-button"
@@ -60,7 +60,7 @@
 
     <div v-else>
       <div v-if="!room">
-        <div class="text-center my-2" data-test="no-room-overlay">
+        <div class="my-2 text-center" data-test="no-room-overlay">
           <i
             v-if="roomLoading"
             class="fa-solid fa-circle-notch fa-spin text-3xl"
@@ -76,7 +76,7 @@
         </div>
       </div>
       <div v-else>
-        <div v-if="!room.authenticated" class="flex justify-center mt-20">
+        <div v-if="!room.authenticated" class="mt-20 flex justify-center">
           <Card
             style="width: 500px; max-width: 90vw"
             :pt="{ header: { class: 'flex justify-center' } }"
@@ -85,7 +85,7 @@
             <template #header>
               <Badge
                 severity="danger"
-                class="rounded-full flex justify-center items-center h-16 w-16 -mt-8"
+                class="-mt-8 flex h-16 w-16 items-center justify-center rounded-full"
               >
                 <i class="fa-solid fa-lock text-2xl text-white"></i>
               </Badge>
@@ -106,7 +106,7 @@
               </span>
 
               <div
-                class="flex flex-col w-full gap-2 mt-6"
+                class="mt-6 flex w-full flex-col gap-2"
                 data-test="room-access-code"
               >
                 <label for="access-code">{{ $t("rooms.access_code") }}</label>
@@ -131,7 +131,7 @@
                 </InputGroup>
                 <p
                   v-if="accessCodeInvalid"
-                  class="text-red-500 mt-1"
+                  class="mt-1 text-red-500"
                   role="alert"
                 >
                   {{ $t("rooms.flash.access_code_invalid") }}
@@ -173,7 +173,7 @@
               </div>
               <!-- Room join/start -->
 
-              <div class="flex justify-between items-start gap-2">
+              <div class="flex items-start justify-between gap-2">
                 <div class="flex justify-start gap-2">
                   <RoomJoinButton
                     :room-id="room.id"

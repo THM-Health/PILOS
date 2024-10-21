@@ -8,7 +8,7 @@
     <div
       v-if="currentWord"
       :key="currentWord"
-      class="z-10 inline-block relative text-left text-primary"
+      class="relative z-10 inline-block text-left text-primary"
     >
       <span
         v-for="(letter, index) in currentWord.split('')"

@@ -3,7 +3,7 @@
     ref="overflow"
     v-tooltip="{ value: slotText, autoHide: false }"
     :aria-label="slotText"
-    class="text-ellipsis overflow-hidden"
+    class="overflow-hidden text-ellipsis"
   >
     <slot />
   </div>

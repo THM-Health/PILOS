@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-end mb-6">
+    <div class="mb-6 flex justify-end">
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
           v-if="!viewOnly && userPermissions.can('view', model)"
@@ -60,7 +60,7 @@
         </div>
 
         <div class="field grid grid-cols-12 gap-4">
-          <label for="room-limit" class="col-span-12 md:col-span-4 items-start">
+          <label for="room-limit" class="col-span-12 items-start md:col-span-4">
             <span class="flex items-center">
               {{ $t("app.room_limit") }}
               <Button
@@ -222,7 +222,7 @@
       <div class="overflow-auto">
         <p>{{ $t("admin.roles.room_limit.help_modal.info") }}</p>
 
-        <p class="font-bold text-lg">
+        <p class="text-lg font-bold">
           {{ $t("admin.roles.room_limit.help_modal.examples") }}
         </p>
         <table class="p-datatable p-datatable-table">

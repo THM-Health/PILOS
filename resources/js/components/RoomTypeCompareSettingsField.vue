@@ -32,11 +32,11 @@ defineProps({
 </script>
 
 <template>
-  <div class="field grid grid-cols-12 gap-4 mx-0 mb-6">
+  <div class="field mx-0 mb-6 grid grid-cols-12 gap-4">
     <span class="col-span-12">{{ label }}</span>
 
     <div
-      class="col-span-3 flex justify-center items-center"
+      class="col-span-3 flex items-center justify-center"
       :aria-label="
         currentEnforced
           ? $t('rooms.change_type.current_setting_enforced')
@@ -70,18 +70,18 @@ defineProps({
     </div>
 
     <div
-      class="col-span-2 flex justify-center items-center"
+      class="col-span-2 flex items-center justify-center"
       data-test="current-enforced"
     >
       <RoomSettingEnforcedIcon v-if="currentEnforced" />
     </div>
 
     <div
-      class="col-span-2 fa-solid fa-arrow-right flex items-center justify-center"
+      class="fa-solid fa-arrow-right col-span-2 flex items-center justify-center"
     />
 
     <div
-      class="col-span-3 flex justify-center items-center"
+      class="col-span-3 flex items-center justify-center"
       :aria-label="
         newEnforced
           ? $t('rooms.change_type.resulting_setting_enforced')
@@ -115,7 +115,7 @@ defineProps({
     </div>
 
     <div
-      class="col-span-2 flex justify-center items-center"
+      class="col-span-2 flex items-center justify-center"
       data-test="new-enforced"
     >
       <RoomSettingEnforcedIcon v-if="newEnforced" />

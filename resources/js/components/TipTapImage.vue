@@ -21,7 +21,7 @@
     :draggable="false"
     data-test="tip-tap-image-dialog"
   >
-    <div class="flex flex-col gap-2 mt-6" data-test="src-field">
+    <div class="mt-6 flex flex-col gap-2" data-test="src-field">
       <label for="src">{{ $t("rooms.description.modals.image.src") }}</label>
       <InputText id="src" v-model.trim="src" autofocus :invalid="srcInvalid" />
       <p v-if="srcInvalid" class="text-red-500" role="alert">
@@ -29,7 +29,7 @@
       </p>
     </div>
 
-    <div class="flex flex-col gap-2 mt-6" data-test="width-field">
+    <div class="mt-6 flex flex-col gap-2" data-test="width-field">
       <label for="width">{{
         $t("rooms.description.modals.image.width")
       }}</label>
@@ -39,13 +39,13 @@
       }}</small>
     </div>
 
-    <div class="flex flex-col gap-2 mt-6" data-test="alt-field">
+    <div class="mt-6 flex flex-col gap-2" data-test="alt-field">
       <label for="alt">{{ $t("rooms.description.modals.image.alt") }}</label>
       <InputText id="alt" v-model="alt" />
     </div>
 
     <template #footer>
-      <div class="w-full flex justify-between gap-2">
+      <div class="flex w-full justify-between gap-2">
         <div>
           <Button
             v-if="!newImage"

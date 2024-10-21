@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-2">
-      <div class="flex justify-between flex-col lg:flex-row grow gap-2">
+    <div class="flex flex-col-reverse justify-between gap-2 px-2 lg:flex-row">
+      <div class="flex grow flex-col justify-between gap-2 lg:flex-row">
         <div>
           <InputGroup>
             <InputText
@@ -19,7 +19,7 @@
             />
           </InputGroup>
         </div>
-        <div class="flex gap-2 flex-col lg:flex-row">
+        <div class="flex flex-col gap-2 lg:flex-row">
           <InputGroup>
             <InputGroupAddon>
               <i class="fa-solid fa-filter"></i>
@@ -63,7 +63,7 @@
           </InputGroup>
         </div>
       </div>
-      <div class="flex gap-2 justify-end">
+      <div class="flex justify-end gap-2">
         <!-- add -->
         <RoomTabPersonalizedLinksAddButton
           v-if="userPermissions.can('manageSettings', props.room)"
@@ -121,16 +121,16 @@
           <div class="px-2">
             <div v-for="item in slotProps.items" :key="item.token">
               <div
-                class="flex flex-col md:flex-row justify-between gap-4 py-4 border-t"
+                class="flex flex-col justify-between gap-4 border-t py-4 md:flex-row"
               >
                 <div class="flex flex-col gap-2">
-                  <p class="text-lg font-semibold m-0">
+                  <p class="m-0 text-lg font-semibold">
                     {{ item.firstname }} {{ item.lastname }}
                   </p>
-                  <div class="flex flex-col gap-2 items-start">
+                  <div class="flex flex-col items-start gap-2">
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-clock" />
-                      <p class="text-sm m-0">
+                      <p class="m-0 text-sm">
                         <span v-if="item.last_usage == null">{{
                           $t("rooms.tokens.last_used_never")
                         }}</span>
@@ -149,7 +149,7 @@
                       class="flex flex-row gap-2"
                     >
                       <i class="fa-regular fa-calendar-xmark"></i>
-                      <p class="text-sm m-0">
+                      <p class="m-0 text-sm">
                         {{
                           $t("rooms.tokens.expires_at", {
                             date: $d(new Date(item.expires), "datetimeShort"),
@@ -165,7 +165,7 @@
                 </div>
 
                 <div
-                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
+                  class="flex shrink-0 flex-row items-start justify-end gap-1"
                 >
                   <!-- copy -->
                   <RoomTabPersonalizedLinksCopyButton

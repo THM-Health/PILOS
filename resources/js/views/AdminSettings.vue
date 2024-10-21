@@ -3,7 +3,7 @@
     <form @submit.prevent="updateSettings">
       <OverlayComponent :show="isBusy || modelLoadingError" :no-center="true">
         <template #overlay>
-          <div class="flex justify-center mt-6">
+          <div class="mt-6 flex justify-center">
             <LoadingRetryButton
               :error="modelLoadingError"
               @click="getSettings"
@@ -19,7 +19,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.name.title") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="application-name"
                   v-model="settings.general_name"
@@ -39,7 +39,7 @@
               <label for="help-url" class="col-span-12 md:col-span-4 md:mb-0">{{
                 $t("admin.settings.help_url.title")
               }}</label>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="help-url"
                   v-model="settings.general_help_url"
@@ -62,7 +62,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.legal_notice_url.title") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="legal-notice-url"
                   v-model="settings.general_legal_notice_url"
@@ -85,7 +85,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.privacy_policy_url.title") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="privacy-policy-url"
                   v-model="settings.general_privacy_policy_url"
@@ -110,7 +110,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.pagination_page_size.title") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="pagination-page-size"
                   v-model.number="settings.general_pagination_page_size"
@@ -136,7 +136,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.toast_lifetime.title") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex flex-wrap gap-4">
                   <div class="flex items-center">
                     <RadioButton
@@ -204,7 +204,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.default_timezone") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <TimezoneSelect
                   v-model="settings.general_default_timezone"
                   aria-labelledby="default-timezone-label"
@@ -224,7 +224,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.no_welcome_page") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
                     v-model="settings.general_no_welcome_page"
@@ -354,7 +354,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.theme.primary_color") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <ColorSelect
                   v-model="settings.theme_primary_color"
                   class="my-2"
@@ -380,7 +380,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.theme.rounded") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
                     v-model="settings.theme_rounded"
@@ -401,7 +401,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.banner.enabled") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
                     v-model="settings.banner_enabled"
@@ -440,7 +440,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.banner.banner_title") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="banner-title"
                   v-model="settings.banner_title"
@@ -457,7 +457,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.banner.icon") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="banner-icon"
                   v-model="settings.banner_icon"
@@ -478,7 +478,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.banner.message") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Textarea
                   id="banner-message"
                   v-model="settings.banner_message"
@@ -495,7 +495,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.banner.link") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="banner-link"
                   v-model="settings.banner_link"
@@ -512,7 +512,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.banner.link_text") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <InputText
                   id="banner-link-text"
                   v-model="settings.banner_link_text"
@@ -531,7 +531,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.banner.link_style") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.banner_link_style"
                   aria-labelledby="banner-link-style-label"
@@ -553,7 +553,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.banner.link_target") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.banner_link_target"
                   aria-labelledby="banner-link-target-label"
@@ -573,7 +573,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.banner.color") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <ColorSelect
                   v-model="settings.banner_color"
                   class="my-2"
@@ -597,7 +597,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.banner.background") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <ColorSelect
                   v-model="settings.banner_background"
                   class="my-2"
@@ -626,7 +626,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.room_limit.title") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex flex-wrap gap-4">
                   <div class="flex items-center">
                     <RadioButton
@@ -693,7 +693,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.room_token_expiration.title") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.room_token_expiration"
                   :options="timePeriods"
@@ -724,7 +724,7 @@
                   $t("admin.settings.room_auto_delete.deadline_period.title")
                 }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.room_auto_delete_deadline_period"
                   :options="roomDeleteDeadlineOptions"
@@ -762,7 +762,7 @@
                   $t("admin.settings.room_auto_delete.inactive_period.title")
                 }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.room_auto_delete_inactive_period"
                   :options="timePeriods"
@@ -800,7 +800,7 @@
                   $t("admin.settings.room_auto_delete.never_used_period.title")
                 }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.room_auto_delete_never_used_period"
                   :options="timePeriods"
@@ -838,7 +838,7 @@
                 class="col-span-12 md:col-span-4 md:mb-0"
                 >{{ $t("admin.settings.room_file_terms_of_use.title") }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Textarea
                   id="room-file-terms-of-use"
                   v-model="settings.room_file_terms_of_use"
@@ -863,7 +863,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.password_change_allowed") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
                     v-model="settings.user_password_change_allowed"
@@ -894,7 +894,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.statistics.servers.enabled_title") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
                     v-model="settings.recording_server_usage_enabled"
@@ -924,7 +924,7 @@
                   $t("admin.settings.statistics.servers.retention_period_title")
                 }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_server_usage_retention_period"
                   :options="timePeriods"
@@ -951,7 +951,7 @@
               <legend class="col-span-12 md:col-span-4 md:mb-0">
                 {{ $t("admin.settings.statistics.meetings.enabled_title") }}
               </legend>
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
                     v-model="settings.recording_meeting_usage_enabled"
@@ -983,7 +983,7 @@
                   )
                 }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_meeting_usage_retention_period"
                   :options="timePeriods"
@@ -1014,7 +1014,7 @@
                   $t("admin.settings.attendance.retention_period_title")
                 }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_attendance_retention_period"
                   :options="timePeriods"
@@ -1045,7 +1045,7 @@
                   $t("admin.settings.recording.retention_period_title")
                 }}</label
               >
-              <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
+              <div class="col-span-12 flex flex-col gap-1 md:col-span-8">
                 <Select
                   v-model="settings.recording_recording_retention_period"
                   :options="recordingRetentionPeriods"
@@ -1156,7 +1156,7 @@
         </div>
       </OverlayComponent>
       <div v-if="!viewOnly">
-        <div class="flex justify-end mt-6">
+        <div class="mt-6 flex justify-end">
           <Button
             type="submit"
             :disabled="disabled || timezonesLoadingError || timezonesLoading"

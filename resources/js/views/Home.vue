@@ -1,7 +1,7 @@
 <template>
   <div class="relative isolate">
     <svg
-      class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full stroke-surface-200 dark:stroke-surface-800 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]"
+      class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full stroke-surface-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] dark:stroke-surface-800"
       aria-hidden="true"
     >
       <defs>

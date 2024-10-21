@@ -9,14 +9,14 @@
         <div class="grid grid-cols-12 gap-4">
           <!-- General settings (always shown) -->
           <div class="col-span-12">
-            <h4 class="text-lg font-semibold m-0">
+            <h4 class="m-0 text-lg font-semibold">
               {{ $t("rooms.settings.general.title") }}
             </h4>
           </div>
 
           <!-- Room type setting -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col"
+            class="col-span-12 flex flex-col md:col-span-6 xl:col-span-3"
             data-test="room-type-setting"
           >
             <label for="room-type" class="mb-2">{{
@@ -38,7 +38,7 @@
 
           <!-- Room name -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col"
+            class="col-span-12 flex flex-col md:col-span-6 xl:col-span-3"
             data-test="room-name-setting"
           >
             <label for="room-name" class="mb-2">{{ $t("rooms.name") }}</label>
@@ -54,7 +54,7 @@
 
           <!-- Access code -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="access-code-setting"
           >
             <label for="access-code" class="flex items-center gap-2">
@@ -108,7 +108,7 @@
 
           <!-- Checkbox allow guests to access the room -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="allow-guests-setting"
           >
             <label for="allow-guests" class="flex items-center gap-2">
@@ -171,14 +171,14 @@
 
           <!-- Video conference settings -->
           <div class="col-span-12">
-            <h4 class="text-lg font-semibold m-0">
+            <h4 class="m-0 text-lg font-semibold">
               {{ $t("rooms.settings.video_conference.title") }}
             </h4>
           </div>
 
           <!-- Everyone can start a new meeting, not only the moderator -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="everyone-can-start-setting"
           >
             <label for="everyone-can-start" class="items-center gap-2">
@@ -207,7 +207,7 @@
 
           <!-- Mute everyone's microphone on meeting join -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="mute-on-start-setting"
           >
             <label for="mute-on-start" class="flex items-center gap-2">
@@ -318,14 +318,14 @@
 
           <!-- Recording settings -->
           <div class="col-span-12">
-            <h4 class="text-lg font-semibold text-color m-0">
+            <h4 class="m-0 text-lg font-semibold text-color">
               {{ $t("rooms.settings.recordings.title") }}
             </h4>
           </div>
 
           <!-- Checkbox record attendance of users and guests -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="record-attendance-setting"
           >
             <div class="flex items-center gap-2">
@@ -350,7 +350,7 @@
 
           <!-- Checkbox record video conference -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="record-setting"
           >
             <div class="flex items-center gap-2">
@@ -373,7 +373,7 @@
 
           <!-- Checkbox auto start recording of video conference -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="auto-start-recording-setting"
           >
             <div class="flex items-center gap-2">
@@ -402,7 +402,7 @@
 
           <!-- Restriction settings -->
           <div class="col-span-12">
-            <h4 class="text-lg font-semibold text-color m-0">
+            <h4 class="m-0 text-lg font-semibold text-color">
               {{ $t("rooms.settings.restrictions.title") }}
             </h4>
           </div>
@@ -412,7 +412,7 @@
             class="col-span-12 md:col-span-6 xl:col-span-3"
             data-test="lock-settings-disable-cam-setting"
           >
-            <div class="flex items-center gap-2 h-full">
+            <div class="flex h-full items-center gap-2">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_cam"
                 :disabled="
@@ -445,7 +445,7 @@
             class="col-span-12 md:col-span-6 xl:col-span-3"
             data-test="webcams-only-for-moderator-setting"
           >
-            <div class="flex items-center gap-2 h-full">
+            <div class="flex h-full items-center gap-2">
               <ToggleSwitch
                 v-model="settings.webcams_only_for_moderator"
                 :disabled="
@@ -478,7 +478,7 @@
             class="col-span-12 md:col-span-6 xl:col-span-3"
             data-test="lock-settings-disable-mic-setting"
           >
-            <div class="flex items-center gap-2 h-full">
+            <div class="flex h-full items-center gap-2">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_mic"
                 :disabled="
@@ -508,7 +508,7 @@
             class="col-span-12 md:col-span-6 xl:col-span-3"
             data-test="lock-settings-disable-public-chat-setting"
           >
-            <div class="flex items-center gap-2 h-full">
+            <div class="flex h-full items-center gap-2">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_public_chat"
                 :disabled="
@@ -551,7 +551,7 @@
             class="col-span-12 md:col-span-6 xl:col-span-3"
             data-test="lock-settings-disable-private-chat-setting"
           >
-            <div class="flex items-center gap-2 h-full">
+            <div class="flex h-full items-center gap-2">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_private_chat"
                 :disabled="
@@ -590,7 +590,7 @@
             class="col-span-12 md:col-span-6 xl:col-span-3"
             data-test="lock-settings-disable-note-setting"
           >
-            <div class="flex items-center gap-2 h-full">
+            <div class="flex h-full items-center gap-2">
               <ToggleSwitch
                 v-model="settings.lock_settings_disable_note"
                 :disabled="
@@ -620,7 +620,7 @@
             class="col-span-12 md:col-span-6 xl:col-span-3"
             data-test="lock-settings-hide-user-list-setting"
           >
-            <div class="flex items-center gap-2 h-full">
+            <div class="flex h-full items-center gap-2">
               <ToggleSwitch
                 v-model="settings.lock_settings_hide_user_list"
                 :disabled="
@@ -653,7 +653,7 @@
 
           <!-- Participants settings -->
           <div class="col-span-12">
-            <h4 class="text-lg font-semibold text-color m-0">
+            <h4 class="m-0 text-lg font-semibold text-color">
               {{ $t("rooms.settings.participants.title") }}
             </h4>
           </div>
@@ -685,7 +685,7 @@
 
           <!-- Default user role for logged in users only -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col"
+            class="col-span-12 flex flex-col md:col-span-6 xl:col-span-3"
             data-test="default-role-setting"
           >
             <label id="default-role-label" class="flex items-center gap-2">
@@ -731,14 +731,14 @@
 
           <!-- Advanced settings -->
           <div class="col-span-12">
-            <h4 class="text-lg font-semibold text-color m-0">
+            <h4 class="m-0 text-lg font-semibold text-color">
               {{ $t("rooms.settings.advanced.title") }}
             </h4>
           </div>
 
           <!-- Room visibility setting -->
           <div
-            class="col-span-12 md:col-span-6 xl:col-span-3 flex flex-col gap-2"
+            class="col-span-12 flex flex-col gap-2 md:col-span-6 xl:col-span-3"
             data-test="visibility-setting"
           >
             <label id="visibility-label" class="flex items-center gap-2">
@@ -782,8 +782,8 @@
           </div>
         </div>
 
-        <div v-if="settingsDirty" class="py-4 px-px sticky bottom-0">
-          <div class="dark:bg-surface-900/80 rounded-lg">
+        <div v-if="settingsDirty" class="sticky bottom-0 px-px py-4">
+          <div class="rounded-lg dark:bg-surface-900/80">
             <Message
               severity="warn"
               :pt="{
@@ -794,7 +794,7 @@
               }"
             >
               <div
-                class="flex flex-col md:flex-row justify-between gap-4 items-center"
+                class="flex flex-col items-center justify-between gap-4 md:flex-row"
               >
                 <span class="text-center md:text-left"
                   ><i class="fas fa-warning mr-2" />
@@ -803,7 +803,7 @@
 
                 <Button
                   v-if="!saveButtonIsVisible"
-                  class="shrink-0 w-full md:w-auto"
+                  class="w-full shrink-0 md:w-auto"
                   severity="contrast"
                   :disabled="disabled"
                   :label="$t('app.save')"
@@ -820,9 +820,9 @@
       <Divider v-if="userPermissions.can('manageSettings', props.room)" />
       <div
         v-if="userPermissions.can('manageSettings', props.room)"
-        class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start"
+        class="flex flex-col-reverse flex-wrap gap-2 md:flex-row md:items-start md:justify-between"
       >
-        <div class="flex shrink-0 flex-col md:flex-row md:items-start gap-2">
+        <div class="flex shrink-0 flex-col gap-2 md:flex-row md:items-start">
           <RoomDeleteButton
             :disabled="disabled"
             :room="room"

@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
-    <div class="col-span-12 lg:col-span-9 flex flex-col gap-2">
-      <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
+    <div class="col-span-12 flex flex-col gap-2 lg:col-span-9">
+      <div class="flex flex-col gap-2 lg:flex-row lg:items-start">
         <InputText
           v-if="!image && !imageDeleted && !readonly"
           v-model="imageUrl"
@@ -58,7 +58,7 @@
       </div>
     </div>
     <div
-      class="col-span-12 lg:col-span-3 flex justify-center rounded-border border p-2"
+      class="col-span-12 flex justify-center border p-2 rounded-border lg:col-span-3"
       :class="previewBgClass"
     >
       <img

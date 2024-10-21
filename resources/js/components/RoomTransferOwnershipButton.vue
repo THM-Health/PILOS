@@ -24,7 +24,7 @@
   >
     <!--select new owner-->
     <!-- select user -->
-    <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
+    <div class="relative mt-2 flex flex-col gap-2 overflow-visible">
       <label id="user-label">{{ $t("app.user") }}</label>
       <multiselect
         v-model="newOwner"
@@ -75,7 +75,7 @@
     </div>
 
     <!--select new role with which the current owner should be added as a member of the room -->
-    <div class="flex flex-col gap-2 mt-6">
+    <div class="mt-6 flex flex-col gap-2">
       <fieldset class="flex w-full flex-col gap-2">
         <legend>{{ $t("rooms.modals.transfer_ownership.new_role") }}</legend>
 
