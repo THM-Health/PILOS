@@ -4,8 +4,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint resources/js tests/Frontend tests/System",
-    "lint:fix": "eslint --fix resources/js tests/Frontend tests/System",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "prettier": "prettier . --check",
     "prettier:fix": "prettier . --write",
     "docs:install": "cd docs && npm install",

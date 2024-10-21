@@ -16,6 +16,26 @@ export default [
   ...pluginVue.configs["flat/recommended"],
   eslintConfigPrettier,
   {
+    ignores: [
+      "node_modules/",
+      "vendor/",
+      "app/",
+      "coverage/",
+      "public/",
+      "docs/",
+      "storage/",
+      "tests/Backend/Fixtures/Locales/",
+      "resources/custom/",
+      "cypress.config.js",
+      "vite.config.js",
+      "vite.config.common.js",
+      "vite.config.coverage.js",
+      "postcss.config.js",
+      "eslint.config.js",
+      "tailwind.config.js",
+    ],
+  },
+  {
     settings: {
       "vue-i18n": {
         localeDir: {
