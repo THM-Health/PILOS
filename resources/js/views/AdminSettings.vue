@@ -1069,7 +1069,7 @@
               </div>
             </div>
           </AdminPanel>
-          
+
           <AdminPanel :title="$t('admin.settings.bbb.title')">
             <fieldset class="grid grid-cols-12 gap-4">
               <legend
