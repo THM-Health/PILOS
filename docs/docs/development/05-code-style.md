@@ -5,8 +5,11 @@ title: Code style
 The backend uses the php framework Laravel and therefore it follows the
 [Laravel coding style guide](https://laravel.com/docs/9.x/contributions#coding-style). To apply the code style to your
 implemented code you can run the command `sail composer run fix-cs`.
-The frontend style gets checked by eslint. The style can be fixed by running the command `sail npm run fix-cs`. For best
-practices checkout the [vue style guide](https://vuejs.org/v2/style-guide/).
+
+The frontend style gets checked by prettier and the code is linted using eslint.
+The style can be fixed by running the command `sail npm run prettier:fix`.
+Lint fixes can a applied by running the command `sail npm run lint:fix`.
+For best practices checkout the [vue style guide](https://vuejs.org/v2/style-guide/).
 
 Additionally, to the style guides the following things should apply to the changes:
 
