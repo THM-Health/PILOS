@@ -129,7 +129,7 @@ describe("Rooms index create new room", function () {
             cy.checkDefaultRoomSettingField(
               "has_access_code",
               true,
-              false,
+              true,
               false,
             );
 
