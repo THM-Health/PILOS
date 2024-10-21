@@ -145,12 +145,12 @@
                       name="toast-lifetime-mode"
                       value="unlimited"
                       :disabled="disabled"
-                      @update:modelValue="toastLifetimeModeChanged"
                       :pt="{
                         input: {
                           'aria-describedby': 'toast-lifetime-custom-help',
                         },
                       }"
+                      @update:model-value="toastLifetimeModeChanged"
                     />
                     <label for="toast-lifetime-mode-unlimited" class="ml-2">{{
                       $t("app.unlimited")
@@ -163,16 +163,16 @@
                       name="toast-lifetime-mode"
                       value="custom"
                       :disabled="disabled"
-                      @update:modelValue="toastLifetimeModeChanged"
                       :pt="{
                         input: {
                           'aria-describedby': 'toast-lifetime-custom-help',
                         },
                       }"
+                      @update:model-value="toastLifetimeModeChanged"
                     />
                     <label
-                      for="toast-lifetime-mode-custom"
                       id="toast-lifetime-custom-label"
+                      for="toast-lifetime-mode-custom"
                       class="ml-2"
                       >{{ $t("admin.settings.toast_lifetime.custom") }}</label
                     >
@@ -180,8 +180,8 @@
                 </div>
                 <InputText
                   v-if="toastLifetimeMode === 'custom'"
-                  class="mt-1"
                   v-model.number="settings.general_toast_lifetime"
+                  class="mt-1"
                   min="1"
                   max="30"
                   type="number"
@@ -206,8 +206,8 @@
               >
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <TimezoneSelect
-                  aria-labelledby="default-timezone-label"
                   v-model="settings.general_default_timezone"
+                  aria-labelledby="default-timezone-label"
                   required
                   :invalid="formErrors.fieldInvalid('general_default_timezone')"
                   :disabled="disabled"
@@ -227,8 +227,8 @@
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    inputId="no-welcome-page"
                     v-model="settings.general_no_welcome_page"
+                    input-id="no-welcome-page"
                     binary
                     :disabled="disabled"
                     :invalid="
@@ -356,10 +356,10 @@
               </legend>
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <ColorSelect
+                  v-model="settings.theme_primary_color"
                   class="my-2"
                   :disabled="disabled"
                   :colors="colors.getAllColors()"
-                  v-model="settings.theme_primary_color"
                 />
                 <label for="theme-primary-color">{{
                   $t("admin.settings.theme.custom_color")
@@ -383,8 +383,8 @@
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    input-id="theme-rounded"
                     v-model="settings.theme_rounded"
+                    input-id="theme-rounded"
                     binary
                     :disabled="disabled"
                     :invalid="formErrors.fieldInvalid('theme_rounded')"
@@ -404,8 +404,8 @@
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    input-id="banner-enabled"
                     v-model="settings.banner_enabled"
+                    input-id="banner-enabled"
                     binary
                     :disabled="disabled"
                     :invalid="formErrors.fieldInvalid('banner_enabled')"
@@ -533,12 +533,12 @@
               >
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <Select
-                  aria-labelledby="banner-link-style-label"
                   v-model="settings.banner_link_style"
+                  aria-labelledby="banner-link-style-label"
                   :options="linkBtnStyles"
                   :placeholder="$t('admin.settings.banner.select_link_style')"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="formErrors.fieldInvalid('banner_link_style')"
                   :disabled="disabled"
                 />
@@ -555,12 +555,12 @@
               >
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <Select
-                  aria-labelledby="banner-link-target-label"
                   v-model="settings.banner_link_target"
+                  aria-labelledby="banner-link-target-label"
                   :options="linkTargets"
                   :placeholder="$t('admin.settings.banner.select_link_target')"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="formErrors.fieldInvalid('banner_link_target')"
                   :disabled="disabled"
                 />
@@ -575,10 +575,10 @@
               </legend>
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <ColorSelect
+                  v-model="settings.banner_color"
                   class="my-2"
                   :disabled="disabled"
                   :colors="textColors"
-                  v-model="settings.banner_color"
                 />
                 <label for="banner-color">{{
                   $t("admin.room_types.custom_color")
@@ -599,10 +599,10 @@
               </legend>
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <ColorSelect
+                  v-model="settings.banner_background"
                   class="my-2"
                   :disabled="disabled"
                   :colors="colors.getAllColors()"
-                  v-model="settings.banner_background"
                 />
                 <label for="banner-background">{{
                   $t("admin.room_types.custom_color")
@@ -635,12 +635,12 @@
                       name="room-limit-mode"
                       value="unlimited"
                       :disabled="disabled"
-                      @update:modelValue="roomLimitModeChanged"
                       :pt="{
                         input: {
                           'aria-describedby': 'room-limit-custom-help',
                         },
                       }"
+                      @update:model-value="roomLimitModeChanged"
                     />
                     <label for="room-limit-mode-unlimited" class="ml-2">{{
                       $t("app.unlimited")
@@ -653,16 +653,16 @@
                       name="room-limit-mode"
                       value="custom"
                       :disabled="disabled"
-                      @update:modelValue="roomLimitModeChanged"
                       :pt="{
                         input: {
                           'aria-describedby': 'room-limit-custom-help',
                         },
                       }"
+                      @update:model-value="roomLimitModeChanged"
                     />
                     <label
-                      for="room-limit-mode-custom"
                       id="room-limit-mode-custom-label"
+                      for="room-limit-mode-custom"
                       class="ml-2"
                       >{{ $t("admin.roles.room_limit.custom") }}</label
                     >
@@ -670,9 +670,9 @@
                 </div>
                 <InputText
                   v-if="roomLimitMode === 'custom'"
-                  class="mt-1"
                   id="room-limit-custom"
                   v-model.number="settings.room_limit"
+                  class="mt-1"
                   min="0"
                   max="100"
                   type="number"
@@ -697,8 +697,8 @@
                 <Select
                   v-model="settings.room_token_expiration"
                   :options="timePeriods"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="formErrors.fieldInvalid('room_token_expiration')"
                   :disabled="disabled"
                   aria-labelledby="room-token-expiration-label"
@@ -728,8 +728,8 @@
                 <Select
                   v-model="settings.room_auto_delete_deadline_period"
                   :options="roomDeleteDeadlineOptions"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="
                     formErrors.fieldInvalid('room_auto_delete_deadline_period')
                   "
@@ -766,8 +766,8 @@
                 <Select
                   v-model="settings.room_auto_delete_inactive_period"
                   :options="timePeriods"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="
                     formErrors.fieldInvalid('room_auto_delete_inactive_period')
                   "
@@ -804,8 +804,8 @@
                 <Select
                   v-model="settings.room_auto_delete_never_used_period"
                   :options="timePeriods"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="
                     formErrors.fieldInvalid(
                       'room_auto_delete_never_used_period',
@@ -866,8 +866,8 @@
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    input-id="password-change-allowed"
                     v-model="settings.user_password_change_allowed"
+                    input-id="password-change-allowed"
                     binary
                     :disabled="disabled"
                     :invalid="
@@ -897,8 +897,8 @@
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    input-id="statistics-servers-enabled"
                     v-model="settings.recording_server_usage_enabled"
+                    input-id="statistics-servers-enabled"
                     binary
                     :disabled="disabled"
                     :invalid="
@@ -928,8 +928,8 @@
                 <Select
                   v-model="settings.recording_server_usage_retention_period"
                   :options="timePeriods"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="
                     formErrors.fieldInvalid(
                       'recording_server_usage_retention_period',
@@ -954,8 +954,8 @@
               <div class="col-span-12 md:col-span-8 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <ToggleSwitch
-                    input-id="statistics-meetings-enabled"
                     v-model="settings.recording_meeting_usage_enabled"
+                    input-id="statistics-meetings-enabled"
                     binary
                     :disabled="disabled"
                     :invalid="
@@ -987,8 +987,8 @@
                 <Select
                   v-model="settings.recording_meeting_usage_retention_period"
                   :options="timePeriods"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="
                     formErrors.fieldInvalid(
                       'recording_meeting_usage_retention_period',
@@ -1018,8 +1018,8 @@
                 <Select
                   v-model="settings.recording_attendance_retention_period"
                   :options="timePeriods"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="
                     formErrors.fieldInvalid(
                       'recording_attendance_retention_period',
@@ -1049,8 +1049,8 @@
                 <Select
                   v-model="settings.recording_recording_retention_period"
                   :options="recordingRetentionPeriods"
-                  optionLabel="text"
-                  optionValue="value"
+                  option-label="text"
+                  option-value="value"
                   :invalid="
                     formErrors.fieldInvalid(
                       'recording_recording_retention_period',

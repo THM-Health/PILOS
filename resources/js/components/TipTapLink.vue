@@ -4,9 +4,9 @@
     :aria-label="$t('rooms.description.tooltips.link')"
     :severity="props.editor.isActive('link') ? 'primary' : 'secondary'"
     text
-    @click="openModal"
     icon="fa-solid fa-link"
     data-test="tip-tap-link-button"
+    @click="openModal"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -23,7 +23,7 @@
   >
     <div class="flex flex-col gap-2 mt-6" data-test="url-field">
       <label for="url">{{ $t("rooms.description.modals.link.url") }}</label>
-      <InputText autofocus id="url" v-model.trim="link" :invalid="urlInvalid" />
+      <InputText id="url" v-model.trim="link" autofocus :invalid="urlInvalid" />
       <p v-if="urlInvalid" class="text-red-500" role="alert">
         {{ $t("rooms.description.modals.link.invalid_url") }}
       </p>
@@ -35,23 +35,23 @@
           <Button
             v-if="!newLink"
             severity="danger"
-            @click="deleteLink"
             :label="$t('app.delete')"
             data-test="tip-tap-link-delete-button"
+            @click="deleteLink"
           />
         </div>
         <div class="flex gap-2">
           <Button
             severity="secondary"
-            @click="modalVisible = false"
             :label="$t('app.cancel')"
             data-test="dialog-cancel-button"
+            @click="modalVisible = false"
           />
           <Button
             :disabled="urlInvalid !== false"
-            @click="save"
             :label="$t('app.save')"
             data-test="dialog-save-button"
+            @click="save"
           />
         </div>
       </div>

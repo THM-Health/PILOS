@@ -41,8 +41,8 @@
             <a
               :href="href"
               v-bind="props.action"
-              @click="navigate"
               class="flex items-center"
+              @click="navigate"
             >
               <span>{{ item.label }}</span>
             </a>
@@ -98,8 +98,8 @@
             <a
               :href="href"
               v-bind="props.action"
-              @click="navigate"
               class="flex items-center"
+              @click="navigate"
             >
               <span v-if="!item.icon">{{ item.label }}</span>
             </a>
@@ -113,8 +113,8 @@
           >
             <i v-if="item.icon" :class="item.icon" />
             <UserAvatar
-              data-test="user-avatar"
               v-if="item.userAvatar"
+              data-test="user-avatar"
               :firstname="authStore.currentUser.firstname"
               :lastname="authStore.currentUser.lastname"
               :image="authStore.currentUser.image"

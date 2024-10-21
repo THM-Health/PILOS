@@ -5,9 +5,9 @@
     :aria-label="$t('rooms.files.delete')"
     :disabled="disabled"
     severity="danger"
-    @click="showModal = true"
     icon="fa-solid fa-trash"
     data-test="room-files-delete-button"
+    @click="showModal = true"
   />
 
   <!-- modal -->
@@ -18,8 +18,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
     data-test="room-files-delete-dialog"
   >
@@ -28,17 +28,17 @@
         <Button
           :label="$t('app.no')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.yes')"
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="deleteFile"
           data-test="dialog-continue-button"
+          @click="deleteFile"
         />
       </div>
     </template>

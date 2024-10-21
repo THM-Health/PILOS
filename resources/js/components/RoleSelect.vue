@@ -1,12 +1,11 @@
 <template>
   <InputGroup>
     <multiselect
+      ref="rolesMultiselectRef"
       :aria-labelledby="ariaLabelledby"
       data-test="role-dropdown"
-      ref="rolesMultiselectRef"
       :placeholder="$t('admin.roles.select_roles')"
       :model-value="selectedRoles"
-      @update:modelValue="input"
       track-by="id"
       open-direction="bottom"
       :multiple="true"
@@ -15,33 +14,34 @@
       :clear-on-select="false"
       :close-on-select="false"
       :show-no-results="false"
-      :showLabels="false"
+      :show-labels="false"
       :options="roles"
       :disabled="props.disabled || loading || loadingError"
       :loading="loading"
       :allow-empty="allowEmpty"
       :class="{ 'is-invalid': props.invalid }"
+      @update:model-value="input"
     >
       <template #noOptions>
         {{ $t("admin.roles.no_data") }}
       </template>
-      <template v-slot:option="{ option }">
+      <template #option="{ option }">
         {{ option.name }}
       </template>
-      <template v-slot:tag="{ option, remove }">
+      <template #tag="{ option, remove }">
         <Chip :label="option.name">
           <span>{{ option.name }}</span>
           <Button
-            severity="contrast"
-            class="w-5 h-5 text-sm rounded-full"
             v-if="
               !option.$isDisabled &&
               (selectedRoles.length > 1 || allowEmpty) &&
               !props.disabled
             "
-            @click="remove(option)"
+            severity="contrast"
+            class="w-5 h-5 text-sm rounded-full"
             icon="fas fa-xmark"
             :aria-label="$t('admin.users.remove_role', { name: option.name })"
+            @click="remove(option)"
           />
         </Chip>
       </template>
@@ -51,17 +51,17 @@
             :disabled="loading || currentPage === 1"
             severity="secondary"
             outlined
-            @click="loadRoles(Math.max(1, currentPage - 1))"
             icon="fa-solid fa-arrow-left"
             :label="$t('app.previous_page')"
+            @click="loadRoles(Math.max(1, currentPage - 1))"
           />
           <Button
             :disabled="loading || !hasNextPage"
             severity="secondary"
             outlined
-            @click="loadRoles(currentPage + 1)"
             icon="fa-solid fa-arrow-right"
             :label="$t('app.next_page')"
+            @click="loadRoles(currentPage + 1)"
           />
         </div>
       </template>
@@ -71,9 +71,9 @@
       :disabled="loading"
       severity="secondary"
       outlined
-      @click="loadRoles(currentPage)"
       icon="fa-solid fa-sync"
       data-test="roles-reload-button"
+      @click="loadRoles(currentPage)"
     />
   </InputGroup>
 </template>

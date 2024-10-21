@@ -9,11 +9,11 @@
       v-tooltip="$t('app.reload')"
       :aria-label="$t('app.reload')"
       :disabled="disabled || isLoadingAction"
-      @click="reloadRoomTypes"
       :icon="isLoadingAction ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
+      @click="reloadRoomTypes"
     />
   </div>
-  <div class="overflow-hidden" v-else>
+  <div v-else class="overflow-hidden">
     <OverlayComponent :show="isLoadingAction">
       <div class="grid grid-cols-2 gap-4">
         <div
@@ -23,10 +23,9 @@
           <Select
             v-model="roomTypeId"
             :disabled="disabled || isLoadingAction"
-            @change="changeRoomType"
             :options="roomTypes"
-            optionLabel="name"
-            optionValue="id"
+            option-label="name"
+            option-value="id"
             :invalid="props.invalid"
             class="w-full md:hidden"
             :aria-labelledby="ariaLabelledby"
@@ -38,6 +37,7 @@
                 class: 'whitespace-normal',
               },
             }"
+            @change="changeRoomType"
           >
             <template #option="slotProps">
               <span
@@ -51,19 +51,19 @@
           <Listbox
             v-model="roomTypeId"
             :disabled="disabled || isLoadingAction"
-            @change="changeRoomType"
             :options="roomTypes"
-            optionLabel="name"
-            optionValue="id"
+            option-label="name"
+            option-value="id"
             :invalid="props.invalid"
             class="w-full hidden md:block"
-            scrollHeight="19rem"
+            scroll-height="19rem"
             :aria-labelledby="ariaLabelledby"
             :pt="{
               option: {
                 'data-test': 'room-type-select-option',
               },
             }"
+            @change="changeRoomType"
           >
             <template #option="slotProps">
               <span style="word-break: normal; overflow-wrap: anywhere">{{
@@ -73,12 +73,12 @@
           </Listbox>
         </div>
         <div
-          class="col-span-2 md:col-span-1"
           v-if="modelValue"
+          class="col-span-2 md:col-span-1"
           aria-live="polite"
           aria-atomic="true"
         >
-          <RoomTypeDetails :roomType="modelValue" />
+          <RoomTypeDetails :room-type="modelValue" />
         </div>
       </div>
     </OverlayComponent>

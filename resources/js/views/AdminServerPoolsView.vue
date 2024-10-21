@@ -3,8 +3,8 @@
     <div class="flex justify-end mb-6">
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
-          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
+          as="router-link"
           :disabled="isBusy"
           :to="{ name: 'admin.server_pools.view', params: { id: model.id } }"
           severity="secondary"
@@ -12,8 +12,8 @@
           icon="fa-solid fa-times"
         />
         <Button
-          as="router-link"
           v-if="viewOnly && userPermissions.can('update', model)"
+          as="router-link"
           :disabled="isBusy"
           :to="{ name: 'admin.server_pools.edit', params: { id: model.id } }"
           severity="info"
@@ -39,9 +39,9 @@
       </template>
 
       <form
-        @submit.prevent="saveServerPool"
         :aria-hidden="modelLoadingError"
         class="flex flex-col gap-4"
+        @submit.prevent="saveServerPool"
       >
         <div class="field grid grid-cols-12 gap-4">
           <label for="name" class="col-span-12 md:col-span-4 md:mb-0">{{
@@ -49,9 +49,9 @@
           }}</label>
           <div class="col-span-12 md:col-span-8">
             <InputText
-              class="w-full"
               id="name"
               v-model="model.name"
+              class="w-full"
               type="text"
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
@@ -65,9 +65,9 @@
           }}</label>
           <div class="col-span-12 md:col-span-8">
             <InputText
-              class="w-full"
               id="description"
               v-model="model.description"
+              class="w-full"
               type="text"
               :invalid="formErrors.fieldInvalid('description')"
               :disabled="isBusy || modelLoadingError || viewOnly"
@@ -82,9 +82,9 @@
           <div class="col-span-12 md:col-span-8">
             <InputGroup>
               <multiselect
-                aria-labelledby="servers-label"
                 ref="serversMultiselectRef"
                 v-model="model.servers"
+                aria-labelledby="servers-label"
                 :placeholder="$t('admin.server_pools.select_servers')"
                 track-by="id"
                 open-direction="bottom"
@@ -108,23 +108,23 @@
                 <template #noOptions>
                   {{ $t("admin.servers.no_data") }}
                 </template>
-                <template v-slot:option="{ option }">
+                <template #option="{ option }">
                   {{ option.name }}
                 </template>
-                <template v-slot:tag="{ option, remove }">
+                <template #tag="{ option, remove }">
                   <Chip :label="option.name">
                     <span>{{ option.name }}</span>
                     <Button
+                      v-if="!viewOnly"
                       severity="contrast"
                       class="w-5 h-5 text-sm rounded-full"
-                      v-if="!viewOnly"
-                      @click="remove(option)"
                       icon="fas fa-xmark"
                       :aria-label="
                         $t('admin.server_pools.remove_server', {
                           name: option.name,
                         })
                       "
+                      @click="remove(option)"
                     />
                   </Chip>
                 </template>
@@ -133,17 +133,17 @@
                     :disabled="serversLoading || serversCurrentPage === 1"
                     outlined
                     severity="secondary"
-                    @click="loadServers(Math.max(1, serversCurrentPage - 1))"
                     icon="fa-solid fa-arrow-left"
                     :label="$t('app.previous_page')"
+                    @click="loadServers(Math.max(1, serversCurrentPage - 1))"
                   />
                   <Button
                     :disabled="serversLoading || !serversHasNextPage"
                     outlined
                     severity="secondary"
-                    @click="loadServers(serversCurrentPage + 1)"
                     icon="fa-solid fa-arrow-right"
                     :label="$t('app.next_page')"
+                    @click="loadServers(serversCurrentPage + 1)"
                   />
                 </template>
               </multiselect>
@@ -151,8 +151,8 @@
                 v-if="serversLoadingError"
                 outlined
                 severity="secondary"
-                @click="loadServers(serversCurrentPage)"
                 icon="fa-solid fa-sync"
+                @click="loadServers(serversCurrentPage)"
               />
             </InputGroup>
           </div>

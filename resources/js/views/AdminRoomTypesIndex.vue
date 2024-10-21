@@ -18,26 +18,26 @@
         </InputGroup>
       </div>
       <Button
-        as="router-link"
         v-if="userPermissions.can('create', 'RoomTypePolicy')"
         v-tooltip="$t('admin.room_types.new')"
+        as="router-link"
         icon="fa-solid fa-plus"
         :to="{ name: 'admin.room_types.new' }"
       />
     </div>
 
     <DataTable
+      v-model:filters="filters"
       :value="roomTypes"
       sort-field="name"
       :sort-order="1"
       paginator
       :paginator-template="paginator.getTemplate()"
       :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-      stripedRows
+      striped-rows
       row-hover
       :loading="isBusy"
       :rows="settingsStore.getSetting('general.pagination_page_size')"
-      v-model:filters="filters"
       :pt="{
         table: 'table-auto lg:table-fixed',
       }"
@@ -51,8 +51,8 @@
         }}</InlineNote>
       </template>
       <Column
-        field="name"
         key="name"
+        field="name"
         :header="$t('app.model_name')"
         :sortable="true"
       >
@@ -61,20 +61,20 @@
         </template>
       </Column>
       <Column
+        v-if="actionColumn.visible"
         field="actions"
         :header="$t('app.actions')"
         class="action-column"
         :class="actionColumn.classes"
-        v-if="actionColumn.visible"
       >
         <template #body="slotProps">
           <div>
             <Button
-              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="
                 $t('admin.room_types.view', { name: slotProps.data.name })
               "
+              as="router-link"
               :aria-label="
                 $t('admin.room_types.view', { name: slotProps.data.name })
               "
@@ -86,12 +86,12 @@
               icon="fa-solid fa-eye"
             />
             <Button
-              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
-              severity="info"
               v-tooltip="
                 $t('admin.room_types.edit', { name: slotProps.data.name })
               "
+              as="router-link"
+              severity="info"
               :aria-label="
                 $t('admin.room_types.edit', { name: slotProps.data.name })
               "

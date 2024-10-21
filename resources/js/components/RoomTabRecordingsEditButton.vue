@@ -3,8 +3,8 @@
     v-tooltip="$t('rooms.recordings.edit_recording')"
     :disabled="disabled"
     severity="info"
-    @click="showEditModal"
     icon="fa-solid fa-edit"
+    @click="showEditModal"
   />
 
   <!-- edit recording modal -->
@@ -14,8 +14,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #header>
@@ -37,8 +37,8 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.save')"
@@ -53,9 +53,9 @@
     <div class="flex flex-col gap-2">
       <label for="description">{{ $t("rooms.recordings.description") }}</label>
       <Textarea
-        autofocus
         id="description"
         v-model="newDescription"
+        autofocus
         :disabled="isLoadingAction"
         :invalid="formErrors.fieldInvalid('description')"
         :maxlength="
@@ -72,14 +72,14 @@
     <div class="flex flex-col gap-2 mt-6">
       <label>{{ $t("rooms.recordings.available_formats") }}</label>
       <div
-        class="flex items-center"
         v-for="format in newFormats"
         :key="format.id"
+        class="flex items-center"
       >
         <ToggleSwitch
+          v-model="format.disabled"
           :input-id="'format-' + format.id"
           :disabled="isLoadingAction"
-          v-model="format.disabled"
           :true-value="false"
           :false-value="true"
         />

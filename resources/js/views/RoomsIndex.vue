@@ -42,11 +42,11 @@
                 @keyup.enter="loadRooms(1)"
               />
               <Button
+                v-tooltip="$t('app.search')"
                 icon="fa-solid fa-magnifying-glass"
-                @click="loadRooms(1)"
                 :disabled="loadingRooms"
                 :aria-label="$t('app.search')"
-                v-tooltip="$t('app.search')"
+                @click="loadRooms(1)"
               />
             </InputGroup>
           </div>
@@ -59,9 +59,9 @@
                 data-test="filter-button"
                 class="block md:hidden"
                 :severity="toggleMobileMenu ? 'primary' : 'secondary'"
-                @click="toggleMobileMenu = !toggleMobileMenu"
                 icon="fa-solid fa-filter"
                 :label="$t('rooms.index.filter')"
+                @click="toggleMobileMenu = !toggleMobileMenu"
               />
 
               <!--only favorites button-->
@@ -69,12 +69,12 @@
                 data-test="only-favorites-button"
                 :severity="onlyShowFavorites ? 'contrast' : 'secondary'"
                 :disabled="loadingRooms"
+                icon="fa-solid fa-star"
+                :label="$t('rooms.index.only_favorites')"
                 @click="
                   onlyShowFavorites = !onlyShowFavorites;
                   loadRooms(1);
                 "
-                icon="fa-solid fa-star"
-                :label="$t('rooms.index.only_favorites')"
               />
             </div>
           </div>
@@ -87,15 +87,15 @@
         >
           <div class="flex flex-wrap shrink-0 gap-1">
             <ToggleButton
-              data-test="rooms-filter-all-button"
-              v-model="roomFilterAll"
-              @change="loadRooms(1)"
               v-if="
                 !onlyShowFavorites &&
                 userPermissions.can('viewAll', 'RoomPolicy')
               "
+              v-model="roomFilterAll"
+              data-test="rooms-filter-all-button"
               :on-label="$t('rooms.index.show_all')"
               :off-label="$t('rooms.index.show_all')"
+              @change="loadRooms(1)"
             >
             </ToggleButton>
             <SelectButton
@@ -103,11 +103,10 @@
               v-model="roomFilter"
               :options="filterOptions"
               :disabled="onlyShowFavorites"
-              optionLabel="name"
-              optionValue="value"
+              option-label="name"
+              option-value="value"
               multiple
-              :allowEmpty="roomFilter.length > 1"
-              @change="loadRooms(1)"
+              :allow-empty="roomFilter.length > 1"
               :pt="{
                 pcToggleButton: {
                   root: {
@@ -115,6 +114,7 @@
                   },
                 },
               }"
+              @change="loadRooms(1)"
             />
           </div>
           <div class="flex flex-col md:flex-row items-start gap-2">
@@ -136,16 +136,15 @@
                 </Message>
               </InputGroupAddon>
               <Select
-                data-test="room-type-dropdown"
                 v-else
                 v-model="selectedRoomType"
+                data-test="room-type-dropdown"
                 :disabled="loadingRooms || roomTypesBusy || onlyShowFavorites"
-                @change="loadRooms(1)"
                 :placeholder="$t('rooms.room_types.all')"
                 :options="roomTypes"
-                showClear
-                optionLabel="name"
-                optionValue="id"
+                show-clear
+                option-label="name"
+                option-value="id"
                 :pt="{
                   listContainer: {
                     'data-test': 'room-type-dropdown-items',
@@ -154,6 +153,7 @@
                     'data-test': 'room-type-dropdown-option',
                   },
                 }"
+                @change="loadRooms(1)"
               />
               <!-- reload the room types -->
               <Button
@@ -162,9 +162,9 @@
                 :disabled="roomTypesBusy || onlyShowFavorites"
                 severity="secondary"
                 outlined
-                @click="loadRoomTypes"
                 icon="fa-solid fa-sync"
                 :loading="roomTypesBusy"
+                @click="loadRoomTypes"
               />
             </InputGroup>
 
@@ -174,13 +174,12 @@
                 <i class="fa-solid fa-sort"></i>
               </InputGroupAddon>
               <Select
-                data-test="sorting-type-dropdown"
                 v-model="selectedSortingType"
-                @change="loadRooms(1)"
+                data-test="sorting-type-dropdown"
                 :disabled="loadingRooms"
                 :options="sortingTypes"
-                optionLabel="label"
-                optionValue="type"
+                option-label="label"
+                option-value="type"
                 :pt="{
                   listContainer: {
                     'data-test': 'sorting-type-dropdown-items',
@@ -189,6 +188,7 @@
                     'data-test': 'sorting-type-dropdown-option',
                   },
                 }"
+                @change="loadRooms(1)"
               />
             </InputGroup>
           </div>
@@ -198,35 +198,35 @@
         <OverlayComponent
           class="mt-4"
           :show="loadingRoomsError && !loadingRooms"
-          :noCenter="true"
+          :no-center="true"
           :opacity="0"
           :z-index="3"
         >
           <template #overlay>
             <div class="text-center py-20">
               <i
-                class="fa-solid fa-circle-notch fa-spin text-3xl"
                 v-if="loadingRooms"
+                class="fa-solid fa-circle-notch fa-spin text-3xl"
               />
               <Button
-                data-test="reload-button"
                 v-else
-                @click="reload()"
+                data-test="reload-button"
                 :label="$t('app.reload')"
                 icon="fa-solid fa-sync"
+                @click="reload()"
               />
             </div>
           </template>
 
           <!--show room skeleton during loading or error-->
           <div
-            class="grid grid-cols-12 gap-4 p-1"
             v-if="loadingRooms || loadingRoomsError"
+            class="grid grid-cols-12 gap-4 p-1"
           >
             <div
-              class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3 p-2"
               v-for="i in rooms?.length || 3"
               :key="i"
+              class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3 p-2"
             >
               <RoomCardSkeleton
                 :animation="
@@ -237,21 +237,19 @@
           </div>
 
           <DataView
-            :totalRecords="paginator.getTotalRecords()"
+            :total-records="paginator.getTotalRecords()"
             :rows="paginator.getRows()"
             :first="paginator.getFirst()"
-            @update:first="paginator.setFirst($event)"
             :value="rooms"
             lazy
-            dataKey="id"
+            data-key="id"
             :paginator="!loadingRooms && !loadingRoomsError"
             :paginator-template="paginator.getTemplate()"
             :current-page-report-template="
               paginator.getCurrentPageReportTemplate()
             "
-            rowHover
+            row-hover
             class="mt-6"
-            @page="onPage"
             :pt="{
               pcPaginator: {
                 page: {
@@ -262,26 +260,28 @@
                 },
               },
             }"
+            @update:first="paginator.setFirst($event)"
+            @page="onPage"
           >
             <!-- Show message on empty room list -->
             <template #empty>
               <div>
                 <div
-                  class="text-center mb-2"
                   v-if="rooms && !loadingRooms && !loadingRoomsError"
+                  class="text-center mb-2"
                 >
                   <Message
-                    severity="info"
                     v-if="onlyShowFavorites && paginator.isEmptyUnfiltered()"
+                    severity="info"
                   >
                     {{ $t("rooms.index.no_favorites") }}
                   </Message>
                   <Message
-                    severity="info"
                     v-else-if="paginator.isEmptyUnfiltered()"
+                    severity="info"
                     >{{ $t("rooms.no_rooms_available") }}</Message
                   >
-                  <Message severity="info" v-else-if="!rooms.length">{{
+                  <Message v-else-if="!rooms.length" severity="info">{{
                     $t("rooms.no_rooms_found")
                   }}</Message>
                 </div>
@@ -294,9 +294,9 @@
                 class="grid grid-cols-12 gap-4 py-1"
               >
                 <div
-                  class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
                   v-for="(room, index) in slotProps.items"
                   :key="index"
+                  class="col-span-12 md:col-span-6 lg:col-span-4 2xl:col-span-3"
                 >
                   <RoomCard :room="room" @favorites-changed="loadRooms()" />
                 </div>

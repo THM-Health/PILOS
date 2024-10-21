@@ -1,11 +1,11 @@
 <template>
   <Button
-    data-test="room-members-bulk-delete-button"
     v-tooltip="
       $t('rooms.members.bulk_remove_user', {
         numberOfSelectedUsers: props.userIds.length,
       })
     "
+    data-test="room-members-bulk-delete-button"
     :aria-label="
       $t('rooms.members.bulk_remove_user', {
         numberOfSelectedUsers: props.userIds.length,
@@ -13,14 +13,14 @@
     "
     :disabled="disabled"
     severity="danger"
-    @click="showBulkDeleteMembersModal"
     icon="fa-solid fa-users-slash"
+    @click="showBulkDeleteMembersModal"
   />
 
   <!-- bulk edit user role modal -->
   <Dialog
-    data-test="room-members-bulk-delete-dialog"
     v-model:visible="showModal"
+    data-test="room-members-bulk-delete-dialog"
     modal
     :header="
       $t('rooms.members.modals.remove.title_bulk', {
@@ -30,8 +30,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #footer>
@@ -39,17 +39,17 @@
         <Button
           :label="$t('app.no')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.yes')"
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="deleteMembers"
           data-test="dialog-continue-button"
+          @click="deleteMembers"
         />
       </div>
     </template>

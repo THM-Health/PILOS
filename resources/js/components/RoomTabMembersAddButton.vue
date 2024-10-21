@@ -1,17 +1,17 @@
 <template>
   <!-- Add user / users -->
   <Button
+    v-tooltip="$t('rooms.members.add_user')"
     type="button"
     icon="fa-solid fa-user-plus"
     :aria-label="$t('rooms.members.add_user')"
-    v-tooltip="$t('rooms.members.add_user')"
-    @click="toggle"
     aria-haspopup="true"
     aria-controls="overlay_menu"
     :disabled="props.disabled"
     data-test="room-members-add-button"
+    @click="toggle"
   />
-  <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
+  <Menu id="overlay_menu" ref="menu" :model="items" :popup="true" />
   <!-- Add existing user from database -->
   <RoomTabMembersAddSingleModal
     ref="singleModal"

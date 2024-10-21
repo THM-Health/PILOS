@@ -1,5 +1,6 @@
 <template>
   <Button
+    v-tooltip:top="$t('rooms.recordings.download')"
     as="a"
     target="_blank"
     :href="downloadUrl"
@@ -7,7 +8,6 @@
     icon="fa-solid fa-download"
     :disabled="props.disabled"
     :aria-label="$t('rooms.recordings.download')"
-    v-tooltip:top="$t('rooms.recordings.download')"
   />
 </template>
 <script setup>

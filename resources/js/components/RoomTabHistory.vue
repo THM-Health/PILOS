@@ -15,12 +15,12 @@
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
-              :disabled="isBusy"
               v-model="sortField"
+              :disabled="isBusy"
               :options="sortFields"
-              @change="loadData(1)"
               option-label="name"
               option-value="value"
+              @change="loadData(1)"
             />
             <InputGroupAddon class="p-0">
               <Button
@@ -30,23 +30,23 @@
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
                 "
-                @click="toggleSortOrder"
                 severity="secondary"
                 text
                 class="rounded-l-none"
+                @click="toggleSortOrder"
               />
             </InputGroupAddon>
           </InputGroup>
         </div>
         <!-- Reload -->
         <Button
-          class="shrink-0"
           v-tooltip="$t('app.reload')"
+          class="shrink-0"
           :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData()"
           icon="fa-solid fa-sync"
+          @click="loadData()"
         />
       </div>
     </div>
@@ -57,19 +57,19 @@
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
       <DataView
-        :totalRecords="paginator.getTotalRecords()"
+        :total-records="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
-        @update:first="paginator.setFirst($event)"
         :value="meetings"
         lazy
-        dataKey="id"
+        data-key="id"
         paginator
         :paginator-template="paginator.getTemplate()"
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-        rowHover
-        @page="onPage"
+        row-hover
         class="mt-6"
+        @update:first="paginator.setFirst($event)"
+        @page="onPage"
       >
         <!-- Show message on empty list -->
         <template #empty>
@@ -94,7 +94,6 @@
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p
-                        class="text-sm m-0"
                         v-tooltip.bottom="
                           $d(new Date(item.start), 'datetimeShort') +
                           ' - ' +
@@ -102,6 +101,7 @@
                             ? $t('meetings.now')
                             : $d(new Date(item.end), 'datetimeShort'))
                         "
+                        class="text-sm m-0"
                       >
                         {{
                           dateDiff.format(
@@ -141,9 +141,9 @@
     </OverlayComponent>
 
     <Message
+      id="retentionPeriodInfo"
       class="mt-2"
       severity="secondary"
-      id="retentionPeriodInfo"
       aria-live="off"
       role="presentation"
     >

@@ -1,7 +1,7 @@
 <template>
   <div>
     <OverlayComponent :show="isBusy">
-      <form @submit.prevent="save" class="flex flex-col gap-4">
+      <form class="flex flex-col gap-4" @submit.prevent="save">
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <div class="field grid grid-cols-12 gap-4">
             <label for="firstname" class="col-span-12 md:col-span-4 md:mb-0">{{
@@ -10,8 +10,8 @@
             <div class="col-span-12 md:col-span-8">
               <InputText
                 id="firstname"
-                class="w-full"
                 v-model="model.firstname"
+                class="w-full"
                 required
                 type="text"
                 :invalid="formErrors.fieldInvalid('firstname')"
@@ -27,8 +27,8 @@
             <div class="col-span-12 md:col-span-8">
               <InputText
                 id="lastname"
-                class="w-full"
                 v-model="model.lastname"
+                class="w-full"
                 type="text"
                 required
                 :invalid="formErrors.fieldInvalid('lastname')"
@@ -44,9 +44,9 @@
             <div class="col-span-12 md:col-span-8">
               <InputText
                 id="email"
+                v-model="model.email"
                 autocomplete="off"
                 class="w-full"
-                v-model="model.email"
                 type="email"
                 required
                 :invalid="formErrors.fieldInvalid('email')"
@@ -63,9 +63,9 @@
             >
             <div class="col-span-12 md:col-span-8">
               <LocaleSelect
+                v-model="model.user_locale"
                 class="w-full"
                 aria-labelledby="locale-label"
-                v-model="model.user_locale"
                 required
                 :invalid="formErrors.fieldInvalid('user_locale')"
                 :disabled="isBusy"
@@ -81,8 +81,8 @@
             >
             <div class="col-span-12 md:col-span-8">
               <TimezoneSelect
-                aria-labelledby="default-timezone-label"
                 v-model="model.timezone"
+                aria-labelledby="default-timezone-label"
                 required
                 :invalid="formErrors.fieldInvalid('timezone')"
                 :disabled="isBusy"
@@ -99,8 +99,8 @@
             }}</label>
             <div class="col-span-12 md:col-span-8">
               <RoleSelect
-                aria-labelledby="roles-label"
                 v-model="model.roles"
+                aria-labelledby="roles-label"
                 :invalid="formErrors.fieldInvalid('roles', true)"
                 :disabled="isBusy"
                 @loading-error="(value) => (rolesLoadingError = value)"
@@ -120,8 +120,8 @@
             <div class="col-span-12 md:col-span-8">
               <div>
                 <ToggleSwitch
-                  input-id="generate_password"
                   v-model="generatePassword"
+                  input-id="generate_password"
                   :invalid="formErrors.fieldInvalid('generate_password')"
                   :disabled="isBusy"
                   aria-describedby="generate_password-help"
@@ -133,7 +133,7 @@
               }}</small>
             </div>
           </div>
-          <div class="field grid grid-cols-12 gap-4" v-if="!generatePassword">
+          <div v-if="!generatePassword" class="field grid grid-cols-12 gap-4">
             <label
               for="new_password"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -141,13 +141,13 @@
             >
             <div class="col-span-12 md:col-span-8">
               <Password
+                v-model="model.new_password"
                 fluid
                 input-id="new_password"
-                :inputProps="{ autocomplete: 'off' }"
-                v-model="model.new_password"
+                :input-props="{ autocomplete: 'off' }"
                 required
                 :feedback="false"
-                :toggleMask="true"
+                :toggle-mask="true"
                 :invalid="formErrors.fieldInvalid('new_password')"
                 :disabled="isBusy"
               />
@@ -155,7 +155,7 @@
             </div>
           </div>
 
-          <div class="field grid grid-cols-12 gap-4" v-if="!generatePassword">
+          <div v-if="!generatePassword" class="field grid grid-cols-12 gap-4">
             <label
               for="new_password_confirmation"
               class="col-span-12 md:col-span-4 md:mb-0"
@@ -163,9 +163,9 @@
             >
             <div class="col-span-12 md:col-span-8">
               <Password
+                v-model="model.new_password_confirmation"
                 input-id="new_password_confirmation"
                 fluid
-                v-model="model.new_password_confirmation"
                 :type="showPassword ? 'text' : 'password'"
                 required
                 :feedback="false"

@@ -12,42 +12,42 @@
             v-tooltip="$t('app.search')"
             :aria-label="$t('app.search')"
             severity="primary"
-            @click="loadData(1)"
             icon="fa-solid fa-magnifying-glass"
+            @click="loadData(1)"
           />
         </InputGroup>
       </div>
       <Button
-        as="router-link"
-        icon="fa-solid fa-plus"
         v-if="userPermissions.can('create', 'ServerPolicy')"
         v-tooltip="$t('admin.server_pools.new')"
+        as="router-link"
+        icon="fa-solid fa-plus"
         :aria-label="$t('admin.server_pools.new')"
         :to="{ name: 'admin.server_pools.new' }"
       />
     </div>
 
     <DataTable
-      v-model:sortField="sortField"
-      v-model:sortOrder="sortOrder"
+      v-model:sort-field="sortField"
+      v-model:sort-order="sortOrder"
       :loading="isBusy || loadingError"
       :rows="paginator.getRows()"
-      :totalRecords="paginator.getTotalRecords()"
+      :total-records="paginator.getTotalRecords()"
       :first="paginator.getFirst()"
-      @update:first="paginator.setFirst($event)"
       :value="serverPools"
-      dataKey="id"
+      data-key="id"
       lazy
       paginator
       :paginator-template="paginator.getTemplate()"
       :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-      rowHover
-      stripedRows
-      @page="onPage"
-      @sort="onSort"
+      row-hover
+      striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
       }"
+      @update:first="paginator.setFirst($event)"
+      @page="onPage"
+      @sort="onSort"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
@@ -74,18 +74,18 @@
         sortable
       ></Column>
       <Column
+        v-if="actionColumn.visible"
         :header="$t('app.actions')"
         :class="actionColumn.classes"
-        v-if="actionColumn.visible"
       >
         <template #body="slotProps">
           <div>
             <Button
-              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="
                 $t('admin.server_pools.view', { name: slotProps.data.name })
               "
+              as="router-link"
               :aria-label="
                 $t('admin.server_pools.view', { name: slotProps.data.name })
               "
@@ -97,11 +97,11 @@
               icon="fa-solid fa-eye"
             />
             <Button
-              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
               v-tooltip="
                 $t('admin.server_pools.edit', { name: slotProps.data.name })
               "
+              as="router-link"
               :aria-label="
                 $t('admin.server_pools.edit', { name: slotProps.data.name })
               "

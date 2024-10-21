@@ -4,8 +4,8 @@
     :aria-label="$t('admin.room_types.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
-    @click="showDeleteModal"
     icon="fa-solid fa-trash"
+    @click="showDeleteModal"
   />
 
   <Dialog
@@ -14,8 +14,8 @@
     :header="$t('admin.room_types.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
-    :closeOnEscape="!isBusy"
-    :dismissableMask="!isBusy"
+    :close-on-escape="!isBusy"
+    :dismissable-mask="!isBusy"
     :closeable="!isBusy"
     :draggable="false"
   >
@@ -28,9 +28,9 @@
         $t("admin.room_types.delete.replacement")
       }}</label>
       <Select
-        autofocus
         id="replacement-room-type"
         v-model.number="replacement"
+        autofocus
         :disabled="isBusy"
         :loading="loadingRoomTypes"
         :class="{

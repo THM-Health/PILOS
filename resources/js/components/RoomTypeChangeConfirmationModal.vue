@@ -5,7 +5,7 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :dismissableMask="false"
+    :dismissable-mask="false"
     modal
     data-test="room-type-change-confirmation-dialog"
   >
@@ -17,9 +17,9 @@
         <h4 class="my-2 font-bold">{{ settingGroup.title }}</h4>
 
         <RoomTypeCompareSettingsField
-          :data-test="'room-type-' + setting.key + '-comparison'"
           v-for="setting in settingGroup.settings"
           :key="setting.key"
+          :data-test="'room-type-' + setting.key + '-comparison'"
           :current-value="
             currentSettings[
               setting.current_value_key
@@ -42,7 +42,7 @@
     <Divider class="mt-0" />
 
     <div class="flex items-center gap-2">
-      <ToggleSwitch input-id="reset-to-defaults" v-model="resetToDefaults" />
+      <ToggleSwitch v-model="resetToDefaults" input-id="reset-to-defaults" />
       <label for="reset-to-defaults">
         {{ $t("rooms.change_type.reset_to_default") }}</label
       >
@@ -52,13 +52,13 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="handleCancel"
           data-test="confirmation-dialog-cancel-button"
+          @click="handleCancel"
         />
         <Button
           :label="$t('app.save')"
-          @click="handleSave"
           data-test="confirmation-dialog-save-button"
+          @click="handleSave"
         />
       </div>
     </template>

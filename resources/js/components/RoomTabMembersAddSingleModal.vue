@@ -1,15 +1,15 @@
 <template>
   <!-- add new user modal -->
   <Dialog
-    data-test="room-members-add-single-dialog"
     v-model:visible="showModal"
+    data-test="room-members-add-single-dialog"
     modal
     :header="$t('rooms.members.add_single_user')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #footer>
@@ -17,16 +17,16 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('rooms.members.modals.add.add')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="save"
           data-test="dialog-save-button"
+          @click="save"
         />
       </div>
     </template>
@@ -35,10 +35,10 @@
     <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
       <label id="user-label">{{ $t("app.user") }}</label>
       <multiselect
+        v-model="user"
         aria-labelledby="user-label"
         autofocus
         data-test="select-user-dropdown"
-        v-model="user"
         label="lastname"
         track-by="id"
         :placeholder="$t('rooms.members.modals.add.placeholder')"
@@ -56,8 +56,8 @@
         :max-height="150"
         :show-no-results="true"
         :show-labels="false"
-        @search-change="asyncFind"
         :invalid="formErrors.fieldInvalid('user')"
+        @search-change="asyncFind"
       >
         <template #noResult>
           <span v-if="tooManyResults" class="whitespace-normal">
@@ -70,12 +70,12 @@
         <template #noOptions>
           {{ $t("rooms.members.modals.add.no_options") }}
         </template>
-        <template v-slot:option="{ option }">
+        <template #option="{ option }">
           {{ option.firstname }} {{ option.lastname }}<br /><small>{{
             option.email
           }}</small>
         </template>
-        <template v-slot:singleLabel="{ option }">
+        <template #singleLabel="{ option }">
           {{ option.firstname }} {{ option.lastname }}
         </template>
       </multiselect>

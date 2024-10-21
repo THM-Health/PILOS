@@ -8,7 +8,7 @@
         severity="secondary"
         :label="$t('rooms.description.tooltips.text_type')"
       >
-        <template v-slot:button-content>
+        <template #button-content>
           <i class="fa-solid fa-heading" />
         </template>
         <TipTapMenuDropdownItem
@@ -48,33 +48,33 @@
         :aria-label="$t('rooms.description.tooltips.bold')"
         :severity="props.editor.isActive('bold') ? 'primary' : 'secondary'"
         text
-        @click="props.editor.chain().focus().toggleBold().run()"
         icon="fa-solid fa-bold"
         data-test="tip-tap-bold-button"
+        @click="props.editor.chain().focus().toggleBold().run()"
       />
       <Button
         v-tooltip="$t('rooms.description.tooltips.italic')"
         :aria-label="$t('rooms.description.tooltips.italic')"
         :severity="props.editor.isActive('italic') ? 'primary' : 'secondary'"
         text
-        @click="props.editor.chain().focus().toggleItalic().run()"
         icon="fa-solid fa-italic"
+        @click="props.editor.chain().focus().toggleItalic().run()"
       />
       <Button
         v-tooltip="$t('rooms.description.tooltips.underline')"
         :aria-label="$t('rooms.description.tooltips.underline')"
         :severity="props.editor.isActive('underline') ? 'primary' : 'secondary'"
         text
-        @click="props.editor.chain().focus().toggleUnderline().run()"
         icon="fa-solid fa-underline"
+        @click="props.editor.chain().focus().toggleUnderline().run()"
       />
       <Button
         v-tooltip="$t('rooms.description.tooltips.strikethrough')"
         :aria-label="$t('rooms.description.tooltips.strikethrough')"
         :severity="props.editor.isActive('strike') ? 'primary' : 'secondary'"
         text
-        @click="props.editor.chain().focus().toggleStrike().run()"
         icon="fa-solid fa-strikethrough"
+        @click="props.editor.chain().focus().toggleStrike().run()"
       />
 
       <!-- Text color -->
@@ -82,7 +82,7 @@
         severity="secondary"
         :label="$t('rooms.description.tooltips.color')"
       >
-        <template v-slot:button-content>
+        <template #button-content>
           <i class="fa-solid fa-palette" />
         </template>
         <!-- Clear color -->
@@ -115,7 +115,7 @@
         severity="secondary"
         :label="$t('rooms.description.tooltips.highlight')"
       >
-        <template v-slot:button-content>
+        <template #button-content>
           <i class="fa-solid fa-highlighter" />
         </template>
         <TipTapMenuDropdownItem
@@ -143,8 +143,8 @@
         :aria-label="$t('rooms.description.tooltips.clear')"
         severity="secondary"
         text
-        @click="props.editor.chain().focus().unsetAllMarks().run()"
         icon="fa-solid fa-times"
+        @click="props.editor.chain().focus().unsetAllMarks().run()"
       />
     </template>
     <template #center>
@@ -156,8 +156,8 @@
           props.editor.isActive({ textAlign: 'left' }) ? 'primary' : 'secondary'
         "
         text
-        @click="props.editor.chain().focus().setTextAlign('left').run()"
         icon="fa-solid fa-align-left"
+        @click="props.editor.chain().focus().setTextAlign('left').run()"
       />
       <Button
         v-tooltip="$t('rooms.description.tooltips.center')"
@@ -168,8 +168,8 @@
             : 'secondary'
         "
         text
-        @click="props.editor.chain().focus().setTextAlign('center').run()"
         icon="fa-solid fa-align-center"
+        @click="props.editor.chain().focus().setTextAlign('center').run()"
       />
       <Button
         v-tooltip="$t('rooms.description.tooltips.right')"
@@ -180,8 +180,8 @@
             : 'secondary'
         "
         text
-        @click="props.editor.chain().focus().setTextAlign('right').run()"
         icon="fa-solid fa-align-right"
+        @click="props.editor.chain().focus().setTextAlign('right').run()"
       />
 
       <!-- Text styles -->
@@ -193,8 +193,8 @@
           props.editor.isActive('bulletList') ? 'primary' : 'secondary'
         "
         text
-        @click="props.editor.chain().focus().toggleBulletList().run()"
         icon="fa-solid fa-list-ul"
+        @click="props.editor.chain().focus().toggleBulletList().run()"
       />
       <!-- Ordered list -->
       <Button
@@ -204,8 +204,8 @@
           props.editor.isActive('orderedList') ? 'primary' : 'secondary'
         "
         text
-        @click="props.editor.chain().focus().toggleOrderedList().run()"
         icon="fa-solid fa-list-ol"
+        @click="props.editor.chain().focus().toggleOrderedList().run()"
       />
       <!-- Quote -->
       <Button
@@ -215,8 +215,8 @@
           props.editor.isActive('blockquote') ? 'primary' : 'secondary'
         "
         text
-        @click="props.editor.chain().focus().toggleBlockquote().run()"
         icon="fa-solid fa-quote-right"
+        @click="props.editor.chain().focus().toggleBlockquote().run()"
       />
       <!-- Link -->
       <TipTapLink :editor="props.editor" />
@@ -227,30 +227,30 @@
     <template #end>
       <!-- History -->
       <Button
+        v-tooltip="$t('rooms.description.tooltips.undo')"
         severity="secondary"
         text
-        v-tooltip="$t('rooms.description.tooltips.undo')"
         :aria-label="$t('rooms.description.tooltips.undo')"
         :disabled="!props.editor.can().undo()"
-        @click="props.editor.chain().focus().undo().run()"
         icon="fa-solid fa-undo"
+        @click="props.editor.chain().focus().undo().run()"
       />
       <Button
+        v-tooltip="$t('rooms.description.tooltips.redo')"
         severity="secondary"
         text
-        v-tooltip="$t('rooms.description.tooltips.redo')"
         :aria-label="$t('rooms.description.tooltips.redo')"
         :disabled="!props.editor.can().redo()"
-        @click="props.editor.chain().focus().redo().run()"
         icon="fa-solid fa-redo"
+        @click="props.editor.chain().focus().redo().run()"
       />
       <Button
+        v-tooltip="$t('rooms.description.tooltips.delete')"
         severity="danger"
         text
-        v-tooltip="$t('rooms.description.tooltips.delete')"
         :aria-label="$t('rooms.description.tooltips.delete')"
-        @click="props.editor.commands.clearContent(true)"
         icon="fa-solid fa-trash"
+        @click="props.editor.commands.clearContent(true)"
       />
       <TipTapSource :editor="props.editor" />
     </template>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.bbb')">
-      <form @submit="save" v-if="model" class="flex flex-col gap-4">
+      <form v-if="model" class="flex flex-col gap-4" @submit="save">
         <div
           class="field grid grid-cols-12 gap-4"
           data-test="bbb-skip-check-audio-field"
@@ -13,8 +13,8 @@
           >
           <div class="col-span-12 md:col-span-9">
             <ToggleSwitch
-              input-id="bbb_skip_check_audio"
               v-model="model.bbb_skip_check_audio"
+              input-id="bbb_skip_check_audio"
               required
               :disabled="isBusy || viewOnly"
               :invalid="formErrors.fieldInvalid('bbb_skip_check_audio')"

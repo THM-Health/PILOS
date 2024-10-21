@@ -24,8 +24,8 @@
             }}</label>
 
             <RoomTypeChangeButton
-              input-id="room-type"
               v-model="settings.room_type"
+              input-id="room-type"
               :disabled="disabled"
               :invalid="formErrors.fieldInvalid('room_type')"
               :current-settings="settings"
@@ -43,9 +43,9 @@
           >
             <label for="room-name" class="mb-2">{{ $t("rooms.name") }}</label>
             <InputText
-              class="w-full"
               id="room-name"
               v-model="settings.name"
+              class="w-full"
               :disabled="disabled"
               :invalid="formErrors.fieldInvalid('name')"
             />
@@ -67,12 +67,12 @@
             <InputGroup>
               <!-- Generate random access code -->
               <Button
-                data-test="generate-access-code-button"
+                v-if="!disabled"
                 v-tooltip="$t('rooms.settings.general.generate_access_code')"
+                data-test="generate-access-code-button"
                 :aria-label="$t('rooms.settings.general.generate_access_code')"
                 icon="fa-solid fa-dice"
                 @click="createAccessCode"
-                v-if="!disabled"
               />
               <!-- Access code -->
               <InputText
@@ -92,8 +92,8 @@
                 v-tooltip="$t('rooms.settings.general.delete_access_code')"
                 :aria-label="$t('rooms.settings.general.delete_access_code')"
                 icon="fa-solid fa-trash"
-                @click="settings.access_code = null"
                 data-test="clear-access-code-button"
+                @click="settings.access_code = null"
               />
             </InputGroup>
             <small v-if="settings.room_type.has_access_code_enforced">
@@ -144,8 +144,8 @@
 
             <Textarea
               id="short-description"
-              class="w-full"
               v-model="settings.short_description"
+              class="w-full"
               :disabled="disabled"
               :invalid="formErrors.fieldInvalid('short_description')"
               :placeholder="$t('rooms.settings.none_placeholder')"
@@ -166,7 +166,7 @@
         Expert settings (only shown when expert mode is activated)
         When the expert mode is deactivated the default values from the room type will be used
         -->
-        <div class="grid grid-cols-12 gap-4" v-if="settings.expert_mode">
+        <div v-if="settings.expert_mode" class="grid grid-cols-12 gap-4">
           <Divider class="col-span-12" />
 
           <!-- Video conference settings -->
@@ -296,9 +296,9 @@
               $t("rooms.settings.video_conference.welcome_message")
             }}</label>
             <Textarea
-              class="w-full"
               id="welcome-message"
               v-model="settings.welcome"
+              class="w-full"
               :disabled="disabled"
               :invalid="formErrors.fieldInvalid('welcome')"
               :placeholder="$t('rooms.settings.none_placeholder')"
@@ -703,7 +703,7 @@
             <div class="flex">
               <SelectButton
                 v-model="settings.default_role"
-                :allowEmpty="false"
+                :allow-empty="false"
                 :disabled="disabled || settings.room_type.default_role_enforced"
                 :invalid="formErrors.fieldInvalid('default_role')"
                 :options="[
@@ -711,10 +711,10 @@
                   { role: 2, label: $t('rooms.roles.moderator') },
                 ]"
                 class="shrink-0"
-                dataKey="role"
+                data-key="role"
                 aria-labelledby="default-role-label"
-                optionLabel="label"
-                optionValue="role"
+                option-label="label"
+                option-value="role"
                 :pt="{
                   pcToggleButton: {
                     root: {
@@ -751,7 +751,7 @@
             <div class="flex">
               <SelectButton
                 v-model="settings.visibility"
-                :allowEmpty="false"
+                :allow-empty="false"
                 :disabled="disabled || settings.room_type.visibility_enforced"
                 :invalid="formErrors.fieldInvalid('visibility_default')"
                 :options="[
@@ -765,10 +765,10 @@
                   },
                 ]"
                 class="shrink-0"
-                dataKey="visibility"
+                data-key="visibility"
                 aria-labelledby="visibility-label"
-                optionLabel="label"
-                optionValue="visibility"
+                option-label="label"
+                option-value="visibility"
                 :pt="{
                   pcToggleButton: {
                     root: {
@@ -782,7 +782,7 @@
           </div>
         </div>
 
-        <div class="py-4 px-px sticky bottom-0" v-if="settingsDirty">
+        <div v-if="settingsDirty" class="py-4 px-px sticky bottom-0">
           <div class="dark:bg-surface-900/80 rounded-lg">
             <Message
               severity="warn"
@@ -819,8 +819,8 @@
       </OverlayComponent>
       <Divider v-if="userPermissions.can('manageSettings', props.room)" />
       <div
-        class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start"
         v-if="userPermissions.can('manageSettings', props.room)"
+        class="flex flex-wrap flex-col-reverse md:flex-row md:justify-between gap-2 md:items-start"
       >
         <div class="flex shrink-0 flex-col md:flex-row md:items-start gap-2">
           <RoomDeleteButton
@@ -831,7 +831,7 @@
           <RoomTransferOwnershipButton
             :disabled="disabled"
             :room="room"
-            @transferredOwnership="emit('settingsChanged')"
+            @transferred-ownership="emit('settingsChanged')"
           />
           <RoomTabSettingsExpertModeButton
             :disabled="disabled"

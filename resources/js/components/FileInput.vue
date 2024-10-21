@@ -11,13 +11,13 @@
     <span class="p-button-label">{{ model?.name ?? $t("app.browse") }}</span>
   </label>
   <input
-    type="file"
-    ref="fileInputRef"
     :id="inputId"
+    ref="fileInputRef"
+    type="file"
     class="sr-only"
     :disabled="disabled"
-    @input="fileSelected"
     :accept="accept"
+    @input="fileSelected"
   />
 </template>
 

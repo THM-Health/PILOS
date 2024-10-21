@@ -64,14 +64,14 @@
 
     <!-- Stale user modal -->
     <Dialog
-      data-test="stale-user-dialog"
       v-model:visible="showModal"
+      data-test="stale-user-dialog"
       modal
       :style="{ width: '500px' }"
       :breakpoints="{ '575px': '90vw' }"
       :draggable="false"
-      :closeOnEscape="false"
-      :dismissableMask="false"
+      :close-on-escape="false"
+      :dismissable-mask="false"
       :closable="false"
     >
       <template #footer>
@@ -80,8 +80,8 @@
             :label="$t('app.reload')"
             :loading="isBusy"
             :disabled="isBusy"
-            @click="refreshUser"
             data-test="stale-dialog-reload-button"
+            @click="refreshUser"
           />
         </div>
       </template>

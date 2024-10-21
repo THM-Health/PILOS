@@ -12,43 +12,43 @@
             v-tooltip="$t('app.search')"
             :aria-label="$t('app.search')"
             severity="primary"
-            @click="loadData(1)"
             icon="fa-solid fa-magnifying-glass"
+            @click="loadData(1)"
           />
         </InputGroup>
       </div>
 
       <Button
-        as="router-link"
         v-if="userPermissions.can('create', 'RolePolicy')"
-        icon="fa-solid fa-plus"
         v-tooltip="$t('admin.roles.new')"
+        as="router-link"
+        icon="fa-solid fa-plus"
         :aria-label="$t('admin.roles.new')"
         :to="{ name: 'admin.roles.new' }"
       />
     </div>
 
     <DataTable
-      :totalRecords="paginator.getTotalRecords()"
+      v-model:sort-field="sortField"
+      v-model:sort-order="sortOrder"
+      :total-records="paginator.getTotalRecords()"
       :rows="paginator.getRows()"
       :first="paginator.getFirst()"
-      @update:first="paginator.setFirst($event)"
       :value="roles"
       lazy
-      dataKey="id"
+      data-key="id"
       paginator
       :paginator-template="paginator.getTemplate()"
       :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
-      rowHover
-      stripedRows
-      v-model:sortField="sortField"
-      v-model:sortOrder="sortOrder"
-      @page="onPage"
-      @sort="onSort"
+      row-hover
+      striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
       }"
+      @update:first="paginator.setFirst($event)"
+      @page="onPage"
+      @sort="onSort"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
@@ -72,25 +72,25 @@
               {{ slotProps.data.name }}
             </TextTruncate>
             <Tag
+              v-if="slotProps.data.superuser"
               icon="fa-solid fa-crown"
               value="Superuser"
-              v-if="slotProps.data.superuser"
             />
           </div>
         </template>
       </Column>
       <Column
+        v-if="actionColumn.visible"
         :header="$t('app.actions')"
         class="action-column"
         :class="actionColumn.classes"
-        v-if="actionColumn.visible"
       >
         <template #body="slotProps">
           <div>
             <Button
-              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="$t('admin.roles.view', { name: slotProps.data.name })"
+              as="router-link"
               :aria-label="
                 $t('admin.roles.view', { name: slotProps.data.name })
               "
@@ -102,10 +102,10 @@
               icon="fa-solid fa-eye"
             />
             <Button
-              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
-              severity="info"
               v-tooltip="$t('admin.roles.edit', { name: slotProps.data.name })"
+              as="router-link"
+              severity="info"
               :aria-label="
                 $t('admin.roles.edit', { name: slotProps.data.name })
               "

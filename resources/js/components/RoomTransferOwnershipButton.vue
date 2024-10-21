@@ -1,25 +1,25 @@
 <template>
   <Button
-    data-test="room-transfer-ownership-button"
     v-if="userPermissions.can('transfer', room)"
-    @click="showTransferOwnershipModal"
+    data-test="room-transfer-ownership-button"
     severity="secondary"
     icon="fa-solid fa-user-gear"
     :label="$t('rooms.modals.transfer_ownership.title')"
     :disabled="disabled"
+    @click="showTransferOwnershipModal"
   />
 
   <!--transfer ownership modal-->
   <Dialog
-    data-test="room-transfer-ownership-dialog"
     v-model:visible="showModal"
+    data-test="room-transfer-ownership-dialog"
     modal
     :header="$t('rooms.modals.transfer_ownership.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <!--select new owner-->
@@ -27,10 +27,10 @@
     <div class="flex flex-col gap-2 mt-2 relative overflow-visible">
       <label id="user-label">{{ $t("app.user") }}</label>
       <multiselect
+        v-model="newOwner"
         aria-labelledby="user-label"
         autofocus
         data-test="new-owner-dropdown"
-        v-model="newOwner"
         :disabled="isLoadingAction"
         label="lastname"
         track-by="id"
@@ -48,8 +48,8 @@
         :max-height="600"
         :show-no-results="true"
         :show-labels="false"
-        @search-change="asyncFind"
         :invalid="formErrors.fieldInvalid('user')"
+        @search-change="asyncFind"
       >
         <template #noResult>
           <span v-if="tooManyResults" class="whitespace-normal">
@@ -62,12 +62,12 @@
         <template #noOptions>
           {{ $t("rooms.members.modals.add.no_options") }}
         </template>
-        <template v-slot:option="{ option }">
+        <template #option="{ option }">
           {{ option.firstname }} {{ option.lastname }}<br /><small>{{
             option.email
           }}</small>
         </template>
-        <template v-slot:singleLabel="{ option }">
+        <template #singleLabel="{ option }">
           {{ option.firstname }} {{ option.lastname }}
         </template>
       </multiselect>
@@ -150,17 +150,17 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('rooms.modals.transfer_ownership.transfer')"
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="transferOwnership"
           data-test="dialog-continue-button"
+          @click="transferOwnership"
         />
       </div>
     </template>

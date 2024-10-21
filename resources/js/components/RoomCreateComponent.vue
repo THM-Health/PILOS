@@ -3,26 +3,26 @@
     <Button
       data-test="room-create-button"
       :disabled="props.disabled"
-      @click="modalVisible = true"
       severity="primary"
       icon="fa-solid fa-plus"
       :label="$t('rooms.create.title')"
+      @click="modalVisible = true"
     />
 
     <!-- new room modal-->
     <Dialog
-      data-test="room-create-dialog"
       v-model:visible="modalVisible"
+      data-test="room-create-dialog"
       modal
       :header="$t('rooms.create.title')"
       :style="{ width: '900px' }"
       :breakpoints="{ '975px': '90vw' }"
-      :closeOnEscape="!isLoadingAction && !roomTypeSelectBusy"
-      :dismissableMask="!isLoadingAction && !roomTypeSelectBusy"
+      :close-on-escape="!isLoadingAction && !roomTypeSelectBusy"
+      :dismissable-mask="!isLoadingAction && !roomTypeSelectBusy"
       :closable="!isLoadingAction && !roomTypeSelectBusy"
       :draggable="false"
-      @hide="clearModal"
       aria-labelledby="room-create-dialog-title"
+      @hide="clearModal"
     >
       <template #header>
         <h2 id="room-create-dialog-title" class="p-dialog-title">
@@ -49,9 +49,9 @@
             $t("rooms.settings.general.type")
           }}</label>
           <RoomTypeSelect
-            aria-labelledby="room-type-label"
             ref="roomTypeSelect"
             v-model="room.room_type"
+            aria-labelledby="room-type-label"
             :disabled="isLoadingAction"
             :invalid="formErrors.fieldInvalid('room_type')"
             @loading-error="(value) => (roomTypeSelectLoadingError = value)"

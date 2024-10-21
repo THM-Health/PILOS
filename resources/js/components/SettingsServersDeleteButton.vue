@@ -1,9 +1,9 @@
 <template>
   <Button
+    v-tooltip="$t('admin.servers.delete.item', { name: props.name })"
     severity="danger"
     icon="fa-solid fa-trash"
     :disabled="isBusy"
-    v-tooltip="$t('admin.servers.delete.item', { name: props.name })"
     :aria-label="$t('admin.servers.delete.item', { name: props.name })"
     @click="showDeleteModal()"
   />
@@ -13,9 +13,9 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     modal
-    :closeOnEscape="!isBusy"
+    :close-on-escape="!isBusy"
     :closeable="!isBusy"
-    :dismissableMask="!isBusy"
+    :dismissable-mask="!isBusy"
     :draggable="false"
   >
     <span>{{ $t("admin.servers.delete.confirm", { name: props.name }) }}</span>

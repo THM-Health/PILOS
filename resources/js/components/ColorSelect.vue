@@ -1,9 +1,9 @@
 <template>
   <div class="flex gap-2 flex-wrap">
     <div
-      role="button"
       v-for="color in props.colors"
       :key="color"
+      role="button"
       class="color-select h-11 w-11 rounded-border border border-surface relative overflow-hidden"
       :style="{ 'background-color': color }"
       :class="{

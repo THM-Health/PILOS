@@ -1,18 +1,17 @@
 <template>
   <div class="grid grid-cols-12 gap-4">
     <div
-      class="col-span-12 lg:col-span-9 flex md:flex-row flex-col gap-2 md:items-start"
       v-if="!viewOnly"
+      class="col-span-12 lg:col-span-9 flex md:flex-row flex-col gap-2 md:items-start"
     >
       <FileUpload
         v-if="!imageDeleted"
         mode="basic"
         accept="image/*"
-        customUpload
+        custom-upload
         auto
         :disabled="disabled"
         class="w-full"
-        @uploader="onFileSelect"
         :choose-label="$t('admin.users.image.upload')"
         :pt="{
           pcChooseButton: {
@@ -24,6 +23,7 @@
             'data-test': 'upload-file-input',
           },
         }"
+        @uploader="onFileSelect"
       >
         <template #uploadicon>
           <i class="fa-solid fa-upload" />
@@ -33,29 +33,29 @@
       <Button
         v-if="croppedImage"
         severity="danger"
-        @click="resetFileUpload"
         :disabled="disabled"
         :label="$t('app.cancel')"
         icon="fa-solid fa-times"
         data-test="reset-file-upload-button"
+        @click="resetFileUpload"
       />
       <Button
         v-if="!imageDeleted && !croppedImage && props.image"
         :disabled="disabled"
         severity="danger"
-        @click="emit('deleteImage', true)"
         :label="$t('admin.users.image.delete')"
         icon="fa-solid fa-trash"
         data-test="delete-image-button"
+        @click="emit('deleteImage', true)"
       />
       <Button
         v-if="imageDeleted"
         :disabled="disabled"
         severity="secondary"
-        @click="emit('deleteImage', false)"
         :label="$t('app.undo_delete')"
         icon="fa-solid fa-undo"
         data-test="undo-delete-button"
+        @click="emit('deleteImage', false)"
       />
     </div>
     <div
@@ -72,8 +72,8 @@
         data-test="profile-image-preview"
       />
       <UserAvatar
-        data-test="default-profile-image-preview"
         v-else
+        data-test="default-profile-image-preview"
         :firstname="firstname"
         :lastname="lastname"
         :alt="$t('admin.users.image.title')"
@@ -83,15 +83,15 @@
     </div>
   </div>
   <Dialog
-    data-test="crop-image-dialog"
     v-model:visible="showModal"
+    data-test="crop-image-dialog"
     modal
     :header="$t('admin.users.image.crop')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="false"
-    :dismissableMask="false"
+    :close-on-escape="false"
+    :dismissable-mask="false"
     :closable="false"
   >
     <template #footer>
@@ -99,24 +99,24 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('admin.users.image.save')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="save"
           data-test="dialog-save-button"
+          @click="save"
         />
       </div>
     </template>
 
     <VueCropper
-      class="my-2"
       v-show="selectedFile"
       ref="cropperRef"
+      class="my-2"
       :auto-crop-area="1"
       :aspect-ratio="1"
       :view-mode="1"

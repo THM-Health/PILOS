@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-4 w-full" data-test="room-type-details">
-    <h3><RoomTypeBadge :roomType="roomType" class="w-full text-base" /></h3>
+    <h3><RoomTypeBadge :room-type="roomType" class="w-full text-base" /></h3>
 
     <div class="w-full">
       <div
@@ -19,8 +19,8 @@
         <!-- Information about the default and enforced room settings for the room type -->
         <Accordion
           class="mt-4"
-          expandIcon="fa-solid fa-plus"
-          collapseIcon="fa-solid fa-minus"
+          expand-icon="fa-solid fa-plus"
+          collapse-icon="fa-solid fa-minus"
         >
           <AccordionPanel value="0" class="border-0">
             <AccordionHeader
@@ -40,9 +40,9 @@
               >
                 <h4 class="my-2 font-bold">{{ settingGroup.title }}</h4>
                 <RoomTypeSettingsField
-                  :data-test="'room-type-' + setting.key + '-setting'"
                   v-for="setting in settingGroup.settings"
                   :key="setting.key"
+                  :data-test="'room-type-' + setting.key + '-setting'"
                   :value="roomType[setting.key + '_default']"
                   :enforced="roomType[setting.key + '_enforced']"
                   :label="setting.label"

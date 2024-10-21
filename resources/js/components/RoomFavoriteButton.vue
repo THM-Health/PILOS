@@ -1,20 +1,20 @@
 <template>
   <Button
-    data-test="room-favorites-button"
-    :severity="props.room.is_favorite ? 'contrast' : 'secondary'"
     v-tooltip="
       props.room.is_favorite
         ? $t('rooms.favorites.remove')
         : $t('rooms.favorites.add')
     "
+    data-test="room-favorites-button"
+    :severity="props.room.is_favorite ? 'contrast' : 'secondary'"
     :aria-label="
       props.room.is_favorite
         ? $t('rooms.favorites.remove')
         : $t('rooms.favorites.add')
     "
     :icon="isLoading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-star'"
-    @click.stop="toggleFavorite"
     :disabled="isLoading"
+    @click.stop="toggleFavorite"
   />
 </template>
 

@@ -8,10 +8,10 @@
           </h1>
 
           <Breadcrumb
+            v-if="breakcrumbs.length > 0"
             :home="home"
             class="px-0 py-2"
             :model="breakcrumbs"
-            v-if="breakcrumbs.length > 0"
           >
             <template #item="{ item, props }">
               <router-link
@@ -23,8 +23,8 @@
                 <a
                   :href="href"
                   v-bind="props.action"
-                  @click="navigate"
                   class="text-primary"
+                  @click="navigate"
                 >
                   <span :class="[item.icon]" />
                   <span>{{ item.label }}</span>

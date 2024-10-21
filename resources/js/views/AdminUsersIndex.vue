@@ -10,11 +10,11 @@
             @keyup.enter="loadData(1)"
           />
           <Button
-            :disabled="isBusy"
-            @click="loadData(1)"
             v-tooltip="$t('app.search')"
+            :disabled="isBusy"
             :aria-label="$t('app.search')"
             icon="fa-solid fa-magnifying-glass"
+            @click="loadData(1)"
           />
         </InputGroup>
       </div>
@@ -24,7 +24,6 @@
           <multiselect
             ref="rolesMultiselectRef"
             v-model="filter.role"
-            @update:modelValue="loadData(1)"
             :placeholder="$t('admin.users.role_filter')"
             track-by="id"
             open-direction="bottom"
@@ -39,14 +38,15 @@
             :disabled="rolesLoadingError"
             :loading="rolesLoading"
             :allow-empty="true"
+            @update:model-value="loadData(1)"
           >
             <template #noOptions>
               {{ $t("admin.roles.no_data") }}
             </template>
-            <template v-slot:option="{ option }">
+            <template #option="{ option }">
               {{ option.name }}
             </template>
-            <template v-slot:singleLabel="{ option }">
+            <template #singleLabel="{ option }">
               {{ option.name }}
             </template>
             <template #afterList>
@@ -55,17 +55,17 @@
                   :disabled="rolesLoading || rolesCurrentPage === 1"
                   outlined
                   severity="secondary"
-                  @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
                   icon="fa-solid fa-arrow-left"
                   :label="$t('app.previous_page')"
+                  @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
                 />
                 <Button
                   :disabled="rolesLoading || !rolesHasNextPage"
                   outlined
                   severity="secondary"
-                  @click="loadRoles(rolesCurrentPage + 1)"
                   icon="fa-solid fa-arrow-right"
                   :label="$t('app.next_page')"
+                  @click="loadRoles(rolesCurrentPage + 1)"
                 />
               </div>
             </template>
@@ -74,26 +74,26 @@
             v-if="!rolesLoadingError && filter.role"
             outlined
             severity="secondary"
-            @click="clearFilterRole"
             icon="fa-solid fa-xmark"
+            @click="clearFilterRole"
           />
 
           <Button
             v-if="rolesLoadingError"
             outlined
             severity="secondary"
-            @click="loadRoles(rolesCurrentPage)"
             icon="fa-solid fa-sync"
+            @click="loadRoles(rolesCurrentPage)"
           />
         </InputGroup>
         <Button
-          class="shrink-0"
-          as="router-link"
           v-if="
             userPermissions.can('create', 'UserPolicy') &&
             settingsStore.getSetting('auth.local')
           "
           v-tooltip="$t('admin.users.new')"
+          class="shrink-0"
+          as="router-link"
           :aria-label="$t('admin.users.new')"
           icon="fa-solid fa-plus"
           :to="{ name: 'admin.users.new' }"
@@ -102,26 +102,26 @@
     </div>
 
     <DataTable
-      :totalRecords="paginator.getTotalRecords()"
+      v-model:sort-field="sortField"
+      v-model:sort-order="sortOrder"
+      :total-records="paginator.getTotalRecords()"
       :rows="paginator.getRows()"
       :first="paginator.getFirst()"
-      @update:first="paginator.setFirst($event)"
       :value="users"
       lazy
-      dataKey="id"
+      data-key="id"
       paginator
       :paginator-template="paginator.getTemplate()"
       :current-page-report-template="paginator.getCurrentPageReportTemplate()"
       :loading="isBusy || loadingError"
-      rowHover
-      stripedRows
-      v-model:sortField="sortField"
-      v-model:sortOrder="sortOrder"
-      @page="onPage"
-      @sort="onSort"
+      row-hover
+      striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
       }"
+      @update:first="paginator.setFirst($event)"
+      @page="onPage"
+      @sort="onSort"
     >
       <template #loading>
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
@@ -171,14 +171,13 @@
         </template>
       </Column>
       <Column
+        v-if="actionColumn.visible"
         :header="$t('app.actions')"
         :class="actionColumn.classes"
-        v-if="actionColumn.visible"
       >
         <template #body="slotProps">
           <div>
             <Button
-              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
               v-tooltip="
                 $t('admin.users.view', {
@@ -186,6 +185,7 @@
                   lastname: slotProps.data.lastname,
                 })
               "
+              as="router-link"
               :aria-label="
                 $t('admin.users.view', {
                   firstname: slotProps.data.firstname,
@@ -200,15 +200,15 @@
               icon="fa-solid fa-eye"
             />
             <Button
-              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
-              severity="info"
               v-tooltip="
                 $t('admin.users.edit', {
                   firstname: slotProps.data.firstname,
                   lastname: slotProps.data.lastname,
                 })
               "
+              as="router-link"
+              severity="info"
               :aria-label="
                 $t('admin.users.edit', {
                   firstname: slotProps.data.firstname,

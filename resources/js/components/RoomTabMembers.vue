@@ -11,11 +11,11 @@
               @keyup.enter="loadData(1)"
             />
             <Button
-              :disabled="isBusy"
-              @click="loadData(1)"
               v-tooltip="$t('app.search')"
+              :disabled="isBusy"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
+              @click="loadData(1)"
             />
           </InputGroup>
         </div>
@@ -25,11 +25,10 @@
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
+              v-model="filter"
               data-test="filter-dropdown"
               :disabled="isBusy"
-              v-model="filter"
               :options="filterOptions"
-              @change="loadData(1)"
               option-label="name"
               option-value="value"
               :pt="{
@@ -40,6 +39,7 @@
                   'data-test': 'filter-dropdown-option',
                 },
               }"
+              @change="loadData(1)"
             />
           </InputGroup>
 
@@ -48,11 +48,10 @@
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
+              v-model="sortField"
               data-test="sorting-type-dropdown"
               :disabled="isBusy"
-              v-model="sortField"
               :options="sortFields"
-              @change="loadData(1)"
               option-label="name"
               option-value="value"
               :pt="{
@@ -63,6 +62,7 @@
                   'data-test': 'sorting-type-dropdown-option',
                 },
               }"
+              @change="loadData(1)"
             />
             <InputGroupAddon class="p-0">
               <Button
@@ -72,10 +72,10 @@
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
                 "
-                @click="toggleSortOrder"
                 severity="secondary"
                 text
                 class="rounded-l-none"
+                @click="toggleSortOrder"
               />
             </InputGroupAddon>
           </InputGroup>
@@ -91,14 +91,14 @@
 
         <!-- Reload -->
         <Button
+          v-tooltip="$t('app.reload')"
           data-test="room-members-reload-button"
           class="shrink-0"
-          v-tooltip="$t('app.reload')"
           :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData()"
           icon="fa-solid fa-sync"
+          @click="loadData()"
         />
       </div>
     </div>
@@ -109,18 +109,16 @@
       </template>
 
       <DataView
-        :totalRecords="paginator.getTotalRecords()"
+        :total-records="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
-        @update:first="paginator.setFirst($event)"
         :value="members"
         lazy
-        dataKey="id"
+        data-key="id"
         paginator
         :paginator-template="paginator.getTemplate()"
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-        rowHover
-        @page="onPage"
+        row-hover
         class="mt-6"
         :pt="{
           pcPaginator: {
@@ -132,11 +130,13 @@
             },
           },
         }"
+        @update:first="paginator.setFirst($event)"
+        @page="onPage"
       >
         <!-- Show message on empty list -->
         <template #empty>
           <div>
-            <div class="px-2" v-if="!isBusy && !loadingError">
+            <div v-if="!isBusy && !loadingError" class="px-2">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
                 $t("rooms.members.nodata")
               }}</InlineNote>
@@ -146,21 +146,21 @@
         </template>
 
         <template
-          #header
           v-if="
             selectableMembers.length > 0 &&
             userPermissions.can('manageSettings', props.room)
           "
+          #header
         >
           <div class="flex justify-between mb-2">
             <Checkbox
               :model-value="selectedMembers.length === selectableMembers.length"
-              @update:modelValue="toggleSelectAll"
               :binary="true"
               data-test="room-members-select-all-checkbox"
+              @update:model-value="toggleSelectAll"
             />
             <!-- selected rows action buttons -->
-            <div class="flex gap-1" v-if="selectedMembers.length > 0">
+            <div v-if="selectedMembers.length > 0" class="flex gap-1">
               <!-- bulk edit membership role -->
               <RoomTabMembersBulkEditButton
                 :room-id="props.room.id"
@@ -189,8 +189,8 @@
               >
                 <div class="flex flex-row gap-6">
                   <div
-                    class="flex items-center"
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    class="flex items-center"
                   >
                     <Checkbox
                       :disabled="
@@ -198,10 +198,10 @@
                         authStore.currentUser.id === item.id
                       "
                       :model-value="isMemberSelected(item.id)"
-                      @update:modelValue="
+                      :binary="true"
+                      @update:model-value="
                         (selected) => onMemberSelected(item.id, selected)
                       "
-                      :binary="true"
                     />
                   </div>
                   <div class="flex items-center">
@@ -232,11 +232,11 @@
                 </div>
 
                 <div
-                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
                   v-if="
                     userPermissions.can('manageSettings', props.room) &&
                     authStore.currentUser?.id !== item.id
                   "
+                  class="shrink-0 flex flex-row gap-1 items-start justify-end"
                 >
                   <!-- edit membership role -->
                   <RoomTabMembersEditButton

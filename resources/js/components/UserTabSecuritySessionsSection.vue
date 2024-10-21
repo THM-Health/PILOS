@@ -34,9 +34,9 @@
 
         <template #icons>
           <Tag
-            severity="secondary"
             v-if="!session.current"
             v-tooltip="$t('auth.sessions.last_active')"
+            severity="secondary"
             :aria-label="$t('auth.sessions.last_active')"
             icon="fa-solid fa-clock"
             :value="$d(new Date(session.last_activity), 'datetimeShort')"
@@ -56,11 +56,11 @@
           severity="danger"
           :disabled="loading || loadingError"
           class="mt-4"
-          @click="deleteAllSessions"
           :label="$t('auth.sessions.logout_all')"
           icon="fa-solid fa-right-from-bracket"
           :loading="loading"
           data-test="logout-all-sessions-button"
+          @click="deleteAllSessions"
         />
       </div>
     </OverlayComponent>

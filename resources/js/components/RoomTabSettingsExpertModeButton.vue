@@ -8,13 +8,13 @@
         ? $t('rooms.settings.expert_mode.deactivate')
         : $t('rooms.settings.expert_mode.activate')
     "
-    @click="showModal = true"
     :disabled="disabled"
+    @click="showModal = true"
   />
 
   <Dialog
-    data-test="room-settings-expert-mode-dialog"
     v-model:visible="showModal"
+    data-test="room-settings-expert-mode-dialog"
     modal
     :header="
       expertMode

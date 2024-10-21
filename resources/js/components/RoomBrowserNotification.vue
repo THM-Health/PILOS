@@ -1,19 +1,19 @@
 <template>
   <Button
     v-if="notificationSupport && !running"
+    v-tooltip="
+      notificationEnabled
+        ? $t('rooms.notification.disable')
+        : $t('rooms.notification.enable')
+    "
     :severity="notificationEnabled ? 'contrast' : 'secondary'"
-    @click="notificationEnabled ? disableNotification() : enableNotification()"
     icon="fa-solid fa-bell"
     :aria-label="
       notificationEnabled
         ? $t('rooms.notification.disable')
         : $t('rooms.notification.enable')
     "
-    v-tooltip="
-      notificationEnabled
-        ? $t('rooms.notification.disable')
-        : $t('rooms.notification.enable')
-    "
+    @click="notificationEnabled ? disableNotification() : enableNotification()"
   />
 </template>
 

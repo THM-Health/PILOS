@@ -64,7 +64,7 @@ defineProps({
         <span class="sr-only">{{ $t("app.disabled") }}</span>
       </Tag>
 
-      <Tag severity="info" v-if="type === 'select'" data-test="current-info">
+      <Tag v-if="type === 'select'" severity="info" data-test="current-info">
         {{ options[currentValue] }}
       </Tag>
     </div>
@@ -109,7 +109,7 @@ defineProps({
         <span class="sr-only">{{ $t("app.disabled") }}</span>
       </Tag>
 
-      <Tag severity="info" v-if="type === 'select'" data-test="new-info">
+      <Tag v-if="type === 'select'" severity="info" data-test="new-info">
         {{ options[newValue] }}
       </Tag>
     </div>

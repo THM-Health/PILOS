@@ -4,9 +4,9 @@
     :aria-label="$t('rooms.description.tooltips.image')"
     :severity="props.editor.isActive('image') ? 'primary' : 'secondary'"
     text
-    @click="openModal"
     icon="fa-solid fa-image"
     data-test="tip-tap-image-button"
+    @click="openModal"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -23,7 +23,7 @@
   >
     <div class="flex flex-col gap-2 mt-6" data-test="src-field">
       <label for="src">{{ $t("rooms.description.modals.image.src") }}</label>
-      <InputText autofocus id="src" v-model.trim="src" :invalid="srcInvalid" />
+      <InputText id="src" v-model.trim="src" autofocus :invalid="srcInvalid" />
       <p v-if="srcInvalid" class="text-red-500" role="alert">
         {{ $t("rooms.description.modals.image.invalid_src") }}
       </p>
@@ -50,23 +50,23 @@
           <Button
             v-if="!newImage"
             severity="danger"
-            @click="deleteImage"
             :label="$t('app.delete')"
             data-test="tip-tap-image-delete-button"
+            @click="deleteImage"
           />
         </div>
         <div class="flex gap-2">
           <Button
             severity="secondary"
-            @click="modalVisible = false"
             :label="$t('app.cancel')"
             data-test="dialog-cancel-button"
+            @click="modalVisible = false"
           />
           <Button
             :disabled="srcInvalid !== false"
-            @click="save"
             :label="$t('app.save')"
             data-test="dialog-save-button"
+            @click="save"
           />
         </div>
       </div>

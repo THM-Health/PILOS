@@ -3,8 +3,8 @@
     <div class="flex justify-end mb-6">
       <div v-if="model.id !== null && id !== 'new'" class="flex gap-2">
         <Button
-          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
+          as="router-link"
           :disabled="isBusy"
           :to="{ name: 'admin.servers.view', params: { id: model.id } }"
           severity="secondary"
@@ -12,8 +12,8 @@
           icon="fa-solid fa-times"
         />
         <Button
-          as="router-link"
           v-if="viewOnly && userPermissions.can('update', model)"
+          as="router-link"
           :disabled="isBusy"
           :to="{ name: 'admin.servers.edit', params: { id: model.id } }"
           severity="info"
@@ -39,8 +39,8 @@
 
       <form
         :aria-hidden="modelLoadingError"
-        @submit.prevent="saveServer"
         class="flex flex-col gap-4"
+        @submit.prevent="saveServer"
       >
         <div class="field grid grid-cols-12 gap-4">
           <label class="col-span-12 md:col-span-4 md:mb-0" for="name">{{
@@ -95,9 +95,9 @@
           <div class="col-span-12 md:col-span-8">
             <InputText
               id="base_url"
+              v-model="model.base_url"
               autocomplete="off"
               placeholder="https://bbb01.example.com/bigbluebutton/"
-              v-model="model.base_url"
               :disabled="isBusy || modelLoadingError || viewOnly"
               :invalid="formErrors.fieldInvalid('base_url')"
               class="w-full"
@@ -112,14 +112,14 @@
           }}</label>
           <div class="col-span-12 md:col-span-8">
             <Password
+              v-model="model.secret"
               fluid
               input-id="secret"
-              :inputProps="{ autocomplete: 'off' }"
-              v-model="model.secret"
+              :input-props="{ autocomplete: 'off' }"
               :disabled="isBusy || modelLoadingError || viewOnly"
               :invalid="formErrors.fieldInvalid('secret')"
               :feedback="false"
-              :toggleMask="true"
+              :toggle-mask="true"
             />
             <FormError :errors="formErrors.fieldError('secret')" />
           </div>
@@ -146,14 +146,14 @@
         </fieldset>
 
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 md:col-span-4 md:mb-0" id="status-label">{{
+          <label id="status-label" class="col-span-12 md:col-span-4 md:mb-0">{{
             $t("admin.servers.status")
           }}</label>
           <div class="col-span-12 md:col-span-8">
             <div>
               <Select
-                aria-labelledby="status-label"
                 v-model="model.status"
+                aria-labelledby="status-label"
                 :options="serverStatusOptions"
                 option-label="name"
                 option-value="value"

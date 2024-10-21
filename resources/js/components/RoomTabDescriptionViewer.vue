@@ -1,10 +1,10 @@
 <template>
   <div>
     <div
-      class="px-2 room-description link-color"
-      v-html="props.html"
       ref="roomDescription"
+      class="px-2 room-description link-color"
       data-test="room-description-viewer"
+      v-html="props.html"
     />
     <ConfirmDialog
       data-test="room-description-viewer-confirm-dialog"

@@ -4,9 +4,9 @@
     :aria-label="$t('rooms.description.tooltips.source_code')"
     severity="secondary"
     text
-    @click="openModal"
     icon="fa-solid fa-code"
     data-test="tip-tap-source-button"
+    @click="openModal"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -18,8 +18,8 @@
     data-test="tip-tap-source-dialog"
   >
     <Textarea
-      autofocus
       v-model="source"
+      autofocus
       class="w-full mt-2"
       rows="5"
       data-test="source-textarea"
@@ -29,14 +29,14 @@
       <div class="w-full flex justify-end gap-2">
         <Button
           severity="secondary"
-          @click="modalVisible = false"
           :label="$t('app.cancel')"
           data-test="dialog-cancel-button"
+          @click="modalVisible = false"
         />
         <Button
-          @click="save"
           :label="$t('app.save')"
           data-test="dialog-save-button"
+          @click="save"
         />
       </div>
     </template>

@@ -16,9 +16,9 @@
         >
           <div>
             <Button
+              v-if="settingsStore.getSetting('general.legal_notice_url')"
               as="a"
               link
-              v-if="settingsStore.getSetting('general.legal_notice_url')"
               :href="settingsStore.getSetting('general.legal_notice_url')"
               class="p-0 text-sm"
             >
@@ -35,10 +35,10 @@
               <raw-text>|</raw-text>
             </div>
             <Button
+              v-if="settingsStore.getSetting('general.privacy_policy_url')"
               as="a"
               link
               rel="privacy-policy nofollow"
-              v-if="settingsStore.getSetting('general.privacy_policy_url')"
               :href="settingsStore.getSetting('general.privacy_policy_url')"
               class="p-0 text-sm"
             >

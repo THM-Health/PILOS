@@ -76,8 +76,8 @@
           <Button
             :label="$t('app.close')"
             severity="secondary"
-            @click="handleCancel"
             data-test="dialog-cancel-button"
+            @click="handleCancel"
           />
           <Button
             as="router-link"

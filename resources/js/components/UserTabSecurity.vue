@@ -11,8 +11,8 @@
     </AdminPanel>
 
     <AdminPanel
-      :title="$t('auth.change_password')"
       v-if="!viewOnly && user.authenticator === 'local' && canChangePassword"
+      :title="$t('auth.change_password')"
     >
       <UserTabSecurityPasswordSection
         :user="user"
@@ -21,7 +21,7 @@
       />
     </AdminPanel>
 
-    <AdminPanel :title="$t('auth.sessions.active')" v-if="isOwnUser">
+    <AdminPanel v-if="isOwnUser" :title="$t('auth.sessions.active')">
       <UserTabSecuritySessionsSection />
     </AdminPanel>
   </div>

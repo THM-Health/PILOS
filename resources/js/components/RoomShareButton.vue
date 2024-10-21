@@ -4,8 +4,8 @@
     :label="$t('rooms.invitation.share')"
     icon="fa-solid fa-share-nodes"
     severity="secondary"
-    @click="toggle"
     class="shrink-0"
+    @click="toggle"
   />
   <Popover ref="op" aria-labelledby="room-invitation-title">
     <div class="flex flex-col items-start gap-4 min-w-min p-2">
@@ -17,17 +17,17 @@
           {{ $t("rooms.invitation.title") }}
         </legend>
         <div class="grow">
-          <IconField iconPosition="left">
+          <IconField icon-position="left">
             <InputIcon>
               <i
-                class="fa-solid fa-link"
                 v-tooltip="$t('rooms.invitation.link')"
+                class="fa-solid fa-link"
                 :aria-label="$t('rooms.invitation.link')"
               />
             </InputIcon>
             <InputText
-              class="border-surface-0 dark:border-surface-900 shadow-none w-full text-ellipsis"
               id="invitationLink"
+              class="border-surface-0 dark:border-surface-900 shadow-none w-full text-ellipsis"
               :aria-label="$t('rooms.invitation.link')"
               readonly
               :value="roomUrl"
@@ -35,17 +35,17 @@
             />
           </IconField>
 
-          <IconField iconPosition="left" v-if="room.access_code">
+          <IconField v-if="room.access_code" icon-position="left">
             <InputIcon>
               <i
-                class="fa-solid fa-key"
                 v-tooltip="$t('rooms.invitation.code')"
+                class="fa-solid fa-key"
                 :aria-label="$t('rooms.invitation.code')"
               />
             </InputIcon>
             <InputText
-              class="border-surface-0 dark:border-surface-900 shadow-none w-full"
               id="invitationCode"
+              class="border-surface-0 dark:border-surface-900 shadow-none w-full"
               :aria-label="$t('rooms.invitation.code')"
               readonly
               :value="formattedAccessCode"
@@ -56,10 +56,10 @@
       </fieldset>
       <Button
         data-test="room-copy-invitation-button"
-        @click="copyInvitationText"
         :label="$t('rooms.invitation.copy')"
         icon="fa-solid fa-copy"
         autofocus
+        @click="copyInvitationText"
       />
     </div>
   </Popover>

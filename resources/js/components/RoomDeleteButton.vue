@@ -4,11 +4,11 @@
     v-if="userPermissions.can('delete', room)"
     ref="deleteButton"
     :disabled="disabled"
-    @click="showModal = true"
     severity="danger"
     icon="fa-solid fa-trash"
     :label="$t('rooms.modals.delete.title')"
     data-test="room-delete-button"
+    @click="showModal = true"
   />
 
   <!-- Remove room modal -->
@@ -19,8 +19,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
     data-test="room-delete-dialog"
   >
@@ -31,17 +31,17 @@
         <Button
           :label="$t('app.no')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.yes')"
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="deleteRoom"
           data-test="dialog-continue-button"
+          @click="deleteRoom"
         />
       </div>
     </template>

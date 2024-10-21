@@ -14,8 +14,8 @@
     "
     :disabled="isBusy"
     severity="danger"
-    @click="showDeleteModal"
     icon="fa-solid fa-trash"
+    @click="showDeleteModal"
   />
   <Dialog
     v-model:visible="showModal"
@@ -23,8 +23,8 @@
     :header="$t('admin.users.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
-    :closeOnEscape="!isBusy"
-    :dismissableMask="!isBusy"
+    :close-on-escape="!isBusy"
+    :dismissable-mask="!isBusy"
     :closeable="!isBusy"
     :draggable="false"
   >

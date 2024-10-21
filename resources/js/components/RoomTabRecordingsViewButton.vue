@@ -2,9 +2,9 @@
   <Button
     v-tooltip="$t('rooms.recordings.view_recording')"
     :aria-label="$t('rooms.recordings.view_recording')"
-    @click="showModal = true"
     icon="fa-solid fa-eye"
     :disabled="props.disabled"
+    @click="showModal = true"
   />
 
   <!-- view recording modal -->
@@ -14,8 +14,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #header>
@@ -38,8 +38,8 @@
           :label="$t('app.close')"
           severity="secondary"
           icon="fa-solid fa-times"
-          @click="showModal = false"
           :disabled="isLoadingAction"
+          @click="showModal = false"
         />
       </div>
     </template>
@@ -53,9 +53,9 @@
           )"
           :key="format.format"
           icon="fa-solid fa-play"
-          @click="downloadFormat(format)"
           :disabled="isLoadingAction"
           :label="$t('rooms.recordings.format_types.' + format.format)"
+          @click="downloadFormat(format)"
         />
       </div>
     </OverlayComponent>

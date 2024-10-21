@@ -3,8 +3,8 @@
     v-tooltip="$t('meetings.attendance.view')"
     :aria-label="$t('meetings.attendance.view')"
     :disabled="disabled"
-    @click="showAttendanceModal"
     icon="fa-solid fa-user-clock"
+    @click="showAttendanceModal"
   />
 
   <!-- edit user role modal -->
@@ -15,8 +15,8 @@
     :style="{ width: '1200px' }"
     :breakpoints="{ '1270px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="!isLoadingAction"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="!isLoadingAction"
     :closable="!isLoadingAction"
   >
     <template #header>
@@ -43,18 +43,18 @@
 
     <!-- List of all meetings -->
     <DataTable
-      scrollable
-      scrollHeight="400px"
-      :value="attendance"
-      dataKey="id"
-      :loading="isLoadingAction"
-      rowHover
       v-model:filters="filters"
-      :globalFilterFields="['name']"
+      scrollable
+      scroll-height="400px"
+      :value="attendance"
+      data-key="id"
+      :loading="isLoadingAction"
+      row-hover
+      :global-filter-fields="['name']"
     >
       <template #header>
         <div class="flex justify-between gap-2">
-          <IconField iconPosition="left">
+          <IconField icon-position="left">
             <InputIcon class="fa-solid fa-search"> </InputIcon>
             <InputText
               v-model="filters['global'].value"
@@ -63,13 +63,13 @@
           </IconField>
 
           <Button
+            v-tooltip:top="$t('meetings.attendance.download')"
             as="a"
             target="_blank"
             :href="downloadUrl"
             icon="fa-solid fa-file-excel"
             severity="secondary"
             :aria-label="$t('meetings.attendance.download')"
-            v-tooltip:top="$t('meetings.attendance.download')"
           />
         </div>
       </template>

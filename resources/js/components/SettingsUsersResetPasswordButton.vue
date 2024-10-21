@@ -15,8 +15,8 @@
     "
     :disabled="isBusy"
     severity="warn"
-    @click="showResetPasswordModal"
     icon="fa-solid fa-key"
+    @click="showResetPasswordModal"
   />
 
   <Dialog
@@ -25,8 +25,8 @@
     :header="$t('admin.users.reset_password.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
-    :closeOnEscape="!isBusy"
-    :dismissableMask="!isBusy"
+    :close-on-escape="!isBusy"
+    :dismissable-mask="!isBusy"
     :closeable="!isBusy"
     :draggable="false"
   >

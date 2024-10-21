@@ -5,9 +5,9 @@
     :aria-label="$t('rooms.files.edit')"
     :disabled="disabled"
     severity="info"
-    @click="showEditModal"
     icon="fa-solid fa-edit"
     data-test="room-files-edit-button"
+    @click="showEditModal"
   />
 
   <!-- modal -->
@@ -18,8 +18,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
     data-test="room-files-edit-dialog"
   >
@@ -28,17 +28,17 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.save')"
           severity="success"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="save"
           data-test="dialog-save-button"
+          @click="save"
         />
       </div>
     </template>
@@ -49,8 +49,8 @@
       }}</label>
       <div class="col-span-12 md:col-span-6">
         <ToggleSwitch
-          input-id="download"
           v-model="newDownload"
+          input-id="download"
           required
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('download')"
@@ -67,8 +67,8 @@
       >
       <div class="col-span-12 md:col-span-6">
         <ToggleSwitch
-          input-id="use_in_meeting"
           v-model="newUseInMeeting"
+          input-id="use_in_meeting"
           required
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('use_in_meeting')"
@@ -83,8 +83,8 @@
       }}</label>
       <div class="col-span-12 md:col-span-6">
         <ToggleSwitch
-          input-id="default"
           v-model="newDefault"
+          input-id="default"
           required
           :disabled="isLoadingAction"
           :invalid="formErrors.fieldInvalid('default')"

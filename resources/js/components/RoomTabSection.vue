@@ -16,17 +16,17 @@
           <div class="hidden md:flex flex-row gap-2" @keydown="keydownHandler">
             <Button
               v-for="tab in availableTabs"
+              :id="'tab-' + tab.key"
               :key="tab.key"
-              :severity="tab.active ? 'contrast' : 'secondary'"
-              @click="tab.command"
-              :icon="tab.icon"
               v-tooltip.bottom="tab.label"
+              :severity="tab.active ? 'contrast' : 'secondary'"
+              :icon="tab.icon"
               :aria-label="tab.label"
               role="tab"
-              :id="'tab-' + tab.key"
               :aria-selected="tab.active"
               :aria-controls="'panel-' + tab.key"
               :tabindex="tab.active ? 0 : -1"
+              @click="tab.command"
             />
           </div>
           <!-- Mobile layout, dropdown menu -->
@@ -36,13 +36,13 @@
               severity="secondary"
               text
               icon="fa-solid fa-ellipsis-vertical"
-              @click="toggle"
               aria-haspopup="true"
               aria-controls="overlay_menu"
+              @click="toggle"
             />
             <Menu
-              ref="menu"
               id="overlay_menu"
+              ref="menu"
               :model="availableTabs"
               :popup="true"
               role="tablist"
@@ -56,8 +56,8 @@
       <!-- Tab content -->
       <div
         v-for="tab in availableTabs"
-        :key="tab.key"
         :id="'panel-' + tab.key"
+        :key="tab.key"
         role="tabpanel"
         :aria-labelledby="'tab-' + tab.key"
         :hidden="!tab.active"

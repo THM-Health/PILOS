@@ -6,8 +6,8 @@
         <label :for="`${props.id}-email`">{{ props.emailLabel }}</label>
         <InputText
           :id="`${props.id}-email`"
-          type="text"
           v-model="email"
+          type="text"
           autocomplete="email"
           :placeholder="props.emailLabel"
           aria-describedby="email-help-block"
@@ -24,11 +24,11 @@
       <div class="flex flex-col gap-2 mt-6">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
-          :input-id="`${props.id}-password`"
           v-model="password"
+          :input-id="`${props.id}-password`"
           autocomplete="current-password"
           :feedback="false"
-          toggleMask
+          toggle-mask
           required
           fluid
           :placeholder="props.passwordLabel"
@@ -42,9 +42,9 @@
           "
         />
         <Button
-          as="router-link"
-          id="password-help-block"
           v-if="settingsStore.getSetting('user.password_change_allowed')"
+          id="password-help-block"
+          as="router-link"
           link
           class="self-start p-0"
           to="/forgot_password"

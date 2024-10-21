@@ -1,11 +1,11 @@
 <template>
   <!-- button -->
   <Button
-    :disabled="disabled"
-    @click="copyLink"
-    icon="fa-solid fa-link"
     v-tooltip="$t('rooms.tokens.copy')"
+    :disabled="disabled"
+    icon="fa-solid fa-link"
     :aria-label="$t('rooms.tokens.copy')"
+    @click="copyLink"
   />
 </template>
 

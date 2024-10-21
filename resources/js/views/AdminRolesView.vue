@@ -3,8 +3,8 @@
     <div class="flex justify-end mb-6">
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
-          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
+          as="router-link"
           severity="secondary"
           :disabled="isBusy"
           :to="{ name: 'admin.roles.view', params: { id: model.id } }"
@@ -12,8 +12,8 @@
           icon="fa-solid fa-times"
         />
         <Button
-          as="router-link"
           v-if="viewOnly && userPermissions.can('update', model)"
+          as="router-link"
           severity="info"
           :disabled="isBusy"
           :to="{ name: 'admin.roles.edit', params: { id: model.id } }"
@@ -39,8 +39,8 @@
 
       <form
         :aria-hidden="modelLoadingError"
-        @submit.prevent="saveRole"
         class="flex flex-col gap-4"
+        @submit.prevent="saveRole"
       >
         <div class="field grid grid-cols-12 gap-4">
           <label for="name" class="col-span-12 md:col-span-4">{{
@@ -48,9 +48,9 @@
           }}</label>
           <div class="col-span-12 md:col-span-8">
             <InputText
-              class="w-full"
               id="name"
               v-model="model.name"
+              class="w-full"
               type="text"
               :invalid="formErrors.fieldInvalid('name')"
               :disabled="isBusy || modelLoadingError || viewOnly"
@@ -64,11 +64,11 @@
             <span class="flex items-center">
               {{ $t("app.room_limit") }}
               <Button
-                @click="helpRoomLimitModalVisible = true"
                 severity="link"
                 class="secondary"
                 :disabled="isBusy || modelLoadingError"
                 icon="fa-solid fa-circle-info"
+                @click="helpRoomLimitModalVisible = true"
               />
             </span>
           </label>
@@ -82,18 +82,18 @@
                 v-model="roomLimitMode"
                 :input-id="option.value"
                 :value="option.value"
-                @change="roomLimitModeChanged(option.value)"
                 :disabled="
                   isBusy || modelLoadingError || viewOnly || model.superuser
                 "
+                @change="roomLimitModeChanged(option.value)"
               />
               <label :for="option.value" class="ml-2">{{ option.text }}</label>
             </div>
             <InputNumber
-              class="w-full"
               v-if="roomLimitMode === 'custom'"
-              input-id="room-limit"
               v-model="model.room_limit"
+              class="w-full"
+              input-id="room-limit"
               mode="decimal"
               show-buttons
               :min="0"
@@ -105,8 +105,8 @@
         </div>
         <h3>{{ $t("admin.roles.permissions_title") }}</h3>
         <div
-          class="grid grid-cols-12 gap-4"
           v-if="!isBusy && Object.keys(permissions).length > 0"
+          class="grid grid-cols-12 gap-4"
         >
           <div class="col-span-8">
             <b>{{ $t("admin.roles.permission_name") }}</b>
@@ -118,25 +118,25 @@
             <b
               >{{ $t("admin.roles.permission_included") }}
               <i
-                class="fa-solid fa-circle-info"
                 v-tooltip="$t('admin.roles.permission_included_help')"
+                class="fa-solid fa-circle-info"
             /></b>
           </div>
           <div class="col-span-12 flex flex-col gap-4">
             <Divider class="m-0" />
             <div
-              class="grid grid-cols-12"
               v-for="key in Object.keys(permissions)"
               :key="key"
+              class="grid grid-cols-12"
             >
               <div class="col-span-12">
                 <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
               </div>
               <div class="col-span-12">
                 <div
-                  class="grid grid-cols-12 gap-4"
                   v-for="permission in permissions[key]"
                   :key="permission.id"
+                  class="grid grid-cols-12 gap-4"
                 >
                   <div class="col-span-8">
                     <label :for="permission.name">{{
@@ -145,8 +145,8 @@
                   </div>
                   <div class="col-span-2 flex">
                     <Checkbox
-                      :input-id="permission.name"
                       v-model="model.permissions"
+                      :input-id="permission.name"
                       :value="permission.id"
                       :disabled="
                         isBusy ||
@@ -160,7 +160,6 @@
                   <div class="col-span-2">
                     <i
                       v-if="includedPermissions.includes(permission.id)"
-                      class="fa-solid fa-check-circle text-green-500"
                       v-tooltip="
                         $t('admin.roles.has_included_permission', {
                           name: $t(
@@ -168,10 +167,10 @@
                           ),
                         })
                       "
+                      class="fa-solid fa-check-circle text-green-500"
                     />
                     <i
                       v-else
-                      class="fa-solid fa-minus-circle text-red-500"
                       v-tooltip="
                         $t('admin.roles.has_not_included_permission', {
                           name: $t(
@@ -179,6 +178,7 @@
                           ),
                         })
                       "
+                      class="fa-solid fa-minus-circle text-red-500"
                     />
                   </div>
                 </div>
@@ -214,8 +214,8 @@
       modal
       :style="{ width: '700px' }"
       :breakpoints="{ '775px': '90vw' }"
-      closeOnEscape
-      dismissableMask
+      close-on-escape
+      dismissable-mask
       :draggable="false"
       :header="$t('app.room_limit')"
     >

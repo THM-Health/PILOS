@@ -3,16 +3,16 @@
     <div class="flex justify-end">
       <div v-if="user" class="flex gap-2">
         <Button
-          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', user)"
+          as="router-link"
           :to="{ name: 'admin.users.view', params: { id: user.id } }"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
           severity="secondary"
         />
         <Button
-          as="router-link"
           v-if="viewOnly && userPermissions.can('update', user)"
+          as="router-link"
           class="p-button p-button-secondary"
           :to="{ name: 'admin.users.edit', params: { id: user.id } }"
           :label="$t('app.edit')"

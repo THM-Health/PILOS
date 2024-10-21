@@ -21,22 +21,22 @@
         <Button
           :disabled="isBusy"
           severity="info"
-          @click="loadData(null, true)"
           icon="fa-solid fa-repeat"
           :label="$t('admin.servers.reload')"
+          @click="loadData(null, true)"
         />
         <Button
+          v-tooltip="$t('app.reload')"
           :disabled="isBusy"
           severity="secondary"
-          @click="loadData(null, false)"
           icon="fa-solid fa-sync"
-          v-tooltip="$t('app.reload')"
           :aria-label="$t('app.reload')"
+          @click="loadData(null, false)"
         />
         <Button
-          as="router-link"
           v-if="userPermissions.can('create', 'ServerPolicy')"
           v-tooltip="$t('admin.servers.new')"
+          as="router-link"
           :aria-label="$t('admin.servers.new')"
           :to="{ name: 'admin.servers.new' }"
           icon="fa-solid fa-plus"
@@ -45,26 +45,26 @@
     </div>
     <Divider />
     <DataTable
-      v-model:sortField="sortField"
-      v-model:sortOrder="sortOrder"
+      v-model:sort-field="sortField"
+      v-model:sort-order="sortOrder"
       :loading="isBusy || loadingError"
-      :totalRecords="paginator.getTotalRecords()"
+      :total-records="paginator.getTotalRecords()"
       :rows="paginator.getRows()"
       :first="paginator.getFirst()"
-      @update:first="paginator.setFirst($event)"
       :value="servers"
-      dataKey="id"
+      data-key="id"
       lazy
       paginator
       :paginator-template="paginator.getTemplate()"
       :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-      rowHover
-      stripedRows
-      @page="onPage"
-      @sort="onSort"
+      row-hover
+      striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
       }"
+      @update:first="paginator.setFirst($event)"
+      @page="onPage"
+      @sort="onSort"
     >
       <template #loading>
         <LoadingRetryButton
@@ -198,19 +198,19 @@
         </template>
       </Column>
       <Column
+        v-if="actionColumn.visible"
         :header="$t('app.actions')"
         :class="actionColumn.classes"
-        v-if="actionColumn.visible"
       >
         <template #body="slotProps">
           <div>
             <Button
-              as="router-link"
               v-if="userPermissions.can('view', slotProps.data)"
-              :disabled="isBusy"
               v-tooltip="
                 $t('admin.servers.view', { name: slotProps.data.name })
               "
+              as="router-link"
+              :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.view', { name: slotProps.data.name })
               "
@@ -221,12 +221,12 @@
               icon="fa-solid fa-eye"
             />
             <Button
-              as="router-link"
               v-if="userPermissions.can('update', slotProps.data)"
-              :disabled="isBusy"
               v-tooltip="
                 $t('admin.servers.edit', { name: slotProps.data.name })
               "
+              as="router-link"
+              :disabled="isBusy"
               :aria-label="
                 $t('admin.servers.edit', { name: slotProps.data.name })
               "

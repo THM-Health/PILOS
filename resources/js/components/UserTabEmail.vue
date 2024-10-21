@@ -1,14 +1,14 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.email')">
-      <form @submit.prevent="save" class="flex flex-col gap-4">
+      <form class="flex flex-col gap-4" @submit.prevent="save">
         <div
-          class="field grid grid-cols-12 gap-4"
           v-if="
             !viewOnly &&
             isOwnUser &&
             userPermissions.can('updateAttributes', user)
           "
+          class="field grid grid-cols-12 gap-4"
           data-test="email-tab-current-password-field"
         >
           <label

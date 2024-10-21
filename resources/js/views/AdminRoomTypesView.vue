@@ -3,8 +3,8 @@
     <div class="flex justify-end mb-6">
       <div v-if="model.id && id !== 'new'" class="flex gap-2">
         <Button
-          as="router-link"
           v-if="!viewOnly && userPermissions.can('view', model)"
+          as="router-link"
           severity="secondary"
           :disabled="isBusy"
           :to="{ name: 'admin.room_types.view', params: { id: model.id } }"
@@ -12,8 +12,8 @@
           icon="fa-solid fa-times"
         />
         <Button
-          as="router-link"
           v-if="viewOnly && userPermissions.can('update', model)"
+          as="router-link"
           severity="info"
           :disabled="isBusy"
           :to="{ name: 'admin.room_types.edit', params: { id: model.id } }"
@@ -35,7 +35,7 @@
           @reload="loadRoomType"
         ></LoadingRetryButton>
       </template>
-      <form @submit.prevent="saveRoomType" class="flex flex-col gap-4">
+      <form class="flex flex-col gap-4" @submit.prevent="saveRoomType">
         <!-- General room type settings -->
         <AdminPanel :title="$t('rooms.settings.general.title')">
           <!-- Room type name -->
@@ -47,9 +47,9 @@
             >
             <div class="col-span-12 md:col-span-8">
               <InputText
-                class="w-full"
                 id="room-type-name"
                 v-model="model.name"
+                class="w-full"
                 type="text"
                 :invalid="formErrors.fieldInvalid('name')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
@@ -67,9 +67,9 @@
             >
             <div class="col-span-12 md:col-span-8">
               <Textarea
-                class="w-full"
                 id="description"
                 v-model="model.description"
+                class="w-full"
                 :invalid="formErrors.fieldInvalid('description')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
               />
@@ -84,18 +84,18 @@
             </legend>
             <div class="col-span-12 md:col-span-8">
               <ColorSelect
+                v-model="model.color"
                 class="mb-2"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 :colors="colors.getAllColors()"
-                v-model="model.color"
               />
               <label for="custom-color">{{
                 $t("admin.room_types.custom_color")
               }}</label>
               <InputText
-                class="w-full"
                 id="custom-color"
                 v-model="model.color"
+                class="w-full"
                 type="text"
                 :invalid="formErrors.fieldInvalid('color')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
@@ -124,9 +124,9 @@
             <div class="col-span-12 md:col-span-8">
               <InputGroup>
                 <multiselect
-                  aria-labelledby="server-pool-label"
                   ref="serverPoolMultiselectRef"
                   v-model="model.server_pool"
+                  aria-labelledby="server-pool-label"
                   :placeholder="$t('admin.room_types.select_server_pool')"
                   track-by="id"
                   label="name"
@@ -163,13 +163,13 @@
                         "
                         severity="secondary"
                         outlined
+                        icon="fa-solid fa-arrow-left"
+                        :label="$t('app.previous_page')"
                         @click="
                           loadServerPools(
                             Math.max(1, serverPoolsCurrentPage - 1),
                           )
                         "
-                        icon="fa-solid fa-arrow-left"
-                        :label="$t('app.previous_page')"
                       />
                       <Button
                         :disabled="
@@ -177,9 +177,9 @@
                         "
                         severity="secondary"
                         outlined
-                        @click="loadServerPools(serverPoolsCurrentPage + 1)"
                         icon="fa-solid fa-arrow-right"
                         :label="$t('app.next_page')"
+                        @click="loadServerPools(serverPoolsCurrentPage + 1)"
                       />
                     </div>
                   </template>
@@ -188,8 +188,8 @@
                   v-if="serverPoolsLoadingError"
                   severity="secondary"
                   outlined
-                  @click="loadServerPools(serverPoolsCurrentPage)"
                   icon="fa-solid fa-sync"
+                  @click="loadServerPools(serverPoolsCurrentPage)"
                 />
               </InputGroup>
               <FormError :errors="formErrors.fieldError('server_pool')" />
@@ -209,8 +209,8 @@
             <div class="col-span-12 md:col-span-8">
               <div>
                 <ToggleSwitch
-                  input-id="restrict"
                   v-model="model.restrict"
+                  input-id="restrict"
                   :invalid="formErrors.fieldInvalid('restrict')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   aria-describedby="restrict-help"
@@ -224,18 +224,18 @@
           </div>
 
           <!-- Selection of the roles -->
-          <div class="field grid grid-cols-12 gap-4" v-if="model.restrict">
+          <div v-if="model.restrict" class="field grid grid-cols-12 gap-4">
             <label id="roles-label" class="col-span-12 md:col-span-4 md:mb-0">{{
               $t("app.roles")
             }}</label>
             <div class="col-span-12 md:col-span-8">
               <RoleSelect
-                aria-labelledby="roles-label"
                 v-model="model.roles"
+                aria-labelledby="roles-label"
                 :invalid="formErrors.fieldInvalid('roles')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 @busy="(value) => (rolesLoading = value)"
-                @rolesLoadingError="(value) => (rolesLoadingError = value)"
+                @roles-loading-error="(value) => (rolesLoadingError = value)"
               />
               <FormError :errors="formErrors.fieldError('roles')" />
             </div>
@@ -251,16 +251,16 @@
             <div class="col-span-12 md:col-span-8">
               <InputGroup>
                 <InputNumber
-                  input-id="max-participants"
                   v-model="model.max_participants"
+                  input-id="max-participants"
                   :invalid="formErrors.fieldInvalid('max_participants')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   :placeholder="$t('app.unlimited')"
                 />
                 <Button
-                  @click="model.max_participants = null"
                   icon="fa-solid fa-xmark"
                   :disabled="isBusy || modelLoadingError || viewOnly"
+                  @click="model.max_participants = null"
                 />
               </InputGroup>
               <FormError :errors="formErrors.fieldError('max_participants')" />
@@ -277,17 +277,17 @@
             <div class="col-span-12 md:col-span-8">
               <InputGroup>
                 <InputNumber
-                  input-id="max-duration"
                   v-model="model.max_duration"
+                  input-id="max-duration"
                   :invalid="formErrors.fieldInvalid('max_duration')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   :placeholder="$t('app.unlimited')"
                   suffix=" min."
                 />
                 <Button
-                  @click="model.max_duration = null"
                   icon="fa-solid fa-xmark"
                   :disabled="isBusy || modelLoadingError || viewOnly"
+                  @click="model.max_duration = null"
                 />
               </InputGroup>
               <FormError :errors="formErrors.fieldError('max_duration')" />
@@ -312,8 +312,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="has-access-code-default"
                   v-model="model.has_access_code_default"
+                  input-id="has-access-code-default"
                   :invalid="formErrors.fieldInvalid('has_access_code_default')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                 />
@@ -354,8 +354,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="allow-guests-default"
                   v-model="model.allow_guests_default"
+                  input-id="allow-guests-default"
                   :invalid="formErrors.fieldInvalid('allow_guests_default')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                 />
@@ -406,8 +406,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="everyone-can-start-default"
                   v-model="model.everyone_can_start_default"
+                  input-id="everyone-can-start-default"
                   :invalid="
                     formErrors.fieldInvalid('everyone_can_start_default')
                   "
@@ -453,8 +453,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="mute-on-start-default"
                   v-model="model.mute_on_start_default"
+                  input-id="mute-on-start-default"
                   :invalid="formErrors.fieldInvalid('mute_on_start_default')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                 />
@@ -555,7 +555,7 @@
             </div>
             <div class="col-span-12">
               <!-- Alert shown when default role is moderator and waiting room is active -->
-              <InlineNote class="w-full" v-if="showLobbyAlert" severity="warn">
+              <InlineNote v-if="showLobbyAlert" class="w-full" severity="warn">
                 {{ $t("rooms.settings.video_conference.lobby.alert") }}
               </InlineNote>
             </div>
@@ -576,8 +576,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="record-attendance-default"
                   v-model="model.record_attendance_default"
+                  input-id="record-attendance-default"
                   :invalid="
                     formErrors.fieldInvalid('record_attendance_default')
                   "
@@ -625,8 +625,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="record-default"
                   v-model="model.record_default"
+                  input-id="record-default"
                   :invalid="formErrors.fieldInvalid('record_default')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                 />
@@ -666,8 +666,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="auto-start-recording-default"
                   v-model="model.auto_start_recording_default"
+                  input-id="auto-start-recording-default"
                   :invalid="
                     formErrors.fieldInvalid('auto_start_recording_default')
                   "
@@ -724,8 +724,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="disable-cam-default"
                   v-model="model.lock_settings_disable_cam_default"
+                  input-id="disable-cam-default"
                   :invalid="
                     formErrors.fieldInvalid('lock_settings_disable_cam_default')
                   "
@@ -782,8 +782,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="webcams-only-for-moderator-default"
                   v-model="model.webcams_only_for_moderator_default"
+                  input-id="webcams-only-for-moderator-default"
                   :invalid="
                     formErrors.fieldInvalid(
                       'webcams_only_for_moderator_default',
@@ -840,8 +840,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="disable-mic-default"
                   v-model="model.lock_settings_disable_mic_default"
+                  input-id="disable-mic-default"
                   :invalid="
                     formErrors.fieldInvalid('lock_settings_disable_mic_default')
                   "
@@ -897,8 +897,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="disable-public-chat-default"
                   v-model="model.lock_settings_disable_public_chat_default"
+                  input-id="disable-public-chat-default"
                   :invalid="
                     formErrors.fieldInvalid(
                       'lock_settings_disable_public_chat_default',
@@ -964,8 +964,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="disable-private-chat-default"
                   v-model="model.lock_settings_disable_private_chat_default"
+                  input-id="disable-private-chat-default"
                   :invalid="
                     formErrors.fieldInvalid(
                       'lock_settings_disable_private_chat_default',
@@ -1025,8 +1025,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="disable-note-default"
                   v-model="model.lock_settings_disable_note_default"
+                  input-id="disable-note-default"
                   :invalid="
                     formErrors.fieldInvalid(
                       'lock_settings_disable_note_default',
@@ -1082,8 +1082,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="hide-user-list-default"
                   v-model="model.lock_settings_hide_user_list_default"
+                  input-id="hide-user-list-default"
                   :invalid="
                     formErrors.fieldInvalid(
                       'lock_settings_hide_user_list_default',
@@ -1146,8 +1146,8 @@
             <div class="col-span-12 md:col-span-8">
               <div class="flex justify-between items-center">
                 <ToggleSwitch
-                  input-id="allow-membership-default"
                   v-model="model.allow_membership_default"
+                  input-id="allow-membership-default"
                   :invalid="formErrors.fieldInvalid('allow_membership_default')"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                 />
@@ -1197,7 +1197,7 @@
               >
                 <SelectButton
                   v-model="model.default_role_default"
-                  :allowEmpty="false"
+                  :allow-empty="false"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   :invalid="formErrors.fieldInvalid('default_role_default')"
                   :options="[
@@ -1205,10 +1205,10 @@
                     { role: 2, label: $t('rooms.roles.moderator') },
                   ]"
                   class="shrink-0"
-                  dataKey="role"
+                  data-key="role"
                   aria-labelledby="default-role-label"
-                  optionLabel="label"
-                  optionValue="role"
+                  option-label="label"
+                  option-value="role"
                 />
                 <ToggleButton
                   v-model="model.default_role_enforced"
@@ -1254,7 +1254,7 @@
               <div class="flex justify-between items-center">
                 <SelectButton
                   v-model="model.visibility_default"
-                  :allowEmpty="false"
+                  :allow-empty="false"
                   :disabled="isBusy || modelLoadingError || viewOnly"
                   :invalid="formErrors.fieldInvalid('visibility_default')"
                   :options="[
@@ -1268,10 +1268,10 @@
                     },
                   ]"
                   class="shrink-0"
-                  dataKey="visibility"
+                  data-key="visibility"
                   aria-labelledby="visibility-label"
-                  optionLabel="label"
-                  optionValue="visibility"
+                  option-label="label"
+                  option-value="visibility"
                 />
                 <ToggleButton
                   v-model="model.visibility_enforced"
@@ -1314,9 +1314,9 @@
             <div class="col-span-12 md:col-span-8">
               <Textarea
                 id="create-parameters"
-                class="w-full"
-                autoResize
                 v-model="model.create_parameters"
+                class="w-full"
+                auto-resize
                 :invalid="formErrors.fieldInvalid('create_parameters')"
                 :disabled="isBusy || modelLoadingError || viewOnly"
                 aria-describedby="create-parameters-help"

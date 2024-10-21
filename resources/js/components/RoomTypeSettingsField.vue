@@ -53,8 +53,8 @@ defineProps({
       </Tag>
 
       <Tag
-        severity="info"
         v-if="type === 'select'"
+        severity="info"
         data-test="room-type-setting-info"
       >
         {{ options[value] }}

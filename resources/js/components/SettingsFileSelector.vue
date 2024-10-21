@@ -4,43 +4,43 @@
       <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
         <FileInput
           v-if="!fileDeleted && !readonly"
+          v-model="file"
+          v-model:too-big="fileTooBig"
+          v-model:invalid-extension="fileInvalidExtension"
           :disabled="disabled"
           :allowed-extensions="allowedExtensions"
           :max-file-size="maxFileSize"
           :invalid="fileInvalid"
-          v-model="file"
-          v-model:too-big="fileTooBig"
-          v-model:invalid-extension="fileInvalidExtension"
         />
 
         <Button
           v-if="file"
           severity="danger"
-          @click="resetFileUpload"
           :label="$t('app.cancel')"
           icon="fa-solid fa-times"
+          @click="resetFileUpload"
         />
 
         <Button
           v-if="!file && showDelete && fileUrl && !fileDeleted && !readonly"
           :disabled="disabled"
           severity="danger"
-          @click="fileDeleted = true"
           :label="$t('app.delete')"
           icon="fa-solid fa-trash"
+          @click="fileDeleted = true"
         />
         <Button
           v-if="fileDeleted"
           severity="secondary"
-          @click="fileDeleted = false"
           icon="fa-solid fa-undo"
           :label="$t('app.undo_delete')"
+          @click="fileDeleted = false"
         />
 
         <Button
+          v-if="fileUrl && !file && !fileDeleted"
           as="a"
           severity="secondary"
-          v-if="fileUrl && !file && !fileDeleted"
           :href="fileUrl"
           target="_blank"
           :label="$t('app.view')"
@@ -48,10 +48,10 @@
         />
       </div>
       <div>
-        <p class="text-red-500" role="alert" v-if="fileTooBig">
+        <p v-if="fileTooBig" class="text-red-500" role="alert">
           {{ $t("app.validation.too_large") }}
         </p>
-        <p class="text-red-500" role="alert" v-if="fileInvalidExtension">
+        <p v-if="fileInvalidExtension" class="text-red-500" role="alert">
           {{ $t("app.validation.invalid_type") }}
         </p>
         <FormError :errors="fileError" />

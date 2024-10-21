@@ -1,15 +1,15 @@
 <template>
   <!-- bulk add new user modal -->
   <Dialog
-    data-test="room-members-bulk-import-dialog"
     v-model:visible="showModal"
+    data-test="room-members-bulk-import-dialog"
     modal
     :header="$t('rooms.members.bulk_import_users')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
     :pt="{
       pcCloseButton: {
@@ -21,56 +21,56 @@
   >
     <template #footer>
       <div
-        class="flex justify-end w-full flex-col sm:flex-row gap-2"
         v-if="step === 0"
+        class="flex justify-end w-full flex-col sm:flex-row gap-2"
       >
         <Button
           :disabled="rawList.length === 0 || isLoadingAction"
-          @click="importUsers(true)"
           :loading="isLoadingAction"
           :label="$t('rooms.members.modals.add.add')"
           data-test="dialog-continue-button"
+          @click="importUsers(true)"
         />
       </div>
 
       <div
-        class="flex justify-end w-full flex-col sm:flex-row gap-2"
         v-if="step === 1"
+        class="flex justify-end w-full flex-col sm:flex-row gap-2"
       >
         <Button
           :disabled="isLoadingAction"
           severity="secondary"
-          @click="step = 0"
           :label="$t('app.back')"
           data-test="dialog-back-button"
+          @click="step = 0"
         />
         <Button
           v-if="validUsers.length > 0"
           :disabled="isLoadingAction"
-          @click="importUsers(false)"
           :loading="isLoadingAction"
           :label="
             $t('rooms.members.modals.bulk_import.import_importable_button')
           "
           data-test="dialog-continue-button"
+          @click="importUsers(false)"
         />
       </div>
 
       <div
-        class="flex justify-end w-full flex-col sm:flex-row gap-2"
         v-if="step === 2"
+        class="flex justify-end w-full flex-col sm:flex-row gap-2"
       >
         <Button
-          @click="finish"
           :label="$t('app.close')"
           data-test="dialog-close-button"
+          @click="finish"
         />
         <Button
           v-if="invalidUsers.length > 0"
           severity="secondary"
-          @click="copyInvalidUsers"
           :label="$t('rooms.members.modals.bulk_import.copy_and_close')"
           data-test="room-members-copy-and-close-button"
+          @click="copyInvalidUsers"
         />
       </div>
     </template>
@@ -81,10 +81,10 @@
           $t("rooms.members.modals.bulk_import.label")
         }}</label>
         <Textarea
-          autofocus
           id="user-emails"
-          aria-describedby="user-emails-help"
           v-model="rawList"
+          autofocus
+          aria-describedby="user-emails-help"
           :disabled="isLoadingAction"
           :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
           :invalid="formErrors.fieldInvalid('user_emails')"

@@ -1,11 +1,11 @@
 <template>
   <InputGroup class="w-full">
     <Select
+      v-model="model"
       data-test="timezone-dropdown"
       :aria-labelledby="props.ariaLabelledby"
       :options="timezones"
       :required="props.required"
-      v-model="model"
       :invalid="props.invalid"
       :disabled="props.disabled || loadingError"
       :placeholder="props.placeholder"
@@ -24,9 +24,9 @@
       :disabled="loading"
       outlined
       severity="secondary"
-      @click="loadTimezones()"
       icon="fa-solid fa-sync"
       data-test="timezone-reload-button"
+      @click="loadTimezones()"
     />
   </InputGroup>
 </template>

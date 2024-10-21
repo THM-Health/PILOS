@@ -22,24 +22,24 @@
             :aria-label="$t('app.reload')"
             severity="secondary"
             :disabled="props.loading"
-            @click="emit('reload')"
             :icon="props.loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
             data-test="reload-room-button"
+            @click="emit('reload')"
           />
           <RoomFavoriteButton
             v-if="!hideFavorites && authStore.isAuthenticated"
             :room="props.room"
-            @favorites-changed="emit('reload')"
             :no-redirect-on-unauthenticated="true"
+            @favorites-changed="emit('reload')"
           />
           <RoomMembershipButton
             v-if="!hideMembership && authStore.isAuthenticated"
             :room="props.room"
             :access-code="props.accessCode"
-            @joinedMembership="emit('joinedMembership')"
-            @leftMembership="emit('reload')"
-            @invalidCode="emit('invalidCode')"
-            @membershipDisabled="emit('reload')"
+            @joined-membership="emit('joinedMembership')"
+            @left-membership="emit('reload')"
+            @invalid-code="emit('invalidCode')"
+            @membership-disabled="emit('reload')"
           />
         </div>
       </div>

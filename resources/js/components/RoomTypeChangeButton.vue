@@ -1,30 +1,30 @@
 <template>
   <InputGroup v-if="model">
     <InputText
+      :id="inputId"
       :value="model.name"
       readonly
       :disabled="disabled"
       :invalid="invalid"
-      :id="inputId"
     />
     <Button
-      icon="fa-solid fa-edit"
-      @click="editRoomType"
       v-if="!disabled"
+      icon="fa-solid fa-edit"
       :aria-label="$t('rooms.change_type.title')"
       data-test="room-type-change-button"
+      @click="editRoomType"
     />
   </InputGroup>
 
   <Dialog
-    data-test="room-type-change-dialog"
     v-model:visible="modalVisible"
+    data-test="room-type-change-dialog"
     modal
     :header="$t('rooms.change_type.title')"
     :style="{ width: '900px' }"
     :breakpoints="{ '975px': '90vw' }"
     :draggable="false"
-    :dismissableMask="false"
+    :dismissable-mask="false"
   >
     <RoomTypeSelect ref="roomTypeSelect" v-model="newRoomType" />
 
@@ -33,14 +33,14 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="modalVisible = false"
           data-test="dialog-cancel-button"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
           :disabled="!newRoomType"
-          @click="handleOk"
           data-test="dialog-save-button"
+          @click="handleOk"
         />
       </div>
     </template>

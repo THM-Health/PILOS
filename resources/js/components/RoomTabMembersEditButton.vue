@@ -1,18 +1,18 @@
 <template>
   <Button
-    data-test="room-members-edit-button"
     v-tooltip="$t('rooms.members.edit_user')"
+    data-test="room-members-edit-button"
     :aria-label="$t('rooms.members.edit_user')"
     :disabled="disabled"
     severity="info"
-    @click="showEditMemberModal"
     icon="fa-solid fa-edit"
+    @click="showEditMemberModal"
   />
 
   <!-- edit user role modal -->
   <Dialog
-    data-test="room-members-edit-dialog"
     v-model:visible="showModal"
+    data-test="room-members-edit-dialog"
     modal
     :header="
       $t('rooms.members.modals.edit.title', {
@@ -23,8 +23,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #footer>
@@ -32,16 +32,16 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.save')"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="save"
           data-test="dialog-save-button"
+          @click="save"
         />
       </div>
     </template>

@@ -9,25 +9,25 @@
             <Tabs :lazy="true" :value="activeTab">
               <TabList>
                 <Tab
-                  value="ldap"
                   v-if="settingsStore.getSetting('auth.ldap')"
+                  value="ldap"
                   >{{ $t("auth.ldap.tab_title") }}</Tab
                 >
                 <Tab
-                  value="shibboleth"
                   v-if="settingsStore.getSetting('auth.shibboleth')"
+                  value="shibboleth"
                   >{{ $t("auth.shibboleth.tab_title") }}</Tab
                 >
                 <Tab
-                  value="local"
                   v-if="settingsStore.getSetting('auth.local')"
+                  value="local"
                   >{{ $t("auth.email.tab_title") }}</Tab
                 >
               </TabList>
               <TabPanels>
                 <TabPanel
-                  value="ldap"
                   v-if="settingsStore.getSetting('auth.ldap')"
+                  value="ldap"
                 >
                   <LoginTabLdap
                     id="ldap"
@@ -41,8 +41,8 @@
                   />
                 </TabPanel>
                 <TabPanel
-                  value="shibboleth"
                   v-if="settingsStore.getSetting('auth.shibboleth')"
+                  value="shibboleth"
                 >
                   <LoginTabExternal
                     id="shibboleth"
@@ -52,8 +52,8 @@
                   />
                 </TabPanel>
                 <TabPanel
-                  value="local"
                   v-if="settingsStore.getSetting('auth.local')"
+                  value="local"
                 >
                   <LoginTabLocal
                     id="local"

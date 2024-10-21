@@ -19,8 +19,8 @@
               />
               <Button
                 :disabled="isBusy"
-                @click="loadData(1)"
                 icon="fa-solid fa-magnifying-glass"
+                @click="loadData(1)"
               />
             </InputGroup>
           </div>
@@ -30,32 +30,32 @@
               :aria-label="$t('app.reload')"
               severity="secondary"
               :disabled="isBusy"
-              @click="loadData()"
               icon="fa-solid fa-sync"
               :loading="isBusy"
+              @click="loadData()"
             />
           </div>
         </div>
 
         <!-- table with room members -->
         <DataTable
+          v-model:sort-field="sortField"
+          v-model:sort-order="sortOrder"
           class="mt-6"
-          :totalRecords="paginator.getTotalRecords()"
+          :total-records="paginator.getTotalRecords()"
           :rows="paginator.getRows()"
           :first="paginator.getFirst()"
-          @update:first="paginator.setFirst($event)"
           :value="meetings"
           lazy
-          dataKey="id"
+          data-key="id"
           paginator
           :paginator-template="paginator.getTemplate()"
           :current-page-report-template="
             paginator.getCurrentPageReportTemplate()
           "
           :loading="isBusy || loadingError"
-          rowHover
-          v-model:sortField="sortField"
-          v-model:sortOrder="sortOrder"
+          row-hover
+          @update:first="paginator.setFirst($event)"
           @page="onPage"
           @sort="onSort"
         >

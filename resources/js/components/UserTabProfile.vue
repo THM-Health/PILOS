@@ -1,7 +1,7 @@
 <template>
   <div>
     <AdminPanel :title="$t('admin.users.base_data')">
-      <form @submit.prevent="save" class="flex flex-col gap-4">
+      <form class="flex flex-col gap-4" @submit.prevent="save">
         <div class="field grid grid-cols-12 gap-4" data-test="firstname-field">
           <label
             for="firstname"
@@ -63,8 +63,8 @@
         </div>
 
         <div
-          class="field grid grid-cols-12 gap-4"
           v-if="model.authenticator !== 'local'"
+          class="field grid grid-cols-12 gap-4"
           data-test="authenticator-id-field"
         >
           <label
@@ -96,8 +96,8 @@
               :firstname="model.firstname"
               :lastname="model.lastname"
               :image-deleted="imageDeleted"
-              @newImage="onNewImage"
-              @deleteImage="onDeleteImage"
+              @new-image="onNewImage"
+              @delete-image="onDeleteImage"
             />
             <FormError :errors="formErrors.fieldError('image')" />
           </div>
@@ -111,8 +111,8 @@
           >
           <div class="col-span-12 md:col-span-9">
             <LocaleSelect
-              aria-labelledby="locale-label"
               v-model="model.user_locale"
+              aria-labelledby="locale-label"
               required
               :invalid="formErrors.fieldInvalid('user_locale')"
               :disabled="isBusy || viewOnly"
@@ -129,8 +129,8 @@
           >
           <div class="col-span-12 md:col-span-9">
             <timezone-select
-              aria-labelledby="timezone-label"
               v-model="model.timezone"
+              aria-labelledby="timezone-label"
               required
               :invalid="formErrors.fieldInvalid('timezone')"
               :disabled="isBusy || viewOnly"

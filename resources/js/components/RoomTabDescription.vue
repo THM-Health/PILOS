@@ -8,19 +8,19 @@
         v-if="!editorOpen"
         severity="info"
         :disabled="isBusy"
-        @click="edit"
         icon="fa-solid fa-edit"
         :label="$t('app.edit')"
         data-test="room-description-edit-button"
+        @click="edit"
       />
       <Button
         v-if="editorOpen"
         severity="secondary"
         :disabled="isBusy"
-        @click="cancel"
         icon="fa-solid fa-times"
         :label="$t('app.cancel_editing')"
         data-test="room-description-cancel-edit-button"
+        @click="cancel"
       />
     </div>
 
@@ -51,10 +51,10 @@
       <Button
         v-if="editorOpen"
         :disabled="isBusy"
-        @click="save"
         icon="fa-solid fa-save"
         :label="$t('rooms.description.save')"
         data-test="room-description-save-button"
+        @click="save"
       />
     </div>
   </div>

@@ -1,9 +1,9 @@
 <template>
   <div>
     <Message
+      v-if="requireAgreement && files.length > 0"
       data-test="terms-of-use-message"
       severity="info"
-      v-if="requireAgreement && files.length > 0"
       :closable="false"
       class="mx-2 mb-4"
       :pt="{
@@ -12,9 +12,9 @@
     >
       <Accordion
         :value="showTermsOfUse"
+        expand-icon="fa-solid fa-plus"
+        collapse-icon="fa-solid fa-minus"
         @update:value="showTermsOfUse = $event"
-        expandIcon="fa-solid fa-plus"
-        collapseIcon="fa-solid fa-minus"
       >
         <AccordionPanel :value="true" class="border-0">
           <AccordionHeader class="bg-transparent p-0 pr-2 text-blue-600">
@@ -30,9 +30,9 @@
             <div class="flex items-center mb-2">
               <Checkbox
                 v-model="downloadAgreement"
-                @update:modelValue="(checked) => (showTermsOfUse = !checked)"
                 input-id="terms_of_use"
                 :binary="true"
+                @update:model-value="(checked) => (showTermsOfUse = !checked)"
               />
               <label for="terms_of_use" class="ml-2">{{
                 $t("rooms.files.terms_of_use.accept")
@@ -54,11 +54,11 @@
               @keyup.enter="loadData(1)"
             />
             <Button
-              :disabled="isBusy"
-              @click="loadData(1)"
               v-tooltip="$t('app.search')"
+              :disabled="isBusy"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
+              @click="loadData(1)"
             />
           </InputGroup>
         </div>
@@ -68,10 +68,9 @@
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
-              :disabled="isBusy"
               v-model="filter"
+              :disabled="isBusy"
               :options="filterOptions"
-              @change="loadData(1)"
               option-label="name"
               option-value="value"
               data-test="filter-dropdown"
@@ -83,6 +82,7 @@
                   'data-test': 'filter-dropdown-option',
                 },
               }"
+              @change="loadData(1)"
             />
           </InputGroup>
 
@@ -91,10 +91,9 @@
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
-              :disabled="isBusy"
               v-model="sortField"
+              :disabled="isBusy"
               :options="sortFields"
-              @change="loadData(1)"
               option-label="name"
               option-value="value"
               data-test="sorting-type-dropdown"
@@ -106,6 +105,7 @@
                   'data-test': 'sorting-type-dropdown-option',
                 },
               }"
+              @change="loadData(1)"
             />
             <InputGroupAddon class="p-0">
               <Button
@@ -115,10 +115,10 @@
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
                 "
-                @click="toggleSortOrder"
                 severity="secondary"
                 text
                 class="rounded-l-none"
+                @click="toggleSortOrder"
               />
             </InputGroupAddon>
           </InputGroup>
@@ -134,14 +134,14 @@
 
         <!-- Reload file list -->
         <Button
+          v-tooltip="$t('app.reload')"
           data-test="room-files-reload-button"
           class="shrink-0"
-          v-tooltip="$t('app.reload')"
           :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData()"
           icon="fa-solid fa-sync"
+          @click="loadData()"
         />
       </div>
     </div>
@@ -152,18 +152,16 @@
         <LoadingRetryButton :error="loadingError" @reload="loadData()" />
       </template>
       <DataView
-        :totalRecords="paginator.getTotalRecords()"
+        :total-records="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
-        @update:first="paginator.setFirst($event)"
         :value="files"
         lazy
-        dataKey="id"
+        data-key="id"
         paginator
         :paginator-template="paginator.getTemplate()"
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
-        rowHover
-        @page="onPage"
+        row-hover
         class="mt-6"
         :pt="{
           pcPaginator: {
@@ -175,11 +173,13 @@
             },
           },
         }"
+        @update:first="paginator.setFirst($event)"
+        @page="onPage"
       >
         <!-- Show message on empty list -->
         <template #empty>
           <div>
-            <div class="px-2" v-if="!isBusy && !loadingError">
+            <div v-if="!isBusy && !loadingError" class="px-2">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
                 $t("rooms.files.nodata")
               }}</InlineNote>
@@ -208,8 +208,8 @@
                     </div>
                   </div>
                   <div
-                    class="flex flex-col gap-2 items-start"
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    class="flex flex-col gap-2 items-start"
                   >
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-download" />
@@ -224,8 +224,8 @@
                     </div>
                   </div>
                   <div
-                    class="flex flex-col gap-2 items-start"
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    class="flex flex-col gap-2 items-start"
                   >
                     <div class="flex flex-row gap-2">
                       <i
@@ -261,7 +261,7 @@
                     :token="props.token"
                     :access-code="props.accessCode"
                     :disabled="isBusy"
-                    :requireTermsOfUseAcceptance="
+                    :require-terms-of-use-acceptance="
                       !downloadAgreement && requireAgreement
                     "
                     @file-not-found="loadData()"
@@ -269,22 +269,22 @@
                     @invalid-token="emit('invalidToken')"
                   />
                   <RoomTabFilesEditButton
+                    v-if="userPermissions.can('manageSettings', props.room)"
                     :room-id="props.room.id"
                     :file-id="item.id"
                     :filename="item.filename"
                     :use-in-meeting="item.use_in_meeting"
                     :download="item.download"
                     :default="defaultFile?.id === item.id"
-                    v-if="userPermissions.can('manageSettings', props.room)"
                     :disabled="isBusy"
                     @edited="loadData()"
                     @deleted="loadData()"
                   />
                   <RoomTabFilesDeleteButton
+                    v-if="userPermissions.can('manageSettings', props.room)"
                     :room-id="props.room.id"
                     :file-id="item.id"
                     :filename="item.filename"
-                    v-if="userPermissions.can('manageSettings', props.room)"
                     :disabled="isBusy"
                     @deleted="loadData()"
                   />

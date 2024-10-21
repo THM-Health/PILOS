@@ -1,13 +1,13 @@
 <template>
   <!-- button -->
   <Button
-    class="shrink-0"
     v-tooltip="$t('rooms.files.upload')"
+    class="shrink-0"
     :aria-label="$t('rooms.files.upload')"
     :disabled="disabled"
-    @click="openModal"
     icon="fa-solid fa-upload"
     data-test="room-files-upload-button"
+    @click="openModal"
   />
 
   <!-- modal -->
@@ -18,8 +18,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isUploading"
-    :dismissableMask="false"
+    :close-on-escape="!isUploading"
+    :dismissable-mask="false"
     :closable="!isUploading"
     data-test="room-files-upload-dialog"
     :pt="{
@@ -36,34 +36,34 @@
         class="flex flex-row justify-center gap-2 p-button p-component rounded-border"
         :class="{ 'p-disabled': disabled || isUploading }"
         tabindex="0"
+        data-test="upload-file-button"
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
-        data-test="upload-file-button"
       >
         <i class="fa-solid fa-upload"></i> {{ $t("app.browse") }}
       </label>
       <input
-        type="file"
-        ref="fileInputRef"
         id="file"
+        ref="fileInputRef"
+        type="file"
         class="sr-only"
         :disabled="disabled || isUploading"
-        @input="fileSelected"
         :accept="
           '.' +
           String(settingsStore.getSetting('bbb.file_mimes'))
             .split(',')
             .join(',.')
         "
+        @input="fileSelected"
       />
       <div
+        ref="dropZoneRef"
         class="border rounded-border border-surface-400 dark:border-surface-400 text-center cursor-pointer items-center p-2"
         :class="dropZoneClasses"
-        ref="dropZoneRef"
+        data-test="drop-zone"
         @keyup.enter="fileInputRef.click()"
         @keyup.space="fileInputRef.click()"
         @click="fileInputRef.click()"
-        data-test="drop-zone"
       >
         <span v-if="!isUploading" class="text-center">
           {{ $t("rooms.files.select_or_drag") }}
@@ -74,11 +74,11 @@
       </div>
 
       <ProgressBar
+        v-if="isUploading"
         class="w-full mt-1"
         style="height: 1rem"
         :value="uploadProgress"
-        v-if="isUploading"
-        :showValue="false"
+        :show-value="false"
         data-test="progress-bar"
       />
       <small

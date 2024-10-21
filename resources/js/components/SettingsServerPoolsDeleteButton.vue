@@ -11,9 +11,9 @@
   <Dialog
     v-model:visible="showModal"
     :breakpoints="{ '575px': '90vw' }"
-    :closeOnEscape="!isBusy"
+    :close-on-escape="!isBusy"
     :closeable="!isBusy"
-    :dismissableMask="!isBusy"
+    :dismissable-mask="!isBusy"
     :draggable="false"
     :header="$t('admin.server_pools.delete.title')"
     :style="{ width: '500px' }"

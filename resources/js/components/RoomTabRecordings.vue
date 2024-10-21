@@ -11,11 +11,11 @@
               @keyup.enter="loadData(1)"
             />
             <Button
-              :disabled="isBusy"
-              @click="loadData(1)"
               v-tooltip="$t('app.search')"
+              :disabled="isBusy"
               :aria-label="$t('app.search')"
               icon="fa-solid fa-magnifying-glass"
+              @click="loadData(1)"
             />
           </InputGroup>
         </div>
@@ -25,12 +25,12 @@
               <i class="fa-solid fa-filter"></i>
             </InputGroupAddon>
             <Select
-              :disabled="isBusy"
               v-model="filter"
+              :disabled="isBusy"
               :options="filterOptions"
-              @change="loadData(1)"
               option-label="name"
               option-value="value"
+              @change="loadData(1)"
             />
           </InputGroup>
 
@@ -39,12 +39,12 @@
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
-              :disabled="isBusy"
               v-model="sortField"
+              :disabled="isBusy"
               :options="sortFields"
-              @change="loadData(1)"
               option-label="name"
               option-value="value"
+              @change="loadData(1)"
             />
             <InputGroupAddon class="p-0">
               <Button
@@ -54,10 +54,10 @@
                     ? 'fa-solid fa-arrow-up-short-wide'
                     : 'fa-solid fa-arrow-down-wide-short'
                 "
-                @click="toggleSortOrder"
                 severity="secondary"
                 text
                 class="rounded-l-none"
+                @click="toggleSortOrder"
               />
             </InputGroupAddon>
           </InputGroup>
@@ -66,13 +66,13 @@
       <div class="flex gap-2 justify-end">
         <!-- Reload list -->
         <Button
-          class="shrink-0"
           v-tooltip="$t('app.reload')"
+          class="shrink-0"
           :aria-label="$t('app.reload')"
           severity="secondary"
           :disabled="isBusy"
-          @click="loadData()"
           icon="fa-solid fa-sync"
+          @click="loadData()"
         />
       </div>
     </div>
@@ -84,25 +84,25 @@
 
       <!-- Display recordings -->
       <DataView
-        :totalRecords="paginator.getTotalRecords()"
+        :total-records="paginator.getTotalRecords()"
         :rows="paginator.getRows()"
         :first="paginator.getFirst()"
-        @update:first="paginator.setFirst($event)"
         :value="recordings"
         lazy
-        dataKey="id"
+        data-key="id"
         paginator
         :paginator-template="paginator.getTemplate()"
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         :loading="isBusy"
-        rowHover
-        @page="onPage"
+        row-hover
         class="mt-6"
+        @update:first="paginator.setFirst($event)"
+        @page="onPage"
       >
         <!-- Show message on empty recording list -->
         <template #empty>
           <div>
-            <div class="px-2" v-if="!isBusy && !loadingError">
+            <div v-if="!isBusy && !loadingError" class="px-2">
               <InlineNote v-if="paginator.isEmptyUnfiltered()">{{
                 $t("rooms.recordings.nodata")
               }}</InlineNote>
@@ -131,7 +131,6 @@
                     <div class="flex flex-row gap-2">
                       <i class="fa-solid fa-hourglass" />
                       <p
-                        class="text-sm m-0"
                         v-tooltip.bottom="
                           $d(new Date(item.start), 'datetimeShort') +
                           ' - ' +
@@ -139,6 +138,7 @@
                             ? $t('meetings.now')
                             : $d(new Date(item.end), 'datetimeShort'))
                         "
+                        class="text-sm m-0"
                       >
                         {{
                           dateDiff.format(
@@ -149,16 +149,16 @@
                       </p>
                     </div>
                     <div
-                      class="flex flex-row gap-2"
                       v-if="userPermissions.can('manageSettings', props.room)"
+                      class="flex flex-row gap-2"
                     >
                       <i class="fa-solid fa-lock"></i>
                       <RoomRecordingAccessBadge :access="item.access" />
                     </div>
                   </div>
                   <div
-                    class="flex flex-row flex-wrap gap-1"
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    class="flex flex-row flex-wrap gap-1"
                   >
                     <Tag
                       v-for="format in item.formats"
@@ -174,8 +174,8 @@
                   class="shrink-0 flex flex-row gap-1 items-start justify-end"
                 >
                   <RoomTabRecordingsViewButton
-                    :roomId="props.room.id"
-                    :recordingId="item.id"
+                    :room-id="props.room.id"
+                    :recording-id="item.id"
                     :formats="item.formats"
                     :hide-disabled-formats="
                       !userPermissions.can('manageSettings', room)
@@ -186,22 +186,22 @@
                     :description="item.description"
                     :access-code="props.accessCode"
                     :disabled="isBusy"
-                    @invalidCode="$emit('invalidCode')"
-                    @invalidToken="$emit('invalidToken')"
-                    @notFound="loadData"
+                    @invalid-code="$emit('invalidCode')"
+                    @invalid-token="$emit('invalidToken')"
+                    @not-found="loadData"
                   />
 
                   <RoomTabRecordingsDownloadButton
-                    :recordingId="item.id"
-                    :disabled="isBusy"
                     v-if="userPermissions.can('manageSettings', props.room)"
+                    :recording-id="item.id"
+                    :disabled="isBusy"
                   />
 
                   <!-- Edit button -->
                   <RoomTabRecordingsEditButton
                     v-if="userPermissions.can('manageSettings', props.room)"
-                    :roomId="props.room.id"
-                    :recordingId="item.id"
+                    :room-id="props.room.id"
+                    :recording-id="item.id"
                     :description="item.description"
                     :start="item.start"
                     :end="item.end"
@@ -215,8 +215,8 @@
                   <!-- Delete file -->
                   <RoomTabRecordingsDeleteButton
                     v-if="userPermissions.can('manageSettings', props.room)"
-                    :roomId="props.room.id"
-                    :recordingId="item.id"
+                    :room-id="props.room.id"
+                    :recording-id="item.id"
                     :disabled="isBusy"
                     @deleted="loadData()"
                   />
@@ -229,9 +229,9 @@
     </OverlayComponent>
 
     <Message
+      id="retentionPeriodInfo"
       class="mt-2"
       severity="secondary"
-      id="retentionPeriodInfo"
       aria-live="off"
       role="presentation"
     >

@@ -4,8 +4,8 @@
     :aria-label="$t('admin.roles.delete.item', { id: props.name })"
     :disabled="isBusy"
     severity="danger"
-    @click="showDeleteModal"
     icon="fa-solid fa-trash"
+    @click="showDeleteModal"
   />
 
   <Dialog
@@ -14,8 +14,8 @@
     :header="$t('admin.roles.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
-    :closeOnEscape="!isBusy"
-    :dismissableMask="!isBusy"
+    :close-on-escape="!isBusy"
+    :dismissable-mask="!isBusy"
     :closeable="!isBusy"
     :draggable="false"
   >

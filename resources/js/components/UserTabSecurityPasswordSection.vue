@@ -1,9 +1,9 @@
 <template>
   <div>
-    <form @submit="changePassword" class="flex flex-col gap-4">
+    <form class="flex flex-col gap-4" @submit="changePassword">
       <div
-        class="field grid grid-cols-12 gap-4"
         v-if="isOwnUser"
+        class="field grid grid-cols-12 gap-4"
         data-test="security-tab-current-password-field"
       >
         <label

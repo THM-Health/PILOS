@@ -1,26 +1,26 @@
 <template>
   <!-- button -->
   <Button
-    data-test="room-members-delete-button"
     v-tooltip="$t('rooms.members.remove_user')"
+    data-test="room-members-delete-button"
     :aria-label="$t('rooms.members.remove_user')"
     :disabled="disabled"
     severity="danger"
-    @click="showModal = true"
     icon="fa-solid fa-trash"
+    @click="showModal = true"
   />
 
   <!-- modal -->
   <Dialog
-    data-test="room-members-delete-dialog"
     v-model:visible="showModal"
+    data-test="room-members-delete-dialog"
     modal
     :header="$t('rooms.members.modals.remove.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #footer>
@@ -28,17 +28,17 @@
         <Button
           :label="$t('app.no')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.yes')"
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="deleteMember"
           data-test="dialog-continue-button"
+          @click="deleteMember"
         />
       </div>
     </template>

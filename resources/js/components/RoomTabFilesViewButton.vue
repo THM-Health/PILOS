@@ -5,9 +5,9 @@
     :aria-label="$t('rooms.files.view')"
     :disabled="disabled"
     target="_blank"
-    @click="downloadFile"
     :icon="loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-eye'"
     data-test="room-files-view-button"
+    @click="downloadFile"
   />
 
   <Popover ref="op" class="max-w-96" data-test="terms-of-use-required-info">

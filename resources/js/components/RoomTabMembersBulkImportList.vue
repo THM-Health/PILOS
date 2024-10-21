@@ -12,8 +12,8 @@
         </Badge>
       </p>
       <Accordion
-        expandIcon="fa-solid fa-plus"
-        collapseIcon="fa-solid fa-minus"
+        expand-icon="fa-solid fa-plus"
+        collapse-icon="fa-solid fa-minus"
         class="room-bulk-import-preview"
         :multiple="true"
       >

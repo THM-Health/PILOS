@@ -1,12 +1,12 @@
 <template>
   <!-- button -->
   <Button
+    v-tooltip="$t('rooms.tokens.edit')"
     severity="info"
     :disabled="disabled"
-    @click="showEditModal"
     icon="fa-solid fa-edit"
-    v-tooltip="$t('rooms.tokens.edit')"
     :aria-label="$t('rooms.tokens.edit')"
+    @click="showEditModal"
   />
 
   <!-- modal -->
@@ -17,8 +17,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #footer>
@@ -26,8 +26,8 @@
         <Button
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.save')"
@@ -42,9 +42,9 @@
     <div class="flex flex-col gap-2 mt-6">
       <label for="firstname">{{ $t("app.firstname") }}</label>
       <InputText
-        autofocus
         id="firstname"
         v-model.trim="newFirstname"
+        autofocus
         :disabled="isLoadingAction"
         :invalid="formErrors.fieldInvalid('firstname')"
       />

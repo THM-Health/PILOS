@@ -1,13 +1,13 @@
 <template>
   <div>
     <Select
+      v-model="model"
       :aria-labelledby="props.ariaLabelledby"
       data-test="locale-dropdown"
       :options="locales"
-      optionLabel="text"
-      optionValue="value"
+      option-label="text"
+      option-value="value"
       :required="props.required"
-      v-model="model"
       :invalid="props.invalid"
       :disabled="props.disabled"
       :placeholder="$t('app.select_locale')"

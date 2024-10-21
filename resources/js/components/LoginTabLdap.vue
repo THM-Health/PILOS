@@ -6,8 +6,8 @@
         <label :for="`${props.id}-username`">{{ props.usernameLabel }}</label>
         <InputText
           :id="`${props.id}-username`"
-          type="text"
           v-model="username"
+          type="text"
           autocomplete="username"
           :placeholder="props.usernameLabel"
           aria-describedby="username-help-block"
@@ -27,11 +27,11 @@
       <div class="flex flex-col gap-2 mt-6">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
-          :input-id="`${props.id}-password`"
           v-model="password"
+          :input-id="`${props.id}-password`"
           autocomplete="current-password"
           :feedback="false"
-          toggleMask
+          toggle-mask
           required
           fluid
           :placeholder="props.passwordLabel"

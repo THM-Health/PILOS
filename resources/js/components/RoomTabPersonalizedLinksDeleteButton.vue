@@ -1,12 +1,12 @@
 <template>
   <!-- button -->
   <Button
+    v-tooltip="$t('rooms.tokens.delete')"
     severity="danger"
     :disabled="disabled"
-    @click="showDeleteModal"
     icon="fa-solid fa-trash"
-    v-tooltip="$t('rooms.tokens.delete')"
     :aria-label="$t('rooms.tokens.delete')"
+    @click="showDeleteModal"
   />
 
   <!-- modal -->
@@ -17,8 +17,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
     <template #footer>
@@ -26,8 +26,8 @@
         <Button
           :label="$t('app.no')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.yes')"

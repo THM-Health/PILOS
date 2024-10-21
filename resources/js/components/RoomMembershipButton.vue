@@ -3,24 +3,24 @@
   <Button
     v-if="userPermissions.can('becomeMember', room)"
     id="join-membership-button"
+    v-tooltip="$t('rooms.become_member')"
     :disabled="isLoadingAction || disabled"
-    @click="joinMembership"
     severity="secondary"
     icon="fa-solid fa-user"
-    v-tooltip="$t('rooms.become_member')"
     :aria-label="$t('rooms.become_member')"
     data-test="room-join-membership-button"
+    @click="joinMembership"
   />
   <!-- If user is member, allow user to end the membership -->
   <Button
     v-if="room.is_member"
+    v-tooltip="$t('rooms.end_membership.button')"
     :disabled="isLoadingAction || disabled"
-    @click="showModal = true"
     severity="contrast"
     icon="fa-solid fa-user"
-    v-tooltip="$t('rooms.end_membership.button')"
     :aria-label="$t('rooms.end_membership.button')"
     data-test="room-end-membership-button"
+    @click="showModal = true"
   />
 
   <Dialog
@@ -30,8 +30,8 @@
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
     data-test="end-membership-dialog"
   >
@@ -42,17 +42,17 @@
         <Button
           :label="$t('app.no')"
           severity="secondary"
-          @click="showModal = false"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
+          @click="showModal = false"
         />
         <Button
           :label="$t('app.yes')"
           severity="danger"
           :loading="isLoadingAction"
           :disabled="isLoadingAction"
-          @click="leaveMembership"
           data-test="dialog-continue-button"
+          @click="leaveMembership"
         />
       </div>
     </template>

@@ -48,10 +48,10 @@
             <Button
               data-test="reload-room-button"
               :disabled="loading"
-              @click="reload"
               :loading="loading"
               icon="fa-solid fa-sync"
               :label="$t('rooms.try_again')"
+              @click="reload"
             />
           </div>
         </template>
@@ -67,11 +67,11 @@
           />
           <Button
             v-else
-            @click="load()"
             icon="fa-solid fa-sync"
             :label="$t('app.reload')"
             :aria-label="$t('app.reload')"
             data-test="reload-button"
+            @click="load()"
           />
         </div>
       </div>
@@ -94,10 +94,10 @@
               <RoomHeader
                 :room="room"
                 :loading="loading"
-                @reload="reload"
                 :details-inline="false"
                 :hide-favorites="true"
                 :hide-membership="true"
+                @reload="reload"
               />
               <Divider />
 
@@ -112,27 +112,27 @@
                 <label for="access-code">{{ $t("rooms.access_code") }}</label>
                 <InputGroup>
                   <InputMask
-                    autofocus
+                    id="access-code"
                     v-model="accessCodeInput"
+                    autofocus
                     mask="999-999-999"
                     placeholder="123-456-789"
                     :invalid="accessCodeInvalid"
-                    @keydown.enter="login"
                     class="text-center"
-                    id="access-code"
+                    @keydown.enter="login"
                   />
                   <Button
-                    @click="login"
                     :loading="loading"
                     icon="fa-solid fa-lock"
                     :label="$t('rooms.login')"
                     data-test="room-login-button"
+                    @click="login"
                   />
                 </InputGroup>
                 <p
+                  v-if="accessCodeInvalid"
                   class="text-red-500 mt-1"
                   role="alert"
-                  v-if="accessCodeInvalid"
                 >
                   {{ $t("rooms.flash.access_code_invalid") }}
                 </p>
@@ -148,17 +148,17 @@
                 :room="room"
                 :loading="loading"
                 :access-code="accessCode"
+                :details-inline="true"
                 @reload="reload"
-                @invalidCode="handleInvalidCode"
-                @joinedMembership="
+                @invalid-code="handleInvalidCode"
+                @joined-membership="
                   accessCode = null;
                   reload();
                 "
-                :details-inline="true"
               />
             </template>
             <template #content>
-              <div class="mb-4" v-if="room.can_start && room.room_type_invalid">
+              <div v-if="room.can_start && room.room_type_invalid" class="mb-4">
                 <Message
                   severity="warn"
                   icon="fa-solid fa-unlink"
@@ -176,7 +176,7 @@
               <div class="flex justify-between items-start gap-2">
                 <div class="flex justify-start gap-2">
                   <RoomJoinButton
-                    :roomId="room.id"
+                    :room-id="room.id"
                     :running="running"
                     :disabled="room.room_type_invalid"
                     :record-attendance="room.record_attendance"
@@ -184,8 +184,8 @@
                     :can-start="room.can_start"
                     :token="props.token"
                     :access-code="accessCode"
-                    @invalidCode="handleInvalidCode"
-                    @invalidToken="handleInvalidToken"
+                    @invalid-code="handleInvalidCode"
+                    @invalid-token="handleInvalidToken"
                     @guests-not-allowed="handleGuestsNotAllowed"
                     @changed="reload"
                   />

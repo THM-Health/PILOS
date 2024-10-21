@@ -1,44 +1,44 @@
 <template>
   <!-- If room is running, show join button -->
   <Button
-    data-test="room-join-button"
     v-if="props.running"
+    data-test="room-join-button"
     class="p-button-block"
     :disabled="isLoadingAction || disabled"
-    @click="join"
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.join')"
+    @click="join"
   />
 
   <!-- If room is not running -->
   <Button
-    data-test="room-start-button"
     v-else-if="canStart"
+    data-test="room-start-button"
     class="p-button-block"
     :disabled="isLoadingAction || disabled"
-    @click="join"
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.start')"
+    @click="join"
   />
 
   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
   <Message v-else severity="info">{{ $t("rooms.not_running") }}</Message>
 
   <Dialog
-    data-test="room-join-dialog"
     v-model:visible="showModal"
+    data-test="room-join-dialog"
     modal
     :header="running ? $t('rooms.join_room') : $t('rooms.start_room')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
   >
-    <Message severity="warn" v-if="showRunningMessage">{{
+    <Message v-if="showRunningMessage" severity="warn">{{
       $t("app.errors.room_already_running")
     }}</Message>
 
@@ -52,8 +52,8 @@
           <label for="guest-name">{{ $t("rooms.first_and_lastname") }}</label>
           <InputText
             id="guest-name"
-            autofocus
             v-model="name"
+            autofocus
             :placeholder="$t('rooms.placeholder_name')"
             :invalid="formErrors.fieldInvalid('name')"
           />
@@ -61,16 +61,16 @@
         </div>
 
         <div
-          class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col"
           v-if="recordAttendance"
+          class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col"
         >
           <span class="font-semibold">{{
             $t("rooms.recording_attendance_info")
           }}</span>
           <div class="flex items-center gap-2">
             <Checkbox
-              input-id="record-attendance-agreement"
               v-model="recordAttendanceAgreement"
+              input-id="record-attendance-agreement"
               binary
               :invalid="formErrors.fieldInvalid('consent_record_attendance')"
             />
@@ -84,15 +84,15 @@
         </div>
 
         <div
-          class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col"
           v-if="record"
+          class="mb-4 bg-surface-200 dark:bg-surface-600 p-4 rounded-border flex gap-2 flex-col"
         >
           <span class="font-semibold">{{ $t("rooms.recording_info") }}</span>
           <i>{{ $t("rooms.recording_hint") }}</i>
           <div class="flex items-center gap-2">
             <Checkbox
-              input-id="record-agreement"
               v-model="recordAgreement"
+              input-id="record-agreement"
               binary
               :class="{
                 'p-invalid': formErrors.fieldInvalid('consent_record'),
@@ -105,8 +105,8 @@
           <FormError :errors="formErrors.fieldError('consent_record')" />
           <div class="flex items-center gap-2">
             <Checkbox
-              input-id="record-video-agreement"
               v-model="recordVideoAgreement"
+              input-id="record-video-agreement"
               binary
               :class="{
                 'p-invalid': formErrors.fieldInvalid('consent_record_video'),
@@ -126,16 +126,16 @@
         :label="$t('app.cancel')"
         data-test="dialog-cancel-button"
         :disabled="isLoadingAction"
-        @click="showModal = false"
         severity="secondary"
         size="small"
+        @click="showModal = false"
       />
       <Button
         :label="$t('app.continue')"
         data-test="dialog-continue-button"
         :disabled="isLoadingAction"
-        @click="getJoinUrl"
         size="small"
+        @click="getJoinUrl"
       />
     </div>
   </Dialog>
