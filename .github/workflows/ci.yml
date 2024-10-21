@@ -166,7 +166,9 @@ jobs:
             ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm ci
-      - name: Execute frontend code style check via eslint
+      - name: Check code formatting
+        run: npm run prettier
+      - name: Linting
         run: npm run lint
   docker-build:
     name: Docker Build
