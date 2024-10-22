@@ -129,7 +129,7 @@ describe("Rooms index create new room", function () {
             cy.checkDefaultRoomSettingField(
               "has_access_code",
               true,
-              true,
+              false,
               false,
             );
 
@@ -137,7 +137,7 @@ describe("Rooms index create new room", function () {
               "include.text",
               "rooms.settings.general.allow_guests",
             );
-            cy.checkDefaultRoomSettingField("allow_guests", true, false, false);
+            cy.checkDefaultRoomSettingField("allow_guests", true, true, false);
 
             // Check that other settings exist and are shown correctly
             cy.contains("rooms.settings.video_conference.title");
