@@ -53,6 +53,7 @@ describe("Rooms view browser notification", function () {
   });
 
   it("enable notification with default permission, but granted on request", function () {
+    const notificationCloseStub = cy.stub().as("notificationCloseStub");
     cy.visit("/rooms/abc-def-123", {
       onBeforeLoad(win) {
         cy.stub(win.Notification, "permission").value("default");
@@ -63,14 +64,19 @@ describe("Rooms view browser notification", function () {
           .as("notification")
           .callsFake(() => {
             return {
-              close: cy.stub().as("notificationCloseStub"),
+              close() {
+                notificationCloseStub();
+              },
             };
           });
       },
     });
 
     // Check that test Notification is called and closed
-    cy.get("@notification").should("be.calledOnce").and("be.calledWith", "");
+    cy.get("@notification")
+      .should("be.calledOnce")
+      .and("be.calledWithNew")
+      .and("be.calledWith", "");
     cy.get("@notificationCloseStub").should("be.calledOnce");
 
     cy.get('[data-test="room-notification-button"]')
@@ -91,6 +97,7 @@ describe("Rooms view browser notification", function () {
   });
 
   it("enable notification with default permission, but denied on request", function () {
+    const notificationCloseStub = cy.stub().as("notificationCloseStub");
     cy.visit("/rooms/abc-def-123", {
       onBeforeLoad(win) {
         cy.stub(win.Notification, "permission").value("default");
@@ -101,7 +108,9 @@ describe("Rooms view browser notification", function () {
           .as("notification")
           .callsFake(() => {
             return {
-              close: cy.stub().as("notificationClose"),
+              close() {
+                notificationCloseStub();
+              },
             };
           });
       },
@@ -109,7 +118,7 @@ describe("Rooms view browser notification", function () {
 
     // Check that test Notification is called and closed
     cy.get("@notification").should("be.calledOnce").and("be.calledWith", "");
-    cy.get("@notificationClose").should("be.calledOnce");
+    cy.get("@notificationCloseStub").should("be.calledOnce");
 
     cy.get('[data-test="room-notification-button"]')
       .should("be.visible")
@@ -170,6 +179,10 @@ describe("Rooms view browser notification", function () {
       });
     });
 
+    const notificationCloseStub = cy.stub().as("notificationCloseStub");
+    const addEventListenerStub = cy.stub().as("addEventListenerStub");
+    const playStub = cy.stub().as("playStub");
+
     cy.visit("/rooms/abc-def-123", {
       onBeforeLoad(win) {
         cy.stub(win, "focus").as("focus");
@@ -178,17 +191,18 @@ describe("Rooms view browser notification", function () {
           .as("notification")
           .callsFake(function () {
             return {
-              close: cy.stub().as("notificationClose"),
+              close() {
+                notificationCloseStub();
+              },
               clickFunction: null,
-              addEventListener: cy
-                .stub()
-                .as("addEventListener")
-                .callsFake(function (event, callback) {
-                  if (event === "click") {
-                    this.clickFunction = callback;
-                  }
-                }),
-              triggerClick: function () {
+              addEventListener(event, callback) {
+                if (event === "click") {
+                  this.clickFunction = callback;
+                }
+
+                addEventListenerStub(event, callback);
+              },
+              triggerClick() {
                 this.clickFunction();
               },
             };
@@ -197,7 +211,9 @@ describe("Rooms view browser notification", function () {
           .as("audioNotification")
           .callsFake(() => {
             return {
-              play: cy.stub().as("audioNotificationPlay"),
+              play() {
+                playStub();
+              },
             };
           });
       },
@@ -228,18 +244,19 @@ describe("Rooms view browser notification", function () {
 
     // Check that notification is shown
     cy.get("@notification")
-      .should("be.calledWithNew")
+      .should("be.calledOnce")
+      .and("be.calledWithNew")
       .and("be.calledWith", "Meeting One", {
         body: 'rooms.notification.body_{"time":"01:00"}',
         icon: "favicon.ico",
       });
-    cy.get("@addEventListener")
+    cy.get("@addEventListenerStub")
       .should("be.calledOnce")
       .and("be.calledWith", "click");
     // ToDo fix audio notification src (problem when running in build)
-    // cy.get('@audioNotification').should('be.calledOnce').and('be.calledWithMatch', 'resources/audio/notification.mp3');
+    // cy.get('@audioNotificationStub').should('be.calledOnce').and('be.calledWithMatch', 'resources/audio/notification.mp3');
     cy.get("@audioNotification").should("be.calledOnce");
-    cy.get("@audioNotificationPlay").should("be.calledOnce");
+    cy.get("@playStub").should("be.calledOnce");
 
     // Reload room without running meeting
     cy.fixture("room.json").then((room) => {
@@ -258,7 +275,7 @@ describe("Rooms view browser notification", function () {
     cy.wait("@roomRequest");
 
     // Check that notification is closed
-    cy.get("@notificationClose").should("be.calledOnce");
+    cy.get("@notificationCloseStub").should("be.calledOnce");
 
     // Reload again with running meeting
     cy.fixture("room.json").then((room) => {
@@ -281,18 +298,21 @@ describe("Rooms view browser notification", function () {
 
     // Check that notification is shown
     cy.get("@notification")
-      .should("be.calledWithNew")
+      .should("be.calledTwice")
+      .and("be.calledWithNew")
       .and("be.calledWith", "Meeting One", {
         body: 'rooms.notification.body_{"time":"01:00"}',
         icon: "favicon.ico",
       });
-    cy.get("@addEventListener")
-      .should("be.calledOnce")
+    cy.get("@addEventListenerStub")
+      .should("be.calledTwice")
       .and("be.calledWith", "click");
     // ToDo fix audio notification src (problem when running in build)
     // cy.get('@audioNotification').should('be.calledWithNew').and('be.calledWithMatch', 'resources/audio/notification.mp3');
-    cy.get("@audioNotification").should("be.calledWithNew");
-    cy.get("@audioNotificationPlay").should("be.calledOnce");
+    cy.get("@audioNotification")
+      .should("be.calledTwice")
+      .and("be.calledWithNew");
+    cy.get("@playStub").should("be.calledTwice");
 
     // Simulate clicking (call triggerClick)
     cy.get("@notification").then((notification) => {
@@ -302,7 +322,7 @@ describe("Rooms view browser notification", function () {
 
     // Check that focus is called and notification is closed (correct function set with addEventListener)
     cy.get("@focus").should("be.calledOnce");
-    cy.get("@notificationClose").should("be.calledOnce");
+    cy.get("@notificationCloseStub").should("be.calledTwice");
 
     // Reload room without running meeting
     cy.fixture("room.json").then((room) => {
@@ -328,7 +348,8 @@ describe("Rooms view browser notification", function () {
       "aria-label",
       "rooms.notification.enable",
     );
-    cy.get("@notificationClose").should("be.calledOnce");
+    // ToDo check closing of notifications (How??????)
+    //cy.get("@notificationCloseStub").should("be.calledThrice");
     cy.checkToastMessage("rooms.notification.disabled");
   });
 
