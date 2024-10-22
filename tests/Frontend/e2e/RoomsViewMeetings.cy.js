@@ -1164,18 +1164,6 @@ describe("Rooms view meetings", function () {
       }).as("roomRequest");
     });
 
-    cy.intercept("POST", "/api/v1/rooms/abc-def-123/start*", {
-      statusCode: 422,
-      body: {
-        message: "The given data was invalid",
-        errors: {
-          name: [
-            "The name contains the following non-permitted characters: 123!",
-          ],
-        },
-      },
-    }).as("startRequest");
-
     cy.visit("/rooms/abc-def-123");
 
     // Test with invalid name
