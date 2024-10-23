@@ -107,24 +107,12 @@ function handleOk() {
  * @returns {boolean} boolean that indicates if the setting is changed
  */
 function roomSettingChanged(settingName) {
+  // Check if default value of the setting changed / is different to the current setting
   if (
-    ROOM_SETTINGS_DEFINITION[settingName].expert_setting &&
-    !props.currentSettings.expert_mode
+    props.currentSettings[settingName] !==
+    newRoomType.value[settingName + "_default"]
   ) {
-    if (
-      props.currentSettings.room_type[settingName + "_default"] !==
-      newRoomType.value[settingName + "_default"]
-    ) {
-      return true;
-    }
-  } else {
-    // Check if default value of the setting changed / is different to the current setting
-    if (
-      props.currentSettings[settingName] !==
-      newRoomType.value[settingName + "_default"]
-    ) {
-      return true;
-    }
+    return true;
   }
 
   // Check if the enforced status of the setting changed

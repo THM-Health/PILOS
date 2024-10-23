@@ -119,15 +119,6 @@ function getCurrentSettingValue(setting) {
     return props.currentSettings.access_code !== null;
   }
 
-  // Check if setting is an expert setting and expert mode is disabled
-  if (
-    ROOM_SETTINGS_DEFINITION[setting.key]?.expert_setting &&
-    !props.currentSettings.expert_mode
-  ) {
-    // Show default value of the old room type
-    return props.currentSettings.room_type[setting.key + "_default"];
-  }
-
   // Return current setting value
   return props.currentSettings[
     setting.current_value_key ? setting.current_value_key : setting.key

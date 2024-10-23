@@ -10,6 +10,7 @@ describe("Rooms view settings", function () {
   it("load settings", function () {
     cy.fixture("roomSettings.json").then((roomSettings) => {
       roomSettings.data.expert_mode = false;
+      roomSettings.data.welcome = "";
 
       const roomSettingsRequest = interceptIndefinitely(
         "GET",
@@ -1056,6 +1057,7 @@ describe("Rooms view settings", function () {
       cy.fixture("roomSettings.json").then((roomSettings) => {
         roomSettings.data.name = "Meeting Three";
         roomSettings.data.expert_mode = false;
+        roomSettings.data.welcome = "";
         roomSettings.data.access_code = null;
         roomSettings.data.allow_guests = true;
         roomSettings.data.short_description = null;
@@ -1076,24 +1078,24 @@ describe("Rooms view settings", function () {
         access_code: null,
         allow_guests: true,
         short_description: "",
-        everyone_can_start: true,
-        mute_on_start: false,
-        record_attendance: true,
-        record: true,
-        auto_start_recording: true,
-        lobby: 0,
-        lock_settings_disable_cam: true,
-        webcams_only_for_moderator: false,
-        lock_settings_disable_mic: true,
-        lock_settings_disable_public_chat: false,
-        lock_settings_disable_private_chat: true,
-        lock_settings_disable_note: false,
-        lock_settings_hide_user_list: false,
-        allow_membership: true,
-        default_role: 2,
-        visibility: 0,
+        everyone_can_start: false,
+        mute_on_start: true,
+        record_attendance: false,
+        record: false,
+        auto_start_recording: false,
+        lobby: 2,
+        lock_settings_disable_cam: false,
+        webcams_only_for_moderator: true,
+        lock_settings_disable_mic: false,
+        lock_settings_disable_public_chat: true,
+        lock_settings_disable_private_chat: false,
+        lock_settings_disable_note: true,
+        lock_settings_hide_user_list: true,
+        allow_membership: false,
+        default_role: 1,
+        visibility: 1,
         room_type: 1,
-        welcome: "Welcome message",
+        welcome: "",
       });
     });
 
@@ -1261,6 +1263,7 @@ describe("Rooms view settings", function () {
     cy.fixture("roomTypesWithSettings.json").then((roomTypes) => {
       cy.fixture("roomSettings.json").then((roomSettings) => {
         roomSettings.data.expert_mode = false;
+        roomSettings.data.welcome = "";
         roomSettings.data.room_type = roomTypes.data[0];
         roomSettings.data.room_type.has_access_code_enforced = true;
         roomSettings.data.room_type.has_access_code_default = false;
@@ -2704,6 +2707,7 @@ describe("Rooms view settings", function () {
 
     cy.fixture("roomSettings.json").then((roomSettings) => {
       roomSettings.data.expert_mode = false;
+      roomSettings.data.welcome = "";
 
       cy.intercept("GET", "api/v1/rooms/abc-def-123/settings", {
         statusCode: 200,
