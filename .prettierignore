@@ -4,3 +4,5 @@ coverage
 lang
 public
 storage
+composer.lock
+package-lock.json
