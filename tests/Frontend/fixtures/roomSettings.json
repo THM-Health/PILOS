@@ -32,7 +32,7 @@
       "allow_membership_default": false,
       "allow_membership_enforced": true,
       "allow_guests_default": true,
-      "allow_guests_enforced": false,
+      "allow_guests_enforced": true,
       "default_role_default": 1,
       "default_role_enforced": false,
       "lobby_default": 2,

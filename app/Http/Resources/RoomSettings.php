@@ -28,7 +28,7 @@ class RoomSettings extends JsonResource
         return [
             'name' => $this->name,
             'expert_mode' => $this->expert_mode,
-            'welcome' => $this->welcome,
+            'welcome' => $this->expert_mode ? $this->welcome : '',
             'short_description' => $this->short_description,
             'access_code' => $this->access_code,
             'room_type' => (new RoomType($this->roomType))->withDefaultRoomSettings(),

@@ -20,13 +20,7 @@
           v-for="setting in settingGroup.settings"
           :key="setting.key"
           :data-test="'room-type-' + setting.key + '-comparison'"
-          :current-value="
-            currentSettings[
-              setting.current_value_key
-                ? setting.current_value_key
-                : setting.key
-            ]
-          "
+          :current-value="getCurrentSettingValue(setting)"
           :current-enforced="
             currentSettings.room_type[setting.key + '_enforced']
           "
@@ -68,6 +62,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRoomTypeSettings } from "../composables/useRoomTypeSettings.js";
+import { ROOM_SETTINGS_DEFINITION } from "../constants/roomSettings.js";
 
 const modalVisible = defineModel({ type: Boolean });
 const roomTypeSettings = useRoomTypeSettings();
@@ -101,14 +96,33 @@ function getResultingSetting(settingName) {
     return props.currentSettings.access_code !== null;
   }
 
-  // Check if setting will be changed to default value
-  if (resetToDefaults.value || props.newRoomType[settingName + "_enforced"]) {
-    // Return default value
+  // Check if setting should be changed to default value (reset to defaults, enforced, expert setting but expert mode deactivated)
+  if (
+    resetToDefaults.value ||
+    props.newRoomType[settingName + "_enforced"] ||
+    (ROOM_SETTINGS_DEFINITION[settingName]?.expert_setting &&
+      !props.currentSettings.expert_mode)
+  ) {
     return props.newRoomType[settingName + "_default"];
-  } else {
-    // Return current setting value
-    return props.currentSettings[settingName];
   }
+  // Return current setting value
+  return props.currentSettings[settingName];
+}
+
+/**
+ * Get the current setting value for the given setting
+ * @param setting setting for which the current value should be returned
+ * @returns {*|boolean} current setting value for the given setting
+ */
+function getCurrentSettingValue(setting) {
+  if (setting.current_value_key === "access_code") {
+    return props.currentSettings.access_code !== null;
+  }
+
+  // Return current setting value
+  return props.currentSettings[
+    setting.current_value_key ? setting.current_value_key : setting.key
+  ];
 }
 
 function handleSave() {
