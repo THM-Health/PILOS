@@ -120,6 +120,7 @@ return [
         ],
         'terms_of_use' => [
             'accept' => 'J\'accepte les conditions d\'utilisation',
+            'required' => 'Vous devez accepter les conditions d\'utilisation avant de télécharger ce fichier.',
             'title' => 'Conditions d\'utilisation',
         ],
         'title' => 'Fichiers',
