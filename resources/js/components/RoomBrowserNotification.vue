@@ -127,6 +127,7 @@ const enableNotification = () => {
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
         notificationEnabled.value = true;
+        toast.info(t("rooms.notification.enabled"));
       } else {
         notificationEnabled.value = false;
         toast.error(t("rooms.notification.denied"));
@@ -137,7 +138,6 @@ const enableNotification = () => {
 
 function disableNotification() {
   notificationEnabled.value = false;
-  clearNotification();
   toast.info(t("rooms.notification.disabled"));
 }
 </script>
