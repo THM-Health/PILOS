@@ -138,7 +138,6 @@ const enableNotification = () => {
 
 function disableNotification() {
   notificationEnabled.value = false;
-  clearNotification();
   toast.info(t("rooms.notification.disabled"));
 }
 </script>
