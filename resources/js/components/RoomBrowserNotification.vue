@@ -13,8 +13,8 @@
         ? $t('rooms.notification.disable')
         : $t('rooms.notification.enable')
     "
-    @click="notificationEnabled ? disableNotification() : enableNotification()"
     data-test="room-notification-button"
+    @click="notificationEnabled ? disableNotification() : enableNotification()"
   />
 </template>
 

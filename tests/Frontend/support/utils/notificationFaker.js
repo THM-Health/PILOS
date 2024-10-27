@@ -35,3 +35,15 @@ export function createNotificationFaker(closeSpy, eventListenerSpy) {
     },
   };
 }
+
+export function createAudioNotificationFaker(playSpy) {
+  return {
+    createAudioNotification: () => {
+      return {
+        play() {
+          playSpy();
+        },
+      };
+    },
+  };
+}

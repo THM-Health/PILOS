@@ -28,7 +28,9 @@
       "password_change_allowed": true
     },
     "banner": {},
-    "recording": {},
+    "recording": {
+      "recording_retention_period": -1
+    },
     "auth": {}
   }
 }

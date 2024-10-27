@@ -1,4 +1,7 @@
-import { createNotificationFaker } from "../support/utils/notificationFaker.js";
+import {
+  createAudioNotificationFaker,
+  createNotificationFaker,
+} from "../support/utils/notificationFaker.js";
 
 describe("Rooms view browser notification", function () {
   beforeEach(function () {
@@ -191,6 +194,8 @@ describe("Rooms view browser notification", function () {
       addEventListenerSpy,
     );
 
+    const audioNotificationFaker = createAudioNotificationFaker(playSpy);
+
     cy.visit("/rooms/abc-def-123", {
       onBeforeLoad(win) {
         cy.stub(win, "focus").as("focus");
@@ -203,11 +208,7 @@ describe("Rooms view browser notification", function () {
         cy.stub(win, "Audio")
           .as("audioNotification")
           .callsFake(() => {
-            return {
-              play() {
-                playSpy();
-              },
-            };
+            return audioNotificationFaker.createAudioNotification();
           });
       },
     });
