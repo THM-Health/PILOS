@@ -1,0 +1,129 @@
+{
+  "data": [
+    {
+      "id": "1abc123",
+      "start": "2022-08-17T09:20:35.000000Z",
+      "end": "2022-08-17T09:40:52.000000Z",
+      "description": "Recording 1",
+      "access": 0,
+      "formats": [
+        {
+          "id": 1,
+          "format": "notes",
+          "disabled": false
+        },
+        {
+          "id": 2,
+          "format": "podcast",
+          "disabled": false
+        },
+        {
+          "id": 3,
+          "format": "presentation",
+          "disabled": false
+        },
+        {
+          "id": 4,
+          "format": "screenshare",
+          "disabled": false
+        }
+      ]
+    },
+    {
+      "id": "a123abc",
+      "start": "2022-08-17T08:00:00.000000Z",
+      "end": "2022-08-17T09:00:00.000000Z",
+      "description": "Recording 2",
+      "access": 1,
+      "formats": [
+        {
+          "id": 1,
+          "format": "notes",
+          "disabled": true
+        },
+        {
+          "id": 2,
+          "format": "podcast",
+          "disabled": true
+        },
+        {
+          "id": 3,
+          "format": "presentation",
+          "disabled": true
+        },
+        {
+          "id": 4,
+          "format": "screenshare",
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "id": "x123xyz",
+      "start": "2022-08-17T08:39:35.000000Z",
+      "end": "2022-08-17T09:40:52.000000Z",
+      "description": "Recording 3",
+      "access": 2,
+      "formats": [
+        {
+          "id": 1,
+          "format": "notes",
+          "disabled": true
+        },
+        {
+          "id": 2,
+          "format": "podcast",
+          "disabled": false
+        },
+        {
+          "id": 3,
+          "format": "presentation",
+          "disabled": false
+        },
+        {
+          "id": 4,
+          "format": "screenshare",
+          "disabled": true
+        }
+      ]
+    },
+    {
+      "id": "x123xyz",
+      "start": "2022-08-17T09:39:35.000000Z",
+      "end": "2022-08-17T09:40:52.000000Z",
+      "description": "Recording 4",
+      "access": 3,
+      "formats": [
+        {
+          "id": 1,
+          "format": "notes",
+          "disabled": false
+        },
+        {
+          "id": 2,
+          "format": "podcast",
+          "disabled": true
+        },
+        {
+          "id": 3,
+          "format": "presentation",
+          "disabled": true
+        },
+        {
+          "id": 4,
+          "format": "screenshare",
+          "disabled": false
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 4,
+    "to": 4,
+    "total": 4,
+    "total_no_filter": 4
+  }
+}

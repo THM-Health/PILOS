@@ -294,6 +294,8 @@ Cypress.Commands.add(
  * @param  {string} roomTabName
  * @returns void
  */
+// ToDo add possibility to load with correct data and then trigger error
+// ToDo add possibility to change room data (maybe get room data(additional room data as parameter)
 Cypress.Commands.add(
   "checkRoomAuthErrors",
   (triggerRequestActions, requestMethod, requestUrl, roomTabName) => {
@@ -337,7 +339,7 @@ Cypress.Commands.add(
         cy.url().should("include", "/rooms/abc-def-123#tab=files");
         break;
       case "recordings":
-        // Check that tab stayed the same
+        // Check that tab stayed the same ToDo check that recordings are reloaded
         cy.url().should("include", "/rooms/abc-def-123#tab=recordings");
         break;
       default:
@@ -486,7 +488,7 @@ Cypress.Commands.add(
         cy.url().should("include", "/rooms/abc-def-123#tab=files");
         break;
       case "recordings":
-        // Check that tab stayed the same
+        // Check that tab stayed the same ToDo check that recordings are reloaded
         cy.url().should("include", "/rooms/abc-def-123#tab=recordings");
         break;
       default:

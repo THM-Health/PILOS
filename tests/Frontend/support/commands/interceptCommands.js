@@ -142,3 +142,15 @@ Cypress.Commands.add("interceptUserProfileRequests", () => {
   cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
   cy.intercept("GET", "api/v1/sessions", { fixture: "sessions.json" });
 });
+
+/**
+ * Intercept all requests that are needed when visiting the recordings tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomRecordingsRequest
+ * @returns void
+ */
+Cypress.Commands.add("interceptRoomRecordingsRequest", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+    fixture: "roomRecordings.json",
+  }).as("roomRecordingsRequest");
+});
