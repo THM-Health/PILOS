@@ -1,7 +1,8 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
 describe("Rooms view recordings", function () {
-  //ToDo retention_period message
+  // ToDo retention_period message
+  // ToDo check that recording without enabled format is hidden???
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
@@ -1824,5 +1825,4 @@ describe("Rooms view recordings", function () {
       .eq(0)
       .should("have.attr", "data-p-active", "true");
   });
-  //ToDo other test file with view, download, edit, delete
 });

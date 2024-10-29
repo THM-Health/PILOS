@@ -1140,7 +1140,7 @@ describe("Rooms view files file actions", function () {
       .click();
 
     cy.wait("@downloadFileRequest");
-    cy.wait("@roomRequest");
+    cy.wait("@roomFilesRequest");
 
     // Check that error message is shown and that file is not shown anymore
     cy.checkToastMessage("rooms.flash.file_gone");
@@ -1182,7 +1182,7 @@ describe("Rooms view files file actions", function () {
       cy.intercept("GET", "api/v1/rooms/abc-def-123", {
         statusCode: 200,
         body: room,
-      }).as("roomRequest");
+      }).as("reloadRoomRequest");
     });
 
     cy.get('[data-test="room-file-item"]')
@@ -1191,7 +1191,7 @@ describe("Rooms view files file actions", function () {
       .click();
 
     cy.wait("@downloadFileRequest");
-    cy.wait("@roomRequest");
+    cy.wait("@reloadRoomRequest");
     cy.wait("@roomFilesRequest");
 
     cy.checkToastMessage("rooms.flash.file_forbidden");
