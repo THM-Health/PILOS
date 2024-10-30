@@ -140,7 +140,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(2)
       .should("include.text", "Recording 3")
-      .and("include.text", "08/17/2022, 10:39")
+      .and("include.text", "08/18/2022, 10:39")
       .and("include.text", "1 app.time_formats.hour, 1 app.time_formats.minute")
       .and("include.text", "rooms.recordings.access_types.moderator")
       .within(() => {
@@ -169,7 +169,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(3)
       .should("include.text", "Recording 4")
-      .and("include.text", "08/17/2022, 11:39")
+      .and("include.text", "09/20/2022, 11:39")
       .and("include.text", "1 app.time_formats.minute")
       .and("include.text", "rooms.recordings.access_types.owner")
       .within(() => {
@@ -844,7 +844,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(2)
       .should("include.text", "Recording 3")
-      .and("include.text", "08/17/2022, 10:39")
+      .and("include.text", "08/18/2022, 10:39")
       .and("include.text", "1 app.time_formats.hour, 1 app.time_formats.minute")
       .and("not.include.text", "rooms.recordings.access_types.moderator")
       .within(() => {
@@ -866,7 +866,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(3)
       .should("include.text", "Recording 4")
-      .and("include.text", "08/17/2022, 11:39")
+      .and("include.text", "09/20/2022, 11:39")
       .and("include.text", "1 app.time_formats.minute")
       .and("not.include.text", "rooms.recordings.access_types.owner")
       .within(() => {
@@ -970,7 +970,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(2)
       .should("include.text", "Recording 3")
-      .and("include.text", "08/17/2022, 10:39")
+      .and("include.text", "08/18/2022, 10:39")
       .and("include.text", "1 app.time_formats.hour, 1 app.time_formats.minute")
       .and("include.text", "rooms.recordings.access_types.moderator")
       .within(() => {
@@ -1000,7 +1000,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(3)
       .should("include.text", "Recording 4")
-      .and("include.text", "08/17/2022, 11:39")
+      .and("include.text", "09/20/2022, 11:39")
       .and("include.text", "1 app.time_formats.minute")
       .and("include.text", "rooms.recordings.access_types.owner")
       .within(() => {
@@ -1117,7 +1117,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(2)
       .should("include.text", "Recording 3")
-      .and("include.text", "08/17/2022, 10:39")
+      .and("include.text", "08/18/2022, 10:39")
       .and("include.text", "1 app.time_formats.hour, 1 app.time_formats.minute")
       .and("include.text", "rooms.recordings.access_types.moderator")
       .within(() => {
@@ -1147,7 +1147,7 @@ describe("Rooms view recordings", function () {
     cy.get('[data-test="room-recording-item"')
       .eq(3)
       .should("include.text", "Recording 4")
-      .and("include.text", "08/17/2022, 11:39")
+      .and("include.text", "09/20/2022, 11:39")
       .and("include.text", "1 app.time_formats.minute")
       .and("include.text", "rooms.recordings.access_types.owner")
       .within(() => {

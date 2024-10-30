@@ -26,7 +26,7 @@ describe("Rooms view recordings actions", function () {
 
     const viewRecordingRequest = interceptIndefinitely(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/1abc123/formats/1",
+      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1",
       {
         statusCode: 200,
         body: {
@@ -132,7 +132,7 @@ describe("Rooms view recordings actions", function () {
 
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/1abc123/formats/2",
+      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
       {
         statusCode: 200,
         body: {
@@ -211,7 +211,7 @@ describe("Rooms view recordings actions", function () {
     // Check with invalid_code error
     cy.intercept(
       "GET",
-      "api/v1/rooms/abc-def-123/recordings/1abc123/formats/2",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
       {
         statusCode: 401,
         body: {
@@ -273,7 +273,7 @@ describe("Rooms view recordings actions", function () {
     // Check require_code error
     cy.intercept(
       "GET",
-      "api/v1/rooms/abc-def-123/recordings/1abc123/formats/2",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/2",
       {
         statusCode: 403,
         body: {
@@ -358,7 +358,7 @@ describe("Rooms view recordings actions", function () {
 
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/1abc123/formats/3",
+      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3",
       {
         statusCode: 200,
         body: {
@@ -425,7 +425,7 @@ describe("Rooms view recordings actions", function () {
     // Check with invalid_code error
     cy.intercept(
       "GET",
-      "api/v1/rooms/abc-def-123/recordings/1abc123/formats/3",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/3",
       {
         statusCode: 401,
         body: {
@@ -465,7 +465,7 @@ describe("Rooms view recordings actions", function () {
 
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/1xyz123/formats/4",
+      "/api/v1/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775/formats/4",
       {
         statusCode: 200,
         body: {
@@ -500,7 +500,7 @@ describe("Rooms view recordings actions", function () {
     // Check with 404 error (recording not found / already deleted)
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/1xyz123/formats/4",
+      "/api/v1/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775/formats/4",
       {
         statusCode: 404,
         body: {
@@ -538,7 +538,7 @@ describe("Rooms view recordings actions", function () {
     // Check with 500 error
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/1abc123/formats/1",
+      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1",
       {
         statusCode: 500,
         body: {
@@ -572,7 +572,7 @@ describe("Rooms view recordings actions", function () {
     // Check 403 error
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/1abc123/formats/1",
+      "/api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035/formats/1",
       {
         statusCode: 403,
         body: {
@@ -639,48 +639,55 @@ describe("Rooms view recordings actions", function () {
   });
 
   it("check download recording buttons", function () {
-    // ToDo improve or move this test?????
     cy.visit("/rooms/abc-def-123#tab=recordings");
 
     cy.wait("@roomRecordingsRequest");
 
     cy.get('[data-test="room-recording-item"]')
       .eq(0)
-      .find('[data-test="room-recordings-download-button"]')
+      .find('a[data-test="room-recordings-download-button"]')
       .should(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") + "/download/recording/" + "1abc123",
+        Cypress.config("baseUrl") +
+          "/download/recording/" +
+          "e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       )
       .and("have.attr", "target", "_blank");
 
     cy.get('[data-test="room-recording-item"]')
       .eq(1)
-      .find('[data-test="room-recordings-download-button"]')
+      .find('a[data-test="room-recordings-download-button"]')
       .should(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") + "/download/recording/" + "a123abc",
+        Cypress.config("baseUrl") +
+          "/download/recording/" +
+          "0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
       )
       .and("have.attr", "target", "_blank");
 
     cy.get('[data-test="room-recording-item"]')
       .eq(2)
-      .find('[data-test="room-recordings-download-button"]')
+      .find('a[data-test="room-recordings-download-button"]')
       .should(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") + "/download/recording/" + "x123xyz",
+        Cypress.config("baseUrl") +
+          "/download/recording/" +
+          "66bcb180bb1aeb037cb4e5625af3625c6c740224-1660811975",
       )
       .and("have.attr", "target", "_blank");
 
     cy.get('[data-test="room-recording-item"]')
       .eq(3)
-      .find('[data-test="room-recordings-download-button"]')
+      .find('a[data-test="room-recordings-download-button"]')
       .should(
         "have.attr",
         "href",
-        Cypress.config("baseUrl") + "/download/recording/" + "1xyz123",
+        Cypress.config("baseUrl") +
+          "/download/recording/" +
+          "f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775",
       )
       .and("have.attr", "target", "_blank");
   });
@@ -704,7 +711,7 @@ describe("Rooms view recordings actions", function () {
 
     const deleteRecordingRequest = interceptIndefinitely(
       "DELETE",
-      "api/v1/rooms/abc-def-123/recordings/1abc123",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       {
         statusCode: 204,
       },
@@ -762,12 +769,16 @@ describe("Rooms view recordings actions", function () {
       .find('[data-test="room-recordings-delete-button"]')
       .click();
 
-    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/recordings/1xyz123", {
-      statusCode: 404,
-      body: {
-        message: "No query results for model",
+    cy.intercept(
+      "DELETE",
+      "api/v1/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775",
+      {
+        statusCode: 404,
+        body: {
+          message: "No query results for model",
+        },
       },
-    }).as("deleteRecordingRequest");
+    ).as("deleteRecordingRequest");
 
     cy.fixture("roomRecordings.json").then((roomRecordings) => {
       roomRecordings.data = roomRecordings.data.slice(0, 3);
@@ -802,12 +813,16 @@ describe("Rooms view recordings actions", function () {
       .find('[data-test="room-recordings-delete-button"]')
       .click();
 
-    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/recordings/a123abc", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    cy.intercept(
+      "DELETE",
+      "api/v1/rooms/abc-def-123/recordings/0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("deleteRecordingRequest");
+    ).as("deleteRecordingRequest");
 
     cy.get('[data-test="room-recordings-delete-dialog"]')
       .should("be.visible")
@@ -843,7 +858,7 @@ describe("Rooms view recordings actions", function () {
           .click();
       },
       "DELETE",
-      "api/v1/rooms/abc-def-123/recordings/1abc123",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       "recordings",
     );
   });
@@ -934,7 +949,7 @@ describe("Rooms view recordings actions", function () {
 
         const editRecordingRequest = interceptIndefinitely(
           "PUT",
-          "api/v1/rooms/abc-def-123/recordings/1abc123",
+          "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
           {
             statusCode: 204,
           },
@@ -1053,12 +1068,16 @@ describe("Rooms view recordings actions", function () {
       .find('[data-test="room-recordings-edit-button"]')
       .click();
 
-    cy.intercept("PUT", "api/v1/rooms/abc-def-123/recordings/1xyz123", {
-      statusCode: 404,
-      body: {
-        message: "No query results for model",
+    cy.intercept(
+      "PUT",
+      "api/v1/rooms/abc-def-123/recordings/f9569db6d5e8fb2fd2f57d367d5482b36837b9d8-1663666775",
+      {
+        statusCode: 404,
+        body: {
+          message: "No query results for model",
+        },
       },
-    }).as("editRecordingRequest");
+    ).as("editRecordingRequest");
 
     cy.fixture("roomRecordings.json").then((roomRecordings) => {
       roomRecordings.data = roomRecordings.data.slice(0, 3);
@@ -1093,17 +1112,21 @@ describe("Rooms view recordings actions", function () {
       .find('[data-test="room-recordings-edit-button"]')
       .click();
 
-    cy.intercept("PUT", "api/v1/rooms/abc-def-123/recordings/a123abc", {
-      statusCode: 422,
-      body: {
-        message: "Validation failed",
-        errors: {
-          description: ["The description field is required."],
-          access: ["The access field is required."],
-          formats: ["The formats field is required."],
+    cy.intercept(
+      "PUT",
+      "api/v1/rooms/abc-def-123/recordings/0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
+      {
+        statusCode: 422,
+        body: {
+          message: "Validation failed",
+          errors: {
+            description: ["The description field is required."],
+            access: ["The access field is required."],
+            formats: ["The formats field is required."],
+          },
         },
       },
-    }).as("editRecordingRequest");
+    ).as("editRecordingRequest");
 
     cy.get('[data-test="room-recordings-edit-dialog"]')
       .should("be.visible")
@@ -1131,12 +1154,16 @@ describe("Rooms view recordings actions", function () {
       });
 
     // Check with 500 error
-    cy.intercept("PUT", "api/v1/rooms/abc-def-123/recordings/a123abc", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    cy.intercept(
+      "PUT",
+      "api/v1/rooms/abc-def-123/recordings/0baf06ec8480e8de73e007ae1ee3028e4c0ecb3c-1660723200",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("editRecordingRequest");
+    ).as("editRecordingRequest");
 
     cy.get('[data-test="room-recordings-edit-dialog"]')
       .find('[data-test="dialog-save-button"]')
@@ -1171,7 +1198,7 @@ describe("Rooms view recordings actions", function () {
           .click();
       },
       "PUT",
-      "api/v1/rooms/abc-def-123/recordings/1abc123",
+      "api/v1/rooms/abc-def-123/recordings/e0cfa18c5fd75a42bd7947d8549321b03abf1daf-1660728035",
       "recordings",
     );
   });
