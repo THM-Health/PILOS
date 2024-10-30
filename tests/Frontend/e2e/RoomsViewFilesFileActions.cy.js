@@ -451,7 +451,7 @@ describe("Rooms view files file actions", function () {
       .find('[data-test="room-files-delete-button"]')
       .click();
 
-    // Check tha dialog is shown for the correct file
+    // Check that dialog is shown for the correct file
     cy.get('[data-test="room-files-delete-dialog"]')
       .should("be.visible")
       .should(
@@ -561,7 +561,12 @@ describe("Rooms view files file actions", function () {
           .should("have.text", "app.save")
           .click();
 
+        // Check loading
         cy.get('[data-test="dialog-save-button"]').should("be.disabled");
+
+        cy.get("#download").should("be.disabled");
+        cy.get("#use_in_meeting").should("be.disabled");
+        cy.get("#default").should("be.disabled");
 
         cy.get('[data-test="dialog-cancel-button')
           .should("have.text", "app.cancel")

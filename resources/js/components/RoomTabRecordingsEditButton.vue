@@ -79,6 +79,7 @@
         v-for="format in newFormats"
         :key="format.id"
         class="flex items-center"
+        :data-test="'format-' + format.id + '-field'"
       >
         <ToggleSwitch
           v-model="format.disabled"
@@ -102,6 +103,7 @@
           v-for="accessType in accessTypes"
           :key="accessType"
           class="flex items-center"
+          :data-test="'access-' + accessType + '-field'"
         >
           <RadioButton
             v-model="newAccess"

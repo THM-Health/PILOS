@@ -1,3 +1,5 @@
+import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+
 describe("Rooms view recordings actions", function () {
   beforeEach(function () {
     cy.init();
@@ -22,7 +24,7 @@ describe("Rooms view recordings actions", function () {
       cy.stub(win, "open").as("recordingView").returns(true);
     });
 
-    cy.intercept(
+    const viewRecordingRequest = interceptIndefinitely(
       "GET",
       "/api/v1/rooms/abc-def-123/recordings/1abc123/formats/1",
       {
@@ -31,7 +33,8 @@ describe("Rooms view recordings actions", function () {
           url: "https://example.org/?foo=a&bar=b",
         },
       },
-    ).as("viewRecordingRequest");
+      "viewRecordingRequest",
+    );
 
     // Check if the dialog is open
     cy.get('[data-test="room-recordings-view-dialog"]')
@@ -52,6 +55,15 @@ describe("Rooms view recordings actions", function () {
           .should("be.visible")
           .and("include.text", "rooms.recordings.format_types.screenshare");
         cy.get('[data-test="notes-button"]').click();
+
+        // Check loading
+        cy.get('[data-test="overlay"]').should("be.visible");
+        cy.get('[data-test="dialog-close-button"]')
+          .should("have.text", "app.close")
+          .should("be.disabled")
+          .then(() => {
+            viewRecordingRequest.sendResponse();
+          });
       });
 
     cy.wait("@viewRecordingRequest");
@@ -453,7 +465,7 @@ describe("Rooms view recordings actions", function () {
 
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/x123xyz/formats/4",
+      "/api/v1/rooms/abc-def-123/recordings/1xyz123/formats/4",
       {
         statusCode: 200,
         body: {
@@ -488,7 +500,7 @@ describe("Rooms view recordings actions", function () {
     // Check with 404 error (recording not found / already deleted)
     cy.intercept(
       "GET",
-      "/api/v1/rooms/abc-def-123/recordings/x123xyz/formats/4",
+      "/api/v1/rooms/abc-def-123/recordings/1xyz123/formats/4",
       {
         statusCode: 404,
         body: {
@@ -626,12 +638,541 @@ describe("Rooms view recordings actions", function () {
       });
   });
 
-  // ToDo following tests need to be specified more clearly
-  // ToDo download recording
+  it("check download recording buttons", function () {
+    // ToDo improve or move this test?????
+    cy.visit("/rooms/abc-def-123#tab=recordings");
 
-  // ToDo delete recording
-  // ToDo delete recording with errors
+    cy.wait("@roomRecordingsRequest");
 
-  // ToDo edit recording
-  // ToDo edit recording with errors
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-download-button"]')
+      .should(
+        "have.attr",
+        "href",
+        Cypress.config("baseUrl") + "/download/recording/" + "1abc123",
+      )
+      .and("have.attr", "target", "_blank");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(1)
+      .find('[data-test="room-recordings-download-button"]')
+      .should(
+        "have.attr",
+        "href",
+        Cypress.config("baseUrl") + "/download/recording/" + "a123abc",
+      )
+      .and("have.attr", "target", "_blank");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(2)
+      .find('[data-test="room-recordings-download-button"]')
+      .should(
+        "have.attr",
+        "href",
+        Cypress.config("baseUrl") + "/download/recording/" + "x123xyz",
+      )
+      .and("have.attr", "target", "_blank");
+
+    cy.get('[data-test="room-recording-item"]')
+      .eq(3)
+      .find('[data-test="room-recordings-download-button"]')
+      .should(
+        "have.attr",
+        "href",
+        Cypress.config("baseUrl") + "/download/recording/" + "1xyz123",
+      )
+      .and("have.attr", "target", "_blank");
+  });
+
+  it("delete recording", function () {
+    cy.visit("/rooms/abc-def-123#tab=recordings");
+
+    cy.wait("@roomRecordingsRequest");
+
+    cy.get('[data-test="room-recording-item"]').should("have.length", 4);
+
+    cy.get('[data-test="room-recordings-delete-dialog"]').should("not.exist");
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-delete-button"]')
+      .click();
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.modals.delete.title")
+      .and("include.text", "rooms.recordings.modals.delete.confirm");
+
+    const deleteRecordingRequest = interceptIndefinitely(
+      "DELETE",
+      "api/v1/rooms/abc-def-123/recordings/1abc123",
+      {
+        statusCode: 204,
+      },
+      "deleteRecordingRequest",
+    );
+
+    cy.fixture("roomRecordings.json").then((roomRecordings) => {
+      roomRecordings.data = roomRecordings.data.slice(1, 4);
+      roomRecordings.meta.to = 3;
+      roomRecordings.meta.total = 3;
+      roomRecordings.meta.total_no_filter = 3;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+        statusCode: 200,
+        body: roomRecordings,
+      }).as("roomRecordingsRequest");
+    });
+
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .find('[data-test="dialog-continue-button"]')
+      .should("have.text", "app.yes")
+      .click();
+
+    // Check loading
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .find('[data-test="dialog-continue-button"]')
+      .should("be.disabled");
+
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .find('[data-test="dialog-cancel-button"]')
+      .should("have.text", "app.no")
+      .should("be.disabled")
+      .then(() => {
+        deleteRecordingRequest.sendResponse();
+      });
+
+    cy.wait("@deleteRecordingRequest");
+    cy.wait("@roomRecordingsRequest");
+
+    // Check that recording was deleted
+    cy.get('[data-test="room-recording-item"]').should("have.length", 3);
+
+    // Check that dialog is closed
+    cy.get('[data-test="room-recordings-delete-dialog"]').should("not.exist");
+  });
+
+  it("delete recording errors", function () {
+    cy.visit("/rooms/abc-def-123#tab=recordings");
+
+    cy.wait("@roomRecordingsRequest");
+
+    // Check with 404 error (recording not found / already deleted)
+    cy.get('[data-test="room-recording-item"]')
+      .eq(3)
+      .find('[data-test="room-recordings-delete-button"]')
+      .click();
+
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/recordings/1xyz123", {
+      statusCode: 404,
+      body: {
+        message: "No query results for model",
+      },
+    }).as("deleteRecordingRequest");
+
+    cy.fixture("roomRecordings.json").then((roomRecordings) => {
+      roomRecordings.data = roomRecordings.data.slice(0, 3);
+      roomRecordings.meta.to = 3;
+      roomRecordings.meta.total = 3;
+      roomRecordings.meta.total_no_filter = 3;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+        statusCode: 200,
+        body: roomRecordings,
+      }).as("roomFilesRequest");
+    });
+
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-continue-button"]')
+      .click();
+
+    cy.wait("@deleteRecordingRequest");
+    cy.wait("@roomFilesRequest");
+
+    // Check that recording is not shown anymore and dialog is closed
+    cy.get('[data-test="room-recordings-delete-dialog"]').should("not.exist");
+    cy.get('[data-test="room-recording-item"]').should("have.length", 3);
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.recording_gone");
+
+    // Check with 500 error
+    cy.get('[data-test="room-recording-item"]')
+      .eq(1)
+      .find('[data-test="room-recordings-delete-button"]')
+      .click();
+
+    cy.intercept("DELETE", "api/v1/rooms/abc-def-123/recordings/a123abc", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("deleteRecordingRequest");
+
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-continue-button"]')
+      .click();
+
+    cy.wait("@deleteRecordingRequest");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that dialog stayed open and close it
+    cy.get('[data-test="room-recordings-delete-dialog"]').should("be.visible");
+    cy.get('[data-test="room-recordings-delete-dialog"]')
+      .find('[data-test="dialog-cancel-button"]')
+      .click();
+
+    cy.get('[data-test="room-recordings-delete-dialog"]').should("not.exist");
+
+    // Check auth errors
+    cy.checkRoomAuthErrors(
+      () => {
+        cy.get('[data-test="room-recording-item"]')
+          .eq(0)
+          .find('[data-test="room-recordings-delete-button"]')
+          .click();
+        cy.get('[data-test="room-recordings-delete-dialog"]')
+          .should("be.visible")
+          .find('[data-test="dialog-continue-button"]')
+          .click();
+      },
+      "DELETE",
+      "api/v1/rooms/abc-def-123/recordings/1abc123",
+      "recordings",
+    );
+  });
+
+  it("edit recording", function () {
+    cy.visit("/rooms/abc-def-123#tab=recordings");
+
+    cy.wait("@roomRecordingsRequest");
+
+    cy.get('[data-test="room-recordings-edit-dialog"]').should("not.exist");
+    cy.get('[data-test="room-recording-item"]')
+      .eq(0)
+      .find('[data-test="room-recordings-edit-button"]')
+      .click();
+
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.modals.edit.title")
+      .and("include.text", "08/17/2022, 11:20 - 08/17/2022, 11:40")
+      .within(() => {
+        cy.get('[data-test="description-field"]')
+          .should("include.text", "rooms.recordings.description")
+          .find("#description")
+          .should("be.visible")
+          .should("have.value", "Recording 1")
+          .type(" Test");
+
+        cy.get('[data-test="available-formats-field"]')
+          .should("include.text", "rooms.recordings.available_formats")
+          .within(() => {
+            cy.get('[data-test="format-1-field"]')
+              .should("include.text", "rooms.recordings.format_types.notes")
+              .find("#format-1")
+              .should("be.checked")
+              .click();
+
+            cy.get('[data-test="format-2-field"]')
+              .should("include.text", "rooms.recordings.format_types.podcast")
+              .find("#format-2")
+              .should("be.checked")
+              .click();
+
+            cy.get('[data-test="format-3-field"]')
+              .should(
+                "include.text",
+                "rooms.recordings.format_types.presentation",
+              )
+              .find("#format-3")
+              .should("be.checked")
+              .click();
+
+            cy.get('[data-test="format-4-field"]')
+              .should(
+                "include.text",
+                "rooms.recordings.format_types.screenshare",
+              )
+              .find("#format-4")
+              .should("be.checked");
+          });
+
+        cy.get('[data-test="access-field"]')
+          .should("include.text", "rooms.recordings.access")
+          .within(() => {
+            cy.get('[data-test="access-0-field"]')
+              .should("include.text", "rooms.recordings.access_types.everyone")
+              .find("#access-0")
+              .should("be.checked");
+
+            cy.get('[data-test="access-1-field"]')
+              .should(
+                "include.text",
+                "rooms.recordings.access_types.participant",
+              )
+              .find("#access-1")
+              .should("not.be.checked");
+
+            cy.get('[data-test="access-2-field"]')
+              .should("include.text", "rooms.recordings.access_types.moderator")
+              .find("#access-2")
+              .should("not.be.checked");
+
+            cy.get('[data-test="access-3-field"]')
+              .should("include.text", "rooms.recordings.access_types.owner")
+              .find("#access-3")
+              .should("not.be.checked")
+              .click();
+          });
+
+        const editRecordingRequest = interceptIndefinitely(
+          "PUT",
+          "api/v1/rooms/abc-def-123/recordings/1abc123",
+          {
+            statusCode: 204,
+          },
+          "editRecordingRequest",
+        );
+
+        cy.fixture("roomRecordings.json").then((roomRecordings) => {
+          roomRecordings.data[0].description = "Recording 1 Test";
+          roomRecordings.data[0].access = 3;
+          roomRecordings.data[0].formats[0].disabled = true;
+          roomRecordings.data[0].formats[1].disabled = true;
+          roomRecordings.data[0].formats[2].disabled = true;
+
+          cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+            statusCode: 200,
+            body: roomRecordings,
+          }).as("roomRecordingsRequest");
+        });
+
+        cy.get('[data-test="dialog-save-button"]')
+          .should("have.text", "app.save")
+          .click();
+
+        // Check loading
+        cy.get('[data-test="dialog-save-button"]').should("be.disabled");
+
+        cy.get("#description").should("be.disabled");
+        cy.get("#format-1").should("be.disabled");
+        cy.get("#format-2").should("be.disabled");
+        cy.get("#format-3").should("be.disabled");
+        cy.get("#format-4").should("be.disabled");
+        cy.get("#access-0").should("be.disabled");
+        cy.get("#access-1").should("be.disabled");
+        cy.get("#access-2").should("be.disabled");
+        cy.get("#access-3").should("be.disabled");
+
+        cy.get('[data-test="dialog-cancel-button"]')
+          .should("have.text", "app.cancel")
+          .should("be.disabled")
+          .then(() => {
+            editRecordingRequest.sendResponse();
+          });
+      });
+    cy.wait("@editRecordingRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        description: "Recording 1 Test",
+        access: 3,
+        formats: [
+          {
+            id: 1,
+            format: "notes",
+            disabled: true,
+          },
+          {
+            id: 2,
+            format: "podcast",
+            disabled: true,
+          },
+          {
+            id: 3,
+            format: "presentation",
+            disabled: true,
+          },
+          {
+            id: 4,
+            format: "screenshare",
+            disabled: false,
+          },
+        ],
+      });
+    });
+
+    cy.wait("@roomRecordingsRequest");
+
+    cy.get('[data-test="room-recordings-edit-dialog"]').should("not.exist");
+
+    // Check that recording settings were updated
+    cy.get('[data-test="room-recording-item"')
+      .eq(0)
+      .should("include.text", "Recording 1 Test")
+      .and("include.text", "08/17/2022, 11:20")
+      .and("include.text", "20 app.time_formats.minutes")
+      .and("include.text", "rooms.recordings.access_types.owner")
+      .within(() => {
+        cy.get('[data-test="recording-format-disabled"]').should(
+          "have.length",
+          3,
+        );
+        cy.get('[data-test="recording-format-enabled"]').should(
+          "have.length",
+          1,
+        );
+        cy.get('[data-test="recording-format-disabled"]')
+          .eq(0)
+          .should("include.text", "rooms.recordings.format_types.notes");
+        cy.get('[data-test="recording-format-disabled"]')
+          .eq(1)
+          .should("include.text", "rooms.recordings.format_types.podcast");
+        cy.get('[data-test="recording-format-disabled"]')
+          .eq(2)
+          .should("include.text", "rooms.recordings.format_types.presentation");
+        cy.get('[data-test="recording-format-enabled"]')
+          .eq(0)
+          .should("include.text", "rooms.recordings.format_types.screenshare");
+      });
+  });
+
+  it("edit recording errors", function () {
+    cy.visit("/rooms/abc-def-123#tab=recordings");
+
+    cy.wait("@roomRecordingsRequest");
+
+    // Check with 404 error (recording not found / already deleted)
+    cy.get('[data-test="room-recording-item"]')
+      .eq(3)
+      .find('[data-test="room-recordings-edit-button"]')
+      .click();
+
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/recordings/1xyz123", {
+      statusCode: 404,
+      body: {
+        message: "No query results for model",
+      },
+    }).as("editRecordingRequest");
+
+    cy.fixture("roomRecordings.json").then((roomRecordings) => {
+      roomRecordings.data = roomRecordings.data.slice(0, 3);
+      roomRecordings.meta.to = 3;
+      roomRecordings.meta.total = 3;
+      roomRecordings.meta.total_no_filter = 3;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
+        statusCode: 200,
+        body: roomRecordings,
+      }).as("roomRecordingsRequest");
+    });
+
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-save-button"]')
+      .click();
+
+    cy.wait("@editRecordingRequest");
+    cy.wait("@roomRecordingsRequest");
+
+    // Check that recording is not shown anymore and dialog is closed
+    cy.get('[data-test="room-recordings-edit-dialog"]').should("not.exist");
+    cy.get('[data-test="room-recording-item"]').should("have.length", 3);
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.recording_gone");
+
+    // Check with 422 error
+    cy.get('[data-test="room-recording-item"]')
+      .eq(1)
+      .find('[data-test="room-recordings-edit-button"]')
+      .click();
+
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/recordings/a123abc", {
+      statusCode: 422,
+      body: {
+        message: "Validation failed",
+        errors: {
+          description: ["The description field is required."],
+          access: ["The access field is required."],
+          formats: ["The formats field is required."],
+        },
+      },
+    }).as("editRecordingRequest");
+
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .should("be.visible")
+      .find('[data-test="dialog-save-button"]')
+      .click();
+
+    cy.wait("@editRecordingRequest");
+
+    // Check that dialog stayed open and error messages are shown
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get('[data-test="description-field"]').should(
+          "include.text",
+          "The description field is required.",
+        );
+        cy.get('[data-test="available-formats-field"]').should(
+          "include.text",
+          "The formats field is required.",
+        );
+        cy.get('[data-test="access-field"]').should(
+          "include.text",
+          "The access field is required.",
+        );
+      });
+
+    // Check with 500 error
+    cy.intercept("PUT", "api/v1/rooms/abc-def-123/recordings/a123abc", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("editRecordingRequest");
+
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .find('[data-test="dialog-save-button"]')
+      .click();
+
+    cy.wait("@editRecordingRequest");
+
+    // Check that error message gets shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that dialog stayed open and close it
+    cy.get('[data-test="room-recordings-edit-dialog"]').should("be.visible");
+    cy.get('[data-test="room-recordings-edit-dialog"]')
+      .find('[data-test="dialog-cancel-button"]')
+      .click();
+
+    cy.get('[data-test="room-recordings-edit-dialog"]').should("not.exist");
+
+    // Check auth errors
+    cy.checkRoomAuthErrors(
+      () => {
+        cy.get('[data-test="room-recording-item"]')
+          .eq(0)
+          .find('[data-test="room-recordings-edit-button"]')
+          .click();
+        cy.get('[data-test="room-recordings-edit-dialog"]')
+          .should("be.visible")
+          .find('[data-test="dialog-save-button"]')
+          .click();
+      },
+      "PUT",
+      "api/v1/rooms/abc-def-123/recordings/1abc123",
+      "recordings",
+    );
+  });
 });

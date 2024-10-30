@@ -2,7 +2,6 @@ import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js
 
 describe("Rooms view recordings", function () {
   // ToDo retention_period message
-  // ToDo check that recording without enabled format is hidden???
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
