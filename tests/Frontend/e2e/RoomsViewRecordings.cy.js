@@ -1,7 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
 describe("Rooms view recordings", function () {
-  // ToDo retention_period message
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
@@ -194,6 +193,12 @@ describe("Rooms view recordings", function () {
           .eq(1)
           .should("include.text", "rooms.recordings.format_types.screenshare");
       });
+
+    // Check if retention period message is shown correctly
+    cy.get('[data-test="retention-period-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.retention_period.title")
+      .and("include.text", "rooms.recordings.retention_period.unlimited");
   });
 
   it("load recordings with access code", function () {
@@ -258,6 +263,12 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-disabled"]').should("not.exist");
         cy.get('[data-test="recording-format-enabled"]').should("not.exist");
       });
+
+    // Check if retention period message is shown correctly
+    cy.get('[data-test="retention-period-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.retention_period.title")
+      .and("include.text", "rooms.recordings.retention_period.unlimited");
   });
 
   it("load recordings with access code errors", function () {
@@ -439,6 +450,12 @@ describe("Rooms view recordings", function () {
         cy.get('[data-test="recording-format-disabled"]').should("not.exist");
         cy.get('[data-test="recording-format-enabled"]').should("not.exist");
       });
+
+    // Check if retention period message is shown correctly
+    cy.get('[data-test="retention-period-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.retention_period.title")
+      .and("include.text", "rooms.recordings.retention_period.unlimited");
   });
 
   it("load recordings with token errors", function () {
@@ -714,6 +731,15 @@ describe("Rooms view recordings", function () {
   });
 
   it("view with different permissions", function () {
+    cy.fixture("config.json").then((config) => {
+      config.data.recording.recording_retention_period = 365;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
+
     // Check view for guest
     cy.intercept("GET", "api/v1/currentUser", {});
     cy.fixture("room.json").then((room) => {
@@ -764,6 +790,15 @@ describe("Rooms view recordings", function () {
           "not.exist",
         );
       });
+
+    // Check if retention period message is shown correctly
+    cy.get('[data-test="retention-period-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.retention_period.title")
+      .should(
+        "include.text",
+        'rooms.recordings.retention_period.days_{"days":365}',
+      );
 
     // Check view with rooms.viewAll permission
     cy.fixture("currentUser.json").then((currentUser) => {
@@ -884,6 +919,15 @@ describe("Rooms view recordings", function () {
           "not.exist",
         );
       });
+
+    // Check if retention period message is shown correctly
+    cy.get('[data-test="retention-period-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.retention_period.title")
+      .should(
+        "include.text",
+        'rooms.recordings.retention_period.days_{"days":365}',
+      );
 
     // Check for co_owner
     cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
@@ -1026,6 +1070,15 @@ describe("Rooms view recordings", function () {
           "be.visible",
         );
       });
+
+    // Check if retention period message is shown correctly
+    cy.get('[data-test="retention-period-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.retention_period.title")
+      .should(
+        "include.text",
+        'rooms.recordings.retention_period.days_{"days":365}',
+      );
 
     // Check view with rooms.manage permission
     cy.fixture("currentUser.json").then((currentUser) => {
@@ -1173,6 +1226,15 @@ describe("Rooms view recordings", function () {
           "be.visible",
         );
       });
+
+    // Check if retention period message is shown correctly
+    cy.get('[data-test="retention-period-message"]')
+      .should("be.visible")
+      .and("include.text", "rooms.recordings.retention_period.title")
+      .should(
+        "include.text",
+        'rooms.recordings.retention_period.days_{"days":365}',
+      );
   });
 
   it("search recordings", function () {

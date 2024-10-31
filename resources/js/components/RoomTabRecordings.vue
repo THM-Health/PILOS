@@ -269,6 +269,11 @@
       severity="secondary"
       aria-live="off"
       role="presentation"
+      :pt="{
+        content: {
+          'data-test': 'retention-period-message',
+        },
+      }"
     >
       <div class="font-normal leading-3">
         <p class="text-xl font-semibold">
