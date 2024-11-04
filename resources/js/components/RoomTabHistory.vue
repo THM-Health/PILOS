@@ -10,16 +10,25 @@
         class="flex w-full grow flex-wrap items-start justify-between gap-2 lg:w-auto lg:grow-0"
       >
         <div class="flex gap-2">
-          <InputGroup class="w-auto">
+          <InputGroup class="w-auto" data-test="sorting-type-inputgroup">
             <InputGroupAddon>
               <i class="fa-solid fa-sort"></i>
             </InputGroupAddon>
             <Select
               v-model="sortField"
+              data-test="sorting-type-dropdown"
               :disabled="isBusy"
               :options="sortFields"
               option-label="name"
               option-value="value"
+              :pt="{
+                listContainer: {
+                  'data-test': 'sorting-type-dropdown-items',
+                },
+                option: {
+                  'data-test': 'sorting-type-dropdown-option',
+                },
+              }"
               @change="loadData(1)"
             />
             <InputGroupAddon class="p-0">
@@ -46,6 +55,7 @@
           severity="secondary"
           :disabled="isBusy"
           icon="fa-solid fa-sync"
+          data-test="room-history-reload-button"
           @click="loadData()"
         />
       </div>
@@ -68,6 +78,16 @@
         :current-page-report-template="paginator.getCurrentPageReportTemplate()"
         row-hover
         class="mt-6"
+        :pt="{
+          pcPaginator: {
+            page: {
+              'data-test': 'paginator-page',
+            },
+            next: {
+              'data-test': 'paginator-next-button',
+            },
+          },
+        }"
         @update:first="paginator.setFirst($event)"
         @page="onPage"
       >
@@ -84,6 +104,7 @@
           <div class="px-2">
             <div v-for="item in slotProps.items" :key="item.id">
               <div
+                data-test="room-history-item"
                 class="flex flex-col justify-between gap-4 border-t py-4 border-surface md:flex-row"
               >
                 <div class="flex flex-col gap-2">
@@ -146,6 +167,11 @@
       severity="secondary"
       aria-live="off"
       role="presentation"
+      :pt="{
+        content: {
+          'data-test': 'retention-period-message',
+        },
+      }"
     >
       <div class="font-normal leading-3">
         <p class="text-xl font-semibold">

@@ -4,7 +4,7 @@ describe("Rooms view recordings", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
-    cy.interceptRoomRecordingsRequest();
+    cy.interceptRoomRecordingsRequests();
   });
 
   it("load recordings", function () {

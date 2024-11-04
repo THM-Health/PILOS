@@ -146,11 +146,23 @@ Cypress.Commands.add("interceptUserProfileRequests", () => {
 /**
  * Intercept all requests that are needed when visiting the recordings tab of a room (rooms/abc-def-123)
  * @memberof cy
- * @method interceptRoomRecordingsRequest
+ * @method interceptRoomRecordingsRequests
  * @returns void
  */
-Cypress.Commands.add("interceptRoomRecordingsRequest", () => {
+Cypress.Commands.add("interceptRoomRecordingsRequests", () => {
   cy.intercept("GET", "api/v1/rooms/abc-def-123/recordings*", {
     fixture: "roomRecordings.json",
   }).as("roomRecordingsRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the history tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomHistoryRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptRoomHistoryRequests", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/meetings*", {
+    fixture: "roomHistory.json",
+  }).as("roomHistoryRequest");
 });

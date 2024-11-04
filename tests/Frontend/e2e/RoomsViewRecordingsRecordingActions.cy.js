@@ -1,10 +1,10 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view recordings actions", function () {
+describe("Rooms view recordings recording actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
-    cy.interceptRoomRecordingsRequest();
+    cy.interceptRoomRecordingsRequests();
   });
 
   it("view recording", function () {

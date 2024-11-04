@@ -4,6 +4,7 @@
     :aria-label="$t('meetings.view_meeting_stats')"
     :disabled="disabled"
     icon="fa-solid fa-chart-line"
+    data-test="room-history-statistic-button"
     @click="showStatisticModal"
   />
 
@@ -18,6 +19,14 @@
     :close-on-escape="!isLoadingAction"
     :dismissable-mask="!isLoadingAction"
     :closable="!isLoadingAction"
+    data-test="room-history-statistic-dialog"
+    :pt="{
+      pcCloseButton: {
+        root: {
+          'data-test': 'dialog-header-close-button',
+        },
+      },
+    }"
   >
     <template #header>
       <div>
