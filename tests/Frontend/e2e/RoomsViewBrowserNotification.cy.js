@@ -37,7 +37,7 @@ describe("Rooms view browser notification", function () {
     cy.visit("/rooms/abc-def-123", {
       onBeforeLoad(win) {
         cy.stub(win.Notification, "permission").value("denied");
-        cy.stub(win, "Notification").as("Notification");
+        cy.stub(win, "Notification").as("notification");
       },
     });
 

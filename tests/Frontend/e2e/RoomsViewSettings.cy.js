@@ -1372,8 +1372,8 @@ describe("Rooms view settings", function () {
     cy.wait("@roomSettingsRequest");
 
     cy.get("#room-type").should("have.value", "Meeting");
-    cy.get('[data-test="room-unsaved-changes-message').should("not.exist");
-    cy.get('[data-test="room-type-change-dialog]').should("not.exist");
+    cy.get('[data-test="room-unsaved-changes-message"]').should("not.exist");
+    cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
     cy.get('[data-test="room-type-change-button"]').click();
     cy.get('[data-test="room-type-change-dialog"]')
       .should("be.visible")
@@ -1522,7 +1522,7 @@ describe("Rooms view settings", function () {
     cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
 
     // Check that settings did not change
-    cy.get('[data-test="room-unsaved-changes-message').should("not.exist");
+    cy.get('[data-test="room-unsaved-changes-message"]').should("not.exist");
 
     cy.get("#room-type").should("have.value", "Meeting");
     cy.get("#access-code").should("have.value", "123456789");
@@ -1656,7 +1656,7 @@ describe("Rooms view settings", function () {
     );
 
     // Change room type
-    cy.get('[data-test="room-type-change-confirmation-dialog').should(
+    cy.get('[data-test="room-type-change-confirmation-dialog"]').should(
       "not.exist",
     );
     cy.get('[data-test="dialog-save-button"]')
@@ -1664,7 +1664,7 @@ describe("Rooms view settings", function () {
       .click();
 
     // Check that comparison is shown correctly
-    cy.get('[data-test="room-type-change-confirmation-dialog')
+    cy.get('[data-test="room-type-change-confirmation-dialog"]')
       .should("be.visible")
       .and("include.text", "rooms.change_type.title")
       .within(() => {
@@ -2183,7 +2183,7 @@ describe("Rooms view settings", function () {
       .click();
 
     // Check that comparison is shown correctly
-    cy.get('[data-test="room-type-change-confirmation-dialog')
+    cy.get('[data-test="room-type-change-confirmation-dialog"]')
       .should("be.visible")
       .within(() => {
         cy.checkCompareRoomSettingField(
@@ -2472,7 +2472,7 @@ describe("Rooms view settings", function () {
       .click();
 
     // Check that comparison is shown correctly
-    cy.get('[data-test="room-type-change-confirmation-dialog')
+    cy.get('[data-test="room-type-change-confirmation-dialog"]')
       .should("be.visible")
       .within(() => {
         cy.checkCompareRoomSettingField(

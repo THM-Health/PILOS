@@ -285,7 +285,7 @@ describe("Rooms view meetings", function () {
 
     cy.visit("/rooms/abc-def-123");
 
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
 
     // Test with valid name
     cy.get('[data-test="room-join-dialog"]')
@@ -356,7 +356,7 @@ describe("Rooms view meetings", function () {
     cy.visit("/rooms/abc-def-123");
 
     // Test with invalid name
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
@@ -536,7 +536,7 @@ describe("Rooms view meetings", function () {
     });
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="dialog-continue-button"]').click();
 
     // Check that header is set correctly
@@ -595,7 +595,7 @@ describe("Rooms view meetings", function () {
     }).as("joinRequest");
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
 
     // Check that header is set correctly
     cy.wait("@joinRequest").then((interception) => {
@@ -643,7 +643,7 @@ describe("Rooms view meetings", function () {
     );
 
     // Try to join meeting
-    cy.get('[data-test="room-join-button"').click();
+    cy.get('[data-test="room-join-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
@@ -1167,7 +1167,7 @@ describe("Rooms view meetings", function () {
     cy.visit("/rooms/abc-def-123");
 
     // Test with invalid name
-    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-start-button"]').click();
 
     // Test with valid name
     cy.get('[data-test="room-join-dialog"]')
@@ -1232,7 +1232,7 @@ describe("Rooms view meetings", function () {
     cy.visit("/rooms/abc-def-123");
 
     // Test with invalid name
-    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {
@@ -1298,7 +1298,7 @@ describe("Rooms view meetings", function () {
 
     cy.wait("@roomRequest");
 
-    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-start-button"]').click();
 
     // Try to start the meeting
     cy.get('[data-test="room-join-dialog"]')
@@ -1485,7 +1485,7 @@ describe("Rooms view meetings", function () {
     );
 
     // Try to start meeting
-    cy.get('[data-test="room-start-button"').click();
+    cy.get('[data-test="room-start-button"]').click();
     cy.get('[data-test="room-join-dialog"]')
       .should("be.visible")
       .within(() => {

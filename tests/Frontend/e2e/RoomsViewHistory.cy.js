@@ -26,8 +26,8 @@ describe("Rooms view history", function () {
     // Check that overlay is shown
     cy.get('[data-test="overlay"]').should("be.visible");
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
       });
 
@@ -46,8 +46,8 @@ describe("Rooms view history", function () {
     cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check that laoding is done
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -186,8 +186,8 @@ describe("Rooms view history", function () {
     ]);
 
     // Check that components are not disabled
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -252,8 +252,8 @@ describe("Rooms view history", function () {
     ]);
 
     // Check that components are not disabled
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",

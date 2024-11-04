@@ -228,7 +228,7 @@ describe("User Profile Base", function () {
       },
     });
 
-    cy.get('[data-test="locale-dropdown-items').should("not.exist");
+    cy.get('[data-test="locale-dropdown-items"]').should("not.exist");
     cy.get('[data-test="locale-field"]')
       .should("be.visible")
       .and("include.text", "admin.users.user_locale")
@@ -238,7 +238,7 @@ describe("User Profile Base", function () {
           .click();
       });
 
-    cy.get('[data-test="locale-dropdown-items')
+    cy.get('[data-test="locale-dropdown-items"]')
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="locale-dropdown-option"]').should("have.length", 3);
@@ -259,11 +259,11 @@ describe("User Profile Base", function () {
         cy.get('[data-test="locale-dropdown-option"]').eq(0).click();
       });
 
-    cy.get('[data-test="locale-dropdown-items').should("not.exist");
+    cy.get('[data-test="locale-dropdown-items"]').should("not.exist");
     cy.get('[data-test="locale-dropdown"]').should("have.text", "Deutsch");
 
     // Check timezone setting and change it
-    cy.get('[data-test="timezone-dropdown-items').should("not.exist");
+    cy.get('[data-test="timezone-dropdown-items"]').should("not.exist");
     cy.get('[data-test="timezone-field"]')
       .should("be.visible")
       .and("include.text", "admin.users.timezone")
@@ -273,7 +273,7 @@ describe("User Profile Base", function () {
           .click();
       });
 
-    cy.get('[data-test="timezone-dropdown-items')
+    cy.get('[data-test="timezone-dropdown-items"]')
       .should("be.visible")
       .within(() => {
         cy.get('[data-test="timezone-dropdown-option"]').should(
@@ -300,7 +300,7 @@ describe("User Profile Base", function () {
         cy.get('[data-test="timezone-dropdown-option"]').eq(2).click();
       });
 
-    cy.get('[data-test="timezone-dropdown-items').should("not.exist");
+    cy.get('[data-test="timezone-dropdown-items"]').should("not.exist");
     cy.get('[data-test="timezone-dropdown"]').should(
       "have.text",
       "Europe/Berlin",

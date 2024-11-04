@@ -31,7 +31,7 @@ describe("Logout", function () {
     cy.contains("auth.logout_success").should("be.visible");
 
     // Check redirect to home page
-    cy.get('[data-test="home-button"').should("have.text", "app.home").click();
+    cy.get('[data-test="home-button"]').should("have.text", "app.home").click();
     cy.url().should("not.include", "/logout");
   });
 

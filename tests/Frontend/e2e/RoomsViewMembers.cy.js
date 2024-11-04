@@ -30,12 +30,12 @@ describe("Rooms view members", function () {
       cy.get("button").should("be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
       });
 
@@ -61,7 +61,7 @@ describe("Rooms view members", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should(
         "not.have.attr",
         "aria-disabled",
@@ -69,8 +69,8 @@ describe("Rooms view members", function () {
       );
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -154,7 +154,7 @@ describe("Rooms view members", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should(
         "not.have.attr",
         "aria-disabled",
@@ -162,8 +162,8 @@ describe("Rooms view members", function () {
       );
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -233,7 +233,7 @@ describe("Rooms view members", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should(
         "not.have.attr",
         "aria-disabled",
@@ -241,8 +241,8 @@ describe("Rooms view members", function () {
       );
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",

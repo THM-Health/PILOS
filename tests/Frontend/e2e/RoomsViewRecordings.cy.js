@@ -22,19 +22,19 @@ describe("Rooms view recordings", function () {
     cy.url().should("include", "/rooms/abc-def-123#tab=recordings");
 
     //Check loading
-    cy.get('[data-test="overlay"').should("be.visible");
+    cy.get('[data-test="overlay"]').should("be.visible");
 
     cy.get('[data-test="room-recordings-search"]').within(() => {
       cy.get("input").should("be.disabled");
       cy.get("button").should("be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
       });
 
@@ -57,12 +57,12 @@ describe("Rooms view recordings", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "false");
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should("have.attr", "aria-disabled", "false");
       });
 
@@ -74,8 +74,8 @@ describe("Rooms view recordings", function () {
     );
 
     // Check recordings
-    cy.get('[data-test="room-recording-item"').should("have.length", 4);
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]').should("have.length", 4);
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("include.text", "08/17/2022, 11:20")
@@ -104,7 +104,7 @@ describe("Rooms view recordings", function () {
           .should("include.text", "rooms.recordings.format_types.screenshare");
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(1)
       .should("include.text", "Recording 2")
       .and("include.text", "08/17/2022, 10:00")
@@ -136,7 +136,7 @@ describe("Rooms view recordings", function () {
           .should("include.text", "rooms.recordings.format_types.screenshare");
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(2)
       .should("include.text", "Recording 3")
       .and("include.text", "08/18/2022, 10:39")
@@ -165,7 +165,7 @@ describe("Rooms view recordings", function () {
           .should("include.text", "rooms.recordings.format_types.screenshare");
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(3)
       .should("include.text", "Recording 4")
       .and("include.text", "09/20/2022, 11:39")
@@ -251,9 +251,9 @@ describe("Rooms view recordings", function () {
     cy.url().should("include", "/rooms/abc-def-123#tab=recordings");
 
     // Check that recordings are shown correctly
-    cy.get('[data-test="room-recording-item"').should("have.length", 1);
+    cy.get('[data-test="room-recording-item"]').should("have.length", 1);
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("include.text", "08/17/2022, 11:20")
@@ -438,9 +438,9 @@ describe("Rooms view recordings", function () {
     cy.contains("rooms.recordings.title").should("be.visible");
 
     // Check that recordings are shown correctly
-    cy.get('[data-test="room-recording-item"').should("have.length", 1);
+    cy.get('[data-test="room-recording-item"]').should("have.length", 1);
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("include.text", "08/17/2022, 05:20")
@@ -518,7 +518,7 @@ describe("Rooms view recordings", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should(
         "not.have.attr",
         "aria-disabled",
@@ -526,8 +526,8 @@ describe("Rooms view recordings", function () {
       );
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -593,7 +593,7 @@ describe("Rooms view recordings", function () {
       cy.get("button").should("not.be.disabled");
     });
 
-    cy.get('[data-test="filter-dropdown"').within(() => {
+    cy.get('[data-test="filter-dropdown"]').within(() => {
       cy.get(".p-select-label").should(
         "not.have.attr",
         "aria-disabled",
@@ -601,8 +601,8 @@ describe("Rooms view recordings", function () {
       );
     });
 
-    cy.get('[data-test="sorting-type-inputgroup"').within(() => {
-      cy.get('[data-test="sorting-type-dropdown"').within(() => {
+    cy.get('[data-test="sorting-type-inputgroup"]').within(() => {
+      cy.get('[data-test="sorting-type-dropdown"]').within(() => {
         cy.get(".p-select-label").should(
           "not.have.attr",
           "aria-disabled",
@@ -768,8 +768,8 @@ describe("Rooms view recordings", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    cy.get('[data-test="room-recording-item"').should("have.length", 1);
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]').should("have.length", 1);
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("include.text", "08/17/2022, 05:20")
@@ -828,8 +828,8 @@ describe("Rooms view recordings", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    cy.get('[data-test="room-recording-item"').should("have.length", 4);
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]').should("have.length", 4);
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("include.text", "08/17/2022, 11:20")
@@ -851,7 +851,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(1)
       .should("include.text", "Recording 2")
       .and("include.text", "08/17/2022, 10:00")
@@ -876,7 +876,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(2)
       .should("include.text", "Recording 3")
       .and("include.text", "08/18/2022, 10:39")
@@ -898,7 +898,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(3)
       .should("include.text", "Recording 4")
       .and("include.text", "09/20/2022, 11:39")
@@ -947,8 +947,8 @@ describe("Rooms view recordings", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    cy.get('[data-test="room-recording-item"').should("have.length", 4);
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]').should("have.length", 4);
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("include.text", "08/17/2022, 11:20")
@@ -978,7 +978,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(1)
       .should("include.text", "Recording 2")
       .and("include.text", "08/17/2022, 10:00")
@@ -1011,7 +1011,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(2)
       .should("include.text", "Recording 3")
       .and("include.text", "08/18/2022, 10:39")
@@ -1041,7 +1041,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(3)
       .should("include.text", "Recording 4")
       .and("include.text", "09/20/2022, 11:39")
@@ -1103,8 +1103,8 @@ describe("Rooms view recordings", function () {
     cy.wait("@roomRequest");
     cy.wait("@roomRecordingsRequest");
 
-    cy.get('[data-test="room-recording-item"').should("have.length", 4);
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]').should("have.length", 4);
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("include.text", "08/17/2022, 11:20")
@@ -1134,7 +1134,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(1)
       .should("include.text", "Recording 2")
       .and("include.text", "08/17/2022, 10:00")
@@ -1167,7 +1167,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(2)
       .should("include.text", "Recording 3")
       .and("include.text", "08/18/2022, 10:39")
@@ -1197,7 +1197,7 @@ describe("Rooms view recordings", function () {
         );
       });
 
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(3)
       .should("include.text", "Recording 4")
       .and("include.text", "09/20/2022, 11:39")

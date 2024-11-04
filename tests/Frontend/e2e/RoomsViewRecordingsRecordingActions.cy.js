@@ -616,8 +616,8 @@ describe("Rooms view recordings recording actions", function () {
     cy.contains("auth.login").should("be.visible");
 
     // Check that recordings are shown correctly
-    cy.get('[data-test="room-recording-item"').should("have.length", 1);
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]').should("have.length", 1);
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1")
       .and("not.include.text", "rooms.recordings.access_types.everyone")
@@ -1027,7 +1027,7 @@ describe("Rooms view recordings recording actions", function () {
     cy.get('[data-test="room-recordings-edit-dialog"]').should("not.exist");
 
     // Check that recording settings were updated
-    cy.get('[data-test="room-recording-item"')
+    cy.get('[data-test="room-recording-item"]')
       .eq(0)
       .should("include.text", "Recording 1 Test")
       .and("include.text", "08/17/2022, 11:20")

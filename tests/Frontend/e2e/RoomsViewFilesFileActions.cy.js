@@ -557,7 +557,7 @@ describe("Rooms view files file actions", function () {
           }).as("roomFilesRequest");
         });
 
-        cy.get('[data-test="dialog-save-button')
+        cy.get('[data-test="dialog-save-button"]')
           .should("have.text", "app.save")
           .click();
 
@@ -568,7 +568,7 @@ describe("Rooms view files file actions", function () {
         cy.get("#use_in_meeting").should("be.disabled");
         cy.get("#default").should("be.disabled");
 
-        cy.get('[data-test="dialog-cancel-button')
+        cy.get('[data-test="dialog-cancel-button"]')
           .should("have.text", "app.cancel")
           .and("be.disabled")
           .then(() => {

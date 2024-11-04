@@ -2005,7 +2005,7 @@ describe("Room Index", function () {
     cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check if rooms are shown and contain the correct data
-    cy.get('[data-test="room-card"]').as("rooms").should("have.length", 1);
+    cy.get('[data-test="room-card"]').should("have.length", 1);
 
     cy.get('[data-test="room-card"]')
       .eq(0)
@@ -2120,7 +2120,7 @@ describe("Room Index", function () {
     cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check if rooms are shown and contain the correct data
-    cy.get('[data-test="room-card"]').as("rooms").should("have.length", 1);
+    cy.get('[data-test="room-card"]').should("have.length", 1);
 
     cy.get('[data-test="room-card"]')
       .eq(0)
@@ -2181,7 +2181,7 @@ describe("Room Index", function () {
     );
 
     // Check that room type select is shown correctly and click on reload button
-    cy.get("[data-test=room-type-dropdown").should("not.exist");
+    cy.get("[data-test=room-type-dropdown]").should("not.exist");
     cy.get("[data-test=room-type-inputgroup]")
       .should("include.text", "rooms.room_types.loading_error")
       .within(() => {
@@ -2197,7 +2197,7 @@ describe("Room Index", function () {
       });
 
     // Check that dropdown exists and error message is not shown after correct response
-    cy.get("[data-test=room-type-dropdown");
+    cy.get("[data-test=room-type-dropdown]");
     cy.get("[data-test=room-type-inputgroup]").should(
       "not.include.text",
       "rooms.room_types.loading_error",
@@ -2215,6 +2215,6 @@ describe("Room Index", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/rooms");
 
-    cy.checkToastMessage("app.flash.unauthenticated", false);
+    cy.checkToastMessage("app.flash.unauthenticated");
   });
 });
