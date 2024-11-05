@@ -76,7 +76,7 @@
     "vite": "^5.4.10",
     "vue": "^3.5",
     "vue-axe": "^3.1.2",
-    "vue-chartjs": "^5.3.1",
+    "vue-chartjs": "^5.3.2",
     "vue-cropperjs": "^5.0.0",
     "vue-i18n": "^10.0",
     "vue-multiselect": "^3.1.0",
