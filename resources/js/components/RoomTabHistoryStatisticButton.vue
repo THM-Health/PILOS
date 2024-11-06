@@ -51,7 +51,7 @@
         type="line"
         :data="chartData"
         :options="chartOptions"
-        class="w-full"
+        class="xl:h-[35rem] lg:h-96 h-64"
       />
     </OverlayComponent>
   </Dialog>
@@ -155,6 +155,7 @@ const surfaceBorder = computed(() => {
 const chartOptions = computed(() => {
   return {
     responsive: true,
+    maintainAspectRatio: false,
     animation: false,
     scales: {
       x: {
