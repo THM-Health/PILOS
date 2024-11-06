@@ -5,6 +5,7 @@
     :disabled="disabled"
     icon="fa-solid fa-link"
     :aria-label="$t('rooms.tokens.copy')"
+    data-test="room-personalized-links-copy-button"
     @click="copyLink"
   />
 </template>

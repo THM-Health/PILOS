@@ -987,6 +987,11 @@ describe("Rooms view members", function () {
     cy.get('[data-test="paginator-page"]')
       .eq(0)
       .should("have.attr", "data-p-active", "true");
+
+    cy.get("[data-test=filter-dropdown]").should(
+      "have.text",
+      "rooms.members.filter.all",
+    );
   });
 
   it("sort members", function () {

@@ -166,3 +166,15 @@ Cypress.Commands.add("interceptRoomHistoryRequests", () => {
     fixture: "roomHistory.json",
   }).as("roomHistoryRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the token/personalized links tab of a room (rooms/abc-def-123)
+ * @memberof cy
+ * @method interceptRoomPersonalizedLinksRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptRoomPersonalizedLinksRequests", () => {
+  cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+    fixture: "roomTokens.json",
+  }).as("roomTokensRequest");
+});
