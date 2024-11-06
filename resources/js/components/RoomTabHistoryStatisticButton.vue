@@ -51,7 +51,7 @@
         type="line"
         :data="chartData"
         :options="chartOptions"
-        class="xl:h-[35rem] lg:h-96 h-64"
+        class="h-64 lg:h-96 xl:h-[35rem]"
       />
     </OverlayComponent>
   </Dialog>
