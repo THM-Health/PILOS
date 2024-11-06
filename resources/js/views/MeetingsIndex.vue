@@ -125,8 +125,8 @@
           >
             <template #header>
               <i
-                v-tooltip="$t('meetings.voice_participant_count')"
-                class="fa-solid fa-microphone"
+                v-tooltip="$t('meetings.participant_count')"
+                class="fa-solid fa-users"
               />
             </template>
             <template #body="slotProps">

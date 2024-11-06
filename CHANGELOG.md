@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Responsive chart sizing ([#1536], [#1537])
+
 ## [v4.1.0] - 2024-10-17
 
 ### Added
@@ -215,6 +219,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
 [#1483]: https://github.com/THM-Health/PILOS/pull/1483
 [#1489]: https://github.com/THM-Health/PILOS/pull/1489
+[#1536]: https://github.com/THM-Health/PILOS/issues/1536
+[#1537]: https://github.com/THM-Health/PILOS/pull/1537
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
