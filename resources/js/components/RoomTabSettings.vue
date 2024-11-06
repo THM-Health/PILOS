@@ -992,7 +992,7 @@ function createAccessCode() {
 function toggleExpertMode() {
   settings.value.expert_mode = !settings.value.expert_mode;
 
-  if (settings.value.expert_mode) {
+  if (!settings.value.expert_mode) {
     resetExpertSettings();
   }
 }
@@ -1019,7 +1019,7 @@ function resetExpertSettings() {
       resetSetting(setting);
     }
   }
-  // Reset settings that don't gave a default setting in the room type
+  // Reset settings that don't have a default setting in the room type
   settings.value.welcome = "";
 }
 
@@ -1032,7 +1032,13 @@ function resetExpertSettings() {
 function resetSetting(settingName, resetToDefaults = true) {
   // Reset value of the setting in the room back to the default setting of the room type
   // if the setting is enforced or resetToDefaults is true
-  if (resetToDefaults || settings.value.room_type[settingName + "_enforced"]) {
+  // or the expert mode is not active and the setting is an expert setting
+  if (
+    resetToDefaults ||
+    settings.value.room_type[settingName + "_enforced"] ||
+    (ROOM_SETTINGS_DEFINITION[settingName]?.expert_setting &&
+      !settings.value.expert_mode)
+  ) {
     settings.value[settingName] =
       settings.value.room_type[settingName + "_default"];
   }

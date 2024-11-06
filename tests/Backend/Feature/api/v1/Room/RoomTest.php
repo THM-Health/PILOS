@@ -2013,7 +2013,7 @@ class RoomTest extends TestCase
                 'record_attendance' => false,
                 'record' => false,
                 'auto_start_recording' => false,
-                'welcome' => null,
+                'welcome' => '',
             ])
             ->assertJsonPath('data.room_type.id', $roomType->id);
 
@@ -2066,7 +2066,7 @@ class RoomTest extends TestCase
                 'record_attendance' => true,
                 'record' => true,
                 'auto_start_recording' => true,
-                'welcome' => null,
+                'welcome' => '',
             ])
             ->assertJsonPath('data.room_type.id', $roomType->id);
     }

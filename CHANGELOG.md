@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   Responsive chart sizing ([#1536], [#1537])
+-   Wrong setting values shown for expert settings in room type change confirmation modal when expert mode is disabled ([#1495])
 
 ## [v4.1.0] - 2024-10-17
 
@@ -219,6 +220,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
 [#1483]: https://github.com/THM-Health/PILOS/pull/1483
 [#1489]: https://github.com/THM-Health/PILOS/pull/1489
+[#1495]: https://github.com/THM-Health/PILOS/pull/1495
 [#1536]: https://github.com/THM-Health/PILOS/issues/1536
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
