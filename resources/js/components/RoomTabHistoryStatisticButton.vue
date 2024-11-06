@@ -61,6 +61,7 @@
         :data="chartData"
         :options="chartOptions"
         class="h-64 lg:h-96 xl:h-[35rem]"
+        data-test="chart"
       />
     </OverlayComponent>
   </Dialog>

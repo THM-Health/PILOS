@@ -1,5 +1,4 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-
 describe("Rooms view history meeting actions", function () {
   beforeEach(function () {
     cy.init();
@@ -51,9 +50,25 @@ describe("Rooms view history meeting actions", function () {
         cy.get('[data-test="overlay"]').should("not.exist");
 
         // Check that chart is displayed
-        cy.get("canvas").should("be.visible");
+        cy.get('[data-test="chart"] > canvas')
+          .should("be.visible")
+          .should("have.attr", "style")
+          .and("include", "display: block");
+
+        cy.get('[data-test="chart"] > canvas').should(
+          "have.attr",
+          "width",
+          1163,
+        );
+
+        cy.get('[data-test="chart"] > canvas').then(($canvas) => {
+          cy.fixture("files/statsGraph.png", "base64").then((image) => {
+            expect($canvas[0].toDataURL()).to.equal(
+              "data:image/png;base64," + image,
+            );
+          });
+        });
       });
-    // ToDo check that stats are displayed correctly and that the chart is shown correctly
   });
 
   it("show stats errors", function () {
