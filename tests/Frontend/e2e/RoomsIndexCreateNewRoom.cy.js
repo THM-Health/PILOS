@@ -728,4 +728,90 @@ describe("Rooms index create new room", function () {
         cy.get('[data-test="room-type-details"]').should("not.exist");
       });
   });
+
+  it("errors loading room types", function () {
+    cy.visit("/rooms");
+
+    cy.wait("@roomRequest");
+
+    // Check that room create modal is hidden
+    cy.get('[data-test="room-create-dialog"]').should("not.exist");
+
+    // Check with 500 error
+    cy.intercept("GET", "api/v1/roomTypes*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("roomTypesRequest");
+
+    // Open room create modal
+    cy.get('[data-test="room-create-button"]').click();
+
+    cy.wait("@roomTypesRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that dialog is shown correctly
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        cy.get("#room-name").should("be.visible").and("not.be.disabled");
+
+        cy.get('[data-test="dialog-cancel-button"]')
+          .should("be.visible")
+          .and("not.be.disabled");
+        cy.get('[data-test="dialog-save-button"]')
+          .should("be.visible")
+          .and("be.disabled");
+
+        // Reload with valid room types
+        cy.intercept("GET", "api/v1/roomTypes*", {
+          fixture: "roomTypesWithSettings.json",
+        }).as("roomTypesRequest");
+        cy.get('[data-test="reload-room-types-button"]')
+          .should("be.visible")
+          .click();
+
+        cy.wait("@roomTypesRequest");
+
+        // Check that dialog is shown correctly
+        // Check that the room types are shown correctly
+        cy.get('[data-test="room-type-select-option"]').should(
+          "have.length",
+          4,
+        );
+
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(0)
+          .should("have.text", "Lecture");
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(1)
+          .should("have.text", "Meeting");
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(2)
+          .should("have.text", "Exam");
+        cy.get('[data-test="room-type-select-option"]')
+          .eq(3)
+          .should("have.text", "Seminar");
+      });
+
+    // Close dialog and check with 401 error
+    cy.get('[data-test="dialog-cancel-button"]').click();
+
+    cy.intercept("GET", "api/v1/roomTypes*", {
+      statusCode: 401,
+    }).as("roomTypesRequest");
+
+    cy.get('[data-test="room-create-button"]').click();
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/rooms");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+  });
 });
