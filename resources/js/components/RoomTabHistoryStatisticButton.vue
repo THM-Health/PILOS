@@ -181,6 +181,9 @@ const chartOptions = computed(() => {
         title: {
           display: true,
           text: t("meetings.stats.time"),
+          font: {
+            size: 12,
+          },
         },
         grid: {
           color: surfaceBorder.value,
@@ -193,9 +196,13 @@ const chartOptions = computed(() => {
           font: function (context) {
             if (context.tick && context.tick.major) {
               return {
+                size: 12,
                 weight: "bold",
               };
             }
+            return {
+              size: 12,
+            };
           },
           /**
            * Callback to set the ticks label of the x-axes
@@ -214,9 +221,17 @@ const chartOptions = computed(() => {
         title: {
           display: true,
           text: t("meetings.stats.amount"),
+          font: {
+            size: 12,
+          },
         },
         grid: {
           color: surfaceBorder.value,
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
         },
       },
     },
@@ -231,6 +246,13 @@ const chartOptions = computed(() => {
           title: (data) => {
             // get x-coordinate of the first dataset (all have the same label) that is the unix timestamp
             return d(data[0].parsed.x, "datetimeShort");
+          },
+        },
+      },
+      legend: {
+        labels: {
+          font: {
+            size: 12,
           },
         },
       },
