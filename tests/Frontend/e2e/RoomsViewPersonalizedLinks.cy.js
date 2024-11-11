@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view ", function () {
+describe("Rooms view personalized links", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
@@ -117,7 +117,7 @@ describe("Rooms view ", function () {
 
     cy.get('[data-test="room-personalized-link-item"]')
       .eq(2)
-      .should("include.text", "Max Mustermann")
+      .should("include.text", "Tammy Law")
       .should(
         "include.text",
         'rooms.tokens.last_used_at_{"date":"10/03/2021, 19:24"}',

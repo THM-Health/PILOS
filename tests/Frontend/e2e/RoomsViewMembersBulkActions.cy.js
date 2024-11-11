@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Rooms view members bulk", function () {
+describe("Rooms view members bulk actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptRoomViewRequests();
