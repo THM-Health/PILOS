@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   Add frontend tests for Room Recordings Tab ([#1150], [#1544])
--   Add frontend tests for Room Browser Notifications ([#1150], [#1544])
--   Add frontend tests for Room History Tab ([#1150], [#1544])
--   Add frontend tests for Room Personalized Links / Room Tokens Tab ([#1150], [#1544])
+-   Add frontend tests for Room Recordings Tab ([#1150], [#1549])
+-   Add frontend tests for Room Browser Notifications ([#1150], [#1549])
+-   Add frontend tests for Room History Tab ([#1150], [#1549])
+-   Add frontend tests for Room Personalized Links / Room Tokens Tab ([#1150], [#1549])
 
 ### Changed
 
--   Improve current frontend tests ([#1150], [#1544])
+-   Improve current frontend tests ([#1150], [#1549])
 
 ### Fixed
 
@@ -234,7 +234,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1495]: https://github.com/THM-Health/PILOS/pull/1495
 [#1536]: https://github.com/THM-Health/PILOS/issues/1536
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
-[#1544]: https://github.com/THM-Health/PILOS/pull/1544
+[#1549]: https://github.com/THM-Health/PILOS/pull/1549
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
