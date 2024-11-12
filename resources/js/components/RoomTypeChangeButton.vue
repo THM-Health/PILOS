@@ -25,6 +25,7 @@
     :breakpoints="{ '975px': '90vw' }"
     :draggable="false"
     :dismissable-mask="false"
+    @hide="resetRoomTypeSelectEmits"
   >
     <RoomTypeSelect
       ref="roomTypeSelect"
@@ -109,6 +110,11 @@ function handleOk() {
   } else {
     changeRoomType();
   }
+}
+
+function resetRoomTypeSelectEmits() {
+  roomTypeSelectBusy.value = false;
+  roomTypeSelectLoadingError.value = false;
 }
 
 /**
