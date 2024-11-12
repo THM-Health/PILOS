@@ -27,12 +27,18 @@
     :dismissable-mask="false"
     @hide="resetRoomTypeSelectEmits"
   >
-    <RoomTypeSelect
-      ref="roomTypeSelect"
-      v-model="newRoomType"
-      @loading-error="(value) => (roomTypeSelectLoadingError = value)"
-      @busy="(value) => (roomTypeSelectBusy = value)"
-    />
+    <div class="flex flex-col gap-2">
+      <label id="room-type-label">{{
+        $t("rooms.settings.general.type")
+      }}</label>
+      <RoomTypeSelect
+        ref="roomTypeSelect"
+        v-model="newRoomType"
+        aria-labelledby="room-type-label"
+        @loading-error="(value) => (roomTypeSelectLoadingError = value)"
+        @busy="(value) => (roomTypeSelectBusy = value)"
+      />
+    </div>
 
     <template #footer>
       <div class="flex justify-end gap-2">
