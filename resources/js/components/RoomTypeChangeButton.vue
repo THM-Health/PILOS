@@ -23,6 +23,8 @@
     :header="$t('rooms.change_type.title')"
     :style="{ width: '900px' }"
     :breakpoints="{ '975px': '90vw' }"
+    :close-on-escape="!roomTypeSelectBusy"
+    :closable="!roomTypeSelectBusy"
     :draggable="false"
     :dismissable-mask="false"
     @hide="resetRoomTypeSelectEmits"
