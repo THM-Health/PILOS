@@ -26,7 +26,12 @@
     :draggable="false"
     :dismissable-mask="false"
   >
-    <RoomTypeSelect ref="roomTypeSelect" v-model="newRoomType" />
+    <RoomTypeSelect
+      ref="roomTypeSelect"
+      v-model="newRoomType"
+      @loading-error="(value) => (roomTypeSelectLoadingError = value)"
+      @busy="(value) => (roomTypeSelectBusy = value)"
+    />
 
     <template #footer>
       <div class="flex justify-end gap-2">
@@ -34,11 +39,14 @@
           :label="$t('app.cancel')"
           severity="secondary"
           data-test="dialog-cancel-button"
+          :disabled="roomTypeSelectBusy"
           @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
-          :disabled="!newRoomType"
+          :disabled="
+            roomTypeSelectLoadingError || !newRoomType || roomTypeSelectBusy
+          "
           data-test="dialog-save-button"
           @click="handleOk"
         />
@@ -83,6 +91,8 @@ const props = defineProps({
 });
 
 const modalVisible = ref(false);
+const roomTypeSelectBusy = ref(false);
+const roomTypeSelectLoadingError = ref(false);
 const confirmationModalVisible = ref(false);
 
 const newRoomType = ref({});
