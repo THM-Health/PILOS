@@ -12,7 +12,7 @@
       icon="fa-solid fa-edit"
       :aria-label="$t('rooms.change_type.title')"
       data-test="room-type-change-button"
-      @click="editRoomType"
+      @click="showModal"
     />
   </InputGroup>
 
@@ -27,7 +27,6 @@
     :closable="!roomTypeSelectBusy"
     :draggable="false"
     :dismissable-mask="false"
-    @hide="resetRoomTypeSelectEmits"
   >
     <div class="flex flex-col gap-2">
       <label id="room-type-label">{{
@@ -106,7 +105,9 @@ const confirmationModalVisible = ref(false);
 
 const newRoomType = ref({});
 
-function editRoomType() {
+function showModal() {
+  roomTypeSelectBusy.value = false;
+  roomTypeSelectLoadingError.value = false;
   newRoomType.value = _.cloneDeep(model.value);
   modalVisible.value = true;
 }
@@ -118,11 +119,6 @@ function handleOk() {
   } else {
     changeRoomType();
   }
-}
-
-function resetRoomTypeSelectEmits() {
-  roomTypeSelectBusy.value = false;
-  roomTypeSelectLoadingError.value = false;
 }
 
 /**
