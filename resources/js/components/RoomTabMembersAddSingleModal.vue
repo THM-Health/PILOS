@@ -198,7 +198,7 @@ function asyncFind(query) {
     })
     .catch((error) => {
       tooManyResults.value = false;
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingSearch.value = false;
@@ -245,7 +245,7 @@ function save() {
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

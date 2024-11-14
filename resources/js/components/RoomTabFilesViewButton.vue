@@ -139,7 +139,7 @@ function downloadFile(event) {
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       loading.value = null;

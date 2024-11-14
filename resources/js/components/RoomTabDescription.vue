@@ -225,7 +225,7 @@ function save() {
         return;
       }
       // Handle other errors
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       // Disable saving indicator

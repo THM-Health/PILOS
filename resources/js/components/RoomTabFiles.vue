@@ -429,7 +429,7 @@ function loadData(page = null) {
           return emit("invalidCode");
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
       paginator.revertFirst();
       loadingError.value = true;
     })

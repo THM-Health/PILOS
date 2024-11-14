@@ -115,9 +115,9 @@ const props = defineProps({
     type: [String, null],
     default: null,
   },
-  noRedirectOnUnauthenticated: {
+  redirectOnUnauthenticated: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 
@@ -182,7 +182,7 @@ function reloadRoomTypes() {
     .catch((error) => {
       modelLoadingError.value = true;
       api.error(error, {
-        noRedirectOnUnauthenticated: props.noRedirectOnUnauthenticated,
+        redirectOnUnauthenticated: props.redirectOnUnauthenticated,
       });
     })
     .finally(() => {

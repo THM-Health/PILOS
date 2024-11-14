@@ -185,7 +185,7 @@ function loadData() {
     })
     .catch((error) => {
       // error during stats loading
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       // disable loading indicator

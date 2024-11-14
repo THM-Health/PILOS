@@ -236,7 +236,7 @@ function transferOwnership() {
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;
@@ -287,7 +287,7 @@ function asyncFind(query) {
     })
     .catch((error) => {
       tooManyResults.value = false;
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingSearch.value = false;

@@ -36,7 +36,7 @@
         ref="roomTypeSelect"
         v-model="newRoomType"
         aria-labelledby="room-type-label"
-        :no-redirect-on-unauthenticated="true"
+        :redirect-on-unauthenticated="false"
         @loading-error="(value) => (roomTypeSelectLoadingError = value)"
         @busy="(value) => (roomTypeSelectBusy = value)"
       />

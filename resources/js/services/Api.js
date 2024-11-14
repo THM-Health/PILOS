@@ -96,7 +96,9 @@ export class Api {
     if (this.auth.isAuthenticated) {
       this.toast.info(this.t("app.flash.unauthenticated"));
       this.auth.setCurrentUser(null);
-      if (!options.noRedirectOnUnauthenticated) {
+      // By default, always redirect on an unauthenticated error to the login page,
+      // however using the flag 'redirectOnUnauthenticated' this behavior can be turned off
+      if (options.redirectOnUnauthenticated !== false) {
         this.router.replace({
           name: "login",
           query: { redirect: this.router.currentRoute.value.path },

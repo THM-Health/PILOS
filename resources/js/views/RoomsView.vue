@@ -394,7 +394,7 @@ function load() {
         }
       }
 
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       // Disable loading indicator
@@ -469,7 +469,7 @@ function reload() {
           return handleGuestsNotAllowed();
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       // Disable loading indicator

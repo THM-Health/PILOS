@@ -265,7 +265,7 @@ function uploadFile(file) {
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     });
 }
 </script>

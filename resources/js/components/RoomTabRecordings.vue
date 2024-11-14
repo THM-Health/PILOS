@@ -401,7 +401,7 @@ function loadData(page = null) {
       }
       loadingError.value = true;
       paginator.revertFirst();
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isBusy.value = false;
