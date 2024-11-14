@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Missing info toast after browser notification has been granted on request ([0b92d86](https://github.com/THM-Health/PILOS/commit/0b92d86f3d6a3138dcd19ddac57b5e43b592014c))
 -   Wrong file size computation in admin UI ([8b1e5c6](https://github.com/THM-Health/PILOS/commit/8b1e5c68a40de3455d12df2c57dd14aead03fa0c))
 -   Line-break in App Banner and room terms of use ([345de45](https://github.com/THM-Health/PILOS/commit/345de458ed4a6cd87b1adfe13c8392cf02500d6f))
+-   Background color of dropdown button options in dark mode for the room description editor ([#1493], [#1565])
 
 ## [v4.1.0] - 2024-10-17
 
@@ -224,9 +225,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
 [#1483]: https://github.com/THM-Health/PILOS/pull/1483
 [#1489]: https://github.com/THM-Health/PILOS/pull/1489
+[#1493]: https://github.com/THM-Health/PILOS/issues/1493
 [#1495]: https://github.com/THM-Health/PILOS/pull/1495
 [#1536]: https://github.com/THM-Health/PILOS/issues/1536
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
+[#1565]: https://github.com/THM-Health/PILOS/pull/1565
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
