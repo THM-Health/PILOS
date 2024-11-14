@@ -185,6 +185,7 @@
                     :token="item.token"
                     :disabled="isBusy"
                     @edited="loadData()"
+                    @not-found="loadData()"
                   />
                   <!-- delete -->
                   <RoomTabPersonalizedLinksDeleteButton
@@ -195,6 +196,7 @@
                     :token="item.token"
                     :disabled="isBusy"
                     @deleted="loadData()"
+                    @not-found="loadData()"
                   />
                 </div>
               </div>

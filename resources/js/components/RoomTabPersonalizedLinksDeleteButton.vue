@@ -51,8 +51,11 @@
 </template>
 
 <script setup>
+import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   roomId: {
@@ -77,9 +80,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 
 const api = useApi();
+const toast = useToast();
+const { t } = useI18n();
 
 const showModal = ref(false);
 const isLoadingAction = ref(false);
@@ -109,6 +114,16 @@ function deleteToken() {
       emit("deleted");
     })
     .catch((error) => {
+      // deleting failed
+      if (error.response) {
+        // token not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          toast.error(t("rooms.flash.token_gone"));
+          showModal.value = false;
+          emit("notFound");
+          return;
+        }
+      }
       api.error(error, { noRedirectOnUnauthenticated: true });
     })
     .finally(() => {
