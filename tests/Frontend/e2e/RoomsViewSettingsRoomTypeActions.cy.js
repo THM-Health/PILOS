@@ -1,3 +1,5 @@
+import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
+
 describe("Rooms view settings", function () {
   beforeEach(function () {
     cy.init();
@@ -2105,12 +2107,17 @@ describe("Rooms view settings", function () {
 
   it("errors loading room types", function () {
     // Check with 500 error
-    cy.intercept("GET", "api/v1/roomTypes*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const roomTypesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("roomTypesRequest");
+      "roomTypesRequest",
+    );
 
     cy.visit("/rooms/abc-def-123#tab=settings");
 
@@ -2119,6 +2126,24 @@ describe("Rooms view settings", function () {
     cy.get("#room-type").should("have.value", "Meeting");
     cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
     cy.get('[data-test="room-type-change-button"]').click();
+
+    // Check that dialog loading is shown correctly
+    cy.get('[data-test="room-type-change-dialog"]')
+      .should("be.visible")
+      .and("include.text", "rooms.change_type.title")
+      .within(() => {
+        cy.get('[data-test="overlay"]').should("be.visible");
+        cy.get('[data-test="dialog-cancel-button"]')
+          .should("be.visible")
+          .and("be.disabled");
+        cy.get('[data-test="dialog-save-button"]')
+          .should("be.visible")
+          .and("be.disabled")
+          .then(() => {
+            roomTypesRequest.sendResponse();
+          });
+      });
+
     cy.wait("@roomTypesRequest");
     // Check error message
     cy.checkToastMessage([
@@ -2132,12 +2157,13 @@ describe("Rooms view settings", function () {
       .and("include.text", "rooms.change_type.title")
       .and("include.text", "rooms.room_types.loading_error")
       .within(() => {
+        cy.get('[data-test="overlay"]').should("not.exist");
         cy.get('[data-test="dialog-cancel-button"]')
           .should("be.visible")
           .and("not.be.disabled");
         cy.get('[data-test="dialog-save-button"]')
           .should("be.visible")
-          .and("not.be.disabled");
+          .and("be.disabled");
 
         // Reload with valid room types
         cy.intercept("GET", "api/v1/roomTypes*", {
@@ -2169,5 +2195,18 @@ describe("Rooms view settings", function () {
           .eq(3)
           .should("have.text", "Seminar");
       });
+
+    // Close dialog
+    cy.get('[data-test="dialog-cancel-button"]').click();
+    cy.get('[data-test="room-type-change-dialog"]').should("not.exist");
+
+    cy.checkRoomAuthErrors(
+      () => {
+        cy.get('[data-test="room-type-change-button"]').click();
+      },
+      "GET",
+      "api/v1/roomTypes*",
+      "settings",
+    );
   });
 });

@@ -738,15 +738,37 @@ describe("Rooms index create new room", function () {
     cy.get('[data-test="room-create-dialog"]').should("not.exist");
 
     // Check with 500 error
-    cy.intercept("GET", "api/v1/roomTypes*", {
-      statusCode: 500,
-      body: {
-        message: "Test",
+    const roomTypesRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/roomTypes*",
+      {
+        statusCode: 500,
+        body: {
+          message: "Test",
+        },
       },
-    }).as("roomTypesRequest");
+      "roomTypesRequest",
+    );
 
     // Open room create modal
     cy.get('[data-test="room-create-button"]').click();
+
+    // Check that dialog loading is shown correctly
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .and("include.text", "rooms.create.title")
+      .within(() => {
+        cy.get('[data-test="overlay"]').should("be.visible");
+        cy.get('[data-test="dialog-cancel-button"]')
+          .should("be.visible")
+          .and("be.disabled");
+        cy.get('[data-test="dialog-save-button"]')
+          .should("be.visible")
+          .and("be.disabled")
+          .then(() => {
+            roomTypesRequest.sendResponse();
+          });
+      });
 
     cy.wait("@roomTypesRequest");
 
@@ -762,6 +784,7 @@ describe("Rooms index create new room", function () {
       .within(() => {
         cy.get("#room-name").should("be.visible").and("not.be.disabled");
 
+        cy.get('[data-test="overlay"]').should("not.exist");
         cy.get('[data-test="dialog-cancel-button"]')
           .should("be.visible")
           .and("not.be.disabled");
