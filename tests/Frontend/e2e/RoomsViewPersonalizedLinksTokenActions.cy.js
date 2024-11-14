@@ -366,7 +366,7 @@ describe("Rooms view personalized links token actions", function () {
     cy.wait("@roomTokensRequest");
 
     cy.get('[data-test="room-personalized-link-item"]')
-      .eq(0)
+      .eq(2)
       .find('[data-test="room-personalized-links-edit-button"]')
       .click();
 
@@ -374,7 +374,56 @@ describe("Rooms view personalized links token actions", function () {
       "be.visible",
     );
 
-    // ToDo 404 error handling?
+    // Check with 404 error (token not found / already deleted)
+    cy.intercept(
+      "PUT",
+      "/api/v1/rooms/abc-def-123/tokens/hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus",
+      {
+        statusCode: 404,
+        body: {
+          message: "No query results for model",
+        },
+      },
+    ).as("editTokenRequest");
+
+    cy.fixture("roomTokens.json").then((roomTokens) => {
+      roomTokens.data = roomTokens.data.slice(0, 2);
+      roomTokens.meta.to = 2;
+      roomTokens.meta.total = 2;
+      roomTokens.meta.total_no_filter = 2;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+        statusCode: 200,
+        body: roomTokens,
+      }).as("roomTokensRequest");
+    });
+
+    cy.get('[data-test="dialog-save-button"]').click();
+
+    cy.wait("@editTokenRequest");
+    cy.wait("@roomTokensRequest");
+
+    // Check that token is not shown anymore and dialog is closed
+    cy.get('[data-test="room-personalized-links-edit-dialog"]').should(
+      "not.exist",
+    );
+    cy.get('[data-test="room-personalized-link-item"]').should(
+      "have.length",
+      2,
+    );
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.token_gone");
+
+    // Open edit dialog again
+    cy.get('[data-test="room-personalized-link-item"]')
+      .eq(0)
+      .find('[data-test="room-personalized-links-edit-button"]')
+      .click();
+
+    cy.get('[data-test="room-personalized-links-edit-dialog"]').should(
+      "be.visible",
+    );
 
     // Try to edit token with 422 error (missing firstname, lastname, role)
     cy.intercept(
@@ -552,14 +601,65 @@ describe("Rooms view personalized links token actions", function () {
       "not.exist",
     );
     cy.get('[data-test="room-personalized-link-item"]')
-      .eq(0)
+      .eq(2)
       .find('[data-test="room-personalized-links-delete-button"]')
       .click();
     cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
       "be.visible",
     );
 
-    // ToDo 404 error handling?
+    // Check with 404 error (token not found / already deleted)
+    cy.intercept(
+      "DELETE",
+      "/api/v1/rooms/abc-def-123/tokens/hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus",
+      {
+        statusCode: 404,
+        body: {
+          message: "No query results for model",
+        },
+      },
+    ).as("deleteTokenRequest");
+
+    cy.fixture("roomTokens.json").then((roomTokens) => {
+      roomTokens.data = roomTokens.data.slice(0, 2);
+      roomTokens.meta.to = 2;
+      roomTokens.meta.total = 2;
+      roomTokens.meta.total_no_filter = 2;
+
+      cy.intercept("GET", "api/v1/rooms/abc-def-123/tokens*", {
+        statusCode: 200,
+        body: roomTokens,
+      }).as("roomTokensRequest");
+    });
+
+    cy.get('[data-test="dialog-continue-button"]').click();
+
+    cy.wait("@deleteTokenRequest");
+    cy.wait("@roomTokensRequest");
+
+    // Check that token is not shown anymore and dialog is closed
+    cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
+      "not.exist",
+    );
+    cy.get('[data-test="room-personalized-link-item"]').should(
+      "have.length",
+      2,
+    );
+
+    // Check that error message is shown
+    cy.checkToastMessage("rooms.flash.token_gone");
+
+    // Open delete dialog again
+    cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
+      "not.exist",
+    );
+    cy.get('[data-test="room-personalized-link-item"]')
+      .eq(0)
+      .find('[data-test="room-personalized-links-delete-button"]')
+      .click();
+    cy.get('[data-test="room-personalized-links-delete-dialog"]').should(
+      "be.visible",
+    );
 
     // Check with 500 error
     cy.intercept(
