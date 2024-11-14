@@ -1,7 +1,7 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
 // ToDo delete temporary code after edit description test is fixed
-Cypress._.times(30, () => {
+Cypress._.times(50, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();
@@ -258,6 +258,10 @@ Cypress._.times(30, () => {
 
       cy.get(".tiptap").type("{selectall}");
 
+      cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
+        "have.length",
+        0,
+      );
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
         "have.length",
@@ -282,6 +286,11 @@ Cypress._.times(30, () => {
 
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').eq(0).click();
 
+      cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
+        "have.length",
+        0,
+      );
+
       // Check that description was changed correctly
       cy.get(".tiptap")
         .should("be.visible")
@@ -291,7 +300,15 @@ Cypress._.times(30, () => {
         });
 
       cy.get(".tiptap").type("{selectall}");
-      cy.get('[data-test="tip-tap-bold-button"]').click();
+      cy.get('[data-test="tip-tap-bold-button"]')
+        .should("be.visible")
+        .and("have.class", "p-button-secondary")
+        .and("have.attr", "data-p-severity", "secondary")
+        .click();
+      cy.get('[data-test="tip-tap-bold-button"]')
+        .should("be.visible")
+        .and("have.class", "p-button-primary")
+        .and("have.attr", "data-p-severity", "primary");
 
       // Check that description was changed correctly
       cy.get(".tiptap")
