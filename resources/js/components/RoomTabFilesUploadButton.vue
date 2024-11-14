@@ -7,12 +7,12 @@
     :disabled="disabled"
     icon="fa-solid fa-upload"
     data-test="room-files-upload-button"
-    @click="openModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.files.upload')"
     :style="{ width: '500px' }"
@@ -142,7 +142,7 @@ const uploadingFile = ref(null);
 
 const uploadedFiles = ref([]);
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 const api = useApi();
 const settingsStore = useSettingsStore();
@@ -201,8 +201,8 @@ const dropZoneClasses = computed(() => {
   ];
 });
 
-function openModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
   uploadedFiles.value = [];
   formErrors.clear();
 }

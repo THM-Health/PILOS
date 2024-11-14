@@ -7,12 +7,12 @@
     severity="danger"
     icon="fa-solid fa-trash"
     data-test="room-files-delete-button"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.files.delete')"
     :style="{ width: '500px' }"
@@ -30,7 +30,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -80,7 +80,7 @@ const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /*
@@ -95,7 +95,7 @@ function deleteFile() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {
@@ -105,7 +105,7 @@ function deleteFile() {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           toast.error(t("rooms.flash.file_gone"));
           emit("deleted");
-          showModal.value = false;
+          modalVisible.value = false;
           return;
         }
       }

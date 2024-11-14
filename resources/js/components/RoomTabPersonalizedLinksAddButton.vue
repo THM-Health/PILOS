@@ -6,12 +6,12 @@
     icon="fa-solid fa-plus"
     :aria-label="$t('rooms.tokens.add')"
     data-test="room-personalized-links-add-button"
-    @click="showAddModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.tokens.add')"
     :style="{ width: '500px' }"
@@ -29,7 +29,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -125,7 +125,7 @@ const emit = defineEmits(["added"]);
 const api = useApi();
 const formErrors = useFormErrors();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const firstname = ref(null);
 const lastname = ref(null);
 const role = ref(null);
@@ -134,12 +134,12 @@ const isLoadingAction = ref(false);
 /**
  * show modal
  */
-function showAddModal() {
+function showModal() {
   firstname.value = null;
   lastname.value = null;
   role.value = null;
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -162,7 +162,7 @@ function save() {
     .call(`rooms/${props.roomId}/tokens/`, config)
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("added");
     })
     .catch((error) => {

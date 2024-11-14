@@ -5,12 +5,12 @@
     :disabled="disabled"
     icon="fa-solid fa-user-clock"
     data-test="room-history-attendance-button"
-    @click="showAttendanceModal"
+    @click="showModal"
   />
 
   <!-- edit user role modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('meetings.stats.modal_title', { room: props.roomName })"
     :style="{ width: '1200px' }"
@@ -188,7 +188,7 @@ const props = defineProps({
   },
 });
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const attendance = ref([]);
 const filters = ref({
@@ -198,8 +198,8 @@ const filters = ref({
 const api = useApi();
 const settingsStore = useSettingsStore();
 
-function showAttendanceModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
   loadData();
 }
 

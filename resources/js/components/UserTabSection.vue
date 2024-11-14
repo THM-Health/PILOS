@@ -64,7 +64,7 @@
 
     <!-- Stale user modal -->
     <Dialog
-      v-model:visible="showModal"
+      v-model:visible="modalVisible"
       data-test="stale-user-dialog"
       modal
       :style="{ width: '500px' }"
@@ -114,7 +114,7 @@ const user = ref(null);
 const isBusy = ref(false);
 const loadingError = ref(false);
 const staleError = ref({});
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 const api = useApi();
 const router = useRouter();
@@ -130,7 +130,7 @@ function handleNotFoundError(error) {
 
 function handleStaleError(error) {
   staleError.value = error;
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 function updateUser(newUser) {
@@ -148,7 +148,7 @@ function refreshUser() {
   });
   emit("updateUser", staleError.value.new_model);
   staleError.value = {};
-  showModal.value = false;
+  modalVisible.value = false;
 }
 
 /**

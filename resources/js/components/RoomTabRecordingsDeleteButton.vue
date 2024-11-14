@@ -7,12 +7,12 @@
     severity="danger"
     icon="fa-solid fa-trash"
     data-test="room-recordings-delete-button"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.recordings.modals.delete.title')"
     :style="{ width: '500px' }"
@@ -30,7 +30,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -76,7 +76,7 @@ const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /*
@@ -91,7 +91,7 @@ function deleteRecording() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {

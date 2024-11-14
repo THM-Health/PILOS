@@ -7,12 +7,12 @@
     icon="fa-solid fa-trash"
     :aria-label="$t('rooms.tokens.delete')"
     data-test="room-personalized-links-delete-button"
-    @click="showDeleteModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.tokens.delete')"
     :style="{ width: '500px' }"
@@ -30,7 +30,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -90,14 +90,14 @@ const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /**
  * show modal
  */
-function showDeleteModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 
 /**
@@ -114,7 +114,7 @@ function deleteToken() {
     .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {

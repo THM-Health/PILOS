@@ -12,7 +12,7 @@
       icon="fa-solid fa-edit"
       :aria-label="$t('rooms.change_type.title')"
       data-test="room-type-change-button"
-      @click="editRoomType"
+      @click="showModal"
     />
   </InputGroup>
 
@@ -23,10 +23,24 @@
     :header="$t('rooms.change_type.title')"
     :style="{ width: '900px' }"
     :breakpoints="{ '975px': '90vw' }"
+    :close-on-escape="!roomTypeSelectBusy"
+    :closable="!roomTypeSelectBusy"
     :draggable="false"
     :dismissable-mask="false"
   >
-    <RoomTypeSelect ref="roomTypeSelect" v-model="newRoomType" />
+    <div class="flex flex-col gap-2">
+      <label id="room-type-label">{{
+        $t("rooms.settings.general.type")
+      }}</label>
+      <RoomTypeSelect
+        ref="roomTypeSelect"
+        v-model="newRoomType"
+        aria-labelledby="room-type-label"
+        :no-redirect-on-unauthenticated="true"
+        @loading-error="(value) => (roomTypeSelectLoadingError = value)"
+        @busy="(value) => (roomTypeSelectBusy = value)"
+      />
+    </div>
 
     <template #footer>
       <div class="flex justify-end gap-2">
@@ -34,11 +48,14 @@
           :label="$t('app.cancel')"
           severity="secondary"
           data-test="dialog-cancel-button"
+          :disabled="roomTypeSelectBusy"
           @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
-          :disabled="!newRoomType"
+          :disabled="
+            roomTypeSelectLoadingError || !newRoomType || roomTypeSelectBusy
+          "
           data-test="dialog-save-button"
           @click="handleOk"
         />
@@ -83,11 +100,15 @@ const props = defineProps({
 });
 
 const modalVisible = ref(false);
+const roomTypeSelectBusy = ref(false);
+const roomTypeSelectLoadingError = ref(false);
 const confirmationModalVisible = ref(false);
 
 const newRoomType = ref({});
 
-function editRoomType() {
+function showModal() {
+  roomTypeSelectBusy.value = false;
+  roomTypeSelectLoadingError.value = false;
   newRoomType.value = _.cloneDeep(model.value);
   modalVisible.value = true;
 }

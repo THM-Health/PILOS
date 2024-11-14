@@ -5,12 +5,12 @@
     :disabled="disabled"
     icon="fa-solid fa-chart-line"
     data-test="room-history-statistic-button"
-    @click="showStatisticModal"
+    @click="showModal"
   />
 
   <!-- edit user role modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('meetings.stats.modal_title', { room: props.roomName })"
     :style="{ width: '1200px' }"
@@ -101,7 +101,7 @@ const props = defineProps({
   },
 });
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const chartDataRows = ref({
   participants: [],
@@ -113,8 +113,8 @@ const api = useApi();
 const { t, d } = useI18n();
 const colors = useColors();
 
-function showStatisticModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
   loadData();
 }
 

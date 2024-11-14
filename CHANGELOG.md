@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Wrong file size computation in admin UI ([8b1e5c6](https://github.com/THM-Health/PILOS/commit/8b1e5c68a40de3455d12df2c57dd14aead03fa0c))
 -   Line-break in App Banner and room terms of use ([345de45](https://github.com/THM-Health/PILOS/commit/345de458ed4a6cd87b1adfe13c8392cf02500d6f))
 -   Missing error handling for 404 errors for personalized links actions ([#1559], [#1561])
+-   Error and loading state of the RoomTypeChangeButton dialog ([#1548])
 
 ## [v4.1.0] - 2024-10-17
 
@@ -239,6 +240,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1495]: https://github.com/THM-Health/PILOS/pull/1495
 [#1536]: https://github.com/THM-Health/PILOS/issues/1536
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
+[#1548]: https://github.com/THM-Health/PILOS/pull/1548
 [#1549]: https://github.com/THM-Health/PILOS/pull/1549
 [#1559]: https://github.com/THM-Health/PILOS/issues/1559
 [#1561]: https://github.com/THM-Health/PILOS/pull/1561

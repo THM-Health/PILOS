@@ -6,7 +6,7 @@
     text
     icon="fa-solid fa-link"
     data-test="tip-tap-link-button"
-    @click="openModal"
+    @click="showModal"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -93,7 +93,7 @@ function deleteLink() {
 /**
  * Open modal to edit or create a link
  */
-function openModal() {
+function showModal() {
   if (props.editor.isActive("link")) {
     link.value = props.editor.getAttributes("link").href;
     newLink.value = false;

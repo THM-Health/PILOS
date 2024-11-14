@@ -1,7 +1,7 @@
 <template>
   <!-- add new user modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-members-add-single-dialog"
     modal
     :header="$t('rooms.members.add_single_user')"
@@ -19,7 +19,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('rooms.members.modals.add.add')"
@@ -154,7 +154,7 @@ const emit = defineEmits(["added"]);
 const api = useApi();
 const formErrors = useFormErrors();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const user = ref(null);
 const role = ref(null);
 const users = ref([]);
@@ -163,7 +163,7 @@ const isLoadingSearch = ref(false);
 const isLoadingAction = ref(false);
 
 defineExpose({
-  openModal,
+  showModal,
 });
 
 /**
@@ -208,12 +208,12 @@ function asyncFind(query) {
 /**
  * show modal to add a new user as member
  */
-function openModal() {
+function showModal() {
   user.value = null;
   role.value = null;
   formErrors.clear();
   users.value = [];
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -233,7 +233,7 @@ function save() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("added");
     })
     .catch((error) => {

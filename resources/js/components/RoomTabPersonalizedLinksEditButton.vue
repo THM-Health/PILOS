@@ -7,12 +7,12 @@
     icon="fa-solid fa-edit"
     :aria-label="$t('rooms.tokens.edit')"
     data-test="room-personalized-links-edit-button"
-    @click="showEditModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.tokens.edit')"
     :style="{ width: '500px' }"
@@ -30,7 +30,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -146,7 +146,7 @@ const formErrors = useFormErrors();
 const toast = useToast();
 const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const newFirstname = ref(null);
 const newLastname = ref(null);
 const newRole = ref(null);
@@ -155,12 +155,12 @@ const isLoadingAction = ref(false);
 /**
  * show modal
  */
-function showEditModal() {
+function showModal() {
   newFirstname.value = props.firstname;
   newLastname.value = props.lastname;
   newRole.value = props.role;
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -183,7 +183,7 @@ function save() {
     .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("edited");
     })
     .catch((error) => {
