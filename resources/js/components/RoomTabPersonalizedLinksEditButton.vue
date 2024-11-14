@@ -105,6 +105,8 @@ import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
 import env from "../env.js";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   roomId: {
@@ -133,10 +135,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edited"]);
+const emit = defineEmits(["edited", "notFound"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const toast = useToast();
+const { t } = useI18n();
 
 const showModal = ref(false);
 const newFirstname = ref(null);
@@ -179,12 +183,20 @@ function save() {
       emit("edited");
     })
     .catch((error) => {
-      if (
-        error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
-      ) {
-        formErrors.set(error.response.data.errors);
-      } else {
+      // editing failed
+      if (error.response) {
+        // token not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          toast.error(t("rooms.flash.token_gone"));
+          showModal.value = false;
+          emit("notFound");
+          return;
+        }
+        // failed due to form validation errors
+        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          formErrors.set(error.response.data.errors);
+          return;
+        }
         api.error(error, { noRedirectOnUnauthenticated: true });
       }
     })
