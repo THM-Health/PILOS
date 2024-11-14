@@ -5,11 +5,11 @@
     :disabled="isBusy"
     severity="danger"
     icon="fa-solid fa-trash"
-    @click="showDeleteModal"
+    @click="showModal"
   />
 
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('admin.room_types.delete.title')"
     :style="{ width: '500px' }"
@@ -62,7 +62,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
-        @click="showModal = false"
+        @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
@@ -96,7 +96,7 @@ const props = defineProps({
 
 const emit = defineEmits(["deleted"]);
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isBusy = ref(false);
 const replacement = ref(null);
 const replacementRoomTypes = ref([]);
@@ -106,11 +106,11 @@ const loadingRoomTypes = ref(false);
  * Shows the delete modal
  *
  */
-function showDeleteModal() {
+function showModal() {
   formErrors.clear();
   replacement.value = null;
   loadReplacementRoomTypes();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 function loadReplacementRoomTypes() {
@@ -149,7 +149,7 @@ function deleteRoomType() {
       data: { replacement_room_type: replacement.value },
     })
     .then(() => {
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {
@@ -162,7 +162,7 @@ function deleteRoomType() {
         return;
       }
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-        showModal.value = false;
+        modalVisible.value = false;
         emit("deleted");
         return;
       }

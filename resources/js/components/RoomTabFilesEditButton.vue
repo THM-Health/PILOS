@@ -7,12 +7,12 @@
     severity="info"
     icon="fa-solid fa-edit"
     data-test="room-files-edit-button"
-    @click="showEditModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.files.edit')"
     :style="{ width: '500px' }"
@@ -30,7 +30,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -140,7 +140,7 @@ const toast = useToast();
 const { t } = useI18n();
 const formErrors = useFormErrors();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const newUseInMeeting = ref(null);
 const newDownload = ref(null);
 const newDefault = ref(null);
@@ -149,12 +149,12 @@ const isLoadingAction = ref(false);
 /**
  * show modal
  */
-function showEditModal() {
+function showModal() {
   newUseInMeeting.value = props.useInMeeting;
   newDownload.value = props.download;
   newDefault.value = props.default;
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 watch(newDefault, (value) => {
@@ -189,7 +189,7 @@ function save() {
     .call(`rooms/${props.roomId}/files/${props.fileId}`, config)
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("edited");
     })
     .catch((error) => {
@@ -199,7 +199,7 @@ function save() {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           toast.error(t("rooms.flash.file_gone"));
           emit("deleted");
-          showModal.value = false;
+          modalVisible.value = false;
           return;
         }
 

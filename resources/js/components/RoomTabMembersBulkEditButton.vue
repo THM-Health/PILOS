@@ -14,12 +14,12 @@
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-users-cog"
-    @click="showBulkEditMembersModal"
+    @click="showModal"
   />
 
   <!-- bulk edit user role modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-members-bulk-edit-dialog"
     modal
     :header="
@@ -41,7 +41,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -129,16 +129,16 @@ const emit = defineEmits(["edited"]);
 const api = useApi();
 const formErrors = useFormErrors();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const newRole = ref(null);
 const isLoadingAction = ref(false);
 
 /**
  * show modal to bulk edit users role
  */
-function showBulkEditMembersModal() {
+function showModal() {
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -157,7 +157,7 @@ function save() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("edited");
     })
     .catch((error) => {

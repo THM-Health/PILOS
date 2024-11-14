@@ -9,11 +9,11 @@
         : $t('rooms.settings.expert_mode.activate')
     "
     :disabled="disabled"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-settings-expert-mode-dialog"
     modal
     :header="
@@ -38,7 +38,7 @@
           data-test="dialog-cancel-button"
           :label="$t('app.cancel')"
           severity="secondary"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           data-test="dialog-continue-button"
@@ -71,10 +71,10 @@ defineProps({
 
 const emit = defineEmits(["toggleExpertMode"]);
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 function toggleExpertMode() {
-  showModal.value = false;
+  modalVisible.value = false;
   emit("toggleExpertMode");
 }
 </script>

@@ -52,11 +52,11 @@ const menu = ref();
 const items = computed(() => [
   {
     label: t("rooms.members.add_single_user"),
-    command: () => singleModal.value.openModal(),
+    command: () => singleModal.value.showModal(),
   },
   {
     label: t("rooms.members.bulk_import_users"),
-    command: () => importModal.value.openModal(),
+    command: () => importModal.value.showModal(),
   },
 ]);
 

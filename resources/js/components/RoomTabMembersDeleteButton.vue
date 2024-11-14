@@ -7,12 +7,12 @@
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-trash"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-members-delete-dialog"
     modal
     :header="$t('rooms.members.modals.remove.title')"
@@ -30,7 +30,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -85,7 +85,7 @@ const emit = defineEmits(["deleted"]);
 
 const api = useApi();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /*
@@ -100,7 +100,7 @@ function deleteMember() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {
@@ -109,7 +109,7 @@ function deleteMember() {
         // user not found
         if (error.response.status === env.HTTP_GONE) {
           emit("deleted");
-          showModal.value = false;
+          modalVisible.value = false;
         }
       }
       api.error(error, { noRedirectOnUnauthenticated: true });

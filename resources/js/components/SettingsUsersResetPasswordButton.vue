@@ -16,11 +16,11 @@
     :disabled="isBusy"
     severity="warn"
     icon="fa-solid fa-key"
-    @click="showResetPasswordModal"
+    @click="showModal"
   />
 
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('admin.users.reset_password.title')"
     :style="{ width: '500px' }"
@@ -42,7 +42,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
-        @click="showModal = false"
+        @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
@@ -83,15 +83,15 @@ const props = defineProps({
   },
 });
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isBusy = ref(false);
 
 /**
  * Shows the reset password modal
  *
  */
-function showResetPasswordModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 /**
  * Resets the password for the given user.
@@ -103,7 +103,7 @@ function resetPassword() {
       method: "post",
     })
     .then(() => {
-      showModal.value = false;
+      modalVisible.value = false;
       toast.success(
         t("admin.users.password_reset_success", { mail: props.email }),
       );

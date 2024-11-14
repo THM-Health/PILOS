@@ -5,11 +5,11 @@
     :disabled="isBusy"
     icon="fa-solid fa-trash"
     severity="danger"
-    @click="showDeleteModal"
+    @click="showModal"
   />
 
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     :breakpoints="{ '575px': '90vw' }"
     :close-on-escape="!isBusy"
     :closeable="!isBusy"
@@ -43,7 +43,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
-        @click="showModal = false"
+        @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
@@ -73,7 +73,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["deleted"]);
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isBusy = ref(false);
 const deleteFailedRoomTypes = ref(null);
 
@@ -81,9 +81,9 @@ const deleteFailedRoomTypes = ref(null);
  * Shows the delete modal
  *
  */
-function showDeleteModal() {
+function showModal() {
   deleteFailedRoomTypes.value = null;
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -97,7 +97,7 @@ function deleteServerPool() {
       method: "delete",
     })
     .then(() => {
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {

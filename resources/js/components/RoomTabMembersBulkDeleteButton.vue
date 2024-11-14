@@ -14,12 +14,12 @@
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-users-slash"
-    @click="showBulkDeleteMembersModal"
+    @click="showModal"
   />
 
   <!-- bulk edit user role modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-members-bulk-delete-dialog"
     modal
     :header="
@@ -41,7 +41,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -92,15 +92,15 @@ const emit = defineEmits(["deleted"]);
 const api = useApi();
 const formErrors = useFormErrors();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /**
  * show modal to bulk edit users role
  */
-function showBulkDeleteMembersModal() {
+function showModal() {
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -119,7 +119,7 @@ function deleteMembers() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {

@@ -8,7 +8,7 @@
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.join')"
-    @click="join"
+    @click="showModal"
   />
 
   <!-- If room is not running -->
@@ -20,14 +20,14 @@
     :loading="isLoadingAction"
     icon="fa-solid fa-door-open"
     :label="$t('rooms.start')"
-    @click="join"
+    @click="showModal"
   />
 
   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
   <Message v-else severity="info">{{ $t("rooms.not_running") }}</Message>
 
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-join-dialog"
     modal
     :header="running ? $t('rooms.join_room') : $t('rooms.start_room')"
@@ -128,7 +128,7 @@
         :disabled="isLoadingAction"
         severity="secondary"
         size="small"
-        @click="showModal = false"
+        @click="modalVisible = false"
       />
       <Button
         :label="$t('app.continue')"
@@ -191,7 +191,7 @@ const emit = defineEmits([
 
 const authStore = useAuthStore();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const recordAttendanceAgreement = ref(false);
 const showRunningMessage = ref(false);
@@ -204,11 +204,20 @@ const toast = useToast();
 const { t } = useI18n();
 const formErrors = useFormErrors();
 
-async function join() {
+/**
+ * Show the modal for joining / starting a room
+ *
+ * if autoJoin is enabled, user will automatically join/start the room
+ * and a spinner will be shown during the request
+ *
+ * else a form is shown where additional information can be entered
+ * like the name of the guest, agreements, etc.
+ */
+async function showModal() {
   showRunningMessage.value = false;
 
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 
   if (autoJoin.value) {
     getJoinUrl();
@@ -284,7 +293,7 @@ function getJoinUrl() {
           error.response.data.message === "invalid_code"
         ) {
           emit("invalidCode");
-          showModal.value = false;
+          modalVisible.value = false;
           return;
         }
 
@@ -294,7 +303,7 @@ function getJoinUrl() {
           error.response.data.message === "require_code"
         ) {
           emit("invalidCode");
-          showModal.value = false;
+          modalVisible.value = false;
           return;
         }
 
@@ -304,7 +313,7 @@ function getJoinUrl() {
           error.response.data.message === "invalid_token"
         ) {
           emit("invalidToken");
-          showModal.value = false;
+          modalVisible.value = false;
           return;
         }
 
@@ -314,7 +323,7 @@ function getJoinUrl() {
           error.response.data.message === "guests_not_allowed"
         ) {
           emit("guestsNotAllowed");
-          showModal.value = false;
+          modalVisible.value = false;
           return;
         }
 
@@ -323,7 +332,7 @@ function getJoinUrl() {
           // Show error message
           toast.error(t("rooms.flash.start_forbidden"));
           EventBus.emit(EVENT_FORBIDDEN);
-          showModal.value = false;
+          modalVisible.value = false;
           return;
         }
 
@@ -337,7 +346,7 @@ function getJoinUrl() {
         // Room is not running, update running status
         if (error.response.status === env.HTTP_ROOM_NOT_RUNNING) {
           toast.error(t("app.errors.not_running"));
-          showModal.value = false;
+          modalVisible.value = false;
           emit("changed");
           return;
         }

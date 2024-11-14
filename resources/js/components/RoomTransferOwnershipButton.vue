@@ -6,12 +6,12 @@
     icon="fa-solid fa-user-gear"
     :label="$t('rooms.modals.transfer_ownership.title')"
     :disabled="disabled"
-    @click="showTransferOwnershipModal"
+    @click="showModal"
   />
 
   <!--transfer ownership modal-->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-transfer-ownership-dialog"
     modal
     :header="$t('rooms.modals.transfer_ownership.title')"
@@ -152,7 +152,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('rooms.modals.transfer_ownership.transfer')"
@@ -191,7 +191,7 @@ const emit = defineEmits(["transferredOwnership"]);
 const isLoadingAction = ref(false);
 const isLoadingSearch = ref(false);
 const tooManyResults = ref(false);
-const showModal = ref(false);
+const modalVisible = ref(false);
 const users = ref([]);
 const newOwner = ref(null);
 const newRoleInRoom = ref(3);
@@ -225,7 +225,7 @@ function transferOwnership() {
     .then(() => {
       // operation successful, emit "transferred-ownership" to reload room view and close modal
       emit("transferredOwnership");
-      showModal.value = false;
+      modalVisible.value = false;
     })
     .catch((error) => {
       // transferring failed
@@ -246,12 +246,12 @@ function transferOwnership() {
 /**
  * reset and show modal to transfer the room ownership
  */
-function showTransferOwnershipModal() {
+function showModal() {
   newOwner.value = null;
   users.value = [];
   newRoleInRoom.value = 3;
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
