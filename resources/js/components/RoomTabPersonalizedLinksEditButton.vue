@@ -201,7 +201,7 @@ function save() {
           formErrors.set(error.response.data.errors);
           return;
         }
-        api.error(error, { noRedirectOnUnauthenticated: true });
+        api.error(error, { redirectOnUnauthenticated: false });
       }
     })
     .finally(() => {

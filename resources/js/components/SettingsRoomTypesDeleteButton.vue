@@ -94,7 +94,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 
 const modalVisible = ref(false);
 const isBusy = ref(false);
@@ -163,7 +163,7 @@ function deleteRoomType() {
       }
       if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
         modalVisible.value = false;
-        emit("deleted");
+        emit("notFound");
         return;
       }
       api.error(error);

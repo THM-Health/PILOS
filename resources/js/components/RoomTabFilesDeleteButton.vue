@@ -74,7 +74,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 
 const api = useApi();
 const toast = useToast();
@@ -104,12 +104,12 @@ function deleteFile() {
         // file not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
           toast.error(t("rooms.flash.file_gone"));
-          emit("deleted");
+          emit("notFound");
           modalVisible.value = false;
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

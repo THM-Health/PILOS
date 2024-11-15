@@ -293,7 +293,7 @@ function loadData(page = null) {
     })
     .catch((error) => {
       paginator.revertFirst();
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
       loadingError.value = true;
     })
     .finally(() => {

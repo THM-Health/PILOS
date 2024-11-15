@@ -1,5 +1,10 @@
 <template>
-  <Toolbar v-if="props.editor">
+  <Toolbar
+    v-if="props.editor"
+    :pt:start:class="'flex-wrap'"
+    :pt:center:class="'flex-wrap'"
+    :pt:end:class="'flex-wrap'"
+  >
     <!-- Text styling -->
     <template #start>
       <!-- Text type -->

@@ -81,7 +81,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "gone"]);
 
 const api = useApi();
 
@@ -108,11 +108,11 @@ function deleteMember() {
       if (error.response) {
         // user not found
         if (error.response.status === env.HTTP_GONE) {
-          emit("deleted");
+          emit("gone");
           modalVisible.value = false;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

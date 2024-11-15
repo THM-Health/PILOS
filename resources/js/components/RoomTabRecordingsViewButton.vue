@@ -198,7 +198,7 @@ function downloadFormat(format) {
           return emit("notFound");
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

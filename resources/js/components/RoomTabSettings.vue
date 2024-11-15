@@ -932,7 +932,7 @@ function save(event) {
         formErrors.set(error.response.data.errors);
         return;
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       // Disable busy indicator
@@ -969,7 +969,7 @@ function load() {
       loaded.value = true;
     })
     .catch((error) => {
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
       loadingError.value = true;
     })
     .finally(() => {
