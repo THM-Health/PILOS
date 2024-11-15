@@ -20,11 +20,11 @@
     icon="fa-solid fa-user"
     :aria-label="$t('rooms.end_membership.button')"
     data-test="room-end-membership-button"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.end_membership.title')"
     :style="{ width: '500px' }"
@@ -44,7 +44,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -88,7 +88,7 @@ const emit = defineEmits([
 ]);
 
 const isLoadingAction = ref(false);
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 const userPermissions = useUserPermissions();
 const api = useApi();
@@ -143,7 +143,7 @@ function leaveMembership() {
     })
     .then(() => {
       emit("leftMembership");
-      showModal.value = false;
+      modalVisible.value = false;
     })
     .catch((error) => {
       api.error(error, { noRedirectOnUnauthenticated: true });

@@ -6,12 +6,12 @@
     :disabled="disabled"
     icon="fa-solid fa-edit"
     :aria-label="$t('rooms.tokens.edit')"
-    @click="showEditModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.tokens.edit')"
     :style="{ width: '500px' }"
@@ -27,7 +27,7 @@
           :label="$t('app.cancel')"
           severity="secondary"
           :disabled="isLoadingAction"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -105,6 +105,8 @@ import { useApi } from "../composables/useApi.js";
 import { useFormErrors } from "../composables/useFormErrors.js";
 import { ref } from "vue";
 import env from "../env.js";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   roomId: {
@@ -133,12 +135,14 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edited"]);
+const emit = defineEmits(["edited", "notFound"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
+const toast = useToast();
+const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const newFirstname = ref(null);
 const newLastname = ref(null);
 const newRole = ref(null);
@@ -147,12 +151,12 @@ const isLoadingAction = ref(false);
 /**
  * show modal
  */
-function showEditModal() {
+function showModal() {
   newFirstname.value = props.firstname;
   newLastname.value = props.lastname;
   newRole.value = props.role;
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -175,16 +179,24 @@ function save() {
     .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("edited");
     })
     .catch((error) => {
-      if (
-        error.response &&
-        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
-      ) {
-        formErrors.set(error.response.data.errors);
-      } else {
+      // editing failed
+      if (error.response) {
+        // token not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          toast.error(t("rooms.flash.token_gone"));
+          showModal.value = false;
+          emit("notFound");
+          return;
+        }
+        // failed due to form validation errors
+        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          formErrors.set(error.response.data.errors);
+          return;
+        }
         api.error(error, { noRedirectOnUnauthenticated: true });
       }
     })

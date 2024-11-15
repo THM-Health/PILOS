@@ -6,7 +6,7 @@
     text
     icon="fa-solid fa-code"
     data-test="tip-tap-source-button"
-    @click="openModal"
+    @click="showModal"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -58,7 +58,7 @@ const modalVisible = ref(false);
 /**
  * Open modal with current source code
  */
-function openModal() {
+function showModal() {
   source.value = props.editor.getHTML();
   modalVisible.value = true;
 }

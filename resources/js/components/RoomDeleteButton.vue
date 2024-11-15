@@ -8,12 +8,12 @@
     icon="fa-solid fa-trash"
     :label="$t('rooms.modals.delete.title')"
     data-test="room-delete-button"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <!-- Remove room modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.modals.delete.title')"
     :style="{ width: '500px' }"
@@ -33,7 +33,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -68,7 +68,7 @@ const props = defineProps({
 const emit = defineEmits(["roomDeleted"]);
 
 const isLoadingAction = ref(false);
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 const api = useApi();
 const userPermissions = useUserPermissions();
@@ -87,7 +87,7 @@ function deleteRoom() {
     .then(() => {
       // delete successful
       emit("roomDeleted");
-      showModal.value = false;
+      modalVisible.value = false;
     })
     .catch((error) => {
       isLoadingAction.value = false;

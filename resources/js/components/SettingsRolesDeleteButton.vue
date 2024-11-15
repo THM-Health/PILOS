@@ -5,11 +5,11 @@
     :disabled="isBusy"
     severity="danger"
     icon="fa-solid fa-trash"
-    @click="showDeleteModal"
+    @click="showModal"
   />
 
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('admin.roles.delete.title')"
     :style="{ width: '500px' }"
@@ -26,7 +26,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
-        @click="showModal = false"
+        @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
@@ -57,15 +57,15 @@ const props = defineProps({
 
 const emit = defineEmits(["deleted"]);
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isBusy = ref(false);
 
 /**
  * Shows the delete modal
  *
  */
-function showDeleteModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 
 /**
@@ -79,7 +79,7 @@ function deleteRole() {
       method: "delete",
     })
     .then(() => {
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {

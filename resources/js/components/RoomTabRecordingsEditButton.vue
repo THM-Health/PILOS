@@ -4,12 +4,12 @@
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"
-    @click="showEditModal"
+    @click="showModal"
   />
 
   <!-- edit recording modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
@@ -38,7 +38,7 @@
           :label="$t('app.cancel')"
           severity="secondary"
           :disabled="isLoadingAction"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -168,7 +168,7 @@ const settingsStore = useSettingsStore();
 const toast = useToast();
 const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const newDescription = ref(null);
 const newFormats = ref([]);
 const newAccess = ref(null);
@@ -190,12 +190,12 @@ const charactersLeftDescription = computed(() => {
 /**
  * show modal to edit recording
  */
-function showEditModal() {
+function showModal() {
   newDescription.value = props.description;
   newFormats.value = _.cloneDeep(props.formats);
   newAccess.value = props.access;
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -218,7 +218,7 @@ function save() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("edited");
     })
     .catch((error) => {
@@ -227,7 +227,7 @@ function save() {
         // recording not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
           toast.error(t("rooms.flash.recording_gone"));
-          showModal.value = false;
+          modalVisible.value = false;
           emit("notFound");
           return;
         }

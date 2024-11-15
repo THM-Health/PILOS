@@ -1,7 +1,7 @@
 <template>
   <!-- bulk add new user modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-members-bulk-import-dialog"
     modal
     :header="$t('rooms.members.bulk_import_users')"
@@ -208,7 +208,7 @@ const emit = defineEmits(["imported"]);
 const step = ref(0);
 const rawList = ref("");
 const newUsersRole = ref(1);
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 const validUsers = ref([]);
 const invalidUsers = ref([]);
@@ -220,24 +220,24 @@ const api = useApi();
 const { t } = useI18n();
 
 defineExpose({
-  openModal,
+  showModal,
 });
 
 /**
  * show modal to bulk import users
  */
-function openModal() {
+function showModal() {
   step.value = 0;
   rawList.value = "";
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
  * close modal to bulk import users
  */
 function finish() {
-  showModal.value = false;
+  modalVisible.value = false;
 }
 
 /**

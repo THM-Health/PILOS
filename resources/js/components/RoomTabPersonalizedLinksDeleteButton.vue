@@ -6,12 +6,12 @@
     :disabled="disabled"
     icon="fa-solid fa-trash"
     :aria-label="$t('rooms.tokens.delete')"
-    @click="showDeleteModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.tokens.delete')"
     :style="{ width: '500px' }"
@@ -27,7 +27,7 @@
           :label="$t('app.no')"
           severity="secondary"
           :disabled="isLoadingAction"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -51,8 +51,11 @@
 </template>
 
 <script setup>
+import env from "../env";
 import { useApi } from "../composables/useApi.js";
 import { ref } from "vue";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   roomId: {
@@ -77,18 +80,20 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 
 const api = useApi();
+const toast = useToast();
+const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /**
  * show modal
  */
-function showDeleteModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 
 /**
@@ -105,10 +110,20 @@ function deleteToken() {
     .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {
+      // deleting failed
+      if (error.response) {
+        // token not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          toast.error(t("rooms.flash.token_gone"));
+          showModal.value = false;
+          emit("notFound");
+          return;
+        }
+      }
       api.error(error, { noRedirectOnUnauthenticated: true });
     })
     .finally(() => {

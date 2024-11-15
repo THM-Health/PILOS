@@ -4,12 +4,12 @@
     :aria-label="$t('rooms.recordings.view_recording')"
     icon="fa-solid fa-eye"
     :disabled="props.disabled"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <!-- view recording modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
@@ -39,7 +39,7 @@
           severity="secondary"
           icon="fa-solid fa-times"
           :disabled="isLoadingAction"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
       </div>
     </template>
@@ -116,7 +116,7 @@ const props = defineProps({
 const emit = defineEmits(["invalidCode", "invalidToken", "notFound"]);
 
 const isLoadingAction = ref(false);
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 const api = useApi();
 const toast = useToast();
