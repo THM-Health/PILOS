@@ -12,16 +12,20 @@
       <i class="fa-solid fa-caret-down ml-2"></i>
     </span>
   </Button>
-  <ul
+  <div
     v-if="dropdown"
     ref="dropdownMenu"
-    v-on-click-outside="onClickOutsideHandler"
     :style="floatingStyles"
-    class="shadow-0 right absolute z-10 m-0 w-60 w-full origin-top cursor-pointer list-none border border-surface-50 bg-white px-1 py-0 shadow rounded-border dark:border-surface-800 dark:bg-surface-900"
-    @click="closeDropdown"
+    class="absolute z-10 w-full px-4 max-sm:!left-0 sm:w-60 sm:px-0"
   >
-    <slot />
-  </ul>
+    <ul
+      v-on-click-outside="onClickOutsideHandler"
+      class="origin-top cursor-pointer list-none border border-surface-50 bg-white px-1 shadow rounded-border dark:border-surface-800 dark:bg-surface-900"
+      @click="closeDropdown"
+    >
+      <slot />
+    </ul>
+  </div>
 </template>
 
 <script setup>
@@ -44,6 +48,7 @@ function closeDropdown() {
 }
 
 const { floatingStyles } = useFloating(dropdownButton, dropdownMenu, {
+  transform: false,
   middleware: [
     autoPlacement({
       allowedPlacements: ["bottom-start", "bottom-end"],

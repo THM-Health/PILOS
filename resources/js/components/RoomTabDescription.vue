@@ -24,7 +24,7 @@
       />
     </div>
 
-    <OverlayComponent :show="isBusy">
+    <OverlayComponent :show="isBusy" :z-index="20">
       <div v-if="!editorOpen">
         <RoomTabDescriptionViewer
           v-if="room.description !== null"
