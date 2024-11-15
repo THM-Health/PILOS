@@ -65,7 +65,7 @@
     "lodash": "^4.17.19",
     "mitt": "^3.0.1",
     "pinia": "^2.2.6",
-    "postcss": "^8.4.45",
+    "postcss": "^8.4.49",
     "primeicons": "^7.0.0",
     "primevue": "^4.1.1",
     "sass": "^1.80.6",
