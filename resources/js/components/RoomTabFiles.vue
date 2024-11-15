@@ -264,7 +264,7 @@
                     :require-terms-of-use-acceptance="
                       !downloadAgreement && requireAgreement
                     "
-                    @file-not-found="loadData()"
+                    @not-found="loadData()"
                     @invalid-code="emit('invalidCode')"
                     @invalid-token="emit('invalidToken')"
                   />
@@ -278,7 +278,7 @@
                     :default="defaultFile?.id === item.id"
                     :disabled="isBusy"
                     @edited="loadData()"
-                    @deleted="loadData()"
+                    @not-found="loadData()"
                   />
                   <RoomTabFilesDeleteButton
                     v-if="userPermissions.can('manageSettings', props.room)"
@@ -287,6 +287,7 @@
                     :filename="item.filename"
                     :disabled="isBusy"
                     @deleted="loadData()"
+                    @not-found="loadData()"
                   />
                 </div>
               </div>

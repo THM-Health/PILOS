@@ -128,7 +128,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edited"]);
+const emit = defineEmits(["edited", "gone"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
@@ -170,7 +170,7 @@ function save() {
       if (error.response) {
         // user not found
         if (error.response.status === env.HTTP_GONE) {
-          emit("edited");
+          emit("gone");
           modalVisible.value = false;
         }
         // failed due to form validation errors
