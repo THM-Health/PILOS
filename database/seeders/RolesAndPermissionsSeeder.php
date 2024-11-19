@@ -104,7 +104,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::setIncludedPermissions('users.create', ['users.updateOwnAttributes', 'users.update', 'users.view', 'users.viewAny', 'roles.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('users.update', ['users.updateOwnAttributes', 'users.view', 'users.viewAny', 'roles.viewAny', 'admin.view']);
         Permission::setIncludedPermissions('users.view', ['users.viewAny', 'roles.viewAny', 'admin.view']);
-        Permission::setIncludedPermissions('users.viewAny', ['admin.view']);
+        Permission::setIncludedPermissions('users.viewAny', ['admin.view', 'roles.viewAny']);
 
         Permission::setIncludedPermissions('roomTypes.delete', ['roomTypes.create', 'roomTypes.update', 'roomTypes.view', 'serverPools.viewAny', 'admin.view', 'roles.viewAny']);
         Permission::setIncludedPermissions('roomTypes.create', ['roomTypes.update', 'roomTypes.view', 'serverPools.viewAny', 'admin.view', 'roles.viewAny']);
