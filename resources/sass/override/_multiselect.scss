@@ -127,16 +127,20 @@
 }
 
 .p-inputgroup > .multiselect .multiselect__tags {
-    border-radius: 0;
+    border-radius: 0 !important;
     margin: 0;
 }
 
 .p-inputgroup .multiselect:first-child .multiselect__tags {
-    border-top-left-radius: var(--p-inputgroup-addon-border-radius);
-    border-bottom-left-radius: var(--p-inputgroup-addon-border-radius);
+    border-top-left-radius: var(--p-inputgroup-addon-border-radius) !important;
+    border-bottom-left-radius: var(
+        --p-inputgroup-addon-border-radius
+    ) !important;
 }
 
 .p-inputgroup .multiselect:last-child .multiselect__tags {
-    border-top-right-radius: var(--p-inputgroup-addon-border-radius);
-    border-bottom-right-radius: var(--p-inputgroup-addon-border-radius);
+    border-top-right-radius: var(--p-inputgroup-addon-border-radius) !important;
+    border-bottom-right-radius: var(
+        --p-inputgroup-addon-border-radius
+    ) !important;
 }
