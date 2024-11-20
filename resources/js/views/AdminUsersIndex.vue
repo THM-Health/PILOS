@@ -321,7 +321,7 @@ function loadRoles(page = 1) {
     .catch((error) => {
       rolesMultiselectRef.value.deactivate();
       rolesLoadingError.value = true;
-      error(error, this.$root, error.message);
+      api.error(error);
     })
     .finally(() => {
       rolesLoading.value = false;
