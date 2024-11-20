@@ -96,13 +96,14 @@
               :on-label="$t('rooms.index.show_all')"
               :off-label="$t('rooms.index.show_all')"
               @change="loadRooms(1)"
+              :disabled="loadingRooms"
             >
             </ToggleButton>
             <SelectButton
               v-if="!roomFilterAll && !onlyShowFavorites"
               v-model="roomFilter"
               :options="filterOptions"
-              :disabled="onlyShowFavorites"
+              :disabled="onlyShowFavorites || loadingRooms"
               option-label="name"
               option-value="value"
               multiple
