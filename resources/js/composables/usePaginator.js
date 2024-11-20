@@ -1,4 +1,4 @@
-import { nextTick, ref } from 'vue';
+import { nextTick, ref } from "vue";
 
 class Paginator {
   meta = ref({
@@ -8,7 +8,7 @@ class Paginator {
     per_page: 0,
     to: 0,
     total: 0,
-    total_no_filter: 0
+    total_no_filter: 0,
   });
 
   lastSuccessfulFrom = ref(0);
@@ -18,7 +18,7 @@ class Paginator {
    * @param meta server response pagination metadata
    * @return {Promise<void>}
    */
-  async updateMeta (meta) {
+  async updateMeta(meta) {
     meta.from = Math.max(meta.from - 1, 0);
     this.meta.value.from = meta.from;
     this.lastSuccessfulFrom.value = meta.from;
@@ -31,7 +31,7 @@ class Paginator {
    * Can be smaller than the total amount, due to applied filters
    * @return {number}
    */
-  getTotalRecords () {
+  getTotalRecords() {
     return this.meta.value.total;
   }
 
@@ -39,7 +39,7 @@ class Paginator {
    * Request has no data, regardless of a filter
    * @return {boolean}
    */
-  isEmptyUnfiltered () {
+  isEmptyUnfiltered() {
     return this.meta.value.total_no_filter === 0;
   }
 
@@ -47,7 +47,7 @@ class Paginator {
    * Current page is out of range of available pages
    * @return {boolean}
    */
-  isOutOfRange () {
+  isOutOfRange() {
     return this.meta.value.current_page > this.meta.value.last_page;
   }
 
@@ -55,7 +55,7 @@ class Paginator {
    * Last possible page
    * @return {number}
    */
-  getLastPage () {
+  getLastPage() {
     return this.meta.value.last_page;
   }
 
@@ -63,7 +63,7 @@ class Paginator {
    * Get amount of data present on this page
    * @return {number}
    */
-  getRows () {
+  getRows() {
     return this.meta.value.per_page;
   }
 
@@ -71,15 +71,15 @@ class Paginator {
    * Get index of the first item on the current page, counting from zero
    * @return {number}
    */
-  getFirst () {
+  getFirst() {
     return this.meta.value.from;
   }
 
-  setFirst (first) {
+  setFirst(first) {
     this.meta.value.from = first;
   }
 
-  revertFirst () {
+  revertFirst() {
     this.meta.value.from = this.lastSuccessfulFrom.value;
   }
 
@@ -87,7 +87,7 @@ class Paginator {
    * Get current page
    * @return {number}
    */
-  getCurrentPage () {
+  getCurrentPage() {
     return this.meta.value.current_page;
   }
 
@@ -96,22 +96,23 @@ class Paginator {
    * @param property
    * @return {number}
    */
-  getMetaProperty (property) {
+  getMetaProperty(property) {
     return this.meta.value[property];
   }
 
-  getTemplate () {
+  getTemplate() {
     return {
-      '640px': 'FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink',
-      default: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink'
+      "640px":
+        "FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink",
+      default: "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink",
     };
   }
 
-  getCurrentPageReportTemplate () {
-    return '({currentPage} / {totalPages})';
+  getCurrentPageReportTemplate() {
+    return "({currentPage} / {totalPages})";
   }
 }
 
-export function usePaginator () {
+export function usePaginator() {
   return new Paginator();
 }

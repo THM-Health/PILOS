@@ -10,7 +10,10 @@
       />
     </AdminPanel>
 
-    <AdminPanel :title="$t('auth.change_password')"  v-if="!viewOnly && user.authenticator === 'local' && canChangePassword">
+    <AdminPanel
+      v-if="!viewOnly && user.authenticator === 'local' && canChangePassword"
+      :title="$t('auth.change_password')"
+    >
       <UserTabSecurityPasswordSection
         :user="user"
         @update-user="updateUser"
@@ -18,29 +21,29 @@
       />
     </AdminPanel>
 
-    <AdminPanel :title="$t('auth.sessions.active')" v-if="isOwnUser">
+    <AdminPanel v-if="isOwnUser" :title="$t('auth.sessions.active')">
       <UserTabSecuritySessionsSection />
     </AdminPanel>
   </div>
 </template>
 
 <script setup>
-import { useSettingsStore } from '../stores/settings';
-import { useAuthStore } from '../stores/auth';
-import { computed } from 'vue';
+import { useSettingsStore } from "../stores/settings";
+import { useAuthStore } from "../stores/auth";
+import { computed } from "vue";
 
 const props = defineProps({
   user: {
     type: Object,
-    required: true
+    required: true,
   },
   viewOnly: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['staleError', 'updateUser', 'notFoundError']);
+const emit = defineEmits(["staleError", "updateUser", "notFoundError"]);
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
@@ -50,18 +53,20 @@ const isOwnUser = computed(() => {
 });
 
 const canChangePassword = computed(() => {
-  return !isOwnUser.value || settingsStore.getSetting('user.password_change_allowed');
+  return (
+    !isOwnUser.value || settingsStore.getSetting("user.password_change_allowed")
+  );
 });
 
-function handleStaleError (error) {
-  emit('staleError', error);
+function handleStaleError(error) {
+  emit("staleError", error);
 }
 
-function updateUser (user) {
-  emit('updateUser', user);
+function updateUser(user) {
+  emit("updateUser", user);
 }
 
-function handleNotFoundError (error) {
-  emit('notFoundError', error);
+function handleNotFoundError(error) {
+  emit("notFoundError", error);
 }
 </script>

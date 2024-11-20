@@ -1,30 +1,34 @@
-import { defineStore } from 'pinia';
-import _ from 'lodash';
-import { useApi } from '../composables/useApi.js';
-import { setToastLifetime } from '../composables/useToast';
-import { updateTheme } from '../composables/useTheme';
+import { defineStore } from "pinia";
+import _ from "lodash";
+import { useApi } from "../composables/useApi.js";
+import { setToastLifetime } from "../composables/useToast";
+import { updateTheme } from "../composables/useTheme";
 
-export const useSettingsStore = defineStore('settings', {
+export const useSettingsStore = defineStore("settings", {
   state: () => {
     return {
-      settings: null
+      settings: null,
     };
   },
   getters: {
     getSetting: (state) => {
-      return (setting) => _.isEmpty(state.settings) ? undefined : _.get(state.settings, setting);
-    }
+      return (setting) =>
+        _.isEmpty(state.settings) ? undefined : _.get(state.settings, setting);
+    },
   },
   actions: {
-    async getSettings () {
+    async getSettings() {
       const api = useApi();
 
-      const response = await api.call('config');
+      const response = await api.call("config");
       this.settings = response.data.data;
 
       setToastLifetime(this.settings.general.toast_lifetime);
 
-      updateTheme(this.settings.theme.primary_color, this.settings.theme.rounded);
-    }
-  }
+      updateTheme(
+        this.settings.theme.primary_color,
+        this.settings.theme.rounded,
+      );
+    },
+  },
 });

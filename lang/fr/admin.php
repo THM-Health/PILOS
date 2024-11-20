@@ -327,6 +327,7 @@ return [
             'title' => 'Nom de l\'application',
         ],
         'never' => 'Jamais',
+        'no_welcome_page' => 'Masquer la page de bienvenue',
         'one_day' => '1 jour (24 heures)',
         'one_month' => '1 mois (30 jours)',
         'one_week' => '1 semaine (7 jours)',
@@ -360,6 +361,10 @@ return [
                 'description' => 'Salles créées avant la période d\'inactivté mais qui n\'ont jamais été utilisées',
                 'title' => 'Période jusqu\'à ce que les salles jamais utilisées soient supprimées',
             ],
+        ],
+        'room_file_terms_of_use' => [
+            'description' => 'Les utilisateurs doivent accepter les conditions d\'utilisation afin de télécharger les fichiers. Si le champ est vide, aucun consentement ne sera requis.',
+            'title' => 'Conditions d\'utilisation du téléchargement de fichiers',
         ],
         'room_limit' => [
             'description' => 'Limiter le nombre de salles qu\'un utilisateur peut avoir. Ce paramètre est écraser par les limites spécifiques d\'un groupe.',

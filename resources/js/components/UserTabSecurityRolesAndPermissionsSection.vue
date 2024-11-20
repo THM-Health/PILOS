@@ -1,18 +1,23 @@
 <template>
   <div>
-    <form @submit="save" v-if="model" class="flex flex-col gap-4">
-
+    <form v-if="model" class="flex flex-col gap-4" @submit="save">
       <div class="field grid grid-cols-12 gap-4" data-test="roles-field">
-        <label id="roles-label" class="col-span-12 mb-2 md:col-span-3 md:mb-0">{{ $t('app.roles') }}</label>
+        <label
+          id="roles-label"
+          class="col-span-12 mb-2 md:col-span-3 md:mb-0"
+          >{{ $t("app.roles") }}</label
+        >
         <div class="col-span-12 md:col-span-9">
           <RoleSelect
-            aria-labelledby="roles-label"
             v-model="model.roles"
+            aria-labelledby="roles-label"
             :invalid="formErrors.fieldInvalid('roles', true)"
-            :disabled="isBusy || viewOnly || !userPermissions.can('editUserRole', model)"
+            :disabled="
+              isBusy || viewOnly || !userPermissions.can('editUserRole', model)
+            "
             :disabled-roles="disabledRoles"
-            @loading-error="(value) => rolesLoadingError = value"
-            @busy="(value) => rolesLoading = value"
+            @loading-error="(value) => (rolesLoadingError = value)"
+            @busy="(value) => (rolesLoading = value)"
           />
           <FormError :errors="formErrors.fieldError('roles')" />
         </div>
@@ -32,25 +37,25 @@
 </template>
 
 <script setup>
-import env from '../env';
-import _ from 'lodash';
-import { computed, onMounted, ref, watch } from 'vue';
-import { useUserPermissions } from '../composables/useUserPermission.js';
-import { useApi } from '../composables/useApi.js';
-import { useFormErrors } from '../composables/useFormErrors.js';
+import env from "../env";
+import _ from "lodash";
+import { computed, onBeforeMount, ref, watch } from "vue";
+import { useUserPermissions } from "../composables/useUserPermission.js";
+import { useApi } from "../composables/useApi.js";
+import { useFormErrors } from "../composables/useFormErrors.js";
 
 const props = defineProps({
   viewOnly: {
     type: Boolean,
-    default: false
+    default: false,
   },
   user: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const emit = defineEmits(['staleError', 'updateUser', 'notFoundError']);
+const emit = defineEmits(["staleError", "updateUser", "notFoundError"]);
 
 const userPermissions = useUserPermissions();
 const api = useApi();
@@ -65,17 +70,23 @@ const disabledRoles = computed(() => {
   if (!model.value.roles) {
     return [];
   }
-  return model.value.roles.filter(role => role.automatic).map(role => role.id);
+  return model.value.roles
+    .filter((role) => role.automatic)
+    .map((role) => role.id);
 });
 
 /**
  * When the user changes, the model is updated and the roles are reloaded.
  */
-watch(() => props.user, (user) => {
-  model.value = _.cloneDeep(user);
-}, { deep: true });
+watch(
+  () => props.user,
+  (user) => {
+    model.value = _.cloneDeep(user);
+  },
+  { deep: true },
+);
 
-onMounted(() => {
+onBeforeMount(() => {
   model.value = _.cloneDeep(props.user);
 });
 
@@ -83,34 +94,44 @@ onMounted(() => {
  * Saves the changes of the user to the database by making a api call.
  *
  */
-function save (event) {
+function save(event) {
   if (event) {
     event.preventDefault();
   }
   isBusy.value = true;
   formErrors.clear();
 
-  api.call('users/' + model.value.id, {
-    method: 'put',
-    data: {
-      roles: model.value.roles.map(role => role.id),
-      updated_at: model.value.updated_at
-    }
-  }).then(response => {
-    emit('updateUser', response.data.data);
-  }).catch(error => {
-    if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-      emit('notFoundError', error);
-    } else if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-      formErrors.set(error.response.data.errors);
-    } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-      // Stale error
-      emit('staleError', error.response.data);
-    } else {
-      api.error(error);
-    }
-  }).finally(() => {
-    isBusy.value = false;
-  });
+  api
+    .call("users/" + model.value.id, {
+      method: "put",
+      data: {
+        roles: model.value.roles.map((role) => role.id),
+        updated_at: model.value.updated_at,
+      },
+    })
+    .then((response) => {
+      emit("updateUser", response.data.data);
+    })
+    .catch((error) => {
+      if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        emit("notFoundError", error);
+      } else if (
+        error.response &&
+        error.response.status === env.HTTP_UNPROCESSABLE_ENTITY
+      ) {
+        formErrors.set(error.response.data.errors);
+      } else if (
+        error.response &&
+        error.response.status === env.HTTP_STALE_MODEL
+      ) {
+        // Stale error
+        emit("staleError", error.response.data);
+      } else {
+        api.error(error);
+      }
+    })
+    .finally(() => {
+      isBusy.value = false;
+    });
 }
 </script>

@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "name": "John Doe",
+      "email": null,
+      "duration": 4,
+      "sessions": [
+        {
+          "id": 7,
+          "join": "2021-06-18T07:41:03.000000Z",
+          "leave": "2021-06-18T07:45:32.000000Z",
+          "duration": 4
+        }
+      ]
+    },
+    {
+      "name": "Max Doe",
+      "email": "max.doe@domain.tld",
+      "duration": 33,
+      "sessions": [
+        {
+          "id": 4,
+          "join": "2021-06-18T07:13:49.000000Z",
+          "leave": "2021-06-18T07:42:08.000000Z",
+          "duration": 28
+        },
+        {
+          "id": 5,
+          "join": "2021-06-18T07:44:12.000000Z",
+          "leave": "2021-06-18T07:49:54.000000Z",
+          "duration": 5
+        }
+      ]
+    }
+  ]
+}

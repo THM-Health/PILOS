@@ -6,40 +6,50 @@
         <label :for="`${props.id}-email`">{{ props.emailLabel }}</label>
         <InputText
           :id="`${props.id}-email`"
-          type="text"
           v-model="email"
+          type="text"
           autocomplete="email"
           :placeholder="props.emailLabel"
           aria-describedby="email-help-block"
-          :invalid="props.errors !== null && props.errors.email && props.errors.email.length > 0"
+          :invalid="
+            props.errors !== null &&
+            props.errors.email &&
+            props.errors.email.length > 0
+          "
           required
         />
         <FormError :errors="props.errors?.email" />
       </div>
 
-      <div class="flex flex-col gap-2 mt-6">
+      <div class="mt-6 flex flex-col gap-2">
         <label :for="`${props.id}-password`">{{ props.passwordLabel }}</label>
         <Password
-          :input-id="`${props.id}-password`"
           v-model="password"
+          :input-id="`${props.id}-password`"
           autocomplete="current-password"
           :feedback="false"
-          toggleMask
+          toggle-mask
           required
           fluid
           :placeholder="props.passwordLabel"
           aria-describedby="password-help-block"
-          :state="props.errors !== null && props.errors.password && props.errors.password.length > 0 ? false: null"
+          :state="
+            props.errors !== null &&
+            props.errors.password &&
+            props.errors.password.length > 0
+              ? false
+              : null
+          "
         />
         <Button
-          as="router-link"
-          id="password-help-block"
           v-if="settingsStore.getSetting('user.password_change_allowed')"
+          id="password-help-block"
+          as="router-link"
           link
           class="self-start p-0"
           to="/forgot_password"
         >
-          {{ $t('auth.forgot_password') }}
+          {{ $t("auth.forgot_password") }}
         </Button>
         <FormError :errors="props.errors?.password" />
       </div>
@@ -57,52 +67,54 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useSettingsStore } from '../stores/settings';
-import FormError from './FormError.vue';
+import { ref } from "vue";
+import { useSettingsStore } from "../stores/settings";
+import FormError from "./FormError.vue";
 
 const settingsStore = useSettingsStore();
 
-const emit = defineEmits(['submit']);
+const emit = defineEmits(["submit"]);
 const props = defineProps({
   errors: {
-    type: Object
+    type: [Object, null],
+    required: true,
+    default: null,
   },
   id: {
     type: String,
-    required: true
+    required: true,
   },
   loading: {
-    type: Boolean
+    type: Boolean,
   },
   passwordLabel: {
     type: String,
-    required: true
+    required: true,
   },
   submitLabel: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   emailLabel: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const email = ref('');
-const password = ref('');
+const email = ref("");
+const password = ref("");
 
-function submit () {
-  emit('submit', {
+function submit() {
+  emit("submit", {
     id: props.id,
     data: {
       email: email.value,
-      password: password.value
-    }
+      password: password.value,
+    },
   });
 }
 </script>

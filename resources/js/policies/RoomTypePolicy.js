@@ -8,7 +8,7 @@ export default {
    * @param user
    * @return {boolean}
    */
-  viewAny (user) {
+  viewAny(user) {
     return !!user;
   },
 
@@ -18,8 +18,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  create (user) {
-    return !user ? false : user.permissions.includes('roomTypes.create');
+  create(user) {
+    return !user ? false : user.permissions.includes("roomTypes.create");
   },
 
   /**
@@ -28,8 +28,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  view (user) {
-    return !user ? false : user.permissions.includes('roomTypes.view');
+  view(user) {
+    return !user ? false : user.permissions.includes("roomTypes.view");
   },
 
   /**
@@ -38,8 +38,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  update (user) {
-    return !user ? false : user.permissions.includes('roomTypes.update');
+  update(user) {
+    return !user ? false : user.permissions.includes("roomTypes.update");
   },
 
   /**
@@ -48,7 +48,7 @@ export default {
    * @param user
    * @return {boolean}
    */
-  delete (user) {
-    return !user ? false : user.permissions.includes('roomTypes.delete');
-  }
+  delete(user) {
+    return !user ? false : user.permissions.includes("roomTypes.delete");
+  },
 };

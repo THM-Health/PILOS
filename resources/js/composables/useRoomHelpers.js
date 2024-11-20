@@ -1,6 +1,6 @@
-import { watch } from 'vue';
-import _ from 'lodash';
-export function onRoomHasChanged (room, callback) {
+import { watch } from "vue";
+import _ from "lodash";
+export function onRoomHasChanged(room, callback) {
   watch(room, (newRoom, oldRoom) => {
     if (newRoom?.owner?.id !== oldRoom?.owner?.id) {
       return callback();

@@ -1,12 +1,15 @@
 /** @type {import('tailwindcss').Config} */
+
+import { sansFontFamily } from "./resources/js/font.js";
+
 export default {
-  content: [
-    './resources/**/*.blade.php',
-    './resources/js/**/*.vue'
-  ],
-  darkMode: ['selector'],
+  content: ["./resources/**/*.blade.php", "./resources/js/**/*.vue"],
+  darkMode: ["selector"],
   theme: {
-    extend: {}
+    fontFamily: {
+      sans: sansFontFamily,
+    },
+    extend: {},
   },
-  plugins: [require('tailwindcss-primeui')]
+  plugins: [require("tailwindcss-primeui")],
 };

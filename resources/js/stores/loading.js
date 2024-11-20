@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia';
-import { useAuthStore } from './auth';
-import { useSettingsStore } from './settings';
+import { defineStore } from "pinia";
+import { useAuthStore } from "./auth";
+import { useSettingsStore } from "./settings";
 
-export const useLoadingStore = defineStore('loading', {
+export const useLoadingStore = defineStore("loading", {
   state: () => {
     return {
       initialized: false,
@@ -18,11 +18,11 @@ export const useLoadingStore = defineStore('loading', {
        *
        * This counter can be used for a global overlay over the whole page without unmounting
        */
-      overlayLoadingCounter: 0
+      overlayLoadingCounter: 0,
     };
   },
   actions: {
-    async initialize () {
+    async initialize() {
       const auth = useAuthStore();
       const settings = useSettingsStore();
 
@@ -35,20 +35,20 @@ export const useLoadingStore = defineStore('loading', {
       this.setLoadingFinished();
     },
 
-    setLoading () {
+    setLoading() {
       this.loadingCounter++;
     },
 
-    setLoadingFinished () {
+    setLoadingFinished() {
       this.loadingCounter = Math.max(0, this.loadingCounter - 1);
     },
 
-    setOverlayLoading () {
+    setOverlayLoading() {
       this.overlayLoadingCounter++;
     },
 
-    setOverlayLoadingFinished () {
+    setOverlayLoadingFinished() {
       this.overlayLoadingCounter = Math.max(0, this.overlayLoadingCounter - 1);
-    }
-  }
+    },
+  },
 });

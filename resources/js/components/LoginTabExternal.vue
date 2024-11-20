@@ -13,20 +13,18 @@
 </template>
 
 <script setup>
-
 const props = defineProps({
   redirectLabel: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   redirectUrl: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
-
 </script>

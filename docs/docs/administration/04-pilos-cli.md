@@ -29,12 +29,12 @@ docker compose exec app pilos-cli frontend:build
 ### playback-player\:build
 
 Build the BigBlueButton recording player with the release version you want.
+
 ```bash
 docker compose exec app pilos-cli playback-player:build 5.0.2
 ```
 
 See [Recording](./08-advanced/02-recording.md#update-the-bigbluebutton-recording-player) for more information.
-
 
 ### locales\:cache
 
@@ -96,6 +96,7 @@ docker compose exec app mysql
 Using this method you can also export the database with the `mysqldump` or `pg_dump` commands.
 
 ## More commands
+
 To list all available artisan commands, you can run the following command:
 
 ```bash

@@ -8,8 +8,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  viewAny (user) {
-    return !user ? false : user.permissions.includes('serverPools.viewAny');
+  viewAny(user) {
+    return !user ? false : user.permissions.includes("serverPools.viewAny");
   },
 
   /**
@@ -18,8 +18,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  create (user) {
-    return !user ? false : user.permissions.includes('serverPools.create');
+  create(user) {
+    return !user ? false : user.permissions.includes("serverPools.create");
   },
 
   /**
@@ -28,8 +28,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  view (user) {
-    return !user ? false : user.permissions.includes('serverPools.view');
+  view(user) {
+    return !user ? false : user.permissions.includes("serverPools.view");
   },
 
   /**
@@ -38,8 +38,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  update (user) {
-    return !user ? false : user.permissions.includes('serverPools.update');
+  update(user) {
+    return !user ? false : user.permissions.includes("serverPools.update");
   },
 
   /**
@@ -48,7 +48,7 @@ export default {
    * @param user
    * @return {boolean}
    */
-  delete (user) {
-    return !user ? false : user.permissions.includes('serverPools.delete');
-  }
+  delete(user) {
+    return !user ? false : user.permissions.includes("serverPools.delete");
+  },
 };

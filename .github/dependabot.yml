@@ -13,11 +13,11 @@ updates:
     groups:
       tiptap:
         patterns:
-        - "@tiptap*"
+          - "@tiptap*"
       primevue:
         patterns:
-        - "primevue*"
-        - "@primevue*"
+          - "primevue*"
+          - "@primevue*"
 
   # Maintain dependencies for Composer
   - package-ecosystem: "composer"

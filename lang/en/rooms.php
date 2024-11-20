@@ -139,6 +139,7 @@ return [
         'recording_forbidden' => 'The access to the requested recording has been denied.',
         'recording_gone' => 'The recording has been deleted in the meantime.',
         'start_forbidden' => 'The room could not be started by you.',
+        'token_gone' => 'The personalised room link has been deleted in the meantime.',
         'token_invalid' => 'The personalised room link is no longer valid.',
     ],
     'index' => [

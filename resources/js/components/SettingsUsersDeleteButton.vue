@@ -1,83 +1,109 @@
 <template>
   <Button
-    v-tooltip="$t('admin.users.delete.item', { firstname: props.firstname, lastname: props.lastname })"
-    :aria-label="$t('admin.users.delete.item', { firstname: props.firstname, lastname: props.lastname })"
+    v-tooltip="
+      $t('admin.users.delete.item', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
+    :aria-label="
+      $t('admin.users.delete.item', {
+        firstname: props.firstname,
+        lastname: props.lastname,
+      })
+    "
     :disabled="isBusy"
     severity="danger"
-    @click="showDeleteModal"
     icon="fa-solid fa-trash"
+    @click="showModal"
   />
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('admin.users.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
-    :closeOnEscape="!isBusy"
-    :dismissableMask="!isBusy"
+    :close-on-escape="!isBusy"
+    :dismissable-mask="!isBusy"
     :closeable="!isBusy"
-    :draggable = false
+    :draggable="false"
   >
     <span>
-      {{ $t('admin.users.delete.confirm', { firstname: props.firstname, lastname: props.lastname }) }}
+      {{
+        $t("admin.users.delete.confirm", {
+          firstname: props.firstname,
+          lastname: props.lastname,
+        })
+      }}
     </span>
     <template #footer>
-      <Button :label="$t('app.no')" severity="secondary" @click="showModal = false"/>
-      <Button :label="$t('app.yes')" severity="danger" :loading="isBusy" @click="deleteUser"/>
+      <Button
+        :label="$t('app.no')"
+        severity="secondary"
+        @click="modalVisible = false"
+      />
+      <Button
+        :label="$t('app.yes')"
+        severity="danger"
+        :loading="isBusy"
+        @click="deleteUser"
+      />
     </template>
-
   </Dialog>
 </template>
 
 <script setup>
-
-import { ref } from 'vue';
-import { useApi } from '../composables/useApi.js';
+import { ref } from "vue";
+import { useApi } from "../composables/useApi.js";
 
 const api = useApi();
 
 const props = defineProps({
   id: {
     type: Number,
-    required: true
+    required: true,
   },
   firstname: {
     type: String,
-    required: true
+    required: true,
   },
   lastname: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const emit = defineEmits(['deleted']);
-const showModal = ref(false);
+const emit = defineEmits(["deleted"]);
+const modalVisible = ref(false);
 const isBusy = ref(false);
 
 /**
  * Shows the delete modal
  *
  */
-function showDeleteModal () {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 
 /**
  * Deletes the user
  *
  */
-function deleteUser () {
+function deleteUser() {
   isBusy.value = true;
-  api.call(`users/${props.id}`, {
-    method: 'delete'
-  }).then(() => {
-    showModal.value = false;
-    emit('deleted');
-  }).catch(error => {
-    api.error(error);
-  }).finally(() => {
-    isBusy.value = false;
-  });
+  api
+    .call(`users/${props.id}`, {
+      method: "delete",
+    })
+    .then(() => {
+      modalVisible.value = false;
+      emit("deleted");
+    })
+    .catch((error) => {
+      api.error(error);
+    })
+    .finally(() => {
+      isBusy.value = false;
+    });
 }
 </script>

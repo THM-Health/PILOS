@@ -9,7 +9,7 @@ export default class PolicyDoesNotExistsError extends Error {
    * @param method {String} Method of the missing policy was tried to call.
    * @return undefined
    */
-  constructor (policy, method) {
+  constructor(policy, method) {
     super(`The policy method '${policy}.${method}' doesn't exists!`);
   }
 }

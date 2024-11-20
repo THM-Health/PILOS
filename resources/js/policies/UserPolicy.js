@@ -8,8 +8,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  viewAny (user) {
-    return !user ? false : user.permissions.includes('users.viewAny');
+  viewAny(user) {
+    return !user ? false : user.permissions.includes("users.viewAny");
   },
 
   /**
@@ -19,14 +19,14 @@ export default {
    * @param model
    * @return {boolean}
    */
-  view (user, model) {
+  view(user, model) {
     if (!user) {
       return false;
     } else if (model.id === user.id) {
       return true;
     }
 
-    return user.permissions.includes('users.view');
+    return user.permissions.includes("users.view");
   },
 
   /**
@@ -35,8 +35,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  create (user) {
-    return !user ? false : user.permissions.includes('users.create');
+  create(user) {
+    return !user ? false : user.permissions.includes("users.create");
   },
 
   /**
@@ -46,14 +46,14 @@ export default {
    * @param model
    * @return {boolean}
    */
-  update (user, model) {
+  update(user, model) {
     if (!user) {
       return false;
     } else if (model.id === user.id) {
       return true;
     }
 
-    return user.permissions.includes('users.update');
+    return user.permissions.includes("users.update");
   },
 
   /**
@@ -63,8 +63,10 @@ export default {
    * @param model
    * @return {boolean}
    */
-  delete (user, model) {
-    return !user ? false : user.permissions.includes('users.delete') && model.id !== user.id;
+  delete(user, model) {
+    return !user
+      ? false
+      : user.permissions.includes("users.delete") && model.id !== user.id;
   },
 
   /**
@@ -75,8 +77,10 @@ export default {
    * @param model
    * @return {boolean}
    */
-  editUserRole (user, model) {
-    return !user ? false : user.permissions.includes('users.update') && model.id !== user.id;
+  editUserRole(user, model) {
+    return !user
+      ? false
+      : user.permissions.includes("users.update") && model.id !== user.id;
   },
 
   /**
@@ -88,14 +92,16 @@ export default {
    * @param model
    * @return {boolean|boolean|*}
    */
-  updateAttributes (user, model) {
-    if (!user || model.authenticator !== 'local') {
+  updateAttributes(user, model) {
+    if (!user || model.authenticator !== "local") {
       return false;
     }
 
-    return this.update(user, model) &&
-      (user.permissions.includes('users.updateOwnAttributes') ||
-        model.id !== user.id);
+    return (
+      this.update(user, model) &&
+      (user.permissions.includes("users.updateOwnAttributes") ||
+        model.id !== user.id)
+    );
   },
 
   /**
@@ -107,13 +113,15 @@ export default {
    * @param model
    * @return {boolean}
    */
-  resetPassword (user, model) {
-    if (!user || model.authenticator !== 'local') {
+  resetPassword(user, model) {
+    if (!user || model.authenticator !== "local") {
       return false;
     }
 
-    return this.update(user, model) &&
+    return (
+      this.update(user, model) &&
       user.id !== model.id &&
-      !model.initial_password_set;
-  }
+      !model.initial_password_set
+    );
+  },
 };

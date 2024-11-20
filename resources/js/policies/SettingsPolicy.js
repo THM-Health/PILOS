@@ -8,8 +8,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  viewAny (user) {
-    return !user ? false : user.permissions.includes('settings.viewAny');
+  viewAny(user) {
+    return !user ? false : user.permissions.includes("settings.viewAny");
   },
 
   /**
@@ -18,7 +18,7 @@ export default {
    * @param user
    * @return {boolean}
    */
-  update (user) {
-    return !user ? false : user.permissions.includes('settings.update');
-  }
+  update(user) {
+    return !user ? false : user.permissions.includes("settings.update");
+  },
 };

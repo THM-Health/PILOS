@@ -2,7 +2,7 @@ $actionColumButtonGap: 0.5rem;
 $paddingActionColumn: 1rem;
 
 th.action-column {
-    .p-column-header-content{
+    .p-column-header-content {
         justify-content: end;
     }
 }
@@ -14,9 +14,8 @@ td.action-column > div {
     gap: $actionColumButtonGap;
 }
 
-
 .table-auto {
-    table{
+    table {
         table-layout: auto;
 
         th.id-column {
@@ -30,14 +29,20 @@ td.action-column > div {
 }
 
 @media (screen(lg)) {
-     .lg\:table-fixed{
+    .lg\:table-fixed {
         @for $i from 2 through 6 {
             th.action-column-1 {
                 width: 5rem;
             }
 
             th.action-column-#{$i} {
-                width: calc($i * var(--p-button-icon-only-width)  + (($i - 1) * $actionColumButtonGap) + 2 * #{$paddingActionColumn});
+                width: calc(
+                    $i *
+                        var(--p-button-icon-only-width) +
+                        (($i - 1) * $actionColumButtonGap) +
+                        2 *
+                        #{$paddingActionColumn}
+                );
             }
         }
 

@@ -34,8 +34,9 @@ addgroup pilos-spool --gid 2000
 ## Transferring recordings
 
 To transfer the recording files to PILOS you have two options:
-- Shared storage
-- Rsync over ssh
+
+-   Shared storage
+-   Rsync over ssh
 
 ### Shared storage
 
@@ -52,13 +53,15 @@ spool_dir: /mnt/storage/recordings-spool
 ```yaml
 x-docker-pilos-common: &pilos-common
     volumes:
-        - '/mnt/storage/recordings-spool:/var/www/html/storage/recordings-spool'
+        - "/mnt/storage/recordings-spool:/var/www/html/storage/recordings-spool"
 ```
 
 #### Check transfer
+
 Next make sure permissions are correctly set for the shared storage.
 
 **On the PILOS server:**
+
 ```bash
 chown pilos-spool:pilos-spool /mnt/storage/recordings-spool
 chmod 775 /mnt/storage/recordings-spool
@@ -67,11 +70,13 @@ chmod 775 /mnt/storage/recordings-spool
 You can try to create a file in the shared storage from the BBB-Server and check if you can read it from PILOS.
 
 **On the BBB-Server:**
+
 ```bash
 sudo su - bigbluebutton -s /bin/bash -c echo "test" > /mnt/storage/recordings-spool/test.txt
 ```
 
 **On PILOS:**
+
 ```bash
 # Check if the file is readable
 docker compose exec app cat storage/recordings-spool/test.txt
@@ -91,7 +96,6 @@ adduser --disabled-password --ingroup pilos-spool --gecos "" pilos-spool
 
 This user has no password, therefore it can only be used via ssh with key authentication.
 To further secure the transfer, you can later restrict the user to only run the rsync command.
-
 
 **On the BBB server:**
 
@@ -140,6 +144,7 @@ chmod 775 /srv/pilos/storage/recordings-spool/
 ```
 
 #### Check transfer
+
 Next make sure permissions are correctly set for the shared storage.
 
 **On the BBB-Server:**
@@ -151,6 +156,7 @@ su - bigbluebutton -s /bin/bash -c "echo "test" > test.txt && rsync --verbose --
 Notice the `/` at the end of the command, this is the path of the recordings-spool directory on the PILOS server as you restricted the key to only run the rsync command in this directory.
 
 **On PILOS:**
+
 ```bash
 # Check if the file is readable
 docker compose exec app cat storage/recordings-spool/test.txt
@@ -181,12 +187,12 @@ spool_dir: pilos.example.com:/
 ```
 
 ### Cleanup
+
 BigBlueButton processes all recording formats independently of each other.
 However, BigBlueButton only has a command to delete a recording, not a specific format.
 
 We save a sender.done file for a meeting once the first format has been processed.
 You can use [Scalelite's](https://github.com/blindsidenetworks/scalelite/blob/master/bigbluebutton/scalelite_prune_recordings) script to clean up the recordings. However, this can lead to data loss if not all formats have been processed before the cleanup is performed.
-
 
 ## Importing recording
 
@@ -203,48 +209,57 @@ If the import was successful, the archive file will be deleted.
 By default all recording files are only visible to the meeting owner. The owner can change the visibility of the recordings in the UI.
 
 ### Failed imports
+
 If the import failed (extract failed, recording doesn't belong to a room, etc.), the archive file will be moved to the `failed` directory in the spool directory.
 You can check the log files and Horizon for more information. You can also retry the import using Horizon.
 
 ## Config options
 
 ### Customize recording download
+
 Room owners can download the raw recording files for archiving, uploading to other video platforms, etc. The BigBlueButton recording raw files include many files that typical users don't need. Therefore, you can customise which files are included in the download. You can filter the files using a regular expression in the .env file.
 
 In this example, only pdf, ogg, mp4, m4v and webm files are included in the download.
+
 ```shell
 RECORDING_DOWNLOAD_ALLOWLIST='^.*\.(pdf|ogg|mp4|m4v|webm)$'
 ```
 
 ### Max. retention period
+
 Admins can customise the retention period for recordings, after which the system automatically deletes the recordings. This setting can be changed in the application settings on the UI.
 
 You can also set a maximum retention period that cannot be exceeded by the administrators.
 This setting can be defined in the .env file. The value can be either -1 = unlimited or a number of days.
+
 ```shell
 RECORDING_MAX_RETENTION_PERIOD=365
 ```
 
 ### Max. recording description length
+
 Users can change the description of a recording.
 You can limit the length of the description in the .env file.
 The current default value is 1000 characters.
+
 ```shell
 RECORDING_DESCRIPTION_LIMIT=255
 ```
+
 The maximum configurable value is 65,535 characters. As the entire description is displayed in the overview of the recordings, such a high limit is not recommended.
 
 ## Tips and tricks
 
 ### Using a different group id
+
 You can use a different group id for the `pilos-spool` group, but you need to make sure the group id is the same on both systems.
 
 For PILOS to also use the same group id, you need to adjust the `docker-compose.yml` file.
 
 ```yaml
 x-docker-pilos-common: &pilos-common
- environment:
-   PILOS_SPOOL_GID: 5000
+    environment:
+        PILOS_SPOOL_GID: 5000
 ```
 
 ### Using multiple BBB-Servers and PILOS instances
@@ -264,17 +279,21 @@ RECORDING_SPOOL_SUB_DIRECTORY=instance1
 ```
 
 ### Update the BigBlueButton recording player
+
 The BBB Recording Player is included in the Docker container.
 However, it can be upgraded independently of the docker container.
 
 You will need to map the player directory to the host system using docker compose.
+
 ```yaml
 x-docker-pilos-common: &pilos-common
     env_file: .env
     volumes:
-        - './public/playback-player:/var/www/html/public/playback-player'
+        - "./public/playback-player:/var/www/html/public/playback-player"
 ```
+
 Next, use pilos-cli to build the player with the release version you want.
+
 ```bash
 docker compose exec app pilos-cli playback-player:build 5.0.2
 ```

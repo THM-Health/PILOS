@@ -1,68 +1,67 @@
 # For more information: https://laravel.com/docs/sail
-version: '3'
+version: "3"
 
 x-docker-pilos-common: &pilos-common
-  image: '${CONTAINER_IMAGE:-pilos/pilos:latest}'
+  image: "${CONTAINER_IMAGE:-pilos/pilos:latest}"
   env_file: .env
   volumes:
-    - './storage/app:/var/www/html/storage/app'
-    - './storage/recordings:/var/www/html/storage/recordings'
-    - './storage/recordings-spool:/var/www/html/storage/recordings-spool'
-    - './app/Auth/config:/var/www/html/app/Auth/config'
+    - "./storage/app:/var/www/html/storage/app"
+    - "./storage/recordings:/var/www/html/storage/recordings"
+    - "./storage/recordings-spool:/var/www/html/storage/recordings-spool"
+    - "./app/Auth/config:/var/www/html/app/Auth/config"
 services:
-    app:
-        <<: *pilos-common
-        ports:
-          - '127.0.0.1:5000:80'
-        sysctls:
-          net.core.somaxconn: 65536
-          net.ipv4.ip_local_port_range: "2000 65535"
-          net.ipv4.tcp_tw_reuse: 1
-          net.ipv4.tcp_fin_timeout: 30
-        healthcheck:
-          test: curl --fail http://localhost/ping || exit 1
-          interval: 10s
-          retries: 6
-          timeout: 5s
-        depends_on:
-          db:
-            condition: service_healthy
-          redis:
-            condition: service_healthy
-    cron:
-        <<: *pilos-common
-        entrypoint: [ 'pilos-cli', 'run:cron' ]
-        depends_on:
-          app:
-            condition: service_healthy
-    horizon:
-        <<: *pilos-common
-        entrypoint: [ 'pilos-cli', 'run:horizon' ]
-        depends_on:
-          app:
-            condition: service_healthy
-    db:
-      image: 'mariadb:11'
-      environment:
-        MYSQL_DATABASE: '${DB_DATABASE}'
-        MYSQL_USER: '${DB_USERNAME}'
-        MYSQL_PASSWORD: '${DB_PASSWORD}'
-        MYSQL_RANDOM_ROOT_PASSWORD: 'true'
-      volumes:
-        - './db:/var/lib/mysql'
-      healthcheck:
-        test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
-        interval: 5s
-        retries: 12
-        timeout: 5s
-    redis:
-      image: redis:7.2-alpine3.18
-      restart: unless-stopped
-      volumes:
-        - ./redis/data:/data
-      healthcheck:
-        test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-        interval: 5s
-        retries: 12
-        timeout: 5s
-
+  app:
+    <<: *pilos-common
+    ports:
+      - "127.0.0.1:5000:80"
+    sysctls:
+      net.core.somaxconn: 65536
+      net.ipv4.ip_local_port_range: "2000 65535"
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_fin_timeout: 30
+    healthcheck:
+      test: curl --fail http://localhost/ping || exit 1
+      interval: 10s
+      retries: 6
+      timeout: 5s
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  cron:
+    <<: *pilos-common
+    entrypoint: ["pilos-cli", "run:cron"]
+    depends_on:
+      app:
+        condition: service_healthy
+  horizon:
+    <<: *pilos-common
+    entrypoint: ["pilos-cli", "run:horizon"]
+    depends_on:
+      app:
+        condition: service_healthy
+  db:
+    image: "mariadb:11"
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+    volumes:
+      - "./db:/var/lib/mysql"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 12
+      timeout: 5s
+  redis:
+    image: redis:7.2-alpine3.18
+    restart: unless-stopped
+    volumes:
+      - ./redis/data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      retries: 12
+      timeout: 5s

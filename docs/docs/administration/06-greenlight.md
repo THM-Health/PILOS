@@ -3,13 +3,15 @@ title: Comparison to Greenlight
 ---
 
 ## Comparison Greenlight v2 and PILOS v4
+
 We tried our best to create an fair comparison between Greenlight and PILOS. If you think we missed something, please let us know.
 
-Function / Property | Greenlight (v2.11.1) | PILOS (v4.x)
--- | -- | --
+| Function / Property | Greenlight (v2.11.1) | PILOS (v4.x) |
+| ------------------- | -------------------- | ------------ |
+
 **General**
 License | LGPL-3.0 | LGPL-2.1
-Technology stack | Ruby (Ruby on Rails) | API:   PHP (Laravel) Frontend SPA: Vue.js
+Technology stack | Ruby (Ruby on Rails) | API: PHP (Laravel) Frontend SPA: Vue.js
 User documentation | ✅ English | ✅ German ([Documentation](https://thm-health.github.io/PILOS-Docs/),[Source](https://github.com/THM-Health/PILOS-Docs))
 Objective | Simple administration interface for the broadest possible international user spectrum, primarily education sector | Intuitive and flexible all in one administration and server management interface for various video conferences types, primarily education
 **Authentication**
@@ -78,8 +80,8 @@ Server status check | ❌ | ✅
 Display BBB version |❌ | ✅ if enabled on bbb server
 **Room types**
 Different types of rooms | ❌ |✅
-Different servers for each room type | ❌ | ✅  For load balancing, only servers from the pool assigned to a room via the room type are used. e.g. a pool with servers for large events, particularly confidential, etc.   servers can be in none, one or more pools
-Restrict use of certain room types | ❌ | ✅  Room type can only be released for certain roles
+Different servers for each room type | ❌ | ✅ For load balancing, only servers from the pool assigned to a room via the room type are used. e.g. a pool with servers for large events, particularly confidential, etc. servers can be in none, one or more pools
+Restrict use of certain room types | ❌ | ✅ Room type can only be released for certain roles
 **Rooms**
 Display own rooms | ✅ | ✅
 Display shared rooms | ✅ However, no clear separation | ✅
@@ -94,8 +96,8 @@ Anyone may start the meeting | ✅ | ✅
 All users are moderators | ✅ | ✅
 Mute microphone when joining | ✅ | ✅
 Welcome message | ❌ | ✅
-Max.   Duration | ❌ | ✅
-Max.   Number of participants | ❌ | ✅
+Max. Duration | ❌ | ✅
+Max. Number of participants | ❌ | ✅
 Configure restrictions for participants in advance | ❌ | ✅
 Allow room only for logged in users | ➖ Only server wide setting, no individual | ✅
 **Presentations**

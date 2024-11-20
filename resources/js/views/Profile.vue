@@ -1,7 +1,9 @@
 <template>
-  <div class="container pt-8 mb-8">
+  <div class="container mb-8 pt-8">
     <Card data-test="user-profile">
-      <template #title><h1 class="text-3xl">{{ $t('app.profile') }}</h1></template>
+      <template #title
+        ><h1 class="text-3xl">{{ $t("app.profile") }}</h1></template
+      >
       <template #content>
         <OverlayComponent :show="!authStore.currentUser">
           <UserTabSection
@@ -15,7 +17,7 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from "../stores/auth";
 
 const authStore = useAuthStore();
 </script>

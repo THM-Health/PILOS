@@ -6,13 +6,14 @@
       data-test="room-members-bulk-import-list"
     >
       <p class="font-bold">
-        {{ description }} <Badge :severity="variant">
+        {{ description }}
+        <Badge :severity="variant">
           {{ list.length }}
         </Badge>
       </p>
       <Accordion
-        expandIcon="fa-solid fa-plus"
-        collapseIcon="fa-solid fa-minus"
+        expand-icon="fa-solid fa-plus"
+        collapse-icon="fa-solid fa-minus"
         class="room-bulk-import-preview"
         :multiple="true"
       >
@@ -28,9 +29,9 @@
             :pt="{
               toggleIcon: {
                 class: {
-                  '!hidden': !user.error
-                }
-              }
+                  '!hidden': !user.error,
+                },
+              },
             }"
           >
             {{ user.email }}
@@ -38,7 +39,6 @@
           <AccordionContent>
             <InlineNote severity="error">{{ user.error }}</InlineNote>
           </AccordionContent>
-
         </AccordionPanel>
       </Accordion>
     </div>
@@ -46,18 +46,18 @@
 </template>
 
 <script setup>
-
 defineProps({
   list: {
     type: Array,
-    required: true
+    required: true,
   },
   variant: {
-    type: String
+    type: String,
+    required: true,
   },
   description: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 </script>

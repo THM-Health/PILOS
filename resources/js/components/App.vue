@@ -1,6 +1,12 @@
 <template>
   <Toast />
-  <OverlayComponent :show="loadingStore.loadingCounter > 0 || loadingStore.overlayLoadingCounter > 0" fixed :z-index="10000">
+  <OverlayComponent
+    :show="
+      loadingStore.loadingCounter > 0 || loadingStore.overlayLoadingCounter > 0
+    "
+    fixed
+    :z-index="10000"
+  >
     <div v-if="loadingStore.loadingCounter == 0" class="app">
       <header>
         <AppBanner
@@ -17,7 +23,6 @@
         />
 
         <MainNav />
-
       </header>
       <main>
         <router-view />
@@ -25,13 +30,12 @@
       <AppFooter />
     </div>
   </OverlayComponent>
-
 </template>
 
 <script setup>
-import { useLoadingStore } from '../stores/loading';
-import { useSettingsStore } from '../stores/settings';
-import Toast from 'primevue/toast';
+import { useLoadingStore } from "../stores/loading";
+import { useSettingsStore } from "../stores/settings";
+import Toast from "primevue/toast";
 
 const loadingStore = useLoadingStore();
 const settingsStore = useSettingsStore();

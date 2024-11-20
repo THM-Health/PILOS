@@ -4,11 +4,13 @@ description: Determines the load of a BigBlueButton server used by the load bala
 ---
 
 # ServerLoadCalculation
+
 This plugin is used to determine the load of a BigBlueButton server used by the load balancer.
 
 The plugin implements the `ServerLoadCalculationContract` contract.
 
 ### Example of a custom implementation
+
 In this example the load of a BigBlueButton server is calculated based on the video streams, voice participants and participants.
 
 ```php

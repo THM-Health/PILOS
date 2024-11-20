@@ -2,15 +2,15 @@ name: pilos-ci
 
 services:
   app:
-    image: 'pilos/pilos:local-dev'
+    image: "pilos/pilos:local-dev"
     build:
       context: ./
       dockerfile: docker/app/Dockerfile
       args:
-        WWWGROUP: '${WWWGROUP}'
-        WWWUSER: '${WWWUSER}'
+        WWWGROUP: "${WWWGROUP}"
+        WWWUSER: "${WWWUSER}"
     volumes:
-      - './:/var/www/html/'
+      - "./:/var/www/html/"
     environment:
       APP_URL: http://localhost:9080
       APP_ENV: local

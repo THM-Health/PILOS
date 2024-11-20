@@ -1,113 +1,118 @@
 <template>
   <InputGroup>
     <multiselect
+      ref="rolesMultiselectRef"
       :aria-labelledby="ariaLabelledby"
       data-test="role-dropdown"
-      ref="rolesMultiselectRef"
       :placeholder="$t('admin.roles.select_roles')"
       :model-value="selectedRoles"
-      @update:modelValue="input"
-      track-by='id'
-      open-direction='bottom'
-      :multiple='true'
-      :searchable='false'
-      :internal-search='false'
-      :clear-on-select='false'
-      :close-on-select='false'
-      :show-no-results='false'
-      :showLabels='false'
-      :options='roles'
+      track-by="id"
+      open-direction="bottom"
+      :multiple="true"
+      :searchable="false"
+      :internal-search="false"
+      :clear-on-select="false"
+      :close-on-select="false"
+      :show-no-results="false"
+      :show-labels="false"
+      :options="roles"
       :disabled="props.disabled || loading || loadingError"
       :loading="loading"
       :allow-empty="allowEmpty"
       :class="{ 'is-invalid': props.invalid }"
+      @update:model-value="input"
     >
       <template #noOptions>
-        {{ $t('admin.roles.no_data') }}
+        {{ $t("admin.roles.no_data") }}
       </template>
-      <template v-slot:option="{ option }">
+      <template #option="{ option }">
         {{ option.name }}
       </template>
-      <template v-slot:tag="{ option, remove }" >
-        <Chip :label="option.name"  >
+      <template #tag="{ option, remove }">
+        <Chip :label="option.name">
           <span>{{ option.name }}</span>
           <Button
+            v-if="
+              !option.$isDisabled &&
+              (selectedRoles.length > 1 || allowEmpty) &&
+              !props.disabled
+            "
             severity="contrast"
-            class="w-5 h-5 text-sm rounded-full"
-            v-if="!option.$isDisabled && (selectedRoles.length>1 || allowEmpty) && !props.disabled"
-            @click="remove(option)"
+            class="h-5 w-5 rounded-full text-sm"
             icon="fas fa-xmark"
             :aria-label="$t('admin.users.remove_role', { name: option.name })"
+            @click="remove(option)"
           />
         </Chip>
       </template>
       <template #afterList>
-        <div class="flex p-2 gap-2">
+        <div class="flex gap-2 p-2">
           <Button
             :disabled="loading || currentPage === 1"
             severity="secondary"
             outlined
-            @click="loadRoles(Math.max(1, currentPage - 1))"
             icon="fa-solid fa-arrow-left"
             :label="$t('app.previous_page')"
+            @click="loadRoles(Math.max(1, currentPage - 1))"
           />
           <Button
             :disabled="loading || !hasNextPage"
             severity="secondary"
             outlined
-            @click="loadRoles(currentPage + 1)"
             icon="fa-solid fa-arrow-right"
             :label="$t('app.next_page')"
+            @click="loadRoles(currentPage + 1)"
           />
         </div>
       </template>
     </multiselect>
-      <Button
-        v-if="loadingError"
-        :disabled="loading"
-        severity="secondary"
-        outlined
-        @click="loadRoles(currentPage)"
-        icon="fa-solid fa-sync"
-        data-test="roles-reload-button"
-      />
+    <Button
+      v-if="loadingError"
+      :disabled="loading"
+      severity="secondary"
+      outlined
+      icon="fa-solid fa-sync"
+      data-test="roles-reload-button"
+      @click="loadRoles(currentPage)"
+    />
   </InputGroup>
 </template>
 
 <script setup>
-
-import { onMounted, ref, watch } from 'vue';
-import { useApi } from '../composables/useApi.js';
-import { Multiselect } from 'vue-multiselect';
+import { onBeforeMount, ref, watch } from "vue";
+import { useApi } from "../composables/useApi.js";
+import { Multiselect } from "vue-multiselect";
 
 const api = useApi();
 
 const props = defineProps({
   modelValue: {
-    type: Array
+    type: Array,
+    required: true,
   },
   invalid: {
     type: Boolean,
-    default: false
+    default: false,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   disabledRoles: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   allowEmpty: {
     type: Boolean,
-    default: false
+    default: false,
   },
   ariaLabelledby: {
-    type: String
-  }
+    type: String,
+    required: true,
+  },
 });
 
-const emit = defineEmits(['update:modelValue', 'loadingError', 'busy']);
+const emit = defineEmits(["update:modelValue", "loadingError", "busy"]);
 
 const selectedRoles = ref([]);
 const roles = ref([]);
@@ -117,37 +122,44 @@ const currentPage = ref(1);
 const hasNextPage = ref(false);
 const rolesMultiselectRef = ref(null);
 
-watch(() => props.modelValue, (value) => {
-  selectedRoles.value = value;
-  disableRoles(selectedRoles.value);
-},
-{ deep: true }
+watch(
+  () => props.modelValue,
+  (value) => {
+    selectedRoles.value = value;
+    disableRoles(selectedRoles.value);
+  },
+  { deep: true },
 );
 
-watch(() => props.disabledRoles, (value) => {
-  disableRoles(selectedRoles.value);
-  disableRoles(roles.value);
-},
-{ deep: true }
+watch(
+  () => props.disabledRoles,
+  () => {
+    disableRoles(selectedRoles.value);
+    disableRoles(roles.value);
+  },
+  { deep: true },
 );
 
 // detect changes of the model loading error
 watch(loadingError, () => {
-  emit('loadingError', loadingError.value);
+  emit("loadingError", loadingError.value);
 });
 
 // detect busy status while data fetching and notify parent
 watch(loading, () => {
-  emit('busy', loading.value);
+  emit("busy", loading.value);
 });
 
-watch(() => props.disabled, (disabled) => {
-  if (!disabled) {
-    loadRoles();
-  }
-});
+watch(
+  () => props.disabled,
+  (disabled) => {
+    if (!disabled) {
+      loadRoles();
+    }
+  },
+);
 
-onMounted(() => {
+onBeforeMount(() => {
   if (!props.disabled) {
     loadRoles();
   }
@@ -155,39 +167,45 @@ onMounted(() => {
   disableRoles(selectedRoles.value);
 });
 
-function disableRoles (roles) {
+function disableRoles(roles) {
   if (roles) {
-    roles.forEach(role => {
-      role.$isDisabled = props.disabledRoles.some(disabledRole => disabledRole === role.id);
+    roles.forEach((role) => {
+      role.$isDisabled = props.disabledRoles.some(
+        (disabledRole) => disabledRole === role.id,
+      );
     });
   }
 }
 
-function loadRoles (page = 1) {
+function loadRoles(page = 1) {
   loading.value = true;
 
   const config = {
     params: {
-      page
-    }
+      page,
+    },
   };
 
-  api.call('roles', config).then(response => {
-    loadingError.value = false;
-    currentPage.value = page;
-    hasNextPage.value = page < response.data.meta.last_page;
+  api
+    .call("roles", config)
+    .then((response) => {
+      loadingError.value = false;
+      currentPage.value = page;
+      hasNextPage.value = page < response.data.meta.last_page;
 
-    const newRoles = response.data.data;
-    disableRoles(newRoles);
-    roles.value = newRoles;
-  }).catch(error => {
-    // close open multiselect
-    rolesMultiselectRef.value.deactivate();
-    loadingError.value = true;
-    api.error(error);
-  }).finally(() => {
-    loading.value = false;
-  });
+      const newRoles = response.data.data;
+      disableRoles(newRoles);
+      roles.value = newRoles;
+    })
+    .catch((error) => {
+      // close open multiselect
+      rolesMultiselectRef.value.deactivate();
+      loadingError.value = true;
+      api.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
 
 /**
@@ -195,8 +213,7 @@ function loadRoles (page = 1) {
  *
  * @param value
  */
-function input (value) {
-  emit('update:modelValue', value);
+function input(value) {
+  emit("update:modelValue", value);
 }
-
 </script>

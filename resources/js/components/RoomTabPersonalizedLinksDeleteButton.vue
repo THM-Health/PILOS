@@ -1,101 +1,137 @@
 <template>
   <!-- button -->
   <Button
+    v-tooltip="$t('rooms.tokens.delete')"
     severity="danger"
     :disabled="disabled"
-    @click="showDeleteModal"
     icon="fa-solid fa-trash"
-    v-tooltip="$t('rooms.tokens.delete')"
     :aria-label="$t('rooms.tokens.delete')"
+    data-test="room-personalized-links-delete-button"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.tokens.delete')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
     :draggable="false"
-    :closeOnEscape="!isLoadingAction"
-    :dismissableMask="false"
+    :close-on-escape="!isLoadingAction"
+    :dismissable-mask="false"
     :closable="!isLoadingAction"
+    data-test="room-personalized-links-delete-dialog"
   >
-
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="$t('app.no')" severity="secondary" @click="showModal = false" :disabled="isLoadingAction" />
-        <Button :label="$t('app.yes')" severity="danger" :loading="isLoadingAction" :disabled="isLoadingAction" @click="deleteToken" />
+        <Button
+          :label="$t('app.no')"
+          severity="secondary"
+          :disabled="isLoadingAction"
+          data-test="dialog-cancel-button"
+          @click="modalVisible = false"
+        />
+        <Button
+          :label="$t('app.yes')"
+          severity="danger"
+          :loading="isLoadingAction"
+          :disabled="isLoadingAction"
+          data-test="dialog-continue-button"
+          @click="deleteToken"
+        />
       </div>
     </template>
 
     <span>
-      {{ $t('rooms.tokens.confirm_delete', { firstname: props.firstname, lastname: props.lastname }) }}
+      {{
+        $t("rooms.tokens.confirm_delete", {
+          firstname: props.firstname,
+          lastname: props.lastname,
+        })
+      }}
     </span>
   </Dialog>
 </template>
 
 <script setup>
-
-import { useApi } from '../composables/useApi.js';
-import { ref } from 'vue';
+import env from "../env";
+import { useApi } from "../composables/useApi.js";
+import { ref } from "vue";
+import { useToast } from "../composables/useToast.js";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   roomId: {
     type: String,
-    required: true
+    required: true,
   },
   token: {
     type: String,
-    required: true
+    required: true,
   },
   firstname: {
     type: String,
-    required: true
+    required: true,
   },
   lastname: {
     type: String,
-    required: true
+    required: true,
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const emit = defineEmits(['deleted']);
+const emit = defineEmits(["deleted", "notFound"]);
 
 const api = useApi();
+const toast = useToast();
+const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /**
  * show modal
  */
-function showDeleteModal () {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 
 /**
  * Sends a request to the server to create a new token or edit a existing.
  */
-function deleteToken () {
+function deleteToken() {
   isLoadingAction.value = true;
 
   const config = {
-    method: 'delete'
+    method: "delete",
   };
 
-  api.call(`rooms/${props.roomId}/tokens/${props.token}`, config).then(response => {
-    // operation successful, close modal and reload list
-    showModal.value = false;
-    emit('deleted');
-  }).catch(error => {
-    api.error(error, { noRedirectOnUnauthenticated: true });
-  }).finally(() => {
-    isLoadingAction.value = false;
-  });
+  api
+    .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
+    .then(() => {
+      // operation successful, close modal and reload list
+      modalVisible.value = false;
+      emit("deleted");
+    })
+    .catch((error) => {
+      // deleting failed
+      if (error.response) {
+        // token not found
+        if (error.response.status === env.HTTP_NOT_FOUND) {
+          toast.error(t("rooms.flash.token_gone"));
+          showModal.value = false;
+          emit("notFound");
+          return;
+        }
+      }
+      api.error(error, { redirectOnUnauthenticated: false });
+    })
+    .finally(() => {
+      isLoadingAction.value = false;
+    });
 }
-
 </script>

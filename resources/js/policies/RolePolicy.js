@@ -8,8 +8,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  viewAny (user) {
-    return !user ? false : user.permissions.includes('roles.viewAny');
+  viewAny(user) {
+    return !user ? false : user.permissions.includes("roles.viewAny");
   },
 
   /**
@@ -18,8 +18,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  create (user) {
-    return !user ? false : user.permissions.includes('roles.create');
+  create(user) {
+    return !user ? false : user.permissions.includes("roles.create");
   },
 
   /**
@@ -28,8 +28,8 @@ export default {
    * @param user
    * @return {boolean}
    */
-  view (user) {
-    return !user ? false : user.permissions.includes('roles.view');
+  view(user) {
+    return !user ? false : user.permissions.includes("roles.view");
   },
 
   /**
@@ -39,8 +39,8 @@ export default {
    * @param role
    * @return {boolean}
    */
-  update (user) {
-    return !user ? false : user.permissions.includes('roles.update');
+  update(user) {
+    return !user ? false : user.permissions.includes("roles.update");
   },
 
   /**
@@ -50,7 +50,9 @@ export default {
    * @param role
    * @return {boolean}
    */
-  delete (user, role) {
-    return !user ? false : user.permissions.includes('roles.delete') && !role.superuser;
-  }
+  delete(user, role) {
+    return !user
+      ? false
+      : user.permissions.includes("roles.delete") && !role.superuser;
+  },
 };
