@@ -34,6 +34,9 @@ describe("Room Index", function () {
         cy.get("button").should("be.disabled");
       });
 
+    // Room filter buttons
+    cy.get('[data-test="rooms-filter-button"]').should("be.disabled");
+
     // Only favorites button
     cy.get("[data-test=only-favorites-button]").should("be.disabled");
 
@@ -66,6 +69,9 @@ describe("Room Index", function () {
         cy.get("input").should("not.be.disabled");
         cy.get("button").should("not.be.disabled");
       });
+
+    // Room filter buttons
+    cy.get('[data-test="rooms-filter-button"]').should("not.be.disabled");
 
     // Only favorites button
     cy.get("[data-test=only-favorites-button]").should("not.be.disabled");
