@@ -1,7 +1,7 @@
-<img src="https://raw.githubusercontent.com/THM-Health/PILOS/master/public/images/logo.svg" width="250px"></img>
+<img src="https://raw.githubusercontent.com/THM-Health/PILOS/4.x/public/images/logo.svg" width="250px"></img>
 
 ![Status](https://github.com/THM-Health/PILOS/workflows/CI/badge.svg)
-[![codecov](https://codecov.io/gh/THM-Health/PILOS/branch/master/graph/badge.svg?token=6EXYQKIG3W)](https://codecov.io/gh/THM-Health/PILOS)
+[![codecov](https://codecov.io/gh/THM-Health/PILOS/branch/4.x/graph/badge.svg?token=6EXYQKIG3W)](https://codecov.io/gh/THM-Health/PILOS)
 
 PILOS (Platform for Interactive Live-Online Seminars) is an easy to use frontend for [BigBlueButton](https://bigbluebutton.org/) developed at the TH Mittelhessen University of Applied Sciences ([THM](https://thm.de/)) Faculty of Health ([FB GES](https://www.thm.de/ges/)).
 It is based on the experience of students, teachers and staff during the covid-19 pandemic, and the raised need for a modern and flexible video conferencing system for the use case of digital class rooms, group learning and other digital meetings.

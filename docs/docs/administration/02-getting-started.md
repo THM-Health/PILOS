@@ -18,13 +18,13 @@ The application will be installed with some default settings, but you can custom
 
 We use [Semantic Versioning](https://semver.org/spec/v2.0.0.html) for our releases and tag the images accordingly.
 
-It is **recommended** to use the image with the latest major version e.g. `v1.9.5` -> `v1` to always get the latest features and bugfixes.
+It is **recommended** to use the image with the latest major version e.g. `v4.1.0` -> `v4` to always get the latest features and bugfixes.
 
 **[All Tags](https://hub.docker.com/r/pilos/pilos/tags)**
 
 ### Development Images
 
-Additionally, we provide images for the latest commit on the `master` and the release branches, e.g. `dev-v1`.
+Additionally, we provide images for the latest commit on the `develop` branch (`dev-develop`) and the release branches, e.g. `dev-v4.x`.
 
 ### Latest
 

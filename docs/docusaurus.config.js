@@ -41,15 +41,14 @@ const config = {
       ({
         docs: {
           sidebarPath: "./sidebars.js",
-          //lastVersion: 'current',
-          lastVersion: "v4",
-          includeCurrentVersion: false,
-          //versions: {
-          //  current: {
-          //    label: 'v4',
-          //    banner: 'unreleased'
-          //  }
-          //},
+          lastVersion: "current",
+          includeCurrentVersion: true,
+          versions: {
+            current: {
+              label: "DEV",
+              banner: "unreleased",
+            },
+          },
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/THM-Health/PILOS/tree/develop/docs/",

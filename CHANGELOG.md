@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 -   Improve current frontend tests ([#1150], [#1549])
+-   OpenSans as application font ([#1558], [#1569])
 
 ### Fixed
 
@@ -246,9 +247,11 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
 [#1548]: https://github.com/THM-Health/PILOS/pull/1548
 [#1549]: https://github.com/THM-Health/PILOS/pull/1549
+[#1558]: https://github.com/THM-Health/PILOS/issues/1558
 [#1559]: https://github.com/THM-Health/PILOS/issues/1559
 [#1561]: https://github.com/THM-Health/PILOS/pull/1561
 [#1565]: https://github.com/THM-Health/PILOS/pull/1565
+[#1569]: https://github.com/THM-Health/PILOS/pull/1569
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.0...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
