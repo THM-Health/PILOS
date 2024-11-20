@@ -1175,7 +1175,7 @@ describe("Rooms view files file actions", function () {
     cy.intercept("GET", "/api/v1/rooms/abc-def-123/files/3", {
       statusCode: 403,
       body: {
-        message: "This action is unauthorized",
+        message: "This action is unauthorized.",
       },
     }).as("downloadFileRequest");
 

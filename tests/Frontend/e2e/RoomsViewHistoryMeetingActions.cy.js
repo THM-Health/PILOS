@@ -97,8 +97,6 @@ describe("Rooms view history meeting actions", function () {
 
     cy.wait("@statsRequest");
 
-    // ToDo improve error handling (current behaviour shows an empty chart and error message but no option to reload)
-
     // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
@@ -342,8 +340,6 @@ describe("Rooms view history meeting actions", function () {
       .click();
 
     cy.wait("@attendanceRequest");
-
-    // ToDo improve error handling (current behaviour shows an empty table and error message but no option to reload)
 
     // Check that error message is shown
     cy.checkToastMessage([

@@ -172,7 +172,6 @@ describe("Rooms view browser notification", function () {
     cy.get('[data-test="room-notification-button"]').should("not.exist");
   });
 
-  // ToDo split
   it("change status from not running to running", function () {
     // Set date to 2017-01-01
     cy.clock(Date.UTC(2017, 1, 1), ["Date"]);

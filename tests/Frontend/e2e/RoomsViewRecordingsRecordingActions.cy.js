@@ -576,7 +576,7 @@ describe("Rooms view recordings recording actions", function () {
       {
         statusCode: 403,
         body: {
-          message: "This action is unauthorized",
+          message: "This action is unauthorized.",
         },
       },
     ).as("viewRecordingRequest");

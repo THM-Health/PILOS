@@ -308,7 +308,6 @@ describe("Rooms view personalized links", function () {
       .should("have.attr", "data-p-active", "true");
 
     // Switch to next page with 401 error
-    // ToDo Change to custom command (difficult because personalized links need to be loaded "normally" first)
     cy.fixture("room.json").then((room) => {
       room.data.current_user = null;
 
