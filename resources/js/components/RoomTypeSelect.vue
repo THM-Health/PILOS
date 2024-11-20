@@ -115,6 +115,10 @@ const props = defineProps({
     type: [String, null],
     default: null,
   },
+  redirectOnUnauthenticated: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "loadingError", "busy"]);
@@ -177,7 +181,9 @@ function reloadRoomTypes() {
     })
     .catch((error) => {
       modelLoadingError.value = true;
-      api.error(error);
+      api.error(error, {
+        redirectOnUnauthenticated: props.redirectOnUnauthenticated,
+      });
     })
     .finally(() => {
       isLoadingAction.value = false;

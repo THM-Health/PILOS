@@ -53,7 +53,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["invalidCode", "invalidToken", "fileNotFound"]);
+const emit = defineEmits(["invalidCode", "invalidToken", "notFound"]);
 
 const api = useApi();
 const toast = useToast();
@@ -135,11 +135,11 @@ function downloadFile(event) {
           // Show error message
           toast.error(t("rooms.flash.file_gone"));
           // Remove file from list
-          emit("fileNotFound");
+          emit("notFound");
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       loading.value = null;

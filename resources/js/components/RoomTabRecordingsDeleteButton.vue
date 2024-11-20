@@ -6,12 +6,12 @@
     :disabled="disabled"
     severity="danger"
     icon="fa-solid fa-trash"
-    @click="showModal = true"
+    @click="modalVisible = true"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.recordings.modals.delete.title')"
     :style="{ width: '500px' }"
@@ -27,7 +27,7 @@
           :label="$t('app.no')"
           severity="secondary"
           :disabled="isLoadingAction"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -66,13 +66,13 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "notFound"]);
 
 const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /*
@@ -87,7 +87,7 @@ function deleteRecording() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {
@@ -96,11 +96,11 @@ function deleteRecording() {
         // recording not found
         if (error.response.status === env.HTTP_NOT_FOUND) {
           toast.error(t("rooms.flash.recording_gone"));
-          emit("deleted");
+          emit("notFound");
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

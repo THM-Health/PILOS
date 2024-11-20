@@ -7,21 +7,25 @@
     v-bind="$attrs"
     @click="dropdown = !dropdown"
   >
-    <span class="p-button-icon">
+    <span class="p-button-icon flex-shrink-0">
       <slot name="button-content" />
-      <i class="fa-solid fa-caret-down ml-auto lg:ml-2"></i>
+      <i class="fa-solid fa-caret-down ml-2"></i>
     </span>
   </Button>
-  <ul
+  <div
     v-if="dropdown"
     ref="dropdownMenu"
-    v-on-click-outside="onClickOutsideHandler"
     :style="floatingStyles"
-    class="shadow-0 right m-0 w-full origin-top cursor-pointer list-none border-surface-50 bg-white px-4 py-1 rounded-border lg:absolute lg:z-10 lg:w-60 lg:border lg:px-0 lg:py-2 lg:shadow dark:border-surface-800"
-    @click="closeDropdown"
+    class="absolute z-10 w-full px-4 max-sm:!left-0 sm:w-60 sm:px-0"
   >
-    <slot />
-  </ul>
+    <ul
+      v-on-click-outside="onClickOutsideHandler"
+      class="origin-top cursor-pointer list-none border border-surface-50 bg-white px-1 shadow rounded-border dark:border-surface-800 dark:bg-surface-900"
+      @click="closeDropdown"
+    >
+      <slot />
+    </ul>
+  </div>
 </template>
 
 <script setup>
@@ -44,6 +48,7 @@ function closeDropdown() {
 }
 
 const { floatingStyles } = useFloating(dropdownButton, dropdownMenu, {
+  transform: false,
   middleware: [
     autoPlacement({
       allowedPlacements: ["bottom-start", "bottom-end"],

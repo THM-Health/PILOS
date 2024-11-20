@@ -6,7 +6,7 @@
     text
     icon="fa-solid fa-image"
     data-test="tip-tap-image-button"
-    @click="openModal"
+    @click="showModal"
   />
   <Dialog
     v-model:visible="modalVisible"
@@ -108,7 +108,7 @@ function deleteImage() {
 /**
  * Open modal and fill fields with current image attributes if image is selected
  */
-function openModal() {
+function showModal() {
   if (props.editor.isActive("image")) {
     src.value = props.editor.getAttributes("image").src;
     width.value = props.editor.getAttributes("image").width;

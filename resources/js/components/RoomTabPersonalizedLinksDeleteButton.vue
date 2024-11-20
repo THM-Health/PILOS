@@ -6,12 +6,12 @@
     :disabled="disabled"
     icon="fa-solid fa-trash"
     :aria-label="$t('rooms.tokens.delete')"
-    @click="showDeleteModal"
+    @click="showModal"
   />
 
   <!-- modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     modal
     :header="$t('rooms.tokens.delete')"
     :style="{ width: '500px' }"
@@ -27,7 +27,7 @@
           :label="$t('app.no')"
           severity="secondary"
           :disabled="isLoadingAction"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.yes')"
@@ -86,14 +86,14 @@ const api = useApi();
 const toast = useToast();
 const { t } = useI18n();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 
 /**
  * show modal
  */
-function showDeleteModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 
 /**
@@ -110,7 +110,7 @@ function deleteToken() {
     .call(`rooms/${props.roomId}/tokens/${props.token}`, config)
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {
@@ -124,7 +124,7 @@ function deleteToken() {
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

@@ -24,7 +24,7 @@
       />
     </div>
 
-    <OverlayComponent :show="isBusy">
+    <OverlayComponent :show="isBusy" :z-index="20">
       <div v-if="!editorOpen">
         <RoomTabDescriptionViewer
           v-if="room.description !== null"
@@ -225,7 +225,7 @@ function save() {
         return;
       }
       // Handle other errors
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       // Disable saving indicator

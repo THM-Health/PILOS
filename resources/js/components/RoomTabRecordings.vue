@@ -188,7 +188,7 @@
                     :disabled="isBusy"
                     @invalid-code="$emit('invalidCode')"
                     @invalid-token="$emit('invalidToken')"
-                    @not-found="loadData"
+                    @not-found="loadData()"
                   />
 
                   <RoomTabRecordingsDownloadButton
@@ -219,6 +219,7 @@
                     :recording-id="item.id"
                     :disabled="isBusy"
                     @deleted="loadData()"
+                    @not-found="loadData()"
                   />
                 </div>
               </div>
@@ -401,7 +402,7 @@ function loadData(page = null) {
       }
       loadingError.value = true;
       paginator.revertFirst();
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isBusy.value = false;

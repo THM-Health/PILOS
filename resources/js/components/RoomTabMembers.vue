@@ -247,6 +247,7 @@
                     :user-id="item.id"
                     :disabled="isBusy"
                     @edited="loadData()"
+                    @gone="loadData()"
                   />
                   <!-- remove member -->
                   <RoomTabMembersDeleteButton
@@ -256,6 +257,7 @@
                     :user-id="item.id"
                     :disabled="isBusy"
                     @deleted="loadData()"
+                    @gone="loadData()"
                   />
                 </div>
               </div>
@@ -375,7 +377,7 @@ function loadData(page = null) {
     })
     .catch((error) => {
       paginator.revertFirst();
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
       loadingError.value = true;
     })
     .finally(() => {

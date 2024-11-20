@@ -5,10 +5,10 @@
     icon="fa-solid fa-trash"
     :disabled="isBusy"
     :aria-label="$t('admin.servers.delete.item', { name: props.name })"
-    @click="showDeleteModal()"
+    @click="showModal()"
   />
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     :header="$t('admin.servers.delete.title')"
     :style="{ width: '500px' }"
     :breakpoints="{ '575px': '90vw' }"
@@ -24,7 +24,7 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
-        @click="showModal = false"
+        @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
@@ -54,15 +54,15 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["deleted"]);
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isBusy = ref(false);
 
 /**
  * Shows the delete modal
  *
  */
-function showDeleteModal() {
-  showModal.value = true;
+function showModal() {
+  modalVisible.value = true;
 }
 
 /**
@@ -76,7 +76,7 @@ function deleteServer() {
       method: "delete",
     })
     .then(() => {
-      showModal.value = false;
+      modalVisible.value = false;
       emit("deleted");
     })
     .catch((error) => {

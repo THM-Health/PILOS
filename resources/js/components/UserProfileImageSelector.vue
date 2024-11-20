@@ -83,7 +83,7 @@
     </div>
   </div>
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="crop-image-dialog"
     modal
     :header="$t('admin.users.image.crop')"
@@ -101,7 +101,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('admin.users.image.save')"
@@ -156,7 +156,7 @@ const props = defineProps({
 
 const emit = defineEmits(["newImage", "deleteImage"]);
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const isLoadingAction = ref(false);
 const selectedFile = ref(null);
 const croppedImage = ref(null);
@@ -186,7 +186,7 @@ async function save() {
   oc.toBlob((blob) => {
     emit("newImage", blob);
     isLoadingAction.value = false;
-    showModal.value = false;
+    modalVisible.value = false;
   }, "image/jpeg");
 }
 
@@ -200,7 +200,7 @@ function resetFileUpload() {
 }
 
 async function onFileSelect(event) {
-  showModal.value = true;
+  modalVisible.value = true;
   isLoadingAction.value = true;
   const file = event.files[0];
 

@@ -6,7 +6,7 @@
       severity="primary"
       icon="fa-solid fa-plus"
       :label="$t('rooms.create.title')"
-      @click="modalVisible = true"
+      @click="showModal"
     />
 
     <!-- new room modal-->
@@ -22,7 +22,6 @@
       :closable="!isLoadingAction && !roomTypeSelectBusy"
       :draggable="false"
       aria-labelledby="room-create-dialog-title"
-      @hide="clearModal"
     >
       <template #header>
         <h2 id="room-create-dialog-title" class="p-dialog-title">
@@ -127,13 +126,14 @@ function handleCancel() {
   modalVisible.value = false;
 }
 
-function clearModal() {
+function showModal() {
   room.room_type = null;
   room.name = null;
   roomTypeSelectBusy.value = false;
   roomTypeSelectLoadingError.value = false;
   isLoadingAction.value = false;
   formErrors.clear();
+  modalVisible.value = true;
 }
 
 function handleOk() {

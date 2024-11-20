@@ -6,12 +6,12 @@
     :disabled="disabled"
     severity="info"
     icon="fa-solid fa-edit"
-    @click="showEditMemberModal"
+    @click="showModal"
   />
 
   <!-- edit user role modal -->
   <Dialog
-    v-model:visible="showModal"
+    v-model:visible="modalVisible"
     data-test="room-members-edit-dialog"
     modal
     :header="
@@ -34,7 +34,7 @@
           severity="secondary"
           :disabled="isLoadingAction"
           data-test="dialog-cancel-button"
-          @click="showModal = false"
+          @click="modalVisible = false"
         />
         <Button
           :label="$t('app.save')"
@@ -128,22 +128,22 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["edited"]);
+const emit = defineEmits(["edited", "gone"]);
 
 const api = useApi();
 const formErrors = useFormErrors();
 
-const showModal = ref(false);
+const modalVisible = ref(false);
 const newRole = ref(null);
 const isLoadingAction = ref(false);
 
 /**
  * show modal to edit user role
  */
-function showEditMemberModal() {
+function showModal() {
   newRole.value = props.role;
   formErrors.clear();
-  showModal.value = true;
+  modalVisible.value = true;
 }
 
 /**
@@ -162,7 +162,7 @@ function save() {
     })
     .then(() => {
       // operation successful, close modal and reload list
-      showModal.value = false;
+      modalVisible.value = false;
       emit("edited");
     })
     .catch((error) => {
@@ -170,8 +170,8 @@ function save() {
       if (error.response) {
         // user not found
         if (error.response.status === env.HTTP_GONE) {
-          emit("edited");
-          showModal.value = false;
+          emit("gone");
+          modalVisible.value = false;
         }
         // failed due to form validation errors
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -179,7 +179,7 @@ function save() {
           return;
         }
       }
-      api.error(error, { noRedirectOnUnauthenticated: true });
+      api.error(error, { redirectOnUnauthenticated: false });
     })
     .finally(() => {
       isLoadingAction.value = false;

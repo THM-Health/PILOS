@@ -21,7 +21,7 @@
                   class="h-8 w-8 p-0 text-sm"
                   icon="fa-solid fa-info"
                   data-test="room-info-button"
-                  @click.stop="showModal = true"
+                  @click.stop="modalVisible = true"
                 />
                 <RoomFavoriteButton
                   :room="props.room"
@@ -50,7 +50,7 @@
 
     <!-- More details modal-->
     <Dialog
-      v-model:visible="showModal"
+      v-model:visible="modalVisible"
       modal
       :header="$t('rooms.index.room_component.details')"
       :style="{ width: '500px' }"
@@ -127,13 +127,13 @@ const running = computed(() => {
 /**
  * Details modal
  */
-const showModal = ref(false);
+const modalVisible = ref(false);
 
 function open() {
   router.push(link.value);
 }
 
 function handleCancel() {
-  showModal.value = false;
+  modalVisible.value = false;
 }
 </script>

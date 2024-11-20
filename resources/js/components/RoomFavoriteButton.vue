@@ -29,9 +29,9 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  noRedirectOnUnauthenticated: {
+  redirectOnUnauthenticated: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 
@@ -56,7 +56,7 @@ function toggleFavorite() {
     .call("rooms/" + props.room.id + "/favorites", config)
     .catch((error) => {
       api.error(error, {
-        noRedirectOnUnauthenticated: props.noRedirectOnUnauthenticated,
+        redirectOnUnauthenticated: props.redirectOnUnauthenticated,
       });
     })
     .finally(() => {
