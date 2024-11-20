@@ -31,7 +31,7 @@
             :searchable="false"
             :internal-search="false"
             :clear-on-select="false"
-            :close-on-select="false"
+            :close-on-select="true"
             :show-no-results="false"
             :show-labels="false"
             :options="roles"
