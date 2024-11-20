@@ -29,7 +29,7 @@
       </div>
     </div>
     <OverlayComponent :show="isBusy || modelLoadingError">
-      <template #loading>
+      <template #overlay>
         <LoadingRetryButton
           :error="modelLoadingError"
           @reload="loadRoomType"
