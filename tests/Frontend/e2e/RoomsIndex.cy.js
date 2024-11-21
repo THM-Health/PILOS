@@ -170,6 +170,99 @@ describe("Room Index", function () {
     cy.url().should("include", "/rooms/abc-def-123");
   });
 
+  it("check list of rooms with rooms.filterAll permission", function () {
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = ["rooms.viewAll"];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    const roomRequest = interceptIndefinitely(
+      "GET",
+      "api/v1/rooms*",
+      { fixture: "rooms.json" },
+      "roomRequest",
+    );
+
+    cy.visit("/rooms");
+
+    // Check loading
+    // Check that overlay is shown
+    cy.get('[data-test="overlay"]').should("be.visible");
+
+    // Room search field
+    cy.get('[data-test="room-search"]')
+      .eq(0)
+      .within(() => {
+        cy.get("input").should("be.disabled");
+        cy.get("button").should("be.disabled");
+      });
+
+    // Room filter buttons
+    cy.get('[data-test="rooms-filter-button"]').should("be.disabled");
+
+    // Rooms filter all button
+    cy.get('[data-test="rooms-filter-all-button"]').should("be.disabled");
+
+    // Only favorites button
+    cy.get('[data-test="only-favorites-button"]').should("be.disabled");
+
+    // Room type dropdown
+    cy.get('[data-test="room-type-dropdown"]').within(() => {
+      cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
+    });
+
+    cy.get('[data-test="filter-button"]').should("not.be.visible");
+
+    // Sorting dropdown
+    cy.get('[data-test="sorting-type-dropdown"]').within(() => {
+      cy.get(".p-select-label")
+        .should("have.attr", "aria-disabled", "true")
+        .then(() => {
+          roomRequest.sendResponse();
+        });
+    });
+
+    cy.wait("@roomRequest");
+
+    cy.get('[data-test="overlay"]').should("not.exist");
+
+    // Make sure that components are not disabled after response
+    // Room search field
+    cy.get("[data-test=room-search]")
+      .eq(0)
+      .within(() => {
+        cy.get("input").should("not.be.disabled");
+        cy.get("button").should("not.be.disabled");
+      });
+
+    // Room filter buttons
+    cy.get('[data-test="rooms-filter-button"]').should("not.be.disabled");
+    cy.get('[data-test="rooms-filter-all-button"]').should("not.be.disabled");
+
+    // Only favorites button
+    cy.get('[data-test="only-favorites-button"]').should("not.be.disabled");
+
+    // Room type dropdown
+    cy.get('[data-test="room-type-dropdown"]').within(() => {
+      cy.get(".p-select-label").should(
+        "not.have.attr",
+        "aria-disabled",
+        "true",
+      );
+    });
+
+    cy.get('[data-test="filter-button"]').should("not.be.visible");
+
+    // Check that room info dialog is closed
+    cy.get('[data-test="room-info-dialog"]').should("not.exist");
+
+    // Check if rooms are shown
+    cy.get('[data-test="room-card"]').should("have.length", 3);
+  });
+
   it("click on room card to open room view", function () {
     cy.interceptRoomViewRequests();
 
