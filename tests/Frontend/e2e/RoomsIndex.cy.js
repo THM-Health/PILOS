@@ -35,7 +35,10 @@ describe("Room Index", function () {
       });
 
     // Room filter buttons
-    cy.get('[data-test="rooms-filter-button"]').should("be.disabled");
+    cy.get('[data-test="rooms-filter-button"]').should("have.length", 3);
+    cy.get('[data-test="rooms-filter-button"]').eq(0).should("be.disabled");
+    cy.get('[data-test="rooms-filter-button"]').eq(1).should("be.disabled");
+    cy.get('[data-test="rooms-filter-button"]').eq(2).should("be.disabled");
 
     // Only favorites button
     cy.get("[data-test=only-favorites-button]").should("be.disabled");
@@ -201,7 +204,10 @@ describe("Room Index", function () {
       });
 
     // Room filter buttons
-    cy.get('[data-test="rooms-filter-button"]').should("be.disabled");
+    cy.get('[data-test="rooms-filter-button"]').should("have.length", 3);
+    cy.get('[data-test="rooms-filter-button"]').eq(0).should("be.disabled");
+    cy.get('[data-test="rooms-filter-button"]').eq(1).should("be.disabled");
+    cy.get('[data-test="rooms-filter-button"]').eq(2).should("be.disabled");
 
     // Rooms filter all button
     cy.get('[data-test="rooms-filter-all-button"]').should("be.disabled");
