@@ -95,8 +95,8 @@
               data-test="rooms-filter-all-button"
               :on-label="$t('rooms.index.show_all')"
               :off-label="$t('rooms.index.show_all')"
-              @change="loadRooms(1)"
               :disabled="loadingRooms"
+              @change="loadRooms(1)"
             >
             </ToggleButton>
             <SelectButton
