@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Configurable hook script for recording synchronization ([#1484], [#1604])
+
 ## [v4.1.2] - 2024-11-22
 
 ### Added
@@ -255,6 +259,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1452]: https://github.com/THM-Health/PILOS/pull/1452
 [#1477]: https://github.com/THM-Health/PILOS/pull/1477
 [#1483]: https://github.com/THM-Health/PILOS/pull/1483
+[#1484]: https://github.com/THM-Health/PILOS/issues/1484
 [#1489]: https://github.com/THM-Health/PILOS/pull/1489
 [#1493]: https://github.com/THM-Health/PILOS/issues/1493
 [#1495]: https://github.com/THM-Health/PILOS/pull/1495
@@ -267,6 +272,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1561]: https://github.com/THM-Health/PILOS/pull/1561
 [#1565]: https://github.com/THM-Health/PILOS/pull/1565
 [#1569]: https://github.com/THM-Health/PILOS/pull/1569
+[#1604]: https://github.com/THM-Health/PILOS/pull/1604
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
