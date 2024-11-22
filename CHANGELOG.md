@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Logging for server health changes ([#1608])
+-   Logging for detached meeting handling ([#1608])
+-   Logging for meeting not running on BBB server ([#1608])
+
 ### Fixed
 
 -   Meeting retention cleanup not working with server retention set to unlimited ([878ce6b](https://github.com/THM-Health/PILOS/commit/878ce6b3a3aa596fb6cf228150ffe047a1c94641))
+-   Meeting marked as ended prematurely during starting phase of a new meeting ([#1607], [#1608])
 
 ## [v4.1.1] - 2024-11-20
 
@@ -258,6 +265,8 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1561]: https://github.com/THM-Health/PILOS/pull/1561
 [#1565]: https://github.com/THM-Health/PILOS/pull/1565
 [#1569]: https://github.com/THM-Health/PILOS/pull/1569
+[#1607]: https://github.com/THM-Health/PILOS/issues/1607
+[#1608]: https://github.com/THM-Health/PILOS/pull/1608
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.1...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
