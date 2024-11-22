@@ -17,6 +17,7 @@ use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\MeetingService;
+use App\Services\ServerService;
 use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Http;
@@ -2655,6 +2656,168 @@ class RoomTest extends TestCase
         $room->members()->attach($this->user, ['role' => RoomUserRole::USER]);
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])
             ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID->value);
+    }
+
+    /**
+     * Tests if room start is not effected by server usage update
+     *
+     * The server usage is collected while the rooms start is still in progress
+     */
+    public function testServerUsageUpdateDuringRoomStart()
+    {
+        $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
+        $room->owner->update(['bbb_skip_check_audio' => true]);
+
+        $server = Server::factory()->create();
+        $room->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Handle create meeting call
+        $bbbfaker->addRequest(function (Request $request) use ($server) {
+            // Simulate server usage is collected before the meeting create call finished
+            $serverService = new ServerService($server);
+            $serverService->updateUsage();
+
+            return BigBlueButtonServerFaker::createCreateMeetingResponse($request);
+        });
+
+        // Handle getMeetings call from the server usage update
+        $bbbfaker->addRequest(function (Request $request) {
+            $this->assertEquals('/bigbluebutton/api/getMeetings', $request->toPsrRequest()->getUri()->getPath());
+
+            return Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/GetMeetings-Empty.xml'));
+        });
+
+        // Handle server version request
+        $bbbfaker->addRequest(function (Request $request) {
+            $this->assertEquals('/bigbluebutton/api/', $request->toPsrRequest()->getUri()->getPath());
+
+            return Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/GetApiVersion.xml'));
+        });
+
+        // Handle meeting info (used on join)
+        $bbbfaker->addRequest(function (Request $request) {
+            $this->assertEquals('/bigbluebutton/api/getMeetingInfo', $request->toPsrRequest()->getUri()->getPath());
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        });
+
+        // Create meeting
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])->assertSuccessful();
+
+        // Try to join the room
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])->assertSuccessful();
+    }
+
+    /**
+     * Tests if room start is not effected by server usage update
+     *
+     * During the server usage update a new room start is started
+     */
+    public function testRoomStartDuringServerUsageUpdate()
+    {
+        $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
+        $room->owner->update(['bbb_skip_check_audio' => true]);
+
+        $server = Server::factory()->create();
+        $room->roomType->serverPool->servers()->attach($server);
+
+        // Create Fake BBB-Server
+        $bbbfaker = new BigBlueButtonServerFaker($server->base_url, $server->secret);
+
+        // Handle getMeetings call from the server usage update
+        $bbbfaker->addRequest(function (Request $request) use ($room) {
+            $this->assertEquals('/bigbluebutton/api/getMeetings', $request->toPsrRequest()->getUri()->getPath());
+
+            // Start new room
+            $this->actingAs($room->owner)->postJson(route('api.v1.rooms.start', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])->assertSuccessful();
+
+            return Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/GetMeetings-Empty.xml'));
+        });
+
+        // Handle create meeting call
+        $bbbfaker->addRequest(function (Request $request) {
+            $this->assertEquals('/bigbluebutton/api/create', $request->toPsrRequest()->getUri()->getPath());
+
+            return BigBlueButtonServerFaker::createCreateMeetingResponse($request);
+        });
+
+        // Handle server version request
+        $bbbfaker->addRequest(function (Request $request) {
+            $this->assertEquals('/bigbluebutton/api/', $request->toPsrRequest()->getUri()->getPath());
+
+            return Http::response(file_get_contents(__DIR__.'/../../../../Fixtures/GetApiVersion.xml'));
+        });
+
+        // Handle meeting info (used on join)
+        $bbbfaker->addRequest(function (Request $request) {
+            $this->assertEquals('/bigbluebutton/api/getMeetingInfo', $request->toPsrRequest()->getUri()->getPath());
+            $uri = $request->toPsrRequest()->getUri();
+            parse_str($uri->getQuery(), $params);
+            $xml = '
+                <response>
+                    <returncode>SUCCESS</returncode>
+                    <meetingName>test</meetingName>
+                    <meetingID>'.$params['meetingID'].'</meetingID>
+                    <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+                    <createTime>1624606850899</createTime>
+                    <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+                    <voiceBridge>70663</voiceBridge>
+                    <dialNumber>613-555-1234</dialNumber>
+                    <running>true</running>
+                    <duration>0</duration>
+                    <hasUserJoined>true</hasUserJoined>
+                    <recording>false</recording>
+                    <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                    <startTime>1624606850956</startTime>
+                    <endTime>0</endTime>
+                    <participantCount>0</participantCount>
+                    <listenerCount>0</listenerCount>
+                    <voiceParticipantCount>0</voiceParticipantCount>
+                    <videoCount>0</videoCount>
+                    <maxUsers>0</maxUsers>
+                    <moderatorCount>0</moderatorCount>
+                    <isBreakout>false</isBreakout>
+                </response>';
+
+            return Http::response($xml);
+        });
+
+        // Update server usage
+        $serverService = new ServerService($server);
+        $serverService->updateUsage();
+
+        // Try to join the room
+        $this->actingAs($room->owner)->postJson(route('api.v1.rooms.join', ['room' => $room]), ['consent_record_attendance' => true, 'consent_record' => false, 'consent_record_video' => false])->assertSuccessful();
     }
 
     /**
