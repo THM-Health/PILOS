@@ -51,6 +51,51 @@ class Server extends Model
                 }
             }
         });
+        static::updated(function (self $model) {
+            // Check if server is failing (error count increased or recover count decreased)
+            if ($model->error_count > $model->getOriginal('error_count') || $model->recover_count < $model->getOriginal('recover_count')) {
+                \Log::error('Server {server} failing', [
+                    'server' => $model->getLogLabel(),
+                    'error_count' => $model->error_count,
+                    'old_error_count' => $model->getOriginal('error_count'),
+                ]);
+            }
+
+            // Check if server is recovering (recover count increased)
+            if ($model->recover_count > $model->getOriginal('recover_count')) {
+                \Log::notice('Server {server} recovering', [
+                    'server' => $model->getLogLabel(),
+                    'recover_count' => $model->recover_count,
+                    'old_recover_count' => $model->getOriginal('recover_count'),
+                ]);
+            }
+
+            // Check if server health changed
+            $newHealth = self::calcHealth($model->recover_count, $model->error_count);
+            $previousHealth = self::calcHealth($model->getOriginal('recover_count'), $model->getOriginal('error_count'));
+            if ($newHealth != $previousHealth) {
+                if ($newHealth == ServerHealth::OFFLINE) {
+                    \Log::error('Server {server} health changed to offline', [
+                        'server' => $model->getLogLabel(),
+                        'old_health' => $previousHealth->name,
+                    ]);
+                }
+
+                if ($newHealth == ServerHealth::UNHEALTHY) {
+                    \Log::warning('Server {server} health changed to unhealthy', [
+                        'server' => $model->getLogLabel(),
+                        'old_health' => $previousHealth->name,
+                    ]);
+                }
+
+                if ($newHealth == ServerHealth::ONLINE) {
+                    \Log::notice('Server {server} health changed to healthy', [
+                        'server' => $model->getLogLabel(),
+                        'old_health' => $previousHealth->name,
+                    ]);
+                }
+            }
+        });
         static::deleting(function (self $model) {
             // Delete Server, only possible if no meetings from this system are running and the server is disabled
             if ($model->status != ServerStatus::DISABLED || $model->meetings()->whereNull('end')->count() != 0) {
@@ -110,10 +155,15 @@ class Server extends Model
             return null;
         }
 
-        if ($this->recover_count >= config('bigbluebutton.server_online_threshold')) {
+        return self::calcHealth($this->recover_count, $this->error_count);
+    }
+
+    private static function calcHealth(int $recover_count, int $error_count): ServerHealth
+    {
+        if ($recover_count >= config('bigbluebutton.server_online_threshold')) {
             return ServerHealth::ONLINE;
         }
-        if ($this->error_count >= config('bigbluebutton.server_offline_threshold')) {
+        if ($error_count >= config('bigbluebutton.server_offline_threshold')) {
             return ServerHealth::OFFLINE;
         }
 

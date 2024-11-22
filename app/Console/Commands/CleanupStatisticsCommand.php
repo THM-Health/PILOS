@@ -45,7 +45,7 @@ class CleanupStatisticsCommand extends Command
         $meetingRetentionPeriod = app(RecordingSettings::class)->meeting_usage_retention_period;
         if ($meetingRetentionPeriod != TimePeriod::UNLIMITED) {
             $meetingDay = now()->subDays($meetingRetentionPeriod->value)->toDateString();
-            Log::info('Removing meeting statistics data older than '.$serverDay);
+            Log::info('Removing meeting statistics data older than '.$meetingDay);
             MeetingStat::where('created_at', '<', $meetingDay)->delete();
         }
     }
