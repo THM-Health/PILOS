@@ -75,7 +75,6 @@ class RoomService
 
             // Create new meeting
             $meeting = new Meeting;
-            $meeting->start = date('Y-m-d H:i:s');
             $meeting->record_attendance = $this->room->getRoomSetting('record_attendance');
             $meeting->record = $this->room->getRoomSetting('record');
             $meeting->server()->associate($server);
@@ -95,6 +94,12 @@ class RoomService
             }
 
             Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()]);
+
+            // Set start time after successful api call, prevents server poller from ending a meeting that has been started
+            // but the api call has not been completed yet therefore the meeting will not be found on the server
+            // and the server poller will mark the meeting as ended immediately
+            $meeting->start = date('Y-m-d H:i:s');
+            $meeting->save();
 
             // Change latest meeting or the room to newly created meeting
             $this->room->latestMeeting()->associate($meeting);

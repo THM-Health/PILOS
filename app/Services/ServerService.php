@@ -186,7 +186,7 @@ class ServerService
 
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start');
+        $allRunningMeetingsInDb = $this->server->meetings()->whereNull('end')->whereNotNull('start')->get();
         $allRunningMeetingsOnServers = new Collection;
 
         $bbbMeetings = $this->getMeetings();
@@ -212,7 +212,7 @@ class ServerService
                 $this->server->save();
 
                 // Clear current live room status
-                foreach ($allRunningMeetingsInDb->get() as $meeting) {
+                foreach ($allRunningMeetingsInDb as $meeting) {
                     // Double check if the meeting is the latest meeting in the room
                     if (! $meeting->is($meeting->room->latestMeeting)) {
                         continue;
