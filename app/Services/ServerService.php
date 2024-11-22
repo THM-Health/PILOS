@@ -12,6 +12,7 @@ use App\Plugins\Contracts\ServerLoadCalculationPluginContract;
 use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Support\Collection;
+use Log;
 
 class ServerService
 {
@@ -132,6 +133,7 @@ class ServerService
         foreach ($this->server->meetings()->whereNull('end')->whereNull('detached')->get() as $meeting) {
             $meeting->detached = now();
             $meeting->save();
+            Log::warning('Meeting {meeting} for room {room} detached', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
         }
     }
 
@@ -144,7 +146,9 @@ class ServerService
             $meetingService = new MeetingService($meeting);
             try {
                 $meetingService->end();
+                Log::notice('Ended detached meeting {meeting} for room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
             } catch (\Exception $e) {
+                Log::error('Failed to end detached meeting {meeting} for room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
             }
         }
     }
@@ -304,6 +308,8 @@ class ServerService
         foreach ($meetingsNotRunningOnServers as $meetingId) {
             $meeting = Meeting::find($meetingId);
             if ($meeting != null && $meeting->end == null) {
+                Log::warning('Meeting {meeting} for room {room} is not running on the BBB server', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
+
                 (new MeetingService($meeting))->setEnd();
             }
         }

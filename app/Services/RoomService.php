@@ -142,7 +142,7 @@ class RoomService
 
         $meetingService = new MeetingService($meeting);
 
-        Log::info('Check if meeting for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
+        Log::info('Check if meeting {meeting} for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
 
         try {
             // Check if meeting is running
@@ -155,11 +155,11 @@ class RoomService
         // Check if the meeting is actually running on the server
         if (! $meetingRunning) {
             $meetingService->setEnd();
-            Log::warning('Meeting for room {room} is not running on the BBB server', ['room' => $this->room->getLogLabel()]);
+            Log::warning('Meeting {meeting} for room {room} is not running on the BBB server', ['room' => $this->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
             abort(CustomStatusCodes::ROOM_NOT_RUNNING->value, __('app.errors.not_running'));
         }
 
-        Log::info('Meeting for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel()]);
+        Log::info('Meeting {meeting} for room {room} is running on the BBB server', ['room' => $this->room->getLogLabel(), 'meeting' => $meeting->getLogLabel()]);
 
         return $meetingService;
     }
