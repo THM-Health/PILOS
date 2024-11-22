@@ -129,7 +129,7 @@ class ServerService
      */
     private function setMeetingsDetached()
     {
-        foreach ($this->server->meetings()->whereNull('end')->get() as $meeting) {
+        foreach ($this->server->meetings()->whereNull('end')->whereNull('detached')->get() as $meeting) {
             $meeting->detached = now();
             $meeting->save();
         }
