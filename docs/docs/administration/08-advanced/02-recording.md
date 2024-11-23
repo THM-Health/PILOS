@@ -250,13 +250,13 @@ The maximum configurable value is 65,535 characters. As the entire description i
 
 ### Recording import hook
 
-If you are unable to push recordings to your PILOS server as described above, you can call let PILOS call a hook script before importing recordings.
+If you are unable to push recordings to your PILOS server as described above, you can let PILOS call a hook script before importing recordings.
 
 ```shell
 RECORDING_IMPORT_BEFORE_HOOK=/usr/local/bin/pull_recordings.sh
 ```
 
-This script should place tar files in the spool directory, just as the proposed BBB post_publish script would.
+This script should place tar files in the spool directory, just as the proposed BBB `post_publish` script would.
 
 ## Tips and tricks
 
