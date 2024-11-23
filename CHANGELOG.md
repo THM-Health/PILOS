@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Configurable hook script for recording synchronization ([#1484], [#1604])
 
+### Changed
+
+-   The recording import task is now prevented from running until the previous run has finished ([#1484], [#1604])
+
 ## [v4.1.2] - 2024-11-22
 
 ### Added
