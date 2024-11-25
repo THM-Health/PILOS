@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Notifications\TestEmail;
 use Illuminate\Console\Command;
+use Notification;
 
 use function Laravel\Prompts\text;
 
@@ -13,7 +15,7 @@ class TestEmailConfig extends Command
      *
      * @var string
      */
-    protected $signature = 'mail:test {email?}';
+    protected $signature = 'mail:test';
 
     /**
      * The console command description.
@@ -28,14 +30,12 @@ class TestEmailConfig extends Command
     public function handle()
     {
         // Ask for the email address to send the test email
-        $email = $this->argument('email') ?: text('Recipient email address');
+        $email = text(label: 'Recipient email address', validate: ['email' => 'required|email']);
 
         // Send the test email
         try {
-            \Mail::raw('This is a test email', function ($message) use ($email) {
-                $message->to($email);
-                $message->subject('Test email');
-            });
+            Notification::route('mail', [$email])->notifyNow(new TestEmail);
+
             $this->info('Test email sent successfully');
 
             return self::SUCCESS;
