@@ -160,7 +160,7 @@ function handleOk() {
         // failed due to form validation errors
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           if (error.response.data.errors.room_type !== undefined) {
-            // roomTypeSelect.value.reloadRoomTypes();
+            roomTypeSelect.value.reloadRoomTypes();
           }
 
           formErrors.set(error.response.data.errors);
