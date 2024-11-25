@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   Configurable hook script for recording synchronization ([#1484], [#1604])
+-   Rate limiting for room access code authentication ([#669], [#1617])
+-   Logging for room authentication ([#669], [#1617])
 
 ### Changed
 
@@ -210,6 +212,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#617]: https://github.com/THM-Health/PILOS/pull/617
 [#649]: https://github.com/THM-Health/PILOS/issues/649
 [#650]: https://github.com/THM-Health/PILOS/pull/650
+[#669]: https://github.com/THM-Health/PILOS/issues/669
 [#681]: https://github.com/THM-Health/PILOS/pull/681
 [#686]: https://github.com/THM-Health/PILOS/pull/686
 [#695]: https://github.com/THM-Health/PILOS/issues/695
@@ -279,6 +282,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1604]: https://github.com/THM-Health/PILOS/pull/1604
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
+[#1617]: https://github.com/THM-Health/PILOS/pull/1617
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
