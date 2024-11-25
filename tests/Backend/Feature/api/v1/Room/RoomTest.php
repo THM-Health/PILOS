@@ -2663,7 +2663,7 @@ class RoomTest extends TestCase
      *
      * The server usage is collected while the rooms start is still in progress
      */
-    public function testServerUsageUpdateDuringRoomStart()
+    public function test_server_usage_update_during_room_start()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
@@ -2743,7 +2743,7 @@ class RoomTest extends TestCase
      *
      * During the server usage update a new room start is started
      */
-    public function testRoomStartDuringServerUsageUpdate()
+    public function test_room_start_during_server_usage_update()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);

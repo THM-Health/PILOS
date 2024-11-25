@@ -22,7 +22,7 @@ class ImportRecordingsCommandTest extends TestCase
         Queue::assertCount(3);
     }
 
-    public function testImportRecordingWithHook()
+    public function test_import_recording_with_hook()
     {
         Queue::fake();
 
@@ -43,7 +43,7 @@ class ImportRecordingsCommandTest extends TestCase
         Queue::assertCount(3);
     }
 
-    public function testImportRecordingWithFailingHook()
+    public function test_import_recording_with_failing_hook()
     {
         Queue::fake();
 
