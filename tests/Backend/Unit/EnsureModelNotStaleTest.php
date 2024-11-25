@@ -34,7 +34,7 @@ class EnsureModelNotStaleTest extends TestCase
         parent::tearDown();
     }
 
-    public function testInvalidUpdatedAt()
+    public function test_invalid_updated_at()
     {
         $role = Role::factory()->create();
 
@@ -43,7 +43,7 @@ class EnsureModelNotStaleTest extends TestCase
             ->assertJsonValidationErrors('updated_at');
     }
 
-    public function testStaleModel()
+    public function test_stale_model()
     {
         $role = Role::factory()->create();
 
@@ -56,7 +56,7 @@ class EnsureModelNotStaleTest extends TestCase
             ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->withPermissions()->toJson(), true)]);
     }
 
-    public function testActualModel()
+    public function test_actual_model()
     {
         $role = Role::factory()->create(['updated_at' => null]);
 

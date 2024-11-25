@@ -50,7 +50,7 @@ class RoomStatisticTest extends TestCase
     /**
      * Test to list of meetings for a room
      */
-    public function testMeetingList()
+    public function test_meeting_list()
     {
         $this->generalSettings->pagination_page_size = 5;
         $this->generalSettings->save();
@@ -183,7 +183,7 @@ class RoomStatisticTest extends TestCase
     /**
      * Test to list of meetings for a room
      */
-    public function testUsageStatistics()
+    public function test_usage_statistics()
     {
         $this->generalSettings->pagination_page_size = 5;
         $this->generalSettings->save();
@@ -271,7 +271,7 @@ class RoomStatisticTest extends TestCase
     /**
      * Test attendance at a meetings for a room
      */
-    public function testAttendance()
+    public function test_attendance()
     {
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23', 'record_attendance' => false]);
@@ -423,7 +423,7 @@ class RoomStatisticTest extends TestCase
     /**
      * Test attendance at a meetings for a room without any guests
      */
-    public function testAttendanceWithoutGuests()
+    public function test_attendance_without_guests()
     {
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23', 'record_attendance' => true]);
@@ -490,7 +490,7 @@ class RoomStatisticTest extends TestCase
     /**
      * Test attendance download at a meetings for a room
      */
-    public function testAttendanceDownload()
+    public function test_attendance_download()
     {
         // create room
         $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23', 'record_attendance' => false]);

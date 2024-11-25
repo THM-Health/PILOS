@@ -68,7 +68,7 @@ class RoomTest extends TestCase
     /**
      * Check if the permission inheritance is setup correct
      */
-    public function testPermissionInheritances()
+    public function test_permission_inheritances()
     {
         $this->user->roles()->attach($this->role);
 
@@ -102,7 +102,7 @@ class RoomTest extends TestCase
     /**
      * Test to create a new room with and without the required permissions
      */
-    public function testCreateNewRoom()
+    public function test_create_new_room()
     {
         $this->roomSettings->limit = -1;
         $this->roomSettings->save();
@@ -204,7 +204,7 @@ class RoomTest extends TestCase
     /**
      * Check if the room limit is reached and the creation of new rooms is prevented
      */
-    public function testCreateNewRoomReachLimit()
+    public function test_create_new_room_reach_limit()
     {
         $role = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
@@ -227,7 +227,7 @@ class RoomTest extends TestCase
     /**
      * Test to delete a room
      */
-    public function testDeleteRoom()
+    public function test_delete_room()
     {
         $room = Room::factory()->create();
 
@@ -286,7 +286,7 @@ class RoomTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testTransferRoom()
+    public function test_transfer_room()
     {
         //Create roles and users
         //Roles
@@ -417,7 +417,7 @@ class RoomTest extends TestCase
     /**
      * Test if guests can access room
      */
-    public function testGuestAccess()
+    public function test_guest_access()
     {
         $roomTypeGuestAccessEnforced = RoomType::factory()->create([
             'allow_guests_default' => true,
@@ -472,7 +472,7 @@ class RoomTest extends TestCase
     /**
      * Test if guests are prevented from accessing room
      */
-    public function testDisableGuestAccess()
+    public function test_disable_guest_access()
     {
         $roomTypeNoGuestAccessEnforced = RoomType::factory()->create([
             'allow_guests_default' => false,
@@ -523,7 +523,7 @@ class RoomTest extends TestCase
     /**
      * Test how guests can log into room with or without valid access code
      */
-    public function testAccessCodeGuests()
+    public function test_access_code_guests()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -554,7 +554,7 @@ class RoomTest extends TestCase
      * Test that the existing access code setting is not changed if the default setting changes in the room type
      * (The access code in the room should not be automatically be overwritten by the room type setting)
      */
-    public function testAccessCodeDifferentSettings()
+    public function test_access_code_different_settings()
     {
         $roomType = RoomType::factory()->create([
             'has_access_code_default' => true,
@@ -616,7 +616,7 @@ class RoomTest extends TestCase
     /**
      * Test how users can log into room with or without valid access code
      */
-    public function testAccessCodeUser()
+    public function test_access_code_user()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -691,7 +691,7 @@ class RoomTest extends TestCase
     /**
      * Test data room api returns for different values for the record attendance setting
      */
-    public function testRoomViewRecordAttendance()
+    public function test_room_view_record_attendance()
     {
         $roomTypeAttendanceEnforced = RoomType::factory()->create([
             'record_attendance_default' => true,
@@ -843,7 +843,7 @@ class RoomTest extends TestCase
     /**
      * Test data room api returns for different values for the allow membership setting
      */
-    public function testRoomViewAllowMembership()
+    public function test_room_view_allow_membership()
     {
         $roomTypeMembershipEnforced = RoomType::factory()->create([
             'allow_membership_default' => true,
@@ -995,7 +995,7 @@ class RoomTest extends TestCase
     /**
      * Test data room api returns
      */
-    public function testRoomView()
+    public function test_room_view()
     {
         $room = Room::factory()->create();
 
@@ -1101,7 +1101,7 @@ class RoomTest extends TestCase
     /**
      * Test list of rooms (filter, room type, favorites, own/shared/public/all)
      */
-    public function testRoomList()
+    public function test_room_list()
     {
         $roomType1 = RoomType::factory()->create();
         $roomTypePublicEnforced = RoomType::factory()->create([
@@ -1439,7 +1439,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(10, 'meta');
     }
 
-    public function testRoomListSorting()
+    public function test_room_list_sorting()
     {
         $this->roomSettings->pagination_page_size = 10;
         $this->roomSettings->save();
@@ -1527,7 +1527,7 @@ class RoomTest extends TestCase
         $this->assertEquals($roomRunning2->id, $results->json('data')[5]['id']);
     }
 
-    public function testFavorites()
+    public function test_favorites()
     {
         $roomOwn = Room::factory()->create(['name' => 'Own room']);
         $roomOwn->owner()->associate($this->user);
@@ -1583,7 +1583,7 @@ class RoomTest extends TestCase
     /**
      * Test search for rooms
      */
-    public function testRoomSearch()
+    public function test_room_search()
     {
         $user = User::factory()->create(['firstname' => 'John', 'lastname' => 'Doe']);
         $room1 = Room::factory()->create(['name' => 'Test a', 'user_id' => $user->id]);
@@ -1649,7 +1649,7 @@ class RoomTest extends TestCase
     /**
      * Test callback route for meetings
      */
-    public function testEndMeetingCallback()
+    public function test_end_meeting_callback()
     {
         $room = Room::factory()->create();
         $server = Server::factory()->create();
@@ -1682,7 +1682,7 @@ class RoomTest extends TestCase
         self::assertEquals($meeting->end, $end);
     }
 
-    public function testSettingsAccess()
+    public function test_settings_access()
     {
         $room = Room::factory()->create();
 
@@ -1724,7 +1724,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
     }
 
-    public function testAccessCodeShown()
+    public function test_access_code_shown()
     {
         $room = Room::factory()->create([
             'access_code' => $this->faker->numberBetween(111111111, 999999999),
@@ -1779,7 +1779,7 @@ class RoomTest extends TestCase
     /**
      * Test the permissions to update the room settings
      */
-    public function testUpdateSettingsPermission()
+    public function test_update_settings_permission()
     {
         $room = Room::factory()->create();
 
@@ -1839,7 +1839,7 @@ class RoomTest extends TestCase
     /**
      * Test updating the room settings when the expert mode is deactivated and only the necessary parameters are send
      */
-    public function testUpdateSettingsNoExpertOnlyNecessary()
+    public function test_update_settings_no_expert_only_necessary()
     {
         $room = Room::factory()->create();
         $roomType = RoomType::factory()->create();
@@ -1942,7 +1942,7 @@ class RoomTest extends TestCase
     /**
      * Test updating the room settings when the expert mode is deactivated and all parameters are send
      */
-    public function testUpdateSettingsNoExpertAll()
+    public function test_update_settings_no_expert_all()
     {
         $room = Room::factory()->create();
         $roomType = RoomType::factory()->create([
@@ -2075,7 +2075,7 @@ class RoomTest extends TestCase
     /**
      * Test updating the room settings when the expert mode is activated
      */
-    public function testUpdateSettingsExpert()
+    public function test_update_settings_expert()
     {
         $room = Room::factory()->create();
         $roomType = RoomType::factory()->create([
@@ -2226,7 +2226,7 @@ class RoomTest extends TestCase
 
     }
 
-    public function testUpdateSettingsInvalid()
+    public function test_update_settings_invalid()
     {
         config(['bigbluebutton.welcome_message_limit' => 5]);
         $room = Room::factory()->create([
@@ -2345,7 +2345,7 @@ class RoomTest extends TestCase
     /**
      * Testing to start room but no server available
      */
-    public function testStartRestrictedNoServer()
+    public function test_start_restricted_no_server()
     {
         $room = Room::factory()->create([
             'access_code' => $this->faker->numberBetween(111111111, 999999999),
@@ -2405,7 +2405,7 @@ class RoomTest extends TestCase
     /**
      * Testing to start room with guests allowed, and everyone can start but no server available
      */
-    public function testStartNoServer()
+    public function test_start_no_server()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -2467,7 +2467,7 @@ class RoomTest extends TestCase
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE->value);
     }
 
-    public function testStartAndJoinWithWrongServerDetails()
+    public function test_start_and_join_with_wrong_server_details()
     {
         $room = Room::factory()->create();
 
@@ -2489,7 +2489,7 @@ class RoomTest extends TestCase
             ->assertStatus(CustomStatusCodes::ROOM_NOT_RUNNING->value);
     }
 
-    public function testStartServerErrors()
+    public function test_start_server_errors()
     {
         $room = Room::factory()->create();
 
@@ -2509,7 +2509,7 @@ class RoomTest extends TestCase
     /**
      * Tests starting new meeting with a running bbb server
      */
-    public function testStartWithServer()
+    public function test_start_with_server()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
@@ -2663,7 +2663,7 @@ class RoomTest extends TestCase
      *
      * The server usage is collected while the rooms start is still in progress
      */
-    public function testServerUsageUpdateDuringRoomStart()
+    public function test_server_usage_update_during_room_start()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
@@ -2743,7 +2743,7 @@ class RoomTest extends TestCase
      *
      * During the server usage update a new room start is started
      */
-    public function testRoomStartDuringServerUsageUpdate()
+    public function test_room_start_during_server_usage_update()
     {
         $room = Room::factory()->create(['expert_mode' => true, 'record_attendance' => true, 'delete_inactive' => now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
@@ -2824,7 +2824,7 @@ class RoomTest extends TestCase
      * Tests starting new meeting with an already running meeting
      * (without checking if it is actually running, detecting detached meetings in the pollers responsibility)
      */
-    public function testStartWithServerMeetingRunning()
+    public function test_start_with_server_meeting_running()
     {
         $room = Room::factory()->create();
 
@@ -2843,7 +2843,7 @@ class RoomTest extends TestCase
     /**
      * Tests parallel starting of the same room
      */
-    public function testStartWhileStarting()
+    public function test_start_while_starting()
     {
         config(['bigbluebutton.server_timeout' => 2]);
         config(['bigbluebutton.server_connect_timeout' => 2]);
@@ -2868,7 +2868,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record attendance is set on start
      */
-    public function testRecordAttendanceStatus()
+    public function test_record_attendance_status()
     {
         // Room types
         $roomTypeAttendanceEnforced = RoomType::factory()->create([
@@ -3122,7 +3122,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record is set on start
      */
-    public function testStartRecordStatus()
+    public function test_start_record_status()
     {
         $server = Server::factory()->create();
 
@@ -3211,7 +3211,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record parameter is validated according to the room and room type settings
      */
-    public function testStartRecordParameter()
+    public function test_start_record_parameter()
     {
         $server = Server::factory()->create();
 
@@ -3314,7 +3314,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record video parameter is validated and passed to BBB in the join url on start
      */
-    public function testStartRecordVideoParameter()
+    public function test_start_record_video_parameter()
     {
         $server = Server::factory()->create();
 
@@ -3355,7 +3355,7 @@ class RoomTest extends TestCase
     /**
      * Test joining a meeting with a running bbb server
      */
-    public function testJoin()
+    public function test_join()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -3585,7 +3585,7 @@ class RoomTest extends TestCase
     /**
      * Test joining a meeting with a server error in BBB
      */
-    public function testJoinServerError()
+    public function test_join_server_error()
     {
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetingInfo*' => Http::response('Error', 500),
@@ -3607,7 +3607,7 @@ class RoomTest extends TestCase
     /**
      * Test joining urls contains correct role and name
      */
-    public function testJoinUrl()
+    public function test_join_url()
     {
         $room = Room::factory()->create([
             'allow_guests' => true,
@@ -3758,7 +3758,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record parameter is validated based on the current running meeting
      */
-    public function testJoinRecordParameter()
+    public function test_join_record_parameter()
     {
         $server = Server::factory()->create();
 
@@ -3872,7 +3872,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record video parameter is validated and passed to BBB in the join url on join
      */
-    public function testJoinRecordVideoParameter()
+    public function test_join_record_video_parameter()
     {
         $server = Server::factory()->create();
 

@@ -99,7 +99,7 @@ jobs:
           DB_PASSWORD: password
         run: php artisan migrate --no-interaction -vvv --force
       - name: Execute code style check via Laravel Pint
-        run: vendor/bin/pint --test
+        run: vendor/bin/pint --test -v
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
         env:

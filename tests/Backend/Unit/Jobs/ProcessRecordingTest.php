@@ -29,7 +29,7 @@ class ProcessRecordingTest extends TestCase
 
     const TITLE = 'Demo Meeting';
 
-    public function testProcessInvalidRecordingFile()
+    public function test_process_invalid_recording_file()
     {
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
@@ -55,7 +55,7 @@ class ProcessRecordingTest extends TestCase
         );
     }
 
-    public function testProcessValidRecordingFileButNotMeeting()
+    public function test_process_valid_recording_file_but_not_meeting()
     {
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
@@ -85,7 +85,7 @@ class ProcessRecordingTest extends TestCase
         $this->assertCount(1, Storage::disk('recordings-spool')->files('failed'));
     }
 
-    public function testMissingFile()
+    public function test_missing_file()
     {
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
@@ -104,7 +104,7 @@ class ProcessRecordingTest extends TestCase
         $job->assertDeleted();
     }
 
-    public function testRetryFailedJob()
+    public function test_retry_failed_job()
     {
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
@@ -133,7 +133,7 @@ class ProcessRecordingTest extends TestCase
         $this->assertCount(1, $meeting->room->recordings);
     }
 
-    public function testSingleFormat()
+    public function test_single_format()
     {
         Storage::fake('recordings');
         Storage::fake('recordings-spool');
@@ -178,7 +178,7 @@ class ProcessRecordingTest extends TestCase
         $this->assertFileExists(Storage::disk('recordings')->path(self::INTERNAL_MEETING_ID.'/notes/notes.pdf'));
     }
 
-    public function testMultipleFormats()
+    public function test_multiple_formats()
     {
         Storage::fake('recordings');
         Storage::fake('recordings-spool');

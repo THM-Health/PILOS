@@ -26,7 +26,7 @@ class CreateSuperuserTest extends TestCase
         ]);
     }
 
-    public function testInvalidInputs()
+    public function test_invalid_inputs()
     {
         Role::factory()->create(['name' => 'superuser', 'superuser' => true]);
 
@@ -42,7 +42,7 @@ class CreateSuperuserTest extends TestCase
             ->assertExitCode(1);
     }
 
-    public function testMissingRole()
+    public function test_missing_role()
     {
         Role::factory()->create(['name' => 'superuser']);
 
@@ -51,7 +51,7 @@ class CreateSuperuserTest extends TestCase
             ->assertExitCode(1);
     }
 
-    public function testValidInputs()
+    public function test_valid_inputs()
     {
         Role::factory()->create(['name' => 'superuser', 'superuser' => true]);
 
@@ -69,7 +69,7 @@ class CreateSuperuserTest extends TestCase
         $this->assertDatabaseCount('users', 1);
     }
 
-    public function testLocalAuthDisabled()
+    public function test_local_auth_disabled()
     {
         config([
             'auth.local.enabled' => false,

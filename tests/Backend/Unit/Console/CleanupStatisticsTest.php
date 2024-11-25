@@ -15,7 +15,7 @@ class CleanupStatisticsTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testClear()
+    public function test_clear()
     {
         $this->recordingSettings->server_usage_retention_period = TimePeriod::ONE_WEEK;
         $this->recordingSettings->meeting_usage_retention_period = TimePeriod::TWO_WEEKS;

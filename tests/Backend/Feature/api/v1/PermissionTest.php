@@ -12,7 +12,7 @@ class PermissionTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testIndex()
+    public function test_index()
     {
         $user = User::factory()->create();
         $permissions = Permission::factory()->count(10)->create()->toArray();
@@ -25,7 +25,7 @@ class PermissionTest extends TestCase
             }, $permissions)]);
     }
 
-    public function testIncludedPermissionsIndex()
+    public function test_included_permissions_index()
     {
         $user = User::factory()->create();
         $permission = Permission::factory()->create();

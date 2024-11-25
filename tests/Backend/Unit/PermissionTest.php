@@ -16,7 +16,7 @@ class PermissionTest extends TestCase
     /**
      * Check if 'can' responds with the correct permission result
      */
-    public function testUserHasPermission()
+    public function test_user_has_permission()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create();
@@ -30,7 +30,7 @@ class PermissionTest extends TestCase
     /**
      * Check if user inherits permissions from other permissions
      */
-    public function testUserHasInheritedPermission()
+    public function test_user_has_inherited_permission()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create();
@@ -48,7 +48,7 @@ class PermissionTest extends TestCase
     /**
      * Check if permissions inheritance only works from parent to child, not child to parent
      */
-    public function testUserHasInheritedPermissionReverse()
+    public function test_user_has_inherited_permission_reverse()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create();
@@ -66,7 +66,7 @@ class PermissionTest extends TestCase
     /**
      * Test for non existing permission
      */
-    public function testNonExistingPermission()
+    public function test_non_existing_permission()
     {
         $user = User::factory()->create();
         $this->assertFalse($user->can($this->faker->word));

@@ -16,7 +16,7 @@ class UploadLocalesTest extends TestCase
     /**
      * Test if locales terms and english default locale are uploaded
      */
-    public function testLocaleSync()
+    public function test_locale_sync()
     {
         Http::fake([
             'api.poeditor.com/v2/projects/upload' => Http::sequence()
@@ -93,7 +93,7 @@ class UploadLocalesTest extends TestCase
     /**
      * Test if all translations are uploaded
      */
-    public function testLocaleOverwrite()
+    public function test_locale_overwrite()
     {
         Http::fake([
             'api.poeditor.com/v2/projects/upload' => Http::sequence()

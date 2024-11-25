@@ -18,7 +18,7 @@ class ImportDatabaseTest extends TestCase
      *
      * @return void
      */
-    public function testMissingFile()
+    public function test_missing_file()
     {
         // Drop all tables
         $this->artisan('db:wipe');
@@ -37,7 +37,7 @@ class ImportDatabaseTest extends TestCase
      *
      * @return void
      */
-    public function testInvalidFile()
+    public function test_invalid_file()
     {
         // Drop all tables
         $this->artisan('db:wipe');
@@ -62,7 +62,7 @@ class ImportDatabaseTest extends TestCase
      *
      * @return void
      */
-    public function testValidFile()
+    public function test_valid_file()
     {
         // Drop all tables
         $this->artisan('db:wipe');
