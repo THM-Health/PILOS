@@ -439,7 +439,7 @@ describe("Rooms index create new room", function () {
       .should("be.visible")
       .and("include.text", "The selected Room type is invalid.");
 
-    // Check refreshed listed is shown and room type select is reset
+    // Check refreshed list is shown and room type select is reset
     cy.get('[data-test="room-type-select-option"]').should("have.length", 4);
     // Check that no room type is selected
     cy.get('[data-test="room-type-details"]').should("not.exist");
