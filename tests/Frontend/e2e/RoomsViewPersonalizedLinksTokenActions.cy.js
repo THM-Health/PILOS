@@ -8,7 +8,7 @@ describe("Rooms view personalized links token actions", function () {
   });
 
   it("add new token", function () {
-    cy.visit("rooms/abc-def-123#tab=tokens");
+    cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomTokensRequest");
 
@@ -136,7 +136,7 @@ describe("Rooms view personalized links token actions", function () {
   });
 
   it("add new token errors", function () {
-    cy.visit("rooms/abc-def-123#tab=tokens");
+    cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
     cy.wait("@roomTokensRequest");
@@ -223,7 +223,7 @@ describe("Rooms view personalized links token actions", function () {
   });
 
   it("edit token", function () {
-    cy.visit("rooms/abc-def-123#tab=tokens");
+    cy.visit("/rooms/abc-def-123#tab=tokens");
     cy.wait("@roomRequest");
     cy.wait("@roomTokensRequest");
 
@@ -360,7 +360,7 @@ describe("Rooms view personalized links token actions", function () {
   });
 
   it("edit token errors", function () {
-    cy.visit("rooms/abc-def-123#tab=tokens");
+    cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
     cy.wait("@roomTokensRequest");
@@ -509,7 +509,7 @@ describe("Rooms view personalized links token actions", function () {
   });
 
   it("delete token", function () {
-    cy.visit("rooms/abc-def-123#tab=tokens");
+    cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
     cy.wait("@roomTokensRequest");
@@ -586,7 +586,7 @@ describe("Rooms view personalized links token actions", function () {
   });
 
   it("delete token errors", function () {
-    cy.visit("rooms/abc-def-123#tab=tokens");
+    cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
     cy.wait("@roomTokensRequest");
@@ -710,7 +710,7 @@ describe("Rooms view personalized links token actions", function () {
   });
 
   it("copy token", function () {
-    cy.visit("rooms/abc-def-123#tab=tokens");
+    cy.visit("/rooms/abc-def-123#tab=tokens");
 
     cy.wait("@roomRequest");
     cy.wait("@roomTokensRequest");

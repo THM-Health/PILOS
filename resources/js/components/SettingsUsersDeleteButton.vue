@@ -15,6 +15,7 @@
     :disabled="isBusy"
     severity="danger"
     icon="fa-solid fa-trash"
+    data-test="users-delete-button"
     @click="showModal"
   />
   <Dialog
@@ -27,6 +28,7 @@
     :dismissable-mask="!isBusy"
     :closeable="!isBusy"
     :draggable="false"
+    data-test="users-delete-dialog"
   >
     <span>
       {{
@@ -40,12 +42,14 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
+        data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
         severity="danger"
         :loading="isBusy"
+        data-test="dialog-continue-button"
         @click="deleteUser"
       />
     </template>

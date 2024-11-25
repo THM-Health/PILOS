@@ -8,7 +8,9 @@
         "de": "Deutsch",
         "en": "English",
         "fr": "Français"
-      }
+      },
+      "default_locale": "en",
+      "default_timezone": "UTC"
     },
     "theme": {
       "primary_color": "#14b8a6",

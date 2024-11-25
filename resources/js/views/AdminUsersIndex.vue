@@ -2,7 +2,7 @@
   <div>
     <div class="mb-6 flex flex-col justify-between gap-4 md:flex-row">
       <div>
-        <InputGroup>
+        <InputGroup data-test="user-search">
           <InputText
             v-model="filter.name"
             :disabled="isBusy"
@@ -24,6 +24,7 @@
           <multiselect
             ref="rolesMultiselectRef"
             v-model="filter.role"
+            data-test="role-dropdown"
             :placeholder="$t('admin.users.role_filter')"
             track-by="id"
             open-direction="bottom"
@@ -57,6 +58,7 @@
                   severity="secondary"
                   icon="fa-solid fa-arrow-left"
                   :label="$t('app.previous_page')"
+                  data-test="previous-page-button"
                   @click="loadRoles(Math.max(1, rolesCurrentPage - 1))"
                 />
                 <Button
@@ -65,6 +67,7 @@
                   severity="secondary"
                   icon="fa-solid fa-arrow-right"
                   :label="$t('app.next_page')"
+                  data-test="next-page-button"
                   @click="loadRoles(rolesCurrentPage + 1)"
                 />
               </div>
@@ -75,6 +78,7 @@
             outlined
             severity="secondary"
             icon="fa-solid fa-xmark"
+            data-test="clear-roles-button"
             @click="clearFilterRole"
           />
 
@@ -83,6 +87,7 @@
             outlined
             severity="secondary"
             icon="fa-solid fa-sync"
+            data-test="roles-reload-button"
             @click="loadRoles(rolesCurrentPage)"
           />
         </InputGroup>
@@ -97,6 +102,7 @@
           :aria-label="$t('admin.users.new')"
           icon="fa-solid fa-plus"
           :to="{ name: 'admin.users.new' }"
+          data-test="users-add-button"
         />
       </div>
     </div>
@@ -118,6 +124,28 @@
       striped-rows
       :pt="{
         table: 'table-auto lg:table-fixed',
+        bodyRow: {
+          'data-test': 'user-item',
+        },
+        mask: {
+          'data-test': 'overlay',
+        },
+        column: {
+          bodyCell: {
+            'data-test': 'user-item-cell',
+          },
+          headerCell: {
+            'data-test': 'user-header-cell',
+          },
+        },
+        pcPaginator: {
+          page: {
+            'data-test': 'paginator-page',
+          },
+          next: {
+            'data-test': 'paginator-next-button',
+          },
+        },
       }"
       @update:first="paginator.setFirst($event)"
       @page="onPage"
@@ -198,6 +226,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-eye"
+              data-test="users-view-button"
             />
             <Button
               v-if="userPermissions.can('update', slotProps.data)"
@@ -221,6 +250,7 @@
                 params: { id: slotProps.data.id },
               }"
               icon="fa-solid fa-edit"
+              data-test="users-edit-button"
             />
             <SettingsUsersResetPasswordButton
               v-if="

@@ -1,0 +1,57 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "authenticator": "local",
+      "email": "JohnDoe@domain.tld",
+      "external_id": null,
+      "firstname": "John",
+      "lastname": "Doe",
+      "user_locale": "en",
+      "model_name": "User",
+      "room_limit": 0,
+      "roles": [{ "id": 1, "name": "Admin", "automatic": false }],
+      "updated_at": "2020-01-01T01:00:00.000000Z",
+      "initial_password_set": true
+    },
+    {
+      "id": 2,
+      "authenticator": "local",
+      "email": "LauraWRivera@domain.tld",
+      "external_id": null,
+      "firstname": "Laura",
+      "lastname": "Rivera",
+      "user_locale": null,
+      "model_name": "User",
+      "room_limit": 0,
+      "roles": [
+        { "id": 3, "name": "Students", "automatic": true },
+        { "id": 2, "name": "Staff", "automatic": false }
+      ],
+      "updated_at": "2020-01-01T01:00:00.000000Z",
+      "initial_password_set": false
+    },
+    {
+      "id": 3,
+      "authenticator": "ldap",
+      "email": "JuanMWalter@domain.tld",
+      "external_id": "JMW",
+      "firstname": "Juan",
+      "lastname": "Walter",
+      "user_locale": "de",
+      "model_name": "User",
+      "room_limit": 0,
+      "roles": [{ "id": 3, "name": "Students", "automatic": true }],
+      "updated_at": "2020-01-01T01:00:00.000000Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "per_page": 3,
+    "to": 3,
+    "total": 3,
+    "total_no_filter": 3
+  }
+}

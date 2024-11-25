@@ -1,0 +1,22 @@
+{
+  "data": {
+    "id": 2,
+    "authenticator": "local",
+    "image": null,
+    "email": "LauraWRivera@domain.tld",
+    "external_id": null,
+    "firstname": "Laura",
+    "lastname": "Rivera",
+    "model_name": "User",
+    "user_locale": "en",
+    "room_limit": -1,
+    "updated_at": "2024-09-13T14:20:26.000000Z",
+    "roles": [
+      { "id": 3, "name": "Students", "automatic": true },
+      { "id": 2, "name": "Staff", "automatic": false }
+    ],
+    "bbb_skip_check_audio": false,
+    "initial_password_set": false,
+    "timezone": "UTC"
+  }
+}

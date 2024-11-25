@@ -108,7 +108,7 @@ describe("Login", function () {
     }).as("loginRequest");
 
     // Visit page that can only be visited by logged in users
-    cy.visit("admin");
+    cy.visit("/admin");
 
     // Check redirect to the login page
     cy.url().should("include", "/login?redirect=/admin");
@@ -243,7 +243,7 @@ describe("Login", function () {
     }).as("loginRequest");
 
     // Visit page that can only be visited by logged in users
-    cy.visit("admin");
+    cy.visit("/admin");
 
     // Check redirect to the login page
     cy.url().should("include", "/login?redirect=/admin");
@@ -436,7 +436,7 @@ describe("Login", function () {
     });
 
     // Visit page that can only be visited by logged in users
-    cy.visit("admin");
+    cy.visit("/admin");
 
     // Check redirect to the login page
     cy.url().should("include", "/login?redirect=/admin");

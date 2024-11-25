@@ -778,5 +778,21 @@ describe("User Profile Base", function () {
     cy.get('[data-test="timezone-dropdown-option"]')
       .eq(3)
       .should("have.attr", "aria-selected", "true");
+
+    // Check with 401 error
+    cy.intercept("GET", "api/v1/getTimezones", {
+      statusCode: 401,
+    }).as("timezonesRequest");
+
+    cy.reload();
+
+    cy.wait("@userRequest");
+
+    cy.wait("@timezonesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/profile");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
   });
 });

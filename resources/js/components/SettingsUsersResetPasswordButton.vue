@@ -16,6 +16,7 @@
     :disabled="isBusy"
     severity="warn"
     icon="fa-solid fa-key"
+    data-test="users-reset-password-button"
     @click="showModal"
   />
 
@@ -29,6 +30,7 @@
     :dismissable-mask="!isBusy"
     :closeable="!isBusy"
     :draggable="false"
+    data-test="users-reset-password-dialog"
   >
     <span>
       {{
@@ -42,12 +44,14 @@
       <Button
         :label="$t('app.no')"
         severity="secondary"
+        data-test="dialog-cancel-button"
         @click="modalVisible = false"
       />
       <Button
         :label="$t('app.yes')"
         severity="danger"
         :loading="isBusy"
+        data-test="dialog-continue-button"
         @click="resetPassword"
       />
     </template>

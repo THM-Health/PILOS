@@ -178,3 +178,56 @@ Cypress.Commands.add("interceptRoomPersonalizedLinksRequests", () => {
     fixture: "roomTokens.json",
   }).as("roomTokensRequest");
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin users index page
+ * @memberof cy
+ * @method interceptAdminUsersIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminUsersIndexRequests", () => {
+  cy.intercept("GET", "api/v1/users*", {
+    fixture: "users.json",
+  }).as("usersRequest");
+
+  cy.intercept("GET", "api/v1/roles*", {
+    fixture: "userRoles.json",
+  });
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin users new page
+ * @memberof cy
+ * @method interceptAdminUsersNewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminUsersNewRequests", () => {
+  cy.intercept("GET", "api/v1/users*", {
+    fixture: "users.json",
+  }).as("usersRequest");
+
+  cy.intercept("GET", "api/v1/roles*", {
+    fixture: "userRoles.json",
+  });
+
+  cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin users view page
+ * @memberof cy
+ * @method interceptAdminUsersViewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminUsersViewRequests", () => {
+  cy.intercept("GET", "api/v1/users*", {
+    fixture: "users.json",
+  }).as("usersRequest");
+
+  cy.intercept("GET", "api/v1/roles*", {
+    fixture: "userRoles.json",
+  });
+
+  cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
+  cy.intercept("GET", "api/v1/sessions", { fixture: "sessions.json" });
+});
