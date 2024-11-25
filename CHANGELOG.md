@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   The recording import task is now prevented from running until the previous run has finished ([#1484], [#1604])
 
+### Fixed
+
+-   Reload room type list on form validation error in new room dialog ([#1523], [#1616])
+
 ## [v4.1.2] - 2024-11-22
 
 ### Added
@@ -267,6 +271,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1489]: https://github.com/THM-Health/PILOS/pull/1489
 [#1493]: https://github.com/THM-Health/PILOS/issues/1493
 [#1495]: https://github.com/THM-Health/PILOS/pull/1495
+[#1523]: https://github.com/THM-Health/PILOS/issues/1523
 [#1536]: https://github.com/THM-Health/PILOS/issues/1536
 [#1537]: https://github.com/THM-Health/PILOS/pull/1537
 [#1548]: https://github.com/THM-Health/PILOS/pull/1548
@@ -279,6 +284,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1604]: https://github.com/THM-Health/PILOS/pull/1604
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
+[#1616]: https://github.com/THM-Health/PILOS/pull/1616
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
