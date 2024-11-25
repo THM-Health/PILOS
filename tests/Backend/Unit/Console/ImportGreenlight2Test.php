@@ -319,16 +319,16 @@ class ImportGreenlight2Test extends TestCase
 
     public function test()
     {
-        $this->testCommand(false);
+        $this->test_command(false);
     }
 
     public function test_with_prefix()
     {
-        $this->testCommand(false, 'Migration:');
+        $this->test_command(false, 'Migration:');
     }
 
     public function test_with_room_auth()
     {
-        $this->testCommand(true);
+        $this->test_command(true);
     }
 }
