@@ -368,6 +368,18 @@ describe("Rooms index create new room", function () {
       },
     }).as("createRoomRequest");
 
+    cy.fixture("roomTypes.json").then((roomTypes) => {
+      const invalidType = JSON.parse(JSON.stringify(roomTypes.data[0]));
+      invalidType.id = 999;
+      invalidType.name = "Invalid Type";
+      roomTypes.data.unshift(invalidType);
+
+      cy.intercept("GET", "api/v1/roomTypes*", {
+        statusCode: 200,
+        body: roomTypes,
+      });
+    });
+
     cy.visit("/rooms");
 
     // Open room create modal
@@ -391,6 +403,46 @@ describe("Rooms index create new room", function () {
     cy.get('[data-test="room-create-dialog"]')
       .should("be.visible")
       .and("include.text", "The Room type field is required.");
+
+    // Create new room with invalid room type
+    cy.intercept("POST", "api/v1/rooms", {
+      statusCode: 422,
+      body: {
+        message: "The selected Room type is invalid.",
+        errors: {
+          room_type: ["The selected Room type is invalid."],
+        },
+      },
+    }).as("createRoomRequest");
+
+    cy.intercept("GET", "api/v1/roomTypes*", { fixture: "roomTypes.json" }).as(
+      "roomTypeRequest",
+    );
+
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .within(() => {
+        // Select a room type
+        cy.get('[data-test="room-type-select-option"]').eq(0).click();
+        // Check that room type is selected
+        cy.get('[data-test="room-type-details"] > h3').contains("Invalid Type");
+
+        // Create new room
+        cy.get('[data-test="dialog-save-button"]').click();
+      });
+
+    cy.wait("@createRoomRequest");
+    cy.wait("@roomTypeRequest");
+
+    // Check that error gets displayed
+    cy.get('[data-test="room-create-dialog"]')
+      .should("be.visible")
+      .and("include.text", "The selected Room type is invalid.");
+
+    // Check refreshed listed is shown and room type select is reset
+    cy.get('[data-test="room-type-select-option"]').should("have.length", 4);
+    // Check that no room type is selected
+    cy.get('[data-test="room-type-details"]').should("not.exist");
 
     // Create new room without name
     cy.intercept("POST", "api/v1/rooms", {
