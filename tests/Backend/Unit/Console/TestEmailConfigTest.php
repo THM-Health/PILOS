@@ -25,7 +25,14 @@ class TestEmailConfigTest extends TestCase
         Notification::assertSentOnDemand(
             TestEmail::class,
             function (TestEmail $notification, array $channels, object $notifiable) {
-                return $notifiable->routes['mail'][0] === 'test@example.com';
+                // Check the email content
+                $mail = $notification->toMail($notifiable)->toArray();
+                $this->assertEquals('This is a test email to check the email configuration.', $mail['introLines'][0]);
+
+                // Check the email recipient
+                $this->assertEquals(['test@example.com'], $notifiable->routes['mail']);
+
+                return true;
             }
         );
     }
