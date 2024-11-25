@@ -130,7 +130,7 @@ class LdapLoginTest extends TestCase
      *
      * @return void
      */
-    public function testLoginRoute()
+    public function test_login_route()
     {
         Config::set('ldap.enabled', false);
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
@@ -145,7 +145,7 @@ class LdapLoginTest extends TestCase
      *
      * @return void
      */
-    public function testLoginSuccess()
+    public function test_login_success()
     {
         $this->assertGuest($this->guard);
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
@@ -161,7 +161,7 @@ class LdapLoginTest extends TestCase
      *
      * @return void
      */
-    public function testLoginWrongCredentials()
+    public function test_login_wrong_credentials()
     {
         $this->assertGuest($this->guard);
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
@@ -176,7 +176,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test attributes get mapped correctly.
      */
-    public function testAttributeMapping()
+    public function test_attribute_mapping()
     {
         Log::swap(new LogFake);
         Config::set('ldap.logging.enabled', false);
@@ -210,7 +210,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test attributes get mapped correctly.
      */
-    public function testAttributeMappingLogging()
+    public function test_attribute_mapping_logging()
     {
         Log::swap(new LogFake);
         Config::set('ldap.logging.enabled', true);
@@ -244,7 +244,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test that the correct error message is returned when the attribute mapping is incomplete.
      */
-    public function testIncompleteAttributeMapping()
+    public function test_incomplete_attribute_mapping()
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         unset($newAttributeConf->attributes->first_name);
@@ -261,7 +261,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test that the correct error message is returned when trying to map a non existing ldap attribute.
      */
-    public function testNonExistingLdapAttributeMapping()
+    public function test_non_existing_ldap_attribute_mapping()
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->attributes->first_name = 'wrongAttribute';
@@ -278,7 +278,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test that mapping to a non existing model attribute is not failing.
      */
-    public function testNonExistingModelAttributeMapping()
+    public function test_non_existing_model_attribute_mapping()
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->attributes->new_attribute = 'givenName';
@@ -295,7 +295,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test roles get mapped correctly.
      */
-    public function testRoleMapping()
+    public function test_role_mapping()
     {
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -319,7 +319,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test roles get mapped correctly, ignoring the invalid attribute.
      */
-    public function testRoleMappingInvalidLdapAttribute()
+    public function test_role_mapping_invalid_ldap_attribute()
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->roles[0]->rules[0]->attribute = 'notExistingAttribute';
@@ -344,7 +344,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test roles get mapped correctly, ignoring invalid roles
      */
-    public function testRoleMappingInvalidRoles()
+    public function test_role_mapping_invalid_roles()
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->roles[0]->name = 'notExistingRole';
@@ -369,7 +369,7 @@ class LdapLoginTest extends TestCase
     /**
      * Test that no roles gets mapped if the role mapping is empty.
      */
-    public function testEmptyRoleMap()
+    public function test_empty_role_map()
     {
         $newAttributeConf = json_decode($this->ldapMapping);
         $newAttributeConf->roles = [];
@@ -391,7 +391,7 @@ class LdapLoginTest extends TestCase
      *
      * @return void
      */
-    public function testMappingOnSecondLogin()
+    public function test_mapping_on_second_login()
     {
         $this->ldapUser->replaceAttribute('userclass', ['administrator']);
 
@@ -462,7 +462,7 @@ class LdapLoginTest extends TestCase
      *
      * @return void
      */
-    public function testRoleLogging()
+    public function test_role_logging()
     {
         Log::swap(new LogFake);
 
@@ -486,7 +486,7 @@ class LdapLoginTest extends TestCase
      *
      * @return void
      */
-    public function testLogging()
+    public function test_logging()
     {
         // test failed login
         Log::swap(new LogFake);

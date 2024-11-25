@@ -23,7 +23,7 @@ class ServerServiceTest extends TestCase
     /**
      * Test getMeetings response for different server status and wrong api details
      */
-    public function testGetMeetingsWithStatusAndOffline()
+    public function test_get_meetings_with_status_and_offline()
     {
         $server = Server::factory()->create();
         $server->base_url = 'https://fake.notld/bigbluebutton/';
@@ -49,7 +49,7 @@ class ServerServiceTest extends TestCase
     /**
      * Test if server response is correctly passed through
      */
-    public function testGetMeetingsWithResponse()
+    public function test_get_meetings_with_response()
     {
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-3.xml')),
@@ -70,7 +70,7 @@ class ServerServiceTest extends TestCase
     /**
      * Test if a failed server response results in empty response
      */
-    public function testGetMeetingsWithFailedResponse()
+    public function test_get_meetings_with_failed_response()
     {
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Failed.xml')),
@@ -87,7 +87,7 @@ class ServerServiceTest extends TestCase
     /**
      * Check if attendance is getting logged
      */
-    public function testLogAttendance()
+    public function test_log_attendance()
     {
         Log::swap(new LogFake);
 
@@ -194,7 +194,7 @@ class ServerServiceTest extends TestCase
     /**
      * Check if attendance is not getting logged if disabled
      */
-    public function testLogAttendanceDisabled()
+    public function test_log_attendance_disabled()
     {
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/GetMeetings-Start.xml')),
@@ -215,7 +215,7 @@ class ServerServiceTest extends TestCase
     /**
      * Check if the version is getting updated
      */
-    public function testVersionUpdate()
+    public function test_version_update()
     {
         $server = Server::factory()->create(['version' => '2.3.0']);
 
@@ -251,7 +251,7 @@ class ServerServiceTest extends TestCase
         $this->assertNull($server->version);
     }
 
-    public function testServerHealthFailing()
+    public function test_server_health_failing()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -295,7 +295,7 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(ServerHealth::OFFLINE, $server->health);
     }
 
-    public function testServerHealthSingleFailure()
+    public function test_server_health_single_failure()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -339,7 +339,7 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(ServerHealth::ONLINE, $server->health);
     }
 
-    public function testServerHealthRecovering()
+    public function test_server_health_recovering()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -390,7 +390,7 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(ServerHealth::ONLINE, $server->health);
     }
 
-    public function testDetachMeetingOnOffline()
+    public function test_detach_meeting_on_offline()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -445,7 +445,7 @@ class ServerServiceTest extends TestCase
         $this->assertNotNull($meeting->detached);
     }
 
-    public function testEndDetachedMeetingOnOnline()
+    public function test_end_detached_meeting_on_online()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
@@ -485,7 +485,7 @@ class ServerServiceTest extends TestCase
         $this->assertNotNull($meeting->end);
     }
 
-    public function testPanicServer()
+    public function test_panic_server()
     {
 
         $server = Server::factory()->create();
@@ -517,7 +517,7 @@ class ServerServiceTest extends TestCase
         $this->assertNotNull($meeting2->end);
     }
 
-    public function testPanicServerWithFailedEndMeeting()
+    public function test_panic_server_with_failed_end_meeting()
     {
 
         $server = Server::factory()->create();
@@ -549,7 +549,7 @@ class ServerServiceTest extends TestCase
         $this->assertNotNull($meeting2->end);
     }
 
-    public function testServerDraining()
+    public function test_server_draining()
     {
         Http::fake([
             'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
@@ -575,7 +575,7 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(ServerStatus::DISABLED, $server->status);
     }
 
-    public function testServerLoad()
+    public function test_server_load()
     {
         config([
             'plugins.enabled' => [''],
@@ -598,7 +598,7 @@ class ServerServiceTest extends TestCase
         $this->assertEquals(6, $server->load);
     }
 
-    public function testServerLoadWithPlugin()
+    public function test_server_load_with_plugin()
     {
         config([
             'plugins.enabled' => ['ServerLoadCalculationPlugin'],

@@ -21,7 +21,7 @@ class PollServerTest extends TestCase
     /**
      * If server is offline/not reachable, reset usage numbers, mark as offline and end all meetings marked as running
      */
-    public function testServerOffline()
+    public function test_server_offline()
     {
         config([
             'bigbluebutton.server_online_threshold' => 2,
@@ -84,7 +84,7 @@ class PollServerTest extends TestCase
     /**
      * Test if live and archival usage data is created
      */
-    public function testServerOnline()
+    public function test_server_online()
     {
         $user99 = User::factory()->create(['id' => 99]);
         $user100 = User::factory()->create(['id' => 100]);
@@ -194,7 +194,7 @@ class PollServerTest extends TestCase
     /**
      * Test if live and archival usage data is created
      */
-    public function testServerOnlineDisabledAttendanceRecording()
+    public function test_server_online_disabled_attendance_recording()
     {
         $meeting = Meeting::factory()->create(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'record_attendance' => false]);
 

@@ -19,7 +19,7 @@ class ServerLoadCalculationPluginTest extends TestCase
      *
      * @return void
      */
-    public function testLoad()
+    public function test_load()
     {
         config([
             'bigbluebutton.load_new_meeting_min_user_count' => 10,
@@ -40,7 +40,7 @@ class ServerLoadCalculationPluginTest extends TestCase
      *
      * @return void
      */
-    public function testLoadHigherThanDefault()
+    public function test_load_higher_than_default()
     {
         config([
             'bigbluebutton.load_new_meeting_min_user_count' => 5,
@@ -61,7 +61,7 @@ class ServerLoadCalculationPluginTest extends TestCase
      *
      * @return void
      */
-    public function testLoadWithMaxUserLowerThanMinUser()
+    public function test_load_with_max_user_lower_than_min_user()
     {
         config([
             'bigbluebutton.load_new_meeting_min_user_count' => 30,
@@ -82,7 +82,7 @@ class ServerLoadCalculationPluginTest extends TestCase
      *
      * @return void
      */
-    public function testLoadWithMaxUserHigherThanMinUser()
+    public function test_load_with_max_user_higher_than_min_user()
     {
         config([
             'bigbluebutton.load_new_meeting_min_user_count' => 10,

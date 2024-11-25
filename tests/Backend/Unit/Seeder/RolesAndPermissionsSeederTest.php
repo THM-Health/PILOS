@@ -25,7 +25,7 @@ class RolesAndPermissionsSeederTest extends TestCase
     /**
      * Check clean installation
      */
-    public function testCleanInstall()
+    public function test_clean_install()
     {
         // Check if admin role has all permissions
         $this->assertCount(Permission::all()->count(), Role::where('name', 'Superuser')->where('superuser', true)->first()->permissions);
@@ -37,7 +37,7 @@ class RolesAndPermissionsSeederTest extends TestCase
     /**
      * Check if user role is not created if already changed
      */
-    public function testUserRoleNotCreatedIfAlreadyChanged()
+    public function test_user_role_not_created_if_already_changed()
     {
         // Change user role
         $userRole = Role::where('name', 'User')->first();
@@ -53,7 +53,7 @@ class RolesAndPermissionsSeederTest extends TestCase
     /**
      * Check if user role is not created if already removed
      */
-    public function testUserRoleNotCreatedIfAlreadyRemoved()
+    public function test_user_role_not_created_if_already_removed()
     {
         // Remove user role
         Role::where('name', 'User')->first()->delete();

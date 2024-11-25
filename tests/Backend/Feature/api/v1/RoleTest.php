@@ -22,7 +22,7 @@ class RoleTest extends TestCase
         parent::setUp();
     }
 
-    public function testIndex()
+    public function test_index()
     {
         $page_size = 1;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -72,7 +72,7 @@ class RoleTest extends TestCase
             ->assertJsonPath('meta.total_no_filter', 2);
     }
 
-    public function testCreate()
+    public function test_create()
     {
         $user = User::factory()->create();
         $roleA = Role::factory()->create();
@@ -115,7 +115,7 @@ class RoleTest extends TestCase
         $this->assertEquals(10, $roleDB->room_limit);
     }
 
-    public function testUpdate()
+    public function test_update()
     {
         $user = User::factory()->create();
         $superuserRole = Role::factory()->create(['superuser' => true, 'room_limit' => -1]);
@@ -204,7 +204,7 @@ class RoleTest extends TestCase
             ->assertJsonValidationErrors(['permissions', 'name', 'room_limit']);
     }
 
-    public function testUpdatePermissionLost()
+    public function test_update_permission_lost()
     {
         $user = User::factory()->create();
         $roleA = Role::factory()->create();
@@ -232,7 +232,7 @@ class RoleTest extends TestCase
         $this->assertEquals($permission_ids, $roleA->permissions()->pluck('permissions.id')->toArray());
     }
 
-    public function testShow()
+    public function test_show()
     {
         $user = User::factory()->create();
         $roleA = Role::factory()->create();
@@ -255,7 +255,7 @@ class RoleTest extends TestCase
             ]);
     }
 
-    public function testDelete()
+    public function test_delete()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create();

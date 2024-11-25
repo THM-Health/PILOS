@@ -136,7 +136,7 @@ class ImportGreenlight2Test extends TestCase
         DB::shouldReceive('commit')->once();
     }
 
-    protected function testCommand($roomAuth, ?string $prefix = null)
+    protected function test_command($roomAuth, ?string $prefix = null)
     {
         // password for all users
         $password = Hash::make('secret');
@@ -322,12 +322,12 @@ class ImportGreenlight2Test extends TestCase
         $this->testCommand(false);
     }
 
-    public function testWithPrefix()
+    public function test_with_prefix()
     {
         $this->testCommand(false, 'Migration:');
     }
 
-    public function testWithRoomAuth()
+    public function test_with_room_auth()
     {
         $this->testCommand(true);
     }

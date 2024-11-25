@@ -15,7 +15,7 @@ class LocalesCacheTest extends TestCase
     /**
      * Test if locales cache is build correctly
      */
-    public function testLocalesCache()
+    public function test_locales_cache()
     {
         $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
             $mock->shouldReceive('buildCache')

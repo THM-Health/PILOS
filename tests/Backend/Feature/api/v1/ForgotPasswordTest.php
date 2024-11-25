@@ -24,7 +24,7 @@ class ForgotPasswordTest extends TestCase
         ]);
     }
 
-    public function testDisabledRoute()
+    public function test_disabled_route()
     {
         // Check if the route is disabled when the password self reset is disabled
         config([
@@ -47,7 +47,7 @@ class ForgotPasswordTest extends TestCase
         ])->assertNotFound();
     }
 
-    public function testForgotPassword()
+    public function test_forgot_password()
     {
         $user = User::factory()->create();
         $externalUser = User::factory()->create([

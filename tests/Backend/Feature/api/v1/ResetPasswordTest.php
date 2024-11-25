@@ -25,7 +25,7 @@ class ResetPasswordTest extends TestCase
         ]);
     }
 
-    public function testResetPassword()
+    public function test_reset_password()
     {
         $this->userSettings->password_change_allowed = true;
         $this->userSettings->save();
@@ -154,7 +154,7 @@ class ResetPasswordTest extends TestCase
         $this->assertCount(1, $user->sessions);
     }
 
-    public function testDisabledRoute()
+    public function test_disabled_route()
     {
         $user = User::factory()->create();
 

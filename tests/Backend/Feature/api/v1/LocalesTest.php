@@ -53,7 +53,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testNotExistingLocaleInAcceptHeader()
+    public function test_not_existing_locale_in_accept_header()
     {
         $response = $this->withHeaders([
             'Accept-Language' => 'foo',
@@ -67,7 +67,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testLocaleOfAuthenticatedUser()
+    public function test_locale_of_authenticated_user()
     {
         $user = User::factory()->create([
             'password' => Hash::make('bar'),
@@ -87,7 +87,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testLocalePersistedInSession()
+    public function test_locale_persisted_in_session()
     {
         $response = $this->session([
             'locale' => 'de',
@@ -101,7 +101,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testLocaleInHeaderAndSession()
+    public function test_locale_in_header_and_session()
     {
         $response = $this->session([
             'locale' => 'de',
@@ -118,7 +118,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testLocaleInHeader()
+    public function test_locale_in_header()
     {
         $response = $this->withHeaders([
             'Accept-Language' => 'de',
@@ -132,7 +132,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testLocaleDifferentLocalesEverywhere()
+    public function test_locale_different_locales_everywhere()
     {
         $user = User::factory()->create([
             'password' => Hash::make('bar'),
@@ -153,7 +153,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testSetLocale()
+    public function test_set_locale()
     {
         $response = $this->withHeaders([
             'Accept-Language' => '',
@@ -181,7 +181,7 @@ class LocalesTest extends TestCase
      *
      * @return void
      */
-    public function testSetLocaleUpdatesCurrentUsersLocale()
+    public function test_set_locale_updates_current_users_locale()
     {
         $user = User::factory()->create([
             'password' => Hash::make('bar'),
@@ -207,7 +207,7 @@ class LocalesTest extends TestCase
         ]);
     }
 
-    public function testDefaultLocaleSetAutomaticallyForLdapUsersOnLogin()
+    public function test_default_locale_set_automatically_for_ldap_users_on_login()
     {
         Container::getConnection('default')->getConfiguration()->set('use_tls', false);
         Container::getConnection('default')->getConfiguration()->set('use_ssl', false);
@@ -235,14 +235,14 @@ class LocalesTest extends TestCase
         $this->assertEquals('en', $externalUser->locale);
     }
 
-    public function testLocaleDataInvalid()
+    public function test_locale_data_invalid()
     {
         $this->getJson(route('api.v1.locale.get', [
             'locale' => 'invalid',
         ]))->assertNotFound();
     }
 
-    public function testLocaleData()
+    public function test_locale_data()
     {
         $content = [
             'key1' => 'value1',

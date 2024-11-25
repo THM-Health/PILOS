@@ -15,7 +15,7 @@ class RoutingTest extends TestCase
      *
      * @return void
      */
-    public function testNotExistingApiRoute()
+    public function test_not_existing_api_route()
     {
         $response = $this->get('/api/not/existing/route');
         $response->assertNotFound();
@@ -29,7 +29,7 @@ class RoutingTest extends TestCase
      *
      * @return void
      */
-    public function testOtherExistingRoute()
+    public function test_other_existing_route()
     {
         $this->withoutMix();
         $response = $this->get('/login');
@@ -43,7 +43,7 @@ class RoutingTest extends TestCase
      *
      * @return void
      */
-    public function testUnauthenticatedApiRouteCall()
+    public function test_unauthenticated_api_route_call()
     {
         $response = $this->get('/api/v1/rooms');
         $response->assertRedirect(URL::to('/login'));
@@ -55,7 +55,7 @@ class RoutingTest extends TestCase
      *
      * @return void
      */
-    public function testUnauthorizedApiRouteCallJson()
+    public function test_unauthorized_api_route_call_json()
     {
         $response = $this->getJson('/api/v1/rooms');
         $response->assertUnauthorized();

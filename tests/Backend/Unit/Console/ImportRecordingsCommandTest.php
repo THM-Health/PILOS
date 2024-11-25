@@ -11,7 +11,7 @@ class ImportRecordingsCommandTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    public function testImportRecording()
+    public function test_import_recording()
     {
         Queue::fake();
 

@@ -34,7 +34,7 @@ class UserTest extends TestCase
         ]);
     }
 
-    public function testReturnsUserWithGivenFirstnamePart()
+    public function test_returns_user_with_given_firstname_part()
     {
         $result = User::withFirstname('hn')->get();
         $this->assertCount(1, $result);
@@ -42,7 +42,7 @@ class UserTest extends TestCase
         $this->assertEquals($this->users[1]->lastname, $result[0]->lastname);
     }
 
-    public function testReturnsUserWithGivenLastnamePart()
+    public function test_returns_user_with_given_lastname_part()
     {
         $result = User::withLastname('us')->get();
         $this->assertCount(2, $result);
@@ -59,7 +59,7 @@ class UserTest extends TestCase
         $this->assertEquals($this->users[2]->lastname, $result[1]->lastname);
     }
 
-    public function testReturnsUserWithGivenNamePart()
+    public function test_returns_user_with_given_name_part()
     {
         $result = User::withName('ust ax')->get();
         $this->assertCount(1, $result);
@@ -78,7 +78,7 @@ class UserTest extends TestCase
         $this->assertCount(0, $result);
     }
 
-    public function testReturnsEmptyArrayForNotExistingName()
+    public function test_returns_empty_array_for_not_existing_name()
     {
         $result = User::withName('Darth Vader')->get();
         $this->assertCount(0, $result);
@@ -90,7 +90,7 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function testEmptyPermissionsForUserWithoutRoles()
+    public function test_empty_permissions_for_user_without_roles()
     {
         $user = User::factory()->create();
         $this->assertCount(0, $user->permissions);
@@ -102,7 +102,7 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function testEmptyPermissionsForRolesWithoutPermissions()
+    public function test_empty_permissions_for_roles_without_permissions()
     {
         $user = User::factory()->create();
         $user->roles()->attach(Role::factory()->create()->id);
@@ -115,7 +115,7 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function testUniquePermissionNames()
+    public function test_unique_permission_names()
     {
         $user = User::factory()->create();
         $roleA = Role::factory()->create();
@@ -131,7 +131,7 @@ class UserTest extends TestCase
     /**
      * Testing the calculation of the room limit for this user, based on groups and global settings
      */
-    public function testRoomLimitCalc()
+    public function test_room_limit_calc()
     {
         $user = User::factory()->create();
         $roleA = Role::factory()->create();

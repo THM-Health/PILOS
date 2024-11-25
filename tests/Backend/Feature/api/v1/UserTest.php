@@ -30,7 +30,7 @@ class UserTest extends TestCase
 
     public const INVALID_ID = 999999999;
 
-    public function testIndex()
+    public function test_index()
     {
         $page_size = 5;
         $this->generalSettings->pagination_page_size = $page_size;
@@ -175,7 +175,7 @@ class UserTest extends TestCase
             ->assertJsonFragment(['id' => $user->id]);
     }
 
-    public function testSearch()
+    public function test_search()
     {
         $searchLimit = 5;
         config(['bigbluebutton.user_search_limit' => $searchLimit]);
@@ -232,7 +232,7 @@ class UserTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    public function testCreate()
+    public function test_create()
     {
         $user = User::factory()->create();
 
@@ -319,7 +319,7 @@ class UserTest extends TestCase
     /**
      * Test if users can update own profile
      */
-    public function testUpdateSelf()
+    public function test_update_self()
     {
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
@@ -394,7 +394,7 @@ class UserTest extends TestCase
     /**
      * Test if ldap-users can update own profile
      */
-    public function testUpdateSelfLdap()
+    public function test_update_self_ldap()
     {
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
@@ -435,7 +435,7 @@ class UserTest extends TestCase
     /**
      * Test if admin users can update other users
      */
-    public function testUpdate()
+    public function test_update()
     {
         $roleA = Role::factory()->create();
         $roleB = Role::factory()->create();
@@ -486,7 +486,7 @@ class UserTest extends TestCase
     /**
      * Test if admin users can update other ldap-users
      */
-    public function testUpdateLdap()
+    public function test_update_ldap()
     {
         $roleA = Role::factory()->create();
         $roleB = Role::factory()->create();
@@ -532,7 +532,7 @@ class UserTest extends TestCase
     /**
      * Test if user attributes can be updated separately
      */
-    public function testPartialUpdate()
+    public function test_partial_update()
     {
         $user = User::factory()->create(['firstname' => 'John', 'lastname' => 'Doe', 'bbb_skip_check_audio' => false]);
         $newRole = Role::factory()->create();
@@ -581,7 +581,7 @@ class UserTest extends TestCase
     /**
      * Test if user can change his own email and verify it
      */
-    public function testChangeEmail()
+    public function test_change_email()
     {
         Notification::fake();
         config(['auth.email_change.throttle' => 250]);
@@ -767,7 +767,7 @@ class UserTest extends TestCase
     /**
      * Test if admin can change email of another user without verification
      */
-    public function testChangeEmailAdmin()
+    public function test_change_email_admin()
     {
         $this->seed(RolesAndPermissionsSeeder::class);
 
@@ -820,7 +820,7 @@ class UserTest extends TestCase
     /**
      * Test if user can change his own password
      */
-    public function testChangePassword()
+    public function test_change_password()
     {
         Notification::fake();
         $this->userSettings->password_change_allowed = false;
@@ -947,7 +947,7 @@ class UserTest extends TestCase
     /**
      * Test if admin can change password of another user
      */
-    public function testChangePasswordAdmin()
+    public function test_change_password_admin()
     {
         Notification::fake();
         $this->userSettings->password_change_allowed = false;
@@ -1057,7 +1057,7 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors('current_password');
     }
 
-    public function testUpdateNewImage()
+    public function test_update_new_image()
     {
         config([
             'app.enabled_locales' => ['de' => ['name' => 'Deutsch', 'dateTimeFormat' => []], 'en' => ['name' => 'English', 'dateTimeFormat' => []]],
@@ -1149,7 +1149,7 @@ class UserTest extends TestCase
         $this->assertNull($user->image);
     }
 
-    public function testShow()
+    public function test_show()
     {
         $user = User::factory()->create();
 
@@ -1214,7 +1214,7 @@ class UserTest extends TestCase
             ]);
     }
 
-    public function testDelete()
+    public function test_delete()
     {
         $userToDelete = User::factory()->create();
         $user = User::factory()->create();
@@ -1260,7 +1260,7 @@ class UserTest extends TestCase
         $this->assertDatabaseCount('role_user', 1);
     }
 
-    public function testResetPassword()
+    public function test_reset_password()
     {
         config([
             'auth.local.enabled' => true,
@@ -1318,7 +1318,7 @@ class UserTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testCreateUserWithGeneratedPassword()
+    public function test_create_user_with_generated_password()
     {
         $user = User::factory()->create();
         $role = Role::factory()->create();

@@ -24,7 +24,7 @@ class MeetingTest extends TestCase
 
     private $meeting;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -38,7 +38,7 @@ class MeetingTest extends TestCase
     /**
      * Test some default parameters for room start
      */
-    public function testStartParameters()
+    public function test_start_parameters()
     {
         $meeting = $this->meeting;
 
@@ -73,7 +73,7 @@ class MeetingTest extends TestCase
     /**
      * Test some default parameters for room start
      */
-    public function testStartWithCustomCreateParameters()
+    public function test_start_with_custom_create_parameters()
     {
         LogFake::bind();
 
@@ -169,7 +169,7 @@ class MeetingTest extends TestCase
     /**
      * Test room start with global logo
      */
-    public function testStartParametersWithLogo()
+    public function test_start_parameters_with_logo()
     {
         $this->bigBlueButtonSettings->logo = url('logo.png');
         $this->bigBlueButtonSettings->save();
@@ -200,7 +200,7 @@ class MeetingTest extends TestCase
     /**
      * Test room start with own presentations
      */
-    public function testStartParametersWithOwnPresentation()
+    public function test_start_parameters_with_own_presentation()
     {
         $meeting = $this->meeting;
 
@@ -265,7 +265,7 @@ class MeetingTest extends TestCase
     /**
      * Test room start without own presentations but global presentation
      */
-    public function testStartParametersWithoutOwnPresentation()
+    public function test_start_parameters_without_own_presentation()
     {
         $meeting = $this->meeting;
 

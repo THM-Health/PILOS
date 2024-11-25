@@ -20,7 +20,7 @@ class CleanupRoomsTest extends TestCase
      *
      * @throws \Exception
      */
-    public function testSetExpireDateAndSendEmail()
+    public function test_set_expire_date_and_send_email()
     {
         Notification::fake();
 
@@ -92,7 +92,7 @@ class CleanupRoomsTest extends TestCase
      *
      * @throws \Exception
      */
-    public function testSetExpireDateAndSendEmailOnlyInactive()
+    public function test_set_expire_date_and_send_email_only_inactive()
     {
         Notification::fake();
 
@@ -158,7 +158,7 @@ class CleanupRoomsTest extends TestCase
      *
      * @throws \Exception
      */
-    public function testSetExpireDateAndSendEmailOnlyNeverUsed()
+    public function test_set_expire_date_and_send_email_only_never_used()
     {
         Notification::fake();
 
@@ -223,7 +223,7 @@ class CleanupRoomsTest extends TestCase
      *
      * @throws \Exception
      */
-    public function testBothTimePeriodsUnlimited()
+    public function test_both_time_periods_unlimited()
     {
         // Set time periods both to unlimited
         $this->roomSettings->auto_delete_inactive_period = TimePeriod::UNLIMITED;
@@ -254,7 +254,7 @@ class CleanupRoomsTest extends TestCase
     /**
      * Check if rooms are deleted after their grace period
      */
-    public function testDelete()
+    public function test_delete()
     {
         Notification::fake();
 

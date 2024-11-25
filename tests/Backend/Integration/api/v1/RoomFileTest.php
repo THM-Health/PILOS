@@ -19,7 +19,7 @@ class RoomFileTest extends TestCase
     /**
      * Testing to start a meeting with a file on a BBB-Server
      */
-    public function testStartMeetingWithFile()
+    public function test_start_meeting_with_file()
     {
         Storage::fake('local');
         $room = Room::factory()->create();
