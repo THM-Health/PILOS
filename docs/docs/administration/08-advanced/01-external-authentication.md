@@ -196,8 +196,8 @@ To negate the result of the regex, add the attribute `not` to the rule object an
 
 ##### Arrays
 
-The negation of arrays means: Check that regular expression doesn't match on any entry
-If the `all` attribute is also true: Check that regular expression doesn't match matches all entries
+The negation of arrays means: Check that regular expression doesn't match on any entry.
+If the `all` attribute is also `true`: Check that regular expression doesn't match all entries.
 
 ### Examples
 
