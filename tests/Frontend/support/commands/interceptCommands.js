@@ -202,10 +202,6 @@ Cypress.Commands.add("interceptAdminUsersIndexRequests", () => {
  * @returns void
  */
 Cypress.Commands.add("interceptAdminUsersNewRequests", () => {
-  cy.intercept("GET", "api/v1/users*", {
-    fixture: "users.json",
-  }).as("usersRequest");
-
   cy.intercept("GET", "api/v1/roles*", {
     fixture: "userRoles.json",
   });
@@ -220,9 +216,9 @@ Cypress.Commands.add("interceptAdminUsersNewRequests", () => {
  * @returns void
  */
 Cypress.Commands.add("interceptAdminUsersViewRequests", () => {
-  cy.intercept("GET", "api/v1/users*", {
-    fixture: "users.json",
-  }).as("usersRequest");
+  cy.intercept("GET", "api/v1/users/2", {
+    fixture: "user2.json",
+  }).as("userRequest");
 
   cy.intercept("GET", "api/v1/roles*", {
     fixture: "userRoles.json",

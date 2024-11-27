@@ -57,7 +57,7 @@ describe("Admin users new", function () {
 
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/users");
-    cy.get("h1").should("be.visible").and("contain", "home.title");
+    cy.get("h1").should("be.visible").and("include.text", "home.title");
   });
 
   it("add new user with custom password and 1 role", function () {
