@@ -21,16 +21,19 @@ class UserTest extends TestCase
         $this->users[] = User::factory()->create([
             'firstname' => 'Max',
             'lastname' => 'Mustermann',
+            'email' => 'max.mustermann@example.org',
         ]);
 
         $this->users[] = User::factory()->create([
             'firstname' => 'John',
             'lastname' => 'Doe',
+            'email' => 'john.doe@example.org',
         ]);
 
         $this->users[] = User::factory()->create([
             'firstname' => 'Erika',
             'lastname' => 'Mustermann',
+            'email' => 'erika.mustermann@example.org',
         ]);
     }
 
