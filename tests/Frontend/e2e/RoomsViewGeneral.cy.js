@@ -190,6 +190,56 @@ describe("Room View general", function () {
 
     cy.contains("rooms.flash.access_code_invalid").should("be.visible");
 
+    // Intercept first request to respond with error
+    cy.intercept("GET", "api/v1/rooms/abc-def-123", {
+      statusCode: 429,
+      body: {
+        limit: "room_auth",
+        retry_after: 5,
+      },
+    }).as("roomRequest");
+
+    cy.clock();
+
+    cy.get('[data-test="room-login-button"]').click();
+
+    // Wait for first request and check if access code gets set
+    cy.wait("@roomRequest").then((interception) => {
+      expect(interception.request.headers["access-code"]).to.eq("987654321");
+    });
+
+    // Check if input and buttons are disabled
+    cy.get("#access-code").should("be.disabled");
+    cy.get('[data-test="room-login-button"]').should("be.disabled");
+    cy.get('[data-test="reload-room-button"]').should("be.disabled");
+
+    // Check countdown
+    for (let i = 5; i > 0; i--) {
+      // Check if countdown message is updated
+      cy.contains('rooms.auth_throttled_{"try_again":' + i + "}").should(
+        "be.visible",
+      );
+
+      // Tick clock 1 sec forward
+      cy.tick(1000);
+    }
+
+    // restore the clock
+    cy.clock().then((clock) => {
+      clock.restore();
+    });
+
+    // Check toast message
+    cy.checkToastMessage("app.flash.too_many_requests");
+
+    // Check if input and buttons are enabled again
+    cy.get("#access-code").should("not.be.disabled");
+    cy.get('[data-test="room-login-button"]').should("not.be.disabled");
+    cy.get('[data-test="reload-room-button"]').should("not.be.disabled");
+
+    // Clear access code input
+    cy.get("#access-code").clear();
+
     // Submit correct access code
     cy.get('[data-test="room-access-code-overlay"]')
       .should("be.visible")
