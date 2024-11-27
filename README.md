@@ -10,12 +10,12 @@ It is based on the experience of students, teachers and staff during the covid-1
 
 ## Table of Contents
 
--   [About](#about)
--   [Architecture](#architecture)
--   [Installation](#installation)
--   [Stacks](#stacks)
--   [Contributing](#contributing)
--   [License](#license)
+- [About](#about)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Stacks](#stacks)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## About
 

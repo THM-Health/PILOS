@@ -35,8 +35,8 @@ addgroup pilos-spool --gid 2000
 
 To transfer the recording files to PILOS you have two options:
 
--   Shared storage
--   Rsync over ssh
+- Shared storage
+- Rsync over ssh
 
 ### Shared storage
 
