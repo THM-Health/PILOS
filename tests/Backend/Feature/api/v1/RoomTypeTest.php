@@ -39,7 +39,7 @@ class RoomTypeTest extends TestCase
     /**
      * Test to get a list of all room types
      */
-    public function testIndex()
+    public function test_index()
     {
         RoomType::query()->delete();
         $roomType = RoomType::factory()->create();
@@ -193,7 +193,7 @@ class RoomTypeTest extends TestCase
     /**
      * Test to view single room type
      */
-    public function testShow()
+    public function test_show()
     {
         $roomType = RoomType::factory()->create();
 
@@ -273,7 +273,7 @@ class RoomTypeTest extends TestCase
     /**
      * Test to create new room type
      */
-    public function testCreate()
+    public function test_create()
     {
         $roomType = RoomType::factory()->make();
         $role1 = Role::factory()->create();
@@ -544,7 +544,7 @@ class RoomTypeTest extends TestCase
     /**
      * Test to update a room type
      */
-    public function testUpdate()
+    public function test_update()
     {
         $roomType = RoomType::factory()->create();
         $role1 = Role::factory()->create();
@@ -835,7 +835,7 @@ class RoomTypeTest extends TestCase
     /**
      * Test to delete a room type
      */
-    public function testDelete()
+    public function test_delete()
     {
         $roomType = RoomType::factory()->create();
 

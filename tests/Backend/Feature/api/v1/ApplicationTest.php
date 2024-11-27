@@ -30,7 +30,7 @@ class ApplicationTest extends TestCase
      *
      * @return void
      */
-    public function testConfig()
+    public function test_config()
     {
         $this->generalSettings->pagination_page_size = 123;
         $this->generalSettings->help_url = 'http://localhost';

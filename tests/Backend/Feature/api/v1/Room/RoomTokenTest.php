@@ -32,7 +32,7 @@ class RoomTokenTest extends TestCase
         $this->room = Room::factory()->create();
     }
 
-    public function testIndex()
+    public function test_index()
     {
         $this->roomSettings->token_expiration = TimePeriod::THREE_MONTHS;
         $this->roomSettings->save();
@@ -187,7 +187,7 @@ class RoomTokenTest extends TestCase
             ->assertJsonPath('meta.total', 6);
     }
 
-    public function testCreate()
+    public function test_create()
     {
         RoomToken::query()->delete();
         $moderatorToken = RoomToken::factory()->create([
@@ -260,7 +260,7 @@ class RoomTokenTest extends TestCase
             ]);
     }
 
-    public function testUpdate()
+    public function test_update()
     {
         RoomToken::query()->delete();
         $otherRoom = Room::factory()->create();
@@ -355,7 +355,7 @@ class RoomTokenTest extends TestCase
             ->assertNotFound();
     }
 
-    public function testDelete()
+    public function test_delete()
     {
         $otherRoom = Room::factory()->create();
         RoomToken::query()->delete();

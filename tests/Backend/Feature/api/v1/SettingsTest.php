@@ -39,7 +39,7 @@ class SettingsTest extends TestCase
      *
      * @return void
      */
-    public function testViewSettings()
+    public function test_view_settings()
     {
 
         $this->generalSettings->name = 'PILOS';
@@ -168,7 +168,7 @@ class SettingsTest extends TestCase
             ->assertSuccessful();
     }
 
-    public function testUpdateSettings()
+    public function test_update_settings()
     {
         config(['recording.max_retention_period' => -1]);
 
@@ -301,7 +301,7 @@ class SettingsTest extends TestCase
      *
      * @return void
      */
-    public function testUpdateWithValidInputsImageFile()
+    public function test_update_with_valid_inputs_image_file()
     {
         config(['recording.max_retention_period' => -1]);
 
@@ -372,7 +372,7 @@ class SettingsTest extends TestCase
      *
      * @return void
      */
-    public function testUpdateWithValidInputsImageFileAndUrl()
+    public function test_update_with_valid_inputs_image_file_and_url()
     {
         config(['recording.max_retention_period' => -1]);
 
@@ -446,7 +446,7 @@ class SettingsTest extends TestCase
      *
      * @return void
      */
-    public function testUpdateWithInvalidInputs()
+    public function test_update_with_invalid_inputs()
     {
         // Add necessary role and permission to user to update application settings
         $role = Role::factory()->create();
@@ -582,7 +582,7 @@ class SettingsTest extends TestCase
      *
      * @return void
      */
-    public function testUpdateMinMax()
+    public function test_update_min_max()
     {
         // Add necessary role and permission to user to update application settings
         $role = Role::factory()->create();
@@ -709,7 +709,7 @@ class SettingsTest extends TestCase
             ]);
     }
 
-    public function testUpdateDefaultPresentation()
+    public function test_update_default_presentation()
     {
         $role = Role::factory()->create();
         $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
@@ -818,7 +818,7 @@ class SettingsTest extends TestCase
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public function testUpdateBBBStyle()
+    public function test_update_bbb_style()
     {
         $role = Role::factory()->create();
         $role->permissions()->attach(Permission::where('name', 'settings.update')->first());
@@ -914,7 +914,7 @@ class SettingsTest extends TestCase
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public function testUpdateBBBLogo()
+    public function test_update_bbb_logo()
     {
         $role = Role::factory()->create();
         $role->permissions()->attach(Permission::where('name', 'settings.update')->first());

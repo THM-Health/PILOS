@@ -43,7 +43,7 @@ class RoomDescriptionTest extends TestCase
         $this->viewAllPermission = Permission::where('name', 'rooms.viewAll')->first();
     }
 
-    public function testReadDescriptionPrivateRoom()
+    public function test_read_description_private_room()
     {
         $description = $this->faker->text(1000);
 
@@ -70,7 +70,7 @@ class RoomDescriptionTest extends TestCase
             ]);
     }
 
-    public function testReadDescriptionPublicRoomWithCode()
+    public function test_read_description_public_room_with_code()
     {
         $description = $this->faker->text(1000);
 
@@ -170,7 +170,7 @@ class RoomDescriptionTest extends TestCase
             ]);
     }
 
-    public function testReadDescriptionInternalRoom()
+    public function test_read_description_internal_room()
     {
         $description = $this->faker->text(1000);
 
@@ -191,7 +191,7 @@ class RoomDescriptionTest extends TestCase
             ]);
     }
 
-    public function testUpdateDescriptionPermissions()
+    public function test_update_description_permissions()
     {
         $room = Room::factory()->create(['allow_guests' => true]);
         $description = $this->faker->text(1000);
@@ -252,7 +252,7 @@ class RoomDescriptionTest extends TestCase
         $this->assertEquals($description, $room->description);
     }
 
-    public function testUpdateDescriptionData()
+    public function test_update_description_data()
     {
         $room = Room::factory()->create();
         $room->owner()->associate($this->user);

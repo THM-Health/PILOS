@@ -14,7 +14,7 @@ class ExportLocalesTest extends TestCase
     /**
      * Test if locales are exported to the fixtures directory for eslint
      */
-    public function testExportLocales()
+    public function test_export_locales()
     {
         // Create fake local disk for output
         $fixturesDisk = Storage::fake('local');

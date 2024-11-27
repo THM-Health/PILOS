@@ -15,14 +15,14 @@ class ExternalUserTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         Log::swap(new LogFake);
     }
 
-    public function testMissingExternalIdAttributes()
+    public function test_missing_external_id_attributes()
     {
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: external_id');
@@ -51,7 +51,7 @@ class ExternalUserTest extends TestCase
         }
     }
 
-    public function testMissingFirstnameAttributes()
+    public function test_missing_firstname_attributes()
     {
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: first_name');
@@ -80,7 +80,7 @@ class ExternalUserTest extends TestCase
         }
     }
 
-    public function testMissingLastnameAttributes()
+    public function test_missing_lastname_attributes()
     {
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: last_name');
@@ -109,7 +109,7 @@ class ExternalUserTest extends TestCase
         }
     }
 
-    public function testMissingEmailAttributes()
+    public function test_missing_email_attributes()
     {
         $this->expectException(MissingAttributeException::class);
         $this->expectExceptionMessage('Missing attribute: email');
@@ -138,7 +138,7 @@ class ExternalUserTest extends TestCase
         }
     }
 
-    public function testEmptyRoleConfig()
+    public function test_empty_role_config()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -167,7 +167,7 @@ class ExternalUserTest extends TestCase
         $this->assertCount(0, $eloquentUser->roles);
     }
 
-    public function testWildcardRegexRule()
+    public function test_wildcard_regex_rule()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -208,7 +208,7 @@ class ExternalUserTest extends TestCase
         $this->assertEquals('role_a', $eloquentUser->roles()->first()->name);
     }
 
-    public function testDisabledRole()
+    public function test_disabled_role()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -248,7 +248,7 @@ class ExternalUserTest extends TestCase
         $this->assertCount(0, $eloquentUser->roles);
     }
 
-    public function testAllRules()
+    public function test_all_rules()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -308,7 +308,7 @@ class ExternalUserTest extends TestCase
         $this->assertEquals('role_a', $eloquentUser->roles()->first()->name);
     }
 
-    public function testAnyRules()
+    public function test_any_rules()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -352,7 +352,7 @@ class ExternalUserTest extends TestCase
         $this->assertEquals('role_a', $eloquentUser->roles()->first()->name);
     }
 
-    public function testNotRules()
+    public function test_not_rules()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -403,7 +403,7 @@ class ExternalUserTest extends TestCase
         $this->assertEquals('role_a', $eloquentUser->roles()->first()->name);
     }
 
-    public function testArrayNotRules()
+    public function test_array_not_rules()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -457,7 +457,7 @@ class ExternalUserTest extends TestCase
         $this->assertEquals('role_b', $eloquentUser->roles()->first()->name);
     }
 
-    public function testArrayRules()
+    public function test_array_rules()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -524,7 +524,7 @@ class ExternalUserTest extends TestCase
         $this->assertEquals('role_b', $roles->shift()->name);
     }
 
-    public function testIngoreInvalidAttributesInRules()
+    public function test_ingore_invalid_attributes_in_rules()
     {
         Role::firstOrCreate(['name' => 'role_a']);
         Role::firstOrCreate(['name' => 'role_b']);
@@ -593,7 +593,7 @@ class ExternalUserTest extends TestCase
         $this->assertEquals('role_a', $eloquentUser->roles()->first()->name);
     }
 
-    public function testIngoreInvalidRoles()
+    public function test_ingore_invalid_roles()
     {
         Role::firstOrCreate(['name' => 'role_a']);
 

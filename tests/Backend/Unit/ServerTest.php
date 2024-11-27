@@ -15,7 +15,7 @@ class ServerTest extends TestCase
     /**
      * Test if closure resets current usage for disabled
      */
-    public function testUsageClearedOnDisabled()
+    public function test_usage_cleared_on_disabled()
     {
         // Create new fake server
         $server = Server::factory()->create();
@@ -45,7 +45,7 @@ class ServerTest extends TestCase
         $this->assertNull($server->version);
     }
 
-    public function testServerHealth()
+    public function test_server_health()
     {
         config([
             'bigbluebutton.server_online_threshold' => 3,
