@@ -76,7 +76,7 @@ class RoomAuthenticate
 
             // Check if rate limit has been reached
             if (RateLimiter::tooManyAttempts($rateLimitKey, 6)) {
-                abort(429);
+                return response()->json(['limit' => 'room_auth', 'retry_after' => RateLimiter::availableIn($rateLimitKey)], 429);
             }
 
             $accessCode = $request->header('Access-Code');
@@ -94,7 +94,7 @@ class RoomAuthenticate
             }
         }
 
-        // user is not  authenticated and should not continue with the request
+        // user is not authenticated and should not continue with the request
         if (! $allowUnAuthenticated && ! $authenticated) {
             abort(403, 'require_code');
         }

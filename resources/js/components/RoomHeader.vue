@@ -21,7 +21,7 @@
             v-tooltip="$t('app.reload')"
             :aria-label="$t('app.reload')"
             severity="secondary"
-            :disabled="props.loading"
+            :disabled="props.loading || disableReload"
             :icon="props.loading ? 'pi pi-spin pi-spinner' : 'fa-solid fa-sync'"
             data-test="reload-room-button"
             @click="emit('reload')"
@@ -94,6 +94,10 @@ const props = defineProps({
   accessCode: {
     type: Number,
     default: null,
+  },
+  disableReload: {
+    type: Boolean,
+    default: false,
   },
 });
 
