@@ -209,9 +209,9 @@ In this example the LDAP schema uses the common name (CN) as username and has th
 
 #### Roles
 
--   The "superuser" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
+- The "superuser" role is assigned to any user whose email ends with @its.university.org and who is in the "cn=admin,ou=Groups,dc=uni,dc=org" group.
 
--   The "user" role is given to everyone.
+- The "user" role is given to everyone.
 
 ```json
 {
@@ -260,9 +260,9 @@ The attribute names are the header names in which the attribute values are send 
 
 #### Roles
 
--   The "superuser" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
+- The "superuser" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
 
--   The "user" role is given to everyone.
+- The "user" role is given to everyone.
 
 ```json
 {

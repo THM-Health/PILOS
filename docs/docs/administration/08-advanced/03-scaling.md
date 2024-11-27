@@ -111,11 +111,11 @@ REDIS_HOST=redis
 
 During startup of the container permissions of the following folders are automatically fixed:
 
--   /var/www/html/resources/custom
--   /var/www/html/storage/app
--   /var/www/html/storage/recordings
--   /var/www/html/storage/logs
--   /var/www/html/public/build
+- /var/www/html/resources/custom
+- /var/www/html/storage/app
+- /var/www/html/storage/recordings
+- /var/www/html/storage/logs
+- /var/www/html/public/build
 
 For convenience reasons this is enabled by default, however with a large number of files this can slow down the container startup.
 
@@ -131,8 +131,8 @@ You can also disable the initialization by setting the environment variable `RUN
 
 The following steps are executed during the initialization:
 
--   Build frontend
--   Optimize application by caching config, routes, views, locales, etc.
+- Build frontend
+- Optimize application by caching config, routes, views, locales, etc.
 
 ### Database migration
 

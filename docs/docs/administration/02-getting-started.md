@@ -9,10 +9,10 @@ The application will be installed with some default settings, but you can custom
 
 ## Requirements
 
--   fully qualified hostname
--   valid SSL certificate (HTTPS)
--   reverse proxy, e.g. apache or nginx
--   Docker and [Compose plugin](https://docs.docker.com/compose/install/linux/)
+- fully qualified hostname
+- valid SSL certificate (HTTPS)
+- reverse proxy, e.g. apache or nginx
+- Docker and [Compose plugin](https://docs.docker.com/compose/install/linux/)
 
 ## Docker Tags
 
@@ -188,10 +188,10 @@ As the ssl termination is done on the reverse proxy, the application will also n
 Therefore, reverse proxies need to forward this information in a header (e.g. `X-Forwarded-For`).
 PILOS will use the following headers if the request comes from a trusted proxy and use them instead of the requests IP address, host, port and protocol:
 
--   `X-Forwarded-For` (Real client IP)
--   `X-Forwarded-Host` (Public hostname of the application)
--   `X-Forwarded-Port` (Public port of the application)
--   `X-Forwarded-Proto` (Public protocol of the application)
+- `X-Forwarded-For` (Real client IP)
+- `X-Forwarded-Host` (Public hostname of the application)
+- `X-Forwarded-Port` (Public port of the application)
+- `X-Forwarded-Proto` (Public protocol of the application)
 
 **Warning** Make sure all these headers are set by the reverse proxy, otherwise an attacker might be able to pass fake headers trough a trusted proxy to the application.
 
