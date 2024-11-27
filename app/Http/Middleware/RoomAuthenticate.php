@@ -71,7 +71,7 @@ class RoomAuthenticate
         // request provided access code
         if ($request->headers->has('Access-Code')) {
 
-            // Key used to rate limit access code attempts (per room)
+            // Key used to rate limit access code attempts
             $rateLimitKey = 'room_auth:'.($request->user()?->id ?: $request->ip());
 
             // Check if rate limit has been reached
