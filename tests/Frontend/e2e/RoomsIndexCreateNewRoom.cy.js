@@ -377,7 +377,7 @@ describe("Rooms index create new room", function () {
       cy.intercept("GET", "api/v1/roomTypes*", {
         statusCode: 200,
         body: roomTypes,
-      });
+      }).as("roomTypeRequest");
     });
 
     cy.visit("/rooms");
@@ -393,6 +393,15 @@ describe("Rooms index create new room", function () {
         // Enter room name
         cy.get("#room-name").should("have.value", "").type("New Room");
 
+        // Wait for room types to be loaded
+        cy.wait("@roomTypeRequest");
+        // Add spy to check if room types are reloaded on form errors
+        cy.intercept(
+          "GET",
+          "api/v1/roomTypes*",
+          cy.spy().as("roomTypeRequestSpy"),
+        );
+
         // Create new room
         cy.get('[data-test="dialog-save-button"]').click();
       });
@@ -403,6 +412,9 @@ describe("Rooms index create new room", function () {
     cy.get('[data-test="room-create-dialog"]')
       .should("be.visible")
       .and("include.text", "The Room type field is required.");
+
+    // Check if room types list is not reloaded
+    cy.get("@roomTypeRequestSpy").should("not.be.called");
 
     // Create new room with invalid room type
     cy.intercept("POST", "api/v1/rooms", {
