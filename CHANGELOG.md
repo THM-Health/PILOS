@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   Configurable hook script for recording synchronization ([#1484], [#1604])
--   Rate limiting for room access code authentication ([#669], [#1617])
--   Logging for room authentication ([#669], [#1617])
+- Configurable hook script for recording synchronization ([#1484], [#1604])
+- Rate limiting for room access code authentication ([#669], [#1617])
+- Logging for room authentication ([#669], [#1617])
 - Configurable hook script for recording synchronization ([#1484], [#1604])
 
 ### Changed
