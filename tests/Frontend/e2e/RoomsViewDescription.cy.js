@@ -257,11 +257,6 @@ Cypress._.times(200, () => {
           cy.get("p").contains("New test description").should("be.visible");
         });
 
-      cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
-        "have.length",
-        0,
-      );
-
       cy.get(".tiptap").click();
       cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
@@ -271,6 +266,11 @@ Cypress._.times(200, () => {
         const selectedText = selection.toString();
         expect(selectedText).to.eq("New test description");
       });
+
+      cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
+        "have.length",
+        0,
+      );
 
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
@@ -309,11 +309,6 @@ Cypress._.times(200, () => {
           cy.get("p").should("not.exist");
         });
 
-      cy.get('[data-test="tip-tap-bold-button"]')
-        .should("be.visible")
-        .and("have.class", "p-button-secondary")
-        .and("have.attr", "data-p-severity", "secondary");
-
       cy.get(".tiptap").click();
       cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
@@ -324,7 +319,12 @@ Cypress._.times(200, () => {
         expect(selectedText).to.eq("New test description");
       });
 
-      cy.get('[data-test="tip-tap-bold-button"]').click();
+      cy.get('[data-test="tip-tap-bold-button"]')
+        .should("be.visible")
+        .and("have.class", "p-button-secondary")
+        .and("have.attr", "data-p-severity", "secondary")
+        .click();
+
       cy.get('[data-test="tip-tap-bold-button"]')
         .should("be.visible")
         .and("have.class", "p-button-primary")

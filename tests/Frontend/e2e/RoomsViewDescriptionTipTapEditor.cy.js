@@ -366,10 +366,6 @@ Cypress._.times(100, () => {
             .and("have.text", "Test Link");
         });
 
-      cy.get('[data-test="tip-tap-link-button"]').should(
-        "have.class",
-        "p-button-primary",
-      );
       cy.get(".tiptap").click();
       cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
@@ -380,7 +376,9 @@ Cypress._.times(100, () => {
         expect(selectedText).to.eq("Test Link");
       });
 
-      cy.get('[data-test="tip-tap-link-button"]').click();
+      cy.get('[data-test="tip-tap-link-button"]')
+        .should("have.class", "p-button-primary")
+        .click();
 
       // Check that dialog contains the correct data and change it
       cy.get('[data-test="tip-tap-link-dialog"]')
