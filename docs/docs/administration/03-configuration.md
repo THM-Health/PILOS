@@ -89,6 +89,16 @@ It is a mail testing tool that captures emails sent by the application.
 
 You need to configure a real mail server for production use.
 
+:::tip
+
+To check your email configuration, you can send a test mail using the following command:
+
+```bash
+docker compose exec app pilos-cli mail:test
+```
+
+:::
+
 ## Authentication
 
 | Option               | Default Value | Description                  |
