@@ -1,5 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-Cypress._.times(150, () => {
+Cypress._.times(200, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();
@@ -157,6 +157,7 @@ Cypress._.times(150, () => {
       // Check that editor shows the correct description
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.class", "ProseMirror-focused")
         .within(() => {
           cy.get("p").contains("Room description").should("be.visible");
         });
@@ -263,6 +264,7 @@ Cypress._.times(150, () => {
 
       cy.get(".tiptap").click();
       cy.get(".tiptap").type("test");
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
@@ -317,6 +319,7 @@ Cypress._.times(150, () => {
 
       cy.get(".tiptap").click();
       cy.get(".tiptap").type("test");
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {

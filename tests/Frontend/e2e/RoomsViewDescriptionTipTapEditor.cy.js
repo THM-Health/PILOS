@@ -358,6 +358,7 @@ Cypress._.times(100, () => {
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.class", "ProseMirror-focused")
         .within(() => {
           cy.get("a")
             .should("be.visible")
@@ -371,6 +372,7 @@ Cypress._.times(100, () => {
       );
       cy.get(".tiptap").click();
       cy.get(".tiptap").type("test");
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
