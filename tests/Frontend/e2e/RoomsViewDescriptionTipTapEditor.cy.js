@@ -259,12 +259,12 @@ Cypress._.times(100, () => {
       // Check that correct data is displayed
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.class", "ProseMirror-focused")
         .within(() => {
           cy.get("a").should("not.exist");
           cy.get("p").should("have.text", "Room description");
         });
 
-      cy.get(".tiptap").click();
       cy.get(".tiptap").type("{selectall}");
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
@@ -284,6 +284,7 @@ Cypress._.times(100, () => {
 
       // Open dialog again
       cy.get(".tiptap").click();
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-secondary")
@@ -366,8 +367,6 @@ Cypress._.times(100, () => {
             .and("have.text", "Test Link");
         });
 
-      cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
@@ -445,6 +444,7 @@ Cypress._.times(100, () => {
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.class", "ProseMirror-focused")
         .within(() => {
           cy.get("a")
             .should("be.visible")
@@ -452,7 +452,6 @@ Cypress._.times(100, () => {
             .and("have.text", "Test Link");
         });
 
-      cy.get(".tiptap").click();
       cy.get(".tiptap").type("{selectall}");
 
       cy.get('[data-test="tip-tap-link-button"]')

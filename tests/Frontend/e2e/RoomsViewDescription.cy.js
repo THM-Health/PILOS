@@ -161,7 +161,7 @@ Cypress._.times(200, () => {
         .within(() => {
           cy.get("p").contains("Room description").should("be.visible");
         });
-      cy.get(".tiptap").click();
+
       cy.get(".tiptap").clear();
 
       // Cancel editing
@@ -190,9 +190,8 @@ Cypress._.times(200, () => {
         });
 
       // Edit description
-      cy.get(".tiptap").click();
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").clear();
-      cy.get(".tiptap").click();
       cy.get(".tiptap").type("New test description");
 
       // Save description
