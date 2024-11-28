@@ -21,9 +21,9 @@ docker compose down
 
 In v2/v3 only one service was used for the app. In v4 the app service was split into three services: `app`, `cron` and `horizon`.
 
--   **app**: Frontend and backend with nginx and php-fpm
--   **cron**: Cronjob runner
--   **horizon**: Laravel Horizon for queue jobs
+- **app**: Frontend and backend with nginx and php-fpm
+- **cron**: Cronjob runner
+- **horizon**: Laravel Horizon for queue jobs
 
 As all services use the same image, environment variables and volumes, these are defined in a common section in the `docker-compose.yml` file.
 Replace the app service in the `docker-compose.yml` file:
@@ -202,8 +202,8 @@ All new installations will use this version, existing installations will not be 
 
 To upgrade your MariaDB container, you need to edit your `docker-compose.yml` file:
 
--   Change the MariaDB image tag to `11`.
--   Add a new environment variable `MARIADB_AUTO_UPGRADE` to trigger the service to upgrade the database:
+- Change the MariaDB image tag to `11`.
+- Add a new environment variable `MARIADB_AUTO_UPGRADE` to trigger the service to upgrade the database:
 
     ```yaml
     db:
