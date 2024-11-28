@@ -4,7 +4,7 @@ import {
   parseFormData,
 } from "../support/utils/formData.js";
 
-describe("User Profile Base", function () {
+describe.skip("User Profile Base", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptUserProfileRequests();

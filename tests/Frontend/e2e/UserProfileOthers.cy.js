@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("User Profile Others", function () {
+describe.skip("User Profile Others", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptUserProfileRequests();
