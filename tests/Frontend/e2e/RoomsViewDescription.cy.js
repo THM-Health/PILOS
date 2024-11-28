@@ -1,5 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-Cypress._.times(100, () => {
+Cypress._.times(150, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();

@@ -1588,16 +1588,24 @@ Cypress._.times(100, () => {
       cy.get("[data-test=room-transfer-ownership-dialog]")
         .should("be.visible")
         .within(() => {
-          cy.get(".multiselect__content").should("not.be.visible");
+          // Check autofocus
+          cy.get(".multiselect__content").should("be.visible");
 
           // Start typing and respond with too many results
           cy.intercept("GET", "/api/v1/users/search?query=*", {
             statusCode: 204,
           }).as("userSearchRequest");
 
-          // Check that dialog is shown correctly
+          // Check prompt
+          cy.get('[data-test="new-owner-dropdown"]').should(
+            "include.text",
+            "rooms.members.modals.add.no_options",
+          );
+
+          // Check placeholder and type in input
           cy.get('[data-test="new-owner-dropdown"]')
-            .should("include.text", "app.user_name")
+            .find("input")
+            .should("have.attr", "placeholder", "app.user_name")
             .click();
 
           cy.get('[data-test="new-owner-dropdown"]').find("input").type("L");

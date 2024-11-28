@@ -36,10 +36,21 @@ Cypress._.times(100, () => {
         statusCode: 204,
       }).as("userSearchRequest");
 
-      cy.get(".multiselect__content").should("not.be.visible");
+      // Check autofocus
+      cy.get(".multiselect__content").should("be.visible");
+
+      // Check prompt
+      cy.get('[data-test="select-user-dropdown"]')
+        .should("include.text", "rooms.members.modals.add.no_options")
+        .and("include.text", "rooms.members.modals.add.no_result");
 
       cy.get('[data-test="select-user-dropdown"]')
-        .should("include.text", "rooms.members.modals.add.placeholder")
+        .find("input")
+        .should(
+          "have.attr",
+          "placeholder",
+          "rooms.members.modals.add.placeholder",
+        )
         .click();
 
       cy.get('[data-test="select-user-dropdown"]').find("input").type("L");
