@@ -1,4 +1,4 @@
-Cypress._.times(100, () => {
+Cypress._.times(50, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
@@ -265,6 +265,7 @@ Cypress._.times(100, () => {
         });
 
       cy.get(".tiptap").click();
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
@@ -284,6 +285,7 @@ Cypress._.times(100, () => {
 
       // Open dialog again
       cy.get(".tiptap").click();
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-secondary")
@@ -338,7 +340,7 @@ Cypress._.times(100, () => {
         });
     });
 
-    it.only("edit link", function () {
+    it("edit link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description =
           '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
@@ -453,6 +455,7 @@ Cypress._.times(100, () => {
         });
 
       cy.get(".tiptap").click();
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
 
       cy.get('[data-test="tip-tap-link-button"]')
