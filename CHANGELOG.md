@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Configurable hook script for recording synchronization ([#1484], [#1604])
+- Command to test email configuration ([#530], [#1618])
+- Configurable hook script for recording synchronization ([#1484], [#1604])
 
 ### Changed
 
@@ -210,6 +212,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#372]: https://github.com/THM-Health/PILOS/issues/372
 [#373]: https://github.com/THM-Health/PILOS/pull/373
+[#530]: https://github.com/THM-Health/PILOS/issues/530
 [#532]: https://github.com/THM-Health/PILOS/issues/532
 [#574]: https://github.com/THM-Health/PILOS/pull/574
 [#617]: https://github.com/THM-Health/PILOS/pull/617
@@ -287,6 +290,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1607]: https://github.com/THM-Health/PILOS/issues/1607
 [#1608]: https://github.com/THM-Health/PILOS/pull/1608
 [#1616]: https://github.com/THM-Health/PILOS/pull/1616
+[#1618]: https://github.com/THM-Health/PILOS/pull/1618
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
