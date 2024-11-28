@@ -153,16 +153,16 @@ Cypress._.times(200, () => {
 
       cy.get('[data-test="room-description-edit-button"]').should("not.exist");
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
+      cy.focused().should("have.class", "tiptap");
 
       // Check that editor shows the correct description
       cy.get(".tiptap")
         .should("be.visible")
-        .and("have.class", "ProseMirror-focused")
         .within(() => {
           cy.get("p").contains("Room description").should("be.visible");
         });
       cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
+      cy.focused().should("have.class", "tiptap");
       cy.get(".tiptap").clear();
 
       // Cancel editing
@@ -192,7 +192,7 @@ Cypress._.times(200, () => {
 
       // Edit description
       cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
+      cy.focused().should("have.class", "tiptap");
       cy.get(".tiptap").clear();
       cy.get(".tiptap").type("New test description");
 
@@ -259,7 +259,7 @@ Cypress._.times(200, () => {
         });
 
       cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
+      cy.focused().should("have.class", "tiptap");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
@@ -311,7 +311,7 @@ Cypress._.times(200, () => {
         });
 
       cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
+      cy.focused().should("have.class", "tiptap");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {

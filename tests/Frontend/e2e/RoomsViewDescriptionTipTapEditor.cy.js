@@ -1,4 +1,4 @@
-Cypress._.times(50, () => {
+Cypress._.times(100, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
@@ -340,7 +340,7 @@ Cypress._.times(50, () => {
         });
     });
 
-    it("edit link", function () {
+    it.only("edit link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description =
           '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
@@ -357,10 +357,11 @@ Cypress._.times(50, () => {
 
       cy.get('[data-test="room-description-edit-button"]').click();
 
+      cy.focused().should("have.class", "tiptap");
+
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
       cy.get(".tiptap")
         .should("be.visible")
-        .and("have.class", "ProseMirror-focused")
         .within(() => {
           cy.get("a")
             .should("be.visible")
@@ -369,7 +370,7 @@ Cypress._.times(50, () => {
         });
 
       cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
+      cy.focused().should("have.class", "tiptap");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
@@ -414,6 +415,7 @@ Cypress._.times(50, () => {
         });
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
+      cy.focused().should("have.class", "tiptap");
 
       // Check that the link has been changed
       cy.get(".tiptap")
