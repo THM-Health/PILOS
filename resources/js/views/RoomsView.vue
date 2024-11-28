@@ -97,8 +97,8 @@
                 :details-inline="false"
                 :hide-favorites="true"
                 :hide-membership="true"
-                @reload="reload"
                 :disable-reload="authThrottledFor > 0"
+                @reload="reload"
               />
               <Divider />
 
