@@ -160,6 +160,7 @@ Cypress._.times(150, () => {
         .within(() => {
           cy.get("p").contains("Room description").should("be.visible");
         });
+      cy.get(".tiptap").click();
       cy.get(".tiptap").clear();
 
       // Cancel editing
@@ -188,7 +189,9 @@ Cypress._.times(150, () => {
         });
 
       // Edit description
+      cy.get(".tiptap").click();
       cy.get(".tiptap").clear();
+      cy.get(".tiptap").click();
       cy.get(".tiptap").type("New test description");
 
       // Save description
@@ -253,12 +256,20 @@ Cypress._.times(150, () => {
           cy.get("p").contains("New test description").should("be.visible");
         });
 
-      cy.get(".tiptap").type("{selectall}");
-
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
         "have.length",
         0,
       );
+
+      cy.get(".tiptap").click();
+      cy.get(".tiptap").type("{selectall}");
+
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
+
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
         "have.length",
@@ -296,12 +307,21 @@ Cypress._.times(150, () => {
           cy.get("p").should("not.exist");
         });
 
-      cy.get(".tiptap").type("{selectall}");
       cy.get('[data-test="tip-tap-bold-button"]')
         .should("be.visible")
         .and("have.class", "p-button-secondary")
-        .and("have.attr", "data-p-severity", "secondary")
-        .click();
+        .and("have.attr", "data-p-severity", "secondary");
+
+      cy.get(".tiptap").click();
+      cy.get(".tiptap").type("{selectall}");
+
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
+
+      cy.get('[data-test="tip-tap-bold-button"]').click();
       cy.get('[data-test="tip-tap-bold-button"]')
         .should("be.visible")
         .and("have.class", "p-button-primary")

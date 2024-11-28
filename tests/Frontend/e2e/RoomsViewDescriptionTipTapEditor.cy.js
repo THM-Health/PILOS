@@ -264,6 +264,7 @@ Cypress._.times(100, () => {
           cy.get("p").should("have.text", "Room description");
         });
 
+      cy.get(".tiptap").click();
       cy.get(".tiptap").type("{selectall}");
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
@@ -282,6 +283,7 @@ Cypress._.times(100, () => {
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
 
       // Open dialog again
+      cy.get(".tiptap").click();
       cy.get(".tiptap").type("{selectall}");
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-secondary")
@@ -363,11 +365,20 @@ Cypress._.times(100, () => {
             .and("have.text", "Test Link");
         });
 
+      cy.get('[data-test="tip-tap-link-button"]').should(
+        "have.class",
+        "p-button-primary",
+      );
+      cy.get(".tiptap").click();
       cy.get(".tiptap").type("{selectall}");
 
-      cy.get('[data-test="tip-tap-link-button"]')
-        .should("have.class", "p-button-primary")
-        .click();
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Test Link");
+      });
+
+      cy.get('[data-test="tip-tap-link-button"]').click();
 
       // Check that dialog contains the correct data and change it
       cy.get('[data-test="tip-tap-link-dialog"]')
