@@ -262,12 +262,13 @@ Cypress._.times(150, () => {
       );
 
       cy.get(".tiptap").click();
+      cy.get(".tiptap").type("test");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
-        expect(selectedText).to.eq("New test description");
+        expect(selectedText).to.eq("New test descriptiontest");
       });
 
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
@@ -303,7 +304,9 @@ Cypress._.times(150, () => {
       cy.get(".tiptap")
         .should("be.visible")
         .within(() => {
-          cy.get("h1").contains("New test description").should("be.visible");
+          cy.get("h1")
+            .contains("New test descriptiontest")
+            .should("be.visible");
           cy.get("p").should("not.exist");
         });
 
@@ -313,12 +316,13 @@ Cypress._.times(150, () => {
         .and("have.attr", "data-p-severity", "secondary");
 
       cy.get(".tiptap").click();
+      cy.get(".tiptap").type("test");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
-        expect(selectedText).to.eq("New test description");
+        expect(selectedText).to.eq("New test descriptiontesttest");
       });
 
       cy.get('[data-test="tip-tap-bold-button"]').click();
@@ -333,7 +337,7 @@ Cypress._.times(150, () => {
         .within(() => {
           cy.get("h1")
             .find("strong")
-            .contains("New test description")
+            .contains("New test descriptiontesttest")
             .should("be.visible");
           cy.get("p").should("not.exist");
         });
@@ -345,7 +349,7 @@ Cypress._.times(150, () => {
 
       cy.fixture("room.json").then((room) => {
         room.data.description =
-          "<h1><strong>New test description</strong></h1>";
+          "<h1><strong>New test descriptiontesttest</strong></h1>";
 
         cy.intercept("GET", "api/v1/rooms/abc-def-123", {
           statusCode: 200,
@@ -357,7 +361,7 @@ Cypress._.times(150, () => {
 
       cy.wait("@saveDescriptionRequest").then((interception) => {
         expect(interception.request.body).to.eql({
-          description: "<h1><strong>New test description</strong></h1>",
+          description: "<h1><strong>New test descriptiontesttest</strong></h1>",
         });
       });
       cy.wait("@roomRequest");
@@ -371,7 +375,7 @@ Cypress._.times(150, () => {
         .within(() => {
           cy.get("h1")
             .find("strong")
-            .contains("New test description")
+            .contains("New test descriptiontesttest")
             .should("be.visible");
           cy.get("p").should("not.exist");
         });

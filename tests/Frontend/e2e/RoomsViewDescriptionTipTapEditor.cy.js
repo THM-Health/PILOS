@@ -370,12 +370,13 @@ Cypress._.times(100, () => {
         "p-button-primary",
       );
       cy.get(".tiptap").click();
+      cy.get(".tiptap").type("test");
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
-        expect(selectedText).to.eq("Test Link");
+        expect(selectedText).to.eq("Test Linktest");
       });
 
       cy.get('[data-test="tip-tap-link-button"]').click();
@@ -420,7 +421,7 @@ Cypress._.times(100, () => {
           cy.get("a")
             .should("be.visible")
             .and("have.attr", "href", "https://example.org/")
-            .and("have.text", "Test Link")
+            .and("have.text", "Test Linktest")
             .click();
         });
     });
