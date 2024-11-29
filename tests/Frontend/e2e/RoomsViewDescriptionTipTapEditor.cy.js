@@ -354,6 +354,7 @@ Cypress._.times(50, () => {
       cy.visit("/rooms/abc-def-123");
 
       cy.wait("@roomRequest");
+      cy.wait(1000);
 
       cy.get('[data-test="room-description-edit-button"]').click();
 
@@ -368,7 +369,6 @@ Cypress._.times(50, () => {
         });
 
       cy.focused().should("have.class", "tiptap");
-      cy.wait(1000);
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {

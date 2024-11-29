@@ -272,6 +272,9 @@ Cypress._.times(50, () => {
         "have.length",
         0,
       );
+
+      cy.wait(1000);
+
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
@@ -279,6 +282,9 @@ Cypress._.times(50, () => {
       });
 
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
+
+      cy.wait(1000);
+
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
@@ -313,6 +319,8 @@ Cypress._.times(50, () => {
 
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').eq(0).click();
 
+      cy.wait(1000);
+
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
@@ -332,6 +340,8 @@ Cypress._.times(50, () => {
           cy.get("p").should("not.exist");
         });
 
+      cy.wait(1000);
+
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
@@ -347,11 +357,15 @@ Cypress._.times(50, () => {
         expect(selectedText).to.eq("New test description");
       });
 
+      cy.wait(1000);
+
       cy.get('[data-test="tip-tap-bold-button"]')
         .should("be.visible")
         .and("have.class", "p-button-secondary")
         .and("have.attr", "data-p-severity", "secondary")
         .click();
+
+      cy.wait(1000);
 
       cy.window().then((win) => {
         const selection = win.getSelection();
