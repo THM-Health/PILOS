@@ -357,8 +357,6 @@ Cypress._.times(100, () => {
 
       cy.get('[data-test="room-description-edit-button"]').click();
 
-      cy.focused().should("have.class", "tiptap");
-
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
       cy.get(".tiptap")
         .should("be.visible")
@@ -369,7 +367,6 @@ Cypress._.times(100, () => {
             .and("have.text", "Test Link");
         });
 
-      cy.get(".tiptap").click();
       cy.focused().should("have.class", "tiptap");
       cy.get(".tiptap").type("{selectall}");
 
