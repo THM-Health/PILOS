@@ -413,6 +413,13 @@ Cypress._.times(50, () => {
         });
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
+
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Test Link");
+      });
+
       cy.focused().should("have.class", "tiptap");
 
       // Check that the link has been changed

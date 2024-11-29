@@ -272,8 +272,18 @@ Cypress._.times(50, () => {
         "have.length",
         0,
       );
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
 
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
         "have.length",
         4,
@@ -295,7 +305,19 @@ Cypress._.times(50, () => {
         .should("have.text", "rooms.description.paragraph")
         .should("be.visible");
 
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
+
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').eq(0).click();
+
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
 
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
         "have.length",
@@ -309,6 +331,12 @@ Cypress._.times(50, () => {
           cy.get("h1").contains("New test description").should("be.visible");
           cy.get("p").should("not.exist");
         });
+
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
 
       cy.focused().should("have.class", "tiptap");
       cy.wait(1000);
@@ -324,6 +352,12 @@ Cypress._.times(50, () => {
         .and("have.class", "p-button-secondary")
         .and("have.attr", "data-p-severity", "secondary")
         .click();
+
+      cy.window().then((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("New test description");
+      });
 
       cy.get('[data-test="tip-tap-bold-button"]')
         .should("be.visible")
