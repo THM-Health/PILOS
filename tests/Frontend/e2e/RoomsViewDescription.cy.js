@@ -1,5 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-Cypress._.times(50, () => {
+Cypress._.times(1, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();
@@ -157,13 +157,12 @@ Cypress._.times(50, () => {
       // Check that editor shows the correct description
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.focus")
         .within(() => {
           cy.get("p").contains("Room description").should("be.visible");
         });
 
-      cy.focused().should("have.class", "tiptap");
-      cy.wait(1000);
-      cy.get(".tiptap").clear();
+      cy.get(".tiptap").should("have.focus").clear();
 
       // Cancel editing
       cy.get('[data-test="room-description-cancel-edit-button"]')
@@ -181,20 +180,20 @@ Cypress._.times(50, () => {
 
       // Open editor again and check that description stayed the same
       cy.get('[data-test="room-description-edit-button"]').click();
+      cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
 
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.focus")
         .within(() => {
           cy.get("p").contains("Room description").should("be.visible");
         });
 
       // Edit description
-      cy.focused().should("have.class", "tiptap");
-      cy.wait(1000);
-      cy.get(".tiptap").clear();
-      cy.get(".tiptap").type("New test description");
+      cy.get(".tiptap").should("have.focus").clear();
+      cy.get(".tiptap").should("have.focus").type("New test description");
 
       // Save description
       const saveDescriptionRequest = interceptIndefinitely(
@@ -249,6 +248,7 @@ Cypress._.times(50, () => {
 
       // Check with different description with different options
       cy.get('[data-test="room-description-edit-button"]').click();
+      cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
 
@@ -258,9 +258,7 @@ Cypress._.times(50, () => {
           cy.get("p").contains("New test description").should("be.visible");
         });
 
-      cy.focused().should("have.class", "tiptap");
-      cy.wait(1000);
-      cy.get(".tiptap").type("{selectall}");
+      cy.get(".tiptap").should("have.focus").type("{selectall}");
 
       cy.window().then((win) => {
         const selection = win.getSelection();
@@ -273,8 +271,6 @@ Cypress._.times(50, () => {
         0,
       );
 
-      cy.wait(1000);
-
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
@@ -283,13 +279,12 @@ Cypress._.times(50, () => {
 
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
 
-      cy.wait(1000);
-
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
         expect(selectedText).to.eq("New test description");
       });
+
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').should(
         "have.length",
         4,
@@ -319,8 +314,6 @@ Cypress._.times(50, () => {
 
       cy.get('[data-test="tip-tap-menu-dropdown-item-button"]').eq(0).click();
 
-      cy.wait(1000);
-
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
@@ -335,37 +328,23 @@ Cypress._.times(50, () => {
       // Check that description was changed correctly
       cy.get(".tiptap")
         .should("be.visible")
+        .should("have.focus")
         .within(() => {
           cy.get("h1").contains("New test description").should("be.visible");
           cy.get("p").should("not.exist");
         });
 
-      cy.wait(1000);
-
       cy.window().then((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
         expect(selectedText).to.eq("New test description");
       });
-
-      cy.focused().should("have.class", "tiptap");
-      cy.wait(1000);
-
-      cy.window().then((win) => {
-        const selection = win.getSelection();
-        const selectedText = selection.toString();
-        expect(selectedText).to.eq("New test description");
-      });
-
-      cy.wait(1000);
 
       cy.get('[data-test="tip-tap-bold-button"]')
         .should("be.visible")
         .and("have.class", "p-button-secondary")
         .and("have.attr", "data-p-severity", "secondary")
         .click();
-
-      cy.wait(1000);
 
       cy.window().then((win) => {
         const selection = win.getSelection();
@@ -381,6 +360,7 @@ Cypress._.times(50, () => {
       // Check that description was changed correctly
       cy.get(".tiptap")
         .should("be.visible")
+        .should("have.focus")
         .within(() => {
           cy.get("h1")
             .find("strong")

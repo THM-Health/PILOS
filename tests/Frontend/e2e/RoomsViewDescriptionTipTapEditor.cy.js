@@ -354,13 +354,14 @@ Cypress._.times(50, () => {
       cy.visit("/rooms/abc-def-123");
 
       cy.wait("@roomRequest");
-      cy.wait(1000);
 
       cy.get('[data-test="room-description-edit-button"]').click();
+      cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.focus")
         .within(() => {
           cy.get("a")
             .should("be.visible")
@@ -368,8 +369,7 @@ Cypress._.times(50, () => {
             .and("have.text", "Test Link");
         });
 
-      cy.focused().should("have.class", "tiptap");
-      cy.get(".tiptap").type("{selectall}");
+      cy.get(".tiptap").should("have.focus").type("{selectall}");
 
       cy.window().then((win) => {
         const selection = win.getSelection();
