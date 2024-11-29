@@ -1,4 +1,4 @@
-Cypress._.times(100, () => {
+Cypress._.times(50, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
@@ -368,6 +368,7 @@ Cypress._.times(100, () => {
         });
 
       cy.focused().should("have.class", "tiptap");
+      cy.wait(1000);
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {

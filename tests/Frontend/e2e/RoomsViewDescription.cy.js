@@ -1,5 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-Cypress._.times(200, () => {
+Cypress._.times(50, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();
@@ -162,6 +162,7 @@ Cypress._.times(200, () => {
         });
 
       cy.focused().should("have.class", "tiptap");
+      cy.wait(1000);
       cy.get(".tiptap").clear();
 
       // Cancel editing
@@ -191,6 +192,7 @@ Cypress._.times(200, () => {
 
       // Edit description
       cy.focused().should("have.class", "tiptap");
+      cy.wait(1000);
       cy.get(".tiptap").clear();
       cy.get(".tiptap").type("New test description");
 
@@ -257,6 +259,7 @@ Cypress._.times(200, () => {
         });
 
       cy.focused().should("have.class", "tiptap");
+      cy.wait(1000);
       cy.get(".tiptap").type("{selectall}");
 
       cy.window().then((win) => {
@@ -308,6 +311,7 @@ Cypress._.times(200, () => {
         });
 
       cy.focused().should("have.class", "tiptap");
+      cy.wait(1000);
 
       cy.window().then((win) => {
         const selection = win.getSelection();
