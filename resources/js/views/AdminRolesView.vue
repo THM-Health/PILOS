@@ -152,7 +152,8 @@
                         isBusy ||
                         modelLoadingError ||
                         viewOnly ||
-                        model.superuser
+                        model.superuser ||
+                        permission.restricted
                       "
                       :invalid="formErrors.fieldInvalid('permissions', true)"
                     />
@@ -337,6 +338,8 @@ const model = ref({
   permissions: [],
 });
 
+const permissionRestrictions = ref([]);
+
 const name = ref("");
 watch(
   () => name.value,
@@ -446,7 +449,14 @@ function loadPermissions() {
     .call("permissions")
     .then((response) => {
       const newPermissions = {};
+
+      permissionRestrictions.value = response.data.meta.restrictions;
+
       response.data.data.forEach((permission) => {
+        permission.restricted = permissionRestrictions.value.includes(
+          permission.name,
+        );
+
         permission.name = permission.name
           .split(".")
           .map((fragment) => _.snakeCase(fragment))

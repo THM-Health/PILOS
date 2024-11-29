@@ -6,6 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\Role as RoleResource;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Settings\GeneralSettings;
 use Exception;
@@ -72,7 +73,14 @@ class RoleController extends Controller
         $role->superuser = false;
 
         $role->save();
-        $role->permissions()->sync($request->permissions);
+
+        $new_permissions = collect($request->permissions)->filter(function ($permissionId) {
+            $permission = Permission::find($permissionId);
+
+            return ! in_array($permission->name, config('permissions.restrictions'));
+        });
+
+        $role->permissions()->sync($new_permissions);
 
         return (new RoleResource($role))->withPermissions();
     }
@@ -98,7 +106,13 @@ class RoleController extends Controller
         if (! $role->superuser) {
             $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
 
-            $role->permissions()->sync($request->permissions);
+            $new_permissions = collect($request->permissions)->filter(function ($permissionId) {
+                $permission = Permission::find($permissionId);
+
+                return ! in_array($permission->name, config('permissions.restrictions'));
+            });
+
+            $role->permissions()->sync($new_permissions);
 
             $user = Auth::user();
 
