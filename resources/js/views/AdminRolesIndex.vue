@@ -75,6 +75,7 @@
               v-if="slotProps.data.superuser"
               icon="fa-solid fa-crown"
               value="Superuser"
+              severity="warn"
             />
           </div>
         </template>

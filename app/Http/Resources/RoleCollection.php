@@ -22,6 +22,7 @@ class RoleCollection extends ResourceCollection
                 'automatic' => $role->whenPivotLoaded('role_user', function () use ($role) {
                     return $role->pivot->automatic;
                 }),
+                'superuser' => $role->superuser,
             ];
         })->toArray();
     }

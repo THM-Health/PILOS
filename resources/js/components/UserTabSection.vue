@@ -93,9 +93,10 @@
 
 <script setup>
 import env from "../env";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useApi } from "../composables/useApi.js";
 import { useRouter } from "vue-router";
+import { useUserPermissions } from "../composables/useUserPermission.js";
 
 const props = defineProps({
   id: {
@@ -118,6 +119,7 @@ const modalVisible = ref(false);
 
 const api = useApi();
 const router = useRouter();
+const userPermissions = useUserPermissions();
 
 onMounted(() => {
   loadUser();
@@ -179,4 +181,10 @@ function loadUser() {
       isBusy.value = false;
     });
 }
+
+watch(user, (user) => {
+  if (!userPermissions.can("update", user) && !props.viewOnly) {
+    router.push({ name: "admin.users.view", params: { id: user.id } });
+  }
+});
 </script>

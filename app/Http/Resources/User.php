@@ -84,6 +84,7 @@ class User extends JsonResource
             'bbb_skip_check_audio' => $this->bbb_skip_check_audio,
             'initial_password_set' => $this->initial_password_set,
             'timezone' => $this->timezone,
+            'superuser' => $this->superuser,
         ];
     }
 }

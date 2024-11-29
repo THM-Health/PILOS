@@ -105,6 +105,7 @@
                 :disabled="isBusy"
                 @loading-error="(value) => (rolesLoadingError = value)"
                 @busy="(value) => (rolesLoading = value)"
+                :disable-superuser="!authStore.currentUser.superuser"
               />
               <FormError :errors="formErrors.fieldError('roles', true)" />
             </div>
@@ -205,10 +206,12 @@ import { useFormErrors } from "../composables/useFormErrors.js";
 import { useSettingsStore } from "../stores/settings";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth.js";
 
 const formErrors = useFormErrors();
 const api = useApi();
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
 const isBusy = ref(false);
