@@ -89,6 +89,16 @@ It is a mail testing tool that captures emails sent by the application.
 
 You need to configure a real mail server for production use.
 
+:::tip
+
+To check your email configuration, you can send a test mail using the following command:
+
+```bash
+docker compose exec app pilos-cli mail:test
+```
+
+:::
+
 ## Authentication
 
 | Option               | Default Value | Description                  |
@@ -131,8 +141,8 @@ To enable external authentication methods like LDAP, please refer to the [Extern
 
 ## More config options
 
--   [External Authentication](./08-advanced/01-external-authentication.md)
--   [Recording](./08-advanced/02-recording.md)
--   [Scaling](./08-advanced/03-scaling.md)
--   [Greenlight Configuration](./08-advanced/04-migrate-greenlight.md)
--   [Development](../development/03-configuration.md)
+- [External Authentication](./08-advanced/01-external-authentication.md)
+- [Recording](./08-advanced/02-recording.md)
+- [Scaling](./08-advanced/03-scaling.md)
+- [Greenlight Configuration](./08-advanced/04-migrate-greenlight.md)
+- [Development](../development/03-configuration.md)

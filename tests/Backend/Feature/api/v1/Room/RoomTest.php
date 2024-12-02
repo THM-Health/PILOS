@@ -551,6 +551,34 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test access code authentication rate limiting
+     */
+    public function test_access_code_rate_limit()
+    {
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code' => 111111111,
+        ]);
+
+        // Try 6 times with wrong access code
+        for ($i = 0; $i < 6; $i++) {
+            $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+                ->assertUnauthorized();
+        }
+
+        // Check if rate limit is reached
+        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertStatus(429);
+
+        // Time travel 1 minute to reset rate limit
+        $this->travel(1)->minutes();
+
+        // Try again
+        $this->withHeaders(['Access-Code' => 999999999])->getJson(route('api.v1.rooms.show', ['room' => $room]))
+            ->assertUnauthorized();
+    }
+
+    /**
      * Test that the existing access code setting is not changed if the default setting changes in the room type
      * (The access code in the room should not be automatically be overwritten by the room type setting)
      */

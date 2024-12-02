@@ -159,8 +159,13 @@ function handleOk() {
       if (error.response) {
         // failed due to form validation errors
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          if (error.response.data.errors.room_type !== undefined) {
-            // roomTypeSelect.value.reloadRoomTypes();
+          // Room type validation error, a room type was sent, but it is invalid
+          // therefore we need to reload the room types
+          if (
+            error.response.data.errors.room_type !== undefined &&
+            newRoom.room_type !== null
+          ) {
+            roomTypeSelect.value.reloadRoomTypes();
           }
 
           formErrors.set(error.response.data.errors);
