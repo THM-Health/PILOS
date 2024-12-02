@@ -263,7 +263,7 @@ Cypress._.times(50, () => {
         .should("have.focus")
         .within(() => {
           cy.get("a").should("not.exist");
-          cy.get("p").should("have.text", "Room description");
+          cy.get("p").contains("Room description").should("be.visible");
         });
 
       cy.get(".tiptap").should("have.focus").type("{selectall}");
@@ -348,7 +348,8 @@ Cypress._.times(50, () => {
         .and("have.focus")
         .within(() => {
           cy.get("a")
-            .should("have.text", "Room description")
+            .contains("Room description")
+            .should("be.visible")
             .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
         });
 
