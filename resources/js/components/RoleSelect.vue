@@ -38,7 +38,7 @@
             <Tag
               v-if="props.automaticRoles.some((role) => role === option.id)"
               severity="secondary"
-              >{{ $t('admin.roles.automatic') }}</Tag
+              >{{ $t("admin.roles.automatic") }}</Tag
             >
           </div>
         </div>
