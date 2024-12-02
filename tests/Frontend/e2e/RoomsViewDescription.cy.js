@@ -1,5 +1,5 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
-Cypress._.times(50, () => {
+Cypress._.times(100, () => {
   describe("Rooms view description", function () {
     beforeEach(function () {
       cy.init();
@@ -162,7 +162,6 @@ Cypress._.times(50, () => {
           cy.get("p").contains("Room description").should("be.visible");
         });
 
-      cy.wait(1000);
       cy.get(".tiptap").should("have.focus").clear();
 
       // Cancel editing
@@ -193,7 +192,6 @@ Cypress._.times(50, () => {
         });
 
       // Edit description
-      cy.wait(1000);
       cy.get(".tiptap").should("have.focus").clear();
       cy.get(".tiptap").should("have.focus").type("New test description");
 
@@ -261,10 +259,9 @@ Cypress._.times(50, () => {
           cy.get("p").contains("New test description").should("be.visible");
         });
 
-      cy.wait(1000);
       cy.get(".tiptap").should("have.focus").type("{selectall}");
 
-      cy.window().then((win) => {
+      cy.window().should((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
         expect(selectedText).to.eq("New test description");
@@ -274,8 +271,6 @@ Cypress._.times(50, () => {
         "have.length",
         0,
       );
-
-      cy.wait(1000);
 
       cy.get('[data-test="tip-tap-text-type-dropdown"]').click();
 
@@ -315,9 +310,7 @@ Cypress._.times(50, () => {
           cy.get("p").should("not.exist");
         });
 
-      cy.wait(1000);
-
-      cy.window().then((win) => {
+      cy.window().should((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
         expect(selectedText).to.eq("New test description");
@@ -329,9 +322,7 @@ Cypress._.times(50, () => {
         .and("have.attr", "data-p-severity", "secondary")
         .click();
 
-      cy.wait(1000);
-
-      cy.window().then((win) => {
+      cy.window().should((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
         expect(selectedText).to.eq("New test description");

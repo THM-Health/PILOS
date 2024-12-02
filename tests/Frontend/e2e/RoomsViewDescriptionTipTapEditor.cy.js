@@ -369,8 +369,9 @@ Cypress._.times(50, () => {
             .and("have.text", "Test Link");
         });
 
-      cy.wait(1000);
       cy.get(".tiptap").should("have.focus").type("{selectall}");
+
+      cy.wait(1000);
 
       cy.window().then((win) => {
         const selection = win.getSelection();
