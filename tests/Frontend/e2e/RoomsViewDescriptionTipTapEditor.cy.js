@@ -1,4 +1,4 @@
-Cypress._.times(50, () => {
+Cypress._.times(100, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
@@ -369,11 +369,13 @@ Cypress._.times(50, () => {
             .and("have.text", "Test Link");
         });
 
+      // Check that button is already active before selection
+      cy.get('[data-test="tip-tap-link-button"]')
+        .should("have.class", "p-button-primary");
+
       cy.get(".tiptap").should("have.focus").type("{selectall}");
 
-      cy.wait(1000);
-
-      cy.window().then((win) => {
+      cy.window().should((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
         expect(selectedText).to.eq("Test Link");
