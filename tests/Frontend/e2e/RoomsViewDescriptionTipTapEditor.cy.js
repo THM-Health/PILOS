@@ -253,18 +253,20 @@ Cypress._.times(50, () => {
       cy.wait("@roomRequest");
 
       cy.get('[data-test="room-description-edit-button"]').click();
+      cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
 
       // Check that correct data is displayed
       cy.get(".tiptap")
         .should("be.visible")
+        .should("have.focus")
         .within(() => {
           cy.get("a").should("not.exist");
           cy.get("p").should("have.text", "Room description");
         });
 
-      cy.get(".tiptap").type("{selectall}");
+      cy.get(".tiptap").should("have.focus").type("{selectall}");
 
       cy.window().should((win) => {
         const selection = win.getSelection();
@@ -387,8 +389,10 @@ Cypress._.times(50, () => {
         });
 
       // Check that button is already active before selection
-      cy.get('[data-test="tip-tap-link-button"]')
-        .should("have.class", "p-button-primary");
+      cy.get('[data-test="tip-tap-link-button"]').should(
+        "have.class",
+        "p-button-primary",
+      );
 
       cy.get(".tiptap").should("have.focus").type("{selectall}");
 
@@ -441,7 +445,6 @@ Cypress._.times(50, () => {
         expect(selectedText).to.eq("Test Link");
       });
 
-
       // Check that the link has been changed
       cy.get(".tiptap")
         .should("be.visible")
@@ -471,10 +474,12 @@ Cypress._.times(50, () => {
       cy.wait("@roomRequest");
 
       cy.get('[data-test="room-description-edit-button"]').click();
+      cy.get('[data-test="room-description-edit-button"]').should("not.exist");
 
       cy.get('[data-test="tip-tap-editor"]').should("be.visible");
       cy.get(".tiptap")
         .should("be.visible")
+        .should("have.focus")
         .within(() => {
           cy.get("a")
             .contains("Test Link")
@@ -506,7 +511,7 @@ Cypress._.times(50, () => {
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
 
-      cy.window().should(win=>{
+      cy.window().should((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
         expect(selectedText).to.eq("Test Link");
