@@ -60,6 +60,15 @@ describe("Admin users new", function () {
     cy.get("h1").should("be.visible").and("include.text", "home.title");
   });
 
+  it("visit with local auth disabled", function () {
+    cy.intercept("GET", "api/v1/config", { fixture: "config.json" });
+
+    cy.visit("/admin/users/new");
+
+    cy.url().should("not.include", "/admin/users/new");
+    cy.url().should("include", "/404");
+  });
+
   it("add new user with custom password and 1 role", function () {
     cy.visit("/admin/users/new");
 
@@ -270,7 +279,7 @@ describe("Admin users new", function () {
 
     // Save new user
 
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.id = 20;
       user.data.firstname = "Max";
       user.data.email = "Doe";
@@ -550,7 +559,7 @@ describe("Admin users new", function () {
     cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
 
     // Save new user
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.id = 20;
       user.data.firstname = "Max";
       user.data.email = "Doe";

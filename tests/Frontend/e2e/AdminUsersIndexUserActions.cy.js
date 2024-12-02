@@ -316,7 +316,7 @@ describe("Admin users index", function () {
     cy.wait("@usersRequest");
 
     cy.intercept("GET", "api/v1/users/1", {
-      fixture: "user.json",
+      fixture: "userDataCurrentUser.json",
     }).as("userRequest");
 
     cy.get('[data-test="user-item"]')
@@ -335,7 +335,7 @@ describe("Admin users index", function () {
     cy.interceptAdminUsersViewRequests();
 
     cy.intercept("GET", "api/v1/users/2", {
-      fixture: "user2.json",
+      fixture: "userDataUser.json",
     }).as("userRequest");
 
     cy.get('[data-test="user-item"]')
@@ -363,7 +363,7 @@ describe("Admin users index", function () {
     cy.wait("@usersRequest");
 
     cy.intercept("GET", "api/v1/users/1", {
-      fixture: "user.json",
+      fixture: "userDataCurrentUser.json",
     }).as("userRequest");
 
     cy.get('[data-test="user-item"]')

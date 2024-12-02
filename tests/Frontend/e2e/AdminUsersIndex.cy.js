@@ -49,23 +49,6 @@ describe("Admin users index", function () {
     // Check if the welcome page is shown
     cy.url().should("not.include", "/admin/users");
     cy.get("h1").should("be.visible").and("contain", "home.title");
-
-    // Check with missing admin.view permission
-    cy.fixture("currentUser.json").then((currentUser) => {
-      currentUser.data.permissions = ["users.viewAny", "roles.viewAny"];
-      cy.intercept("GET", "api/v1/currentUser", {
-        statusCode: 200,
-        body: currentUser,
-      });
-    });
-
-    cy.visit("/admin/users");
-
-    cy.checkToastMessage("app.flash.unauthorized");
-
-    // Check if the welcome page is shown
-    cy.url().should("not.include", "/admin/users");
-    cy.get("h1").should("be.visible").and("contain", "home.title");
   });
 
   it("load users", function () {

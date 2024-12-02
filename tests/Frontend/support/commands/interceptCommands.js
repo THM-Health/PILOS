@@ -136,9 +136,9 @@ Cypress.Commands.add("interceptUserProfileRequests", () => {
     cy.intercept("GET", "api/v1/currentUser", currentUser);
   });
 
-  cy.intercept("GET", "api/v1/users/1", { fixture: "user.json" }).as(
-    "userRequest",
-  );
+  cy.intercept("GET", "api/v1/users/1", {
+    fixture: "userDataCurrentUser.json",
+  }).as("userRequest");
   cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
   cy.intercept("GET", "api/v1/sessions", { fixture: "sessions.json" });
 });
@@ -217,7 +217,7 @@ Cypress.Commands.add("interceptAdminUsersNewRequests", () => {
  */
 Cypress.Commands.add("interceptAdminUsersViewRequests", () => {
   cy.intercept("GET", "api/v1/users/2", {
-    fixture: "user2.json",
+    fixture: "userDataUser.json",
   }).as("userRequest");
 
   cy.intercept("GET", "api/v1/roles*", {

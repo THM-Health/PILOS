@@ -16,7 +16,7 @@ describe("User Profile", function () {
     const userRequest = interceptIndefinitely(
       "GET",
       "api/v1/users/1",
-      { fixture: "user.json" },
+      { fixture: "userDataCurrentUser.json" },
       "userRequest",
     );
 
@@ -80,7 +80,7 @@ describe("User Profile", function () {
 
     // Reload with correct data
     cy.intercept("GET", "api/v1/users/1", {
-      fixture: "user.json",
+      fixture: "userDataCurrentUser.json",
     }).as("userRequest");
 
     cy.get('[data-test="loading-retry-button"]')

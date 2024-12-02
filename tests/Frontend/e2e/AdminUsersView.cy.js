@@ -60,7 +60,7 @@ describe("Admin users view", function () {
     const userRequest = interceptIndefinitely(
       "GET",
       "api/v1/users/2",
-      { fixture: "user2.json" },
+      { fixture: "userDataUser.json" },
       "userRequest",
     );
 
@@ -71,6 +71,7 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]').should("not.exist");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
+    cy.get('[data-test="user-tab-profile-save-button"]').should("not.exist");
 
     cy.get('[data-test="base-tab-button"]').should("not.exist");
     cy.get('[data-test="email-tab-button"]').should("not.exist");
@@ -91,6 +92,7 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-edit-button"]').should("not.exist");
     cy.get('[data-test="users-reset-password-button"]').should("not.exist");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
+    cy.get('[data-test="user-tab-profile-save-button"]').should("not.exist");
 
     cy.get('[data-test="base-tab-button"]').should("be.visible");
     cy.get('[data-test="email-tab-button"]').should("be.visible");
@@ -141,7 +143,7 @@ describe("Admin users view", function () {
   });
 
   it("check userView with ldap user", function () {
-    cy.fixture("user2.json").then((user) => {
+    cy.fixture("userDataUser.json").then((user) => {
       user.data.authenticator = "ldap";
       user.data.external_id = "lwr";
 
@@ -174,6 +176,7 @@ describe("Admin users view", function () {
     cy.get('[data-test="delete-image-button"]').should("not.exist");
     cy.get('[data-test="undo-delete-button"]').should("not.exist");
     cy.get('[data-test="upload-file-input"]').should("not.exist");
+    cy.get('[data-test="user-tab-profile-save-button"]').should("not.exist");
 
     cy.get('[data-test="locale-dropdown"]').within(() => {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
@@ -282,7 +285,7 @@ describe("Admin users view", function () {
 
     // Reload with correct data
     cy.intercept("GET", "api/v1/users/2", {
-      fixture: "user2.json",
+      fixture: "userDataUser.json",
     }).as("userRequest");
 
     cy.get('[data-test="loading-retry-button"]')

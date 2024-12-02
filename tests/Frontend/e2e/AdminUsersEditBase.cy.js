@@ -4,14 +4,38 @@ import {
   parseFormData,
 } from "../support/utils/formData.js";
 
-describe("User Profile Base", function () {
+describe("Admin users edit base", function () {
   beforeEach(function () {
     cy.init();
-    cy.interceptUserProfileRequests();
+    cy.interceptAdminUsersViewRequests();
+
+    cy.fixture("currentUser.json").then((currentUser) => {
+      currentUser.data.permissions = [
+        "admin.view",
+        "users.viewAny",
+        "users.view",
+        "users.update",
+        "users.create",
+        "roles.viewAny",
+      ];
+      cy.intercept("GET", "api/v1/currentUser", {
+        statusCode: 200,
+        body: currentUser,
+      });
+    });
+
+    cy.fixture("config.json").then((config) => {
+      config.data.auth.local = true;
+
+      cy.intercept("GET", "api/v1/config", {
+        statusCode: 200,
+        body: config,
+      });
+    });
   });
 
   it("check view and save changes", function () {
-    cy.visit("/profile");
+    cy.visit("/admin/users/2/edit");
 
     cy.wait("@userRequest");
 
@@ -19,16 +43,16 @@ describe("User Profile Base", function () {
 
     cy.get('[data-test="default-profile-image-preview"]')
       .should("be.visible")
-      .and("include.text", "JD");
+      .and("include.text", "LR");
 
     // Check firstname setting and change it
     cy.get('[data-test="firstname-field"]')
       .should("be.visible")
       .and("include.text", "app.firstname")
       .within(() => {
-        cy.get("#firstname").should("have.value", "John");
+        cy.get("#firstname").should("have.value", "Laura");
         cy.get("#firstname").clear();
-        cy.get("#firstname").type("Laura");
+        cy.get("#firstname").type("Juan");
       });
 
     // Check lastname setting and change it
@@ -36,9 +60,9 @@ describe("User Profile Base", function () {
       .should("be.visible")
       .and("include.text", "app.lastname")
       .within(() => {
-        cy.get("#lastname").should("have.value", "Doe");
+        cy.get("#lastname").should("have.value", "Rivera");
         cy.get("#lastname").clear();
-        cy.get("#lastname").type("Rivera");
+        cy.get("#lastname").type("Walter");
       });
 
     // Check authenticator setting
@@ -58,7 +82,7 @@ describe("User Profile Base", function () {
       .within(() => {
         cy.get('[data-test="default-profile-image-preview"]')
           .should("be.visible")
-          .and("include.text", "LR");
+          .and("include.text", "JW");
         cy.get('[data-test="profile-image-preview"]').should("not.exist");
 
         // Check that other buttons are hidden
@@ -132,7 +156,7 @@ describe("User Profile Base", function () {
 
       cy.get('[data-test="default-profile-image-preview"]')
         .should("be.visible")
-        .and("include.text", "LR");
+        .and("include.text", "JW");
       cy.get('[data-test="profile-image-preview"]').should("not.exist");
 
       cy.get('[data-test="upload-file-button"]').should("be.visible");
@@ -307,9 +331,9 @@ describe("User Profile Base", function () {
     );
 
     // Save changes
-    cy.fixture("userDataCurrentUser.json").then((user) => {
-      user.data.firstname = "Laura";
-      user.data.lastname = "Rivera";
+    cy.fixture("userDataUser.json").then((user) => {
+      user.data.firstname = "Juan";
+      user.data.lastname = "Walter";
       user.data.user_locale = "de";
       user.data.timezone = "Europe/Berlin";
       user.data.image = Cypress.config("baseUrl") + "/test.jpg";
@@ -317,7 +341,7 @@ describe("User Profile Base", function () {
 
       const saveChangesRequest = interceptIndefinitely(
         "POST",
-        "api/v1/users/1",
+        "api/v1/users/2",
         {
           statusCode: 200,
           body: user,
@@ -325,17 +349,10 @@ describe("User Profile Base", function () {
         "saveChangesRequest",
       );
 
-      cy.fixture("currentUser.json").then((currentUser) => {
-        currentUser.data.firstname = "Laura";
-        currentUser.data.lastname = "Rivera";
-        currentUser.data.user_locale = "de";
-        currentUser.data.permissions = ["users.updateOwnAttributes"];
-
-        cy.intercept("GET", "api/v1/currentUser", {
-          statusCode: 200,
-          body: currentUser,
-        }).as("currentUserRequest");
-      });
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
 
       cy.get('[data-test="user-tab-profile-save-button"]')
         .should("be.visible")
@@ -373,8 +390,8 @@ describe("User Profile Base", function () {
 
       expect(formData.get("user_locale")).to.eql("de");
       expect(formData.get("timezone")).to.eql("Europe/Berlin");
-      expect(formData.get("firstname")).to.eql("Laura");
-      expect(formData.get("lastname")).to.eql("Rivera");
+      expect(formData.get("firstname")).to.eql("Juan");
+      expect(formData.get("lastname")).to.eql("Walter");
       expect(formData.get("_method")).to.eql("PUT");
       expect(formData.get("updated_at")).to.eql("2024-09-13T14:20:26.000000Z");
 
@@ -389,11 +406,18 @@ describe("User Profile Base", function () {
       });
     });
 
-    cy.wait("@currentUserRequest");
+    // Check that redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
+
+    // Reload edit page and save again
+    cy.visit("/admin/users/2/edit");
 
     // Check if changes are saved and shown in the view
-    cy.get("#firstname").should("have.value", "Laura").and("not.be.disabled");
-    cy.get("#lastname").should("have.value", "Rivera").and("not.be.disabled");
+    cy.get("#firstname").should("have.value", "Juan").and("not.be.disabled");
+    cy.get("#lastname").should("have.value", "Walter").and("not.be.disabled");
     cy.get("#authenticator")
       .should("have.value", "admin.users.authenticator.local")
       .and("be.disabled");
@@ -438,7 +462,7 @@ describe("User Profile Base", function () {
     cy.get('[data-test="profile-image-preview"]').should("not.exist");
     cy.get('[data-test="default-profile-image-preview"]')
       .should("be.visible")
-      .and("include.text", "LR");
+      .and("include.text", "JW");
 
     // Check visibility of other buttons
     cy.get('[data-test="upload-file-button"]').should("not.exist");
@@ -459,14 +483,14 @@ describe("User Profile Base", function () {
     // Delete again and save changes
     cy.get('[data-test="delete-image-button"]').click();
 
-    cy.fixture("userDataCurrentUser.json").then((user) => {
-      user.data.firstname = "Laura";
-      user.data.lastname = "Rivera";
+    cy.fixture("userDataUser.json").then((user) => {
+      user.data.firstname = "Juan";
+      user.data.lastname = "Walter";
       user.data.user_locale = "de";
       user.data.timezone = "Europe/Berlin";
       user.data.updated_at = "2024-09-13T14:24:26.000000Z";
 
-      cy.intercept("POST", "api/v1/users/1", {
+      cy.intercept("POST", "api/v1/users/2", {
         statusCode: 200,
         body: user,
       }).as("saveChangesRequest");
@@ -482,30 +506,27 @@ describe("User Profile Base", function () {
 
       expect(formData.get("user_locale")).to.eql("de");
       expect(formData.get("timezone")).to.eql("Europe/Berlin");
-      expect(formData.get("firstname")).to.eql("Laura");
-      expect(formData.get("lastname")).to.eql("Rivera");
+      expect(formData.get("firstname")).to.eql("Juan");
+      expect(formData.get("lastname")).to.eql("Walter");
       expect(formData.get("_method")).to.eql("PUT");
       expect(formData.get("updated_at")).to.eql("2024-09-13T14:22:26.000000Z");
       expect(formData.get("image")).to.eql("");
     });
 
-    cy.wait("@currentUserRequest");
+    // Check that redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
 
-    cy.get('[data-test="delete-image-button"]').should("not.exist");
-
-    cy.get('[data-test="profile-image-preview"]').should("not.exist");
-    cy.get('[data-test="default-profile-image-preview"]')
-      .should("be.visible")
-      .and("include.text", "LR");
+    cy.wait("@userRequest");
   });
 
   it("save changes errors", function () {
-    cy.visit("/profile");
+    cy.visit("/admin/users/2/edit");
 
     cy.wait("@userRequest");
 
     // Check with 422 error
-    cy.intercept("POST", "api/v1/users/1", {
+    cy.intercept("POST", "api/v1/users/2", {
       statusCode: 422,
       body: {
         errors: {
@@ -543,14 +564,14 @@ describe("User Profile Base", function () {
     );
 
     // Check with 428 error (stale error)
-    cy.fixture("userDataCurrentUser.json").then((user) => {
+    cy.fixture("userDataUser.json").then((user) => {
       const newModel = user.data;
       newModel.firstname = "Laura";
       newModel.lastname = "Rivera";
       newModel.user_locale = "de";
       newModel.timezone = "Europe/Berlin";
 
-      cy.intercept("POST", "api/v1/users/1", {
+      cy.intercept("POST", "api/v1/users/2", {
         statusCode: 428,
         body: {
           message: " The user entity was updated in the meanwhile!",
@@ -571,27 +592,17 @@ describe("User Profile Base", function () {
 
     cy.get('[data-test="stale-dialog-reload-button"]').click();
 
-    // Check that changes are shown in the view
-    cy.get("#firstname").should("have.value", "Laura").and("not.be.disabled");
-    cy.get("#lastname").should("have.value", "Rivera").and("not.be.disabled");
-    cy.get("#authenticator")
-      .should("have.value", "admin.users.authenticator.local")
-      .and("be.disabled");
+    // Check that redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
 
-    cy.get('[data-test="profile-image-preview"]').should("not.exist");
-    cy.get('[data-test="default-profile-image-preview"]')
-      .should("be.visible")
-      .and("include.text", "LR");
+    cy.wait("@userRequest");
 
-    cy.get('[data-test="locale-dropdown"]').should("have.text", "Deutsch");
-
-    cy.get('[data-test="timezone-dropdown"]').should(
-      "have.text",
-      "Europe/Berlin",
-    );
+    // Visit edit page again
+    cy.visit("/admin/users/2/edit");
 
     // Check with 500 error
-    cy.intercept("POST", "api/v1/users/1", {
+    cy.intercept("POST", "api/v1/users/2", {
       statusCode: 500,
       body: {
         message: "Test",
@@ -607,8 +618,34 @@ describe("User Profile Base", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
+    // Check with 404 error
+    cy.interceptAdminUsersIndexRequests();
+
+    cy.intercept("POST", "api/v1/users/2", {
+      statusCode: 404,
+      body: {
+        message: "No query results for model",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="user-tab-profile-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("not.include", "/admin/users/2/edit");
+    cy.url().should("include", "/admin/users");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Visit edit page again
+    cy.visit("/admin/users/2/edit");
+
     // Check with 401 error
-    cy.intercept("POST", "api/v1/users/1", {
+    cy.intercept("POST", "api/v1/users/2", {
       statusCode: 401,
     }).as("saveChangesRequest");
 
@@ -617,70 +654,28 @@ describe("User Profile Base", function () {
     cy.wait("@saveChangesRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "/login?redirect=/profile");
+    cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  it("view without users.updateOwnAttributes permission", function () {
-    cy.intercept("GET", "api/v1/currentUser", { fixture: "currentUser.json" });
-
-    cy.visit("/profile");
-
-    cy.wait("@userRequest");
-
-    cy.get("#firstname").should("have.value", "John").and("be.disabled");
-    cy.get("#lastname").should("have.value", "Doe").and("be.disabled");
-    cy.get("#authenticator")
-      .should("have.value", "admin.users.authenticator.local")
-      .and("be.disabled");
-
-    cy.get('[data-test="profile-image-preview"]').should("not.exist");
-    cy.get('[data-test="default-profile-image-preview"]')
-      .should("be.visible")
-      .and("include.text", "JD");
-
-    // Check image buttons
-    cy.get('[data-test="upload-file-button"]').should("be.visible");
-    cy.get('[data-test="reset-file-upload-button"]').should("not.exist");
-    cy.get('[data-test="delete-image-button"]').should("not.exist");
-    cy.get('[data-test="undo-delete-button"]').should("not.exist");
-
-    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
-    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
-    cy.get('[data-test="locale-dropdown"]').within(() => {
-      cy.get(".p-select-label").should(
-        "not.have.attr",
-        "aria-disabled",
-        "true",
-      );
-    });
-    cy.get('[data-test="timezone-dropdown"]').within(() => {
-      cy.get(".p-select-label").should(
-        "not.have.attr",
-        "aria-disabled",
-        "true",
-      );
-    });
-  });
-
   it("view as external user", function () {
-    cy.fixture("userDataCurrentUser.json").then((user) => {
+    cy.fixture("userDataUser.json").then((user) => {
       user.data.authenticator = "ldap";
-      user.data.external_id = "jdo";
+      user.data.external_id = "lwr";
 
-      cy.intercept("GET", "api/v1/users/1", {
+      cy.intercept("GET", "api/v1/users/2", {
         statusCode: 200,
         body: user,
       }).as("userRequest");
     });
 
-    cy.visit("/profile");
+    cy.visit("/admin/users/2/edit");
 
     cy.wait("@userRequest");
 
-    cy.get("#firstname").should("have.value", "John").and("be.disabled");
-    cy.get("#lastname").should("have.value", "Doe").and("be.disabled");
+    cy.get("#firstname").should("have.value", "Laura").and("be.disabled");
+    cy.get("#lastname").should("have.value", "Rivera").and("be.disabled");
     cy.get("#authenticator")
       .should("have.value", "admin.users.authenticator.ldap")
       .and("be.disabled");
@@ -689,14 +684,14 @@ describe("User Profile Base", function () {
       .should("include.text", "auth.authenticator_id")
       .within(() => {
         cy.get("#authenticator_id")
-          .should("have.value", "jdo")
+          .should("have.value", "lwr")
           .and("be.disabled");
       });
 
     cy.get('[data-test="profile-image-preview"]').should("not.exist");
     cy.get('[data-test="default-profile-image-preview"]')
       .should("be.visible")
-      .and("include.text", "JD");
+      .and("include.text", "LR");
 
     // Check image buttons
     cy.get('[data-test="upload-file-button"]').should("be.visible");
@@ -730,7 +725,7 @@ describe("User Profile Base", function () {
       },
     }).as("timezonesRequest");
 
-    cy.visit("/profile");
+    cy.visit("/admin/users/2/edit");
 
     cy.wait("@userRequest");
 
@@ -791,8 +786,124 @@ describe("User Profile Base", function () {
     cy.wait("@timezonesRequest");
 
     // Check that redirect worked and error message is shown
-    cy.url().should("include", "/login?redirect=/profile");
+    cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
+  });
+
+  // ToDo figure out where to put this test (which test file)
+  //  would maybe make sense inside AdminUsersViewUserActions.cy.js (problem: needs to be tested for all tabs)
+  it("switch between edit and view", function () {
+    cy.visit("/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    // Change values of all fields
+    cy.get("#firstname").should("have.value", "Laura").clear();
+    cy.get("#firstname").type("Juan");
+    cy.get("#lastname").should("have.value", "Rivera").clear();
+    cy.get("#lastname").type("Walter");
+
+    cy.get('[data-test="upload-file-input"]')
+      .should("not.be.visible")
+      .selectFile("tests/Frontend/fixtures/files/profileImage.jpg", {
+        force: true,
+      });
+
+    cy.get('[data-test="crop-image-dialog"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.image.crop");
+
+    // Check if correct image is shown
+    cy.fixture("files/profileImage.jpg", "base64").then((content) => {
+      cy.get('[data-test="crop-image-dialog"]')
+        .find("img")
+        .should("have.attr", "src")
+        .and("include", content);
+    });
+
+    cy.get('[data-test="dialog-save-button"]')
+      .should("have.text", "admin.users.image.save")
+      .click();
+
+    cy.get('[data-test="crop-image-dialog"]').should("not.exist");
+
+    // Check that image and buttons are still shown correctly
+    cy.get('[data-test="profile-image-field"]').within(() => {
+      cy.get('[data-test="default-profile-image-preview"]').should("not.exist");
+      cy.get('[data-test="profile-image-preview"]')
+        .should("be.visible")
+        .find("img")
+        .should("have.attr", "src")
+        .then((src) => {
+          cy.fixture("files/profileImagePreview.jpg", "base64").then(
+            (content) => {
+              expect(src).to.eql("data:image/jpeg;base64," + content);
+            },
+          );
+        });
+      cy.get('[data-test="upload-file-button"]').should("be.visible");
+      cy.get('[data-test="delete-image-button"]').should("not.exist");
+      cy.get('[data-test="undo-delete-button"]').should("not.exist");
+
+      cy.get('[data-test="reset-file-upload-button"]').should("be.visible");
+    });
+
+    cy.get('[data-test="locale-dropdown"]')
+      .should("have.text", "English")
+      .click();
+
+    cy.get('[data-test="locale-dropdown-option"]').eq(0).click();
+
+    cy.get('[data-test="locale-dropdown-items"]').should("not.exist");
+    cy.get('[data-test="locale-dropdown"]').should("have.text", "Deutsch");
+
+    cy.get('[data-test="timezone-dropdown"]')
+      .should("have.text", "UTC")
+      .click();
+
+    cy.get('[data-test="timezone-dropdown-option"]').eq(2).click();
+
+    cy.get('[data-test="timezone-dropdown-items"]').should("not.exist");
+    cy.get('[data-test="timezone-dropdown"]').should(
+      "have.text",
+      "Europe/Berlin",
+    );
+
+    // Switch to view
+    cy.get('[data-test="users-cancel-edit-button"]').click();
+
+    // Check if redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
+
+    // Check that changed were not saved
+    cy.get("#firstname").should("have.value", "Laura");
+    cy.get("#lastname").should("have.value", "Rivera");
+    cy.get('[data-test="profile-image-preview"]').should("not.exist");
+    cy.get('[data-test="default-profile-image-preview"]')
+      .should("be.visible")
+      .and("include.text", "LR");
+    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
+    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
+
+    // Switch to edit again
+    cy.get('[data-test="users-edit-button"]').click();
+
+    cy.url().should("include", "/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    // Check that original values are shown
+    cy.get("#firstname").should("have.value", "Laura");
+    cy.get("#lastname").should("have.value", "Rivera");
+    cy.get('[data-test="profile-image-preview"]').should("not.exist");
+    cy.get('[data-test="default-profile-image-preview"]')
+      .should("be.visible")
+      .and("include.text", "LR");
+    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
+    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
   });
 });

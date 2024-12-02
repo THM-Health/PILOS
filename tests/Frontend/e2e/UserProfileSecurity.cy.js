@@ -55,7 +55,7 @@ describe("User Profile Security", function () {
       });
 
     // Try to change password
-    cy.fixture("user").then((user) => {
+    cy.fixture("userDataCurrentUser").then((user) => {
       const saveChangesRequest = interceptIndefinitely(
         "PUT",
         "api/v1/users/1/password",
@@ -231,7 +231,7 @@ describe("User Profile Security", function () {
   });
 
   it("view as external user", function () {
-    cy.fixture("user.json").then((user) => {
+    cy.fixture("userDataCurrentUser.json").then((user) => {
       user.data.authenticator = "ldap";
       user.data.external_id = "jdo";
 
