@@ -122,7 +122,7 @@
                 class="fa-solid fa-circle-info"
             /></b>
           </div>
-          <div class="col-span-12 flex flex-col gap-4">
+          <div class="col-span-12 flex flex-col gap-6">
             <Divider class="m-0" />
             <div
               v-for="key in Object.keys(permissions)"
@@ -132,7 +132,7 @@
               <div class="col-span-12">
                 <b>{{ $t(`admin.roles.permissions.${key}.title`) }}</b>
               </div>
-              <div class="col-span-12">
+              <div class="col-span-12 flex flex-col gap-2">
                 <div
                   v-for="permission in permissions[key]"
                   :key="permission.id"
@@ -142,6 +142,11 @@
                     <label :for="permission.name">{{
                       $t(`admin.roles.permissions.${permission.name}`)
                     }}</label>
+                    <p
+                      class="font-monospace text-sm text-surface-400 dark:text-surface-300"
+                    >
+                      {{ permission.rawName }}
+                    </p>
                   </div>
                   <div class="col-span-2 flex">
                     <Checkbox
@@ -453,6 +458,7 @@ function loadPermissions() {
       permissionRestrictions.value = response.data.meta.restrictions;
 
       response.data.data.forEach((permission) => {
+        permission.rawName = permission.name;
         permission.restricted = permissionRestrictions.value.includes(
           permission.name,
         );
