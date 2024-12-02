@@ -264,7 +264,9 @@ Cypress._.times(100, () => {
           cy.get("p").should("have.text", "Room description");
         });
 
-      cy.get(".tiptap").should("have.focus").type("{selectall}");
+      cy.get(".tiptap").click();
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
+      cy.get(".tiptap").type("{selectall}");
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
       cy.get('[data-test="tip-tap-link-button"]')
@@ -282,7 +284,9 @@ Cypress._.times(100, () => {
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
 
       // Open dialog again
-      cy.get(".tiptap").should("have.focus").type("{selectall}");
+      cy.get(".tiptap").click();
+      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
+      cy.get(".tiptap").type("{selectall}");
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-secondary")
         .click();
@@ -339,7 +343,7 @@ Cypress._.times(100, () => {
     it.only("edit link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description =
-          '<p>Test Link</p>';
+          '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
 
         cy.intercept("GET", "/api/v1/rooms/abc-def-123", {
           statusCode: 200,
@@ -359,10 +363,15 @@ Cypress._.times(100, () => {
         .should("be.visible")
         .and("have.focus")
         .within(() => {
-          cy.get("p")
+          cy.get("a")
+            .contains("Test Link")
             .should("be.visible")
-            .and("have.text", "Test Link");
+            .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
         });
+
+      // Check that button is already active before selection
+      cy.get('[data-test="tip-tap-link-button"]')
+        .should("have.class", "p-button-primary");
 
       cy.get(".tiptap").should("have.focus").type("{selectall}");
 
@@ -372,6 +381,61 @@ Cypress._.times(100, () => {
         expect(selectedText).to.eq("Test Link");
       });
 
+      cy.get('[data-test="tip-tap-link-button"]')
+        .should("have.class", "p-button-primary")
+        .click();
+
+      // Check that dialog contains the correct data and change it
+      cy.get('[data-test="tip-tap-link-dialog"]')
+        .should("be.visible")
+        .should("include.text", "rooms.description.modals.link.edit")
+        .within(() => {
+          // Change to invalid url
+          cy.get("#url")
+            .should("have.value", "https://example.org/?foo=a&bar=b")
+            .clear();
+          cy.get("#url").type("invalid");
+
+          // Check that error message is shown and save button is disabled
+          cy.contains("rooms.description.modals.link.invalid_url").should(
+            "be.visible",
+          );
+          cy.get('[data-test="dialog-save-button"]').should("be.disabled");
+
+          // Change url back to valid value
+          cy.get("#url").clear();
+          cy.get("#url").type("https://example.org/");
+
+          // Check that error message is hidden and save button is enabled
+          cy.contains("rooms.description.modals.link.invalid_url").should(
+            "not.exist",
+          );
+          cy.get('[data-test="dialog-save-button"]')
+            .should("have.text", "app.save")
+            .should("not.be.disabled")
+            .click();
+        });
+
+      cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
+
+      cy.window().should((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Test Link");
+      });
+
+
+      // Check that the link has been changed
+      cy.get(".tiptap")
+        .should("be.visible")
+        .and("have.focus")
+        .within(() => {
+          cy.get("a")
+            .contains("Test Link")
+            .should("be.visible")
+            .and("have.attr", "href", "https://example.org/")
+            .click();
+        });
     });
 
     it("delete link", function () {
