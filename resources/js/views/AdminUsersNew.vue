@@ -103,9 +103,9 @@
                 aria-labelledby="roles-label"
                 :invalid="formErrors.fieldInvalid('roles', true)"
                 :disabled="isBusy"
+                :disable-superuser="!authStore.currentUser.superuser"
                 @loading-error="(value) => (rolesLoadingError = value)"
                 @busy="(value) => (rolesLoading = value)"
-                :disable-superuser="!authStore.currentUser.superuser"
               />
               <FormError :errors="formErrors.fieldError('roles', true)" />
             </div>

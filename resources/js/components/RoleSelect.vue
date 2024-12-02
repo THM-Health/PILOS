@@ -32,13 +32,13 @@
             <Tag
               v-if="option.superuser"
               icon="fa-solid fa-crown"
-              value="Superuser"
+              :value="$t('admin.roles.superuser')"
               severity="warn"
             />
             <Tag
               v-if="props.automaticRoles.some((role) => role === option.id)"
               severity="secondary"
-              >Automatic</Tag
+              >{{ $t('admin.roles.automatic') }}</Tag
             >
           </div>
         </div>
