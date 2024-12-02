@@ -373,12 +373,13 @@ Cypress._.times(100, () => {
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-primary");
 
+      cy.get(".tiptap").should("have.focus").type(" New");
       cy.get(".tiptap").should("have.focus").type("{selectall}");
 
       cy.window().should((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
-        expect(selectedText).to.eq("Test Link");
+        expect(selectedText).to.eq("Test Link New");
       });
 
       cy.get('[data-test="tip-tap-link-button"]')
@@ -418,22 +419,21 @@ Cypress._.times(100, () => {
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
 
-      cy.window().then((win) => {
+      cy.window().should((win) => {
         const selection = win.getSelection();
         const selectedText = selection.toString();
-        expect(selectedText).to.eq("Test Link");
+        expect(selectedText).to.eq("Test Link New");
       });
-
-      cy.focused().should("have.class", "tiptap");
 
       // Check that the link has been changed
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.focus")
         .within(() => {
           cy.get("a")
             .should("be.visible")
             .and("have.attr", "href", "https://example.org/")
-            .and("have.text", "Test Link")
+            .and("have.text", "Test Link New")
             .click();
         });
     });
