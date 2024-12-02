@@ -1,4 +1,4 @@
-Cypress._.times(50, () => {
+Cypress._.times(100, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
