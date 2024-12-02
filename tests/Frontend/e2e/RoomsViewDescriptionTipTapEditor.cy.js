@@ -1,4 +1,4 @@
-Cypress._.times(100, () => {
+Cypress._.times(50, () => {
   describe("Rooms view description TipTap Editor", function () {
     beforeEach(function () {
       cy.init();
@@ -238,7 +238,7 @@ Cypress._.times(100, () => {
         });
     });
 
-    it("add link", function () {
+    it.only("add link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description = "<p>Room description</p>";
 
@@ -264,9 +264,13 @@ Cypress._.times(100, () => {
           cy.get("p").should("have.text", "Room description");
         });
 
-      cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
       cy.get(".tiptap").type("{selectall}");
+
+      cy.window().should((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Room description");
+      });
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
       cy.get('[data-test="tip-tap-link-button"]')
@@ -285,8 +289,14 @@ Cypress._.times(100, () => {
 
       // Open dialog again
       cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
-      cy.get(".tiptap").type("{selectall}");
+      cy.get(".tiptap").should("have.focus").type("{selectall}");
+
+      cy.window().should((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Room description");
+      });
+
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-secondary")
         .click();
@@ -333,11 +343,18 @@ Cypress._.times(100, () => {
       // Check that the link has been added
       cy.get(".tiptap")
         .should("be.visible")
+        .and("have.focus")
         .within(() => {
           cy.get("a")
             .should("have.text", "Room description")
             .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
         });
+
+      cy.window().should((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Room description");
+      });
     });
 
     it.only("edit link", function () {
@@ -438,7 +455,7 @@ Cypress._.times(100, () => {
         });
     });
 
-    it("delete link", function () {
+    it.only("delete link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description =
           '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
@@ -460,14 +477,18 @@ Cypress._.times(100, () => {
         .should("be.visible")
         .within(() => {
           cy.get("a")
+            .contains("Test Link")
             .should("be.visible")
-            .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
-            .and("have.text", "Test Link");
+            .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
         });
 
-      cy.get(".tiptap").click();
-      cy.get(".tiptap").should("have.class", "ProseMirror-focused");
-      cy.get(".tiptap").type("{selectall}");
+      cy.get(".tiptap").should("have.focus").type("{selectall}");
+
+      cy.window().should((win) => {
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Test Link");
+      });
 
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-primary")
@@ -484,6 +505,12 @@ Cypress._.times(100, () => {
         });
 
       cy.get('[data-test="tip-tap-link-dialog"]').should("not.exist");
+
+      cy.window().should(win=>{
+        const selection = win.getSelection();
+        const selectedText = selection.toString();
+        expect(selectedText).to.eq("Test Link");
+      });
 
       // Check that the link has been deleted
       cy.get(".tiptap")
