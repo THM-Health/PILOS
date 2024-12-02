@@ -311,7 +311,7 @@ class UserTest extends TestCase
                 'lastname' => $request['lastname'],
                 'user_locale' => $request['user_locale'],
                 'email' => $request['email'],
-                'roles' => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]],
+                'roles' => [['id' => $role->id, 'superuser' => false, 'name' => $role->name, 'automatic' => false]],
                 'authenticator' => 'local',
             ]);
     }
@@ -1198,7 +1198,7 @@ class UserTest extends TestCase
                 'firstname' => $externalUser->firstname,
                 'lastname' => $externalUser->lastname,
                 'authenticator' => 'ldap',
-                'roles' => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]],
+                'roles' => [['id' => $role->id, 'name' => $role->name, 'superuser' => false, 'automatic' => false]],
             ]);
 
         // Check user image path
