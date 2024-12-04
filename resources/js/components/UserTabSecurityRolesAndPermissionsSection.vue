@@ -30,6 +30,7 @@
           :loading="isBusy"
           :label="$t('app.save')"
           icon="fa-solid fa-save"
+          data-test="users-roles-save-button"
         />
       </div>
     </form>

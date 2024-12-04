@@ -204,9 +204,11 @@ describe("Admin users edit", function () {
 
     cy.wait("@userRequest");
 
-    // Check that redirect worked and error message is shown
+    // Check that redirect worked
     cy.url().should("not.include", "/admin/users/2/edit");
     cy.url().should("include", "/admin/users");
+
+    cy.wait("@usersRequest");
 
     // Check that error message gets shown
     cy.checkToastMessage([

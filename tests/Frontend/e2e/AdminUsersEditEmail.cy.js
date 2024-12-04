@@ -56,7 +56,7 @@ describe("Admin users edit email", function () {
 
     // Save changes
     cy.fixture("userDataUser.json").then((user) => {
-      user.email = "laura.rivera@example.com";
+      user.data.email = "laura.rivera@example.com";
 
       const saveChangesRequest = interceptIndefinitely(
         "PUT",
@@ -67,6 +67,11 @@ describe("Admin users edit email", function () {
         },
         "saveChangesRequest",
       );
+
+      cy.intercept("GET", "/api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
 
       cy.get('[data-test="user-tab-email-save-button"]')
         .should("have.text", "auth.change_email")
@@ -90,6 +95,8 @@ describe("Admin users edit email", function () {
     // Check that redirect to user view worked
     cy.url().should("include", "/admin/users/2");
     cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
   });
 
   it("save changes errors", function () {
@@ -111,6 +118,8 @@ describe("Admin users edit email", function () {
 
     cy.get('[data-test="user-tab-email-save-button"]').click();
 
+    cy.wait("@saveChangesRequest");
+
     cy.get('[data-test="email-field"]').should(
       "include.text",
       "The email field is required.",
@@ -125,6 +134,8 @@ describe("Admin users edit email", function () {
     }).as("saveChangesRequest");
 
     cy.get('[data-test="user-tab-email-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
 
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
@@ -143,9 +154,13 @@ describe("Admin users edit email", function () {
 
     cy.get('[data-test="user-tab-email-save-button"]').click();
 
+    cy.wait("@saveChangesRequest");
+
     // Check that redirect worked and error message is shown
     cy.url().should("not.include", "/admin/users/2/edit");
     cy.url().should("include", "/admin/users");
+
+    cy.wait("@usersRequest");
 
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"No query results for model"}',
@@ -164,6 +179,8 @@ describe("Admin users edit email", function () {
     }).as("saveChangesRequest");
 
     cy.get('[data-test="user-tab-email-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
 
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
@@ -197,45 +214,5 @@ describe("Admin users edit email", function () {
       .and("have.value", "LauraWRivera@domain.tld");
 
     cy.get('[data-test="user-tab-email-save-button"]').should("not.exist");
-  });
-
-  // ToDo figure out where to put this test (which test file)
-  //  would maybe make sense inside AdminUsersViewUserActions.cy.js (problem: needs to be tested for all tabs)
-  it("switch between edit and view", function () {
-    cy.visit("/admin/users/2/edit");
-
-    cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
-
-    // Change value of email field
-    cy.get("#email").should("have.value", "LauraWRivera@domain.tld").type("e");
-
-    // Switch to view
-    cy.get('[data-test="users-cancel-edit-button"]').click();
-
-    // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
-    cy.url().should("not.include", "/edit");
-
-    cy.wait("@userRequest");
-
-    // Switch to email tab and check that changes are not saved
-    cy.get('[data-test="email-tab-button"]').click();
-
-    cy.get("#email").should("have.value", "LauraWRivera@domain.tld");
-
-    // Switch back to edit
-    cy.get('[data-test="users-edit-button"]').click();
-
-    // Check if redirected to edit page
-    cy.url().should("include", "/admin/users/2/edit");
-
-    cy.wait("@userRequest");
-
-    cy.get('[data-test="email-tab-button"]').click();
-
-    // Check that original values are shown
-    cy.get("#email").should("have.value", "LauraWRivera@domain.tld");
   });
 });

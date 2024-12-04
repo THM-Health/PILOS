@@ -60,6 +60,11 @@ describe("Admin users edit others", function () {
         "saveChangesRequest",
       );
 
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
+
       cy.get('[data-test="user-tab-others-save-button"]').click();
 
       // Check loading
@@ -80,6 +85,8 @@ describe("Admin users edit others", function () {
     // Check that redirect to user view worked
     cy.url().should("include", "/admin/users/2");
     cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
   });
 
   it("save changes errors", function () {
@@ -112,16 +119,20 @@ describe("Admin users edit others", function () {
 
     // Check with 428 error (stale error)
     cy.fixture("userDataUser.json").then((user) => {
-      const newModel = user.data;
-      newModel.bbb_skip_check_audio = true;
+      user.data.bbb_skip_check_audio = true;
 
       cy.intercept("POST", "api/v1/users/2", {
         statusCode: 428,
         body: {
           message: " The user entity was updated in the meanwhile!",
-          new_model: newModel,
+          new_model: user.data,
         },
       }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
     });
 
     cy.get('[data-test="stale-user-dialog"]').should("not.exist");
@@ -179,6 +190,8 @@ describe("Admin users edit others", function () {
     cy.url().should("not.include", "/admin/users/2/edit");
     cy.url().should("include", "/admin/users");
 
+    cy.wait("@usersRequest");
+
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"No query results for model"}',
       'app.flash.server_error.error_code_{"statusCode":404}',
@@ -203,43 +216,5 @@ describe("Admin users edit others", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-  });
-
-  it("switch between edit and view", function () {
-    cy.visit("/admin/users/2/edit");
-
-    cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
-
-    // Change value of bbb_skip_check_audio
-    cy.get("#bbb_skip_check_audio").click();
-
-    // Switch to view
-    cy.get('[data-test="users-cancel-edit-button"]').click();
-
-    // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
-    cy.url().should("not.include", "/edit");
-
-    cy.wait("@userRequest");
-
-    // Switch to others tab and check if changes are not saved
-    cy.get('[data-test="others-tab-button"]').click();
-
-    cy.get("#bbb_skip_check_audio").should("not.be.checked");
-
-    // Switch back to edit page
-    cy.get('[data-test="users-edit-button"]').click();
-
-    // Check if redirected to edit page
-    cy.url().should("include", "/admin/users/2/edit");
-
-    cy.wait("@userRequest");
-
-    cy.get('[data-test="others-tab-button"]').click();
-
-    // Check that original value is shown
-    cy.get("#bbb_skip_check_audio").should("not.be.checked");
   });
 });

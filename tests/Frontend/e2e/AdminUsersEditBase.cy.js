@@ -494,6 +494,11 @@ describe("Admin users edit base", function () {
         statusCode: 200,
         body: user,
       }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
     });
 
     cy.get('[data-test="user-tab-profile-save-button"]').click();
@@ -565,19 +570,23 @@ describe("Admin users edit base", function () {
 
     // Check with 428 error (stale error)
     cy.fixture("userDataUser.json").then((user) => {
-      const newModel = user.data;
-      newModel.firstname = "Laura";
-      newModel.lastname = "Rivera";
-      newModel.user_locale = "de";
-      newModel.timezone = "Europe/Berlin";
+      user.data.firstname = "Juan";
+      user.data.lastname = "Walter";
+      user.data.user_locale = "de";
+      user.data.timezone = "Europe/Berlin";
 
       cy.intercept("POST", "api/v1/users/2", {
         statusCode: 428,
         body: {
           message: " The user entity was updated in the meanwhile!",
-          new_model: newModel,
+          new_model: user.data,
         },
       }).as("saveChangesRequest");
+
+      cy.intercept("GET", "api/v1/users/2", {
+        statusCode: 200,
+        body: user,
+      }).as("userRequest");
     });
 
     cy.get('[data-test="stale-user-dialog"]').should("not.exist");
@@ -635,6 +644,8 @@ describe("Admin users edit base", function () {
     // Check that redirect worked and error message is shown
     cy.url().should("not.include", "/admin/users/2/edit");
     cy.url().should("include", "/admin/users");
+
+    cy.wait("@usersRequest");
 
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"No query results for model"}',
@@ -789,121 +800,5 @@ describe("Admin users edit base", function () {
     cy.url().should("include", "/login?redirect=/admin/users/2/edit");
 
     cy.checkToastMessage("app.flash.unauthenticated");
-  });
-
-  // ToDo figure out where to put this test (which test file)
-  //  would maybe make sense inside AdminUsersViewUserActions.cy.js (problem: needs to be tested for all tabs)
-  it("switch between edit and view", function () {
-    cy.visit("/admin/users/2/edit");
-
-    cy.wait("@userRequest");
-
-    // Change values of all fields
-    cy.get("#firstname").should("have.value", "Laura").clear();
-    cy.get("#firstname").type("Juan");
-    cy.get("#lastname").should("have.value", "Rivera").clear();
-    cy.get("#lastname").type("Walter");
-
-    cy.get('[data-test="upload-file-input"]')
-      .should("not.be.visible")
-      .selectFile("tests/Frontend/fixtures/files/profileImage.jpg", {
-        force: true,
-      });
-
-    cy.get('[data-test="crop-image-dialog"]')
-      .should("be.visible")
-      .and("include.text", "admin.users.image.crop");
-
-    // Check if correct image is shown
-    cy.fixture("files/profileImage.jpg", "base64").then((content) => {
-      cy.get('[data-test="crop-image-dialog"]')
-        .find("img")
-        .should("have.attr", "src")
-        .and("include", content);
-    });
-
-    cy.get('[data-test="dialog-save-button"]')
-      .should("have.text", "admin.users.image.save")
-      .click();
-
-    cy.get('[data-test="crop-image-dialog"]').should("not.exist");
-
-    // Check that image and buttons are still shown correctly
-    cy.get('[data-test="profile-image-field"]').within(() => {
-      cy.get('[data-test="default-profile-image-preview"]').should("not.exist");
-      cy.get('[data-test="profile-image-preview"]')
-        .should("be.visible")
-        .find("img")
-        .should("have.attr", "src")
-        .then((src) => {
-          cy.fixture("files/profileImagePreview.jpg", "base64").then(
-            (content) => {
-              expect(src).to.eql("data:image/jpeg;base64," + content);
-            },
-          );
-        });
-      cy.get('[data-test="upload-file-button"]').should("be.visible");
-      cy.get('[data-test="delete-image-button"]').should("not.exist");
-      cy.get('[data-test="undo-delete-button"]').should("not.exist");
-
-      cy.get('[data-test="reset-file-upload-button"]').should("be.visible");
-    });
-
-    cy.get('[data-test="locale-dropdown"]')
-      .should("have.text", "English")
-      .click();
-
-    cy.get('[data-test="locale-dropdown-option"]').eq(0).click();
-
-    cy.get('[data-test="locale-dropdown-items"]').should("not.exist");
-    cy.get('[data-test="locale-dropdown"]').should("have.text", "Deutsch");
-
-    cy.get('[data-test="timezone-dropdown"]')
-      .should("have.text", "UTC")
-      .click();
-
-    cy.get('[data-test="timezone-dropdown-option"]').eq(2).click();
-
-    cy.get('[data-test="timezone-dropdown-items"]').should("not.exist");
-    cy.get('[data-test="timezone-dropdown"]').should(
-      "have.text",
-      "Europe/Berlin",
-    );
-
-    // Switch to view
-    cy.get('[data-test="users-cancel-edit-button"]').click();
-
-    // Check if redirected to view page
-    cy.url().should("include", "/admin/users/2");
-    cy.url().should("not.include", "/edit");
-
-    cy.wait("@userRequest");
-
-    // Check that changed were not saved
-    cy.get("#firstname").should("have.value", "Laura");
-    cy.get("#lastname").should("have.value", "Rivera");
-    cy.get('[data-test="profile-image-preview"]').should("not.exist");
-    cy.get('[data-test="default-profile-image-preview"]')
-      .should("be.visible")
-      .and("include.text", "LR");
-    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
-    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
-
-    // Switch to edit again
-    cy.get('[data-test="users-edit-button"]').click();
-
-    cy.url().should("include", "/admin/users/2/edit");
-
-    cy.wait("@userRequest");
-
-    // Check that original values are shown
-    cy.get("#firstname").should("have.value", "Laura");
-    cy.get("#lastname").should("have.value", "Rivera");
-    cy.get('[data-test="profile-image-preview"]').should("not.exist");
-    cy.get('[data-test="default-profile-image-preview"]')
-      .should("be.visible")
-      .and("include.text", "LR");
-    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
-    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
   });
 });

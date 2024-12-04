@@ -121,6 +121,9 @@ describe("Admin users view", function () {
       cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
     });
 
+    // Check that save button is hidden
+    cy.get('[data-test="user-tab-profile-save-button"]').should("not.exist");
+
     // Email tab
     cy.get('[data-test="email-tab-button"]').click();
 
@@ -128,18 +131,53 @@ describe("Admin users view", function () {
       .should("have.value", "LauraWRivera@domain.tld")
       .and("be.disabled");
 
+    // Check that save button is hidden
+    cy.get('[data-test="user-tab-email-save-button"]').should("not.exist");
+
     // Security tab
     cy.get('[data-test="security-tab-button"]').click();
 
     cy.get('[data-test="role-dropdown"]')
-      .should("include.text", "Students")
-      .should("include.text", "Staff")
-      .should("have.class", "multiselect--disabled");
+      .should("have.class", "multiselect--disabled")
+      .within(() => {
+        cy.get('[data-test="role-chip"]').should("have.length", 2);
+        cy.get('[data-test="role-chip"]')
+          .eq(0)
+          .should("include.text", "Students")
+          .find('[data-test="remove-role-button"]')
+          .should("not.exist");
+        cy.get('[data-test="role-chip"]')
+          .eq(1)
+          .should("include.text", "Staff")
+          .find('[data-test="remove-role-button"]')
+          .should("not.exist");
+      });
+
+    // Check that role save button is hidden
+    cy.get('[data-test="users-roles-save-button"]').should("not.exist");
+
+    // Check that password fields are hidden
+    cy.get('[data-test="security-tab-current-password-field"]').should(
+      "not.exist",
+    );
+
+    cy.get('[data-test="new-password-field"]').should("not.exist");
+
+    cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
+
+    // Check that password save button is hidden
+    cy.get('[data-test="change-password-save-button"]').should("not.exist");
+
+    // Check that sessions are hidden
+    cy.get('[data-test="session-panel"]').should("not.exist");
 
     // Check others tab
     cy.get('[data-test="others-tab-button"]').click();
 
     cy.get("#bbb_skip_check_audio").should("not.be.checked").and("be.disabled");
+
+    // Check that others save button is hidden
+    cy.get('[data-test="user-tab-others-save-button"]').should("not.exist");
   });
 
   it("check userView with ldap user", function () {
@@ -312,9 +350,11 @@ describe("Admin users view", function () {
 
     cy.wait("@userRequest");
 
-    // Check that redirect worked and error message is shown
+    // Check that redirect worked
     cy.url().should("not.include", "/admin/users/2");
     cy.url().should("include", "/admin/users");
+
+    cy.wait("@usersRequest");
 
     // Check that error message gets shown
     cy.checkToastMessage([

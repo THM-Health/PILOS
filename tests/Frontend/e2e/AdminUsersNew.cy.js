@@ -912,6 +912,31 @@ describe("Admin users new", function () {
     cy.get(".multiselect__content").should("be.visible");
     cy.get(".multiselect__option").should("have.length", 5);
 
+    // Check with 500 error when switching pages
+    cy.intercept("GET", "api/v1/roles*", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("rolesRequest");
+
+    cy.get(".multiselect__content").should("be.visible");
+    cy.get('[data-test="next-page-button"]').click();
+
+    cy.wait("@rolesRequest");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    cy.get('[data-test="role-dropdown"]').should(
+      "have.class",
+      "multiselect--disabled",
+    );
+
+    cy.get('[data-test="users-new-save-button"]').should("be.disabled");
+
     // Check with 401 error
     cy.intercept("GET", "api/v1/roles*", {
       statusCode: 401,
@@ -922,6 +947,33 @@ describe("Admin users new", function () {
     cy.wait("@rolesRequest");
 
     cy.url().should("include", "/login?redirect=/admin/users/new");
+
+    // Check that redirect worked and error message is shown
+    cy.url().should("include", "/login?redirect=/admin/users/new");
+
+    cy.checkToastMessage("app.flash.unauthenticated");
+
+    // Visit edit page again with roles
+    cy.intercept("GET", "api/v1/roles*", {
+      fixture: "userRoles.json",
+    }).as("rolesRequest");
+
+    cy.visit("/admin/users/new");
+
+    cy.wait("@rolesRequest");
+
+    cy.get('[data-test="role-dropdown"]').click();
+
+    // Check with 401 error when switching pages
+    cy.intercept("GET", "api/v1/roles*", {
+      statusCode: 401,
+    }).as("rolesRequest");
+
+    cy.get(".multiselect__content").should("be.visible");
+
+    cy.get('[data-test="next-page-button"]').click();
+
+    cy.wait("@rolesRequest");
 
     // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/users/new");

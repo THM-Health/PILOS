@@ -239,4 +239,300 @@ describe("Admin users view user actions", function () {
 
     cy.checkToastMessage("app.flash.unauthenticated");
   });
+
+  it("switch between edit and view", function () {
+    cy.visit("/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    // Check base tab
+    // Change values of all fields
+    cy.get("#firstname").should("have.value", "Laura").clear();
+    cy.get("#firstname").type("Juan");
+    cy.get("#lastname").should("have.value", "Rivera").clear();
+    cy.get("#lastname").type("Walter");
+
+    cy.get('[data-test="upload-file-input"]')
+      .should("not.be.visible")
+      .selectFile("tests/Frontend/fixtures/files/profileImage.jpg", {
+        force: true,
+      });
+
+    cy.get('[data-test="crop-image-dialog"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.image.crop");
+
+    // Check if correct image is shown
+    cy.fixture("files/profileImage.jpg", "base64").then((content) => {
+      cy.get('[data-test="crop-image-dialog"]')
+        .find("img")
+        .should("have.attr", "src")
+        .and("include", content);
+    });
+
+    cy.get('[data-test="dialog-save-button"]')
+      .should("have.text", "admin.users.image.save")
+      .click();
+
+    cy.get('[data-test="crop-image-dialog"]').should("not.exist");
+
+    // Check that image and buttons are still shown correctly
+    cy.get('[data-test="profile-image-field"]').within(() => {
+      cy.get('[data-test="default-profile-image-preview"]').should("not.exist");
+      cy.get('[data-test="profile-image-preview"]')
+        .should("be.visible")
+        .find("img")
+        .should("have.attr", "src")
+        .then((src) => {
+          cy.fixture("files/profileImagePreview.jpg", "base64").then(
+            (content) => {
+              expect(src).to.eql("data:image/jpeg;base64," + content);
+            },
+          );
+        });
+      cy.get('[data-test="upload-file-button"]').should("be.visible");
+      cy.get('[data-test="delete-image-button"]').should("not.exist");
+      cy.get('[data-test="undo-delete-button"]').should("not.exist");
+
+      cy.get('[data-test="reset-file-upload-button"]').should("be.visible");
+    });
+
+    cy.get('[data-test="locale-dropdown"]')
+      .should("have.text", "English")
+      .click();
+
+    cy.get('[data-test="locale-dropdown-option"]').eq(0).click();
+
+    cy.get('[data-test="locale-dropdown-items"]').should("not.exist");
+    cy.get('[data-test="locale-dropdown"]').should("have.text", "Deutsch");
+
+    cy.get('[data-test="timezone-dropdown"]')
+      .should("have.text", "UTC")
+      .click();
+
+    cy.get('[data-test="timezone-dropdown-option"]').eq(2).click();
+
+    cy.get('[data-test="timezone-dropdown-items"]').should("not.exist");
+    cy.get('[data-test="timezone-dropdown"]').should(
+      "have.text",
+      "Europe/Berlin",
+    );
+
+    // Switch to view
+    cy.get('[data-test="users-cancel-edit-button"]').click();
+
+    // Check if redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
+
+    // Check that changed were not saved
+    cy.get("#firstname").should("have.value", "Laura");
+    cy.get("#lastname").should("have.value", "Rivera");
+    cy.get('[data-test="profile-image-preview"]').should("not.exist");
+    cy.get('[data-test="default-profile-image-preview"]')
+      .should("be.visible")
+      .and("include.text", "LR");
+    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
+    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
+
+    // Switch to edit again
+    cy.get('[data-test="users-edit-button"]').click();
+
+    cy.url().should("include", "/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    // Check that original values are shown
+    cy.get("#firstname").should("have.value", "Laura");
+    cy.get("#lastname").should("have.value", "Rivera");
+    cy.get('[data-test="profile-image-preview"]').should("not.exist");
+    cy.get('[data-test="default-profile-image-preview"]')
+      .should("be.visible")
+      .and("include.text", "LR");
+    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
+    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
+
+    // Check email tab
+    cy.get('[data-test="email-tab-button"]').click();
+
+    // Change value of email field
+    cy.get("#email").should("have.value", "LauraWRivera@domain.tld").type("e");
+
+    // Switch to view
+    cy.get('[data-test="users-cancel-edit-button"]').click();
+
+    // Check if redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
+
+    // Switch to email tab and check that changes are not saved
+    cy.get('[data-test="email-tab-button"]').click();
+
+    cy.get("#email").should("have.value", "LauraWRivera@domain.tld");
+
+    // Switch back to edit
+    cy.get('[data-test="users-edit-button"]').click();
+
+    // Check if redirected to edit page
+    cy.url().should("include", "/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="email-tab-button"]').click();
+
+    // Check that original values are shown
+    cy.get("#email").should("have.value", "LauraWRivera@domain.tld");
+
+    // Check security tab
+    cy.get('[data-test="security-tab-button"]').click();
+
+    // Change value of role field
+    cy.get('[data-test="role-dropdown"]')
+      .should("not.have.class", "multiselect--disabled")
+      .within(() => {
+        cy.get('[data-test="role-chip"]').should("have.length", 2);
+        cy.get('[data-test="role-chip"]')
+          .eq(0)
+          .should("include.text", "Students")
+          .find('[data-test="remove-role-button"]')
+          .should("not.exist");
+        cy.get('[data-test="role-chip"]')
+          .eq(1)
+          .should("include.text", "Staff")
+          .find('[data-test="remove-role-button"]')
+          .should("be.visible");
+      });
+
+    cy.get('[data-test="role-dropdown"]').click();
+    cy.get(".multiselect__content").should("be.visible");
+    cy.get(".multiselect__option").eq(0).click();
+
+    // Check that roles are shown correctly
+    cy.get(".multiselect__content").should("be.visible");
+    cy.get('[data-test="role-dropdown"]').within(() => {
+      cy.get('[data-test="role-chip"]').should("have.length", 3);
+      cy.get('[data-test="role-chip"]')
+        .eq(0)
+        .should("include.text", "Students")
+        .find('[data-test="remove-role-button"]')
+        .should("not.exist");
+
+      cy.get('[data-test="role-chip"]')
+        .eq(1)
+        .should("include.text", "Staff")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+      cy.get('[data-test="role-chip"]')
+        .eq(2)
+        .should("include.text", "Admin")
+        .find('[data-test="remove-role-button"]')
+        .should("be.visible");
+    });
+
+    // Close dropdown
+    cy.get(".multiselect__select").click();
+    cy.get(".multiselect__content").should("not.be.visible");
+
+    // Change value of password field
+    cy.get("#new_password").type("secretPassword123#");
+    cy.get("#new_password_confirmation").type("secretPassword123#");
+
+    // Switch to view
+    cy.get('[data-test="users-cancel-edit-button"]').click();
+
+    // Check if redirected to view page and check that changes are not saved
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="security-tab-button"]').click();
+
+    cy.get('[data-test="role-dropdown"]')
+      .should("have.class", "multiselect--disabled")
+      .within(() => {
+        cy.get('[data-test="role-chip"]').should("have.length", 2);
+        cy.get('[data-test="role-chip"]')
+          .eq(0)
+          .should("include.text", "Students")
+          .find('[data-test="remove-role-button"]')
+          .should("not.exist");
+        cy.get('[data-test="role-chip"]')
+          .eq(1)
+          .should("include.text", "Staff")
+          .find('[data-test="remove-role-button"]')
+          .should("not.exist");
+      });
+
+    // Check that password fields are hidden
+    cy.get('[data-test="new-password-field"]').should("not.exist");
+
+    cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
+
+    // Switch back to edit page
+    cy.get('[data-test="users-edit-button"]').click();
+
+    cy.url().should("include", "/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="security-tab-button"]').click();
+
+    // Check that original values are shown
+    cy.get('[data-test="role-dropdown"]')
+      .should("not.have.class", "multiselect--disabled")
+      .within(() => {
+        cy.get('[data-test="role-chip"]').should("have.length", 2);
+        cy.get('[data-test="role-chip"]')
+          .eq(0)
+          .should("include.text", "Students")
+          .find('[data-test="remove-role-button"]')
+          .should("not.exist");
+        cy.get('[data-test="role-chip"]')
+          .eq(1)
+          .should("include.text", "Staff")
+          .find('[data-test="remove-role-button"]')
+          .should("be.visible");
+      });
+
+    cy.get("#new_password").should("have.value", "");
+    cy.get("#new_password_confirmation").should("have.value", "");
+
+    // Check other tab
+    cy.get('[data-test="others-tab-button"]').click();
+
+    // Change value of bbb_skip_check_audio
+    cy.get("#bbb_skip_check_audio").click();
+
+    // Switch to view
+    cy.get('[data-test="users-cancel-edit-button"]').click();
+
+    // Check if redirected to view page
+    cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@userRequest");
+
+    // Switch to others tab and check if changes are not saved
+    cy.get('[data-test="others-tab-button"]').click();
+
+    cy.get("#bbb_skip_check_audio").should("not.be.checked");
+
+    // Switch back to edit page
+    cy.get('[data-test="users-edit-button"]').click();
+
+    // Check if redirected to edit page
+    cy.url().should("include", "/admin/users/2/edit");
+
+    cy.wait("@userRequest");
+
+    cy.get('[data-test="others-tab-button"]').click();
+
+    // Check that original value is shown
+    cy.get("#bbb_skip_check_audio").should("not.be.checked");
+  });
 });

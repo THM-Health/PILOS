@@ -204,6 +204,7 @@ describe("User Profile Security", function () {
     );
     cy.get('[data-test="new-password-field"]').should("not.exist");
     cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
+    cy.get('[data-test="change-password-save-button"]').should("not.exist");
 
     // Check that all sessions are shown
     cy.get('[data-test="session-panel"]').should("have.length", 2);
@@ -266,6 +267,7 @@ describe("User Profile Security", function () {
     );
     cy.get('[data-test="new-password-field"]').should("not.exist");
     cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
+    cy.get('[data-test="change-password-save-button"]').should("not.exist");
 
     // Check that all sessions are shown
     cy.get('[data-test="session-panel"]').should("have.length", 2);
