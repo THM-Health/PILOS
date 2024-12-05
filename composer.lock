@@ -2653,16 +2653,16 @@
         },
         {
             "name": "littleredbutton/bigbluebutton-api-php",
-            "version": "6.0.0",
+            "version": "6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/littleredbutton/bigbluebutton-api-php.git",
-                "reference": "1db2fac9884197c18986eb99101123ac1ae036f7"
+                "reference": "7a7f832b521f101b66607789d2a7efbddf138a31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/1db2fac9884197c18986eb99101123ac1ae036f7",
-                "reference": "1db2fac9884197c18986eb99101123ac1ae036f7",
+                "url": "https://api.github.com/repos/littleredbutton/bigbluebutton-api-php/zipball/7a7f832b521f101b66607789d2a7efbddf138a31",
+                "reference": "7a7f832b521f101b66607789d2a7efbddf138a31",
                 "shasum": ""
             },
             "require": {
@@ -2679,7 +2679,7 @@
                 "psr/http-message": "^1.0 || ^2.0",
                 "symfony/dotenv": "^5.4|^6.4|^7.0",
                 "symfony/http-client": "^5.4|^6.4|^7.0",
-                "symfony/http-client-contracts": "^1.1|^2.0",
+                "symfony/http-client-contracts": "^1.1|^2.0|^3.0",
                 "symfony/process": "^5.4|^6.4|^7.0"
             },
             "suggest": {
@@ -2691,10 +2691,20 @@
             },
             "type": "library",
             "extra": {
+                "cotor": {
+                    "extensions": {
+                        "phpunit/phpunit": {
+                            "fakerphp/faker": "1.20.*"
+                        }
+                    },
+                    "vimeo/psalm": "^5.23",
+                    "rector/rector": "^1.0",
+                    "phpstan/phpstan": "^1.10",
+                    "phpunit/phpunit": "^9",
+                    "friendsofphp/php-cs-fixer": "^3.3",
+                    "brainmaestro/composer-git-hooks": "^2.8"
+                },
                 "hooks": {
-                    "pre-commit": [
-                        "tools/php-cs-fixer fix --dry-run --allow-risky=yes"
-                    ],
                     "pre-push": [
                         "tools/phpunit --testsuite=\"BigBlueButton unit test suite,BigBlueButton integration test suite\"",
                         "tools/psalm --threads=1",
@@ -2702,20 +2712,10 @@
                         "tools/rector process --dry-run src/ tests/"
                     ],
                     "post-merge": "composer install",
+                    "pre-commit": [
+                        "tools/php-cs-fixer fix --dry-run --allow-risky=yes"
+                    ],
                     "post-checkout": "composer install"
-                },
-                "cotor": {
-                    "brainmaestro/composer-git-hooks": "^2.8",
-                    "extensions": {
-                        "phpunit/phpunit": {
-                            "fakerphp/faker": "1.20.*"
-                        }
-                    },
-                    "friendsofphp/php-cs-fixer": "^3.3",
-                    "phpstan/phpstan": "^1.10",
-                    "phpunit/phpunit": "^9",
-                    "rector/rector": "^1.0",
-                    "vimeo/psalm": "^5.23"
                 }
             },
             "autoload": {
@@ -2779,7 +2779,7 @@
                 "issues": "https://github.com/littleredbutton/bigbluebutton-api-php/issues",
                 "source": "https://github.com/littleredbutton/bigbluebutton-api-php/"
             },
-            "time": "2024-08-23T00:27:27+00:00"
+            "time": "2024-10-04T18:06:51+00:00"
         },
         {
             "name": "livewire/livewire",
