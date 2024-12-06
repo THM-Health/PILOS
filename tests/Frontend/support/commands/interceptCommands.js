@@ -227,3 +227,15 @@ Cypress.Commands.add("interceptAdminUsersViewRequests", () => {
   cy.intercept("GET", "api/v1/getTimezones", { fixture: "timezones.json" });
   cy.intercept("GET", "api/v1/sessions", { fixture: "sessions.json" });
 });
+
+/**
+ * Intercept all requests that are needed when visiting the admin servers view page
+ * @memberof cy
+ * @method interceptAdminServersIndexRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminServersIndexRequests", () => {
+  cy.intercept("GET", "api/v1/servers*", {
+    fixture: "servers.json",
+  }).as("serversRequest");
+});
