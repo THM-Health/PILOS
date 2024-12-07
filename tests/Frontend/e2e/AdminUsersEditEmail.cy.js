@@ -50,6 +50,7 @@ describe("Admin users edit email", function () {
       .within(() => {
         cy.get("#email")
           .should("have.value", "LauraWRivera@domain.tld")
+          .and("not.be.disabled")
           .clear();
         cy.get("#email").type("laura.rivera@example.com");
       });

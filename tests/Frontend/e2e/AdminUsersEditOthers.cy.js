@@ -44,6 +44,7 @@ describe("Admin users edit others", function () {
       .and("include.text", "admin.users.skip_check_audio")
       .find("#bbb_skip_check_audio")
       .should("not.be.checked")
+      .and("not.be.disabled")
       .click();
 
     // Save changes

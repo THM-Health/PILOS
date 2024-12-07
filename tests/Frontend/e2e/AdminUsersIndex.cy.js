@@ -73,7 +73,7 @@ describe("Admin users index", function () {
       .find(".multiselect__tags")
       .should("include.text", "admin.users.role_filter");
     cy.get('[data-test="role-dropdown"]').should(
-      "not.have.class",
+      "have.class",
       "multiselect--disabled",
     );
 

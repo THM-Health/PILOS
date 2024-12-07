@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Admin users index", function () {
+describe("Admin users index user actions", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminUsersIndexRequests();
@@ -344,6 +344,7 @@ describe("Admin users index", function () {
       .click();
 
     cy.url().should("include", "/admin/users/2");
+    cy.url().should("not.include", "/edit");
 
     // Reload and open edit page for current user but without view permission
     cy.fixture("currentUser.json").then((currentUser) => {
@@ -372,5 +373,6 @@ describe("Admin users index", function () {
       .click();
 
     cy.url().should("include", "/admin/users/1");
+    cy.url().should("not.include", "/edit");
   });
 });

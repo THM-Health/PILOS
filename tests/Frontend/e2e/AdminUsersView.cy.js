@@ -101,25 +101,65 @@ describe("Admin users view", function () {
 
     // Check that user data is shown and all inputs are disabled
     // Base tab
-    cy.get("#firstname").should("have.value", "Laura").and("be.disabled");
-    cy.get("#lastname").should("have.value", "Rivera").and("be.disabled");
-    cy.get("#authenticator")
-      .should("have.value", "admin.users.authenticator.local")
-      .and("be.disabled");
+    cy.get('[data-test="firstname-field"]')
+      .should("be.visible")
+      .and("include.text", "app.firstname")
+      .within(() => {
+        cy.get("#firstname").should("have.value", "Laura").and("be.disabled");
+      });
+
+    cy.get('[data-test="lastname-field"]')
+      .should("be.visible")
+      .and("include.text", "app.lastname")
+      .within(() => {
+        cy.get("#lastname").should("have.value", "Rivera").and("be.disabled");
+      });
+
+    cy.get('[data-test="authenticator-field"]')
+      .should("be.visible")
+      .and("include.text", "auth.authenticator")
+      .within(() => {
+        cy.get("#authenticator")
+          .should("have.value", "admin.users.authenticator.local")
+          .and("be.disabled");
+      });
 
     // Check that profile image buttons are hidden
-    cy.get('[data-test="reset-file-upload-button"]').should("not.exist");
-    cy.get('[data-test="delete-image-button"]').should("not.exist");
-    cy.get('[data-test="undo-delete-button"]').should("not.exist");
-    cy.get('[data-test="upload-file-input"]').should("not.exist");
+    cy.get('[data-test="profile-image-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.image.title")
+      .within(() => {
+        cy.get('[data-test="reset-file-upload-button"]').should("not.exist");
+        cy.get('[data-test="delete-image-button"]').should("not.exist");
+        cy.get('[data-test="undo-delete-button"]').should("not.exist");
+        cy.get('[data-test="upload-file-input"]').should("not.exist");
+      });
 
-    cy.get('[data-test="locale-dropdown"]').within(() => {
-      cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
-    });
+    cy.get('[data-test="locale-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.user_locale")
+      .within(() => {
+        cy.get('[data-test="locale-dropdown"]').within(() => {
+          cy.get(".p-select-label").should(
+            "have.attr",
+            "aria-disabled",
+            "true",
+          );
+        });
+      });
 
-    cy.get('[data-test="timezone-dropdown"]').within(() => {
-      cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
-    });
+    cy.get('[data-test="timezone-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.timezone")
+      .within(() => {
+        cy.get('[data-test="timezone-dropdown"]').within(() => {
+          cy.get(".p-select-label").should(
+            "have.attr",
+            "aria-disabled",
+            "true",
+          );
+        });
+      });
 
     // Check that save button is hidden
     cy.get('[data-test="user-tab-profile-save-button"]').should("not.exist");
@@ -127,9 +167,18 @@ describe("Admin users view", function () {
     // Email tab
     cy.get('[data-test="email-tab-button"]').click();
 
-    cy.get("#email")
-      .should("have.value", "LauraWRivera@domain.tld")
-      .and("be.disabled");
+    cy.get('[data-test="email-tab-current-password-field"]').should(
+      "not.exist",
+    );
+
+    cy.get('[data-test="email-field"]')
+      .should("be.visible")
+      .and("include.text", "app.email")
+      .within(() => {
+        cy.get("#email")
+          .should("have.value", "LauraWRivera@domain.tld")
+          .and("be.disabled");
+      });
 
     // Check that save button is hidden
     cy.get('[data-test="user-tab-email-save-button"]').should("not.exist");
@@ -137,20 +186,25 @@ describe("Admin users view", function () {
     // Security tab
     cy.get('[data-test="security-tab-button"]').click();
 
-    cy.get('[data-test="role-dropdown"]')
-      .should("have.class", "multiselect--disabled")
+    cy.get('[data-test="roles-field"]')
+      .should("be.visible")
+      .and("include.text", "app.roles")
       .within(() => {
-        cy.get('[data-test="role-chip"]').should("have.length", 2);
-        cy.get('[data-test="role-chip"]')
-          .eq(0)
-          .should("include.text", "Students")
-          .find('[data-test="remove-role-button"]')
-          .should("not.exist");
-        cy.get('[data-test="role-chip"]')
-          .eq(1)
-          .should("include.text", "Staff")
-          .find('[data-test="remove-role-button"]')
-          .should("not.exist");
+        cy.get('[data-test="role-dropdown"]')
+          .should("have.class", "multiselect--disabled")
+          .within(() => {
+            cy.get('[data-test="role-chip"]').should("have.length", 2);
+            cy.get('[data-test="role-chip"]')
+              .eq(0)
+              .should("include.text", "Students")
+              .find('[data-test="remove-role-button"]')
+              .should("not.exist");
+            cy.get('[data-test="role-chip"]')
+              .eq(1)
+              .should("include.text", "Staff")
+              .find('[data-test="remove-role-button"]')
+              .should("not.exist");
+          });
       });
 
     // Check that role save button is hidden
@@ -173,8 +227,12 @@ describe("Admin users view", function () {
 
     // Check others tab
     cy.get('[data-test="others-tab-button"]').click();
-
-    cy.get("#bbb_skip_check_audio").should("not.be.checked").and("be.disabled");
+    cy.get('[data-test="bbb-skip-check-audio-field"]')
+      .should("be.visible")
+      .and("include.text", "admin.users.skip_check_audio")
+      .find("#bbb_skip_check_audio")
+      .should("not.be.checked")
+      .and("be.disabled");
 
     // Check that others save button is hidden
     cy.get('[data-test="user-tab-others-save-button"]').should("not.exist");

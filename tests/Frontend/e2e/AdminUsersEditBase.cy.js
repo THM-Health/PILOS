@@ -50,7 +50,9 @@ describe("Admin users edit base", function () {
       .should("be.visible")
       .and("include.text", "app.firstname")
       .within(() => {
-        cy.get("#firstname").should("have.value", "Laura");
+        cy.get("#firstname")
+          .should("have.value", "Laura")
+          .and("not.be.disabled");
         cy.get("#firstname").clear();
         cy.get("#firstname").type("Juan");
       });
@@ -60,7 +62,9 @@ describe("Admin users edit base", function () {
       .should("be.visible")
       .and("include.text", "app.lastname")
       .within(() => {
-        cy.get("#lastname").should("have.value", "Rivera");
+        cy.get("#lastname")
+          .should("have.value", "Rivera")
+          .and("not.be.disabled");
         cy.get("#lastname").clear();
         cy.get("#lastname").type("Walter");
       });
