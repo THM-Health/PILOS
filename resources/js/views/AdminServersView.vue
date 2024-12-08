@@ -10,6 +10,7 @@
           severity="secondary"
           :label="$t('app.cancel_editing')"
           icon="fa-solid fa-times"
+          data-test="servers-cancel-edit-button"
         />
         <Button
           v-if="viewOnly && userPermissions.can('update', model)"
@@ -19,6 +20,7 @@
           severity="info"
           :label="$t('app.edit')"
           icon="fa-solid fa-edit"
+          data-test="servers-edit-button"
         />
         <SettingsServersDeleteButton
           v-if="userPermissions.can('delete', model) && isDisabled"
@@ -42,7 +44,7 @@
         class="flex flex-col gap-4"
         @submit.prevent="saveServer"
       >
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="name-field">
           <label class="col-span-12 md:col-span-4 md:mb-0" for="name">{{
             $t("app.model_name")
           }}</label>
@@ -58,7 +60,10 @@
             <FormError :errors="formErrors.fieldError('name')" />
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="description-field"
+        >
           <label class="col-span-12 md:col-span-4 md:mb-0" for="description">{{
             $t("app.description")
           }}</label>
@@ -74,7 +79,7 @@
             <FormError :errors="formErrors.fieldError('description')" />
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="version-field">
           <label class="col-span-12 md:col-span-4 md:mb-0" for="version">{{
             $t("admin.servers.version")
           }}</label>
@@ -88,7 +93,7 @@
             />
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="base-url-field">
           <label class="col-span-12 md:col-span-4 md:mb-0" for="base_url">{{
             $t("admin.servers.base_url")
           }}</label>
@@ -106,7 +111,7 @@
             <FormError :errors="formErrors.fieldError('base_url')" />
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="secret-field">
           <label class="col-span-12 md:col-span-4 md:mb-0" for="secret">{{
             $t("admin.servers.secret")
           }}</label>
@@ -124,7 +129,10 @@
             <FormError :errors="formErrors.fieldError('secret')" />
           </div>
         </div>
-        <fieldset class="field grid grid-cols-12 gap-4">
+        <fieldset
+          class="field grid grid-cols-12 gap-4"
+          data-test="strength-field"
+        >
           <legend class="col-span-12 md:col-span-4 md:mb-0">
             {{ $t("admin.servers.strength") }}
           </legend>
@@ -137,6 +145,12 @@
               :stars="10"
               aria-describedby="strength-help"
               class="flex justify-between border border-surface-300 px-6 py-3 rounded-border dark:border-surface-700"
+              data-test="strength-rating"
+              :pt="{
+                option: {
+                  'data-test': 'strength-rating-option',
+                },
+              }"
             />
             <small id="strength-help">{{
               $t("admin.servers.strength_description")
@@ -145,7 +159,7 @@
           </div>
         </fieldset>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4" data-test="status-field">
           <label id="status-label" class="col-span-12 md:col-span-4 md:mb-0">{{
             $t("admin.servers.status")
           }}</label>
@@ -154,6 +168,7 @@
               <Select
                 v-model="model.status"
                 aria-labelledby="status-label"
+                data-test="status-dropdown"
                 :options="serverStatusOptions"
                 option-label="name"
                 option-value="value"
@@ -161,13 +176,24 @@
                 :invalid="formErrors.fieldInvalid('status')"
                 class="w-full"
                 name="status"
+                :pt="{
+                  listContainer: {
+                    'data-test': 'status-dropdown-items',
+                  },
+                  option: {
+                    'data-test': 'status-dropdown-option',
+                  },
+                }"
               />
             </div>
             <FormError :errors="formErrors.fieldError('status')" />
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="health-status-field"
+        >
           <label class="col-span-12 md:col-span-4 md:mb-0" for="healthStatus">{{
             $t("admin.servers.connection")
           }}</label>
@@ -184,6 +210,7 @@
                 :label="$t('admin.servers.test_connection')"
                 icon="fa-solid fa-link"
                 severity="info"
+                data-test="servers-test-connection-button"
                 @click="testConnection()"
               />
             </InputGroup>
@@ -199,6 +226,7 @@
               :label="$t('app.save')"
               icon="fa-solid fa-save"
               type="submit"
+              data-test="servers-save-button"
             />
           </div>
         </div>
@@ -218,7 +246,10 @@
           </div>
         </div>
 
-        <div class="field grid grid-cols-12 gap-4">
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="meeting-count-field"
+        >
           <label class="col-span-12 md:col-span-4 md:mb-0" for="meetingCount">{{
             $t("admin.servers.meeting_count")
           }}</label>
@@ -236,7 +267,10 @@
             }}</small>
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="own-meeting-count-field"
+        >
           <label
             class="col-span-12 md:col-span-4 md:mb-0"
             for="ownMeetingCount"
@@ -256,7 +290,10 @@
             }}</small>
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="participant-count-field"
+        >
           <label
             class="col-span-12 md:col-span-4 md:mb-0"
             for="participantCount"
@@ -273,7 +310,10 @@
             />
           </div>
         </div>
-        <div class="field grid grid-cols-12 gap-4">
+        <div
+          class="field grid grid-cols-12 gap-4"
+          data-test="video-count-field"
+        >
           <label class="col-span-12 md:col-span-4 md:mb-0" for="videoCount">{{
             $t("admin.servers.video_count")
           }}</label>
@@ -291,6 +331,7 @@
         <div
           v-if="userPermissions.can('update', model)"
           class="field grid grid-cols-12 gap-4"
+          data-test="panic-field"
         >
           <label class="col-span-12 md:col-span-4 md:mb-0" for="panic">{{
             $t("admin.servers.panic")
@@ -304,6 +345,7 @@
                 aria-describedby="panic-help"
                 icon="fa-solid fa-exclamation-triangle"
                 severity="danger"
+                data-test="servers-panic-button"
                 @click="panic()"
               />
             </div>

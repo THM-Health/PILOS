@@ -1,6 +1,6 @@
 import { interceptIndefinitely } from "../support/utils/interceptIndefinitely.js";
 
-describe("Admin users index", function () {
+describe("Admin servers index", function () {
   beforeEach(function () {
     cy.init();
     cy.interceptAdminServersIndexRequests();
@@ -690,7 +690,7 @@ describe("Admin users index", function () {
       "Server",
     );
 
-    // Check that correct user is shown
+    // Check that correct server is shown
     cy.get('[data-test="server-item"]').should("have.length", 1);
     cy.get('[data-test="server-item"]')
       .eq(0)
@@ -862,7 +862,7 @@ describe("Admin users index", function () {
       .should("have.attr", "data-p-sorted", "true")
       .and("have.attr", "aria-sort", "ascending");
 
-    // Check that correct user is shown
+    // Check that correct server is shown
     cy.get('[data-test="server-item"]').should("have.length", 1);
     cy.get('[data-test="server-item"]')
       .eq(0)
@@ -1143,9 +1143,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/1");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/1/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1155,9 +1157,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/2");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/2/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1167,9 +1171,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/3");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/3/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1179,9 +1185,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/4");
         cy.get('[data-test="servers-edit-button" ]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/4/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1207,6 +1215,7 @@ describe("Admin users index", function () {
 
     cy.get('[data-test="servers-add-button"]')
       .should("be.visible")
+      .and("not.be.disabled")
       .and("have.attr", "href", "/admin/servers/new");
 
     cy.get('[data-test="server-item"]').should("have.length", 4);
@@ -1216,9 +1225,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/1");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/1/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1228,9 +1239,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/2");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/2/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1240,9 +1253,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/3");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/3/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1252,15 +1267,17 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/4");
         cy.get('[data-test="servers-edit-button" ]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/4/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
   });
 
-  it("check button visibility with all permissions", function () {
+  it("check button visibility with delete permission", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
@@ -1290,9 +1307,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/1");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/1/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1302,9 +1321,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/2");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/2/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });
@@ -1314,9 +1335,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/3");
         cy.get('[data-test="servers-edit-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/3/edit");
         cy.get('[data-test="servers-delete-button"]').should("be.visible");
       });
@@ -1326,9 +1349,11 @@ describe("Admin users index", function () {
       .within(() => {
         cy.get('[data-test="servers-view-button"]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/4");
         cy.get('[data-test="servers-edit-button" ]')
           .should("be.visible")
+          .and("not.be.disabled")
           .and("have.attr", "href", "/admin/servers/4/edit");
         cy.get('[data-test="servers-delete-button"]').should("not.exist");
       });

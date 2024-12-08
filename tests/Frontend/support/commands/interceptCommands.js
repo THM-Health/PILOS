@@ -229,7 +229,7 @@ Cypress.Commands.add("interceptAdminUsersViewRequests", () => {
 });
 
 /**
- * Intercept all requests that are needed when visiting the admin servers view page
+ * Intercept all requests that are needed when visiting the admin servers index page
  * @memberof cy
  * @method interceptAdminServersIndexRequests
  * @returns void
@@ -238,4 +238,16 @@ Cypress.Commands.add("interceptAdminServersIndexRequests", () => {
   cy.intercept("GET", "api/v1/servers*", {
     fixture: "servers.json",
   }).as("serversRequest");
+});
+
+/**
+ * Intercept all requests that are needed when visiting the admin servers view page
+ * @memberof cy
+ * @method interceptAdminServersViewRequests
+ * @returns void
+ */
+Cypress.Commands.add("interceptAdminServersViewRequests", () => {
+  cy.intercept("GET", "api/v1/servers/1*", {
+    fixture: "server.json",
+  }).as("serverRequest");
 });

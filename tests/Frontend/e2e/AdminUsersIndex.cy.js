@@ -1704,7 +1704,7 @@ describe("Admin users index", function () {
       });
   });
 
-  it("check button visibility with all permissions", function () {
+  it("check button visibility with delete permission", function () {
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",

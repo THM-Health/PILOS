@@ -309,7 +309,6 @@ describe("Admin users view", function () {
         "admin.view",
         "users.viewAny",
         "users.view",
-        "users.create",
         "users.update",
         "roles.viewAny",
       ];
@@ -326,9 +325,12 @@ describe("Admin users view", function () {
     cy.get('[data-test="users-cancel-edit-button"]').should("not.exist");
     cy.get('[data-test="users-edit-button"]')
       .should("be.visible")
+      .and("not.be.disabled")
       .and("include.text", "app.edit")
       .and("have.attr", "href", "/admin/users/2/edit");
-    cy.get('[data-test="users-reset-password-button"]').should("be.visible");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
     cy.get('[data-test="users-delete-button"]').should("not.exist");
   });
 
@@ -339,6 +341,7 @@ describe("Admin users view", function () {
         "users.viewAny",
         "users.view",
         "users.create",
+        "users.update",
         "users.delete",
         "roles.viewAny",
       ];
@@ -353,9 +356,17 @@ describe("Admin users view", function () {
     cy.wait("@userRequest");
 
     cy.get('[data-test="users-cancel-edit-button"]').should("not.exist");
-    cy.get('[data-test="users-edit-button"]').should("not.exist");
-    cy.get('[data-test="users-reset-password-button"]').should("not.exist");
-    cy.get('[data-test="users-delete-button"]').should("be.visible");
+    cy.get('[data-test="users-edit-button"]')
+      .should("be.visible")
+      .and("not.be.disabled")
+      .and("include.text", "app.edit")
+      .and("have.attr", "href", "/admin/users/2/edit");
+    cy.get('[data-test="users-reset-password-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
+    cy.get('[data-test="users-delete-button"]')
+      .should("be.visible")
+      .and("not.be.disabled");
   });
 
   it("open view errors", function () {

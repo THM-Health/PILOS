@@ -42,7 +42,6 @@ describe("Admin users new", function () {
         "users.viewAny",
         "users.view",
         "users.update",
-        "users.delete",
         "roles.viewAny",
       ];
       cy.intercept("GET", "api/v1/currentUser", {
@@ -278,8 +277,7 @@ describe("Admin users new", function () {
       });
 
     // Save new user
-
-    cy.fixture("userDataCurrentUser.json").then((user) => {
+    cy.fixture("userDataUser.json").then((user) => {
       user.data.id = 20;
       user.data.firstname = "Max";
       user.data.email = "Doe";
@@ -559,7 +557,7 @@ describe("Admin users new", function () {
     cy.get('[data-test="new-password-confirmation-field"]').should("not.exist");
 
     // Save new user
-    cy.fixture("userDataCurrentUser.json").then((user) => {
+    cy.fixture("userDataUser.json").then((user) => {
       user.data.id = 20;
       user.data.firstname = "Max";
       user.data.email = "Doe";
@@ -785,6 +783,7 @@ describe("Admin users new", function () {
 
     cy.wait("@newUserRequest");
 
+    // Check that redirect worked and error message is shown
     cy.url().should("include", "/login?redirect=/admin/users/new");
 
     cy.checkToastMessage("app.flash.unauthenticated");
