@@ -327,15 +327,23 @@ describe("Admin users view user actions", function () {
 
     cy.wait("@userRequest");
 
-    // Check that changed were not saved
-    cy.get("#firstname").should("have.value", "Laura");
-    cy.get("#lastname").should("have.value", "Rivera");
+    // Check that changes were not saved
+    cy.get("#firstname").should("have.value", "Laura").and("be.disabled");
+    cy.get("#lastname").should("have.value", "Rivera").and("be.disabled");
     cy.get('[data-test="profile-image-preview"]').should("not.exist");
     cy.get('[data-test="default-profile-image-preview"]')
       .should("be.visible")
       .and("include.text", "LR");
-    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
-    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
+    cy.get('[data-test="locale-dropdown"]')
+      .should("have.text", "English")
+      .within(() => {
+        cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
+      });
+    cy.get('[data-test="timezone-dropdown"]')
+      .should("have.text", "UTC")
+      .within(() => {
+        cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
+      });
 
     // Switch to edit again
     cy.get('[data-test="users-edit-button"]').click();
@@ -345,14 +353,34 @@ describe("Admin users view user actions", function () {
     cy.wait("@userRequest");
 
     // Check that original values are shown
-    cy.get("#firstname").should("have.value", "Laura");
-    cy.get("#lastname").should("have.value", "Rivera");
+    cy.get("#firstname")
+      .should("have.value", "Laura")
+      .should("not.be.disabled");
+    cy.get("#lastname")
+      .should("have.value", "Rivera")
+      .should("not.be.disabled");
     cy.get('[data-test="profile-image-preview"]').should("not.exist");
     cy.get('[data-test="default-profile-image-preview"]')
       .should("be.visible")
       .and("include.text", "LR");
-    cy.get('[data-test="locale-dropdown"]').should("have.text", "English");
-    cy.get('[data-test="timezone-dropdown"]').should("have.text", "UTC");
+    cy.get('[data-test="locale-dropdown"]')
+      .should("have.text", "English")
+      .within(() => {
+        cy.get(".p-select-label").should(
+          "not.have.attr",
+          "aria-disabled",
+          "true",
+        );
+      });
+    cy.get('[data-test="timezone-dropdown"]')
+      .should("have.text", "UTC")
+      .within(() => {
+        cy.get(".p-select-label").should(
+          "not.have.attr",
+          "aria-disabled",
+          "true",
+        );
+      });
 
     // Check email tab
     cy.get('[data-test="email-tab-button"]').click();
@@ -372,7 +400,9 @@ describe("Admin users view user actions", function () {
     // Switch to email tab and check that changes are not saved
     cy.get('[data-test="email-tab-button"]').click();
 
-    cy.get("#email").should("have.value", "LauraWRivera@domain.tld");
+    cy.get("#email")
+      .should("have.value", "LauraWRivera@domain.tld")
+      .should("be.disabled");
 
     // Switch back to edit
     cy.get('[data-test="users-edit-button"]').click();
@@ -385,7 +415,9 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="email-tab-button"]').click();
 
     // Check that original values are shown
-    cy.get("#email").should("have.value", "LauraWRivera@domain.tld");
+    cy.get("#email")
+      .should("have.value", "LauraWRivera@domain.tld")
+      .should("not.be.disabled");
 
     // Check security tab
     cy.get('[data-test="security-tab-button"]').click();
@@ -520,7 +552,9 @@ describe("Admin users view user actions", function () {
     // Switch to others tab and check if changes are not saved
     cy.get('[data-test="others-tab-button"]').click();
 
-    cy.get("#bbb_skip_check_audio").should("not.be.checked");
+    cy.get("#bbb_skip_check_audio")
+      .should("not.be.checked")
+      .should("be.disabled");
 
     // Switch back to edit page
     cy.get('[data-test="users-edit-button"]').click();
@@ -533,6 +567,8 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="others-tab-button"]').click();
 
     // Check that original value is shown
-    cy.get("#bbb_skip_check_audio").should("not.be.checked");
+    cy.get("#bbb_skip_check_audio")
+      .should("not.be.checked")
+      .should("not.be.disabled");
   });
 });

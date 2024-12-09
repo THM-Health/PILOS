@@ -426,5 +426,162 @@ describe("Admin servers view server actions", function () {
     cy.checkToastMessage("app.flash.unauthenticated");
   });
 
-  // ToDo switch between edit and view
+  it("switch between edit and view", function () {
+    cy.visit("/admin/servers/1/edit");
+
+    cy.wait("@serverRequest");
+
+    // Check values and change them
+    cy.get("#name")
+      .should("not.be.disabled")
+      .and("have.value", "Server 01")
+      .clear();
+    cy.get("#name").type("Server 02");
+    cy.get("#description")
+      .should("not.be.disabled")
+      .and("have.value", "Testserver 01")
+      .clear();
+    cy.get("#description").type("Testserver 02 for testing purposes");
+    cy.get("#base_url")
+      .should("not.be.disabled")
+      .and("have.value", "https://localhost/bigbluebutton")
+      .clear();
+    cy.get("#base_url").type("https://localhost/bigbluebutton2");
+    cy.get("#secret")
+      .should("not.be.disabled")
+      .and("have.value", "123456789")
+      .clear();
+    cy.get("#secret").type("Secret123456789");
+    cy.get('[data-test="strength-rating"]').should(
+      "not.have.class",
+      "p-disabled",
+    );
+    for (let i = 0; i < 10; i++) {
+      cy.get('[data-test="strength-rating-option"]')
+        .eq(i)
+        .should("have.attr", "data-p-active", i < 2 ? "true" : "false");
+    }
+    cy.get('[data-test="strength-rating-option"]').eq(5).click();
+    cy.get('[data-test="status-dropdown"]')
+      .should("include.text", "admin.servers.enabled")
+      .within(() => {
+        cy.get(".p-select-label").should(
+          "not.have.attr",
+          "aria-disabled",
+          "true",
+        );
+      });
+    cy.get('[data-test="status-dropdown-items"]').should("not.exist");
+    cy.get('[data-test="status-dropdown"]').click();
+    cy.get('[data-test="status-dropdown-items"]').should("be.visible");
+    cy.get('[data-test="status-dropdown-option"]').eq(2).click();
+
+    // Check that other fields are hidden
+    cy.get('[data-test="meeting-count-field"]').should("not.exist");
+
+    cy.get('[data-test="own-meeting-count-field"]').should("not.exist");
+
+    cy.get('[data-test="participant-count-field"]').should("not.exist");
+
+    cy.get('[data-test="video-count-field"]').should("not.exist");
+
+    // Check that panic button is hidden
+    cy.get('[data-test="servers-panic-button"]').should("not.exist");
+
+    // Switch to view
+    cy.get('[data-test="servers-cancel-edit-button"]').click();
+
+    // Check if redirected to view page
+    cy.url().should("include", "/admin/servers/1");
+    cy.url().should("not.include", "/edit");
+
+    cy.wait("@serverRequest");
+
+    // Check that changes were not saved
+    cy.get("#name").should("be.disabled").and("have.value", "Server 01");
+    cy.get("#description")
+      .should("be.disabled")
+      .and("have.value", "Testserver 01");
+    cy.get("#base_url")
+      .should("be.disabled")
+      .and("have.value", "https://localhost/bigbluebutton");
+    cy.get("#secret").should("be.disabled").and("have.value", "123456789");
+    cy.get('[data-test="strength-rating"]').should("have.class", "p-disabled");
+    for (let i = 0; i < 10; i++) {
+      cy.get('[data-test="strength-rating-option"]')
+        .eq(i)
+        .should("have.attr", "data-p-active", i < 2 ? "true" : "false");
+    }
+    cy.get('[data-test="status-dropdown"]')
+      .should("include.text", "admin.servers.enabled")
+      .within(() => {
+        cy.get(".p-select-label").should("have.attr", "aria-disabled", "true");
+      });
+
+    // Check that other fields and panic button are shown
+    cy.get("#meetingCount")
+      .should("have.value", "3")
+      .and("be.visible")
+      .and("be.disabled");
+    cy.get("#ownMeetingCount")
+      .should("have.value", "2")
+      .and("be.visible")
+      .and("be.disabled");
+    cy.get("#participantCount")
+      .should("have.value", "14")
+      .and("be.visible")
+      .and("be.disabled");
+    cy.get("#videoCount")
+      .should("have.value", "7")
+      .and("be.visible")
+      .and("be.disabled");
+    cy.get('[data-test="servers-panic-button"]').should("be.visible");
+
+    // Switch back to edit
+    cy.get('[data-test="servers-edit-button"]').click();
+
+    // Check if redirected to edit page
+    cy.url().should("include", "/admin/servers/1/edit");
+
+    cy.wait("@serverRequest");
+
+    // Check that original values are shown
+    cy.get("#name").should("not.be.disabled").and("have.value", "Server 01");
+    cy.get("#description")
+      .should("not.be.disabled")
+      .and("have.value", "Testserver 01");
+    cy.get("#base_url")
+      .should("not.be.disabled")
+      .and("have.value", "https://localhost/bigbluebutton");
+    cy.get("#secret").should("not.be.disabled").and("have.value", "123456789");
+    cy.get('[data-test="strength-rating"]').should(
+      "not.have.class",
+      "p-disabled",
+    );
+    for (let i = 0; i < 10; i++) {
+      cy.get('[data-test="strength-rating-option"]')
+        .eq(i)
+        .should("have.attr", "data-p-active", i < 2 ? "true" : "false");
+    }
+    cy.get('[data-test="status-dropdown"]')
+      .should("include.text", "admin.servers.enabled")
+      .within(() => {
+        cy.get(".p-select-label").should(
+          "not.have.attr",
+          "aria-disabled",
+          "true",
+        );
+      });
+    // Check that other fields are hidden
+    cy.get('[data-test="meeting-count-field"]').should("not.exist");
+
+    cy.get('[data-test="own-meeting-count-field"]').should("not.exist");
+
+    cy.get('[data-test="participant-count-field"]').should("not.exist");
+
+    cy.get('[data-test="video-count-field"]').should("not.exist");
+
+    // Check that panic button is hidden
+    cy.get('[data-test="servers-panic-button"]').should("not.exist");
+  });
 });

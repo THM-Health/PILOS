@@ -246,24 +246,24 @@ describe("Admin servers view", function () {
         .then(() => {
           newServerRequest.sendResponse();
         });
-
-      cy.wait("@newServerRequest").then((interception) => {
-        expect(interception.request.body).to.eql({
-          base_url: "https://localhost/bigbluebutton",
-          description: "Testserver 01 for testing purposes",
-          id: null,
-          name: "Server 01",
-          secret: "Secret123456789",
-          status: 1,
-          strength: 6,
-        });
-      });
-
-      cy.wait("@serverRequest");
-
-      // Check that redirect to server view worked
-      cy.url().should("include", "/admin/servers/30");
     });
+
+    cy.wait("@newServerRequest").then((interception) => {
+      expect(interception.request.body).to.eql({
+        base_url: "https://localhost/bigbluebutton",
+        description: "Testserver 01 for testing purposes",
+        id: null,
+        name: "Server 01",
+        secret: "Secret123456789",
+        status: 1,
+        strength: 6,
+      });
+    });
+
+    cy.wait("@serverRequest");
+
+    // Check that redirect to server view worked
+    cy.url().should("include", "/admin/servers/30");
   });
 
   // ToDo 403 error after adjusted
@@ -383,6 +383,34 @@ describe("Admin servers view", function () {
       "not.include.text",
       "The status field is required.",
     );
+
+    // Check with 404 error
+    cy.interceptAdminServersIndexRequests();
+    cy.intercept("POST", "api/v1/servers", {
+      statusCode: 404,
+      body: {
+        message: "No query results for model",
+      },
+    }).as("newServerRequest");
+
+    cy.get('[data-test="servers-save-button"]').click();
+
+    cy.wait("@newServerRequest");
+
+    // Check that redirect worked
+    cy.url().should("not.include", "/admin/servers/new");
+    cy.url().should("include", "/admin/servers");
+
+    cy.wait("@serversRequest");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"No query results for model"}',
+      'app.flash.server_error.error_code_{"statusCode":404}',
+    ]);
+
+    // Reload
+    cy.visit("/admin/servers/new");
 
     // Check with 401 error
     cy.intercept("POST", "api/v1/servers", {

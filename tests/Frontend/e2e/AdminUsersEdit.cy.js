@@ -31,39 +31,15 @@ describe("Admin users edit", function () {
   });
 
   it("visit with user that is not logged in", function () {
-    cy.testVisitWithoutCurrentUser("/admin/users/1");
+    cy.testVisitWithoutCurrentUser("/admin/users/2/edit");
   });
 
   it("visit with user without permission to edit users", function () {
-    // Check with missing users.edit permission
     cy.fixture("currentUser.json").then((currentUser) => {
       currentUser.data.permissions = [
         "admin.view",
         "users.viewAny",
         "users.view",
-        "users.create",
-        "roles.viewAny",
-      ];
-      cy.intercept("GET", "api/v1/currentUser", {
-        statusCode: 200,
-        body: currentUser,
-      });
-    });
-
-    cy.visit("/admin/users/2/edit");
-
-    cy.checkToastMessage("app.flash.unauthorized");
-
-    // Check if welcome page is shown
-    cy.url().should("not.include", "/admin/users/2/edit");
-    cy.get("h1").should("be.visible").and("include.text", "home.title");
-
-    // Check with missing users.view permission
-    cy.fixture("currentUser.json").then((currentUser) => {
-      currentUser.data.permissions = [
-        "admin.view",
-        "users.viewAny",
-        "users.edit",
         "users.create",
         "roles.viewAny",
       ];

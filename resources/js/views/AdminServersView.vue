@@ -355,7 +355,21 @@
           </div>
         </div>
       </div>
-      <ConfirmDialog></ConfirmDialog>
+      <ConfirmDialog
+        data-test="stale-server-dialog"
+        :pt="{
+          pcAcceptButton: {
+            root: {
+              'data-test': 'stale-dialog-accept-button',
+            },
+          },
+          pcRejectButton: {
+            root: {
+              'data-test': 'stale-dialog-reject-button',
+            },
+          },
+        }"
+      ></ConfirmDialog>
     </OverlayComponent>
   </div>
 </template>
