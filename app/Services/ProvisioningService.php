@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ServerStatus;
 use App\Models\Server;
 use Log;
+use UnexpectedValueException;
 
 abstract class AbstractProvisioner
 {
@@ -12,9 +13,16 @@ abstract class AbstractProvisioner
 
     protected string $modelName;
 
-    protected function createWrapper(string $name, callable $callback)
+    protected array $expectedProperties;
+
+    protected function createWrapper(object $properties, callable $callback)
     {
-        Log::notice("Provisioning $this->modelName '$name'");
+        Log::notice("Provisioning $this->modelName '$properties->name'");
+        foreach ($this->expectedProperties as $prop) {
+            if (! isset($properties->$prop)) {
+                throw new UnexpectedValueException("Incomplete $modelName definition");
+            }
+        }
         $item = new $this->model;
         $callback($item);
         $item->save();
@@ -57,9 +65,18 @@ class ServerProvisioner extends AbstractProvisioner
 
     protected string $modelName = 'server';
 
+    protected array $expectedProperties = ['name', 'description', 'endpoint', 'secret', 'strength', 'status'];
+
     public function create(object $properties)
     {
-        $this->createWrapper($properties->name, function ($srv) use ($properties) {
+        $this->createWrapper($properties, function ($srv) use ($properties) {
+            if (! is_int($properties->strength)) {
+                throw new UnexpectedValueException('Server strength must be a number');
+            }
+            $status = "App\Enums\ServerStatus::".strtoupper($properties->status);
+            if (! defined($status)) {
+                throw new UnexpectedValueException('Invalid server status');
+            }
             $srv->name = $properties->name;
             $srv->description = $properties->description;
             $srv->base_url = $properties->endpoint;
@@ -67,8 +84,7 @@ class ServerProvisioner extends AbstractProvisioner
             $srv->strength = $properties->strength;
             // TODO: PHP 8.3 allows the following syntax
             // ServerStatus::{strtoupper($properties->status)}->value;
-            $status = strtoupper($properties->status);
-            $srv->status = \constant("App\Enums\ServerStatus::$status")->value;
+            $srv->status = constant($status)->value;
         });
     }
 
@@ -84,9 +100,11 @@ class ServerPoolProvisioner extends AbstractProvisioner
 
     protected string $modelName = 'server pool';
 
+    protected array $expectedProperties = ['name', 'description', 'servers'];
+
     public function create(object $properties)
     {
-        $this->createWrapper($properties->name, function ($pool) use ($properties) {
+        $this->createWrapper($properties, function ($pool) use ($properties) {
             $pool->name = $properties->name;
             $pool->description = $properties->description;
             $pool->save();
@@ -107,9 +125,11 @@ class RoomTypeProvisioner extends AbstractProvisioner
 
     protected string $modelName = 'room type';
 
+    protected array $expectedProperties = ['name', 'description', 'color', 'server_pool'];
+
     public function create(object $properties)
     {
-        $this->createWrapper($properties->name, function ($type) use ($properties) {
+        $this->createWrapper($properties, function ($type) use ($properties) {
             $type->name = $properties->name;
             $type->description = $properties->description;
             $type->color = $properties->color;
