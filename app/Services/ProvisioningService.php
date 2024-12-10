@@ -101,15 +101,46 @@ class ServerPoolProvisioner extends AbstractProvisioner
     }
 }
 
+class RoomTypeProvisioner extends AbstractProvisioner
+{
+    protected string $model = 'App\Models\RoomType';
+
+    protected string $modelName = 'room type';
+
+    public function create(object $properties)
+    {
+        $this->createWrapper($properties->name, function ($type) use ($properties) {
+            $type->name = $properties->name;
+            $type->description = $properties->description;
+            $type->color = $properties->color;
+            $pool = ServerPool::firstWhere('name', $properties->server_pool);
+            if (is_null($pool)) {
+                Log::error("Could not find server pool '$properties->serverPool'");
+
+                return;
+            }
+            $type->serverPool()->associate($pool);
+        });
+    }
+
+    public function destroy(array $match = [])
+    {
+        $this->destroyWrapper($match);
+    }
+}
+
 class ProvisioningService
 {
     public ServerProvisioner $server;
 
     public ServerPoolProvisioner $serverPool;
 
+    public RoomTypeProvisioner $roomType;
+
     public function __construct()
     {
         $this->server = new ServerProvisioner;
         $this->serverPool = new ServerPoolProvisioner;
+        $this->roomType = new RoomTypeProvisioner;
     }
 }

@@ -35,6 +35,9 @@ class ProvisionCommand extends Command
         $data = json_decode(file_get_contents($this->argument('path')));
 
         // Wipe existing data (order is important!)
+        if ($data->room_types->wipe) {
+            $this->provision->roomType->destroy();
+        }
         if ($data->server_pools->wipe) {
             $this->provision->serverPool->destroy();
         }
@@ -51,6 +54,11 @@ class ProvisionCommand extends Command
         Log::notice('Provisioning {n} server pools', ['n' => count($data->server_pools->add)]);
         foreach ($data->server_pools->add as $item) {
             $this->provision->serverPool->create($item);
+        }
+
+        Log::notice('Provisioning {n} room types', ['n' => count($data->room_types->add)]);
+        foreach ($data->room_types->add as $item) {
+            $this->provision->roomType->create($item);
         }
     }
 }
