@@ -34,12 +34,23 @@ class ProvisionCommand extends Command
     {
         $data = json_decode(file_get_contents($this->argument('path')));
 
+        // Wipe existing data (order is important!)
+        if ($data->server_pools->wipe) {
+            $this->provision->serverPool->destroy();
+        }
         if ($data->servers->wipe) {
             $this->provision->server->destroy();
         }
+
+        // Add new instances
         Log::notice('Provisioning {n} servers', ['n' => count($data->servers->add)]);
         foreach ($data->servers->add as $item) {
             $this->provision->server->create($item);
+        }
+
+        Log::notice('Provisioning {n} server pools', ['n' => count($data->server_pools->add)]);
+        foreach ($data->server_pools->add as $item) {
+            $this->provision->serverPool->create($item);
         }
     }
 }
