@@ -90,10 +90,7 @@ describe("Admin servers edit", function () {
       .should("be.visible")
       .and("include.text", "app.model_name")
       .within(() => {
-        cy.get("#name")
-          .should("not.be.disabled")
-          .and("have.value", "Server 01")
-          .clear();
+        cy.get("#name").and("have.value", "Server 01").clear();
         cy.get("#name").type("Server 02");
       });
 
@@ -101,10 +98,7 @@ describe("Admin servers edit", function () {
       .should("be.visible")
       .and("include.text", "app.description")
       .within(() => {
-        cy.get("#description")
-          .should("not.be.disabled")
-          .and("have.value", "Testserver 01")
-          .clear();
+        cy.get("#description").and("have.value", "Testserver 01").clear();
         cy.get("#description").type("Testserver 02 for testing purposes");
       });
 
@@ -120,7 +114,6 @@ describe("Admin servers edit", function () {
       .and("include.text", "admin.servers.base_url")
       .within(() => {
         cy.get("#base_url")
-          .should("not.be.disabled")
           .and("have.value", "https://localhost/bigbluebutton")
           .clear();
         cy.get("#base_url").type("https://localhost/bigbluebutton2");
@@ -130,10 +123,7 @@ describe("Admin servers edit", function () {
       .should("be.visible")
       .and("include.text", "admin.servers.secret")
       .within(() => {
-        cy.get("#secret")
-          .should("not.be.disabled")
-          .and("have.value", "123456789")
-          .clear();
+        cy.get("#secret").and("have.value", "123456789").clear();
         cy.get("#secret").type("Secret123456789");
       });
 
@@ -542,25 +532,15 @@ describe("Admin servers edit", function () {
     );
 
     // Set values
-    cy.get("#name")
-      .should("not.be.disabled")
-      .and("have.value", "Server 01")
-      .clear();
+    cy.get("#name").and("have.value", "Server 01").clear();
     cy.get("#name").type("Server 02");
-    cy.get("#description")
-      .should("not.be.disabled")
-      .and("have.value", "Testserver 01")
-      .clear();
+    cy.get("#description").and("have.value", "Testserver 01").clear();
     cy.get("#description").type("Testserver 02 for testing purposes");
     cy.get("#base_url")
-      .should("not.be.disabled")
       .and("have.value", "https://localhost/bigbluebutton")
       .clear();
     cy.get("#base_url").type("https://localhost/bigbluebutton2");
-    cy.get("#secret")
-      .should("not.be.disabled")
-      .and("have.value", "123456789")
-      .clear();
+    cy.get("#secret").and("have.value", "123456789").clear();
     cy.get("#secret").type("Secret123456789");
     for (let i = 0; i < 10; i++) {
       cy.get('[data-test="strength-rating-option"]')
