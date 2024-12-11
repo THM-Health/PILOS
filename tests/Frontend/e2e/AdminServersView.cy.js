@@ -218,75 +218,7 @@ describe("Admin servers view", function () {
     cy.get('[data-test="servers-delete-button"]').should("not.exist");
     cy.get('[data-test="servers-save-button"]').should("not.exist");
 
-    // Check that server data is shown correctly
-    cy.get('[data-test="name-field"]')
-      .should("be.visible")
-      .and("include.text", "app.model_name")
-      .within(() => {
-        cy.get("#name").should("have.value", "Server 01").and("be.disabled");
-      });
-
-    cy.get('[data-test="description-field"]')
-      .should("be.visible")
-      .and("include.text", "app.description")
-      .within(() => {
-        cy.get("#description")
-          .should("have.value", "Testserver 01")
-          .and("be.disabled");
-      });
-
-    cy.get('[data-test="version-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.version")
-      .within(() => {
-        cy.get("#version").should("have.value", "2.4.5").and("be.disabled");
-      });
-
-    cy.get('[data-test="base-url-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.base_url")
-      .within(() => {
-        cy.get("#base_url")
-          .should("have.value", "https://localhost/bigbluebutton")
-          .and("be.disabled");
-      });
-
-    cy.get('[data-test="secret-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.secret")
-      .within(() => {
-        cy.get("#secret").should("have.value", "123456789").and("be.disabled");
-      });
-
-    cy.get('[data-test="strength-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.strength")
-      .and("include.text", "admin.servers.strength_description")
-      .within(() => {
-        cy.get('[data-test="strength-rating"]').should(
-          "have.class",
-          "p-disabled",
-        );
-
-        cy.get('[data-test="strength-rating-option"]').should(
-          "have.length",
-          10,
-        );
-
-        // Check that correct options are active
-        for (let i = 0; i < 2; i++) {
-          cy.get('[data-test="strength-rating-option"]')
-            .eq(i)
-            .should("have.attr", "data-p-active", "true");
-        }
-
-        for (let i = 2; i < 10; i++) {
-          cy.get('[data-test="strength-rating-option"]')
-            .eq(i)
-            .should("have.attr", "data-p-active", "false");
-        }
-      });
-
+    // Check that changed fields are shown correctly
     cy.get('[data-test="status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.status")
@@ -314,37 +246,11 @@ describe("Admin servers view", function () {
           .and("not.be.disabled");
       });
 
-    cy.get('[data-test="meeting-count-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.meeting_count")
-      .and("include.text", "admin.servers.meeting_description")
-      .within(() => {
-        cy.get("#meetingCount").should("have.value", "3").and("be.disabled");
-      });
-
-    cy.get('[data-test="own-meeting-count-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.own_meeting_count")
-      .and("include.text", "admin.servers.own_meeting_description")
-      .within(() => {
-        cy.get("#ownMeetingCount").should("have.value", "2").and("be.disabled");
-      });
-
-    cy.get('[data-test="participant-count-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.participant_count")
-      .within(() => {
-        cy.get("#participantCount")
-          .should("have.value", "14")
-          .and("be.disabled");
-      });
-
-    cy.get('[data-test="video-count-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.video_count")
-      .within(() => {
-        cy.get("#videoCount").should("have.value", "7").and("be.disabled");
-      });
+    // Check that additional fields are shown
+    cy.get('[data-test="meeting-count-field"]').should("be.visible");
+    cy.get('[data-test="own-meeting-count-field"]').should("be.visible");
+    cy.get('[data-test="participant-count-field"]').should("be.visible");
+    cy.get('[data-test="video-count-field"]').should("be.visible");
 
     // Check that panic button is hidden (missing permissions)
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
@@ -371,75 +277,7 @@ describe("Admin servers view", function () {
     cy.get('[data-test="servers-delete-button"]').should("not.exist");
     cy.get('[data-test="servers-save-button"]').should("not.exist");
 
-    // Check that server data is shown correctly
-    cy.get('[data-test="name-field"]')
-      .should("be.visible")
-      .and("include.text", "app.model_name")
-      .within(() => {
-        cy.get("#name").should("have.value", "Server 01").and("be.disabled");
-      });
-
-    cy.get('[data-test="description-field"]')
-      .should("be.visible")
-      .and("include.text", "app.description")
-      .within(() => {
-        cy.get("#description")
-          .should("have.value", "Testserver 01")
-          .and("be.disabled");
-      });
-
-    cy.get('[data-test="version-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.version")
-      .within(() => {
-        cy.get("#version").should("have.value", "2.4.5").and("be.disabled");
-      });
-
-    cy.get('[data-test="base-url-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.base_url")
-      .within(() => {
-        cy.get("#base_url")
-          .should("have.value", "https://localhost/bigbluebutton")
-          .and("be.disabled");
-      });
-
-    cy.get('[data-test="secret-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.secret")
-      .within(() => {
-        cy.get("#secret").should("have.value", "123456789").and("be.disabled");
-      });
-
-    cy.get('[data-test="strength-field"]')
-      .should("be.visible")
-      .and("include.text", "admin.servers.strength")
-      .and("include.text", "admin.servers.strength_description")
-      .within(() => {
-        cy.get('[data-test="strength-rating"]').should(
-          "have.class",
-          "p-disabled",
-        );
-
-        cy.get('[data-test="strength-rating-option"]').should(
-          "have.length",
-          10,
-        );
-
-        // Check that correct options are active
-        for (let i = 0; i < 2; i++) {
-          cy.get('[data-test="strength-rating-option"]')
-            .eq(i)
-            .should("have.attr", "data-p-active", "true");
-        }
-
-        for (let i = 2; i < 10; i++) {
-          cy.get('[data-test="strength-rating-option"]')
-            .eq(i)
-            .should("have.attr", "data-p-active", "false");
-        }
-      });
-
+    // Check that changed fields are shown correctly
     cy.get('[data-test="status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.status")
@@ -454,6 +292,7 @@ describe("Admin servers view", function () {
             );
           });
       });
+
     cy.get('[data-test="health-status-field"]')
       .should("be.visible")
       .and("include.text", "admin.servers.connection")
