@@ -238,7 +238,7 @@ Cypress._.times(100, () => {
         });
     });
 
-    it.only("add link", function () {
+    it("add link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description = "<p>Room description</p>";
 
@@ -384,9 +384,9 @@ Cypress._.times(100, () => {
         .and("have.focus")
         .within(() => {
           cy.get("a")
-            .contains("Test Link")
             .should("be.visible")
-            .and("have.attr", "href", "https://example.org/?foo=a&bar=b");
+            .and("have.attr", "href", "https://example.org/?foo=a&bar=b")
+            .should("have.text", "Test Link");
         });
 
       // Check that button is already active before selection
@@ -459,7 +459,7 @@ Cypress._.times(100, () => {
         });
     });
 
-    it.only("delete link", function () {
+    it("delete link", function () {
       cy.fixture("room.json").then((room) => {
         room.data.description =
           '<a href="https://example.org/?foo=a&bar=b">Test Link</a>';
