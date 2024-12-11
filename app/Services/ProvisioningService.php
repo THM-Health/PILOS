@@ -3,25 +3,35 @@
 namespace App\Services;
 
 use App\Enums\ServerStatus;
+use App\Models\RoomType;
 use App\Models\Server;
+use App\Models\ServerPool;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Log;
+use ReflectionClass;
 use UnexpectedValueException;
 
 abstract class AbstractProvisioner
 {
     protected string $model;
 
-    protected string $modelName;
-
     protected array $expectedProperties;
+
+    protected function modelName()
+    {
+        $name = (new ReflectionClass($this->model))->getShortname();
+        $name = preg_replace_callback('/[A-Z]/', fn ($match) => ' '.strtolower($match[0]), $name);
+
+        return ltrim($name);
+    }
 
     protected function createWrapper(object $properties, callable $callback)
     {
-        Log::notice("Provisioning $this->modelName '$properties->name'");
-        foreach ($this->expectedProperties as $prop) {
-            if (! isset($properties->$prop)) {
-                throw new UnexpectedValueException("Incomplete $modelName definition");
-            }
+        Log::notice("Provisioning {$this->modelName()} '$properties->name'");
+        $validator = Validator::make((array) $properties, $this->expectedProperties);
+        if ($validator->fails()) {
+            throw new UnexpectedValueException("Invalid {$this->modelName()} definition");
         }
         $item = new $this->model;
         $callback($item);
@@ -32,9 +42,9 @@ abstract class AbstractProvisioner
     {
         if ($match) {
             $expression = implode(' && ', array_map(fn ($a, $b) => "$a = $b", array_keys($match), array_values($match)));
-            Log::notice("Deleting all {$this->modelName}s matching '$expression'");
+            Log::notice("Deleting all {$this->modelName()}s matching '$expression'");
         } else {
-            Log::notice("Deleting all {$this->modelName}s");
+            Log::notice("Deleting all {$this->modelName()}s");
         }
         $items = $this->model::lazy();
         foreach ($match as $key => $value) {
@@ -45,7 +55,7 @@ abstract class AbstractProvisioner
                 $callback($item);
             }
             if (! $item->delete()) {
-                Log::error("Failed to delete $this->modelName '$item->name'");
+                Log::error("Failed to delete {$this->modelName()} '$item->name'");
             }
         }
     }
@@ -61,18 +71,22 @@ abstract class AbstractProvisioner
 
 class ServerProvisioner extends AbstractProvisioner
 {
-    protected string $model = 'App\Models\Server';
+    protected string $model = Server::class;
 
-    protected string $modelName = 'server';
-
-    protected array $expectedProperties = ['name', 'description', 'endpoint', 'secret', 'strength', 'status'];
+    protected array $expectedProperties = [
+        'name' => 'required|string',
+        'description' => 'required|string',
+        'endpoint' => 'required|string',
+        'secret' => 'required|string',
+        'strength' => 'required|integer|min:1|max:10',
+        // TODO: Make something like this work
+        // 'status' => [Rule::required, Rule::enum(ServerStatus::class)->except(ServerStatus::DRAINING)],
+        'status' => 'required|string',
+    ];
 
     public function create(object $properties)
     {
         $this->createWrapper($properties, function ($srv) use ($properties) {
-            if (! is_int($properties->strength)) {
-                throw new UnexpectedValueException('Server strength must be a number');
-            }
             $status = "App\Enums\ServerStatus::".strtoupper($properties->status);
             if (! defined($status)) {
                 throw new UnexpectedValueException('Invalid server status');
@@ -96,11 +110,13 @@ class ServerProvisioner extends AbstractProvisioner
 
 class ServerPoolProvisioner extends AbstractProvisioner
 {
-    protected string $model = 'App\Models\ServerPool';
+    protected string $model = ServerPool::class;
 
-    protected string $modelName = 'server pool';
-
-    protected array $expectedProperties = ['name', 'description', 'servers'];
+    protected array $expectedProperties = [
+        'name' => 'required|string',
+        'description' => 'required|string',
+        'servers' => 'required|list',
+    ];
 
     public function create(object $properties)
     {
@@ -121,11 +137,14 @@ class ServerPoolProvisioner extends AbstractProvisioner
 
 class RoomTypeProvisioner extends AbstractProvisioner
 {
-    protected string $model = 'App\Models\RoomType';
+    protected string $model = RoomType::class;
 
-    protected string $modelName = 'room type';
-
-    protected array $expectedProperties = ['name', 'description', 'color', 'server_pool'];
+    protected array $expectedProperties = [
+        'name' => 'required|string',
+        'description' => 'required|string',
+        'color' => 'required|string',
+        'server_pool' => 'required|string',
+    ];
 
     public function create(object $properties)
     {

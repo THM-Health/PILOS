@@ -13,28 +13,32 @@ class ProvisioningServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->testServer = (object) [
+            'name' => 'Testserver',
+            'description' => 'a fancy description',
+            'endpoint' => 'https://bbb.testdoma.in',
+            'secret' => 'Xuper$3cr37',
+            'strength' => 5,
+            'status' => 'enabled',
+        ];
+    }
+
     /**
      * Test server creation
      */
     public function test_server_create()
     {
         $svc = new ProvisioningService;
-        $name = 'foo';
-        $endpoint = 'https://bbb.foo.biz';
-        $secret = 'Xuper$3cr37';
-        $properties = [
-            'name' => $name,
-            'description' => 'a fancy description',
-            'endpoint' => $endpoint,
-            'secret' => $secret,
-            'strength' => 5,
-            'status' => 'enabled',
-        ];
-        $svc->server->create((object) $properties);
-        $server = Server::firstWhere('name', $name);
+        $svc->server->create($this->testServer);
+        $server = Server::firstWhere('name', $this->testServer->name);
         $this->assertNotNull($server);
-        $this->assertEquals($endpoint, $server->base_url);
-        $this->assertEquals($secret, $server->secret);
+        $this->assertEquals($this->testServer->description, $server->description);
+        $this->assertEquals($this->testServer->endpoint, $server->base_url);
+        $this->assertEquals($this->testServer->secret, $server->secret);
+        $this->assertEquals($this->testServer->strength, $server->strength);
         $this->assertEquals(ServerStatus::ENABLED, $server->status);
     }
 
@@ -44,20 +48,10 @@ class ProvisioningServiceTest extends TestCase
     public function test_server_create_invalid_status()
     {
         $svc = new ProvisioningService;
-        $name = 'foo';
-        $endpoint = 'https://bbb.foo.biz';
-        $secret = 'Xuper$3cr37';
-        $properties = [
-            'name' => $name,
-            'description' => 'a fancy description',
-            'endpoint' => $endpoint,
-            'secret' => $secret,
-            'strength' => 5,
-            'status' => 'fnord',
-        ];
+        $this->testServer->status = 'fnord';
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid server status');
-        $svc->server->create((object) $properties);
+        $svc->server->create($this->testServer);
     }
 
     /**
@@ -66,20 +60,10 @@ class ProvisioningServiceTest extends TestCase
     public function test_server_create_invalid_strength()
     {
         $svc = new ProvisioningService;
-        $name = 'foo';
-        $endpoint = 'https://bbb.foo.biz';
-        $secret = 'Xuper$3cr37';
-        $properties = [
-            'name' => $name,
-            'description' => 'a fancy description',
-            'endpoint' => $endpoint,
-            'secret' => $secret,
-            'strength' => 'fnord',
-            'status' => 'disabled',
-        ];
+        $this->testServer->strength = 42;
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Server strength must be a number');
-        $svc->server->create((object) $properties);
+        $this->expectExceptionMessage('Invalid server definition');
+        $svc->server->create($this->testServer);
     }
 
     /**
@@ -88,14 +72,9 @@ class ProvisioningServiceTest extends TestCase
     public function test_server_create_incomplete()
     {
         $svc = new ProvisioningService;
-        $properties = [
-            'name' => 'foo',
-            'description' => 'a fancy description',
-            'strength' => 42,
-            'status' => 'disabled',
-        ];
+        unset($this->testServer->secret);
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Incomplete server definition');
-        $svc->server->create((object) $properties);
+        $this->expectExceptionMessage('Invalid server definition');
+        $svc->server->create($this->testServer);
     }
 }
