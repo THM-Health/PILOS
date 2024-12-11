@@ -637,7 +637,6 @@ describe("Admin users new", function () {
     cy.url().should("include", "/admin/users/20");
   });
 
-  // ToDo 403 error after adjusted
   it("add new user errors", function () {
     cy.visit("/admin/users/new");
 

@@ -120,7 +120,7 @@ describe("Admin servers view", function () {
         for (let i = 0; i < 10; i++) {
           cy.get('[data-test="strength-rating-option"]')
             .eq(i)
-            .should("have.attr", "data-p-active", i <= 5 ? "true" : "false");
+            .should("have.attr", "data-p-active", i < 6 ? "true" : "false");
         }
       });
 
@@ -266,7 +266,6 @@ describe("Admin servers view", function () {
     cy.url().should("include", "/admin/servers/30");
   });
 
-  // ToDo 403 error after adjusted
   it("add new server errors", function () {
     cy.visit("/admin/servers/new");
 

@@ -143,6 +143,12 @@ describe("Admin users edit email", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="email-field"]').should(
+      "not.include.text",
+      "The email field is required.",
+    );
+
     // Check with 404 error
     cy.interceptAdminUsersIndexRequests();
 

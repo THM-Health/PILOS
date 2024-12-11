@@ -97,7 +97,6 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-delete-dialog"]').should("not.exist");
   });
 
-  // ToDo 404 error, 403 error after adjustments
   it("delete user errors", function () {
     cy.visit("/admin/users/2");
 
@@ -194,7 +193,6 @@ describe("Admin users view user actions", function () {
     cy.get('[data-test="users-reset-password-dialog"]').should("not.exist");
   });
 
-  //ToDo 404 error, 403 error after adjustments
   it("reset password errors", function () {
     cy.visit("/admin/users/2");
 

@@ -96,7 +96,6 @@ describe("Admin servers view server actions", function () {
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
   });
 
-  //ToDo 404 error, 403 error after adjustments
   it("delete server errors", function () {
     cy.fixture("server.json").then((server) => {
       server.data.status = -1;
@@ -265,7 +264,6 @@ describe("Admin servers view server actions", function () {
     );
   });
 
-  // ToDo 500 error, 401 error after adjustments???
   it("check connection errors", function () {
     cy.visit("/admin/servers/1");
     cy.wait("@serverRequest");
@@ -387,7 +385,6 @@ describe("Admin servers view server actions", function () {
     cy.get('[data-test="servers-panic-button"]').should("not.exist");
   });
 
-  // ToDo 500 error, 401 error after adjustments???
   it("panic errors", function () {
     cy.visit("/admin/servers/1");
 

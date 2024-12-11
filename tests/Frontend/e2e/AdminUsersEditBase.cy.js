@@ -572,6 +572,44 @@ describe("Admin users edit base", function () {
       "The timezone field is required.",
     );
 
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/users/2", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="user-tab-profile-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="firstname-field"]').should(
+      "not.include.text",
+      "The firstname field is required.",
+    );
+
+    cy.get('[data-test="lastname-field"]').should(
+      "not.include.text",
+      "The lastname field is required.",
+    );
+
+    cy.get('[data-test="locale-field"]').should(
+      "not.include.text",
+      "The user locale field is required.",
+    );
+
+    cy.get('[data-test="timezone-field"]').should(
+      "not.include.text",
+      "The timezone field is required.",
+    );
+
     // Check with 428 error (stale error)
     cy.fixture("userDataUser.json").then((user) => {
       user.data.firstname = "Juan";
@@ -613,23 +651,6 @@ describe("Admin users edit base", function () {
 
     // Visit edit page again
     cy.visit("/admin/users/2/edit");
-
-    // Check with 500 error
-    cy.intercept("POST", "api/v1/users/2", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("saveChangesRequest");
-
-    cy.get('[data-test="user-tab-profile-save-button"]').click();
-
-    cy.wait("@saveChangesRequest");
-
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
 
     // Check with 404 error
     cy.interceptAdminUsersIndexRequests();
@@ -756,7 +777,7 @@ describe("Admin users edit base", function () {
       .find(".p-select-label")
       .should("have.attr", "aria-disabled", "true");
 
-    // Reload timezones withouth error
+    // Reload timezones without error
     cy.intercept("GET", "api/v1/getTimezones", {
       fixture: "timezones.json",
     }).as("timezonesRequest");

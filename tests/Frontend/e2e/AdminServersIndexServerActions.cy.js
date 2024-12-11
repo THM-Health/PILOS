@@ -115,7 +115,6 @@ describe("Admin servers index server actions", function () {
     cy.get('[data-test="servers-delete-dialog"]').should("not.exist");
   });
 
-  // ToDo 404 error, 403 error after adjustments
   it("delete server errors", function () {
     cy.visit("admin/servers");
     cy.wait("@serversRequest");

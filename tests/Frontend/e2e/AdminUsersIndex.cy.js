@@ -31,7 +31,6 @@ describe("Admin users index", function () {
     cy.testVisitWithoutCurrentUser("/admin/users");
   });
 
-  // ToDo think about creating custom command for this
   it("visit with user without permission to view users", function () {
     // Check with missing users.viewAny permission
     cy.fixture("currentUser.json").then((currentUser) => {

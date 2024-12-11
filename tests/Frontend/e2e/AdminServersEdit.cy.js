@@ -70,7 +70,7 @@ describe("Admin servers edit", function () {
 
     cy.wait("@serverRequest");
 
-    // Check that loading is donw
+    // Check that loading is done
     cy.get('[data-test="overlay"]').should("not.exist");
 
     // Check that buttons are still hidden (missing permissions)
@@ -166,7 +166,7 @@ describe("Admin servers edit", function () {
         for (let i = 0; i < 10; i++) {
           cy.get('[data-test="strength-rating-option"]')
             .eq(i)
-            .should("have.attr", "data-p-active", i <= 5 ? "true" : "false");
+            .should("have.attr", "data-p-active", i < 6 ? "true" : "false");
         }
       });
 

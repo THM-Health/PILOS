@@ -417,6 +417,12 @@ describe("Admin users edit email", function () {
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
 
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="roles-field"]').should(
+      "not.include.text",
+      "The roles field is required.",
+    );
+
     // Check with 428 error (stale error)
     cy.fixture("userDataUser.json").then((user) => {
       user.data.roles = [
@@ -624,6 +630,17 @@ describe("Admin users edit email", function () {
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="new-password-field"]').should(
+      "not.include.text",
+      "The New password field is required.",
+    );
+
+    cy.get('[data-test="new-password-confirmation-field"]').should(
+      "not.include.text",
+      "The New password confirmation field is required.",
+    );
 
     // Check with 404 error
     cy.get('[data-test="new-password-field"]')

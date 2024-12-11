@@ -118,6 +118,29 @@ describe("Admin users edit others", function () {
       "The bbb skip check audio field is required.",
     );
 
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/users/2", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="user-tab-others-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="bbb-skip-check-audio-field"]').should(
+      "not.include.text",
+      "The bbb skip check audio field is required.",
+    );
+
     // Check with 428 error (stale error)
     cy.fixture("userDataUser.json").then((user) => {
       user.data.bbb_skip_check_audio = true;
@@ -157,23 +180,6 @@ describe("Admin users edit others", function () {
     // Visit edit page again
     cy.visit("/admin/users/2/edit");
     cy.get('[data-test="others-tab-button"]').click();
-
-    // Check with 500 error
-    cy.intercept("POST", "api/v1/users/2", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("saveChangesRequest");
-
-    cy.get('[data-test="user-tab-others-save-button"]').click();
-
-    cy.wait("@saveChangesRequest");
-
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
 
     // Check with 404 error
     cy.interceptAdminUsersIndexRequests();
