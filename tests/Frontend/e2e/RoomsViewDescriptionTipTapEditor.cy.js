@@ -395,16 +395,24 @@ Cypress._.times(110, () => {
         "p-button-primary",
       );
 
-      function selectAll() {
-        cy.get(".tiptap").should("have.focus").type("{selectall}");
+      function selectAll(limit = 5) {
+        if (limit < 0) {
+          throw new Error("Selecting the text failed");
+        }
+
+        cy.get(".tiptap").type("{selectall}");
 
         cy.window().then((win) => {
           const selection = win.getSelection();
           const selectedText = selection.toString();
-          if (selectedText === "Test Link") {
+          try {
+            expect(selectedText).to.eq("Test Link");
             return;
+          } catch {
+            cy.log("Remaining tries to select text: " + limit);
           }
-          selectAll();
+
+          selectAll(limit - 1);
         });
       }
 
