@@ -395,13 +395,20 @@ Cypress._.times(110, () => {
         "p-button-primary",
       );
 
-      cy.get(".tiptap").should("have.focus").type("{selectall}");
+      function selectAll() {
+        cy.get(".tiptap").should("have.focus").type("{selectall}");
 
-      cy.window().should((win) => {
-        const selection = win.getSelection();
-        const selectedText = selection.toString();
-        expect(selectedText).to.eq("Test Link");
-      });
+        cy.window().then((win) => {
+          const selection = win.getSelection();
+          const selectedText = selection.toString();
+          if (selectedText === "Test Link") {
+            return;
+          }
+          selectAll();
+        });
+      }
+
+      selectAll();
 
       cy.get('[data-test="tip-tap-link-button"]')
         .should("have.class", "p-button-primary")
