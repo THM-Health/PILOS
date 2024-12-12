@@ -16,6 +16,7 @@ class ProvisioningServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->svc = new ProvisioningService;
         $this->testServer = (object) [
             'name' => 'Testserver',
             'description' => 'a fancy description',
@@ -24,6 +25,35 @@ class ProvisioningServiceTest extends TestCase
             'strength' => 5,
             'status' => 'enabled',
         ];
+        $this->testServerPool = (object) [
+            'name' => 'Testserver',
+            'description' => 'a fancy description',
+            'servers' => ['Test Server'],
+        ];
+        Server::upsert(
+            [
+                [
+                    'name' => "Existing {$this->testServer->name} 1",
+                    'base_url' => $this->testServer->endpoint,
+                    'secret' => $this->testServer->secret,
+                    'status' => ServerStatus::ENABLED,
+                ],
+                [
+                    'name' => "Existing {$this->testServer->name} 2",
+                    'base_url' => $this->testServer->endpoint,
+                    'secret' => $this->testServer->secret,
+                    'status' => ServerStatus::ENABLED,
+                ],
+                [
+                    'name' => "Existing {$this->testServer->name} 3",
+                    'base_url' => $this->testServer->endpoint,
+                    'secret' => $this->testServer->secret,
+                    'status' => ServerStatus::ENABLED,
+                ],
+            ],
+            uniqueBy: ['name'],
+            update: ['base_url', 'secret', 'status'],
+        );
     }
 
     /**
@@ -31,8 +61,7 @@ class ProvisioningServiceTest extends TestCase
      */
     public function test_server_create()
     {
-        $svc = new ProvisioningService;
-        $svc->server->create($this->testServer);
+        $this->svc->server->create($this->testServer);
         $server = Server::firstWhere('name', $this->testServer->name);
         $this->assertNotNull($server);
         $this->assertEquals($this->testServer->description, $server->description);
@@ -47,11 +76,10 @@ class ProvisioningServiceTest extends TestCase
      */
     public function test_server_create_invalid_status()
     {
-        $svc = new ProvisioningService;
         $this->testServer->status = 'fnord';
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid server status');
-        $svc->server->create($this->testServer);
+        $this->svc->server->create($this->testServer);
     }
 
     /**
@@ -59,11 +87,10 @@ class ProvisioningServiceTest extends TestCase
      */
     public function test_server_create_invalid_strength()
     {
-        $svc = new ProvisioningService;
         $this->testServer->strength = 42;
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid server definition');
-        $svc->server->create($this->testServer);
+        $this->svc->server->create($this->testServer);
     }
 
     /**
@@ -71,10 +98,33 @@ class ProvisioningServiceTest extends TestCase
      */
     public function test_server_create_incomplete()
     {
-        $svc = new ProvisioningService;
         unset($this->testServer->secret);
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid server definition');
-        $svc->server->create($this->testServer);
+        $this->svc->server->create($this->testServer);
+    }
+
+    /**
+     * Test deletion of all servers
+     */
+    public function test_server_delete_all()
+    {
+        $this->assertEquals(3, count(Server::all()));
+        $this->svc->server->destroy();
+        $this->assertEquals(0, count(Server::all()));
+
+    }
+
+    /**
+     * Test deletion of specified server
+     */
+    public function test_server_delete_named()
+    {
+        $this->assertEquals(3, count(Server::all()));
+        $this->svc->server->destroy(['name' => "Existing {$this->testServer->name} 2"]);
+        $this->assertEquals(2, count(Server::all()));
+        $this->assertNull(Server::firstWhere('name', "Existing {$this->testServer->name} 2"));
+        $this->assertNotNull(Server::firstWhere('name', "Existing {$this->testServer->name} 1"));
+        $this->assertNotNull(Server::firstWhere('name', "Existing {$this->testServer->name} 3"));
     }
 }
