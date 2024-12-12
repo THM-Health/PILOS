@@ -5,11 +5,13 @@
         <InputGroup>
           <InputText
             v-model="filter"
+            :disabled="isBusy"
             :placeholder="$t('app.search')"
             @keyup.enter="loadData(1)"
           />
           <Button
             v-tooltip="$t('app.search')"
+            :disabled="isBusy"
             :aria-label="$t('app.search')"
             severity="primary"
             icon="fa-solid fa-magnifying-glass"
