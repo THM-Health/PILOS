@@ -542,6 +542,45 @@ describe("User Profile Base", function () {
       "The timezone field is required.",
     );
 
+    // Check with 500 error
+    cy.intercept("POST", "api/v1/users/1", {
+      statusCode: 500,
+      body: {
+        message: "Test",
+      },
+    }).as("saveChangesRequest");
+
+    cy.get('[data-test="user-tab-profile-save-button"]').click();
+
+    cy.wait("@saveChangesRequest");
+
+    // Check that 422 error messages are hidden
+    cy.get('[data-test="firstname-field"]').should(
+      "not.include.text",
+      "The firstname field is required.",
+    );
+
+    cy.get('[data-test="lastname-field"]').should(
+      "not.include.text",
+      "The lastname field is required.",
+    );
+
+    cy.get('[data-test="locale-field"]').should(
+      "not.include.text",
+      "The user locale field is required.",
+    );
+
+    cy.get('[data-test="timezone-field"]').should(
+      "not.include.text",
+      "The timezone field is required.",
+    );
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
+
     // Check with 428 error (stale error)
     cy.fixture("user.json").then((user) => {
       const newModel = user.data;
@@ -589,23 +628,6 @@ describe("User Profile Base", function () {
       "have.text",
       "Europe/Berlin",
     );
-
-    // Check with 500 error
-    cy.intercept("POST", "api/v1/users/1", {
-      statusCode: 500,
-      body: {
-        message: "Test",
-      },
-    }).as("saveChangesRequest");
-
-    cy.get('[data-test="user-tab-profile-save-button"]').click();
-
-    cy.wait("@saveChangesRequest");
-
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
 
     // Check with 401 error
     cy.intercept("POST", "api/v1/users/1", {
