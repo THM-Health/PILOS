@@ -181,9 +181,10 @@ function handleOk() {
         // room limit exceeded
         if (error.response.status === env.HTTP_ROOM_LIMIT_EXCEEDED) {
           emit("limitReached");
+          modalVisible.value = false;
         }
       }
-      modalVisible.value = false;
+
       api.error(error);
     });
 }

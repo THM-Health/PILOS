@@ -511,17 +511,11 @@ describe("Rooms index create new room", function () {
 
     cy.wait("@createRoomRequest");
 
-    // Check that create room dialog is closed
-    cy.get('[data-test="room-create-dialog"]').should("not.exist");
-
     // Check if error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    // Open dialog again
-    cy.get('[data-test="room-create-button"]').click();
 
     // Check that 422 error messages are hidden
     cy.get('[data-test="room-create-dialog"]')
