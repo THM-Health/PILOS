@@ -138,6 +138,7 @@ function showModal() {
 
 function handleOk() {
   isLoadingAction.value = true;
+  formErrors.clear();
 
   const newRoom = _.clone(room);
   newRoom.room_type = newRoom.room_type ? newRoom.room_type.id : null;
@@ -148,7 +149,6 @@ function handleOk() {
       data: newRoom,
     })
     .then((response) => {
-      formErrors.clear();
       router.push({
         name: "rooms.view",
         params: { id: response.data.data.id },

@@ -1549,6 +1549,7 @@ function loadServerPools(page = 1) {
  */
 function saveRoomType() {
   isBusy.value = true;
+  formErrors.clear();
 
   const config = {
     method: props.id === "new" ? "post" : "put",
@@ -1563,7 +1564,6 @@ function saveRoomType() {
   api
     .call(props.id === "new" ? "roomTypes" : `roomTypes/${props.id}`, config)
     .then((response) => {
-      formErrors.clear();
       router.push({
         name: "admin.room_types.view",
         params: { id: response.data.data.id },
