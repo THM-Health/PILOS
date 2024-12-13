@@ -79,6 +79,9 @@ class UpdateSettings extends FormRequest
 
             'bbb_logo' => ['nullable', 'string', 'max:255'],
             'bbb_logo_file' => ['image:allow_svg', 'max:500'],
+            'bbb_logo_dark' => ['nullable', 'string', 'max:255'],
+            'bbb_logo_dark_file' => ['image:allow_svg', 'max:500'],
+
             'bbb_style' => ['nullable', 'file', 'max:500'],
             'bbb_default_presentation' => ['nullable', 'file', 'max:'.(config('bigbluebutton.max_filesize') * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],
         ];
