@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The recording import task is now prevented from running until the previous run has finished ([#1484], [#1604])
 - Adjust frontend tests to better check the resetting of form errors ([#1679], [#1702])
+- Error handling in create room dialog ([#1704])
 
 ### Fixed
 
@@ -298,6 +299,7 @@ You can find the changelog for older versions there [here](https://github.com/TH
 [#1618]: https://github.com/THM-Health/PILOS/pull/1618
 [#1679]: https://github.com/THM-Health/PILOS/issues/1679
 [#1702]: https://github.com/THM-Health/PILOS/pull/1702
+[#1704]: https://github.com/THM-Health/PILOS/pull/1704
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v4.1.2...develop
 [v3.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.0
 [v3.0.1]: https://github.com/THM-Health/PILOS/releases/tag/v3.0.1
