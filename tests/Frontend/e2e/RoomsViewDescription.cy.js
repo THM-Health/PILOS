@@ -401,16 +401,16 @@ describe("Rooms view description", function () {
 
     cy.wait("@saveDescriptionRequest");
 
-    // Check that error message gets shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
-
     // Check that 422 error message is hidden
     cy.contains(
       "The Description must not be greater than 65000 characters.",
     ).should("not.exist");
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
 
     // Cancel editing
     cy.get('[data-test="room-description-cancel-edit-button"]').click();

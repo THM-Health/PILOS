@@ -635,7 +635,7 @@ describe("Rooms view members bulk actions", function () {
       .should("be.visible")
       .and("not.include.text", "The user 'Laura Rivera' isn't a member.");
 
-    // Check that error is displayed
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',

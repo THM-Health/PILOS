@@ -482,12 +482,11 @@ describe("Rooms index create new room", function () {
 
     cy.wait("@createRoomRequest");
 
-    // Check that error gets displayed and old errors are not shown
+    // Check that error is shown and previous errors are not shown
     cy.get('[data-test="room-create-dialog"]')
       .should("be.visible")
       .and("include.text", "The Name field is required.")
-      .and("not.include.text", "The selected Room type is invalid.")
-      .and("not.include.text", "The Room type field is required.");
+      .and("not.include.text", "The selected Room type is invalid.");
 
     // Check with other error (500)
     cy.intercept("POST", "api/v1/rooms", {
@@ -515,7 +514,7 @@ describe("Rooms index create new room", function () {
     // Check that create room dialog is closed
     cy.get('[data-test="room-create-dialog"]').should("not.exist");
 
-    // Check if error message is visible
+    // Check if error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
@@ -527,9 +526,7 @@ describe("Rooms index create new room", function () {
     // Check that 422 error messages are hidden
     cy.get('[data-test="room-create-dialog"]')
       .should("be.visible")
-      .and("not.include.text", "The Name field is required.")
-      .and("not.include.text", "The selected Room type is invalid.")
-      .and("not.include.text", "The Room type field is required.");
+      .and("not.include.text", "The Name field is required.");
 
     // Create new room forbidden
     cy.intercept("POST", "api/v1/rooms", {

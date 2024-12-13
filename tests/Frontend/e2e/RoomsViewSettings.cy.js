@@ -1419,12 +1419,6 @@ describe("Rooms view settings", function () {
 
     cy.wait("@roomSettingsSaveRequest");
 
-    // Check that error message is shown
-    cy.checkToastMessage([
-      'app.flash.server_error.message_{"message":"Test"}',
-      'app.flash.server_error.error_code_{"statusCode":500}',
-    ]);
-
     // Check that 422 error messages are hidden
     cy.get('[data-test="access-code-setting"]').should(
       "not.include.text",
@@ -1446,6 +1440,12 @@ describe("Rooms view settings", function () {
       "not.include.text",
       "The Allow guests field is required.",
     );
+
+    // Check that error message is shown
+    cy.checkToastMessage([
+      'app.flash.server_error.message_{"message":"Test"}',
+      'app.flash.server_error.error_code_{"statusCode":500}',
+    ]);
 
     cy.checkRoomAuthErrors(
       () => {
@@ -2034,16 +2034,16 @@ describe("Rooms view settings", function () {
 
     cy.wait("@transferOwnershipRequest");
 
+    // Check that dialog stays open and 422 error message is hidden
+    cy.get('[data-test="room-transfer-ownership-dialog"]')
+      .should("be.visible")
+      .and("not.include.text", "The selected user can not own rooms.");
+
     // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
     ]);
-
-    // Check that dialog stays open and 422 error message is hidden
-    cy.get('[data-test="room-transfer-ownership-dialog"]')
-      .should("be.visible")
-      .and("not.include.text", "The selected user can not own rooms.");
 
     // Close dialog
     cy.get('[data-test="dialog-cancel-button"]').click();

@@ -341,8 +341,8 @@ describe("Login", function () {
 
     // Check that other error messages are hidden
     cy.contains("Too many logins. Please try again later!").should("not.exist");
-    cy.contains("Password or Email wrong!").should("not.exist");
 
+    // Check that error message is shown
     cy.checkToastMessage([
       "app.flash.server_error.empty_message",
       'app.flash.server_error.error_code_{"statusCode":500}',

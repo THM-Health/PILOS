@@ -396,7 +396,7 @@ describe("Rooms view members member actions", function () {
       .and("not.include.text", "The user is already member of the room.")
       .and("not.include.text", "The Role field is required.");
 
-    // Check that error message gets shown
+    // Check that error message is shown
     cy.checkToastMessage([
       'app.flash.server_error.message_{"message":"Test"}',
       'app.flash.server_error.error_code_{"statusCode":500}',
