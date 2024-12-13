@@ -18,7 +18,7 @@ as fast as possible without any additional discussions.
 ## Implementation
 
 In case if you have a solution for a bug, or you want to implement a new feature please fork this repository, create a
-new branch, implement the solution by following the [Styleguide](#styleguide) and afterwards create a pull request to
+new branch, implement the solution by following the [Styleguide](./05-code-style.md) and afterwards create a pull request to
 this repository. Please also don't forget to update the `CHANGELOG.md` under the section `Unreleased`. After
 creating a pull request fulfill the checklist in the template. Only if everything done and the PR is linked to an
 existing issue, the pull request will be checked by a maintainer of this repository.

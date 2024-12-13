@@ -60,6 +60,10 @@ const config = {
     ],
   ],
 
+  future: {
+    experimental_faster: true,
+  },
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
